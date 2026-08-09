@@ -1,0 +1,29 @@
+@import "tailwindcss";
+
+@theme {
+  --animate-marquee: marquee 20s linear infinite;
+
+  @keyframes marquee {
+    0% { transform: translateX(100%); }
+    100% { transform: translateX(-100%); }
+  }
+
+  @keyframes progressCrawl {
+    0% { width: 0%; opacity: 0.8; }
+    50% { width: 75%; opacity: 0.95; }
+    100% { width: 100%; opacity: 0.8; }
+  }
+
+  @keyframes shimmerSlide {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(200%); }
+  }
+}
+
+.animate-progress-crawl {
+  animation: progressCrawl 2.5s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+
+.animate-shimmer-slide {
+  animation: shimmerSlide 1.8s ease-in-out infinite;
+}
