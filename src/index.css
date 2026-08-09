@@ -20,6 +20,36 @@
   }
 }
 
+/* Global Custom Unified Scrollbars */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #334155 #090d16;
+}
+
+::-webkit-scrollbar {
+  width: 7px;
+  height: 7px;
+}
+
+::-webkit-scrollbar-track {
+  background: #090d16;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #334155;
+  border-radius: 4px;
+  border: 1px solid rgba(15, 23, 42, 0.6);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #0ea5e9;
+}
+
+::-webkit-scrollbar-corner {
+  background: #090d16;
+}
+
 .animate-progress-crawl {
   animation: progressCrawl 2.5s cubic-bezier(0.4, 0, 0.2, 1) infinite;
 }
@@ -27,3 +57,4 @@
 .animate-shimmer-slide {
   animation: shimmerSlide 1.8s ease-in-out infinite;
 }
+
