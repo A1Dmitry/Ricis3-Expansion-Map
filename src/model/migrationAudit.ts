@@ -2,7 +2,7 @@ import { MapState, ProblemNode, DependencyEdge, NodeState } from './types';
 import { KNOWN_SINGULARITY_PROBLEMS } from './catalog';
 import { initialMap } from './initialMap';
 import { dbGetMigrationState, dbSetMigrationState, dbSaveMap } from './db';
-import { auditMapRicisProofIntegrity } from './audit';
+import { auditMapRicisProofIntegrity, nodeHasSorry } from './audit';
 import { buildCanonicalRicisProofLatex } from './ricisCoreRules';
 
 export const CURRENT_MIGRATION_VERSION = 4;
@@ -100,10 +100,17 @@ function pickDefaultRootForNode(node: ProblemNode): string {
 /** Recolor edge state */
 function getEdgeColor(fromNode?: ProblemNode, toNode?: ProblemNode): 'green' | 'yellow' | 'red' {
   if (!fromNode || !toNode) return 'red';
-  const fromOk = fromNode.state === 'resolved' && Boolean(fromNode.targetFunction?.trim());
-  const toOk = toNode.state === 'resolved' && Boolean(toNode.targetFunction?.trim());
+  const fromOk = fromNode.state === 'resolved' && Boolean(fromNode.targetFunction?.trim()) && !nodeHasSorry(fromNode);
+  const toOk = toNode.state === 'resolved' && Boolean(toNode.targetFunction?.trim()) && !nodeHasSorry(toNode);
   if (fromOk && toOk) return 'green';
-  if (fromNode.state === 'resolved' || toNode.state === 'resolved' || fromNode.state === 'partial' || toNode.state === 'partial') {
+  if (
+    fromNode.state === 'resolved' ||
+    toNode.state === 'resolved' ||
+    fromNode.state === 'partial' ||
+    toNode.state === 'partial' ||
+    nodeHasSorry(fromNode) ||
+    nodeHasSorry(toNode)
+  ) {
     return 'yellow';
   }
   return 'red';

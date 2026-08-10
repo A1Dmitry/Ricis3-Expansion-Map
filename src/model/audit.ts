@@ -1,6 +1,19 @@
-import { MapState, ProblemNode, DependencyEdge, NodeState } from './types';
+import { MapState, ProblemNode, DependencyEdge, NodeState, Proof } from './types';
 import { walkGraph } from './agent';
-import { auditProofContent, buildCanonicalRicisProofLatex } from './ricisCoreRules';
+import { auditProofContent, buildCanonicalRicisProofLatex, containsSorry } from './ricisCoreRules';
+
+/** Check if a node or its associated proof/Lean code contains 'sorry' keyword (unproven stub). */
+export function nodeHasSorry(node: ProblemNode, proof?: Proof): boolean {
+  if (containsSorry(node.targetFunction)) return true;
+  if (containsSorry(node.description)) return true;
+  if (containsSorry(node.singularityHint)) return true;
+  if (proof) {
+    if (containsSorry(proof.latex)) return true;
+    if (containsSorry(proof.finalResult)) return true;
+    if (proof.steps?.some(s => containsSorry(s.action) || containsSorry(s.expression))) return true;
+  }
+  return false;
+}
 
 /** Detect if user entered a request asking the AI to find or search the formula automatically. */
 export function isAutoFormulaRequest(str?: string): boolean {
@@ -38,15 +51,18 @@ export function findNodesMissingTarget(map: MapState): ProblemNode[] {
   return missing;
 }
 
-/** Recolor edges: green only if both ends resolved AND both have targetFunction. */
+/** Recolor edges: green only if both ends resolved AND neither has missing target or sorry. */
 export function recolorEdgesForTargets(map: MapState): DependencyEdge[] {
   const byId = new Map(map.nodes.map(n => [n.id, n]));
+  const proofs = map.proofs || {};
   return map.edges.map(e => {
     const a = byId.get(e.fromId);
     const b = byId.get(e.toId);
     if (!a || !b) return { ...e, stateColor: 'red' as const };
-    const aOk = a.state === 'resolved' && !isMissingTargetFunction(a);
-    const bOk = b.state === 'resolved' && !isMissingTargetFunction(b);
+    const aSorry = nodeHasSorry(a, proofs[a.id]);
+    const bSorry = nodeHasSorry(b, proofs[b.id]);
+    const aOk = a.state === 'resolved' && !isMissingTargetFunction(a) && !aSorry;
+    const bOk = b.state === 'resolved' && !isMissingTargetFunction(b) && !bSorry;
     if (aOk && bOk) return { ...e, stateColor: 'green' as const };
     if (
       a.state === 'resolved' ||
@@ -54,7 +70,9 @@ export function recolorEdgesForTargets(map: MapState): DependencyEdge[] {
       a.state === 'partial' ||
       b.state === 'partial' ||
       isMissingTargetFunction(a) ||
-      isMissingTargetFunction(b)
+      isMissingTargetFunction(b) ||
+      aSorry ||
+      bSorry
     ) {
       return { ...e, stateColor: 'yellow' as const };
     }
@@ -70,16 +88,18 @@ export type AuditReport = {
 };
 
 /**
- * Command 1: walk entire tree; nodes without targetFunction become partial (yellow).
- * Resolved nodes missing target are demoted to partial.
+ * Command 1: walk entire tree; nodes without targetFunction or containing 'sorry' become partial (yellow).
+ * Resolved nodes missing target or containing 'sorry' are demoted to partial.
  */
 export function auditMarkMissingTargets(map: MapState): AuditReport {
   const missing = findNodesMissingTarget(map);
   const missingIds = missing.map(n => n.id);
   const demotedIds: string[] = [];
+  const proofs = map.proofs || {};
 
   const nodes = map.nodes.map(n => {
-    if (!isMissingTargetFunction(n)) return n;
+    const hasSorry = nodeHasSorry(n, proofs[n.id]);
+    if (!isMissingTargetFunction(n) && !hasSorry) return n;
     if (n.state === 'resolved' || n.state === 'unresolved') {
       demotedIds.push(n.id);
       return { ...n, state: 'partial' as NodeState };
@@ -90,7 +110,7 @@ export function auditMarkMissingTargets(map: MapState): AuditReport {
   const next: MapState = {
     ...map,
     nodes,
-    edges: recolorEdgesForTargets({ ...map, nodes }),
+    edges: recolorEdgesForTargets({ ...map, nodes, proofs }),
   };
 
   return {
@@ -213,14 +233,23 @@ export async function fillMissingTargetFunctions(
  */
 export function auditMapRicisProofIntegrity(map: MapState): { map: MapState; repairedProofsCount: number } {
   const proofs = { ...(map.proofs || {}) };
-  const nodeMap = new Map((map.nodes || []).map(n => [n.id, n]));
+  let nodes = [...(map.nodes || [])];
+  const nodeMap = new Map(nodes.map(n => [n.id, n]));
   let repairedProofsCount = 0;
 
   for (const [nodeId, proof] of Object.entries(proofs)) {
     if (!proof || !proof.latex) continue;
     const audit = auditProofContent(proof.latex);
-    if (!audit.isValid) {
-      const node = nodeMap.get(nodeId);
+    const node = nodeMap.get(nodeId);
+
+    if (node) {
+      const hasSorry = nodeHasSorry(node, proof);
+      if (hasSorry && node.state === 'resolved') {
+        nodes = nodes.map(n => n.id === nodeId ? { ...n, state: 'partial' as NodeState } : n);
+      }
+    }
+
+    if (!audit.isValid && !containsSorry(proof.latex)) {
       const title = node?.title || 'Сингулярная проблема';
       const tf = node?.targetFunction || proof.targetFunction || '';
       
@@ -233,10 +262,16 @@ export function auditMapRicisProofIntegrity(map: MapState): { map: MapState; rep
     }
   }
 
+  const updatedMap: MapState = {
+    ...map,
+    nodes,
+    proofs,
+  };
+
   return {
     map: {
-      ...map,
-      proofs,
+      ...updatedMap,
+      edges: recolorEdgesForTargets(updatedMap),
     },
     repairedProofsCount,
   };

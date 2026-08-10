@@ -17,7 +17,7 @@ import { ZoneBubble, ZoneLabel, NodeBubble, NodeLabel } from './Bubbles';
 import { downloadTexPreprint, type TexBridgeMode, expandToRoot } from '../model/texPreprint';
 import { AuditPanel } from './AuditPanel';
 import { NodeCardDetails } from './NodeCardDetails';
-import { isMissingTargetFunction } from '../model/audit';
+import { isMissingTargetFunction, nodeHasSorry } from '../model/audit';
 import { ActionButton } from './ActionButton';
 
 
@@ -521,10 +521,12 @@ export const Map3D: React.FC = () => {
         pathEdgeKeys.has(edge.toId + '|' + edge.fromId);
       const fromN = map.nodes.find(n => n.id === edge.fromId);
       const toN = map.nodes.find(n => n.id === edge.toId);
-      const fromResolved = nodeStateById[edge.fromId] === 'resolved' && fromN && !isMissingTargetFunction(fromN);
-      const toResolved = nodeStateById[edge.toId] === 'resolved' && toN && !isMissingTargetFunction(toN);
-      const fromPartial = nodeStateById[edge.fromId] === 'partial' || (fromN && isMissingTargetFunction(fromN));
-      const toPartial = nodeStateById[edge.toId] === 'partial' || (toN && isMissingTargetFunction(toN));
+      const fromSorry = fromN ? nodeHasSorry(fromN, map.proofs?.[fromN.id]) : false;
+      const toSorry = toN ? nodeHasSorry(toN, map.proofs?.[toN.id]) : false;
+      const fromResolved = nodeStateById[edge.fromId] === 'resolved' && fromN && !isMissingTargetFunction(fromN) && !fromSorry;
+      const toResolved = nodeStateById[edge.toId] === 'resolved' && toN && !isMissingTargetFunction(toN) && !toSorry;
+      const fromPartial = nodeStateById[edge.fromId] === 'partial' || (fromN && isMissingTargetFunction(fromN)) || fromSorry;
+      const toPartial = nodeStateById[edge.toId] === 'partial' || (toN && isMissingTargetFunction(toN)) || toSorry;
       let color = '#ef4444';
       let opacity = 0.3;
       if (onPath) {
@@ -941,10 +943,12 @@ export const Map3D: React.FC = () => {
               const isDeriv =
                 node.type === 'derivative_claim' || node.isDerivativeClaim === true;
 
+              const hasSorry = nodeHasSorry(node, map.proofs?.[node.id]);
+
               let color = '#ef4444';
               if (isDeriv) color = '#a855f7';
-              else if (node.state === 'resolved' && !isMissingTargetFunction(node)) color = '#22c55e';
-              else if (node.state === 'partial' || isMissingTargetFunction(node)) color = '#eab308';
+              else if (node.state === 'resolved' && !isMissingTargetFunction(node) && !hasSorry) color = '#22c55e';
+              else if (node.state === 'partial' || isMissingTargetFunction(node) || hasSorry) color = '#eab308';
               else if (locked) color = '#6b7280';
               if (onPath && !isDeriv) color = locked ? '#94a3b8' : '#22d3ee';
 
@@ -1103,7 +1107,16 @@ export const Map3D: React.FC = () => {
                 );
               })()}
               <div className="mb-3 flex gap-2 flex-wrap">
-                <span className={'px-2 py-0.5 rounded text-[9px] font-bold uppercase ' + (selectedNode.state === 'resolved' ? 'bg-green-900/50 text-green-400' : selectedNode.state === 'partial' ? 'bg-yellow-900/50 text-yellow-400' : 'bg-red-900/50 text-red-400')}>{selectedNode.state}</span>
+                {(() => {
+                  const hasSorry = nodeHasSorry(selectedNode, map.proofs?.[selectedNode.id]);
+                  const isOk = selectedNode.state === 'resolved' && !isMissingTargetFunction(selectedNode) && !hasSorry;
+                  const isPartial = selectedNode.state === 'partial' || isMissingTargetFunction(selectedNode) || hasSorry;
+                  return (
+                    <span className={'px-2 py-0.5 rounded text-[9px] font-bold uppercase ' + (isOk ? 'bg-green-900/50 text-green-400 border border-green-700/60' : isPartial ? 'bg-yellow-900/50 text-yellow-400 border border-yellow-700/60' : 'bg-red-900/50 text-red-400 border border-red-700/60')}>
+                      {isOk ? 'RESOLVED' : isPartial ? (hasSorry ? 'PARTIAL (SORRY)' : 'PARTIAL') : 'UNRESOLVED'}
+                    </span>
+                  );
+                })()}
                 {!isNodeAvailable(selectedNode, map) && selectedNode.state !== 'resolved' && (
                   <span className="px-2 py-0.5 rounded text-[9px] font-bold uppercase bg-gray-800 text-gray-400 border border-gray-700">LOCKED</span>
                 )}

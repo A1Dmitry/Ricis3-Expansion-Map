@@ -4,7 +4,8 @@ import {
   isErrorProofLatex,
   repairAgentLatex,
 } from './latexGuard';
-import { auditProofContent, buildCanonicalRicisProofLatex } from './ricisCoreRules';
+import { auditProofContent, buildCanonicalRicisProofLatex, containsSorry } from './ricisCoreRules';
+import { nodeHasSorry, recolorEdgesForTargets } from './audit';
 
 import { KNOWN_SINGULARITY_PROBLEMS } from './catalog';
 
@@ -143,7 +144,10 @@ export async function solveNodeLogic(map: MapState, nodeId: string): Promise<Map
   const node = map.nodes.find(n => n.id === nodeId);
   if (!node) return map;
 
-  const updatedNode = { ...node, state: 'resolved' as const };
+  const proof = await generateProof(node, map.axioms);
+  const hasSorry = nodeHasSorry(node, proof);
+
+  const updatedNode: ProblemNode = { ...node, state: hasSorry ? 'partial' : 'resolved' };
 
   const updatedNodes = map.nodes.map(n => {
     if (n.id === nodeId) return updatedNode;
@@ -167,28 +171,20 @@ export async function solveNodeLogic(map: MapState, nodeId: string): Promise<Map
     usedByNodeIds: [],
   };
 
-  const nodeState = (id: string) =>
-    id === nodeId
-      ? 'resolved'
-      : updatedNodes.find(n => n.id === id)?.state ?? 'unresolved';
-  const updatedEdges = map.edges.map(e => {
-    const bothResolved =
-      nodeState(e.fromId) === 'resolved' && nodeState(e.toId) === 'resolved';
-    if (bothResolved) return { ...e, stateColor: 'green' as const };
-    if (e.fromId === nodeId || e.toId === nodeId) {
-      return { ...e, stateColor: 'yellow' as const };
-    }
-    return e;
-  });
+  const newProofs = { ...map.proofs, [nodeId]: proof };
 
-  const proof = await generateProof(node, map.axioms);
-
-  const newMap = {
+  const tempMap: MapState = {
     ...map,
     nodes: updatedNodes,
-    edges: updatedEdges,
     axioms: [...map.axioms, axiom],
-    proofs: { ...map.proofs, [nodeId]: proof },
+    proofs: newProofs,
+  };
+
+  const updatedEdges = recolorEdgesForTargets(tempMap);
+
+  const newMap: MapState = {
+    ...tempMap,
+    edges: updatedEdges,
   };
 
   return expandFractal(newMap, node.id);

@@ -65,6 +65,11 @@ export interface RicisAuditResult {
   containsPlaceholders: boolean;
 }
 
+export function containsSorry(text: string | null | undefined): boolean {
+  if (!text) return false;
+  return /\bsorry\b/i.test(String(text));
+}
+
 /**
  * DRY Audit function for evaluating any RICIS proof text / LaTeX.
  */
@@ -72,12 +77,20 @@ export function auditProofContent(proofText: string): RicisAuditResult {
   const text = String(proofText || '');
   const issues: string[] = [];
 
-  const containsLeanRef = text.includes(LEAN_SPEC_DOI) || text.includes('zenodo.21836220');
+  const containsLeanRef =
+    text.includes(LEAN_SPEC_DOI) ||
+    text.includes('zenodo.21836220') ||
+    text.includes('zenodo.17872755') ||
+    Object.values(OFFICIAL_ZENODO_DOIS).some(doi => text.includes(doi));
   const containsAxiomA6 = /0_?[FG]\s*[*×\cdot]\s*\\?infty_?[FG]|0_F\s*\*|det\(/i.test(text) || text.includes('F^2') || text.includes('F * G');
+  const containsSorryFlag = containsSorry(text);
   
   // Check for forbidden placeholders or undefined states
   const forbiddenPlaceholders = ['0_E', 'Reduced(E)', 'Result = Result', 'T(target)', 'undefined', 'NaN', 'Division by Zero'];
   const foundPlaceholders = forbiddenPlaceholders.filter(p => text.includes(p));
+  if (containsSorryFlag) {
+    foundPlaceholders.push('sorry');
+  }
   const containsPlaceholders = foundPlaceholders.length > 0;
 
   if (!containsLeanRef) {
@@ -86,17 +99,20 @@ export function auditProofContent(proofText: string): RicisAuditResult {
   if (!containsAxiomA6) {
     issues.push('Отсутствует явное вычисление через Аксиому A6 (0_F * \\infty_G = F*G или 0_F * \\infty_F = F^2)');
   }
-  if (containsPlaceholders) {
+  if (containsSorryFlag) {
+    issues.push('Обнаружена незавершенная лемма/заглушка "sorry" (требуется ЖЕЛТЫЙ статус / partial)');
+  } else if (containsPlaceholders) {
     issues.push(`Обнаружены запрещенные заглушки/неопределенности: ${foundPlaceholders.join(', ')}`);
   }
 
   let score = 100;
   if (!containsLeanRef) score -= 30;
   if (!containsAxiomA6) score -= 30;
-  if (containsPlaceholders) score -= 40;
+  if (containsSorryFlag) score -= 60;
+  else if (containsPlaceholders) score -= 40;
 
   return {
-    isValid: score >= 70 && !containsPlaceholders,
+    isValid: score >= 70 && !containsPlaceholders && !containsSorryFlag,
     score: Math.max(0, score),
     issues,
     containsLeanRef,

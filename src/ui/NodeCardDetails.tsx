@@ -1,5 +1,6 @@
 import React from 'react';
 import type { ProblemNode } from '../model/types';
+import { isMissingTargetFunction, nodeHasSorry } from '../model/audit';
 
 /** Normalize URL: add https:// if scheme is missing (www. or domain-like). */
 function normalizeUrl(raw: string): string {
@@ -207,11 +208,25 @@ export const NodeCardDetails: React.FC<Props> = ({ node, isExpanded }) => {
           <p className="text-[9px] font-bold uppercase text-cyan-400 tracking-wider">
             Ссылки и первоисточники
           </p>
-          {node.state === 'resolved' && (
-            <span className="text-[8px] font-bold uppercase px-1.5 py-0.5 rounded bg-emerald-950/80 text-emerald-400 border border-emerald-800/60">
-              Решено (Resolved)
-            </span>
-          )}
+          {(() => {
+            const hasSorry = nodeHasSorry(node);
+            const isMissingTf = isMissingTargetFunction(node);
+            if (node.state === 'resolved' && !isMissingTf && !hasSorry) {
+              return (
+                <span className="text-[8px] font-bold uppercase px-1.5 py-0.5 rounded bg-emerald-950/80 text-emerald-400 border border-emerald-800/60">
+                  Решено (Resolved)
+                </span>
+              );
+            }
+            if (node.state === 'partial' || isMissingTf || hasSorry) {
+              return (
+                <span className="text-[8px] font-bold uppercase px-1.5 py-0.5 rounded bg-yellow-950/80 text-yellow-400 border border-yellow-800/60">
+                  {hasSorry ? 'Частично (Заглушка sorry)' : 'Частично (Partial)'}
+                </span>
+              );
+            }
+            return null;
+          })()}
         </div>
 
         <div className="flex flex-col gap-1.5 text-[11px]">
