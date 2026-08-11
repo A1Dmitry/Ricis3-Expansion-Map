@@ -653,6 +653,26 @@ export const initialMap: MapState = {
         },
         "ricisSolvable": true
     },
+    {
+      "id": "ricis-chatbot-monetization",
+      "title": "Монетизация через RICIS-III Чат-Бот: Разрешение Сингулярностей и Авто-Обучение БД",
+      "description": "ПЛАН МОНЕТИЗАЦИИ И СЕРВИСНОЙ АРХИТЕКТУРЫ RICIS-III:\n\n1. КОНЦЕПЦИЯ И ЧАТ-БОТ ИНТЕРФЕЙС:\n• Чат-бот (Telegram / Web / API-gateway) принимает пользовательские математические и физические проблемы с сингулярностями (0/0, 0 * inf, пределы lim, взрывы градиентов).\n• Бот выполняет детерминированный прогон через аксиоматический движок RICIS-III (SP1-SP4, Аксиома A6, дискретная маска Мерсенна M_k).\n\n2. АВТО-ОБУЧЕНИЕ И ПОПОЛНЕНИЕ ЕДИНОЙ БАЗЫ ЗНАНИЙ:\n• Каждое полученное доказательство (Lean 4 + LaTeX) автоматически записывается в общую базу данных (IndexedDB / Cloud SQL).\n• Агент RICIS-III мгновенно перезапускает авто-обучение (Agent Training Memory) на пополняемой базе доказательств, непрерывно повышая точность и ценность системы.\n\n3. СТРАТЕГИЯ МОНЕТИЗАЦИИ (B2C + B2B):\n• B2C / Freemium: Базовый анализ сингулярностей — бесплатно; глубокая генерация Lean 4 сертификатов и вывод в Zenodo DOI — по подписке (SaaS) / Pay-Per-Proof.\n• B2B API / LLM Shield: Встраиваемый API-модуль для разработчиков нейросетей для устранения деления на ноль и взрыва градиентов на лету.\n• Marketplace Доказательств: Фиксация авторского приоритета (Digital Provenance) и продажа проверенных сертификатов.\n\n4. ПОДСКАЗКА АГЕНТУ ПРИ ПЕРЕРАСЧЕТЕ:\nВычислить экономическую функцию ценности базы V(N) = V_0 + alpha * N * log2(N) при добавлении N решений через чат-бот, задать битность маски log2(sqr(N)) и оптимизировать тарифный шаг.",
+      "state": "unresolved",
+      "type": "scientific_task",
+      "targetFunction": "V(N) = V_0 + \\alpha \\cdot N \\cdot \\log_2(N) \\quad [0_F \\times \\infty_G = F \\cdot G]",
+      "zoneIds": ["informatics", "economics"],
+      "dependencyIds": ["core-agi-target", "ai-authorship-provenance"],
+      "dependentIds": ["econ-value"],
+      "fractalDepth": 1,
+      "economic": {
+        "costUnresolved": 500000000,
+        "costToSolve": 10000000,
+        "marketGain": 2500000000,
+        "riskLoss": 100000000
+      },
+      "singularityHint": "Монетизация масштабирования базы знаний N * log2(N) с авто-пополнением через Чат-Бот",
+      "ricisSolvable": true
+    }
   ],
   edges: [
     { id: 'edge-1', fromId: 'core-agi-target', toId: 'med-diagnostics', strength: 0.9, stateColor: 'red', economicInfluence: 0.7 },
@@ -665,6 +685,8 @@ export const initialMap: MapState = {
     { id: 'edge-agi-provenance', fromId: 'core-agi-target', toId: 'ai-authorship-provenance', strength: 0.9, stateColor: 'green', economicInfluence: 0.9 },
     { id: 'edge-math-provenance', fromId: 'math-singularity', toId: 'ai-authorship-provenance', strength: 0.9, stateColor: 'green', economicInfluence: 0.9 },
     { id: 'edge-provenance-ethic', fromId: 'ai-authorship-provenance', toId: 'ethic-alignment', strength: 0.8, stateColor: 'green', economicInfluence: 0.7 },
+    { id: 'edge-chatbot-monetization', fromId: 'ai-authorship-provenance', toId: 'ricis-chatbot-monetization', strength: 0.95, stateColor: 'red', economicInfluence: 0.95 },
+    { id: 'edge-chatbot-econ', fromId: 'ricis-chatbot-monetization', toId: 'econ-value', strength: 0.9, stateColor: 'red', economicInfluence: 0.9 },
   ],
   zones: [
     {
@@ -678,7 +700,7 @@ export const initialMap: MapState = {
       id: 'informatics',
       name: 'Информатика и ИИ',
       description: 'Вычисления, нейросети, AGI.',
-      nodeIds: ['core-agi-target', 'informatics-complexity', 'ai-authorship-provenance'],
+      nodeIds: ['core-agi-target', 'informatics-complexity', 'ai-authorship-provenance', 'ricis-chatbot-monetization'],
       economicProfile: { costUnresolved: 10000, costToSolve: 5000, marketGain: 50000, riskLoss: 100000 }
     },
     {
@@ -706,7 +728,7 @@ export const initialMap: MapState = {
       id: 'economics',
       name: 'Экономика',
       description: 'Моделирование стоимости, логистика.',
-      nodeIds: ['econ-value'],
+      nodeIds: ['econ-value', 'ricis-chatbot-monetization'],
       economicProfile: { costUnresolved: 50000, costToSolve: 10000, marketGain: 500000, riskLoss: 200000 }
     },
     {

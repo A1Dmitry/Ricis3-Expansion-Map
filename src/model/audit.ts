@@ -37,21 +37,35 @@ export function isMissingTargetFunction(node: ProblemNode): boolean {
   return false;
 }
 
+/** Node has weak proof, missing target function, contains 'sorry', or is only partially resolved. */
+export function hasWeakProofOrMissingTarget(node: ProblemNode, proof?: Proof): boolean {
+  if (isMissingTargetFunction(node)) return true;
+  if (nodeHasSorry(node, proof)) return true;
+  if (node.state === 'partial') return true;
+  if (node.state === 'resolved') {
+    if (!proof || !proof.latex || !proof.latex.trim()) return true;
+    const audit = auditProofContent(proof.latex);
+    if (!audit.isValid) return true;
+  }
+  return false;
+}
+
 export function findNodesMissingTarget(map: MapState): ProblemNode[] {
   const order = walkGraph(map);
   const byId = new Map(map.nodes.map(n => [n.id, n]));
+  const proofs = map.proofs || {};
   const missing: ProblemNode[] = [];
   for (const id of order) {
     const n = byId.get(id);
-    if (n && isMissingTargetFunction(n)) missing.push(n);
+    if (n && hasWeakProofOrMissingTarget(n, proofs[n.id])) missing.push(n);
   }
   for (const n of map.nodes) {
-    if (isMissingTargetFunction(n) && !missing.some(m => m.id === n.id)) missing.push(n);
+    if (hasWeakProofOrMissingTarget(n, proofs[n.id]) && !missing.some(m => m.id === n.id)) missing.push(n);
   }
   return missing;
 }
 
-/** Recolor edges: green only if both ends resolved AND neither has missing target or sorry. */
+/** Recolor edges: green only if both ends resolved AND neither has missing target, weak proof, or sorry. */
 export function recolorEdgesForTargets(map: MapState): DependencyEdge[] {
   const byId = new Map(map.nodes.map(n => [n.id, n]));
   const proofs = map.proofs || {};
@@ -59,20 +73,18 @@ export function recolorEdgesForTargets(map: MapState): DependencyEdge[] {
     const a = byId.get(e.fromId);
     const b = byId.get(e.toId);
     if (!a || !b) return { ...e, stateColor: 'red' as const };
-    const aSorry = nodeHasSorry(a, proofs[a.id]);
-    const bSorry = nodeHasSorry(b, proofs[b.id]);
-    const aOk = a.state === 'resolved' && !isMissingTargetFunction(a) && !aSorry;
-    const bOk = b.state === 'resolved' && !isMissingTargetFunction(b) && !bSorry;
+    const aWeak = hasWeakProofOrMissingTarget(a, proofs[a.id]);
+    const bWeak = hasWeakProofOrMissingTarget(b, proofs[b.id]);
+    const aOk = a.state === 'resolved' && !aWeak;
+    const bOk = b.state === 'resolved' && !bWeak;
     if (aOk && bOk) return { ...e, stateColor: 'green' as const };
     if (
       a.state === 'resolved' ||
       b.state === 'resolved' ||
       a.state === 'partial' ||
       b.state === 'partial' ||
-      isMissingTargetFunction(a) ||
-      isMissingTargetFunction(b) ||
-      aSorry ||
-      bSorry
+      aWeak ||
+      bWeak
     ) {
       return { ...e, stateColor: 'yellow' as const };
     }
@@ -88,8 +100,8 @@ export type AuditReport = {
 };
 
 /**
- * Command 1: walk entire tree; nodes without targetFunction or containing 'sorry' become partial (yellow).
- * Resolved nodes missing target or containing 'sorry' are demoted to partial.
+ * Command 1: walk entire tree; nodes without targetFunction, containing 'sorry', or with weak proofs become partial (yellow).
+ * Resolved nodes missing target, containing 'sorry', or with weak proofs are demoted to partial.
  */
 export function auditMarkMissingTargets(map: MapState): AuditReport {
   const missing = findNodesMissingTarget(map);
@@ -98,9 +110,9 @@ export function auditMarkMissingTargets(map: MapState): AuditReport {
   const proofs = map.proofs || {};
 
   const nodes = map.nodes.map(n => {
-    const hasSorry = nodeHasSorry(n, proofs[n.id]);
-    if (!isMissingTargetFunction(n) && !hasSorry) return n;
-    if (n.state === 'resolved' || n.state === 'unresolved') {
+    const isWeak = hasWeakProofOrMissingTarget(n, proofs[n.id]);
+    if (!isWeak) return n;
+    if (n.state === 'resolved') {
       demotedIds.push(n.id);
       return { ...n, state: 'partial' as NodeState };
     }

@@ -35,6 +35,8 @@ export async function generateProof(node: ProblemNode, allAxioms: Axiom[]): Prom
       id: node.id,
       title: node.title,
       targetFunction: node.targetFunction,
+      description: node.description,
+      singularityHint: node.singularityHint,
       axioms: allAxioms,
     });
     if (api.ok && api.data) {
@@ -145,9 +147,14 @@ export async function solveNodeLogic(map: MapState, nodeId: string): Promise<Map
   if (!node) return map;
 
   const proof = await generateProof(node, map.axioms);
+  const audit = auditProofContent(proof.latex);
   const hasSorry = nodeHasSorry(node, proof);
 
-  const updatedNode: ProblemNode = { ...node, state: hasSorry ? 'partial' : 'resolved' };
+  // Solutions taken purely from classical math without RICIS reduction, containing sorry, or failing RICIS audit
+  // cannot be marked as 'resolved'. They MUST be set to 'partial' (yellow ball on 3D map).
+  const isFullyResolved = audit.isValid && !hasSorry;
+
+  const updatedNode: ProblemNode = { ...node, state: isFullyResolved ? 'resolved' : 'partial' };
 
   const updatedNodes = map.nodes.map(n => {
     if (n.id === nodeId) return updatedNode;

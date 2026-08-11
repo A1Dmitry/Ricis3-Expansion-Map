@@ -3,6 +3,7 @@
  * Каждый узел, ребро, доказательство и аксиома — отдельная JSON-запись.
  * IndexedDB лучше localStorage для объёмных структурированных документов
  * и подходит как клиентский аналог document-store (MongoDB / JSONB).
+ * Поддерживает безопасный in-memory фолбэк для Node.js / Cloud Run сервера.
  */
 
 import type {
@@ -28,8 +29,23 @@ const STORES = {
 
 type StoreName = (typeof STORES)[keyof typeof STORES];
 
+const isIndexedDbAvailable = typeof indexedDB !== 'undefined';
+
+// In-memory fallback for Node.js server runtime where indexedDB is not available
+const memoryStores: Record<string, Map<string, any>> = {
+  nodes: new Map(),
+  edges: new Map(),
+  zones: new Map(),
+  axioms: new Map(),
+  proofs: new Map(),
+  meta: new Map(),
+};
+
 function openDb(): Promise<IDBDatabase> {
   return new Promise((resolve, reject) => {
+    if (!isIndexedDbAvailable) {
+      return reject(new Error('IndexedDB is not available in server environment'));
+    }
     const req = indexedDB.open(DB_NAME, DB_VERSION);
 
     req.onupgradeneeded = () => {
@@ -111,6 +127,28 @@ async function getAll<T>(db: IDBDatabase, name: StoreName): Promise<T[]> {
 
 /** Полная запись карты: каждый узел — отдельный JSON-документ. */
 export async function dbSaveMap(state: MapState): Promise<void> {
+  if (!isIndexedDbAvailable) {
+    memoryStores.nodes.clear();
+    memoryStores.edges.clear();
+    memoryStores.zones.clear();
+    memoryStores.axioms.clear();
+    memoryStores.proofs.clear();
+
+    for (const node of state.nodes) memoryStores.nodes.set(node.id, node);
+    for (const edge of state.edges) memoryStores.edges.set(edge.id, edge);
+    for (const zone of state.zones) memoryStores.zones.set(zone.id, zone);
+    for (const axiom of state.axioms) memoryStores.axioms.set(axiom.id, axiom);
+    for (const proof of Object.values(state.proofs)) memoryStores.proofs.set(proof.nodeId, proof);
+    memoryStores.meta.set('snapshot', {
+      key: 'snapshot',
+      version: 1,
+      savedAt: new Date().toISOString(),
+      nodeCount: state.nodes.length,
+      proofCount: Object.keys(state.proofs).length,
+    });
+    return;
+  }
+
   const db = await openDb();
   try {
     const storeNames: StoreName[] = [
@@ -160,6 +198,18 @@ export async function dbSaveMap(state: MapState): Promise<void> {
 
 /** Восстановление полной карты из документных store. */
 export async function dbLoadMap(): Promise<MapState | null> {
+  if (!isIndexedDbAvailable) {
+    const nodes = Array.from(memoryStores.nodes.values());
+    if (nodes.length === 0) return null;
+    const edges = Array.from(memoryStores.edges.values());
+    const zones = Array.from(memoryStores.zones.values());
+    const axioms = Array.from(memoryStores.axioms.values());
+    const proofList = Array.from(memoryStores.proofs.values());
+    const proofs: Record<string, Proof> = {};
+    for (const p of proofList) proofs[p.nodeId] = p;
+    return { nodes, edges, zones, axioms, proofs };
+  }
+
   const db = await openDb();
   try {
     const nodes = await getAll<ProblemNode>(db, STORES.nodes);
@@ -182,6 +232,16 @@ export async function dbLoadMap(): Promise<MapState | null> {
 }
 
 export async function dbClear(): Promise<void> {
+  if (!isIndexedDbAvailable) {
+    memoryStores.nodes.clear();
+    memoryStores.edges.clear();
+    memoryStores.zones.clear();
+    memoryStores.axioms.clear();
+    memoryStores.proofs.clear();
+    memoryStores.meta.clear();
+    return;
+  }
+
   const db = await openDb();
   try {
     await clearStore(db, STORES.nodes);
@@ -197,6 +257,11 @@ export async function dbClear(): Promise<void> {
 
 /** Запись / обновление одного узла (JSON-документ). */
 export async function dbPutNode(node: ProblemNode): Promise<void> {
+  if (!isIndexedDbAvailable) {
+    memoryStores.nodes.set(node.id, node);
+    return;
+  }
+
   const db = await openDb();
   try {
     const tx = db.transaction(STORES.nodes, 'readwrite');
@@ -209,6 +274,11 @@ export async function dbPutNode(node: ProblemNode): Promise<void> {
 
 /** Запись доказательства узла (шаги, целевая функция, результат). */
 export async function dbPutProof(proof: Proof): Promise<void> {
+  if (!isIndexedDbAvailable) {
+    memoryStores.proofs.set(proof.nodeId, proof);
+    return;
+  }
+
   const db = await openDb();
   try {
     const tx = db.transaction(STORES.proofs, 'readwrite');
@@ -220,6 +290,10 @@ export async function dbPutProof(proof: Proof): Promise<void> {
 }
 
 export async function dbGetNode(id: string): Promise<ProblemNode | undefined> {
+  if (!isIndexedDbAvailable) {
+    return memoryStores.nodes.get(id);
+  }
+
   const db = await openDb();
   try {
     const tx = db.transaction(STORES.nodes, 'readonly');
@@ -230,6 +304,10 @@ export async function dbGetNode(id: string): Promise<ProblemNode | undefined> {
 }
 
 export async function dbGetProof(nodeId: string): Promise<Proof | undefined> {
+  if (!isIndexedDbAvailable) {
+    return memoryStores.proofs.get(nodeId);
+  }
+
   const db = await openDb();
   try {
     const tx = db.transaction(STORES.proofs, 'readonly');
@@ -240,6 +318,11 @@ export async function dbGetProof(nodeId: string): Promise<Proof | undefined> {
 }
 
 export async function dbGetMigrationState(): Promise<{ version: number; auditedAt?: string; report?: any } | null> {
+  if (!isIndexedDbAvailable) {
+    const row = memoryStores.meta.get('migration_state');
+    return row ? { version: row.version ?? 0, auditedAt: row.auditedAt, report: row.report } : null;
+  }
+
   const db = await openDb();
   try {
     const tx = db.transaction(STORES.meta, 'readonly');
@@ -258,6 +341,16 @@ export async function dbGetMigrationState(): Promise<{ version: number; auditedA
 }
 
 export async function dbSetMigrationState(version: number, report?: any): Promise<void> {
+  if (!isIndexedDbAvailable) {
+    memoryStores.meta.set('migration_state', {
+      key: 'migration_state',
+      version,
+      auditedAt: new Date().toISOString(),
+      report,
+    });
+    return;
+  }
+
   const db = await openDb();
   try {
     const tx = db.transaction(STORES.meta, 'readwrite');
@@ -274,6 +367,11 @@ export async function dbSetMigrationState(version: number, report?: any): Promis
 }
 
 export async function dbGetAgentTrainingMemory(): Promise<any | null> {
+  if (!isIndexedDbAvailable) {
+    const row = memoryStores.meta.get('agent_training_memory');
+    return row ? row.data : null;
+  }
+
   const db = await openDb();
   try {
     const tx = db.transaction(STORES.meta, 'readonly');
@@ -290,6 +388,15 @@ export async function dbGetAgentTrainingMemory(): Promise<any | null> {
 }
 
 export async function dbSetAgentTrainingMemory(memory: any): Promise<void> {
+  if (!isIndexedDbAvailable) {
+    memoryStores.meta.set('agent_training_memory', {
+      key: 'agent_training_memory',
+      data: memory,
+      updatedAt: new Date().toISOString(),
+    });
+    return;
+  }
+
   const db = await openDb();
   try {
     const tx = db.transaction(STORES.meta, 'readwrite');
@@ -305,6 +412,10 @@ export async function dbSetAgentTrainingMemory(memory: any): Promise<void> {
 }
 
 export async function dbMeta(): Promise<{ savedAt?: string; nodeCount?: number; proofCount?: number } | null> {
+  if (!isIndexedDbAvailable) {
+    return memoryStores.meta.get('snapshot') ?? null;
+  }
+
   const db = await openDb();
   try {
     const tx = db.transaction(STORES.meta, 'readonly');

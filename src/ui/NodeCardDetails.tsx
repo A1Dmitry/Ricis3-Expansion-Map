@@ -64,6 +64,7 @@ const TYPE_LABELS: Record<string, string> = {
 type Props = {
   node: ProblemNode;
   isExpanded: boolean;
+  onEdit?: () => void;
 };
 
 export function getReferencesForNode(node: ProblemNode) {
@@ -123,13 +124,27 @@ export function getReferencesForNode(node: ProblemNode) {
  * description (with links), targetFunction, singularityHint,
  * dedicated source link, meta grid, economics.
  */
-export const NodeCardDetails: React.FC<Props> = ({ node, isExpanded }) => {
+export const NodeCardDetails: React.FC<Props> = ({ node, isExpanded, onEdit }) => {
   const refs = getReferencesForNode(node);
 
   return (
     <div className={`space-y-3 ${isExpanded ? 'text-[12px]' : 'text-[11px]'}`}>
       <div>
-        <p className="text-[9px] font-bold uppercase text-gray-500 tracking-wider mb-1">Описание</p>
+        <div className="flex items-center justify-between mb-1">
+          <p className="text-[9px] font-bold uppercase text-gray-500 tracking-wider">
+            Описание (Инструкция Агенту)
+          </p>
+          {onEdit && (
+            <button
+              type="button"
+              onClick={onEdit}
+              className="text-[10px] font-bold text-cyan-400 hover:text-cyan-200 bg-cyan-950/60 border border-cyan-800/60 px-2 py-0.5 rounded transition-colors flex items-center gap-1 cursor-pointer"
+              title="Редактировать параметры и подсказку для Агента"
+            >
+              <span>✏️</span> Редактировать
+            </button>
+          )}
+        </div>
         <p
           className={`text-gray-300 leading-relaxed whitespace-pre-wrap ${
             !isExpanded ? 'line-clamp-5' : ''

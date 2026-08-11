@@ -55,11 +55,11 @@ export const AuditPanel: React.FC = () => {
 
   const handleAudit = async () => {
     setActiveOp('audit');
-    setMsg('Аудит: обход дерева, поиск узлов без целевой функции…');
+    setMsg('Аудит: обход дерева, поиск задач без целевой функции или со слабым доказательством (sorry)…');
     try {
       const r = await map.runAuditMissingTargets();
       setMsg(
-        'Аудит: без целевой ' +
+        'Аудит: без целевой / слабое доказательство (sorry): ' +
           r.missingCount +
           ', переведены в жёлтый (partial): ' +
           r.demoted +
@@ -170,7 +170,7 @@ export const AuditPanel: React.FC = () => {
         variant="amber"
         className="w-full"
       >
-        Аудит: без целевой → жёлтые
+        Аудит: без целевой / sorry / слабое доказательство → жёлтые
       </ActionButton>
 
       <ActionButton

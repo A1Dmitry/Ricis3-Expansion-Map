@@ -47,6 +47,7 @@ export function extractDbKnowledge(map: MapState): AgentTrainingMemory {
     'SP3 / SP4 Semantic Indexing: 0_F / 0_G = F / G (Typed zero index ratio)',
     'Axiom A6 / Geometric Bridge: 0_F * \\infty_G = det(u,v) = F * G [Area Invariant]',
     'Conjugate Explosion: 0_F * \\infty_F = F^2',
+    'Geometric-Discrete Mask: Hyperbola trajectory p*q = N & Ray q=kp intersection (p,q)=(\\sqrt{N/k},\\sqrt{kN}) filtered by Prime Bitmask M_P',
     'Limit Resolution Principle: \\lim_{x \\to x_0} \\frac{f(x)}{g(x)} \\xrightarrow{\\text{RICIS}} \\frac{0_f}{0_g} = \\frac{f}{g} \\quad [O(1)]',
     'AI Authorship Provenance: \\text{Area}(\\vec{S}_{2,\\infty} \\cap \\vec{R}_{0,5}) = 2 \\times 5 = 10 [LLM Weights Behavioral Audit]',
     'Lean 4 Specification: Lean 4 theorem resolve_* (DOI: 10.5281/zenodo.21836220)',

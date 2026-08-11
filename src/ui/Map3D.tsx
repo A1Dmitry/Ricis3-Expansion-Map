@@ -1,4 +1,5 @@
 import React, { useState, useMemo, useEffect, useRef, useCallback } from 'react';
+import type { ProblemNode } from '../model/types';
 import { AddNodeModal } from './AddNodeModal';
 import { Canvas, useThree, useFrame } from '@react-three/fiber';
 import { useMapStore } from '../store/mapStore';
@@ -17,6 +18,9 @@ import { ZoneBubble, ZoneLabel, NodeBubble, NodeLabel } from './Bubbles';
 import { downloadTexPreprint, type TexBridgeMode, expandToRoot } from '../model/texPreprint';
 import { AuditPanel } from './AuditPanel';
 import { NodeCardDetails } from './NodeCardDetails';
+import { EditNodeModal } from './EditNodeModal';
+import { TelegramBotPanel } from './TelegramBotPanel';
+import { LatexRenderer } from './LatexRenderer';
 import { isMissingTargetFunction, nodeHasSorry } from '../model/audit';
 import { ActionButton } from './ActionButton';
 
@@ -115,6 +119,8 @@ export const Map3D: React.FC = () => {
   const [isNodeExpanded, setIsNodeExpanded] = useState(false);
   const [showProof, setShowProof] = useState(false);
   const [showAddNode, setShowAddNode] = useState(false);
+  const [showTelegramBot, setShowTelegramBot] = useState(false);
+  const [editingNode, setEditingNode] = useState<ProblemNode | null>(null);
   const [isSolving, setIsSolving] = useState(false);
   const [isAgentSearching, setIsAgentSearching] = useState(false);
   const [solveLogs, setSolveLogs] = useState<string[]>([]);
@@ -806,6 +812,22 @@ export const Map3D: React.FC = () => {
           </section>
 
           <section>
+            <h3 className="text-[10px] font-bold text-cyan-400 uppercase tracking-wider mb-2 flex items-center justify-between">
+              <span>🤖 Telegram Сервис</span>
+              <span className="text-[9px] bg-emerald-950 text-emerald-400 border border-emerald-800 px-1 rounded font-mono font-bold">ONLINE</span>
+            </h3>
+            <div className="space-y-2">
+              <ActionButton
+                onClick={() => setShowTelegramBot(true)}
+                variant="cyan"
+                className="w-full bg-gradient-to-r from-cyan-900 to-blue-900 hover:brightness-125 border border-cyan-500/80 font-bold"
+              >
+                🤖 Чат-Бот RICIS-III (Запуск)
+              </ActionButton>
+            </div>
+          </section>
+
+          <section>
             <h3 className="text-[10px] font-bold text-gray-500 uppercase mb-3">Persistence</h3>
             <div className="space-y-2">
               <ActionButton
@@ -1124,7 +1146,7 @@ export const Map3D: React.FC = () => {
                   <span className="px-2 py-0.5 rounded text-[9px] font-bold uppercase bg-cyan-900/50 text-cyan-300 border border-cyan-700/40">RICIS CORE</span>
                 )}
               </div>
-              <NodeCardDetails node={selectedNode} isExpanded={isNodeExpanded} />
+              <NodeCardDetails node={selectedNode} isExpanded={isNodeExpanded} onEdit={() => setEditingNode(selectedNode)} />
 
               {pathNodeIds.length > 0 && (
                 <div className="mb-3 text-[10px] text-cyan-400/90 font-mono bg-cyan-950/20 border border-cyan-900/40 rounded p-2 max-h-24 overflow-y-auto leading-relaxed relative">
@@ -1177,13 +1199,25 @@ export const Map3D: React.FC = () => {
                   : 'Execute RICIS Solution'}
               </ActionButton>
 
-              {selectedNode.state === 'resolved' && map.getLatexProof(selectedNode.id) && (
+              {(map.getLatexProof(selectedNode.id) || selectedNode.state === 'resolved' || selectedNode.state === 'partial') && (
                 <div className="mt-4 border-t border-gray-800 pt-3">
-                  <button onClick={() => setShowProof(!showProof)} className="w-full flex justify-between text-cyan-400 text-xs font-bold uppercase">
-                    <span>View Formal Proof</span><span>{showProof ? '▲' : '▼'}</span>
-                  </button>
+                  <div className="flex items-center justify-between">
+                    <button onClick={() => setShowProof(!showProof)} className="flex items-center gap-2 text-cyan-400 text-xs font-bold uppercase hover:text-cyan-200 transition-colors cursor-pointer">
+                      <span>Formal Proof (Lean 4)</span><span>{showProof ? '▲' : '▼'}</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setEditingNode(selectedNode)}
+                      className="text-[10px] font-bold text-amber-400 hover:text-amber-200 bg-amber-950/60 border border-amber-800/60 px-2 py-0.5 rounded transition-colors flex items-center gap-1 cursor-pointer"
+                      title="Заменить или отредактировать Lean 4 доказательство для обучения Агента"
+                    >
+                      <span>✏️</span> Edit Lean
+                    </button>
+                  </div>
                   {showProof && (
-                    <div className={`mt-2 bg-[#020202] p-3 rounded border border-cyan-900/50 text-gray-300 font-mono text-[9px] whitespace-pre-wrap overflow-y-auto ${isNodeExpanded ? 'max-h-[60vh]' : 'max-h-40'}`}>{map.getLatexProof(selectedNode.id)}</div>
+                    <div className={`mt-2 bg-[#020202] p-3 rounded border border-cyan-900/50 text-gray-300 overflow-y-auto ${isNodeExpanded ? 'max-h-[60vh]' : 'max-h-52'}`}>
+                      <LatexRenderer content={map.getLatexProof(selectedNode.id) || '*(Доказательство еще не создано. Нажмите "Edit Lean" чтобы добавить)*'} />
+                    </div>
                   )}
                 </div>
               )}
@@ -1194,6 +1228,16 @@ export const Map3D: React.FC = () => {
 
       {showAddNode && (
         <AddNodeModal onClose={() => setShowAddNode(false)} parentId={selectedNodeId || undefined} />
+      )}
+      {showTelegramBot && (
+        <TelegramBotPanel onClose={() => setShowTelegramBot(false)} />
+      )}
+      {editingNode && (
+        <EditNodeModal
+          node={editingNode}
+          onClose={() => setEditingNode(null)}
+          onSolveAfterSave={() => handleSolve(editingNode.id)}
+        />
       )}
       <footer className="h-8 border-t border-cyan-900/30 bg-[#080808] flex items-center px-4 shrink-0">
         <div className="flex gap-6 text-[9px] font-mono text-cyan-900/70 uppercase">

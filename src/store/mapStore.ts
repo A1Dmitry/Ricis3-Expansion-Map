@@ -1,9 +1,10 @@
 import { create } from 'zustand';
-import { MapState, ProblemNode, DependencyEdge, ScienceZone } from '../model/types';
+import { MapState, ProblemNode, DependencyEdge, ScienceZone, Proof } from '../model/types';
 import { initialMap } from '../model/initialMap';
 import { solveNodeLogic } from '../model/logic';
 import { applyAgentDiscoveries, catalogExhausted, remainingCatalogCount, trainAgentFromDb, AgentTrainingMemory } from '../model/agent';
-import { auditMarkMissingTargets, fillMissingTargetFunctions, isAutoFormulaRequest } from '../model/audit';
+import { auditMarkMissingTargets, fillMissingTargetFunctions, isAutoFormulaRequest, nodeHasSorry } from '../model/audit';
+import { auditProofContent } from '../model/ricisCoreRules';
 import { applyDerivativeSearch } from '../model/derivativeSearch';
 import { isNodeAvailable } from '../model/access';
 import {
@@ -38,6 +39,8 @@ interface MapStore extends MapState {
   runAuditMigration: (force?: boolean) => Promise<MigrationAuditReport>;
   /** Авто-обучение агента из базы данных */
   runAgentDbTraining: () => Promise<AgentTrainingMemory>;
+  updateNode: (nodeId: string, updates: Partial<ProblemNode>) => Promise<void>;
+  updateProof: (nodeId: string, proofLatex: string) => Promise<void>;
 }
 
 function emptyState(): MapState {
@@ -314,5 +317,63 @@ export const useMapStore = create<MapStore>((set, get) => ({
     const memory = await trainAgentFromDb(state);
     set({ agentTrainingMemory: memory });
     return memory;
+  },
+
+  updateNode: async (nodeId: string, updates: Partial<ProblemNode>) => {
+    const state = get();
+    const newNodes = state.nodes.map(n => (n.id === nodeId ? { ...n, ...updates } : n));
+    const newState = { ...state, nodes: newNodes };
+    set(newState);
+    await saveMapToDb(newState);
+  },
+
+  updateProof: async (nodeId: string, proofLatex: string) => {
+    const state = get();
+    const existingProof = state.proofs[nodeId];
+    const node = state.nodes.find(n => n.id === nodeId);
+    const targetFunction = node?.targetFunction || '';
+
+    const newProof: Proof = existingProof
+      ? { ...existingProof, latex: proofLatex }
+      : {
+          nodeId,
+          targetFunction,
+          steps: [
+            {
+              phase: 2,
+              name: 'Пользовательское доказательство Lean 4',
+              action: 'Ручное введение/редактирование Lean 4 / LaTeX доказательства',
+              expression: 'Formal Proof',
+            },
+          ],
+          finalResult: 'RICIS-III Lean 4 Verified',
+          latex: proofLatex,
+        };
+
+    const newProofs = { ...state.proofs, [nodeId]: newProof };
+
+    // Audit updated proof content
+    const audit = auditProofContent(proofLatex);
+    const hasSorry = nodeHasSorry(node, newProof);
+    const isFullyResolved = audit.isValid && !hasSorry;
+
+    // Automatically adjust node state based on proof audit
+    const newNodes = state.nodes.map(n => {
+      if (n.id === nodeId) {
+        return {
+          ...n,
+          state: isFullyResolved ? ('resolved' as const) : ('partial' as const),
+        };
+      }
+      return n;
+    });
+
+    const newState = { ...state, proofs: newProofs, nodes: newNodes };
+    set(newState);
+    await saveMapToDb(newState);
+
+    // Retrain agent training memory from updated DB proofs
+    const memory = await trainAgentFromDb(newState);
+    set({ agentTrainingMemory: memory });
   },
 }));
