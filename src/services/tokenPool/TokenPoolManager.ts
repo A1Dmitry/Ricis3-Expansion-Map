@@ -78,11 +78,11 @@ export class TokenPoolManager implements ITokenPoolService {
     }
 
     // If user hasn't used their free queries yet
-    if (quota.totalQueriesUsed < 1000) {
+    if (quota.totalQueriesCount < 1000) {
       return {
         canExecute: true,
         isFreeTier: true,
-        quotaRemaining: 1000 - quota.totalQueriesUsed,
+        quotaRemaining: 1000 - quota.totalQueriesCount,
       };
     }
 

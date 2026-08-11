@@ -332,8 +332,8 @@ theorem resolve_${cleanId.replace(/[^a-zA-Z0-9]/g, '_')}_p_eq_np (V : \\mathbb{N
             steps = [
               `В знаменателе не 0, а выражение: $${den}$`,
               `Провоцируем $0$ в знаменателе: приравниваем его к нулю $${den} = 0$, откуда $${variable} = ${a}$ — это корень;`,
-              `Подставляем корень в числитель: $${a}^2 - ${a2} = 0$. Узнаем, что числитель в точке $${a} = 0$. Тогда если хотим результат, то ответ $\\\\frac{0_0}{0_0} = 1$`,
-              `Если хотим выражение, то сокращаем выражение при $${variable} \\\\neq ${a}$`
+              `Подставляем корень в числитель: $${a}^2 - ${a2} = 0$. Узнаем, что числитель в точке $${a} = 0$. Тогда если хотим результат, то ответ $\\frac{0_0}{0_0} = 1$`,
+              `Если хотим выражение, то сокращаем выражение при $${variable} \\neq ${a}$`
             ];
             simplified = `${variable} + ${a}`;
             finalResult = `${variable} + ${a}`;
@@ -426,11 +426,11 @@ theorem resolve_${cleanId.replace(/[^a-zA-Z0-9]/g, '_')}_p_eq_np (V : \\mathbb{N
     }
   }
 
-  const stepsFormatted = steps.map((s, i) => `${i + 1}. ${s}`).join('\\n');
+  const stepsFormatted = steps.map((s, i) => `${i + 1}. ${s}`).join('\n');
 
   let resultSection = '';
   if (finalResult) {
-    resultSection = `\\n\\n**Точка схождения (Результат):** $${finalResult}$`;
+    resultSection = `\n\n**Точка схождения (Результат):** $${finalResult}$`;
   }
 
   return `**RICIS-III Аналитическое доказательство v7.7**

@@ -13,12 +13,13 @@ import {
   countAvailable,
   isRicisCore,
 } from '../model/access';
-import { layoutZones, layoutNodes, zoneVisualRadius, nodeVisualRadius } from '../model/physics';
+import { layoutZones, layoutNodes, zoneVisualRadius, nodeVisualRadius, type PhysicsParams, DEFAULT_PHYSICS_PARAMS } from '../model/physics';
 import { ZoneBubble, ZoneLabel, NodeBubble, NodeLabel } from './Bubbles';
 import { downloadTexPreprint, type TexBridgeMode, expandToRoot } from '../model/texPreprint';
 import { AuditPanel } from './AuditPanel';
 import { NodeCardDetails } from './NodeCardDetails';
 import { EditNodeModal } from './EditNodeModal';
+import { PhysicsControlPanel } from './PhysicsControlPanel';
 import { TelegramBotPanel } from './TelegramBotPanel';
 import { LatexRenderer } from './LatexRenderer';
 import { isMissingTargetFunction, nodeHasSorry } from '../model/audit';
@@ -111,6 +112,7 @@ const formatCurrency = (val?: number) => {
 
 
 export const Map3D: React.FC = () => {
+  const [physicsParams, setPhysicsParams] = React.useState<PhysicsParams>(DEFAULT_PHYSICS_PARAMS);
   const map = useMapStore();
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
   const [hiddenZones, setHiddenZones] = useState<Set<string>>(new Set());
@@ -467,13 +469,13 @@ export const Map3D: React.FC = () => {
   }, [map.zones, map.nodes, visibleNodeIds, hiddenZones]);
 
   const zonePositions = useMemo(
-    () => layoutZones(map.zones, map.nodes),
-    [map.zones, map.nodes]
+    () => layoutZones(map.zones, map.nodes, physicsParams),
+    [map.zones, map.nodes, physicsParams]
   );
 
   const nodePositions = useMemo(
-    () => layoutNodes(map, zonePositions),
-    [map.nodes, map.edges, zonePositions]
+    () => layoutNodes(map, zonePositions, physicsParams),
+    [map.nodes, map.edges, zonePositions, physicsParams]
   );
 
   const zoneRadii = useMemo(() => {
@@ -492,7 +494,8 @@ export const Map3D: React.FC = () => {
             const dy = mPos[1] - zPos[1];
             const dz = mPos[2] - zPos[2];
             const dist = Math.sqrt(dx * dx + dy * dy + dz * dz);
-            maxDist = Math.max(maxDist, dist + 15);
+            const mRad = nodeVisualRadius(m, map.nodes);
+            maxDist = Math.max(maxDist, dist + mRad + 4.0);
           }
         });
         r[z.id] = Math.max(zoneVisualRadius(z, members), maxDist);
@@ -1229,6 +1232,7 @@ export const Map3D: React.FC = () => {
       {showAddNode && (
         <AddNodeModal onClose={() => setShowAddNode(false)} parentId={selectedNodeId || undefined} />
       )}
+      <PhysicsControlPanel params={physicsParams} onChange={setPhysicsParams} />
       {showTelegramBot && (
         <TelegramBotPanel onClose={() => setShowTelegramBot(false)} />
       )}

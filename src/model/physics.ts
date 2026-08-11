@@ -53,6 +53,28 @@ function normalize3(x: number, y: number, z: number): [number, number, number] {
   return [x / len, y / len, z / len];
 }
 
+export interface PhysicsParams {
+  zoneG: number;
+  zoneGExt: number;
+  zoneSurfaceGap: number;
+  nodeG: number;
+  nodeGExt: number;
+  springK: number;
+  springRestGapMult: number;
+  minNodeSurfaceGap: number;
+}
+
+export const DEFAULT_PHYSICS_PARAMS: PhysicsParams = {
+  zoneG: 15.0,
+  zoneGExt: 20.0,
+  zoneSurfaceGap: 30.0,
+  nodeG: 15.0,
+  nodeGExt: 4.0,
+  springK: 0.5,
+  springRestGapMult: 2.0,
+  minNodeSurfaceGap: 12.0,
+};
+
 export interface PressureLayoutParams {
   Pext: number;
   kRep: number;
@@ -147,44 +169,103 @@ export function relaxPressureRepulsion(
 export function layoutZones(
   zones: ScienceZone[],
   nodes: ProblemNode[],
-  params: Partial<PressureLayoutParams> = {}
+  customParams?: Partial<PhysicsParams>
 ): Record<string, [number, number, number]> {
-  const p = { ...DEFAULT_ZONE, ...params };
-  const S = zones.map(z => zoneShielding(z, nodes));
-  const pos = relaxPressureRepulsion(zones.length, S, p);
+  const p = { ...DEFAULT_PHYSICS_PARAMS, ...customParams };
+  const n = zones.length;
+  if (n === 0) return {};
 
   const zoneR = zones.map(z => zoneVisualRadius(z, nodes));
-  const n = zones.length;
-  const ZONE_SURFACE_GAP = 5.0; // Четкий красивый зазор между оболочками зон при плотной упаковке
+  const masses = zoneR.map(R => (R * R * R) / 1000.0 + 1.0);
+  
+  // Умножаем массу обратно на 1000 чтобы получить реальный кубический объем
+  const actualVolume = masses.reduce((sum, m) => sum + (m * 1000.0), 0);
+  
+  // Радиус сферы, которая вместит все зоны (x2 для запаса)
+  const GLOBAL_SPACE_RADIUS = Math.max(300, Math.cbrt(actualVolume * 0.75 / Math.PI) * 2.5);
 
-  // Внешнее давление поджимает зоны к центру, но поверхностное отталкивание строго запрещает пересечение
-  for (let iter = 0; iter < 500; iter++) {
+  // Initial spherical distribution
+  const pos: [number, number, number][] = Array.from({ length: n }, (_, i) => {
+    const phi = Math.acos(1 - (2 * (i + 0.5)) / n);
+    const theta = Math.PI * (1 + Math.sqrt(5)) * i;
+    const r = GLOBAL_SPACE_RADIUS * 0.5; // start somewhere in the middle
+    return [
+      r * Math.sin(phi) * Math.cos(theta),
+      r * Math.sin(phi) * Math.sin(theta),
+      r * Math.cos(phi),
+    ] as [number, number, number];
+  });
+
+   // Зазор между макро-пузырями
+
+  const vel: [number, number, number][] = Array.from({ length: n }, () => [0, 0, 0]);
+  const dt = 0.2;
+  const damping = 0.82;
+  const STEPS = 80;
+
+  // Взаимное расталкивание между всеми пузырями + Внешнее макро-давление среды (Адаптивное затухание)
+  for (let iter = 0; iter < STEPS; iter++) {
+    const forces: [number, number, number][] = Array.from({ length: n }, () => [0, 0, 0]);
+
     for (let i = 0; i < n; i++) {
       for (let j = i + 1; j < n; j++) {
         const dx = pos[i][0] - pos[j][0];
         const dy = pos[i][1] - pos[j][1];
         const dz = pos[i][2] - pos[j][2];
-        const dist = Math.sqrt(dx*dx + dy*dy + dz*dz) + 1e-9;
+        const dist = Math.sqrt(dx*dx + dy*dy + dz*dz) + 1e-6;
 
-        // ЭКРАНИРУЮЩЕЕ ПОВЕРХНОСТНОЕ ОТТАЛКИВАНИЕ КАЦИЮЩИКА:
-        // Дистанция между центрами не менее R1 + R2 + ZONE_SURFACE_GAP
-        const requiredDist = zoneR[i] + zoneR[j] + ZONE_SURFACE_GAP;
-        if (dist < requiredDist) {
-          const overlap = requiredDist - dist;
-          const px = (dx / dist) * overlap * 0.5;
-          const py = (dy / dist) * overlap * 0.5;
-          const pz = (dz / dist) * overlap * 0.5;
-
-          pos[i][0] += px; pos[i][1] += py; pos[i][2] += pz;
-          pos[j][0] -= px; pos[j][1] -= py; pos[j][2] -= pz;
+        const surfaceDist = Math.max(0.1, dist - zoneR[i] - zoneR[j]);
+        
+        const G = p.zoneG;
+        let forceMag = (G * 12.0 * masses[i] * masses[j]) / (surfaceDist * surfaceDist + 20.0);
+        
+        if (surfaceDist < p.zoneSurfaceGap) {
+          forceMag += (p.zoneSurfaceGap - surfaceDist) * 15.0;
         }
+
+        const nx = dx / dist;
+        const ny = dy / dist;
+        const nz = dz / dist;
+
+        forces[i][0] += nx * forceMag;
+        forces[i][1] += ny * forceMag;
+        forces[i][2] += nz * forceMag;
+
+        forces[j][0] -= nx * forceMag;
+        forces[j][1] -= ny * forceMag;
+        forces[j][2] -= nz * forceMag;
       }
+      
+      const dx = pos[i][0];
+      const dy = pos[i][1];
+      const dz = pos[i][2];
+      const distFromCenter = Math.sqrt(dx*dx + dy*dy + dz*dz) + 1e-6;
+      
+      const boundarySurfaceDist = Math.max(0.1, GLOBAL_SPACE_RADIUS - distFromCenter - zoneR[i]);
+      const G_ext = p.zoneGExt;
+      let inForce = (G_ext * 3.0 * masses[i]) / (boundarySurfaceDist * boundarySurfaceDist + 50.0);
+
+      if (distFromCenter + zoneR[i] > GLOBAL_SPACE_RADIUS) {
+        inForce += (distFromCenter + zoneR[i] - GLOBAL_SPACE_RADIUS) * 15.0;
+      }
+
+      const nx = dx / distFromCenter;
+      const ny = dy / distFromCenter;
+      const nz = dz / distFromCenter;
+
+      forces[i][0] -= nx * inForce;
+      forces[i][1] -= ny * inForce;
+      forces[i][2] -= nz * inForce;
     }
-    // Внешнее поджимающее давление среды к центру кластера (ослаблено на 10%)
+
     for (let i = 0; i < n; i++) {
-      pos[i][0] *= 0.9964;
-      pos[i][1] *= 0.9964;
-      pos[i][2] *= 0.9964;
+      vel[i][0] = (vel[i][0] + (forces[i][0] / masses[i]) * dt) * damping;
+      vel[i][1] = (vel[i][1] + (forces[i][1] / masses[i]) * dt) * damping;
+      vel[i][2] = (vel[i][2] + (forces[i][2] / masses[i]) * dt) * damping;
+
+      pos[i][0] += vel[i][0] * dt;
+      pos[i][1] += vel[i][1] * dt;
+      pos[i][2] += vel[i][2] * dt;
     }
   }
 
@@ -198,8 +279,9 @@ export function layoutZones(
 export function layoutNodes(
   map: MapState,
   zonePositions: Record<string, [number, number, number]>,
-  params: Partial<PressureLayoutParams> = {}
+  customParams?: Partial<PhysicsParams>
 ): Record<string, [number, number, number]> {
+  const p = { ...DEFAULT_PHYSICS_PARAMS, ...customParams };
   const nodes = map.nodes;
   const n = nodes.length;
   if (n === 0) return {};
@@ -283,78 +365,125 @@ export function layoutNodes(
   });
 
   const pos: [number, number, number][] = nodes.map(n => rawPos[n.id] || [0,0,0]);
-  const minSurfaceGap = 16.0; // Wide, spacious surface gap between node spheres
+  const vel: [number, number, number][] = Array.from({ length: n }, () => [0, 0, 0]);
 
-  // Physical simulation iterations: 3D gas diffusion repulsion & boundary containment
-  for (let s = 0; s < 500; s++) {
-    // 1. Gas diffusion inverse-distance repulsion (forces nodes to spread evenly into empty 3D volume)
+  const minSurfaceGap = p.minNodeSurfaceGap;
+  const dt = 0.2;
+  const damping = 0.80;
+  const STEPS = 80;
+
+  // Адаптивная динамика $N$-тел с поддержкой законов пружин Гука и отталкивания
+  for (let s = 0; s < STEPS; s++) {
+    const forces: [number, number, number][] = Array.from({ length: n }, () => [0, 0, 0]);
+
     for (let i = 0; i < n; i++) {
+      const nodeI = nodes[i];
+      const radI = nodeRadii[nodeI.id];
+      const massI = (radI * radI * radI) / 8.0 + 0.5;
+
+      // 1. Взаимное расталкивание узлов одной зоны
       for (let j = i + 1; j < n; j++) {
-        // Only repulsive diffusion inside the same scientific zone to keep zone structures clean
         if (getZid(nodes[i]) !== getZid(nodes[j])) continue;
 
-        const nodeI = nodes[i];
         const nodeJ = nodes[j];
-        const radI = nodeRadii[nodeI.id];
         const radJ = nodeRadii[nodeJ.id];
+        const massJ = (radJ * radJ * radJ) / 8.0 + 0.5;
 
         const dx = pos[i][0] - pos[j][0];
         const dy = pos[i][1] - pos[j][1];
         const dz = pos[i][2] - pos[j][2];
         const dist = Math.sqrt(dx*dx + dy*dy + dz*dz) + 1e-6;
 
-        const reqDist = radI + radJ + minSurfaceGap;
-        // Continuous gas diffusion push: strong push if overlapping, smooth inverse-square repulsion at distance
-        let force = 0;
-        if (dist < reqDist) {
-          force = (reqDist - dist) * 0.5;
-        } else {
-          force = Math.min(2.5, (reqDist * reqDist * 0.8) / (dist * dist));
+        const surfaceDist = Math.max(0.1, dist - radI - radJ);
+
+        const G = p.nodeG;
+        let forceMag = (G * 4.0 * massI * massJ) / (surfaceDist * surfaceDist + 4.0);
+
+        if (surfaceDist < minSurfaceGap) {
+          forceMag += (minSurfaceGap - surfaceDist) * 10.0;
         }
 
-        const px = (dx / dist) * force * 0.25;
-        const py = (dy / dist) * force * 0.25;
-        const pz = (dz / dist) * force * 0.25;
+        const nx = dx / dist;
+        const ny = dy / dist;
+        const nz = dz / dist;
 
-        pos[i][0] += px; pos[i][1] += py; pos[i][2] += pz;
-        pos[j][0] -= px; pos[j][1] -= py; pos[j][2] -= pz;
+        forces[i][0] += nx * forceMag;
+        forces[i][1] += ny * forceMag;
+        forces[i][2] += nz * forceMag;
+
+        forces[j][0] -= nx * forceMag;
+        forces[j][1] -= ny * forceMag;
+        forces[j][2] -= nz * forceMag;
       }
-    }
 
-    // 2. Gentle central bias for major bridging links (keeps core hubs near center without crushing regular nodes)
-    for (let i = 0; i < n; i++) {
-      const nodeI = nodes[i];
-      const zidI = getZid(nodeI);
-      const zcI = zonePositions[zidI] || [0, 0, 0];
-      const bScore = bridgeScores[nodeI.id];
-
-      if (bScore >= 10) {
-        const pullFactor = 0.008;
-        pos[i][0] += (zcI[0] - pos[i][0]) * pullFactor;
-        pos[i][1] += (zcI[1] - pos[i][1]) * pullFactor;
-        pos[i][2] += (zcI[2] - pos[i][2]) * pullFactor;
-      }
-    }
-
-    // 3. Contain nodes strictly inside their scientific zone boundary
-    for (let i = 0; i < n; i++) {
-      const nodeI = nodes[i];
+      // 2. Давление среды зоны и мягкий удерживающий контур
       const zidI = getZid(nodeI);
       const zcI = zonePositions[zidI] || [0, 0, 0];
       const zR = zoneBaseR[zidI] || 15;
-      const radI = nodeRadii[nodeI.id];
 
       const dx = pos[i][0] - zcI[0];
       const dy = pos[i][1] - zcI[1];
       const dz = pos[i][2] - zcI[2];
       const distFromCenter = Math.sqrt(dx*dx + dy*dy + dz*dz) + 1e-6;
 
-      const maxAllowedDist = Math.max(1.0, zR - radI - 1.0);
-      if (distFromCenter > maxAllowedDist) {
-        pos[i][0] = zcI[0] + (dx / distFromCenter) * maxAllowedDist;
-        pos[i][1] = zcI[1] + (dy / distFromCenter) * maxAllowedDist;
-        pos[i][2] = zcI[2] + (dz / distFromCenter) * maxAllowedDist;
+      const boundarySurfaceDist = Math.max(0.1, zR - distFromCenter - radI);
+      const G_ext = p.nodeGExt;
+      let inForce = (G_ext * 2.0 * massI) / (boundarySurfaceDist * boundarySurfaceDist + 10.0);
+
+      if (distFromCenter + radI > zR * 0.85) {
+        inForce += (distFromCenter + radI - zR * 0.85) * 15.0;
       }
+
+      const nx = dx / distFromCenter;
+      const ny = dy / distFromCenter;
+      const nz = dz / distFromCenter;
+
+      forces[i][0] -= nx * inForce;
+      forces[i][1] -= ny * inForce;
+      forces[i][2] -= nz * inForce;
+
+      // 3. Структурные связи (Закон Гука для резинок / пружин)
+      const deps = nodeI.dependencyIds || [];
+      for (const depId of deps) {
+        const j = nodes.findIndex(x => x.id === depId);
+        if (j !== -1 && getZid(nodeI) === getZid(nodes[j])) {
+          const nodeJ = nodes[j];
+          const radJ = nodeRadii[nodeJ.id];
+
+          const ddx = pos[j][0] - pos[i][0];
+          const ddy = pos[j][1] - pos[i][1];
+          const ddz = pos[j][2] - pos[i][2];
+          const ddist = Math.sqrt(ddx*ddx + ddy*ddy + ddz*ddz) + 1e-6;
+
+          const surfaceDist = Math.max(0.0, ddist - radI - radJ);
+          const restSurfaceGap = minSurfaceGap * p.springRestGapMult;
+
+          const k = p.springK;
+          const springForce = k * (surfaceDist - restSurfaceGap) * 1.5;
+
+          const snx = ddx / ddist;
+          const sny = ddy / ddist;
+          const snz = ddz / ddist;
+
+          forces[i][0] += snx * springForce;
+          forces[i][1] += sny * springForce;
+          forces[i][2] += snz * springForce;
+        }
+      }
+    }
+
+    // Интегрирование импульсов и позиций
+    for (let i = 0; i < n; i++) {
+      const radI = nodeRadii[nodes[i].id];
+      const massI = (radI * radI * radI) / 8.0 + 0.5;
+
+      vel[i][0] = (vel[i][0] + (forces[i][0] / massI) * dt) * damping;
+      vel[i][1] = (vel[i][1] + (forces[i][1] / massI) * dt) * damping;
+      vel[i][2] = (vel[i][2] + (forces[i][2] / massI) * dt) * damping;
+
+      pos[i][0] += vel[i][0] * dt;
+      pos[i][1] += vel[i][1] * dt;
+      pos[i][2] += vel[i][2] * dt;
     }
   }
 
@@ -381,7 +510,7 @@ export function zoneVisualRadius(zone: ScienceZone, nodes: ProblemNode[]): numbe
   const byShield = Math.sqrt(S) * 1.2;
 
   // Guarantee zone bubble radius comfortably encloses all member nodes with spacious clearance
-  const contentR = maxNodeR * 3.2 + Math.sqrt(sumNodeR) * 5.2 + byCount + byShield;
+  const contentR = maxNodeR * 2.0 + Math.sqrt(sumNodeR) * 2.5 + byCount * 0.5 + byShield * 0.5;
   return Number(Math.max(14.0, contentR).toFixed(2));
 }
 
