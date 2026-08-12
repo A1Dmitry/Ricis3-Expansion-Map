@@ -55,6 +55,41 @@ async function callAIWithFallback(ai: any, prompt: string, responseMimeType = "t
   throw lastError || new Error("Все модели AI из пула временно недоступны.");
 }
 
+function validatePayload(body: any, schema: Record<string, string>): { isValid: boolean; error?: string } {
+  if (!body || typeof body !== "object") {
+    return { isValid: false, error: "Payload must be a non-empty JSON object" };
+  }
+  for (const [key, type] of Object.entries(schema)) {
+    const value = body[key];
+    const isOptional = type.endsWith("?");
+    const pureType = type.replace("?", "");
+    
+    if (value === undefined || value === null) {
+      if (isOptional) {
+        continue;
+      }
+      return { isValid: false, error: `Required field '${key}' is missing` };
+    }
+    
+    if (pureType === "array") {
+      if (!Array.isArray(value)) {
+        return { isValid: false, error: `Field '${key}' must be an array` };
+      }
+    } else if (pureType === "object") {
+      if (typeof value !== "object" || Array.isArray(value)) {
+        return { isValid: false, error: `Field '${key}' must be an object` };
+      }
+    } else if (pureType === "number") {
+      if (typeof value !== "number" || isNaN(value)) {
+        return { isValid: false, error: `Field '${key}' must be a number` };
+      }
+    } else if (typeof value !== pureType) {
+      return { isValid: false, error: `Field '${key}' must be of type ${pureType}` };
+    }
+  }
+  return { isValid: true };
+}
+
 async function startServer() {
   const app = express();
   const PORT = 3000;
@@ -68,6 +103,19 @@ async function startServer() {
 
   app.post("/api/generateProof", async (req, res) => {
     try {
+      const validation = validatePayload(req.body, {
+        id: "string",
+        title: "string",
+        targetFunction: "string?",
+        description: "string?",
+        singularityHint: "string?",
+        axioms: "array?",
+        preferredModel: "string?"
+      });
+      if (!validation.isValid) {
+        return res.status(400).json({ error: validation.error });
+      }
+
       const { id, title, targetFunction, description, singularityHint, axioms, preferredModel } = req.body || {};
 
       const ai = new GoogleGenAI({
@@ -126,6 +174,17 @@ ${axiomList}
 
   app.post("/api/discoverTasks", async (req, res) => {
     try {
+      const validation = validatePayload(req.body, {
+        existingTitles: "array?",
+        parentNode: "object?",
+        existingZones: "array?",
+        dbKnowledge: "object?",
+        preferredModel: "string?"
+      });
+      if (!validation.isValid) {
+        return res.status(400).json({ error: validation.error });
+      }
+
       const { existingTitles, parentNode, existingZones, dbKnowledge, preferredModel } = req.body || {};
       const ai = new GoogleGenAI({
         apiKey: process.env.GEMINI_API_KEY || "dummy",
@@ -168,6 +227,17 @@ ${axiomList}
 
   app.post("/api/aiAssistantNode", async (req, res) => {
     try {
+      const validation = validatePayload(req.body, {
+        title: "string",
+        targetFunction: "string?",
+        zoneId: "string?",
+        hint: "string?",
+        preferredModel: "string?"
+      });
+      if (!validation.isValid) {
+        return res.status(400).json({ error: validation.error });
+      }
+
       const { title, targetFunction, zoneId, hint, preferredModel } = req.body || {};
       const ai = new GoogleGenAI({
         apiKey: process.env.GEMINI_API_KEY || "dummy",
@@ -237,6 +307,16 @@ ${axiomList}
 
   app.post("/api/fillNodeParams", async (req, res) => {
     try {
+      const validation = validatePayload(req.body, {
+        title: "string",
+        description: "string?",
+        zoneIds: "array?",
+        preferredModel: "string?"
+      });
+      if (!validation.isValid) {
+        return res.status(400).json({ error: validation.error });
+      }
+
       const { title, description, zoneIds, preferredModel } = req.body || {};
       const ai = new GoogleGenAI({
         apiKey: process.env.GEMINI_API_KEY || "dummy",
@@ -292,6 +372,15 @@ ${axiomList}
    */
   app.post("/api/searchDerivatives", async (req, res) => {
     try {
+      const validation = validatePayload(req.body, {
+        prompt: "string?",
+        existingTitles: "array?",
+        preferredModel: "string?"
+      });
+      if (!validation.isValid) {
+        return res.status(400).json({ error: validation.error });
+      }
+
       const { prompt, existingTitles, preferredModel } = req.body || {};
       const ai = new GoogleGenAI({
         apiKey: process.env.GEMINI_API_KEY || "dummy",
@@ -353,6 +442,14 @@ ${axiomList}
 
   app.post("/api/v1/keys/contribute", async (req, res) => {
     try {
+      const validation = validatePayload(req.body, {
+        apiKey: "string",
+        contributorId: "string?"
+      });
+      if (!validation.isValid) {
+        return res.status(400).json({ ok: false, error: validation.error });
+      }
+
       const { apiKey, contributorId } = req.body || {};
       const userId = contributorId || req.headers["x-client-id"] || req.ip || "rest-api-user";
 
@@ -369,6 +466,15 @@ ${axiomList}
 
   app.post("/api/v1/solve", async (req, res) => {
     try {
+      const validation = validatePayload(req.body, {
+        targetFunction: "string",
+        clientIdentifier: "string?",
+        userProvidedKey: "string?"
+      });
+      if (!validation.isValid) {
+        return res.status(400).json({ ok: false, error: validation.error });
+      }
+
       const { targetFunction, clientIdentifier, userProvidedKey } = req.body || {};
       const clientId = String(clientIdentifier || req.headers["x-client-id"] || req.ip || "anonymous_client");
 

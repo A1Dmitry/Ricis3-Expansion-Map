@@ -432,3 +432,59 @@ export async function dbMeta(): Promise<{ savedAt?: string; nodeCount?: number; 
     db.close();
   }
 }
+
+/**
+ * ИНТЕРФЕЙС UNIT OF WORK (UOW)
+ * Представляет собой транзакционно-безопасную единицу работы для IndexedDB.
+ * Обеспечивает атомарность группы изменений без разрыва связей или блокировки треда.
+ */
+export interface UnitOfWork {
+  nodesToPut?: ProblemNode[];
+  proofsToPut?: Proof[];
+  nodesToDelete?: string[];
+  proofsToDelete?: string[];
+}
+
+/**
+ * Фиксация изменений (Commit) в рамках Unit of Work в единой изолированной транзакции.
+ */
+export async function dbCommitUnitOfWork(uow: UnitOfWork): Promise<void> {
+  const nodesToPut = uow.nodesToPut || [];
+  const proofsToPut = uow.proofsToPut || [];
+  const nodesToDelete = uow.nodesToDelete || [];
+  const proofsToDelete = uow.proofsToDelete || [];
+
+  if (!isIndexedDbAvailable) {
+    for (const node of nodesToPut) memoryStores.nodes.set(node.id, node);
+    for (const proof of proofsToPut) memoryStores.proofs.set(proof.nodeId, proof);
+    for (const id of nodesToDelete) memoryStores.nodes.delete(id);
+    for (const id of proofsToDelete) memoryStores.proofs.delete(id);
+    return;
+  }
+
+  const db = await openDb();
+  try {
+    const activeStores: StoreName[] = [STORES.nodes, STORES.proofs];
+    const tx = db.transaction(activeStores, 'readwrite');
+    const nodeStore = tx.objectStore(STORES.nodes);
+    const proofStore = tx.objectStore(STORES.proofs);
+
+    for (const node of nodesToPut) {
+      nodeStore.put(node);
+    }
+    for (const proof of proofsToPut) {
+      proofStore.put(proof);
+    }
+    for (const id of nodesToDelete) {
+      nodeStore.delete(id);
+    }
+    for (const id of proofsToDelete) {
+      proofStore.delete(id);
+    }
+
+    await txDone(tx);
+  } finally {
+    db.close();
+  }
+}
+

@@ -1,6 +1,7 @@
 const http = require('http');
 
 const data = JSON.stringify({
+  title: "Аналитическое продолжение дзета-функции",
   targetFunction: "x^3+y^2=0"
 });
 
