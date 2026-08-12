@@ -7,6 +7,21 @@ import * as THREE from 'three';
 import { OrbitControls as ThreeOrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { APP_BUILD_LABEL, APP_VERSION } from '../version';
 import {
+  ChevronDown,
+  ChevronUp,
+  Layers,
+  CheckCircle2,
+  Search,
+  SlidersHorizontal,
+  Bot,
+  Database,
+  Plus,
+  X,
+  Sparkles,
+  RefreshCw,
+  Crosshair,
+} from 'lucide-react';
+import {
   isNodeAvailable,
   findPathToRicis,
   getUnlockRequirements,
@@ -22,6 +37,17 @@ import { EditNodeModal } from './EditNodeModal';
 import { PhysicsControlPanel } from './PhysicsControlPanel';
 import { TelegramBotPanel } from './TelegramBotPanel';
 import { LatexRenderer } from './LatexRenderer';
+import { useAdaptiveUI } from '../hooks/useAdaptiveUI';
+
+const UI_ELEMENTS = [
+  { id: 'actions', label: 'Быстрые действия' },
+  { id: 'search', label: 'Поиск по карте' },
+  { id: 'zones', label: 'Сферы науки' },
+  { id: 'available', label: 'Доступно к решению' },
+  { id: 'physics', label: 'Параметры симуляции' },
+  { id: 'agent', label: 'ИИ-Агент и Сервисы' },
+  { id: 'persistence', label: 'Сохранение и Экспорт' },
+];
 import { isMissingTargetFunction, nodeHasSorry } from '../model/audit';
 import { ActionButton } from './ActionButton';
 
@@ -54,7 +80,7 @@ const zoneColors: Record<string, string> = {
   bioinformatics: '#2dd4bf',
 };
 
-function OrbitControls() {
+function OrbitControls({ controlsRef: externalRef }: { controlsRef?: React.MutableRefObject<any> }) {
   const { camera, gl } = useThree();
   const controlsRef = useRef<ThreeOrbitControls | null>(null);
   useEffect(() => {
@@ -72,6 +98,9 @@ function OrbitControls() {
     controls.screenSpacePanning = true;
     controls.target.set(0, 0, 0);
     controlsRef.current = controls;
+    if (externalRef) {
+      externalRef.current = controls;
+    }
 
     const handleWheel = (e: WheelEvent) => {
       const factor = Math.min(1.0, Math.abs(e.deltaY) * 0.002);
@@ -93,8 +122,11 @@ function OrbitControls() {
       gl.domElement.removeEventListener('wheel', handleWheel);
       controls.dispose();
       controlsRef.current = null;
+      if (externalRef) {
+        externalRef.current = null;
+      }
     };
-  }, [camera, gl]);
+  }, [camera, gl, externalRef]);
   useFrame(() => {
     controlsRef.current?.update();
   });
@@ -110,6 +142,23 @@ const formatCurrency = (val?: number) => {
 
 
 
+
+
+
+function isDerivativeNodeRef(n: { type?: string; isDerivativeClaim?: boolean }) {
+  return n.type === 'derivative' || n.isDerivativeClaim === true;
+}
+
+function nodeMatchesQuery(n: ProblemNode, q: string, hiddenZones: Set<string>, showOnlyDerivatives: boolean): boolean {
+  if (n.zoneIds.every(zid => hiddenZones.has(zid))) return false;
+  if (showOnlyDerivatives && !isDerivativeNodeRef(n)) return false;
+  if (!q) return true;
+  return (
+    (n.title?.toLowerCase().includes(q) || false) ||
+    (n.description?.toLowerCase().includes(q) || false) ||
+    (n.targetFunction?.toLowerCase().includes(q) || false)
+  );
+}
 
 export const Map3D: React.FC = () => {
   const [physicsParams, setPhysicsParams] = React.useState<PhysicsParams>(DEFAULT_PHYSICS_PARAMS);
@@ -148,6 +197,47 @@ export const Map3D: React.FC = () => {
   const [isSearchFocused, setIsSearchFocused] = useState(false);
   const [selectedHistoryIndex, setSelectedHistoryIndex] = useState<number>(-1);
 
+  const {
+    currentRole,
+    roles,
+    visibleElements,
+    hiddenElements,
+    trackClick,
+    switchRole,
+    createRole
+  } = useAdaptiveUI({
+    elements: UI_ELEMENTS,
+    maxVisible: 5,
+    decayInterval: 10,
+    decayFactor: 0.9,
+    hysteresisDelta: 0.03
+  });
+
+  const [showOverflow, setShowOverflow] = useState(false);
+
+
+  const controlsRef = useRef<any>(null);
+
+  const handleZoomIn = () => {
+    if (controlsRef.current) {
+      controlsRef.current.dollyIn(1.25);
+      controlsRef.current.update();
+    }
+  };
+
+  const handleZoomOut = () => {
+    if (controlsRef.current) {
+      controlsRef.current.dollyOut(1.25);
+      controlsRef.current.update();
+    }
+  };
+
+  const handleResetCamera = () => {
+    if (controlsRef.current) {
+      controlsRef.current.reset();
+    }
+  };
+
   const isDerivativeNode = (n: { type?: string; isDerivativeClaim?: boolean }) =>
     n.type === 'derivative_claim' || n.isDerivativeClaim === true;
 
@@ -156,15 +246,7 @@ export const Map3D: React.FC = () => {
     if (!trimmed) return;
 
     const q = trimmed.toLowerCase();
-    const matchesCount = map.nodes.filter(n => {
-      if (n.zoneIds.every(zid => hiddenZones.has(zid))) return false;
-      if (showOnlyDerivatives && !isDerivativeNode(n)) return false;
-      return (
-        n.title?.toLowerCase().includes(q) ||
-        n.description?.toLowerCase().includes(q) ||
-        n.targetFunction?.toLowerCase().includes(q)
-      );
-    }).length;
+    const matchesCount = map.nodes.filter(n => nodeMatchesQuery(n, q, hiddenZones, showOnlyDerivatives)).length;
 
     // Попадают только те запросы, которые дали не нулевой результат
     if (matchesCount > 0) {
@@ -224,15 +306,7 @@ export const Map3D: React.FC = () => {
   const searchMatchCount = useMemo(() => {
     if (!searchQuery.trim()) return map.nodes.length;
     const q = searchQuery.toLowerCase().trim();
-    return map.nodes.filter(n => {
-      if (n.zoneIds.every(zid => hiddenZones.has(zid))) return false;
-      if (showOnlyDerivatives && !isDerivativeNode(n)) return false;
-      return (
-        n.title?.toLowerCase().includes(q) ||
-        n.description?.toLowerCase().includes(q) ||
-        n.targetFunction?.toLowerCase().includes(q)
-      );
-    }).length;
+    return map.nodes.filter(n => nodeMatchesQuery(n, q, hiddenZones, showOnlyDerivatives)).length;
   }, [map.nodes, searchQuery, hiddenZones, showOnlyDerivatives]);
 
   const maxFractalDepth = useMemo(() => {
@@ -262,15 +336,9 @@ export const Map3D: React.FC = () => {
     const ids = new Set<string>();
     const q = searchQuery.toLowerCase().trim();
     for (const n of map.nodes) {
-      if (n.zoneIds.every(zid => hiddenZones.has(zid))) continue;
-      if (showOnlyDerivatives && !isDerivativeNode(n)) continue;
-      if (q) {
-        const titleMatch = n.title?.toLowerCase().includes(q);
-        const descMatch = n.description?.toLowerCase().includes(q);
-        const tfMatch = n.targetFunction?.toLowerCase().includes(q);
-        if (!titleMatch && !descMatch && !tfMatch) continue;
+      if (nodeMatchesQuery(n, q, hiddenZones, showOnlyDerivatives)) {
+        ids.add(n.id);
       }
-      ids.add(n.id);
     }
     // When filtering derivatives, also keep direct anchor parents so edges make sense
     if (showOnlyDerivatives) {
@@ -564,376 +632,371 @@ export const Map3D: React.FC = () => {
 
   return (
     <div className="w-full h-screen bg-[#050505] text-[#e0e0e0] font-sans overflow-hidden flex flex-col">
-      <header className="h-16 border-b border-cyan-900/30 bg-[#080808] flex items-center justify-between px-6 shrink-0">
+      <header className="h-16 border-b border-cyan-900/40 bg-[#080808] flex items-center justify-between px-6 shrink-0 z-20">
         <div className="flex items-center gap-4">
-          <div className="w-3 h-3 bg-cyan-500 rounded-full animate-pulse shadow-[0_0_8px_cyan]" />
-          <h1 className="text-xs font-bold uppercase tracking-[0.2em] text-cyan-400">
-            RICIS-III // Singularity Map Core
+          <div className="w-3.5 h-3.5 bg-cyan-400 rounded-full animate-pulse shadow-[0_0_12px_#22d3ee]" />
+          <h1 className="text-xs font-extrabold uppercase tracking-[0.2em] text-cyan-300 flex items-center gap-2">
+            <span>RICIS-III</span>
+            <span className="text-slate-400 font-normal text-xs">// 3D Singularity Map</span>
           </h1>
-          <span className="text-[10px] font-mono px-2 py-0.5 rounded border border-cyan-800/60 bg-cyan-950/50 text-cyan-300">
+          <span className="text-xs font-mono px-2.5 py-0.5 rounded-full border border-cyan-700/80 bg-cyan-950/70 text-cyan-200 font-bold">
             {APP_BUILD_LABEL}
           </span>
         </div>
-        <div className="flex gap-6 text-[10px] font-mono">
-          <div className="flex flex-col"><span className="text-gray-500">NODES</span><span className="text-cyan-200">{map.nodes.length}</span></div>
-          <div className="flex flex-col"><span className="text-gray-500">AVAILABLE</span><span className="text-emerald-400">{availability.available}</span></div>
-          <div className="flex flex-col"><span className="text-gray-500">LOCKED</span><span className="text-gray-400">{availability.locked}</span></div>
-          <div className="flex flex-col"><span className="text-gray-500">RESOLVED</span><span className="text-green-400">{availability.resolved}</span></div>
+        <div className="flex items-center gap-5">
+          <div className="flex gap-4 text-xs font-mono">
+            <div className="flex flex-col"><span className="text-slate-400 text-[10px]">УЗЛЫ</span><span className="text-slate-100 font-bold">{map.nodes.length}</span></div>
+            <div className="flex flex-col"><span className="text-slate-400 text-[10px]">ДОСТУПНО</span><span className="text-emerald-400 font-bold">{availability.available}</span></div>
+            <div className="flex flex-col"><span className="text-slate-400 text-[10px]">ЗАБЛОКИРОВАНО</span><span className="text-slate-300 font-bold">{availability.locked}</span></div>
+            <div className="flex flex-col"><span className="text-slate-400 text-[10px]">РЕШЕНО</span><span className="text-green-400 font-bold">{availability.resolved}</span></div>
+          </div>
+          <button
+            type="button"
+            onClick={() => document.getElementById('accordion-physics')?.click()}
+            className="bg-cyan-500 hover:bg-cyan-400 text-black font-extrabold text-xs px-3.5 py-1.5 rounded-md shadow-[0_0_12px_rgba(6,182,212,0.4)] transition-all cursor-pointer flex items-center gap-1.5"
+          >
+            ⚡ Параметры физики
+          </button>
         </div>
       </header>
 
       <main className="flex-1 flex relative overflow-hidden">
-        <aside className="w-64 border-r border-cyan-900/20 bg-[#070707] p-4 flex flex-col gap-5 shrink-0 z-10 overflow-y-auto">
-          <section>
-            <ActionButton
-              onClick={() => setShowAddNode(true)}
-              variant="emerald"
-              className="w-full mb-2 uppercase font-bold tracking-wider"
-            >
-              + Добавить задачу
-            </ActionButton>
-          </section>
-
-          
-          <section className="mb-4 relative">
-            <div className="flex items-center justify-between mb-2">
-              <div className="flex items-center gap-1.5">
-                <h3 className="text-[10px] font-bold text-gray-500 uppercase">Поиск</h3>
-                {searchQuery.trim() && (
-                  <span className={`text-[9px] font-mono px-1.5 py-0.5 rounded border ${
-                    searchMatchCount > 0 
-                      ? 'bg-cyan-950/60 text-cyan-300 border-cyan-800/60' 
-                      : 'bg-rose-950/60 text-rose-300 border-rose-800/60'
-                  }`}>
-                    {searchMatchCount}
-                  </span>
-                )}
-              </div>
-              {searchQuery && (
-                <button
-                  type="button"
-                  onClick={() => setSearchQuery('')}
-                  className="text-[9px] text-cyan-400 hover:text-cyan-300 font-mono cursor-pointer"
-                >
-                  Сбросить
-                </button>
-              )}
-            </div>
-            <div className="relative">
-              <input
-                type="text"
-                placeholder="Поиск узлов..."
-                value={searchQuery}
-                onChange={e => setSearchQuery(e.target.value)}
-                onFocus={() => setIsSearchFocused(true)}
-                onBlur={() => {
-                  saveToHistory(searchQuery);
-                  setTimeout(() => setIsSearchFocused(false), 200);
-                }}
-                onKeyDown={e => {
-                  if (e.key === 'ArrowDown') {
-                    e.preventDefault();
-                    if (!filteredHistory.length) return;
-                    setSelectedHistoryIndex(prev => (prev < filteredHistory.length - 1 ? prev + 1 : 0));
-                  } else if (e.key === 'ArrowUp') {
-                    e.preventDefault();
-                    if (!filteredHistory.length) return;
-                    setSelectedHistoryIndex(prev => (prev > 0 ? prev - 1 : filteredHistory.length - 1));
-                  } else if (e.key === 'Enter') {
-                    if (selectedHistoryIndex >= 0 && selectedHistoryIndex < filteredHistory.length) {
-                      e.preventDefault();
-                      const item = filteredHistory[selectedHistoryIndex];
-                      setSearchQuery(item);
-                      saveToHistory(item);
-                      setIsSearchFocused(false);
-                    } else {
-                      saveToHistory(searchQuery);
-                      setIsSearchFocused(false);
-                    }
-                  } else if (e.key === 'Escape') {
-                    setIsSearchFocused(false);
+        <aside className="w-84 border-r border-cyan-900/40 bg-[#070707] p-3 flex flex-col gap-3 shrink-0 z-10 overflow-y-auto h-full">
+          {/* UI Profiles (Adaptive Logic) */}
+          <div className="flex flex-col gap-1.5 mb-2 pb-3 border-b border-neutral-800/60">
+            <span className="text-[10px] uppercase font-mono text-slate-500 font-bold">Профиль интерфейса:</span>
+            <div className="flex items-center gap-2">
+              <select
+                value={currentRole.id}
+                onChange={e => switchRole(e.target.value)}
+                className="flex-1 bg-neutral-900 border border-neutral-700 rounded px-2 py-1.5 text-xs text-cyan-100 font-bold focus:outline-none focus:border-cyan-500 cursor-pointer"
+              >
+                {roles.map((r: any) => <option key={r.id} value={r.id}>{r.name}</option>)}
+              </select>
+              <button
+                type="button"
+                onClick={() => {
+                  const name = prompt('Введите название новой роли:');
+                  if (name) {
+                    const clone = confirm('Скопировать текущие веса как базу?');
+                    createRole(name, clone ? currentRole.id : undefined);
                   }
                 }}
-                className="w-full bg-neutral-900/60 border border-neutral-700/80 rounded px-2 py-1.5 text-xs text-gray-200 focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500/50 pr-6 transition-colors"
-              />
-              {searchQuery && (
-                <button
-                  type="button"
-                  onClick={() => setSearchQuery('')}
-                  className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-200 text-xs p-0.5 cursor-pointer"
-                  title="Очистить"
-                >
-                  ✕
-                </button>
-              )}
+                className="w-7 h-7 shrink-0 flex items-center justify-center bg-neutral-800 hover:bg-neutral-700 rounded text-slate-300 font-bold transition-colors"
+                title="Создать профиль"
+              >
+                +
+              </button>
+            </div>
+          </div>
 
-              {/* Выпадающая подсказка с историей */}
-              {isSearchFocused && filteredHistory.length > 0 && (
-                <div className="absolute left-0 right-0 top-full mt-1 bg-neutral-900 border border-cyan-800/70 rounded-md shadow-2xl z-50 overflow-hidden max-h-52 overflow-y-auto">
-                  <div className="flex items-center justify-between px-2.5 py-1 bg-neutral-950/90 border-b border-neutral-800 text-[9px] text-gray-500 uppercase font-mono">
-                    <span>История поиска ({filteredHistory.length})</span>
-                    <button
-                      type="button"
-                      onMouseDown={clearHistory}
-                      className="text-cyan-500 hover:text-cyan-400 hover:underline cursor-pointer"
-                    >
-                      Очистить
-                    </button>
-                  </div>
-                  {filteredHistory.map((item, idx) => {
-                    const isKeyboardSelected = idx === selectedHistoryIndex;
-                    return (
-                      <div
-                        key={idx}
-                        onMouseDown={() => {
-                          setSearchQuery(item);
-                          saveToHistory(item);
-                          setIsSearchFocused(false);
-                        }}
-                        className={`flex items-center justify-between px-2.5 py-1.5 text-xs cursor-pointer transition-colors border-b border-neutral-800/40 last:border-none group ${
-                          isKeyboardSelected
-                            ? 'bg-cyan-900/60 text-cyan-100 font-medium'
-                            : 'text-gray-300 hover:bg-cyan-950/70 hover:text-cyan-200'
-                        }`}
-                      >
-                        <div className="flex items-center gap-1.5 min-w-0">
-                          <span className={`text-[10px] ${isKeyboardSelected ? 'text-cyan-300' : 'text-cyan-500/70'}`}>🔍</span>
-                          <span className="truncate">{item}</span>
-                        </div>
-                        <button
-                          type="button"
-                          onMouseDown={e => removeFromHistory(e, item)}
-                          className="text-gray-600 hover:text-rose-400 text-[10px] p-0.5 ml-2 opacity-60 group-hover:opacity-100 transition-opacity cursor-pointer"
-                          title="Удалить из истории"
-                        >
-                          ✕
-                        </button>
-                      </div>
-                    );
-                  })}
+          {/* Render active panels */}
+          <div className="accordion-container flex flex-col gap-0 border-0 bg-transparent overflow-visible w-full">
+          {[...visibleElements.map((el: any) => ({ ...el, isHidden: false })), ...hiddenElements.map((el: any) => ({ ...el, isHidden: true }))].map(({ id, isHidden }: any) => {
+            if (isHidden && !showOverflow) return null;
+            
+            // PHYSICS PANEL IS UNIQUE
+            if (id === 'physics') {
+              return (
+                <div key="physics" className={`accordion-item border border-neutral-800/80 rounded-lg overflow-hidden bg-neutral-900/40 mb-2 ${isHidden ? 'opacity-80 border-dashed' : ''}`}>
+                  <PhysicsControlPanel
+                    params={physicsParams}
+                    onChange={setPhysicsParams}
+                  />
                 </div>
+              );
+            }
+
+            // OTHER PANELS
+            return (
+              <div key={id} className={`accordion-item border border-neutral-800/80 rounded-lg overflow-hidden bg-neutral-900/40 mb-2 relative ${isHidden ? 'opacity-90 border-dashed border-neutral-700' : ''}`}>
+                <input type="checkbox" id={`accordion-${id}`} className="accordion-trigger" />
+                <label htmlFor={`accordion-${id}`} className="accordion-header bg-neutral-950/80 hover:bg-neutral-900/90 transition-colors cursor-pointer w-full flex flex-col items-start px-3.5 py-2.5 h-auto rounded-none border-0 m-0" onClick={() => trackClick(id)}>
+                  <div className="flex items-center justify-between w-full">
+                    <div className="flex items-center gap-2">
+                       {id === 'actions' && <Plus size={16} className="text-emerald-400" />}
+                       {id === 'search' && <Search size={16} className="text-cyan-400" />}
+                       {id === 'zones' && <Layers size={16} className="text-cyan-400" />}
+                       {id === 'available' && <CheckCircle2 size={16} className="text-emerald-400" />}
+                       {id === 'agent' && <Bot size={16} className="text-violet-400" />}
+                       {id === 'persistence' && <Database size={16} className="text-cyan-400" />}
+                       
+                       <span className="text-xs font-bold text-slate-100 uppercase tracking-wider accordion-title p-0">
+                         {UI_ELEMENTS.find(e => e.id === id)?.label}
+                       </span>
+
+                       {id === 'search' && searchQuery.trim() && (
+                         <span className={`text-xs font-mono px-2 py-0.5 rounded-full border ${searchMatchCount > 0 ? 'bg-cyan-950/80 text-cyan-200 border-cyan-700/80 font-bold' : 'bg-rose-950/80 text-rose-200 border-rose-700/80 font-bold'}`}>
+                           {searchMatchCount}
+                         </span>
+                       )}
+                       {id === 'zones' && (
+                         <span className="text-xs font-mono px-2 py-0.5 rounded-full bg-neutral-900 text-cyan-300 border border-neutral-700">
+                           {map.zones.length - hiddenZones.size} / {map.zones.length}
+                         </span>
+                       )}
+                       {id === 'available' && (
+                         <span className="text-xs font-mono px-2 py-0.5 rounded-full bg-neutral-900 text-emerald-300 border border-neutral-700">
+                           {availableNodes.length}
+                         </span>
+                       )}
+                       {id === 'agent' && (
+                         <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs font-mono bg-neutral-900 border border-neutral-700 text-emerald-400">
+                           <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                           <span>ONLINE</span>
+                         </span>
+                       )}
+                    </div>
+                    <span className="accordion-icon" aria-hidden="true">▼</span>
+                  </div>
+
+                  <div className="accordion-summary mt-2 pt-1.5 border-t border-neutral-800/40 flex flex-wrap gap-1 text-xs font-mono truncate w-full">
+                    {id === 'actions' && (
+                      <span className="bg-neutral-900 border border-neutral-800 px-2 py-0.5 rounded text-slate-200 text-emerald-300">+ Добавить новую задачу</span>
+                    )}
+                    {id === 'search' && (
+                      searchQuery.trim() ? (
+                        <span className="bg-neutral-900 border border-cyan-800/70 px-2 py-0.5 rounded text-cyan-200 truncate max-w-full">
+                          🔍 "{searchQuery}" ({searchMatchCount} совп.)
+                        </span>
+                      ) : (
+                        <span className="bg-neutral-900 border border-neutral-800 px-2 py-0.5 rounded text-slate-300">
+                          Поиск не активен
+                        </span>
+                      )
+                    )}
+                    {id === 'zones' && (
+                      <div className="flex flex-wrap gap-1.5 max-h-24 overflow-y-auto pr-1">
+                        {map.zones.filter(z => !hiddenZones.has(z.id)).length === 0 ? (
+                          <span className="text-xs text-amber-400 font-medium italic">Все сферы скрыты</span>
+                        ) : (
+                          map.zones.filter(z => !hiddenZones.has(z.id)).map(z => (
+                            <span key={z.id} className="inline-flex items-center gap-1.5 bg-neutral-900 border border-neutral-700/80 px-2 py-0.5 rounded-full text-xs text-slate-200">
+                              <span className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: getZoneColor(z.id) }} />
+                              <span className="truncate max-w-[130px] font-medium">{z.name}</span>
+                              <span onClick={(e) => { e.preventDefault(); e.stopPropagation(); setHiddenZones(prev => new Set(prev).add(z.id)); }} className="text-slate-400 hover:text-rose-400 font-bold ml-0.5 cursor-pointer">✕</span>
+                            </span>
+                          ))
+                        )}
+                      </div>
+                    )}
+                    {id === 'available' && (
+                      selectedNode ? (
+                        <span className="bg-emerald-950/80 border border-emerald-700/80 px-2.5 py-0.5 rounded-full text-emerald-200 inline-flex items-center gap-1.5 max-w-full font-medium">
+                          <span className="truncate">🎯 {selectedNode.title}</span>
+                          <span onClick={(e) => { e.preventDefault(); e.stopPropagation(); setSelectedNodeId(null); }} className="text-slate-400 hover:text-rose-400 font-bold cursor-pointer">✕</span>
+                        </span>
+                      ) : availableNodes.length > 0 ? (
+                        <span className="bg-neutral-900 border border-neutral-800 px-2 py-0.5 rounded text-slate-300 truncate max-w-full">
+                          Доступно: <strong className="text-emerald-400">{availableNodes.length}</strong> задач
+                        </span>
+                      ) : (
+                        <span className="bg-neutral-900 border border-neutral-800 px-2 py-0.5 rounded text-slate-400">Нет открытых задач</span>
+                      )
+                    )}
+                    {id === 'agent' && (
+                      <>
+                        <span className="bg-neutral-900 border border-neutral-800 px-2 py-0.5 rounded text-slate-200 text-violet-300">🤖 {selectedModel}</span>
+                        <span className="bg-neutral-900 border border-neutral-800 px-2 py-0.5 rounded text-slate-300 text-violet-300">Telegram Bot</span>
+                      </>
+                    )}
+                    {id === 'persistence' && (
+                      <>
+                        <span className="bg-neutral-900 border border-neutral-800 px-2 py-0.5 rounded text-slate-200 text-cyan-300">💾 IndexedDB</span>
+                        <span className="bg-neutral-900 border border-neutral-800 px-2 py-0.5 rounded text-slate-200 text-cyan-300">📥 .json</span>
+                      </>
+                    )}
+                  </div>
+                </label>
+
+                <div className={`accordion-content`}>
+                  <div className={`accordion-inner p-3 border-t border-neutral-800/60 bg-neutral-950/40 relative overflow-y-auto ${id === 'search' ? 'max-h-60' : id === 'zones' || id === 'available' || id === 'agent' ? 'max-h-64' : 'max-h-56'}`}>
+                    
+                    {id === 'actions' && (
+                      <ActionButton onClick={() => setShowAddNode(true)} variant="emerald" className="w-full uppercase font-bold tracking-wider cursor-pointer py-2 text-xs">
+                        + Добавить новую задачу
+                      </ActionButton>
+                    )}
+
+                    {id === 'search' && (
+                      <div className="relative">
+                        <input
+                          type="text"
+                          placeholder="Поиск узлов по названию или ID..."
+                          value={searchQuery}
+                          onChange={e => setSearchQuery(e.target.value)}
+                          onFocus={() => setIsSearchFocused(true)}
+                          onBlur={() => { saveToHistory(searchQuery); setTimeout(() => setIsSearchFocused(false), 200); }}
+                          onKeyDown={e => {
+                            if (e.key === 'ArrowDown') { e.preventDefault(); if (!filteredHistory.length) return; setSelectedHistoryIndex(prev => (prev < filteredHistory.length - 1 ? prev + 1 : 0)); }
+                            else if (e.key === 'ArrowUp') { e.preventDefault(); if (!filteredHistory.length) return; setSelectedHistoryIndex(prev => (prev > 0 ? prev - 1 : filteredHistory.length - 1)); }
+                            else if (e.key === 'Enter') {
+                              e.preventDefault();
+                              if (selectedHistoryIndex >= 0 && selectedHistoryIndex < filteredHistory.length) {
+                                setSearchQuery(filteredHistory[selectedHistoryIndex]);
+                                setIsSearchFocused(false);
+                                return;
+                              }
+                              saveToHistory(searchQuery);
+                            }
+                          }}
+                          className="w-full bg-[#050810] border border-cyan-900/60 rounded px-3 py-2 text-xs text-slate-200 focus:outline-none focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400/50"
+                        />
+                        
+                        {isSearchFocused && filteredHistory.length > 0 && (
+                          <div className="absolute top-full left-0 right-0 mt-1 bg-[#050810] border border-cyan-900/80 rounded-md shadow-2xl z-50 py-1 max-h-48 overflow-y-auto">
+                            {filteredHistory.map((query, index) => (
+                              <button
+                                key={query}
+                                type="button"
+                                className={`w-full text-left px-3 py-1.5 text-xs font-mono cursor-pointer flex items-center justify-between ${index === selectedHistoryIndex ? 'bg-cyan-950 text-cyan-300' : 'text-slate-400 hover:bg-neutral-900 hover:text-slate-200'}`}
+                                onMouseDown={(e) => { e.preventDefault(); setSearchQuery(query); setIsSearchFocused(false); saveToHistory(query); }}
+                              >
+                                <span>{query}</span>
+                                <span className="opacity-50 text-[10px]">История</span>
+                              </button>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    )}
+
+                    {id === 'zones' && (
+                      <div className="space-y-1">
+                        {map.zones.map(z => (
+                          <label key={z.id} className="flex items-center gap-2 px-2 py-1.5 hover:bg-neutral-800/40 rounded cursor-pointer group">
+                            <input
+                              type="checkbox"
+                              checked={!hiddenZones.has(z.id)}
+                              onChange={(e) => {
+                                setHiddenZones(prev => {
+                                  const next = new Set(prev);
+                                  if (e.target.checked) next.delete(z.id);
+                                  else next.add(z.id);
+                                  return next;
+                                });
+                              }}
+                              className="w-3.5 h-3.5 rounded border-neutral-600 bg-neutral-900 checked:bg-cyan-500 cursor-pointer"
+                            />
+                            <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: getZoneColor(z.id) }} />
+                            <span className="text-xs text-slate-300 group-hover:text-slate-100 font-medium truncate flex-1">{z.name}</span>
+                          </label>
+                        ))}
+                      </div>
+                    )}
+
+                    {id === 'available' && (
+                      <div className="space-y-1">
+                        {availableNodes.map(node => (
+                          <button
+                            key={node.id}
+                            type="button"
+                            onClick={() => setSelectedNodeId(node.id)}
+                            className={`w-full text-left px-2 py-2 rounded text-xs transition-colors cursor-pointer border ${selectedNodeId === node.id ? 'bg-emerald-950/40 border-emerald-800/80 text-emerald-300' : 'bg-transparent border-transparent hover:bg-neutral-800/40 text-slate-300 hover:text-slate-100'}`}
+                          >
+                            <div className="font-bold truncate">{node.title}</div>
+                            {node.economic?.marketGain && (
+                              <div className="text-[10px] text-emerald-500/70 font-mono mt-0.5">
+                                Ценность: {formatCurrency(node.economic.marketGain)}
+                              </div>
+                            )}
+                          </button>
+                        ))}
+                        {availableNodes.length === 0 && (
+                          <div className="text-xs text-slate-500 text-center py-4 italic">
+                            Все узлы заблокированы или решены
+                          </div>
+                        )}
+                      </div>
+                    )}
+
+                    {id === 'agent' && (
+                      <div className="space-y-3">
+                        <div>
+                          <label className="text-[10px] text-slate-500 uppercase font-bold mb-1 block">Нейросеть (Gemini)</label>
+                          <select
+                            value={selectedModel}
+                            onChange={(e) => setSelectedModel(e.target.value as string)}
+                            className="w-full bg-[#050810] border border-cyan-900/40 rounded px-2 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-cyan-400"
+                          >
+                            <option value="gemini-2.5-flash">Gemini 2.5 Flash (Fast)</option>
+                            <option value="gemini-2.5-pro">Gemini 2.5 Pro (Smart)</option>
+                          </select>
+                        </div>
+                        <div className="pt-2 border-t border-neutral-800/40 flex flex-col gap-2">
+                          <div className="flex items-center justify-between">
+                            <span className="text-xs text-slate-300">Telegram Агент</span>
+                            <span className="text-xs font-bold text-emerald-400 bg-emerald-950/40 px-2 py-0.5 rounded border border-emerald-900/60">
+                              АКТИВЕН
+                            </span>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => setShowTelegramBot(true)}
+                            className="w-full bg-violet-600 hover:bg-violet-500 text-white font-bold text-xs py-1.5 rounded transition-colors"
+                          >
+                            Открыть Telegram-интерфейс
+                          </button>
+                        </div>
+                      </div>
+                    )}
+
+                    {id === 'persistence' && (
+                      <div className="space-y-2.5">
+                        <ActionButton
+                          onClick={() => { void map.saveNow(); }}
+                          variant="cyan"
+                          className="w-full cursor-pointer py-2 text-xs"
+                        >
+                          💾 Сохранить в IndexedDB
+                        </ActionButton>
+                        <ActionButton
+                          onClick={() => map.downloadJson()}
+                          variant="neutral"
+                          className="w-full cursor-pointer py-2 text-xs"
+                        >
+                          📥 Скачать .json
+                        </ActionButton>
+                        <ActionButton
+                          onClick={() => { if (window.confirm('Сбросить карту?')) void map.resetMap(); }}
+                          variant="red"
+                          className="w-full cursor-pointer py-2 text-xs"
+                        >
+                          ⚠️ Сброс карты
+                        </ActionButton>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+          </div>
+
+          {hiddenElements.length > 0 && (
+            <div className="pt-2 mt-auto">
+              {!showOverflow ? (
+                <button
+                  onClick={() => setShowOverflow(true)}
+                  className="w-full py-2.5 bg-neutral-950 border border-neutral-800 hover:border-cyan-900/70 hover:bg-neutral-900 rounded-lg text-slate-400 hover:text-cyan-400 text-[10px] font-bold uppercase tracking-wider transition-all flex items-center justify-center gap-2"
+                >
+                  <ChevronDown size={14} /> Показать редко используемые ({hiddenElements.length})
+                </button>
+              ) : (
+                <button
+                  onClick={() => setShowOverflow(false)}
+                  className="w-full py-2.5 bg-neutral-900 border border-cyan-800/50 rounded-lg text-cyan-300 text-[10px] font-bold uppercase tracking-wider transition-all flex items-center justify-center gap-2 mb-2"
+                >
+                  <ChevronUp size={14} /> Скрыть редко используемые
+                </button>
               )}
             </div>
-
-            {/* Пустое состояние поиска */}
-            {searchQuery.trim() !== '' && searchMatchCount === 0 && (
-              <div className="mt-2 p-2 bg-amber-950/30 border border-amber-800/40 rounded text-[10px] text-amber-300/90 flex items-center justify-between">
-                <span>Ничего не найдено</span>
-                <button
-                  type="button"
-                  onClick={() => setSearchQuery('')}
-                  className="underline text-amber-200 hover:text-white cursor-pointer ml-1"
-                >
-                  Сбросить
-                </button>
-              </div>
-            )}
-          </section>
-
-          <section>
-            <h3 className="text-[10px] font-bold text-gray-500 uppercase mb-3">Science Zones</h3>
-            <div className="space-y-2 max-h-64 overflow-y-auto pr-1">
-              {map.zones.map(zone => {
-                const isHidden = hiddenZones.has(zone.id);
-                const visibleCount = map.nodes.filter(
-                  n => visibleNodeIds.has(n.id) && (zone.nodeIds.includes(n.id) || n.zoneIds.includes(zone.id))
-                ).length;
-                const isFilteredOut = !isHidden && visibleCount === 0;
-
-                return (
-                  <div key={zone.id} className={`flex items-center justify-between p-2 border rounded transition-opacity ${
-                    isFilteredOut ? 'bg-neutral-950/20 border-neutral-900/40 opacity-40' : 'bg-neutral-900/40 border-neutral-800/50'
-                  }`}>
-                    <label className="flex items-center gap-2 cursor-pointer flex-1 min-w-0">
-                      <input 
-                        type="checkbox" 
-                        checked={!isHidden} 
-                        onChange={() => {
-                          setHiddenZones(prev => {
-                            const next = new Set(prev);
-                            if (next.has(zone.id)) next.delete(zone.id);
-                            else next.add(zone.id);
-                            return next;
-                          });
-                        }}
-                        className="accent-cyan-500 rounded border-cyan-800"
-                      />
-                      <span className={`text-[11px] truncate ${
-                        isHidden ? 'text-gray-600 line-through' : isFilteredOut ? 'text-gray-500' : 'text-gray-300'
-                      }`}>
-                        {zone.name}
-                      </span>
-                      {visibleCount > 0 && (
-                        <span className="text-[9px] font-mono text-cyan-400/80">({visibleCount})</span>
-                      )}
-                      {isFilteredOut && (
-                        <span className="text-[9px] text-gray-600 font-mono">(скрыта)</span>
-                      )}
-                    </label>
-                    <span className={`w-2 h-2 rounded-full shrink-0 ${isHidden || isFilteredOut ? 'opacity-30' : 'opacity-100'}`} style={{ backgroundColor: getZoneColor(zone.id) }} />
-                  </div>
-                );
-              })}
-            </div>
-          </section>
-
-          <section>
-            <h3 className="text-[10px] font-bold text-gray-500 uppercase mb-3">Доступно к решению ({availableNodes.length})</h3>
-            <div className="space-y-1.5 max-h-48 overflow-y-auto pr-1">
-              {availableNodes.length === 0 && (<p className="text-[10px] text-gray-600">Нет открытых узлов.</p>)}
-              {availableNodes.map(n => (
-                <button key={n.id} type="button" onClick={() => setSelectedNodeId(n.id)}
-                  className={'w-full text-left px-2 py-1.5 text-[11px] rounded border transition-colors ' + (selectedNodeId === n.id ? 'border-cyan-500/60 bg-cyan-950/50 text-cyan-200' : 'border-neutral-800 bg-neutral-900/40 text-gray-300 hover:border-cyan-800/50 hover:text-cyan-300')}>
-                  <span className="block truncate font-medium">{n.title}</span>
-                  <span className="block text-[9px] text-gray-500 font-mono truncate">{n.id}</span>
-                </button>
-              ))}
-            </div>
-            {selectedNode && (isNodeAvailable(selectedNode, map) || selectedNode.state === 'resolved') && (
-              <div className="mt-2 w-full">
-                {isSolving && solveLogs.length > 0 && (
-                  <div className="mt-2 mb-2 bg-black/80 border border-cyan-900 p-2 rounded max-h-32 overflow-y-auto">
-                    {solveLogs.map((log, i) => (
-                      <p key={i} className="text-[9px] text-cyan-300 font-mono mb-1">&gt; {log}</p>
-                    ))}
-                  </div>
-                )}
-                <ActionButton
-                  onClick={() => handleSolve(selectedNode.id)}
-                  isLoading={isSolving}
-                  variant="cyan"
-                  className="w-full uppercase font-bold tracking-wider cursor-pointer"
-                >
-                  {isSolving
-                    ? 'Агент вычисляет (RICIS-III)...'
-                    : selectedNode.state === 'resolved'
-                    ? 'Перерассчитать доказательство (RICIS-III)'
-                    : 'Синтезировать решение (RICIS-III)'}
-                </ActionButton>
-              </div>
-            )}
-          </section>
-
-          <section>
-            <h3 className="text-[10px] font-bold text-cyan-400 uppercase tracking-wider mb-2 flex items-center justify-between">
-              <span>🤖 Telegram Сервис</span>
-              <span className="text-[9px] bg-emerald-950 text-emerald-400 border border-emerald-800 px-1 rounded font-mono font-bold">ONLINE</span>
-            </h3>
-            <div className="space-y-2">
-              <ActionButton
-                onClick={() => setShowTelegramBot(true)}
-                variant="cyan"
-                className="w-full bg-gradient-to-r from-cyan-900 to-blue-900 hover:brightness-125 border border-cyan-500/80 font-bold"
-              >
-                🤖 Чат-Бот RICIS-III (Запуск)
-              </ActionButton>
-            </div>
-          </section>
-
-          <section>
-            <h3 className="text-[10px] font-bold text-gray-500 uppercase mb-3">Persistence</h3>
-            <div className="space-y-2">
-              <ActionButton
-                onClick={() => { void map.saveNow(); }}
-                variant="cyan"
-                className="w-full"
-              >
-                💾 Сохранить в IndexedDB
-              </ActionButton>
-              <ActionButton
-                onClick={() => map.downloadJson()}
-                variant="neutral"
-                className="w-full"
-              >
-                📥 Скачать .json
-              </ActionButton>
-              <ActionButton
-                onClick={() => { if (window.confirm('Сбросить карту?')) void map.resetMap(); }}
-                variant="red"
-                className="w-full"
-              >
-                ⚠️ Сброс карты
-              </ActionButton>
-            </div>
-          </section>
-
-          <section>
-            <div className="flex items-center justify-between mb-2">
-              <h3 className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">
-                ИИ-агент: <span className="text-violet-400 font-mono font-medium lowercase ml-1">{selectedModel}</span>
-              </h3>
-            </div>
-            <div className="mb-2">
-              <label className="text-[9px] text-gray-500 block mb-1">Выбранный ИИ-агент / модель:</label>
-              <select
-                value={selectedModel}
-                onChange={e => {
-                  const val = e.target.value;
-                  setSelectedModel(val);
-                  localStorage.setItem('ricis_selected_ai_model', val);
-                }}
-                className="w-full text-[10px] bg-neutral-900 border border-violet-800/60 rounded px-2 py-1.5 text-violet-200 focus:outline-none focus:border-violet-500 cursor-pointer"
-              >
-                <option value="gemini-3.6-flash">gemini-3.6-flash (Fast Engine)</option>
-                <option value="gemini-3.1-pro-preview">gemini-3.1-pro-preview (RICIS-III Core)</option>
-                <option value="gemini-flash-latest">gemini-flash-latest (Auto Flash)</option>
-              </select>
-            </div>
-            <ActionButton
-              onClick={handleAgentDiscovery}
-              isLoading={isAgentSearching}
-              variant="violet"
-              className="w-full mb-1"
-            >
-              Поиск новых проблем
-            </ActionButton>
-            <AuditPanel />
-            <label className={`mt-2 flex items-center justify-between cursor-pointer px-2.5 py-2 rounded border transition-all ${
-              showOnlyDerivatives 
-                ? 'border-violet-500/80 bg-violet-950/60 shadow-[0_0_12px_rgba(168,85,247,0.2)] text-violet-100 font-medium' 
-                : 'border-violet-900/40 bg-violet-950/20 hover:bg-violet-950/40 text-violet-200'
-            }`}>
-              <div className="flex items-center gap-2">
-                <input
-                  type="checkbox"
-                  checked={showOnlyDerivatives}
-                  onChange={e => setShowOnlyDerivatives(e.target.checked)}
-                  className="accent-violet-500 rounded cursor-pointer"
-                />
-                <span className="text-[11px]">
-                  Только фиолетовые
-                </span>
-              </div>
-              <span className={`text-[10px] font-mono px-1.5 py-0.5 rounded ${
-                showOnlyDerivatives ? 'bg-violet-800/80 text-violet-100' : 'bg-violet-900/40 text-violet-300'
-              }`}>
-                {derivativeCount}
-              </span>
-            </label>
-            {showOnlyDerivatives && (
-              <p className="text-[9px] text-violet-400/80 mt-1 px-1 leading-snug">
-                Карта: только derivative_claim (+ якоря). JSON → только фиолетовые.
-              </p>
-            )}
-            <p className="text-[9px] text-gray-600 mt-1">Каталог остаток: {map.catalogRemaining()}.</p>
-            {agentMsg && <p className="text-[10px] text-violet-300 mt-1">{agentMsg}</p>}
-          </section>
-
-          <p className="text-[9px] text-gray-600 mt-auto leading-snug">Зоны растут с числом узлов. Размер узла — значимость. Подписи — реальные названия.</p>
+          )}
         </aside>
 
         <div className="flex-1 relative bg-[radial-gradient(circle_at_center,_#0a0f1a_0%,_#050505_100%)]">
-          {/* HUD Подсказка по навигации 3D */}
-          <div className="absolute bottom-4 left-4 z-10 pointer-events-none flex items-center gap-3 bg-black/75 backdrop-blur border border-neutral-800/80 rounded-lg px-3 py-1.5 text-[10px] text-gray-400 font-mono shadow-xl">
-            <span className="flex items-center gap-1"><span className="text-cyan-400">🖱️ ЛКМ</span> Вращение</span>
-            <span className="text-neutral-700">|</span>
-            <span className="flex items-center gap-1"><span className="text-cyan-400">ПКМ</span> Панорама</span>
-            <span className="text-neutral-700">|</span>
-            <span className="flex items-center gap-1"><span className="text-cyan-400">Колесо</span> Масштаб</span>
-          </div>
-
           <Canvas camera={{ position: [0, 0, 32], fov: 55, far: 10000, near: 0.1 }} gl={{ antialias: true, alpha: true }}>
-            <OrbitControls />
+            <OrbitControls controlsRef={controlsRef} />
             <ambientLight intensity={0.22} />
             <hemisphereLight args={['#1e3a5f', '#050508', 0.55]} />
             <pointLight position={[18, 22, 14]} intensity={1.35} color="#e8f4ff" distance={80} />
@@ -1232,7 +1295,6 @@ export const Map3D: React.FC = () => {
       {showAddNode && (
         <AddNodeModal onClose={() => setShowAddNode(false)} parentId={selectedNodeId || undefined} />
       )}
-      <PhysicsControlPanel params={physicsParams} onChange={setPhysicsParams} />
       {showTelegramBot && (
         <TelegramBotPanel onClose={() => setShowTelegramBot(false)} />
       )}
@@ -1243,12 +1305,37 @@ export const Map3D: React.FC = () => {
           onSolveAfterSave={() => handleSolve(editingNode.id)}
         />
       )}
-      <footer className="h-8 border-t border-cyan-900/30 bg-[#080808] flex items-center px-4 shrink-0">
-        <div className="flex gap-6 text-[9px] font-mono text-cyan-900/70 uppercase">
-          <span className="text-cyan-400/90">// {APP_BUILD_LABEL}</span>
-          <span>// ZONES GROW BY NODE COUNT · NODE SIZE = SIGNIFICANCE</span>
-          <span>// EDGE GREEN = BOTH ENDS RESOLVED</span>
-          <span className="text-cyan-500/80">// LABELS = REAL PROBLEM TITLES</span>
+      <footer className="h-10 border-t border-cyan-900/40 bg-[#080808] flex items-center justify-between px-4 shrink-0 z-10 w-full overflow-visible">
+        {/* Left Side: System Status / Empty state for future dialogs */}
+        <div className="flex items-center gap-3 text-sm text-slate-400 font-mono">
+          <span className="flex items-center gap-1.5">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.8)]"></span>
+            <span className="hidden sm:inline">Система активна</span>
+          </span>
+        </div>
+
+        {/* Right Side: Map Controls with Hover Tooltip */}
+        <div className="relative group flex items-center gap-1 bg-neutral-900 border border-neutral-700/80 rounded px-1 py-1 shadow-lg">
+          {/* Controls Tooltip */}
+          <div className="absolute bottom-full right-0 mb-3 w-max px-3 py-2 bg-neutral-800 border border-neutral-700 text-slate-200 text-sm font-mono rounded shadow-xl opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50">
+            <div className="flex flex-col gap-1.5">
+              <span className="flex items-center gap-2"><span className="text-cyan-400 font-bold min-w-[3rem]">ЛКМ</span> Вращение</span>
+              <span className="flex items-center gap-2"><span className="text-cyan-400 font-bold min-w-[3rem]">ПКМ</span> Панорама</span>
+              <span className="flex items-center gap-2"><span className="text-cyan-400 font-bold min-w-[3rem]">Колесо</span> Масштаб</span>
+            </div>
+            {/* Tooltip Arrow */}
+            <div className="absolute top-full right-6 -mt-px w-2 h-2 bg-neutral-800 border-b border-r border-neutral-700 transform rotate-45"></div>
+          </div>
+
+          <button onClick={handleZoomOut} className="w-6 h-6 flex items-center justify-center text-slate-300 hover:text-white hover:bg-neutral-700 rounded transition-colors cursor-pointer" title="Уменьшить масштаб">-</button>
+          <span className="px-2 text-xs font-mono text-slate-300 select-none min-w-[2.5rem] text-center">100%</span>
+          <button onClick={handleZoomIn} className="w-6 h-6 flex items-center justify-center text-slate-300 hover:text-white hover:bg-neutral-700 rounded transition-colors cursor-pointer" title="Увеличить масштаб">+</button>
+          
+          <div className="w-px h-4 bg-neutral-700 mx-1"></div>
+          
+          <button onClick={handleResetCamera} className="px-2 h-6 flex items-center justify-center text-cyan-400 hover:bg-neutral-700 rounded transition-colors text-xs font-bold gap-1 cursor-pointer" title="Сбросить камеру">
+            <Crosshair size={12} /> Сброс
+          </button>
         </div>
       </footer>
     </div>

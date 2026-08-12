@@ -4,6 +4,16 @@ import { ProblemNode } from '../model/types';
 import { ActionButton } from './ActionButton';
 import { isAutoFormulaRequest } from '../model/audit';
 
+
+interface AiAssistantResponse {
+  title?: string;
+  normalizedFunction?: string;
+  targetFunction?: string;
+  description?: string;
+  hint?: string;
+  link?: string;
+}
+
 export function AddNodeModal({ onClose, parentId }: { onClose: () => void; parentId?: string }) {
   const map = useMapStore();
   
@@ -26,14 +36,7 @@ export function AddNodeModal({ onClose, parentId }: { onClose: () => void; paren
     setLoadingAI(true);
     try {
       const { postJson } = await import('../model/apiClient');
-      const api = await postJson<{
-        title?: string;
-        normalizedFunction?: string;
-        targetFunction?: string;
-        description?: string;
-        hint?: string;
-        link?: string;
-      }>('/api/aiAssistantNode', { title, targetFunction, zoneId, hint });
+      const api = await postJson<AiAssistantResponse>('/api/aiAssistantNode', { title, targetFunction, zoneId, hint });
       if (!api.ok) {
         setErrorMsg(api.error);
       } else {
@@ -67,14 +70,7 @@ export function AddNodeModal({ onClose, parentId }: { onClose: () => void; paren
       setLoadingAI(true);
       try {
         const { postJson } = await import('../model/apiClient');
-        const api = await postJson<{
-          title?: string;
-          normalizedFunction?: string;
-          targetFunction?: string;
-          description?: string;
-          hint?: string;
-          link?: string;
-        }>('/api/aiAssistantNode', {
+        const api = await postJson<AiAssistantResponse>('/api/aiAssistantNode', {
           title,
           targetFunction: resolvedTargetFn || 'найди формулу сам',
           zoneId,

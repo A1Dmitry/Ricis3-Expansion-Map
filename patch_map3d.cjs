@@ -1,34 +1,32 @@
 const fs = require('fs');
-let code = fs.readFileSync('src/ui/Map3D.tsx', 'utf-8');
 
-const oldBlock = `  const handleAgentDiscovery = async () => {
-    const added = await map.runAgentDiscovery(selectedNodeId || undefined);
-    setAgentMsg(
-      added > 0
-        ? 'Агент добавил ' + added + ' новых проблем в граф.'
-        : 'Агент не нашёл новых кандидатов.'
-    );
-    setTimeout(() => setAgentMsg(null), 4000);
-  };`;
+const path = 'src/ui/Map3D.tsx';
+let code = fs.readFileSync(path, 'utf8');
 
-const newBlock = `  const handleAgentDiscovery = async () => {
-    const res = await map.runAgentDiscovery(selectedNodeId || undefined);
-    if (res.error) {
-      setAgentMsg('Ошибка агента: ' + res.error);
-    } else {
-      setAgentMsg(
-        res.added > 0
-          ? 'Агент добавил ' + res.added + ' новых проблем в граф.'
-          : 'Агент не нашёл новых кандидатов.'
+// The block to replace: searchMatchCount is just visibleNodeIds.size
+const searchMatchStart = `  const searchMatchCount = useMemo(() => {
+    if (!searchQuery.trim()) return map.nodes.length;
+    const q = searchQuery.toLowerCase().trim();
+    return map.nodes.filter(n => {
+      if (n.zoneIds.every(zid => hiddenZones.has(zid))) return false;
+      if (showOnlyDerivatives && !isDerivativeNode(n)) return false;
+      return (
+        n.title?.toLowerCase().includes(q) ||
+        n.description?.toLowerCase().includes(q) ||
+        n.targetFunction?.toLowerCase().includes(q)
       );
-    }
-    setTimeout(() => setAgentMsg(null), 5000);
-  };`;
+    }).length;
+  }, [map.nodes, searchQuery, hiddenZones, showOnlyDerivatives]);`;
 
-if (code.includes(oldBlock)) {
-    code = code.replace(oldBlock, newBlock);
-    fs.writeFileSync('src/ui/Map3D.tsx', code);
-    console.log('Patched Map3D.tsx');
+const searchMatchReplacement = `  const searchMatchCount = useMemo(() => {
+    if (!searchQuery.trim()) return map.nodes.length;
+    return visibleNodeIds.size;
+  }, [map.nodes.length, searchQuery, visibleNodeIds]);`;
+
+if (code.includes(searchMatchStart)) {
+  code = code.replace(searchMatchStart, searchMatchReplacement);
+  fs.writeFileSync(path, code);
+  console.log("Map3D patched");
 } else {
-    console.log('Could not find block in Map3D.tsx');
+  console.log("Could not find searchMatchCount block in Map3D");
 }

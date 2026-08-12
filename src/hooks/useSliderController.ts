@@ -1,41 +1,40 @@
 import { useState, useEffect, useRef } from 'react';
-import { PhysicsParams, DEFAULT_PHYSICS_PARAMS } from '../model/physics';
 
 export type SliderInteractionState = 'IDLE' | 'DRAGGING' | 'PENDING_IDLE';
 
-export interface PhysicsSliderState {
-  workingParams: PhysicsParams;
-  committedParams: PhysicsParams;
+export interface SliderState<T> {
+  workingParams: T;
+  committedParams: T;
   status: SliderInteractionState;
 }
 
-export type SliderListener = (state: PhysicsSliderState) => void;
-export type CommitCallback = (params: PhysicsParams) => void;
+export type SliderListener<T> = (state: SliderState<T>) => void;
+export type CommitCallback<T> = (params: T) => void;
 
 /**
- * Бизнес-слой управления ползунками физической симуляции (Slider Business Layer).
+ * Обобщенный бизнес-слой (MVVM) управления ползунками и настройками.
  * 
  * Соблюдение бизнес-требований:
- * 1. Пока нажата кнопка мыши / происходит перетаскивание (DRAGGING):
+ * 1. Пока происходит перетаскивание (DRAGGING):
  *    - Изменения происходят ИСКЛЮЧИТЕЛЬНО во внутреннем состоянии (workingParams).
- *    - Никакие события во внешнюю физическую систему НЕ отправляются.
- *    - Ползунки свободно и плавно передвигаются в интерфейсе.
- * 2. При отпускании кнопки мыши статус переходит в PENDING_IDLE и запускается 1-секундный таймер.
+ *    - Никакие события во внешнюю систему НЕ отправляются.
+ *    - Интерфейс работает плавно и без лагов.
+ * 2. При отпускании кнопки мыши статус переходит в PENDING_IDLE и запускается таймер.
  * 3. Если пользователь сдвигает ползунок снова, таймер сбрасывается.
- * 4. Только при достижении статуса IDLE (1 сек полного покоя) отправляется ИТОГОВОЕ событие изменения.
+ * 4. Только при достижении статуса IDLE отправляется ИТОГОВОЕ событие изменения.
  */
-export class PhysicsSliderController {
-  private workingParams: PhysicsParams;
-  private committedParams: PhysicsParams;
+export class SliderController<T extends Record<string, any>> {
+  private workingParams: T;
+  private committedParams: T;
   private status: SliderInteractionState = 'IDLE';
   private idleTimer: ReturnType<typeof setTimeout> | null = null;
-  private listeners: Set<SliderListener> = new Set();
-  private onCommit: CommitCallback;
+  private listeners: Set<SliderListener<T>> = new Set();
+  private onCommit: CommitCallback<T>;
   private readonly idleDelayMs: number;
 
   constructor(
-    initialParams: PhysicsParams = DEFAULT_PHYSICS_PARAMS,
-    onCommit: CommitCallback,
+    initialParams: T,
+    onCommit: CommitCallback<T>,
     idleDelayMs: number = 1000
   ) {
     this.workingParams = { ...initialParams };
@@ -44,7 +43,7 @@ export class PhysicsSliderController {
     this.idleDelayMs = idleDelayMs;
   }
 
-  public subscribe(listener: SliderListener): () => void {
+  public subscribe(listener: SliderListener<T>): () => void {
     this.listeners.add(listener);
     listener(this.getState());
     return () => {
@@ -52,7 +51,7 @@ export class PhysicsSliderController {
     };
   }
 
-  public getState(): PhysicsSliderState {
+  public getState(): SliderState<T> {
     return {
       workingParams: { ...this.workingParams },
       committedParams: { ...this.committedParams },
@@ -60,29 +59,19 @@ export class PhysicsSliderController {
     };
   }
 
-  /**
-   * Начало зажатия мыши на слайдере
-   */
   public startInteraction(): void {
     this.clearIdleTimer();
     this.status = 'DRAGGING';
     this.notify();
   }
 
-  /**
-   * Обновление значения ползунка только во внутреннем бизнес-слое
-   */
-  public updateValue(key: keyof PhysicsParams, value: number): void {
-    if (isNaN(value)) return;
+  public updateValue<K extends keyof T>(key: K, value: T[K]): void {
     this.workingParams = { ...this.workingParams, [key]: value };
     this.status = 'DRAGGING';
-    this.clearIdleTimer(); // Сбрасываем таймер во время движения
+    this.clearIdleTimer();
     this.notify();
   }
 
-  /**
-   * Завершение перемещения (отпускание клавиши мыши)
-   */
   public endInteraction(): void {
     if (this.status === 'DRAGGING') {
       this.status = 'PENDING_IDLE';
@@ -91,10 +80,7 @@ export class PhysicsSliderController {
     }
   }
 
-  /**
-   * Мгновенный сброс параметров к значениям по умолчанию
-   */
-  public resetToDefault(defaultParams: PhysicsParams = DEFAULT_PHYSICS_PARAMS): void {
+  public resetToDefault(defaultParams: T): void {
     this.clearIdleTimer();
     this.workingParams = { ...defaultParams };
     this.committedParams = { ...defaultParams };
@@ -103,10 +89,7 @@ export class PhysicsSliderController {
     this.onCommit(this.committedParams);
   }
 
-  /**
-   * Синхронизация с внешними изменениями (только в состоянии IDLE)
-   */
-  public syncExternalParams(externalParams: PhysicsParams): void {
+  public syncExternalParams(externalParams: T): void {
     if (this.status === 'IDLE') {
       this.workingParams = { ...externalParams };
       this.committedParams = { ...externalParams };
@@ -127,7 +110,6 @@ export class PhysicsSliderController {
       if (hasChanged) {
         this.committedParams = { ...this.workingParams };
         this.notify();
-        // Отправка изменения внешней системе СТРОГО в состоянии IDLE
         this.onCommit(this.committedParams);
       } else {
         this.notify();
@@ -149,26 +131,26 @@ export class PhysicsSliderController {
 }
 
 /**
- * React-хук бизнес-слоя управления ползунками
+ * Обобщенный React-хук бизнес-слоя управления параметрами.
  */
-export function usePhysicsSliderController(
-  externalParams: PhysicsParams,
-  onChange: (params: PhysicsParams) => void,
+export function useSliderController<T extends Record<string, any>>(
+  externalParams: T,
+  onChange: (params: T) => void,
   idleDelayMs: number = 1000
 ) {
-  const controllerRef = useRef<PhysicsSliderController | null>(null);
+  const controllerRef = useRef<SliderController<T> | null>(null);
   const onChangeRef = useRef(onChange);
   onChangeRef.current = onChange;
 
   if (!controllerRef.current) {
-    controllerRef.current = new PhysicsSliderController(
+    controllerRef.current = new SliderController<T>(
       externalParams,
       (committed) => onChangeRef.current(committed),
       idleDelayMs
     );
   }
 
-  const [state, setState] = useState<PhysicsSliderState>(() =>
+  const [state, setState] = useState<SliderState<T>>(() =>
     controllerRef.current!.getState()
   );
 
@@ -177,25 +159,20 @@ export function usePhysicsSliderController(
     const unsubscribe = controller.subscribe((newState) => {
       setState(newState);
     });
-    return () => {
-      unsubscribe();
-    };
+    return () => unsubscribe();
   }, []);
 
   useEffect(() => {
     controllerRef.current?.syncExternalParams(externalParams);
   }, [externalParams]);
 
-  // Глобальный перехват отпускания клавиши мыши
   useEffect(() => {
     const handleGlobalPointerUp = () => {
       controllerRef.current?.endInteraction();
     };
-
     window.addEventListener('pointerup', handleGlobalPointerUp);
     window.addEventListener('mouseup', handleGlobalPointerUp);
     window.addEventListener('touchend', handleGlobalPointerUp);
-
     return () => {
       window.removeEventListener('pointerup', handleGlobalPointerUp);
       window.removeEventListener('mouseup', handleGlobalPointerUp);
@@ -208,8 +185,8 @@ export function usePhysicsSliderController(
     status: state.status,
     startInteraction: () => controllerRef.current?.startInteraction(),
     endInteraction: () => controllerRef.current?.endInteraction(),
-    updateValue: (key: keyof PhysicsParams, val: number) =>
+    updateValue: <K extends keyof T>(key: K, val: T[K]) =>
       controllerRef.current?.updateValue(key, val),
-    reset: () => controllerRef.current?.resetToDefault(),
+    reset: (defaultParams: T) => controllerRef.current?.resetToDefault(defaultParams),
   };
 }

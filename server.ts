@@ -4,7 +4,7 @@ import { createServer as createViteServer } from "vite";
 import { GoogleGenAI } from "@google/genai";
 import { RICIS_CORE_SYSTEM_PROMPT, auditProofContent, buildCanonicalRicisProofLatex } from "./src/model/ricisCoreRules";
 import { TokenPoolManager } from "./src/services/tokenPool/TokenPoolManager";
-import { TelegramLiveBotService } from "./src/services/telegramBot/TelegramLiveBotService";
+
 
 
 const MODELS_POOL = [
@@ -474,10 +474,7 @@ ${axiomList}
 
   app.listen(PORT, "0.0.0.0", () => {
     console.log(`Server running on http://localhost:${PORT}`);
-    // Start live Telegram Bot polling
-    TelegramLiveBotService.getInstance().start().catch((err) => {
-      console.warn("[Telegram Live Bot] Initial connection error:", err);
-    });
+
   });
 }
 

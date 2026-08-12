@@ -53,6 +53,27 @@ function normalize3(x: number, y: number, z: number): [number, number, number] {
   return [x / len, y / len, z / len];
 }
 
+
+function eulerIntegrate(
+  n: number,
+  dt: number,
+  damping: number,
+  masses: number[] | Float64Array | ((i: number) => number),
+  pos: [number, number, number][],
+  vel: [number, number, number][],
+  forces: [number, number, number][]
+) {
+  for (let i = 0; i < n; i++) {
+    const massI = typeof masses === 'function' ? masses(i) : masses[i];
+    vel[i][0] = (vel[i][0] + (forces[i][0] / massI) * dt) * damping;
+    vel[i][1] = (vel[i][1] + (forces[i][1] / massI) * dt) * damping;
+    vel[i][2] = (vel[i][2] + (forces[i][2] / massI) * dt) * damping;
+    pos[i][0] += vel[i][0] * dt;
+    pos[i][1] += vel[i][1] * dt;
+    pos[i][2] += vel[i][2] * dt;
+  }
+}
+
 export interface PhysicsParams {
   zoneG: number;
   zoneGExt: number;
@@ -258,15 +279,7 @@ export function layoutZones(
       forces[i][2] -= nz * inForce;
     }
 
-    for (let i = 0; i < n; i++) {
-      vel[i][0] = (vel[i][0] + (forces[i][0] / masses[i]) * dt) * damping;
-      vel[i][1] = (vel[i][1] + (forces[i][1] / masses[i]) * dt) * damping;
-      vel[i][2] = (vel[i][2] + (forces[i][2] / masses[i]) * dt) * damping;
-
-      pos[i][0] += vel[i][0] * dt;
-      pos[i][1] += vel[i][1] * dt;
-      pos[i][2] += vel[i][2] * dt;
-    }
+    eulerIntegrate(n, dt, damping, masses, pos, vel, forces);
   }
 
   const out: Record<string, [number, number, number]> = {};
@@ -473,18 +486,10 @@ export function layoutNodes(
     }
 
     // Интегрирование импульсов и позиций
-    for (let i = 0; i < n; i++) {
+    eulerIntegrate(n, dt, damping, (i) => {
       const radI = nodeRadii[nodes[i].id];
-      const massI = (radI * radI * radI) / 8.0 + 0.5;
-
-      vel[i][0] = (vel[i][0] + (forces[i][0] / massI) * dt) * damping;
-      vel[i][1] = (vel[i][1] + (forces[i][1] / massI) * dt) * damping;
-      vel[i][2] = (vel[i][2] + (forces[i][2] / massI) * dt) * damping;
-
-      pos[i][0] += vel[i][0] * dt;
-      pos[i][1] += vel[i][1] * dt;
-      pos[i][2] += vel[i][2] * dt;
-    }
+      return (radI * radI * radI) / 8.0 + 0.5;
+    }, pos, vel, forces);
   }
 
   const out: Record<string, [number, number, number]> = {};

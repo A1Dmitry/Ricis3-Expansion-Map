@@ -1,68 +1,30 @@
 const fs = require('fs');
-let code = fs.readFileSync('src/model/agent.ts', 'utf-8');
+const path = 'src/ui/Map3D.tsx';
+let code = fs.readFileSync(path, 'utf8');
 
-code = code.replace(
-  `): Promise<{ nodes: ProblemNode[]; edges: DependencyEdge[] }> {`,
-  `): Promise<{ nodes: ProblemNode[]; edges: DependencyEdge[]; error?: string }> {`
-);
+const target = `<div className="pt-2 border-t border-neutral-800/40 flex items-center justify-between">
+                          <span className="text-xs text-slate-300">Telegram Агент</span>
+                          <span className="text-xs font-bold text-emerald-400 bg-emerald-950/40 px-2 py-0.5 rounded border border-emerald-900/60">
+                            АКТИВЕН
+                          </span>
+                        </div>`;
 
-code = code.replace(
-  `if (!anchor) return { nodes: [], edges: [] };`,
-  `if (!anchor) return { nodes: [], edges: [] };`
-);
+const replacement = `<div className="pt-2 border-t border-neutral-800/40 flex flex-col gap-2">
+                          <div className="flex items-center justify-between">
+                            <span className="text-xs text-slate-300">Telegram Агент</span>
+                            <span className="text-xs font-bold text-emerald-400 bg-emerald-950/40 px-2 py-0.5 rounded border border-emerald-900/60">
+                              АКТИВЕН
+                            </span>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => setShowTelegramBot(true)}
+                            className="w-full bg-violet-600 hover:bg-violet-500 text-white font-bold text-xs py-1.5 rounded transition-colors"
+                          >
+                            Открыть Telegram-интерфейс
+                          </button>
+                        </div>`;
 
-const discoverBlock = `  try {
-    const res = await fetch('/api/discoverTasks', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ parentNode: anchor, existingTitles }),
-    });
-    const data = await res.json();
-    if (!res.ok) {
-      return { nodes: [], edges: [], error: data.error || 'Unknown server error' };
-    }
-    if (data.tasks && Array.isArray(data.tasks)) {
-      fetchedTasks = data.tasks;
-    }
-  } catch (e: any) {
-    console.error('Failed to discover tasks via API', e);
-    return { nodes: [], edges: [], error: e.message };
-  }`;
-
-code = code.replace(/  try \{\n    const res = await fetch\('\/api\/discoverTasks'[\s\S]*?console\.error\('Failed to discover tasks via API', e\);\n  \}/, discoverBlock);
-
-code = code.replace(
-  `  return { nodes, edges };`,
-  `  return { nodes, edges };`
-);
-
-const typeBlock = `export type DiscoveryReport = {
-  map: MapState;
-  added: number;
-  expandedAnchors: string[];
-  skippedDuplicates: number;
-  frontierSize: number;
-  error?: string;
-};`;
-code = code.replace(/export type DiscoveryReport = \{[\s\S]*?frontierSize: number;\n\};/, typeBlock);
-
-const applyBlock = `    const { nodes, edges, error } = await discoverNewProblems(
-      working,
-      anchor.id,
-      maxNewPerAnchor,
-      keys
-    );
-    if (error) {
-      return {
-        map: working,
-        added,
-        expandedAnchors,
-        skippedDuplicates,
-        frontierSize: nodesWithoutLeaves(map).length,
-        error
-      };
-    }`;
-code = code.replace(/    const { nodes, edges } = await discoverNewProblems\([\s\S]*?keys\n    \);/, applyBlock);
-
-fs.writeFileSync('src/model/agent.ts', code);
-console.log('Patched agent.ts');
+code = code.replace(target, replacement);
+fs.writeFileSync(path, code);
+console.log("Replaced");

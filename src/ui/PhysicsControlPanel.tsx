@@ -1,64 +1,34 @@
-import React, { useState } from 'react';
-import { PhysicsParams } from '../model/physics';
-import { Settings2, X, RefreshCw } from 'lucide-react';
-import { usePhysicsSliderController } from '../services/physicsSliderService';
+import React from 'react';
+import { useSliderController } from '../hooks/useSliderController';
+import { PhysicsParams, DEFAULT_PHYSICS_PARAMS } from '../model/physics';
+import { SlidersHorizontal, RefreshCw, ChevronDown, ChevronUp } from 'lucide-react';
 
 interface PhysicsControlPanelProps {
   params: PhysicsParams;
   onChange: (params: PhysicsParams) => void;
+  isOpen?: boolean;
+  onToggle?: () => void;
 }
 
-export function PhysicsControlPanel({ params, onChange }: PhysicsControlPanelProps) {
-  const [isOpen, setIsOpen] = useState(false);
+export function PhysicsControlPanel({
+  params,
+  onChange,
+  isOpen = false,
+  onToggle,
+}: PhysicsControlPanelProps) {
+  const { workingParams, status, updateValue, startInteraction, endInteraction, reset } = useSliderController<PhysicsParams>(
+    params,
+    onChange,
+    800
+  );
 
-  // Подключение Бизнес-слоя ползунков (Business Layer / Idle Engine)
-  // Таймаут ожидания состояния IDLE после окончания драга = 1.0 сек (1000 мс)
-  const {
-    workingParams,
-    status,
-    startInteraction,
-    endInteraction,
-    updateValue,
-    reset,
-  } = usePhysicsSliderController(params, onChange, 1000);
+  const handleSliderChange = (prop: keyof PhysicsParams, val: number) => {
+    if (isNaN(val)) return;
+    updateValue(prop, val);
+  };
 
-  if (!isOpen) {
-    return (
-      <button
-        onClick={() => setIsOpen(true)}
-        className="absolute top-4 right-4 z-50 bg-slate-900/80 backdrop-blur text-slate-300 p-2 rounded-lg border border-slate-700/50 hover:bg-slate-800 transition-colors flex items-center gap-2"
-        title="Настройки физики симуляции"
-      >
-        <Settings2 size={20} />
-        {status !== 'IDLE' && (
-          <span className="w-2 h-2 rounded-full bg-amber-400 animate-ping" />
-        )}
-      </button>
-    );
-  }
-
-  const renderStatusBadge = () => {
-    switch (status) {
-      case 'DRAGGING':
-        return (
-          <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-amber-950/80 text-amber-300 border border-amber-700/60 animate-pulse">
-            🟡 DRAGGING (Local)
-          </span>
-        );
-      case 'PENDING_IDLE':
-        return (
-          <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-cyan-950/80 text-cyan-300 border border-cyan-700/60 animate-pulse">
-            ⏳ WAITING 1S (Idle)
-          </span>
-        );
-      case 'IDLE':
-      default:
-        return (
-          <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-950/80 text-emerald-400 border border-emerald-800/60">
-            🟢 IDLE (Synced)
-          </span>
-        );
-    }
+  const handleReset = () => {
+    reset(DEFAULT_PHYSICS_PARAMS);
   };
 
   const Slider = ({
@@ -74,12 +44,25 @@ export function PhysicsControlPanel({ params, onChange }: PhysicsControlPanelPro
     max: number;
     step: number;
   }) => (
-    <div className="mb-3">
-      <div className="flex justify-between text-xs text-slate-400 mb-1">
-        <span>{label}</span>
-        <span className="font-mono text-emerald-400">
-          {(workingParams[prop] ?? 0).toFixed(2)}
-        </span>
+    <div className="mb-2">
+      <div className="flex items-center justify-between text-xs text-slate-200 mb-1">
+        <span className="font-medium text-slate-200">{label}</span>
+        <div className="flex items-center gap-1">
+          <input
+            type="number"
+            min={min}
+            max={max}
+            step={step}
+            value={workingParams[prop] ?? 0}
+            onChange={(e) => {
+              const val = parseFloat(e.target.value);
+              handleSliderChange(prop, isNaN(val) ? 0 : val);
+            }}
+            onFocus={startInteraction}
+            onBlur={endInteraction}
+            className="w-16 px-1.5 py-0.5 text-xs font-mono font-bold text-emerald-300 bg-neutral-900 border border-neutral-700/80 rounded text-right focus:outline-none focus:border-emerald-400 focus:ring-1 focus:ring-emerald-400/50"
+          />
+        </div>
       </div>
       <input
         type="range"
@@ -87,90 +70,86 @@ export function PhysicsControlPanel({ params, onChange }: PhysicsControlPanelPro
         max={max}
         step={step}
         value={workingParams[prop] ?? 0}
-        onPointerDown={(e) => {
-          e.stopPropagation();
-          startInteraction();
-        }}
-        onMouseDown={(e) => {
-          e.stopPropagation();
-          startInteraction();
-        }}
-        onTouchStart={(e) => {
-          e.stopPropagation();
-          startInteraction();
-        }}
-        onPointerUp={(e) => {
-          e.stopPropagation();
-          endInteraction();
-        }}
-        onMouseUp={(e) => {
-          e.stopPropagation();
-          endInteraction();
-        }}
-        onTouchEnd={(e) => {
-          e.stopPropagation();
-          endInteraction();
-        }}
-        onChange={(e) => {
-          e.stopPropagation();
-          updateValue(prop, parseFloat(e.target.value));
-        }}
-        className="w-full h-1 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-emerald-500"
+        onPointerDown={startInteraction}
+        onPointerUp={endInteraction}
+        onChange={(e) => handleSliderChange(prop, parseFloat(e.target.value))}
+        onInput={(e) => handleSliderChange(prop, parseFloat((e.target as HTMLInputElement).value))}
+        className="w-full h-1.5 bg-neutral-800 rounded-lg appearance-none cursor-pointer accent-emerald-400 hover:accent-emerald-300 transition-colors"
       />
     </div>
   );
 
   return (
-    <div
-      className="absolute top-4 right-4 z-50 w-80 bg-slate-900/90 backdrop-blur rounded-lg border border-slate-700/50 shadow-2xl p-4 text-sm text-slate-200"
-      onPointerDown={(e) => e.stopPropagation()}
-      onMouseDown={(e) => e.stopPropagation()}
-      onTouchStart={(e) => e.stopPropagation()}
-      onWheel={(e) => e.stopPropagation()}
-    >
-      <div className="flex justify-between items-center mb-3 border-b border-slate-700/50 pb-2">
-        <div className="flex items-center gap-2">
-          <h3 className="font-semibold text-emerald-400 flex items-center gap-1.5">
-            <Settings2 size={16} /> Физика
-          </h3>
-          {renderStatusBadge()}
-        </div>
-        <div className="flex gap-2">
-          <button
-            onClick={reset}
-            className="text-slate-400 hover:text-white transition-colors"
-            title="Сбросить к умолчаниям"
-          >
-            <RefreshCw size={16} />
-          </button>
-          <button
-            onClick={() => setIsOpen(false)}
-            className="text-slate-400 hover:text-white transition-colors"
-          >
-            <X size={16} />
-          </button>
-        </div>
-      </div>
-
-      <div className="space-y-4 max-h-[70vh] overflow-y-auto pr-1">
-        <div>
-          <h4 className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">
-            Макро-пузыри (Зоны)
-          </h4>
-          <Slider label="Отталкивание масс (G)" prop="zoneG" min={0} max={100} step={1} />
-          <Slider label="Давление среды (G_ext)" prop="zoneGExt" min={0} max={100} step={1} />
-          <Slider label="Зазор между зонами" prop="zoneSurfaceGap" min={0} max={100} step={5} />
+    <div className="w-full relative">
+      <input type="checkbox" id="accordion-physics" className="accordion-trigger" />
+      <label htmlFor="accordion-physics" className="accordion-header bg-neutral-950/80 hover:bg-neutral-900/90 transition-colors cursor-pointer w-full flex flex-col items-start px-3.5 py-2.5 h-auto rounded-none border-0 m-0" onClick={onToggle}>
+        <div className="flex items-center justify-between w-full">
+          <div className="flex items-center gap-2">
+            <SlidersHorizontal size={16} className="text-emerald-400" />
+            <span className="text-xs font-bold text-slate-100 uppercase tracking-wider accordion-title p-0">
+              ФИЗИКА ПУЗЫРЕЙ
+            </span>
+          </div>
+          <div className="flex items-center gap-2">
+            {status !== 'IDLE' ? (
+              <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs font-mono bg-amber-950/80 text-amber-300 border border-amber-700/60 animate-pulse">
+                <span className="w-2 h-2 rounded-full bg-amber-400" />
+                <span>ОБНОВЛЕНИЕ</span>
+              </span>
+            ) : (
+              <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs font-mono bg-neutral-900 border border-neutral-700 text-emerald-400">
+                <span className="w-2 h-2 rounded-full bg-emerald-400" />
+                <span>АКТИВНО</span>
+              </span>
+            )}
+            <span className="accordion-icon" aria-hidden="true">▼</span>
+          </div>
         </div>
 
-        <div className="pt-2 border-t border-slate-700/50">
-          <h4 className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">
-            Микро-узлы (Задачи)
-          </h4>
-          <Slider label="Отталкивание масс (G)" prop="nodeG" min={0} max={50} step={1} />
-          <Slider label="Внешнее давление (G_ext)" prop="nodeGExt" min={0} max={20} step={0.5} />
-          <Slider label="Жесткость пружин (k)" prop="springK" min={0} max={5} step={0.1} />
-          <Slider label="Целевая длина пружин" prop="springRestGapMult" min={1} max={10} step={0.5} />
-          <Slider label="Мин. зазор (узлы)" prop="minNodeSurfaceGap" min={1} max={20} step={1} />
+        <div className="accordion-summary mt-2 pt-1.5 border-t border-neutral-800/40 flex flex-wrap gap-1.5 text-xs font-mono text-emerald-300 w-full">
+          <span className="bg-neutral-900 border border-neutral-800 px-2 py-0.5 rounded text-slate-300">G Зон: <strong className="text-emerald-400">{workingParams.zoneG}</strong></span>
+          <span className="bg-neutral-900 border border-neutral-800 px-2 py-0.5 rounded text-slate-300">G Узлов: <strong className="text-emerald-400">{workingParams.nodeG}</strong></span>
+          <span className="bg-neutral-900 border border-neutral-800 px-2 py-0.5 rounded text-slate-300">k: <strong className="text-emerald-400">{workingParams.springK}</strong></span>
+        </div>
+      </label>
+
+      <div className="accordion-content">
+        <div className="accordion-inner p-3 text-xs text-slate-200 border-t border-neutral-800/60 space-y-3 bg-neutral-950/40 max-h-72 overflow-y-auto pr-1.5">
+          <div className="flex items-center justify-between border-b border-neutral-800/60 pb-2">
+            <span className="text-xs font-bold text-slate-200 uppercase tracking-wider">
+              Настройки точной физики
+            </span>
+            <button
+              type="button"
+              onClick={handleReset}
+              className="text-xs text-slate-400 hover:text-emerald-300 flex items-center gap-1 font-mono transition-colors cursor-pointer px-2 py-0.5 rounded bg-neutral-900 border border-neutral-800"
+              title="Сбросить физику к значениям по умолчанию"
+            >
+              <RefreshCw size={12} /> Сброс
+            </button>
+          </div>
+
+          <div className="bg-neutral-900/80 border border-neutral-800 rounded-lg p-3 space-y-2 shadow-sm">
+            <h5 className="text-xs font-bold text-slate-300 uppercase tracking-wider border-b border-neutral-800/80 pb-1 flex items-center justify-between">
+              <span>Макро-пузыри (Зоны)</span>
+              <span className="text-[10px] text-emerald-400 font-mono font-normal">Зональная симуляция</span>
+            </h5>
+            <Slider label="Отталкивание масс (G)" prop="zoneG" min={0} max={100} step={1} />
+            <Slider label="Давление среды (G_ext)" prop="zoneGExt" min={0} max={100} step={1} />
+            <Slider label="Зазор между зонами" prop="zoneSurfaceGap" min={0} max={100} step={5} />
+          </div>
+
+          <div className="bg-neutral-900/80 border border-neutral-800 rounded-lg p-3 space-y-2 shadow-sm">
+            <h5 className="text-xs font-bold text-slate-300 uppercase tracking-wider border-b border-neutral-800/80 pb-1 flex items-center justify-between">
+              <span>Микро-узлы (Задачи)</span>
+              <span className="text-[10px] text-cyan-400 font-mono font-normal">Узловая графика</span>
+            </h5>
+            <Slider label="Отталкивание масс (G)" prop="nodeG" min={0} max={50} step={1} />
+            <Slider label="Внешнее давление (G_ext)" prop="nodeGExt" min={0} max={20} step={0.5} />
+            <Slider label="Жесткость пружин (k)" prop="springK" min={0} max={5} step={0.1} />
+            <Slider label="Целевая длина пружин" prop="springRestGapMult" min={1} max={10} step={0.5} />
+            <Slider label="Мин. зазор (узлы)" prop="minNodeSurfaceGap" min={1} max={20} step={1} />
+          </div>
         </div>
       </div>
     </div>

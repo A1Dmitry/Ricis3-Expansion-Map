@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { MapState, ProblemNode, DependencyEdge, ScienceZone, Proof } from '../model/types';
-import { initialMap } from '../model/initialMap';
+import { initialMap, deepCopyInitialMap } from '../model/initialMap';
 import { solveNodeLogic } from '../model/logic';
 import { applyAgentDiscoveries, catalogExhausted, remainingCatalogCount, trainAgentFromDb, AgentTrainingMemory } from '../model/agent';
 import { auditMarkMissingTargets, fillMissingTargetFunctions, isAutoFormulaRequest, nodeHasSorry } from '../model/audit';
@@ -45,15 +45,7 @@ interface MapStore extends MapState {
 
 function emptyState(): MapState {
   return {
-    nodes: initialMap.nodes.map(n => ({ ...n, economic: { ...n.economic } })),
-    edges: initialMap.edges.map(e => ({ ...e })),
-    zones: initialMap.zones.map(z => ({
-      ...z,
-      nodeIds: [...z.nodeIds],
-      economicProfile: { ...z.economicProfile },
-    })),
-    axioms: [...initialMap.axioms],
-    proofs: { ...initialMap.proofs },
+    ...deepCopyInitialMap(),
   };
 }
 

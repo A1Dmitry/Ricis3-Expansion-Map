@@ -58,3 +58,112 @@
   animation: shimmerSlide 1.8s ease-in-out infinite;
 }
 
+/* Контейнер аккордеона */
+.accordion-container {
+  width: 100%;
+  max-width: 22rem; /* Ограничиваем ширину панели в rem */
+  background-color: #0c0f12;
+  border: 0.0625rem solid #1e252b;
+  border-radius: 0.25rem;
+}
+
+/* Элемент списка */
+.accordion-item {
+  border-bottom: 0.0625rem solid #1e252b;
+}
+.accordion-item:last-child {
+  border-bottom: none;
+}
+
+/* Скрываем системный чекбокс */
+.accordion-trigger {
+  position: absolute;
+  opacity: 0;
+  z-index: -1;
+}
+
+/* Шапка кликабельной зоны */
+.accordion-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 1rem; /* Отступы масштабируются вместе со шрифтом */
+  background-color: #11161b;
+  cursor: pointer;
+  user-select: none;
+  transition: background-color 0.2s ease;
+}
+
+.accordion-header:hover {
+  background-color: #171e24;
+}
+
+/* Заголовок (Шрифт в rem) */
+.accordion-title {
+  font-family: inherit;
+  font-size: 0.875rem; /* ~14px при дефолтных настройках браузера */
+  font-weight: 600;
+  color: #ffffff;
+  letter-spacing: 0.05em;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* Иконка стрелочки */
+.accordion-icon {
+  font-size: 0.75rem;
+  color: #00ff66; /* Ваша неоновая деталь */
+  transition: transform 0.2s ease;
+}
+
+/* --- МАГИЯ CSS: Раскрытие контента при клике --- */
+
+/* Плавное изменение высоты контента */
+.accordion-content {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s cubic-bezier(0, 1, 0, 1); /* Плавный хак для анимации высоты */
+}
+
+/* Внутренние отступы контента (чтобы не ломать анимацию max-height) */
+.accordion-inner {
+  padding: 1rem;
+  font-size: 0.875rem;
+  color: #b3bec8;
+}
+
+/* Когда чекбокс АКТИВЕН (нажат) */
+.accordion-trigger:checked ~ .accordion-content {
+  max-height: 62.5rem; /* Задаем заведомо большую высоту в rem для полного раскрытия */
+  transition: max-height 0.3s cubic-bezier(0.9, 0, 0.1, 1);
+}
+
+/* Поворот стрелочки при раскрытии */
+.accordion-trigger:checked ~ .accordion-header .accordion-icon {
+  transform: rotate(180deg);
+}
+
+/* Вспомогательные стили для ползунков */
+.control-group {
+  margin-bottom: 0.875rem;
+}
+.control-group:last-child {
+  margin-bottom: 0;
+}
+.control-label {
+  display: block;
+  font-size: 0.8rem;
+  color: #8899a6;
+  margin-bottom: 0.375rem;
+}
+.control-slider {
+  width: 100%;
+  accent-color: #00ff66; /* Окрашивает ползунок в неоновый цвет */
+}
+
+/* Скрываем превью в активном состоянии */
+.accordion-trigger:checked ~ .accordion-header .accordion-summary {
+  display: none;
+}
+

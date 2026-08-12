@@ -1205,3 +1205,17 @@ export const initialMap: MapState = {
   }
 }
 };
+
+export function deepCopyInitialMap(): Pick<MapState, 'nodes' | 'edges' | 'zones' | 'axioms' | 'proofs'> {
+  return {
+    nodes: initialMap.nodes.map(n => ({ ...n, economic: { ...n.economic } })),
+    edges: initialMap.edges.map(e => ({ ...e })),
+    zones: initialMap.zones.map(z => ({
+      ...z,
+      nodeIds: [...z.nodeIds],
+      economicProfile: { ...z.economicProfile },
+    })),
+    axioms: [...initialMap.axioms],
+    proofs: { ...initialMap.proofs },
+  };
+}

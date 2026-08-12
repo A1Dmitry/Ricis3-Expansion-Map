@@ -1,3 +1,12 @@
+
+function drawRoundedRect(ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, r: number) {
+  ctx.beginPath();
+  ctx.moveTo(x + r, y);
+  ctx.arcTo(x + w, y, x + w, y + h, r);
+  ctx.arcTo(x + w, y + h, x, y + h, r);
+  ctx.arcTo(x, y + h, x, y, r);
+  ctx.arcTo(x, y, x + w, y, r);
+}
 import React, { useMemo, useRef } from 'react';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
@@ -183,15 +192,11 @@ export function ZoneLabel({
     ctx.strokeStyle = strokeRgba;
     ctx.lineWidth = 12;
     const r = 40;
-    ctx.beginPath();
-    ctx.moveTo(bx + r, by);
-    ctx.arcTo(bx + boxW, by, bx + boxW, by + boxH, r);
-    ctx.arcTo(bx + boxW, by + boxH, bx, by + boxH, r);
-    ctx.arcTo(bx, by + boxH, bx, by, r);
-    ctx.arcTo(bx, by, bx + boxW, by, r);
+    drawRoundedRect(ctx, bx, by, boxW, boxH, r);
     ctx.closePath();
     ctx.fill();
     ctx.stroke();
+    // shape rendered
     
     ctx.fillStyle = '#ffffff';
     ctx.fillText(text, w / 2, h / 2 + 10);
@@ -263,12 +268,7 @@ export function NodeLabel({
     ctx.strokeStyle = 'rgba(34, 211, 238, 0.45)';
     ctx.lineWidth = 8;
     const r = 32;
-    ctx.beginPath();
-    ctx.moveTo(bx + r, by);
-    ctx.arcTo(bx + boxW, by, bx + boxW, by + boxH, r);
-    ctx.arcTo(bx + boxW, by + boxH, bx, by + boxH, r);
-    ctx.arcTo(bx, by + boxH, bx, by, r);
-    ctx.arcTo(bx, by, bx + boxW, by, r);
+    drawRoundedRect(ctx, bx, by, boxW, boxH, r);
     ctx.closePath();
     ctx.fill();
     ctx.stroke();
@@ -306,6 +306,7 @@ export function NodeLabel({
 }
 
 /** Узел-пузырь: блик, fresnel, мягкое свечение ядра. */
+
 export function NodeBubble({
   position,
   color,

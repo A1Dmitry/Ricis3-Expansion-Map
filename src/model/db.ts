@@ -1,3 +1,11 @@
+
+function clearMemoryStores() {
+  memoryStores.nodes.clear();
+  memoryStores.edges.clear();
+  memoryStores.zones.clear();
+  memoryStores.axioms.clear();
+  memoryStores.proofs.clear();
+}
 /**
  * Документная БД карты RICIS-III на IndexedDB.
  * Каждый узел, ребро, доказательство и аксиома — отдельная JSON-запись.
@@ -128,11 +136,7 @@ async function getAll<T>(db: IDBDatabase, name: StoreName): Promise<T[]> {
 /** Полная запись карты: каждый узел — отдельный JSON-документ. */
 export async function dbSaveMap(state: MapState): Promise<void> {
   if (!isIndexedDbAvailable) {
-    memoryStores.nodes.clear();
-    memoryStores.edges.clear();
-    memoryStores.zones.clear();
-    memoryStores.axioms.clear();
-    memoryStores.proofs.clear();
+    clearMemoryStores();
 
     for (const node of state.nodes) memoryStores.nodes.set(node.id, node);
     for (const edge of state.edges) memoryStores.edges.set(edge.id, edge);
@@ -233,11 +237,7 @@ export async function dbLoadMap(): Promise<MapState | null> {
 
 export async function dbClear(): Promise<void> {
   if (!isIndexedDbAvailable) {
-    memoryStores.nodes.clear();
-    memoryStores.edges.clear();
-    memoryStores.zones.clear();
-    memoryStores.axioms.clear();
-    memoryStores.proofs.clear();
+    clearMemoryStores();
     memoryStores.meta.clear();
     return;
   }

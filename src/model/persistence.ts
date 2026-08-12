@@ -1,5 +1,7 @@
 import { MapState, Proof, ProblemNode, DependencyEdge, Axiom, ScienceZone } from './types';
 import { initialMap } from './initialMap';
+import { deepCopyInitialMap } from './initialMap';
+
 import { dbSaveMap, dbLoadMap, dbClear } from './db';
 import { runDatabaseMigration } from './migrationAudit';
 
@@ -150,15 +152,7 @@ export async function hydrateInitialState(): Promise<MapState> {
     stateToMigrate = loadedState;
   } else {
     stateToMigrate = sanitizeMap({
-      nodes: initialMap.nodes.map(n => ({ ...n, economic: { ...n.economic } })),
-      edges: initialMap.edges.map(e => ({ ...e })),
-      zones: initialMap.zones.map(z => ({
-        ...z,
-        nodeIds: [...z.nodeIds],
-        economicProfile: { ...z.economicProfile },
-      })),
-      axioms: [...initialMap.axioms],
-      proofs: { ...initialMap.proofs },
+      ...deepCopyInitialMap(),
     });
   }
 
