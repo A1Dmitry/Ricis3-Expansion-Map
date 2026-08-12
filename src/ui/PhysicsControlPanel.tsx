@@ -72,7 +72,6 @@ export function PhysicsControlPanel({
         value={workingParams[prop] ?? 0}
         onPointerDown={startInteraction}
         onPointerUp={endInteraction}
-        onChange={(e) => handleSliderChange(prop, parseFloat(e.target.value))}
         onInput={(e) => handleSliderChange(prop, parseFloat((e.target as HTMLInputElement).value))}
         className="w-full h-1.5 bg-neutral-800 rounded-lg appearance-none cursor-pointer accent-emerald-400 hover:accent-emerald-300 transition-colors"
       />

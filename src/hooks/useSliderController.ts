@@ -60,8 +60,10 @@ export class SliderController<T extends Record<string, any>> {
   }
 
   public startInteraction(): void {
-    this.status = 'DRAGGING';
-    this.notify();
+    if (this.status !== 'DRAGGING') {
+      this.status = 'DRAGGING';
+      this.notify();
+    }
   }
 
   public updateValue<K extends keyof T>(key: K, value: T[K]): void {
