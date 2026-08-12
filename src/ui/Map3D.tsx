@@ -146,7 +146,7 @@ const formatCurrency = (val?: number) => {
 
 
 function isDerivativeNodeRef(n: { type?: string; isDerivativeClaim?: boolean }) {
-  return n.type === 'derivative' || n.isDerivativeClaim === true;
+  return n.type === 'derivative_claim' || n.type === 'derivative' || n.isDerivativeClaim === true;
 }
 
 function nodeMatchesQuery(n: ProblemNode, q: string, hiddenZones: Set<string>, showOnlyDerivatives: boolean): boolean {
@@ -526,9 +526,11 @@ export const Map3D: React.FC = () => {
     const activeZoneIds = new Set<string>();
     for (const zone of map.zones) {
       if (hiddenZones.has(zone.id)) continue;
-      const hasVisibleNode = map.nodes.some(
-        n => visibleNodeIds.has(n.id) && (zone.nodeIds.includes(n.id) || n.zoneIds.includes(zone.id))
-      );
+      const hasVisibleNode = map.nodes.some(n => {
+        if (!visibleNodeIds.has(n.id)) return false;
+        const primaryId = (n.zoneIds && n.zoneIds[0]) ? n.zoneIds[0] : 'math';
+        return primaryId === zone.id;
+      });
       if (hasVisibleNode) {
         activeZoneIds.add(zone.id);
       }
@@ -549,9 +551,11 @@ export const Map3D: React.FC = () => {
   const zoneRadii = useMemo(() => {
     const r: Record<string, number> = {};
     map.zones.forEach(z => {
-      const members = map.nodes.filter(
-        n => visibleNodeIds.has(n.id) && (z.nodeIds.includes(n.id) || n.zoneIds.includes(z.id))
-      );
+      const members = map.nodes.filter(n => {
+        if (!visibleNodeIds.has(n.id)) return false;
+        const primaryId = (n.zoneIds && n.zoneIds[0]) ? n.zoneIds[0] : 'math';
+        return primaryId === z.id;
+      });
       const zPos = zonePositions[z.id];
       if (zPos && members.length > 0) {
         let maxDist = 0;
@@ -563,12 +567,12 @@ export const Map3D: React.FC = () => {
             const dz = mPos[2] - zPos[2];
             const dist = Math.sqrt(dx * dx + dy * dy + dz * dz);
             const mRad = nodeVisualRadius(m, map.nodes);
-            maxDist = Math.max(maxDist, dist + mRad + 4.0);
+            maxDist = Math.max(maxDist, dist + mRad);
           }
         });
-        r[z.id] = Math.max(zoneVisualRadius(z, members), maxDist);
+        r[z.id] = maxDist * 1.1;
       } else {
-        r[z.id] = zoneVisualRadius(z, map.nodes);
+        r[z.id] = zoneVisualRadius(z, map.nodes) * 1.1;
       }
     });
     return r;
@@ -707,6 +711,69 @@ export const Map3D: React.FC = () => {
               );
             }
 
+            // SEARCH PANEL IS NOW A SINGLE ROW WITH PLACEHOLDER "Поиск по карте"
+            if (id === 'search') {
+              return (
+                <div key="search" className={`relative border border-cyan-900/40 rounded-lg overflow-visible bg-[#050810]/90 backdrop-blur-md px-3.5 py-2.5 mb-2 flex items-center gap-2.5 z-20 ${isHidden ? 'opacity-90 border-dashed border-neutral-700' : ''}`}>
+                  <Search size={16} className="text-cyan-400 shrink-0" />
+                  <div className="relative flex-1">
+                    <input
+                      type="text"
+                      placeholder="Поиск по карте..."
+                      value={searchQuery}
+                      onChange={e => setSearchQuery(e.target.value)}
+                      onFocus={() => setIsSearchFocused(true)}
+                      onBlur={() => { saveToHistory(searchQuery); setTimeout(() => setIsSearchFocused(false), 200); }}
+                      onKeyDown={e => {
+                        if (e.key === 'ArrowDown') { e.preventDefault(); if (!filteredHistory.length) return; setSelectedHistoryIndex(prev => (prev < filteredHistory.length - 1 ? prev + 1 : 0)); }
+                        else if (e.key === 'ArrowUp') { e.preventDefault(); if (!filteredHistory.length) return; setSelectedHistoryIndex(prev => (prev > 0 ? prev - 1 : filteredHistory.length - 1)); }
+                        else if (e.key === 'Enter') {
+                          e.preventDefault();
+                          if (selectedHistoryIndex >= 0 && selectedHistoryIndex < filteredHistory.length) {
+                            setSearchQuery(filteredHistory[selectedHistoryIndex]);
+                            setIsSearchFocused(false);
+                            return;
+                          }
+                          saveToHistory(searchQuery);
+                        }
+                      }}
+                      className="w-full bg-transparent border-0 p-0 text-xs text-slate-200 placeholder:text-slate-500 focus:outline-none focus:ring-0"
+                    />
+                    
+                    {isSearchFocused && filteredHistory.length > 0 && (
+                      <div className="absolute top-full left-0 right-0 mt-3 bg-[#050810] border border-cyan-900/80 rounded-md shadow-[0_8px_32px_rgba(0,0,0,0.85)] z-50 py-1 max-h-48 overflow-y-auto">
+                        {filteredHistory.map((query, index) => (
+                          <button
+                            key={query}
+                            type="button"
+                            className={`w-full text-left px-3 py-1.5 text-xs font-mono cursor-pointer flex items-center justify-between ${index === selectedHistoryIndex ? 'bg-cyan-950 text-cyan-300' : 'text-slate-400 hover:bg-neutral-900 hover:text-slate-200'}`}
+                            onMouseDown={(e) => { e.preventDefault(); setSearchQuery(query); setIsSearchFocused(false); saveToHistory(query); }}
+                          >
+                            <span>{query}</span>
+                            <span className="opacity-50 text-[10px]">История</span>
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                  {searchQuery.trim() && (
+                    <button 
+                      onClick={() => setSearchQuery('')}
+                      className="text-slate-500 hover:text-white text-xs px-1 cursor-pointer transition-colors"
+                      title="Очистить"
+                    >
+                      ✕
+                    </button>
+                  )}
+                  {searchQuery.trim() && (
+                    <span className={`text-[10px] font-mono px-1.5 py-0.5 rounded border leading-none ${searchMatchCount > 0 ? 'bg-cyan-950/80 text-cyan-200 border-cyan-700/80 font-bold' : 'bg-rose-950/80 text-rose-200 border-rose-700/80 font-bold'}`}>
+                      {searchMatchCount}
+                    </span>
+                  )}
+                </div>
+              );
+            }
+
             // OTHER PANELS
             return (
               <div key={id} className={`accordion-item border border-neutral-800/80 rounded-lg overflow-hidden bg-neutral-900/40 mb-2 relative ${isHidden ? 'opacity-90 border-dashed border-neutral-700' : ''}`}>
@@ -715,7 +782,6 @@ export const Map3D: React.FC = () => {
                   <div className="flex items-center justify-between w-full">
                     <div className="flex items-center gap-2">
                        {id === 'actions' && <Plus size={16} className="text-emerald-400" />}
-                       {id === 'search' && <Search size={16} className="text-cyan-400" />}
                        {id === 'zones' && <Layers size={16} className="text-cyan-400" />}
                        {id === 'available' && <CheckCircle2 size={16} className="text-emerald-400" />}
                        {id === 'agent' && <Bot size={16} className="text-violet-400" />}
@@ -725,11 +791,6 @@ export const Map3D: React.FC = () => {
                          {UI_ELEMENTS.find(e => e.id === id)?.label}
                        </span>
 
-                       {id === 'search' && searchQuery.trim() && (
-                         <span className={`text-xs font-mono px-2 py-0.5 rounded-full border ${searchMatchCount > 0 ? 'bg-cyan-950/80 text-cyan-200 border-cyan-700/80 font-bold' : 'bg-rose-950/80 text-rose-200 border-rose-700/80 font-bold'}`}>
-                           {searchMatchCount}
-                         </span>
-                       )}
                        {id === 'zones' && (
                          <span className="text-xs font-mono px-2 py-0.5 rounded-full bg-neutral-900 text-cyan-300 border border-neutral-700">
                            {map.zones.length - hiddenZones.size} / {map.zones.length}
@@ -753,17 +814,6 @@ export const Map3D: React.FC = () => {
                   <div className="accordion-summary mt-2 pt-1.5 border-t border-neutral-800/40 flex flex-wrap gap-1 text-xs font-mono truncate w-full">
                     {id === 'actions' && (
                       <span className="bg-neutral-900 border border-neutral-800 px-2 py-0.5 rounded text-slate-200 text-emerald-300">+ Добавить новую задачу</span>
-                    )}
-                    {id === 'search' && (
-                      searchQuery.trim() ? (
-                        <span className="bg-neutral-900 border border-cyan-800/70 px-2 py-0.5 rounded text-cyan-200 truncate max-w-full">
-                          🔍 "{searchQuery}" ({searchMatchCount} совп.)
-                        </span>
-                      ) : (
-                        <span className="bg-neutral-900 border border-neutral-800 px-2 py-0.5 rounded text-slate-300">
-                          Поиск не активен
-                        </span>
-                      )
                     )}
                     {id === 'zones' && (
                       <div className="flex flex-wrap gap-1.5 max-h-24 overflow-y-auto pr-1">
@@ -810,55 +860,12 @@ export const Map3D: React.FC = () => {
                 </label>
 
                 <div className={`accordion-content`}>
-                  <div className={`accordion-inner p-3 border-t border-neutral-800/60 bg-neutral-950/40 relative overflow-y-auto ${id === 'search' ? 'max-h-60' : id === 'zones' || id === 'available' || id === 'agent' ? 'max-h-64' : 'max-h-56'}`}>
+                  <div className={`accordion-inner p-3 border-t border-neutral-800/60 bg-neutral-950/40 relative overflow-y-auto ${id === 'zones' || id === 'available' || id === 'agent' ? 'max-h-64' : 'max-h-56'}`}>
                     
                     {id === 'actions' && (
                       <ActionButton onClick={() => setShowAddNode(true)} variant="emerald" className="w-full uppercase font-bold tracking-wider cursor-pointer py-2 text-xs">
                         + Добавить новую задачу
                       </ActionButton>
-                    )}
-
-                    {id === 'search' && (
-                      <div className="relative">
-                        <input
-                          type="text"
-                          placeholder="Поиск узлов по названию или ID..."
-                          value={searchQuery}
-                          onChange={e => setSearchQuery(e.target.value)}
-                          onFocus={() => setIsSearchFocused(true)}
-                          onBlur={() => { saveToHistory(searchQuery); setTimeout(() => setIsSearchFocused(false), 200); }}
-                          onKeyDown={e => {
-                            if (e.key === 'ArrowDown') { e.preventDefault(); if (!filteredHistory.length) return; setSelectedHistoryIndex(prev => (prev < filteredHistory.length - 1 ? prev + 1 : 0)); }
-                            else if (e.key === 'ArrowUp') { e.preventDefault(); if (!filteredHistory.length) return; setSelectedHistoryIndex(prev => (prev > 0 ? prev - 1 : filteredHistory.length - 1)); }
-                            else if (e.key === 'Enter') {
-                              e.preventDefault();
-                              if (selectedHistoryIndex >= 0 && selectedHistoryIndex < filteredHistory.length) {
-                                setSearchQuery(filteredHistory[selectedHistoryIndex]);
-                                setIsSearchFocused(false);
-                                return;
-                              }
-                              saveToHistory(searchQuery);
-                            }
-                          }}
-                          className="w-full bg-[#050810] border border-cyan-900/60 rounded px-3 py-2 text-xs text-slate-200 focus:outline-none focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400/50"
-                        />
-                        
-                        {isSearchFocused && filteredHistory.length > 0 && (
-                          <div className="absolute top-full left-0 right-0 mt-1 bg-[#050810] border border-cyan-900/80 rounded-md shadow-2xl z-50 py-1 max-h-48 overflow-y-auto">
-                            {filteredHistory.map((query, index) => (
-                              <button
-                                key={query}
-                                type="button"
-                                className={`w-full text-left px-3 py-1.5 text-xs font-mono cursor-pointer flex items-center justify-between ${index === selectedHistoryIndex ? 'bg-cyan-950 text-cyan-300' : 'text-slate-400 hover:bg-neutral-900 hover:text-slate-200'}`}
-                                onMouseDown={(e) => { e.preventDefault(); setSearchQuery(query); setIsSearchFocused(false); saveToHistory(query); }}
-                              >
-                                <span>{query}</span>
-                                <span className="opacity-50 text-[10px]">История</span>
-                              </button>
-                            ))}
-                          </div>
-                        )}
-                      </div>
                     )}
 
                     {id === 'zones' && (
@@ -1306,11 +1313,15 @@ export const Map3D: React.FC = () => {
         />
       )}
       <footer className="h-10 border-t border-cyan-900/40 bg-[#080808] flex items-center justify-between px-4 shrink-0 z-10 w-full overflow-visible">
-        {/* Left Side: System Status / Empty state for future dialogs */}
+        {/* Left Side: System Status & Version Badge */}
         <div className="flex items-center gap-3 text-sm text-slate-400 font-mono">
           <span className="flex items-center gap-1.5">
             <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.8)]"></span>
             <span className="hidden sm:inline">Система активна</span>
+          </span>
+          <span className="text-gray-700/60 font-sans select-none">|</span>
+          <span className="text-[10px] text-cyan-400 bg-cyan-950/40 border border-cyan-900/40 px-2 py-0.5 rounded font-bold tracking-wide select-none" title={`RICIS-III Engine ${APP_VERSION}`}>
+            {APP_BUILD_LABEL}
           </span>
         </div>
 

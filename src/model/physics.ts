@@ -38,7 +38,10 @@ export function nodeShielding(node: ProblemNode, allNodes?: ProblemNode[]): numb
 }
 
 export function zoneShielding(zone: ScienceZone, nodes: ProblemNode[]): number {
-  const members = nodes.filter(n => zone.nodeIds.includes(n.id) || n.zoneIds.includes(zone.id));
+  const members = nodes.filter(n => {
+    const primaryId = (n.zoneIds && n.zoneIds[0]) ? n.zoneIds[0] : 'math';
+    return primaryId === zone.id;
+  });
   if (members.length === 0) {
     return 0.8 + Math.log10(1 + zone.economicProfile.costUnresolved) * 0.1;
   }
@@ -503,20 +506,21 @@ export function layoutNodes(
  * Радиус сферы зоны 
  */
 export function zoneVisualRadius(zone: ScienceZone, nodes: ProblemNode[]): number {
-  const members = nodes.filter(
-    n => zone.nodeIds.includes(n.id) || n.zoneIds.includes(zone.id)
-  );
-  if (members.length === 0) return 12.0;
+  const members = nodes.filter(n => {
+    const primaryId = (n.zoneIds && n.zoneIds[0]) ? n.zoneIds[0] : 'math';
+    return primaryId === zone.id;
+  });
+  if (members.length === 0) return 1.0;
 
-  const sumNodeR = members.reduce((sum, n) => sum + nodeVisualRadius(n, nodes), 0);
-  const maxNodeR = Math.max(...members.map(n => nodeVisualRadius(n, nodes)));
-  const S = zoneShielding(zone, nodes);
-  const byCount = Math.sqrt(members.length) * 4.2;
-  const byShield = Math.sqrt(S) * 1.2;
+  const radii = members.map(n => nodeVisualRadius(n, nodes));
+  const maxR = Math.max(...radii);
+  
+  // Математическая оценка охватывающего радиуса при плотной упаковке кругов/сфер
+  const sumSquared = radii.reduce((sum, r) => sum + r * r, 0);
+  const estimatedR = (maxR + Math.sqrt(sumSquared)) * 0.5;
 
-  // Guarantee zone bubble radius comfortably encloses all member nodes with spacious clearance
-  const contentR = maxNodeR * 2.0 + Math.sqrt(sumNodeR) * 2.5 + byCount * 0.5 + byShield * 0.5;
-  return Number(Math.max(14.0, contentR).toFixed(2));
+  // Охватывающая область + 10%
+  return Number((estimatedR * 1.1).toFixed(2));
 }
 
 export function nodeVisualRadius(node: ProblemNode, allNodes: ProblemNode[]): number {

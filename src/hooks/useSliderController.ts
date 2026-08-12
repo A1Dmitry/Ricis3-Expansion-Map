@@ -60,7 +60,6 @@ export class SliderController<T extends Record<string, any>> {
   }
 
   public startInteraction(): void {
-    this.clearIdleTimer();
     this.status = 'DRAGGING';
     this.notify();
   }
@@ -68,15 +67,18 @@ export class SliderController<T extends Record<string, any>> {
   public updateValue<K extends keyof T>(key: K, value: T[K]): void {
     this.workingParams = { ...this.workingParams, [key]: value };
     this.status = 'DRAGGING';
-    this.clearIdleTimer();
     this.notify();
   }
 
   public endInteraction(): void {
     if (this.status === 'DRAGGING') {
-      this.status = 'PENDING_IDLE';
-      this.startIdleTimer();
+      const hasChanged = JSON.stringify(this.workingParams) !== JSON.stringify(this.committedParams);
+      this.committedParams = { ...this.workingParams };
+      this.status = 'IDLE';
       this.notify();
+      if (hasChanged) {
+        this.onCommit(this.committedParams);
+      }
     }
   }
 
@@ -91,30 +93,18 @@ export class SliderController<T extends Record<string, any>> {
 
   public syncExternalParams(externalParams: T): void {
     if (this.status === 'IDLE') {
-      this.workingParams = { ...externalParams };
-      this.committedParams = { ...externalParams };
-      this.notify();
+      const hasChanged = JSON.stringify(this.workingParams) !== JSON.stringify(externalParams);
+      if (hasChanged) {
+        this.workingParams = { ...externalParams };
+        this.committedParams = { ...externalParams };
+        this.notify();
+      }
     }
   }
 
   public destroy(): void {
     this.clearIdleTimer();
     this.listeners.clear();
-  }
-
-  private startIdleTimer(): void {
-    this.clearIdleTimer();
-    this.idleTimer = setTimeout(() => {
-      this.status = 'IDLE';
-      const hasChanged = JSON.stringify(this.workingParams) !== JSON.stringify(this.committedParams);
-      if (hasChanged) {
-        this.committedParams = { ...this.workingParams };
-        this.notify();
-        this.onCommit(this.committedParams);
-      } else {
-        this.notify();
-      }
-    }, this.idleDelayMs);
   }
 
   private clearIdleTimer(): void {

@@ -5,7 +5,7 @@ import { dbGetMigrationState, dbSetMigrationState, dbSaveMap } from './db';
 import { auditMapRicisProofIntegrity, nodeHasSorry } from './audit';
 import { buildCanonicalRicisProofLatex } from './ricisCoreRules';
 
-export const CURRENT_MIGRATION_VERSION = 4;
+export const CURRENT_MIGRATION_VERSION = 5;
 
 export interface MigrationAuditReport {
   dbVersion: number;

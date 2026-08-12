@@ -81,7 +81,12 @@ export const useMapStore = create<MapStore>((set, get) => ({
 
   resetMap: async () => {
     await clearMapDb();
-    set({ ...emptyState(), hydrated: true });
+    const fresh = emptyState();
+    const audited = await runDatabaseMigration(fresh, true);
+    const sanitized = sanitizeMap(audited.map);
+    const memory = await trainAgentFromDb(sanitized);
+    set({ ...sanitized, hydrated: true, agentTrainingMemory: memory });
+    await saveMapToDb(sanitized);
   },
 
   downloadJson: () => {

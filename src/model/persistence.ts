@@ -149,6 +149,26 @@ export async function hydrateInitialState(): Promise<MapState> {
         economicProfile: { ...z.economicProfile }
       }))];
     }
+
+    // Merge any nodes from initialMap that are missing in the loaded state
+    const existingNodeIds = new Set(loadedState.nodes.map(n => n.id));
+    const missingNodes = initialMap.nodes.filter(n => !existingNodeIds.has(n.id));
+    if (missingNodes.length > 0) {
+      loadedState.nodes = [...loadedState.nodes, ...missingNodes.map(n => ({
+        ...n,
+        zoneIds: [...(n.zoneIds || ['math'])],
+        dependencyIds: [...(n.dependencyIds || [])],
+        dependentIds: [...(n.dependentIds || [])],
+      }))];
+    }
+
+    // Merge any edges from initialMap that are missing in the loaded state
+    const existingEdgeIds = new Set(loadedState.edges.map(e => e.id));
+    const missingEdges = initialMap.edges.filter(e => !existingEdgeIds.has(e.id));
+    if (missingEdges.length > 0) {
+      loadedState.edges = [...loadedState.edges, ...missingEdges.map(e => ({ ...e }))];
+    }
+
     stateToMigrate = loadedState;
   } else {
     stateToMigrate = sanitizeMap({
