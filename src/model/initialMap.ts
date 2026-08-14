@@ -1,6 +1,7 @@
 import { MapState } from './types';
 
 export const initialMap: MapState = {
+  agentLogs: [],
   nodes: [
     {
       id: 'core-agi-target',
@@ -1206,7 +1207,7 @@ export const initialMap: MapState = {
 }
 };
 
-export function deepCopyInitialMap(): Pick<MapState, 'nodes' | 'edges' | 'zones' | 'axioms' | 'proofs'> {
+export function deepCopyInitialMap(): MapState {
   return {
     nodes: initialMap.nodes.map(n => ({ ...n, economic: { ...n.economic } })),
     edges: initialMap.edges.map(e => ({ ...e })),
@@ -1217,5 +1218,6 @@ export function deepCopyInitialMap(): Pick<MapState, 'nodes' | 'edges' | 'zones'
     })),
     axioms: [...initialMap.axioms],
     proofs: { ...initialMap.proofs },
+    agentLogs: [...(initialMap.agentLogs || [])],
   };
 }

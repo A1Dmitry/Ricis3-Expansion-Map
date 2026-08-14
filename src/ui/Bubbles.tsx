@@ -1,4 +1,8 @@
 
+import React, { useMemo, useRef } from 'react';
+import { useFrame } from '@react-three/fiber';
+import * as THREE from 'three';
+
 function drawRoundedRect(ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, r: number) {
   ctx.beginPath();
   ctx.moveTo(x + r, y);
@@ -7,9 +11,6 @@ function drawRoundedRect(ctx: CanvasRenderingContext2D, x: number, y: number, w:
   ctx.arcTo(x, y + h, x, y, r);
   ctx.arcTo(x, y, x + w, y, r);
 }
-import React, { useMemo, useRef } from 'react';
-import { useFrame } from '@react-three/fiber';
-import * as THREE from 'three';
 
 /** Пузырь зоны: реалистичный мыльный пузырь с иридесценцией тонкой плёнки, белыми бликами, покачиванием плёнки и прозрачным ядром. */
 export function ZoneBubble({

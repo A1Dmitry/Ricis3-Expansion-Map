@@ -40,6 +40,10 @@ export interface ProblemNode {
   derivativeScore?: number;
   /** Совпавшие сигнатуры (SP2, A6, …). */
   matchedSignatures?: string[];
+  /** Ошибки формальной верификации Lean 4 */
+  leanErrors?: string[];
+  /** Предупреждения формальной верификации Lean 4 */
+  leanWarnings?: string[];
 }
 
 export type EdgeColor = 'red' | 'yellow' | 'green';
@@ -83,10 +87,22 @@ export interface Proof {
   latex: string;
 }
 
+export type AgentLogLevel = 'info' | 'success' | 'warn' | 'error' | 'ricis';
+
+export interface AgentLogEntry {
+  id: string;
+  timestamp: string;
+  message: string;
+  level: AgentLogLevel;
+  details?: string;
+  nodeId?: string;
+}
+
 export interface MapState {
   nodes: ProblemNode[];
   edges: DependencyEdge[];
   zones: ScienceZone[];
   axioms: Axiom[];
   proofs: Record<string, Proof>;
+  agentLogs: AgentLogEntry[];
 }

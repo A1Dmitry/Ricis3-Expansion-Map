@@ -36,6 +36,7 @@ import { NodeCardDetails } from './NodeCardDetails';
 import { EditNodeModal } from './EditNodeModal';
 import { PhysicsControlPanel } from './PhysicsControlPanel';
 import { TelegramBotPanel } from './TelegramBotPanel';
+import { AgentLogModal } from './AgentLogModal';
 import { LatexRenderer } from './LatexRenderer';
 import { useAdaptiveUI } from '../hooks/useAdaptiveUI';
 
@@ -171,6 +172,7 @@ export const Map3D: React.FC = () => {
   const [showProof, setShowProof] = useState(false);
   const [showAddNode, setShowAddNode] = useState(false);
   const [showTelegramBot, setShowTelegramBot] = useState(false);
+  const [showAgentLogs, setShowAgentLogs] = useState(false);
   const [editingNode, setEditingNode] = useState<ProblemNode | null>(null);
   const [isSolving, setIsSolving] = useState(false);
   const [isAgentSearching, setIsAgentSearching] = useState(false);
@@ -786,6 +788,7 @@ export const Map3D: React.FC = () => {
                        {id === 'available' && <CheckCircle2 size={16} className="text-emerald-400" />}
                        {id === 'agent' && <Bot size={16} className="text-violet-400" />}
                        {id === 'persistence' && <Database size={16} className="text-cyan-400" />}
+                       {id === 'audit' && <RefreshCw size={16} className="text-amber-400" />}
                        
                        <span className="text-xs font-bold text-slate-100 uppercase tracking-wider accordion-title p-0">
                          {UI_ELEMENTS.find(e => e.id === id)?.label}
@@ -867,6 +870,7 @@ export const Map3D: React.FC = () => {
                         + Добавить новую задачу
                       </ActionButton>
                     )}
+                    {id === 'audit' && <AuditPanel />}
 
                     {id === 'zones' && (
                       <div className="space-y-1">
@@ -926,8 +930,8 @@ export const Map3D: React.FC = () => {
                             onChange={(e) => setSelectedModel(e.target.value as string)}
                             className="w-full bg-[#050810] border border-cyan-900/40 rounded px-2 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-cyan-400"
                           >
-                            <option value="gemini-2.5-flash">Gemini 2.5 Flash (Fast)</option>
-                            <option value="gemini-2.5-pro">Gemini 2.5 Pro (Smart)</option>
+                            <option value="gemini-3.6-flash">Gemini 3.6 Flash (Fast)</option>
+                            <option value="gemini-3.1-pro-preview">Gemini 3.1 Pro (Smart)</option>
                           </select>
                         </div>
                         <div className="pt-2 border-t border-neutral-800/40 flex flex-col gap-2">
@@ -978,6 +982,14 @@ export const Map3D: React.FC = () => {
               </div>
             );
           })}
+          </div>
+
+          {/* Always Visible: Dedicated RICIS Audit & Verification Panel */}
+          <div className="border border-amber-900/30 rounded-lg bg-[#080a10]/95 backdrop-blur-md p-3.5 mt-1.5 shadow-[0_0_20px_rgba(245,158,11,0.06)]">
+            <h3 className="text-[10px] font-bold text-amber-400 uppercase tracking-wider flex items-center gap-1.5 mb-1.5 border-b border-amber-900/20 pb-1">
+              🛡️ ПАНЕЛЬ АУДИТА & RICIS-III
+            </h3>
+            <AuditPanel />
           </div>
 
           {hiddenElements.length > 0 && (
@@ -1312,17 +1324,61 @@ export const Map3D: React.FC = () => {
           onSolveAfterSave={() => handleSolve(editingNode.id)}
         />
       )}
+      {showAgentLogs && (
+        <AgentLogModal
+          onClose={() => setShowAgentLogs(false)}
+          onSelectNode={setSelectedNodeId}
+        />
+      )}
       <footer className="h-10 border-t border-cyan-900/40 bg-[#080808] flex items-center justify-between px-4 shrink-0 z-10 w-full overflow-visible">
-        {/* Left Side: System Status & Version Badge */}
-        <div className="flex items-center gap-3 text-sm text-slate-400 font-mono">
-          <span className="flex items-center gap-1.5">
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.8)]"></span>
-            <span className="hidden sm:inline">Система активна</span>
+        {/* Left Side: System Indicator, Arrow Button & Latest Agent Log Line */}
+        <div className="flex items-center gap-2.5 text-xs text-slate-400 font-mono overflow-hidden pr-2">
+          <span className="flex items-center gap-1.5 shrink-0" title="Статус ИИ-Агента">
+            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.8)]" />
           </span>
-          <span className="text-gray-700/60 font-sans select-none">|</span>
-          <span className="text-[10px] text-cyan-400 bg-cyan-950/40 border border-cyan-900/40 px-2 py-0.5 rounded font-bold tracking-wide select-none" title={`RICIS-III Engine ${APP_VERSION}`}>
-            {APP_BUILD_LABEL}
-          </span>
+
+          {/* Trigger button with arrow to open agent log window */}
+          <button
+            type="button"
+            onClick={() => setShowAgentLogs(true)}
+            className="flex items-center gap-1 px-2 py-0.5 bg-cyan-950/80 hover:bg-cyan-900/80 border border-cyan-800/80 text-cyan-300 hover:text-white rounded text-[10px] font-mono font-bold transition-all cursor-pointer shadow-[0_0_10px_rgba(6,182,212,0.15)] shrink-0"
+            title="Вызов окна логов ИИ-Агента"
+          >
+            <span className="text-cyan-400 font-bold">▲</span>
+            <span>Лог ИИ</span>
+          </button>
+
+          <span className="text-neutral-700 font-sans select-none shrink-0">|</span>
+
+          {/* Latest AI agent log message */}
+          {map.agentLogs && map.agentLogs.length > 0 ? (
+            <button
+              type="button"
+              onClick={() => setShowAgentLogs(true)}
+              className="text-xs text-slate-300 hover:text-cyan-200 font-mono truncate text-left cursor-pointer transition-colors flex items-center gap-1.5 min-w-0"
+              title="Нажмите, чтобы открыть полный журнал логов"
+            >
+              <span className="text-slate-500 text-[10px]">[{map.agentLogs[0].timestamp}]</span>
+              <span
+                className={`text-[10px] font-bold uppercase px-1 py-0.2 rounded ${
+                  map.agentLogs[0].level === 'ricis'
+                    ? 'text-purple-400 bg-purple-950/60'
+                    : map.agentLogs[0].level === 'success'
+                    ? 'text-emerald-400 bg-emerald-950/60'
+                    : map.agentLogs[0].level === 'warn'
+                    ? 'text-amber-400 bg-amber-950/60'
+                    : map.agentLogs[0].level === 'error'
+                    ? 'text-rose-400 bg-rose-950/60'
+                    : 'text-cyan-400 bg-cyan-950/60'
+                }`}
+              >
+                {map.agentLogs[0].level}
+              </span>
+              <span className="text-slate-200 truncate">{map.agentLogs[0].message}</span>
+            </button>
+          ) : (
+            <span className="text-slate-500 text-xs font-mono">Система активна</span>
+          )}
         </div>
 
         {/* Right Side: Map Controls with Hover Tooltip */}

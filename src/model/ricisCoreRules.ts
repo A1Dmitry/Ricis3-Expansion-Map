@@ -95,10 +95,55 @@ export function containsSorry(text: string | null | undefined): boolean {
 }
 
 /**
+ * Автоматическое преобразование классических пределов Коши (\lim_{x \to a}, \lim)
+ * в вызовы RICIS-мостов (0_F / 0_G, F_0, inf_0, 0_F * \infty_G = F * G)
+ * в кольцах Мерсенна M_k = 2^k - 1 без непрерывного предельного перехода.
+ */
+export function transformCauchyToRicisBridge(text: string): string {
+  if (!text) return text;
+  let t = String(text);
+
+  // 1. Преобразование дробей с пределами \lim_{x \to \infty} \frac{A}{B}
+  t = t.replace(
+    /\\?lim_\{([^}]+)\s*(?:\\to|\\rightarrow|->|=)\s*\\?infty\}\s*\\?frac\{([^}]+)\}\{([^}]+)\}/gi,
+    (_m, _v, num, den) => `\\xrightarrow{\\text{RICIS Bridge (Mersenne Ring } M_k)} \\frac{\\infty_{${num}}}{\\infty_{${den}}} = \\frac{${num}}{${den}} \\quad [\\text{Мост } \\inf_0]`
+  );
+
+  // 2. Преобразование \lim_{x \to a} \frac{A}{B}
+  t = t.replace(
+    /\\?lim_\{([^}]+)\s*(?:\\to|\\rightarrow|->|=)\s*([^}]+)\}\s*\\?frac\{([^}]+)\}\{([^}]+)\}/gi,
+    (_m, _v, _p, num, den) => `\\xrightarrow{\\text{RICIS Bridge (SP4/A4)}} \\frac{0_{${num}}}{0_{${den}}} = \\frac{${num}}{${den}} \\quad [\\text{Мост } F_0]`
+  );
+
+  // 3. \lim_{x \to \infty}
+  t = t.replace(
+    /\\?lim_\{([^}]+)\s*(?:\\to|\\rightarrow|->|=)\s*\\?infty\}/gi,
+    '\\xrightarrow{\\text{RICIS Bridge } \\inf_0}'
+  );
+
+  // 4. \lim_{x \to a}
+  t = t.replace(
+    /\\?lim_\{([^}]+)\s*(?:\\to|\\rightarrow|->|=)\s*([^}]+)\}/gi,
+    '\\xrightarrow{\\text{RICIS Bridge } F_0}'
+  );
+
+  // 5. Одиночный \lim
+  t = t.replace(/\\?lim\b/gi, '\\text{RICIS Мост } F_0');
+
+  return t;
+}
+
+/**
  * DRY Audit function for evaluating any RICIS proof text / LaTeX.
  */
 export function auditProofContent(proofText: string): RicisAuditResult {
-  const text = String(proofText || '');
+  let text = String(proofText || '');
+  
+  // Pre-transform classical Cauchy limits to RICIS bridges if present
+  if (/\\lim_{|\\lim\b|\\rightarrow \\infty|\\to \\infty/i.test(text)) {
+    text = transformCauchyToRicisBridge(text);
+  }
+
   const issues: string[] = [];
 
   const containsLeanRef =

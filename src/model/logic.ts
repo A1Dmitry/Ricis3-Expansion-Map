@@ -4,7 +4,8 @@ import {
   isErrorProofLatex,
   repairAgentLatex,
 } from './latexGuard';
-import { auditProofContent, buildCanonicalRicisProofLatex, containsSorry } from './ricisCoreRules';
+import { auditProofContent, buildCanonicalRicisProofLatex, containsSorry, transformCauchyToRicisBridge } from './ricisCoreRules';
+import { verifyLeanProof } from './leanVerifier';
 import { nodeHasSorry, recolorEdgesForTargets } from './audit';
 
 import { KNOWN_SINGULARITY_PROBLEMS } from './catalog';
@@ -47,8 +48,9 @@ export async function generateProof(node: ProblemNode, allAxioms: Axiom[]): Prom
         : '';
       if (raw && !isErrorProofLatex(raw)) {
         const repaired = repairAgentLatex(raw);
-        const audit = auditProofContent(repaired);
-        latex = audit.isValid ? repaired : fallback;
+        const transformed = transformCauchyToRicisBridge(repaired);
+        const audit = auditProofContent(transformed);
+        latex = audit.isValid ? transformed : fallback;
       }
     }
   } catch {
@@ -146,15 +148,39 @@ export async function solveNodeLogic(map: MapState, nodeId: string): Promise<Map
   const node = map.nodes.find(n => n.id === nodeId);
   if (!node) return map;
 
-  const proof = await generateProof(node, map.axioms);
-  const audit = auditProofContent(proof.latex);
-  const hasSorry = nodeHasSorry(node, proof);
+  const existingProof = map.proofs[nodeId];
+  let proof: Proof;
+  let isFullyResolved = false;
+  let leanErrors: string[] = [];
+  let leanWarnings: string[] = [];
 
-  // Solutions taken purely from classical math without RICIS reduction, containing sorry, or failing RICIS audit
-  // cannot be marked as 'resolved'. They MUST be set to 'partial' (yellow ball on 3D map).
-  const isFullyResolved = audit.isValid && !hasSorry;
+  const hasLeanKeywords = existingProof && existingProof.latex && 
+    /\btheorem\b|\blemma\b|\bdef\b|\binductive\b|\bstructure\b|\baxiom\b|\bimport\b/i.test(existingProof.latex);
 
-  const updatedNode: ProblemNode = { ...node, state: isFullyResolved ? 'resolved' : 'partial' };
+  if (existingProof && existingProof.latex && hasLeanKeywords) {
+    // Priority: verify user-provided Lean 4 proof on recalculation input
+    proof = existingProof;
+    const verification = verifyLeanProof(existingProof.latex, node.title, node.targetFunction);
+    isFullyResolved = verification.isValid;
+    leanErrors = verification.errors;
+    leanWarnings = verification.warnings;
+  } else {
+    // Fallback: run normal proof generation
+    proof = await generateProof(node, map.axioms);
+    const audit = auditProofContent(proof.latex);
+    const hasSorry = nodeHasSorry(node, proof);
+    isFullyResolved = audit.isValid && !hasSorry;
+    if (!isFullyResolved) {
+      leanErrors = audit.issues;
+    }
+  }
+
+  const updatedNode: ProblemNode = {
+    ...node,
+    state: isFullyResolved ? 'resolved' : 'partial',
+    leanErrors,
+    leanWarnings,
+  };
 
   const updatedNodes = map.nodes.map(n => {
     if (n.id === nodeId) return updatedNode;

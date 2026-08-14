@@ -37,7 +37,16 @@ const STORES = {
 
 type StoreName = (typeof STORES)[keyof typeof STORES];
 
-const isIndexedDbAvailable = typeof indexedDB !== 'undefined';
+let isIndexedDbAvailable = false;
+try {
+  if (typeof indexedDB !== 'undefined' && indexedDB !== null) {
+    // Just reference it to check for any SecurityError/exceptions
+    const dummy = indexedDB;
+    isIndexedDbAvailable = true;
+  }
+} catch (e) {
+  isIndexedDbAvailable = false;
+}
 
 // In-memory fallback for Node.js server runtime where indexedDB is not available
 const memoryStores: Record<string, Map<string, any>> = {
@@ -54,45 +63,53 @@ function openDb(): Promise<IDBDatabase> {
     if (!isIndexedDbAvailable) {
       return reject(new Error('IndexedDB is not available in server environment'));
     }
-    const req = indexedDB.open(DB_NAME, DB_VERSION);
+    try {
+      const req = indexedDB.open(DB_NAME, DB_VERSION);
 
-    req.onupgradeneeded = () => {
-      const db = req.result;
+      req.onupgradeneeded = () => {
+        const db = req.result;
 
-      if (!db.objectStoreNames.contains(STORES.nodes)) {
-        const nodes = db.createObjectStore(STORES.nodes, { keyPath: 'id' });
-        nodes.createIndex('by_state', 'state', { unique: false });
-        nodes.createIndex('by_zone', 'zoneIds', { unique: false, multiEntry: true });
-        nodes.createIndex('by_depth', 'fractalDepth', { unique: false });
-      }
+        if (!db.objectStoreNames.contains(STORES.nodes)) {
+          const nodes = db.createObjectStore(STORES.nodes, { keyPath: 'id' });
+          nodes.createIndex('by_state', 'state', { unique: false });
+          nodes.createIndex('by_zone', 'zoneIds', { unique: false, multiEntry: true });
+          nodes.createIndex('by_depth', 'fractalDepth', { unique: false });
+        }
 
-      if (!db.objectStoreNames.contains(STORES.edges)) {
-        const edges = db.createObjectStore(STORES.edges, { keyPath: 'id' });
-        edges.createIndex('by_from', 'fromId', { unique: false });
-        edges.createIndex('by_to', 'toId', { unique: false });
-      }
+        if (!db.objectStoreNames.contains(STORES.edges)) {
+          const edges = db.createObjectStore(STORES.edges, { keyPath: 'id' });
+          edges.createIndex('by_from', 'fromId', { unique: false });
+          edges.createIndex('by_to', 'toId', { unique: false });
+        }
 
-      if (!db.objectStoreNames.contains(STORES.zones)) {
-        db.createObjectStore(STORES.zones, { keyPath: 'id' });
-      }
+        if (!db.objectStoreNames.contains(STORES.zones)) {
+          db.createObjectStore(STORES.zones, { keyPath: 'id' });
+        }
 
-      if (!db.objectStoreNames.contains(STORES.axioms)) {
-        const axioms = db.createObjectStore(STORES.axioms, { keyPath: 'id' });
-        axioms.createIndex('by_source', 'sourceNodeId', { unique: false });
-      }
+        if (!db.objectStoreNames.contains(STORES.axioms)) {
+          const axioms = db.createObjectStore(STORES.axioms, { keyPath: 'id' });
+          axioms.createIndex('by_source', 'sourceNodeId', { unique: false });
+        }
 
-      if (!db.objectStoreNames.contains(STORES.proofs)) {
-        // keyPath = nodeId (одно доказательство на узел)
-        db.createObjectStore(STORES.proofs, { keyPath: 'nodeId' });
-      }
+        if (!db.objectStoreNames.contains(STORES.proofs)) {
+          // keyPath = nodeId (одно доказательство на узел)
+          db.createObjectStore(STORES.proofs, { keyPath: 'nodeId' });
+        }
 
-      if (!db.objectStoreNames.contains(STORES.meta)) {
-        db.createObjectStore(STORES.meta, { keyPath: 'key' });
-      }
-    };
+        if (!db.objectStoreNames.contains(STORES.meta)) {
+          db.createObjectStore(STORES.meta, { keyPath: 'key' });
+        }
+      };
 
-    req.onsuccess = () => resolve(req.result);
-    req.onerror = () => reject(req.error ?? new Error('IndexedDB open failed'));
+      req.onsuccess = () => resolve(req.result);
+      req.onerror = () => {
+        isIndexedDbAvailable = false;
+        reject(req.error ?? new Error('IndexedDB open failed'));
+      };
+    } catch (e) {
+      isIndexedDbAvailable = false;
+      reject(e);
+    }
   });
 }
 
@@ -135,9 +152,8 @@ async function getAll<T>(db: IDBDatabase, name: StoreName): Promise<T[]> {
 
 /** Полная запись карты: каждый узел — отдельный JSON-документ. */
 export async function dbSaveMap(state: MapState): Promise<void> {
-  if (!isIndexedDbAvailable) {
+  const saveToMemory = () => {
     clearMemoryStores();
-
     for (const node of state.nodes) memoryStores.nodes.set(node.id, node);
     for (const edge of state.edges) memoryStores.edges.set(edge.id, edge);
     for (const zone of state.zones) memoryStores.zones.set(zone.id, zone);
@@ -150,59 +166,69 @@ export async function dbSaveMap(state: MapState): Promise<void> {
       nodeCount: state.nodes.length,
       proofCount: Object.keys(state.proofs).length,
     });
+  };
+
+  if (!isIndexedDbAvailable) {
+    saveToMemory();
     return;
   }
 
-  const db = await openDb();
   try {
-    const storeNames: StoreName[] = [
-      STORES.nodes,
-      STORES.edges,
-      STORES.zones,
-      STORES.axioms,
-      STORES.proofs,
-      STORES.meta,
-    ];
-    const tx = db.transaction(storeNames, 'readwrite');
+    const db = await openDb();
+    try {
+      const storeNames: StoreName[] = [
+        STORES.nodes,
+        STORES.edges,
+        STORES.zones,
+        STORES.axioms,
+        STORES.proofs,
+        STORES.meta,
+      ];
+      const tx = db.transaction(storeNames, 'readwrite');
 
-    tx.objectStore(STORES.nodes).clear();
-    tx.objectStore(STORES.edges).clear();
-    tx.objectStore(STORES.zones).clear();
-    tx.objectStore(STORES.axioms).clear();
-    tx.objectStore(STORES.proofs).clear();
+      tx.objectStore(STORES.nodes).clear();
+      tx.objectStore(STORES.edges).clear();
+      tx.objectStore(STORES.zones).clear();
+      tx.objectStore(STORES.axioms).clear();
+      tx.objectStore(STORES.proofs).clear();
 
-    for (const node of state.nodes) {
-      tx.objectStore(STORES.nodes).put(node);
-    }
-    for (const edge of state.edges) {
-      tx.objectStore(STORES.edges).put(edge);
-    }
-    for (const zone of state.zones) {
-      tx.objectStore(STORES.zones).put(zone);
-    }
-    for (const axiom of state.axioms) {
-      tx.objectStore(STORES.axioms).put(axiom);
-    }
-    for (const proof of Object.values(state.proofs)) {
-      tx.objectStore(STORES.proofs).put(proof);
-    }
-    tx.objectStore(STORES.meta).put({
-      key: 'snapshot',
-      version: 1,
-      savedAt: new Date().toISOString(),
-      nodeCount: state.nodes.length,
-      proofCount: Object.keys(state.proofs).length,
-    });
+      for (const node of state.nodes) {
+        tx.objectStore(STORES.nodes).put(node);
+      }
+      for (const edge of state.edges) {
+        tx.objectStore(STORES.edges).put(edge);
+      }
+      for (const zone of state.zones) {
+        tx.objectStore(STORES.zones).put(zone);
+      }
+      for (const axiom of state.axioms) {
+        tx.objectStore(STORES.axioms).put(axiom);
+      }
+      for (const proof of Object.values(state.proofs)) {
+        tx.objectStore(STORES.proofs).put(proof);
+      }
+      tx.objectStore(STORES.meta).put({
+        key: 'snapshot',
+        version: 1,
+        savedAt: new Date().toISOString(),
+        nodeCount: state.nodes.length,
+        proofCount: Object.keys(state.proofs).length,
+      });
 
-    await txDone(tx);
-  } finally {
-    db.close();
+      await txDone(tx);
+    } finally {
+      db.close();
+    }
+  } catch (err) {
+    console.warn('IndexedDB write failed, falling back to memoryStores', err);
+    isIndexedDbAvailable = false;
+    saveToMemory();
   }
 }
 
 /** Восстановление полной карты из документных store. */
 export async function dbLoadMap(): Promise<MapState | null> {
-  if (!isIndexedDbAvailable) {
+  const loadFromMemory = () => {
     const nodes = Array.from(memoryStores.nodes.values());
     if (nodes.length === 0) return null;
     const edges = Array.from(memoryStores.edges.values());
@@ -211,27 +237,37 @@ export async function dbLoadMap(): Promise<MapState | null> {
     const proofList = Array.from(memoryStores.proofs.values());
     const proofs: Record<string, Proof> = {};
     for (const p of proofList) proofs[p.nodeId] = p;
-    return { nodes, edges, zones, axioms, proofs };
+    return { nodes, edges, zones, axioms, proofs, agentLogs: [] };
+  };
+
+  if (!isIndexedDbAvailable) {
+    return loadFromMemory();
   }
 
-  const db = await openDb();
   try {
-    const nodes = await getAll<ProblemNode>(db, STORES.nodes);
-    if (nodes.length === 0) return null;
+    const db = await openDb();
+    try {
+      const nodes = await getAll<ProblemNode>(db, STORES.nodes);
+      if (nodes.length === 0) return null;
 
-    const edges = await getAll<DependencyEdge>(db, STORES.edges);
-    const zones = await getAll<ScienceZone>(db, STORES.zones);
-    const axioms = await getAll<Axiom>(db, STORES.axioms);
-    const proofList = await getAll<Proof>(db, STORES.proofs);
+      const edges = await getAll<DependencyEdge>(db, STORES.edges);
+      const zones = await getAll<ScienceZone>(db, STORES.zones);
+      const axioms = await getAll<Axiom>(db, STORES.axioms);
+      const proofList = await getAll<Proof>(db, STORES.proofs);
 
-    const proofs: Record<string, Proof> = {};
-    for (const p of proofList) {
-      proofs[p.nodeId] = p;
+      const proofs: Record<string, Proof> = {};
+      for (const p of proofList) {
+        proofs[p.nodeId] = p;
+      }
+
+      return { nodes, edges, zones, axioms, proofs, agentLogs: [] };
+    } finally {
+      db.close();
     }
-
-    return { nodes, edges, zones, axioms, proofs };
-  } finally {
-    db.close();
+  } catch (err) {
+    console.warn('IndexedDB load failed, falling back to memoryStores', err);
+    isIndexedDbAvailable = false;
+    return loadFromMemory();
   }
 }
 
@@ -242,16 +278,23 @@ export async function dbClear(): Promise<void> {
     return;
   }
 
-  const db = await openDb();
   try {
-    await clearStore(db, STORES.nodes);
-    await clearStore(db, STORES.edges);
-    await clearStore(db, STORES.zones);
-    await clearStore(db, STORES.axioms);
-    await clearStore(db, STORES.proofs);
-    await clearStore(db, STORES.meta);
-  } finally {
-    db.close();
+    const db = await openDb();
+    try {
+      await clearStore(db, STORES.nodes);
+      await clearStore(db, STORES.edges);
+      await clearStore(db, STORES.zones);
+      await clearStore(db, STORES.axioms);
+      await clearStore(db, STORES.proofs);
+      await clearStore(db, STORES.meta);
+    } finally {
+      db.close();
+    }
+  } catch (err) {
+    console.warn('IndexedDB clear failed, falling back to memoryStores', err);
+    isIndexedDbAvailable = false;
+    clearMemoryStores();
+    memoryStores.meta.clear();
   }
 }
 

@@ -165,6 +165,37 @@ export const NodeCardDetails: React.FC<Props> = ({ node, isExpanded, onEdit }) =
         </code>
       </div>
 
+      {/* Formal Verification Feedback (Lean 4 compiler errors & warnings) */}
+      {((node.leanErrors && node.leanErrors.length > 0) || (node.leanWarnings && node.leanWarnings.length > 0)) && (
+        <div className="p-3 bg-[#1c0f13] border border-red-900/60 rounded-md space-y-2">
+          <p className="text-[9px] font-bold uppercase text-red-400 tracking-wider flex items-center gap-1.5">
+            🔬 Результаты формальной верификации Lean 4 / RICIS
+          </p>
+          
+          {node.leanErrors && node.leanErrors.length > 0 && (
+            <div className="space-y-1">
+              <span className="text-[8px] font-bold text-red-400 uppercase tracking-wider block">Ошибки (Errors):</span>
+              <ul className="list-disc list-inside text-red-200/95 text-[10px] space-y-1 pl-1 leading-relaxed">
+                {node.leanErrors.map((err, idx) => (
+                  <li key={idx} className="break-words">{err}</li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          {node.leanWarnings && node.leanWarnings.length > 0 && (
+            <div className={`space-y-1 pt-1.5 ${node.leanErrors && node.leanErrors.length > 0 ? 'border-t border-red-950/60' : ''}`}>
+              <span className="text-[8px] font-bold text-amber-500 uppercase tracking-wider block">Предупреждения (Warnings):</span>
+              <ul className="list-disc list-inside text-amber-200/95 text-[10px] space-y-1 pl-1 leading-relaxed">
+                {node.leanWarnings.map((warn, idx) => (
+                  <li key={idx} className="break-words">{warn}</li>
+                ))}
+              </ul>
+            </div>
+          )}
+        </div>
+      )}
+
       {node.singularityHint && (
         <div className="p-2.5 bg-purple-950/25 border border-purple-900/50 rounded-md">
           <p className="text-[9px] font-bold uppercase text-purple-400/90 tracking-wider mb-1">

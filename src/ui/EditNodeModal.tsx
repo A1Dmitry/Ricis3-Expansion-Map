@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import type { ProblemNode } from '../model/types';
 import { useMapStore } from '../store/mapStore';
 import { LatexRenderer } from './LatexRenderer';
+import { verifyLeanProof } from '../model/leanVerifier';
+import { auditProofContent } from '../model/ricisCoreRules';
 
 type Props = {
   node: ProblemNode;
@@ -29,6 +31,19 @@ export const EditNodeModal: React.FC<Props> = ({ node, onClose, onSolveAfterSave
   const [costToSolve, setCostToSolve] = useState(node.economic?.costToSolve || 0);
   const [isSaving, setIsSaving] = useState(false);
 
+  // Real-time auditing for compiler-style feedback
+  const isLean = proofLatex && /\btheorem\b|\blemma\b|\bdef\b|\binductive\b|\bstructure\b|\baxiom\b|\bimport\b/i.test(proofLatex);
+  const realTimeAudit = isLean
+    ? verifyLeanProof(proofLatex, title, targetFunction)
+    : (() => {
+        const aud = auditProofContent(proofLatex);
+        return {
+          isValid: aud.isValid,
+          errors: aud.isValid ? [] : aud.issues,
+          warnings: [] as string[],
+        };
+      })();
+
   const handleSave = async (andSolve = false) => {
     setIsSaving(true);
     try {
@@ -44,6 +59,8 @@ export const EditNodeModal: React.FC<Props> = ({ node, onClose, onSolveAfterSave
           marketGain: Number(marketGain) || 0,
           costToSolve: Number(costToSolve) || 0,
         },
+        leanErrors: realTimeAudit.errors,
+        leanWarnings: realTimeAudit.warnings,
       };
 
       await updateNode(node.id, updates);
@@ -186,6 +203,37 @@ export const EditNodeModal: React.FC<Props> = ({ node, onClose, onSolveAfterSave
                 placeholder="Вставьте новое или исправленное Lean 4 / LaTeX доказательство (например, theorem resolve_p_vs_np ...)"
                 className="w-full bg-[#030508] border border-neutral-700 rounded p-2 text-cyan-300 font-mono text-[10px] leading-relaxed focus:border-cyan-500 focus:outline-none whitespace-pre"
               />
+            )}
+
+            {/* Real-time Lean 4/LaTeX compiler-style audit feedback */}
+            {((realTimeAudit.errors && realTimeAudit.errors.length > 0) || (realTimeAudit.warnings && realTimeAudit.warnings.length > 0)) && (
+              <div className="mt-2 p-2.5 bg-[#1c0f13] border border-red-900/40 rounded text-[10px] space-y-1.5 leading-relaxed">
+                <div className="text-red-400 font-bold uppercase tracking-wider text-[8px] flex items-center gap-1">
+                  🔍 ИНТЕРАКТИВНЫЙ АНАЛИЗАТОР LEAN 4 / RICIS
+                </div>
+                
+                {realTimeAudit.errors && realTimeAudit.errors.length > 0 && (
+                  <div>
+                    <span className="text-red-400 font-bold block uppercase text-[8px]">Ошибки (Errors):</span>
+                    <ul className="list-disc list-inside text-red-200/90 pl-1 space-y-0.5">
+                      {realTimeAudit.errors.map((err, idx) => (
+                        <li key={idx} className="break-words">{err}</li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+
+                {realTimeAudit.warnings && realTimeAudit.warnings.length > 0 && (
+                  <div className={`pt-1 ${realTimeAudit.errors && realTimeAudit.errors.length > 0 ? 'border-t border-red-950/60 mt-1' : ''}`}>
+                    <span className="text-amber-500 font-bold block uppercase text-[8px]">Предупреждения (Warnings):</span>
+                    <ul className="list-disc list-inside text-amber-200/90 pl-1 space-y-0.5">
+                      {realTimeAudit.warnings.map((warn, idx) => (
+                        <li key={idx} className="break-words">{warn}</li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+              </div>
             )}
           </div>
 

@@ -1,3 +1,5 @@
+import { transformCauchyToRicisBridge } from './ricisCoreRules';
+
 /**
  * LaTeX hygiene for RICIS3 proofs and preprints (pdflatex + T2A + babel).
  */
@@ -98,6 +100,9 @@ export function repairAgentLatex(raw: string): string {
 
   t = t.replace(/\binfinity\b/gi, '\\infty');
   t = t.replace(/\bequiv\b/g, '\\equiv');
+
+  // Auto-transform classical Cauchy limits into RICIS bridges (0_F / 0_G, F_0, inf_0)
+  t = transformCauchyToRicisBridge(t);
 
   const dollars = (t.match(/(?<!\\)\$/g) || []).length;
   if (dollars % 2 === 1) t += '$';

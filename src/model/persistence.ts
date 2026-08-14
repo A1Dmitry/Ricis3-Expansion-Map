@@ -88,7 +88,7 @@ export function sanitizeMap(map: MapState): MapState {
     return { ...z, nodeIds: Array.from(new Set([...(z.nodeIds || []), ...members])) };
   });
 
-  return { ...map, nodes, zones };
+  return { ...map, agentLogs: Array.isArray(map.agentLogs) ? map.agentLogs : [], nodes, zones };
 }
 
 export function fromSnapshot(s: PersistedSnapshot): MapState | null {
@@ -100,6 +100,7 @@ export function fromSnapshot(s: PersistedSnapshot): MapState | null {
     zones: s.zones,
     axioms: Array.isArray(s.axioms) ? s.axioms : [],
     proofs: s.proofs && typeof s.proofs === 'object' ? s.proofs : {},
+    agentLogs: [],
   });
 }
 
