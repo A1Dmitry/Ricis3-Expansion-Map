@@ -19,6 +19,7 @@ import {
 import { runDatabaseMigration, MigrationAuditReport } from '../model/migrationAudit';
 import { DependencyGraphAuditor } from '../model/dependencyGraph';
 import { AuditReportMonolith, GarbageCollectionResult, TransformationLog } from '../model/dependencyGraph.types';
+import { getRicisCoreEngine, RicisAcademicProofResult } from '../services/ricisCore';
 
 function createLogEntry(message: string, level: AgentLogLevel = 'info', details?: string, nodeId?: string): AgentLogEntry {
   const now = new Date();
@@ -68,6 +69,7 @@ interface MapStore extends MapState {
   runSystemAudit: () => Promise<AuditReportMonolith>;
   executeGarbageCollection: () => Promise<GarbageCollectionResult>;
   clearAuditReport: () => void;
+  recalculateAcademicProof: (nodeId: string, premises?: string[], expectedGoal?: string) => Promise<RicisAcademicProofResult | null>;
 }
 
 function emptyState(): MapState {
@@ -130,6 +132,67 @@ export const useMapStore = create<MapStore>((set, get) => ({
     get().addAgentLog(`[Phase 6] Доказательство Lean 4 успешно сформировано. Задача "${node.title}" [RESOLVED].`, 'success', undefined, nodeId);
     set({ ...newState, agentTrainingMemory: memory });
     void saveMapToDb(newState);
+  },
+
+  recalculateAcademicProof: async (nodeId: string, premises?: string[], expectedGoal?: string): Promise<RicisAcademicProofResult | null> => {
+    const state = get();
+    const node = state.nodes.find(n => n.id === nodeId);
+    if (!node) return null;
+    
+    const targetFunc = node.targetFunction || '0/0 = 1';
+    const effectivePremises = premises && premises.length > 0 ? premises : [targetFunc];
+    const effectiveGoal = expectedGoal || (targetFunc.includes('=') ? targetFunc.split('=')[1]!.trim() : '1');
+    
+    get().addAgentLog(`[Phase -1] Академический перерасчет доказательства: "${node.title}"...`, 'ricis', undefined, nodeId);
+    
+    const engine = getRicisCoreEngine();
+    const result = await engine.proveSystem(effectivePremises, effectiveGoal, nodeId);
+    
+    if (result.academicStatus === 'QED_VERIFIED') {
+      get().addAgentLog(`[Phase 6: QED] Академическое доказательство для "${node.title}" верифицировано (инвариант = ${result.reducedInvariant}).`, 'success', undefined, nodeId);
+    } else {
+      get().addAgentLog(`[Phase 6: Discrepancy] Обнаружено расхождение: получено ${result.reducedInvariant}, ожидалось ${result.expectedGoal}.`, 'warn', undefined, nodeId);
+    }
+    
+    const existingProof = state.proofs[nodeId];
+    const academicLatex = `\\textbf{Academic Proof (${result.academicStatus === 'QED_VERIFIED' ? 'Q.E.D.' : 'Discrepancy'})}\n\n` +
+      result.steps.map(s => `\\text{${s.phase}: } ${s.academicDescription} \\implies ${s.mathLatex}`).join('\n\n') +
+      `\n\n\\textbf{Invariant: } ${result.reducedInvariant}`;
+      
+    const updatedProof: Proof = existingProof ? {
+      ...existingProof,
+      steps: result.steps.map(s => ({
+        phase: s.phase,
+        name: s.title,
+        action: s.academicDescription,
+        expression: s.mathLatex,
+      })),
+      finalResult: result.reducedInvariant,
+      latex: academicLatex,
+    } : {
+      nodeId,
+      targetFunction: targetFunc,
+      steps: result.steps.map(s => ({
+        phase: s.phase,
+        name: s.title,
+        action: s.academicDescription,
+        expression: s.mathLatex,
+      })),
+      finalResult: result.reducedInvariant,
+      latex: academicLatex,
+    };
+    
+    const nextProofs = { ...state.proofs, [nodeId]: updatedProof };
+    const updatedNode: ProblemNode = {
+      ...node,
+      state: result.goalMatched ? 'resolved' : 'partial',
+    };
+    const updatedNodes = state.nodes.map(n => n.id === nodeId ? updatedNode : n);
+    const nextState = { ...state, nodes: updatedNodes, proofs: nextProofs };
+    set(nextState);
+    void saveMapToDb(nextState);
+    
+    return result;
   },
 
   getLatexProof: (nodeId: string) => {

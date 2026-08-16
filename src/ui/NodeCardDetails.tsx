@@ -1,6 +1,13 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import type { ProblemNode } from '../model/types';
 import { isMissingTargetFunction, nodeHasSorry } from '../model/audit';
+import { getUnlockedTargets, getUnlockRequirements } from '../model/access';
+import { ChevronDown, ChevronUp, ArrowLeft, ExternalLink, ShieldCheck, Sparkles, Lock, Unlock, BookOpen, DollarSign, Terminal, CheckCircle2, Share2, Check } from 'lucide-react';
+import { LatexRenderer } from './LatexRenderer';
+import { ExecutionTraceViewer } from './ExecutionTraceViewer';
+import type { ITransformationLogDTO } from '../model/traceVisualizer.types';
+import { getRicisCoreEngine } from '../services/ricisCore';
+import { UrlShareService } from '../services/UrlShareService';
 
 /** Normalize URL: add https:// if scheme is missing (www. or domain-like). */
 function normalizeUrl(raw: string): string {
@@ -63,8 +70,16 @@ const TYPE_LABELS: Record<string, string> = {
 
 type Props = {
   node: ProblemNode;
+  map?: {
+    nodes: ProblemNode[];
+    edges?: Array<{ source?: string; target?: string; fromId?: string; toId?: string }>;
+    proofs?: Record<string, any>;
+  };
   isExpanded: boolean;
   onEdit?: () => void;
+  onNavigateToNode?: (targetId: string) => void;
+  onNavigateBack?: () => void;
+  previousNodeTitle?: string | null;
 };
 
 export function getReferencesForNode(node: ProblemNode) {
@@ -81,15 +96,11 @@ export function getReferencesForNode(node: ProblemNode) {
 
   const directUrl = fromFields ? normalizeUrl(fromFields) : null;
 
-  // Wikipedia search link
   const wikiUrl = `https://ru.wikipedia.org/wiki/Special:Search?search=${encodeURIComponent(cleanTitle)}`;
-
-  // Academic article / Scholar link
   const articleUrl = directUrl
     ? directUrl
     : `https://scholar.google.com/scholar?q=${encodeURIComponent(cleanTitle)}`;
 
-  // DOI link selection based on topic/node
   let doiUrl = 'https://doi.org/10.5281/zenodo.17872755';
   let doiLabel = '10.5281/zenodo.17872755 (RICIS-III Core)';
 
@@ -120,305 +131,574 @@ export function getReferencesForNode(node: ProblemNode) {
 }
 
 /**
- * Expanded node card body:
- * description (with links), targetFunction, singularityHint,
- * dedicated source link, meta grid, economics.
+ * Modern Accordion-based Node Card Details.
  */
-export const NodeCardDetails: React.FC<Props> = ({ node, isExpanded, onEdit }) => {
+export const NodeCardDetails: React.FC<Props> = ({
+  node,
+  map,
+  isExpanded,
+  onEdit,
+  onNavigateToNode,
+  onNavigateBack,
+  previousNodeTitle,
+}) => {
   const refs = getReferencesForNode(node);
 
+  // Стейт раскрытия секций аккордеона
+  const [openSections, setOpenSections] = useState<Record<string, boolean>>({
+    target: true,
+    forward: true,
+    prereqs: false,
+    verification: true,
+    trace: false,
+    sources: false,
+    economics: false,
+    provenance: true,
+  });
+
+  const [traceLog, setTraceLog] = useState<ITransformationLogDTO | null>(null);
+  const [isTracing, setIsTracing] = useState(false);
+
+  useEffect(() => {
+    if (openSections['trace'] && (node.state === 'resolved' || node.state === 'partial') && !isMissingTargetFunction(node)) {
+      runTrace();
+    }
+  }, [node.id, openSections['trace']]);
+
+  const runTrace = async () => {
+    setIsTracing(true);
+    try {
+      const engine = getRicisCoreEngine();
+      const res = await engine.evaluate({ expression: node.targetFunction || '', contextProblemId: node.id });
+      if (res && res.trace && res.trace.length > 0) {
+        setTraceLog({
+          evaluationId: Date.now().toString(),
+          targetExpression: node.targetFunction || '',
+          finalInvariant: res.invariant,
+          isSingular: res.isSingular,
+          semanticIndex: res.semanticIndex,
+          steps: res.trace.map(t => ({
+            title: t.title,
+            inputState: t.inputState,
+            outputState: t.outputState,
+            appliedAxiom: t.appliedAxiom,
+            complexity: t.complexity,
+            phaseIdentifier: 2,
+            phaseBadgeLabel: t.phase,
+            isAxiomApplied: !!t.appliedAxiom,
+            requiresL1Verification: true
+          }))
+        });
+      } else {
+        setTraceLog(null);
+      }
+    } catch (e) {
+      console.error(e);
+      setTraceLog(null);
+    } finally {
+      setIsTracing(false);
+    }
+  };
+
+  const toggleSection = (sectionId: string) => {
+    setOpenSections(prev => ({
+      ...prev,
+      [sectionId]: !prev[sectionId],
+    }));
+  };
+
+  // Вычисляем прямые разблокировки и предпосылки
+  const unlockedReport = map ? getUnlockedTargets(node, map) : { immediateUnlockTargets: [], allDependentTargets: [] };
+  const unlockRequirements = map ? getUnlockRequirements(node, map as any) : [];
+
+  const [copiedLink, setCopiedLink] = useState(false);
+
+  const handleShareNode = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    await UrlShareService.copyShareUrlToClipboard({ nodeId: node.id });
+    setCopiedLink(true);
+    setTimeout(() => setCopiedLink(false), 2000);
+  };
+
   return (
-    <div className={`space-y-3 ${isExpanded ? 'text-[12px]' : 'text-[11px]'}`}>
-      <div>
-        <div className="flex items-center justify-between mb-1">
-          <p className="text-[9px] font-bold uppercase text-gray-500 tracking-wider">
-            Описание (Инструкция Агенту)
-          </p>
-          {onEdit && (
+    <div className={`space-y-2.5 ${isExpanded ? 'text-[12px]' : 'text-[11px]'}`}>
+      {/* Кнопка навигации назад, если пользователь перешел по ссылке */}
+      {onNavigateBack && previousNodeTitle && (
+        <button
+          type="button"
+          onClick={onNavigateBack}
+          className="w-full flex items-center justify-between px-3 py-1.5 rounded-md bg-cyan-950/40 border border-cyan-700/60 hover:bg-cyan-900/60 hover:border-cyan-400 text-cyan-300 text-[10px] font-bold transition-all cursor-pointer group shadow-sm"
+        >
+          <span className="flex items-center gap-1.5">
+            <ArrowLeft size={13} className="group-hover:-translate-x-0.5 transition-transform" />
+            <span>Назад:</span>
+            <span className="text-white truncate max-w-[240px] font-medium">{previousNodeTitle}</span>
+          </span>
+          <span className="text-[9px] uppercase tracking-wider text-cyan-400/80 font-mono">История</span>
+        </button>
+      )}
+
+      {/* 1. СЕКЦИЯ АККОРДЕОНА: ЦЕЛЕВАЯ ФУНКЦИЯ И СИНГУЛЯРНОСТЬ */}
+      <div className="border border-neutral-800/80 rounded-xl overflow-hidden bg-[#0d1117] flex flex-col">
+        <div className="flex flex-col border-b border-neutral-800/50">
+        <div
+          onClick={() => toggleSection('target')}
+          className="w-full flex items-center justify-between min-h-[44px] px-4 py-3 bg-[#0d1117] hover:bg-neutral-900 text-left cursor-pointer transition-colors"
+        >
+          <span className="text-[10px] font-bold uppercase tracking-wider text-cyan-400 flex items-center gap-1.5">
+            <Terminal size={13} />
+            Целевая функция и сингулярность
+          </span>
+          <div className="flex items-center gap-2">
             <button
               type="button"
-              onClick={onEdit}
-              className="text-[10px] font-bold text-cyan-400 hover:text-cyan-200 bg-cyan-950/60 border border-cyan-800/60 px-2 py-0.5 rounded transition-colors flex items-center gap-1 cursor-pointer"
-              title="Редактировать параметры и подсказку для Агента"
+              onClick={handleShareNode}
+              className="text-[9px] font-bold text-slate-300 hover:text-white bg-neutral-900 border border-neutral-700 hover:border-cyan-600 px-2 py-0.5 rounded transition-all flex items-center gap-1 cursor-pointer"
+              title="Скопировать ссылку на эту задачу"
             >
-              <span>✏️</span> Редактировать
+              {copiedLink ? (
+                <>
+                  <Check size={11} className="text-emerald-400" />
+                  <span className="text-emerald-400">Скопировано</span>
+                </>
+              ) : (
+                <>
+                  <Share2 size={11} className="text-cyan-400" />
+                  <span>Поделиться</span>
+                </>
+              )}
             </button>
-          )}
+            {onEdit && (
+              <button
+                type="button"
+                onClick={e => {
+                  e.stopPropagation();
+                  onEdit();
+                }}
+                className="text-[9px] font-bold text-cyan-400 hover:text-cyan-200 bg-cyan-950/70 border border-cyan-800/70 px-1.5 py-0.5 rounded transition-colors flex items-center gap-1"
+                title="Редактировать параметры задачи"
+              >
+                <span>✏️</span> Правка
+              </button>
+            )}
+            {openSections['target'] ? <ChevronUp size={14} className="text-neutral-400" /> : <ChevronDown size={14} className="text-neutral-400" />}
+          </div>
         </div>
-        <p
-          className={`text-gray-300 leading-relaxed whitespace-pre-wrap ${
-            !isExpanded ? 'line-clamp-5' : ''
-          }`}
-        >
-          {renderTextWithLinks(node.description || '—')}
-        </p>
+
+        {openSections['target'] && (
+          <div className="p-3 space-y-2.5">
+            <div>
+              <p className="text-[9px] font-bold uppercase text-gray-500 tracking-wider mb-1">
+                Целевое аналитическое выражение
+              </p>
+              <div className="p-4 break-all whitespace-pre-wrap bg-neutral-900/50 rounded-lg">
+                <LatexRenderer content={`\`${node.targetFunction || '—'}\``} className="text-sm font-mono text-cyan-200" />
+              </div>
+            </div>
+
+            <div>
+              <p className="text-[9px] font-bold uppercase text-gray-500 tracking-wider mb-1">
+                Описание задачи
+              </p>
+              <div className={`text-gray-300 leading-relaxed whitespace-pre-wrap ${!isExpanded ? 'line-clamp-4' : ''}`}>
+                <LatexRenderer content={node.description || '—'} className="text-[11px]" />
+              </div>
+            </div>
+
+            {node.singularityHint && (
+              <div className="p-2.5 bg-purple-950/20 border border-purple-900/40 rounded-md">
+                <p className="text-[9px] font-bold uppercase text-purple-400 tracking-wider mb-0.5">
+                  Подсказка о сингулярности
+                </p>
+                <div className="text-purple-100/90 leading-relaxed text-[10.5px]">
+                  <LatexRenderer content={node.singularityHint} className="text-[10.5px]" />
+                </div>
+              </div>
+            )}
+          </div>
+        )}
       </div>
 
-      <div>
-        <p className="text-[9px] font-bold uppercase text-gray-500 tracking-wider mb-1">Целевая функция</p>
-        <code
-          className={`block font-mono text-cyan-200 bg-black/80 p-2.5 rounded border border-gray-800 break-all whitespace-pre-wrap ${
-            isExpanded ? 'text-[11px]' : 'text-[10px]'
-          }`}
+      {/* 2. СЕКЦИЯ АККОРДЕОНА: РАЗБЛОКИРУЕТ СЛЕДУЮЩИЕ ЗАДАЧИ */}
+      {unlockedReport.allDependentTargets.length > 0 && (
+        <div className="flex flex-col border-b border-neutral-800/50">
+          <button
+            type="button"
+            onClick={() => toggleSection('forward')}
+            className="w-full flex items-center justify-between min-h-[44px] px-4 py-3 bg-[#0d1117] hover:bg-neutral-900 text-left cursor-pointer transition-colors"
+          >
+            <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-400 flex items-center gap-1.5">
+              <Unlock size={13} />
+              Разблокирует задачи ({unlockedReport.allDependentTargets.length})
+            </span>
+            <div className="flex items-center gap-2">
+              <span className="text-[8px] font-bold px-1.5 py-0.5 rounded bg-emerald-950 border border-emerald-700/60 text-emerald-300 font-mono">
+                +{unlockedReport.allDependentTargets.length} нод
+              </span>
+              {openSections['forward'] ? <ChevronUp size={14} className="text-emerald-400" /> : <ChevronDown size={14} className="text-emerald-400" />}
+            </div>
+          </button>
+
+          {openSections['forward'] && (
+            <div className="p-3 space-y-2">
+              <p className="text-[9px] text-emerald-300/80 leading-tight">
+                Решение этой сингулярности открывает или продвигает следующие проблемы графа:
+              </p>
+              <div className="space-y-1.5 max-h-48 overflow-y-auto pr-1">
+                {unlockedReport.allDependentTargets.map(targetNode => {
+                  const isImmediate = unlockedReport.immediateUnlockTargets.some(t => t.id === targetNode.id);
+                  return (
+                    <div
+                      key={targetNode.id}
+                      className="flex items-center justify-between p-1.5 rounded bg-black/60 border border-emerald-900/40 hover:border-emerald-500/60 transition-colors group"
+                    >
+                      <button
+                        type="button"
+                        onClick={() => onNavigateToNode?.(targetNode.id)}
+                        className="text-left font-medium text-slate-200 group-hover:text-emerald-300 transition-colors text-[10.5px] truncate max-w-[250px] cursor-pointer"
+                        title={targetNode.title}
+                      >
+                        {targetNode.title}
+                      </button>
+                      <div className="flex items-center gap-1.5 shrink-0">
+                        {isImmediate ? (
+                          <span className="text-[8px] font-bold uppercase px-1.5 py-0.5 rounded bg-emerald-900/80 text-emerald-200 border border-emerald-600/70">
+                            Откроется сразу
+                          </span>
+                        ) : (
+                          <span className="text-[8px] font-bold uppercase px-1.5 py-0.5 rounded bg-neutral-900 text-slate-400 border border-neutral-700">
+                            Каскад
+                          </span>
+                        )}
+                        <button
+                          type="button"
+                          onClick={() => onNavigateToNode?.(targetNode.id)}
+                          className="text-emerald-400 hover:text-white text-xs px-1 cursor-pointer"
+                          title="Перейти к узлу"
+                        >
+                          →
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* 3. СЕКЦИЯ АККОРДЕОНА: ТРЕБУЕМЫЕ ПРЕДПОСЫЛКИ (ПРЕРЕКВИЗИТЫ) */}
+      {unlockRequirements.length > 0 && node.state !== 'resolved' && (
+        <div className="flex flex-col border-b border-neutral-800/50">
+          <button
+            type="button"
+            onClick={() => toggleSection('prereqs')}
+            className="w-full flex items-center justify-between min-h-[44px] px-4 py-3 bg-[#0d1117] hover:bg-neutral-900 text-left cursor-pointer transition-colors"
+          >
+            <span className="text-[10px] font-bold uppercase tracking-wider text-amber-400 flex items-center gap-1.5">
+              <Lock size={13} />
+              Требуется решить сначала ({unlockRequirements.length})
+            </span>
+            <div className="flex items-center gap-2">
+              <span className="text-[8px] font-bold px-1.5 py-0.5 rounded bg-amber-950 border border-amber-700/60 text-amber-300 font-mono">
+                {unlockRequirements.length} задач
+              </span>
+              {openSections['prereqs'] ? <ChevronUp size={14} className="text-amber-400" /> : <ChevronDown size={14} className="text-amber-400" />}
+            </div>
+          </button>
+
+          {openSections['prereqs'] && (
+            <div className="p-3 space-y-1.5 max-h-40 overflow-y-auto">
+              {unlockRequirements.map(reqNode => (
+                <div
+                  key={reqNode.id}
+                  className="flex items-center justify-between p-1.5 rounded bg-black/60 border border-amber-900/40 hover:border-amber-500/60 transition-colors group"
+                >
+                  <button
+                    type="button"
+                    onClick={() => onNavigateToNode?.(reqNode.id)}
+                    className="text-left font-medium text-slate-200 group-hover:text-amber-300 transition-colors text-[10.5px] truncate max-w-[250px] cursor-pointer"
+                    title={reqNode.title}
+                  >
+                    {reqNode.title}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => onNavigateToNode?.(reqNode.id)}
+                    className="text-amber-400 hover:text-white text-xs px-1 cursor-pointer"
+                    title="Перейти к узлу"
+                  >
+                    →
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* 4. СЕКЦИЯ АККОРДЕОНА: ФОРМАЛЬНАЯ ВЕРИФИКАЦИЯ (LEAN 4 / RICIS) */}
+        <div className="flex flex-col border-b border-neutral-800/50">
+        <button
+          type="button"
+          onClick={() => toggleSection('verification')}
+          className="w-full flex items-center justify-between min-h-[44px] px-4 py-3 bg-[#0d1117] hover:bg-neutral-900 text-left cursor-pointer transition-colors"
         >
-          {node.targetFunction || '—'}
-        </code>
+          <span className="text-[10px] font-bold uppercase tracking-wider text-cyan-300 flex items-center gap-1.5">
+            <ShieldCheck size={13} />
+            Формальная верификация Lean 4
+          </span>
+          <div className="flex items-center gap-2">
+            {(() => {
+              const hasSorry = nodeHasSorry(node);
+              const isMissingTf = isMissingTargetFunction(node);
+              if (node.state === 'resolved' && !isMissingTf && !hasSorry) {
+                return (
+                  <span className="text-[8px] font-bold uppercase px-1.5 py-0.5 rounded bg-emerald-950/90 text-emerald-300 border border-emerald-700/60">
+                    QED Verified
+                  </span>
+                );
+              }
+              if (node.state === 'partial' || isMissingTf || hasSorry) {
+                return (
+                  <span className="text-[8px] font-bold uppercase px-1.5 py-0.5 rounded bg-yellow-950/90 text-yellow-300 border border-yellow-700/60">
+                    {hasSorry ? 'Sorry Stub' : 'Partial'}
+                  </span>
+                );
+              }
+              return (
+                <span className="text-[8px] font-bold uppercase px-1.5 py-0.5 rounded bg-neutral-900 text-slate-400 border border-neutral-700">
+                  Unresolved
+                </span>
+              );
+            })()}
+            {openSections['verification'] ? <ChevronUp size={14} className="text-neutral-400" /> : <ChevronDown size={14} className="text-neutral-400" />}
+          </div>
+        </button>
+
+        {openSections['verification'] && (
+          <div className="p-3 space-y-2">
+            {((node.leanErrors && node.leanErrors.length > 0) || (node.leanWarnings && node.leanWarnings.length > 0)) ? (
+              <div className="space-y-2">
+                {node.leanErrors && node.leanErrors.length > 0 && (
+                  <div className="p-2 bg-red-950/40 border border-red-900/60 rounded">
+                    <span className="text-[8px] font-bold text-red-400 uppercase tracking-wider block mb-1">Ошибки (Errors):</span>
+                    <ul className="list-disc list-inside text-red-200 text-[10px] space-y-0.5">
+                      {node.leanErrors.map((err, idx) => (
+                        <li key={idx} className="break-words">{err}</li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+                {node.leanWarnings && node.leanWarnings.length > 0 && (
+                  <div className="p-2 bg-amber-950/30 border border-amber-900/50 rounded">
+                    <span className="text-[8px] font-bold text-amber-400 uppercase tracking-wider block mb-1">Предупреждения (Warnings):</span>
+                    <ul className="list-disc list-inside text-amber-200 text-[10px] space-y-0.5">
+                      {node.leanWarnings.map((warn, idx) => (
+                        <li key={idx} className="break-words">{warn}</li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div className="p-2 bg-emerald-950/20 border border-emerald-900/40 rounded flex items-center gap-2">
+                <CheckCircle2 size={14} className="text-emerald-500" />
+                <span className="text-[10px] text-emerald-400 font-sans">Ошибок верификации не найдено.</span>
+              </div>
+            )}
+          </div>
+        )}
       </div>
 
-      {/* Formal Verification Feedback (Lean 4 compiler errors & warnings) */}
-      {((node.leanErrors && node.leanErrors.length > 0) || (node.leanWarnings && node.leanWarnings.length > 0)) && (
-        <div className="p-3 bg-[#1c0f13] border border-red-900/60 rounded-md space-y-2">
-          <p className="text-[9px] font-bold uppercase text-red-400 tracking-wider flex items-center gap-1.5">
-            🔬 Результаты формальной верификации Lean 4 / RICIS
-          </p>
-          
-          {node.leanErrors && node.leanErrors.length > 0 && (
-            <div className="space-y-1">
-              <span className="text-[8px] font-bold text-red-400 uppercase tracking-wider block">Ошибки (Errors):</span>
-              <ul className="list-disc list-inside text-red-200/95 text-[10px] space-y-1 pl-1 leading-relaxed">
-                {node.leanErrors.map((err, idx) => (
-                  <li key={idx} className="break-words">{err}</li>
-                ))}
-              </ul>
-            </div>
-          )}
-
-          {node.leanWarnings && node.leanWarnings.length > 0 && (
-            <div className={`space-y-1 pt-1.5 ${node.leanErrors && node.leanErrors.length > 0 ? 'border-t border-red-950/60' : ''}`}>
-              <span className="text-[8px] font-bold text-amber-500 uppercase tracking-wider block">Предупреждения (Warnings):</span>
-              <ul className="list-disc list-inside text-amber-200/95 text-[10px] space-y-1 pl-1 leading-relaxed">
-                {node.leanWarnings.map((warn, idx) => (
-                  <li key={idx} className="break-words">{warn}</li>
-                ))}
-              </ul>
-            </div>
-          )}
-        </div>
-      )}
-
-      {node.singularityHint && (
-        <div className="p-2.5 bg-purple-950/25 border border-purple-900/50 rounded-md">
-          <p className="text-[9px] font-bold uppercase text-purple-400/90 tracking-wider mb-1">
-            Подсказка о сингулярности
-          </p>
-          <p className="text-purple-100/85 leading-relaxed whitespace-pre-wrap">
-            {renderTextWithLinks(node.singularityHint)}
-          </p>
-        </div>
-      )}
-
-      {(node.id === 'ai-authorship-provenance' || node.title.toLowerCase().includes('авторств')) && (
-        <div className="p-3 bg-cyan-950/40 border border-cyan-500/60 rounded-md space-y-2.5 shadow-[0_0_15px_rgba(6,182,212,0.15)]">
-          <div className="flex items-center justify-between border-b border-cyan-800/50 pb-1.5">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-cyan-300 flex items-center gap-1.5">
-              🛡️ Юнит-тест доказательства авторства ИИ
-            </span>
-            <span className="text-[8px] font-mono px-1.5 py-0.5 rounded bg-cyan-900/80 text-cyan-200 border border-cyan-700/60">
-              RICIS-III Provenance
-            </span>
+      {/* 4.5. СЕКЦИЯ АККОРДЕОНА: ТРАССИРОВКА RICIS-III */}
+        <div className="flex flex-col border-b border-neutral-800/50">
+        <button
+          type="button"
+          onClick={() => toggleSection('trace')}
+          className="w-full flex items-center justify-between min-h-[44px] px-4 py-3 bg-[#0d1117] hover:bg-neutral-900 text-left cursor-pointer transition-colors"
+        >
+          <span className="text-[10px] font-bold uppercase tracking-wider text-purple-400 flex items-center gap-1.5">
+            <Terminal size={13} />
+            Трассировка RICIS-III (L1_IDENTITY)
+          </span>
+          <div className="flex items-center gap-2">
+            {openSections['trace'] ? <ChevronUp size={14} className="text-neutral-400" /> : <ChevronDown size={14} className="text-neutral-400" />}
           </div>
+        </button>
 
-          <div className="grid grid-cols-2 gap-2 text-[10px]">
-            <div className="p-2 bg-red-950/40 border border-red-900/50 rounded">
-              <span className="block text-[8px] font-bold uppercase text-red-400 mb-0.5">Классический ИИ (Сбой)</span>
-              <p className="font-mono text-red-200/90 text-[9px] leading-tight">
-                X: 2 × 0 = 0<br />
-                Y: ∞ × 5 = ∞<br />
-                <strong>Area = 0 × ∞ = NaN</strong>
-              </p>
-            </div>
-            <div className="p-2 bg-emerald-950/40 border border-emerald-800/60 rounded">
-              <span className="block text-[8px] font-bold uppercase text-emerald-400 mb-0.5">RICIS-III (Инвариант)</span>
-              <p className="font-mono text-emerald-200 text-[9px] leading-tight">
-                S_vec = (2, ∞)ᵀ, R_vec = (0, 5)ᵀ<br />
-                ||S_x · R_y|| = 2 × 5<br />
-                <strong>Area = 10 [O(1)]</strong>
-              </p>
-            </div>
+        {openSections['trace'] && (
+          <div className="p-3">
+            <ExecutionTraceViewer 
+              nodeId={node.id} 
+              logData={traceLog} 
+              isLoading={isTracing} 
+              onRerunTrace={runTrace} 
+            />
           </div>
+        )}
+      </div>
 
-          <div className="bg-black/40 p-2 rounded border border-cyan-900/40 text-[9px] text-cyan-200/90 space-y-1">
-            <p className="font-bold text-cyan-300">Пошаговая доказательная база:</p>
-            <ol className="list-decimal list-inside space-y-0.5 text-gray-300">
-              <li><strong>Digital Provenance:</strong> Публикация препринтов с временными метками (DOI Zenodo/Figshare).</li>
-              <li><strong>Сессионные логи:</strong> Экспорт JSON-логов ИИ-студий до коммерческих релизов.</li>
-              <li><strong>Метод абляции:</strong> Блокировка внимания ИИ заставляет модель откатиться к NaN, доказывая явное заимствование.</li>
-            </ol>
+      {/* 5. СЕКЦИЯ АККОРДЕОНА: ПЕРВОИСТОЧНИКИ, СТАТЬИ И DOI */}
+        <div className="flex flex-col border-b border-neutral-800/50">
+        <button
+          type="button"
+          onClick={() => toggleSection('sources')}
+          className="w-full flex items-center justify-between min-h-[44px] px-4 py-3 bg-[#0d1117] hover:bg-neutral-900 text-left cursor-pointer transition-colors"
+        >
+          <span className="text-[10px] font-bold uppercase tracking-wider text-sky-400 flex items-center gap-1.5">
+            <BookOpen size={13} />
+            Первоисточники и публикации
+          </span>
+          <div className="flex items-center gap-2">
+            {openSections['sources'] ? <ChevronUp size={14} className="text-neutral-400" /> : <ChevronDown size={14} className="text-neutral-400" />}
           </div>
-        </div>
-      )}
+        </button>
 
-      {/* Ссылки и научные первоисточники (Статья, Википедия, DOI) */}
-      <div className="p-2.5 bg-neutral-900/90 border border-cyan-800/60 rounded-md space-y-2">
-        <div className="flex items-center justify-between">
-          <p className="text-[9px] font-bold uppercase text-cyan-400 tracking-wider">
-            Ссылки и первоисточники
-          </p>
-          {(() => {
-            const hasSorry = nodeHasSorry(node);
-            const isMissingTf = isMissingTargetFunction(node);
-            if (node.state === 'resolved' && !isMissingTf && !hasSorry) {
-              return (
-                <span className="text-[8px] font-bold uppercase px-1.5 py-0.5 rounded bg-emerald-950/80 text-emerald-400 border border-emerald-800/60">
-                  Решено (Resolved)
+        {openSections['sources'] && (
+          <div className="p-3 space-y-2 text-[11px]">
+            <a
+              href={refs.articleUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center justify-between p-2 rounded bg-black/60 border border-neutral-800 hover:border-cyan-700 transition-colors group"
+            >
+              <div className="truncate pr-2">
+                <span className="text-cyan-400 font-bold block text-[9px] uppercase">Научная публикация</span>
+                <span className="text-slate-300 group-hover:text-cyan-200 text-[10px] truncate block">
+                  {refs.directUrl ? refs.directDisplay : `Google Scholar: ${refs.cleanTitle}`}
                 </span>
-              );
-            }
-            if (node.state === 'partial' || isMissingTf || hasSorry) {
-              return (
-                <span className="text-[8px] font-bold uppercase px-1.5 py-0.5 rounded bg-yellow-950/80 text-yellow-400 border border-yellow-800/60">
-                  {hasSorry ? 'Частично (Заглушка sorry)' : 'Частично (Partial)'}
+              </div>
+              <ExternalLink size={12} className="text-neutral-500 group-hover:text-cyan-400 shrink-0" />
+            </a>
+
+            <a
+              href={refs.wikiUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center justify-between p-2 rounded bg-black/60 border border-neutral-800 hover:border-sky-700 transition-colors group"
+            >
+              <div className="truncate pr-2">
+                <span className="text-sky-400 font-bold block text-[9px] uppercase">Википедия</span>
+                <span className="text-slate-300 group-hover:text-sky-200 text-[10px] truncate block">
+                  {refs.cleanTitle}
                 </span>
-              );
-            }
-            return null;
+              </div>
+              <ExternalLink size={12} className="text-neutral-500 group-hover:text-sky-400 shrink-0" />
+            </a>
+
+            <a
+              href={refs.doiUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center justify-between p-2 rounded bg-black/60 border border-neutral-800 hover:border-purple-700 transition-colors group"
+            >
+              <div className="truncate pr-2">
+                <span className="text-purple-400 font-bold block text-[9px] uppercase">DOI Zenodo (RICIS)</span>
+                <span className="text-purple-200 font-mono text-[10px] truncate block">
+                  {refs.doiLabel}
+                </span>
+              </div>
+              <ExternalLink size={12} className="text-neutral-500 group-hover:text-purple-400 shrink-0" />
+            </a>
+          </div>
+        )}
+      </div>
+
+      {/* 6. СЕКЦИЯ АККОРДЕОНА: ЭКОНОМИКА И ОЦЕНКА */}
+      {node.economic && (
+        <div className="flex flex-col border-b border-neutral-800/50">
+          <button
+            type="button"
+            onClick={() => toggleSection('economics')}
+            className="w-full flex items-center justify-between min-h-[44px] px-4 py-3 bg-[#0d1117] hover:bg-neutral-900 text-left cursor-pointer transition-colors"
+          >
+            <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-400 flex items-center gap-1.5">
+              <DollarSign size={13} />
+              Экономика и прибыльность
+            </span>
+            <div className="flex items-center gap-2">
+              <span className="text-[9px] font-mono font-bold text-emerald-300">
+                {formatCurrency(node.economic.marketGain)}
+              </span>
+              {openSections['economics'] ? <ChevronUp size={14} className="text-emerald-400" /> : <ChevronDown size={14} className="text-emerald-400" />}
+            </div>
+          </button>
+
+          {openSections['economics'] && (() => {
+            const netProfit = Math.max(0, (node.economic?.marketGain || 0) - (node.economic?.costToSolve || 0));
+            return (
+              <div className="p-3 space-y-2">
+                <div className="grid grid-cols-2 gap-2 text-[10px] font-mono">
+                  <div className="p-1.5 rounded bg-black/50 border border-neutral-800">
+                    <span className="text-gray-500 block text-[8px] uppercase">Оценка рынка</span>
+                    <span className="text-emerald-300 font-bold">{formatCurrency(node.economic?.marketGain) || '—'}</span>
+                  </div>
+                  <div className="p-1.5 rounded bg-black/50 border border-neutral-800">
+                    <span className="text-gray-500 block text-[8px] uppercase">Затраты на решение</span>
+                    <span className="text-amber-200">{formatCurrency(node.economic?.costToSolve) || '—'}</span>
+                  </div>
+                </div>
+                <div className="p-2 rounded bg-emerald-950/60 border border-emerald-800/60 flex justify-between items-center text-[10.5px]">
+                  <span className="text-emerald-300 font-semibold">Чистая прибыльность (Net Profit):</span>
+                  <span className="text-emerald-200 font-bold font-mono text-[11.5px]">{formatCurrency(netProfit)}</span>
+                </div>
+              </div>
+            );
           })()}
         </div>
-
-        <div className="flex flex-col gap-1.5 text-[11px]">
-          {/* 1. Статья / Публикация */}
-          <a
-            href={refs.articleUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-1.5 text-cyan-300 hover:text-cyan-100 hover:underline break-all font-medium transition-colors"
-            onClick={e => e.stopPropagation()}
-          >
-            <span className="text-cyan-400 font-bold shrink-0">📄 Статья:</span>
-            <span className="truncate max-w-[240px] text-[10px]">
-              {refs.directUrl ? refs.directDisplay : `Google Scholar: ${refs.cleanTitle}`}
-            </span>
-            <span className="text-xs text-cyan-500 shrink-0">↗</span>
-          </a>
-
-          {/* 2. Википедия */}
-          <a
-            href={refs.wikiUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-1.5 text-sky-300 hover:text-sky-100 hover:underline break-all font-medium transition-colors"
-            onClick={e => e.stopPropagation()}
-          >
-            <span className="text-sky-400 font-bold shrink-0">🌐 Википедия:</span>
-            <span className="truncate max-w-[240px] text-[10px]">
-              Поиск: {refs.cleanTitle}
-            </span>
-            <span className="text-xs text-sky-500 shrink-0">↗</span>
-          </a>
-
-          {/* 3. DOI */}
-          <a
-            href={refs.doiUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-1.5 text-purple-300 hover:text-purple-100 hover:underline break-all font-medium transition-colors"
-            onClick={e => e.stopPropagation()}
-          >
-            <span className="text-purple-400 font-bold shrink-0">📑 DOI:</span>
-            <span className="font-mono text-[10px] text-purple-200 truncate max-w-[240px]">
-              {refs.doiLabel}
-            </span>
-            <span className="text-xs text-purple-500 shrink-0">↗</span>
-          </a>
-        </div>
-      </div>
-
-      {(node.type === 'derivative_claim' || node.isDerivativeClaim) && (
-        <div className="p-2.5 bg-violet-950/40 border border-violet-700/60 rounded-md space-y-1.5">
-          <p className="text-[9px] font-bold uppercase text-violet-300 tracking-wider">
-            Аудит приоритета (производная семантика RICIS)
-          </p>
-          <div className="grid grid-cols-2 gap-1.5 text-[10px] font-mono">
-            <div>
-              <span className="text-gray-500 block uppercase text-[8px]">Первое упоминание</span>
-              <span className="text-violet-100">{node.firstMentionDate || '—'}</span>
-            </div>
-            <div>
-              <span className="text-gray-500 block uppercase text-[8px]">Сходство</span>
-              <span className="text-violet-100">
-                {typeof node.derivativeScore === 'number'
-                  ? (node.derivativeScore * 100).toFixed(0) + '%'
-                  : '—'}
-              </span>
-            </div>
-          </div>
-          {node.matchedSignatures && node.matchedSignatures.length > 0 && (
-            <p className="text-[10px] text-violet-200/90">
-              Сигнатуры: {node.matchedSignatures.join(', ')}
-            </p>
-          )}
-          {node.dependencyIds && node.dependencyIds.length > 0 && (
-            <p className="text-[10px] text-violet-200/80">
-              Связь с RICIS-узлами: {node.dependencyIds.join(', ')}
-            </p>
-          )}
-        </div>
       )}
 
-      <div className="grid grid-cols-2 gap-2">
-        <div className="p-2 rounded border border-neutral-800 bg-neutral-950/60">
-          <p className="text-[9px] text-gray-500 uppercase font-bold mb-0.5">Тип</p>
-          <p className="text-gray-200 font-mono text-[10px]">
-            {TYPE_LABELS[node.type] || node.type || '—'}
-          </p>
-        </div>
-        <div className="p-2 rounded border border-neutral-800 bg-neutral-950/60">
-          <p className="text-[9px] text-gray-500 uppercase font-bold mb-0.5">Глубина</p>
-          <p className="text-gray-200 font-mono text-[10px]">{node.fractalDepth ?? '—'}</p>
-        </div>
-        <div className="p-2 rounded border border-neutral-800 bg-neutral-950/60">
-          <p className="text-[9px] text-gray-500 uppercase font-bold mb-0.5">Класс награды</p>
-          <p className="text-gray-200 font-mono text-[10px]">{node.rewardClass || '—'}</p>
-        </div>
-        <div className="p-2 rounded border border-neutral-800 bg-neutral-950/60">
-          <p className="text-[9px] text-gray-500 uppercase font-bold mb-0.5">Примечание</p>
-          <p className="text-gray-200 leading-snug text-[10px]">{node.prizeNote || '—'}</p>
-        </div>
-      </div>
+      {/* 7. СЕКЦИЯ АККОРДЕОНА: ДОКАЗАТЕЛЬСТВО АВТОРСТВА ИЛИ АУДИТ ПРИОРИТЕТА */}
+      {(node.id === 'ai-authorship-provenance' || node.title.toLowerCase().includes('авторств') || node.type === 'derivative_claim') && (
+        <div className="flex flex-col">
+          <button
+            type="button"
+            onClick={() => toggleSection('provenance')}
+            className="w-full flex items-center justify-between min-h-[44px] px-4 py-3 bg-[#0d1117] hover:bg-neutral-900 text-left cursor-pointer transition-colors"
+          >
+            <span className="text-[10px] font-bold uppercase tracking-wider text-cyan-300 flex items-center gap-1.5">
+              <Sparkles size={13} />
+              Доказательство авторства RICIS-III
+            </span>
+            <div className="flex items-center gap-2">
+              {openSections['provenance'] ? <ChevronUp size={14} className="text-cyan-400" /> : <ChevronDown size={14} className="text-cyan-400" />}
+            </div>
+          </button>
 
-      {node.economic && (() => {
-        const netProfit = Math.max(0, (node.economic.marketGain || 0) - (node.economic.costToSolve || 0));
-        return (
-          <div className="p-2.5 rounded border border-emerald-900/45 bg-emerald-950/20">
-            <div className="flex items-center justify-between mb-2">
-              <p className="text-[9px] font-bold uppercase text-emerald-500/90 tracking-wider">
-                Экономика и Прибыльность
+          {openSections['provenance'] && (
+            <div className="p-3 space-y-2 text-[10px]">
+              <div className="grid grid-cols-2 gap-1.5 font-mono text-[9px]">
+                <div className="p-1.5 bg-red-950/40 border border-red-900/50 rounded">
+                  <span className="text-red-400 block font-bold">ИИ без RICIS (NaN)</span>
+                  <p className="text-red-200">0 × ∞ = NaN</p>
+                </div>
+                <div className="p-1.5 bg-emerald-950/40 border border-emerald-800/60 rounded">
+                  <span className="text-emerald-400 block font-bold">RICIS-III Мост</span>
+                  <p className="text-emerald-200">0_F × ∞_G = F·G</p>
+                </div>
+              </div>
+              <p className="text-gray-300 text-[9.5px] leading-tight">
+                Инвариант вычисляется за O(1) без потери функциональной непрерывности (L0).
               </p>
-              <span className="text-[9px] text-emerald-400/80 font-mono">
-                Лог-масштаб шара
-              </span>
             </div>
-            <div className="grid grid-cols-2 gap-1.5 font-mono text-[10px]">
-              <div className="flex justify-between gap-2">
-                <span className="text-gray-500">Оценка рынка</span>
-                <span className="text-emerald-300">{formatCurrency(node.economic.marketGain) || '—'}</span>
-              </div>
-              <div className="flex justify-between gap-2">
-                <span className="text-gray-500">Затраты на решение</span>
-                <span className="text-amber-200/90">{formatCurrency(node.economic.costToSolve) || '—'}</span>
-              </div>
-              <div className="flex justify-between gap-2">
-                <span className="text-gray-500">Убыток нерешения</span>
-                <span className="text-red-300/90">{formatCurrency(node.economic.costUnresolved) || '—'}</span>
-              </div>
-              <div className="flex justify-between gap-2">
-                <span className="text-gray-500">Риск-потери</span>
-                <span className="text-orange-300/90">{formatCurrency(node.economic.riskLoss) || '—'}</span>
-              </div>
-              <div className="col-span-2 pt-1.5 mt-1 border-t border-emerald-900/40 flex justify-between items-center text-[11px]">
-                <span className="text-emerald-400 font-semibold">Прибыльность решения (Net Profit):</span>
-                <span className="text-emerald-300 font-bold font-mono">{formatCurrency(netProfit)}</span>
-              </div>
-            </div>
-          </div>
-        );
-      })()}
-
-      {node.ricisSolvable && (
-        <div className="text-[10px] text-cyan-400/90 border border-cyan-800/40 bg-cyan-950/20 rounded px-2 py-1.5">
-          Решаема протоколом RICIS-III
+          )}
         </div>
       )}
+
+      </div>
+      {/* Мета-информация узла */}
+      <div className="grid grid-cols-2 gap-1.5 pt-1">
+        <div className="p-1.5 rounded border border-neutral-800/80 bg-neutral-950/40 text-[9.5px]">
+          <span className="text-gray-500 uppercase block text-[8px]">Тип</span>
+          <span className="text-slate-300 font-mono">{TYPE_LABELS[node.type] || node.type}</span>
+        </div>
+        <div className="p-1.5 rounded border border-neutral-800/80 bg-neutral-950/40 text-[9.5px]">
+          <span className="text-gray-500 uppercase block text-[8px]">Глубина фрактала</span>
+          <span className="text-slate-300 font-mono">{node.fractalDepth ?? 0}</span>
+        </div>
+      </div>
     </div>
   );
 };

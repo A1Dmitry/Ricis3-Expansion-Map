@@ -86,6 +86,7 @@ export interface PhysicsParams {
   springK: number;
   springRestGapMult: number;
   minNodeSurfaceGap: number;
+  edgeOpacity: number;
 }
 
 export const DEFAULT_PHYSICS_PARAMS: PhysicsParams = {
@@ -97,6 +98,7 @@ export const DEFAULT_PHYSICS_PARAMS: PhysicsParams = {
   springK: 0.5,
   springRestGapMult: 2.0,
   minNodeSurfaceGap: 12.0,
+  edgeOpacity: 0.5,
 };
 
 export interface PressureLayoutParams {

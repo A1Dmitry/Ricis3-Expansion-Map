@@ -1,6 +1,6 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 
-export type SliderInteractionState = 'IDLE' | 'DRAGGING' | 'PENDING_IDLE';
+export type SliderInteractionState = 'idle' | 'dragging' | 'pending_idle';
 
 export interface SliderState<T> {
   workingParams: T;
@@ -11,36 +11,64 @@ export interface SliderState<T> {
 export type SliderListener<T> = (state: SliderState<T>) => void;
 export type CommitCallback<T> = (params: T) => void;
 
+export interface SliderControllerOptions<T extends Record<string, any>> {
+  initialValues?: T;
+  onCommit: CommitCallback<T>;
+  idleDelayMs?: number;
+}
+
 /**
- * Обобщенный бизнес-слой (MVVM) управления ползунками и настройками.
- * 
- * Соблюдение бизнес-требований:
- * 1. Пока происходит перетаскивание (DRAGGING):
- *    - Изменения происходят ИСКЛЮЧИТЕЛЬНО во внутреннем состоянии (workingParams).
- *    - Никакие события во внешнюю систему НЕ отправляются.
- *    - Интерфейс работает плавно и без лагов.
- * 2. При отпускании кнопки мыши статус переходит в PENDING_IDLE и запускается таймер.
- * 3. Если пользователь сдвигает ползунок снова, таймер сбрасывается.
- * 4. Только при достижении статуса IDLE отправляется ИТОГОВОЕ событие изменения.
+ * Чистый бизнес-слой (MVVM / Controller) для изолированного управления ползунками:
+ * 1. Пока двигают (dragging):
+ *    - Изменяется ТОЛЬКО workingParams (кружок бегунка и текстовое поле).
+ *    - Внешний коллбек onCommit НЕ вызывается.
+ *    - Запускается / перезапускается таймер ожидания IDLE.
+ * 2. При наступлении события IDLE (пауза в движении > idleDelayMs):
+ *    - Автоматически отправляется событие изменения onCommit(workingParams).
+ *    - Статус переходит в 'idle'.
+ * 3. При отпускании (RELEASE / pointerup / touchend / blur):
+ *    - Немедленно очищается IDLE-таймер.
+ *    - Сразу вызывается onCommit(workingParams) (если есть изменения).
+ *    - Статус переходит в 'idle'.
  */
 export class SliderController<T extends Record<string, any>> {
-  private workingParams: T;
-  private committedParams: T;
-  private status: SliderInteractionState = 'IDLE';
+  private _workingParams: T;
+  private _committedParams: T;
+  private _status: SliderInteractionState = 'idle';
   private idleTimer: ReturnType<typeof setTimeout> | null = null;
   private listeners: Set<SliderListener<T>> = new Set();
   private onCommit: CommitCallback<T>;
   private readonly idleDelayMs: number;
 
   constructor(
-    initialParams: T,
-    onCommit: CommitCallback<T>,
-    idleDelayMs: number = 1000
+    initialParams: T | SliderControllerOptions<T>,
+    maybeOnCommit?: CommitCallback<T>,
+    maybeIdleDelayMs: number = 600
   ) {
-    this.workingParams = { ...initialParams };
-    this.committedParams = { ...initialParams };
-    this.onCommit = onCommit;
-    this.idleDelayMs = idleDelayMs;
+    if (typeof maybeOnCommit === 'function') {
+      this._workingParams = { ...(initialParams as T) };
+      this._committedParams = { ...(initialParams as T) };
+      this.onCommit = maybeOnCommit;
+      this.idleDelayMs = maybeIdleDelayMs;
+    } else {
+      const opts = initialParams as SliderControllerOptions<T>;
+      this._workingParams = { ...(opts.initialValues as T) };
+      this._committedParams = { ...(opts.initialValues as T) };
+      this.onCommit = opts.onCommit;
+      this.idleDelayMs = opts.idleDelayMs ?? 600;
+    }
+  }
+
+  public get status(): SliderInteractionState {
+    return this._status;
+  }
+
+  public get workingParams(): T {
+    return { ...this._workingParams };
+  }
+
+  public get committedParams(): T {
+    return { ...this._committedParams };
   }
 
   public subscribe(listener: SliderListener<T>): () => void {
@@ -53,60 +81,100 @@ export class SliderController<T extends Record<string, any>> {
 
   public getState(): SliderState<T> {
     return {
-      workingParams: { ...this.workingParams },
-      committedParams: { ...this.committedParams },
-      status: this.status,
+      workingParams: { ...this._workingParams },
+      committedParams: { ...this._committedParams },
+      status: this._status,
     };
   }
 
+  /**
+   * Начало взаимодействия (pointerdown / mousedown / touchstart / focus).
+   */
   public startInteraction(): void {
-    if (this.status !== 'DRAGGING') {
-      this.status = 'DRAGGING';
-      this.notify();
-    }
+    this._status = 'dragging';
+    this.restartIdleTimer();
+    this.notify();
   }
 
+  /**
+   * Непрерывное перемещение кружка ползунка.
+   * Синхронно обновляет workingParams без вызова onCommit.
+   */
   public updateValue<K extends keyof T>(key: K, value: T[K]): void {
-    this.workingParams = { ...this.workingParams, [key]: value };
-    this.status = 'DRAGGING';
+    this._workingParams = { ...this._workingParams, [key]: value };
+    this._status = 'dragging';
+    this.restartIdleTimer();
     this.notify();
   }
 
+  /**
+   * Пакетное обновление локальных значений.
+   */
+  public updateWorkingParams(partial: Partial<T>): void {
+    this._workingParams = { ...this._workingParams, ...partial };
+    this._status = 'dragging';
+    this.restartIdleTimer();
+    this.notify();
+  }
+
+  /**
+   * Завершение взаимодействия (pointerup / mouseup / touchend / blur).
+   */
   public endInteraction(): void {
-    if (this.status === 'DRAGGING') {
-      const hasChanged = JSON.stringify(this.workingParams) !== JSON.stringify(this.committedParams);
-      this.committedParams = { ...this.workingParams };
-      this.status = 'IDLE';
-      this.notify();
-      if (hasChanged) {
-        this.onCommit(this.committedParams);
-      }
-    }
-  }
-
-  public resetToDefault(defaultParams: T): void {
     this.clearIdleTimer();
-    this.workingParams = { ...defaultParams };
-    this.committedParams = { ...defaultParams };
-    this.status = 'IDLE';
-    this.notify();
-    this.onCommit(this.committedParams);
+    this.commitIfChanged();
   }
 
+  /**
+   * Принудительная фиксация изменений.
+   */
+  public commitNow(): void {
+    this.clearIdleTimer();
+    this.commitIfChanged();
+  }
+
+  /**
+   * Сброс к значениям по умолчанию с немедленным коммитом.
+   */
+  public reset(defaultParams?: T): void {
+    this.clearIdleTimer();
+    const target = defaultParams ? { ...defaultParams } : { ...this._committedParams };
+    this._workingParams = { ...target };
+    this._committedParams = { ...target };
+    this._status = 'idle';
+    this.notify();
+    this.onCommit(this._committedParams);
+  }
+
+  /**
+   * Синхронизация внешних параметров (если они изменились извне в состоянии покоя).
+   */
   public syncExternalParams(externalParams: T): void {
-    if (this.status === 'IDLE') {
-      const hasChanged = JSON.stringify(this.workingParams) !== JSON.stringify(externalParams);
+    if (this._status === 'idle') {
+      const hasChanged = JSON.stringify(this._workingParams) !== JSON.stringify(externalParams);
       if (hasChanged) {
-        this.workingParams = { ...externalParams };
-        this.committedParams = { ...externalParams };
+        this._workingParams = { ...externalParams };
+        this._committedParams = { ...externalParams };
         this.notify();
       }
     }
   }
 
-  public destroy(): void {
+  public dispose(): void {
     this.clearIdleTimer();
     this.listeners.clear();
+  }
+
+  public destroy(): void {
+    this.dispose();
+  }
+
+  private restartIdleTimer(): void {
+    this.clearIdleTimer();
+    this.idleTimer = setTimeout(() => {
+      // Истек таймаут бездействия — фиксируем результат (IDLE событие)
+      this.commitIfChanged();
+    }, this.idleDelayMs);
   }
 
   private clearIdleTimer(): void {
@@ -116,9 +184,19 @@ export class SliderController<T extends Record<string, any>> {
     }
   }
 
+  private commitIfChanged(): void {
+    const hasChanged = JSON.stringify(this._workingParams) !== JSON.stringify(this._committedParams);
+    this._committedParams = { ...this._workingParams };
+    this._status = 'idle';
+    this.notify();
+    if (hasChanged) {
+      this.onCommit(this._committedParams);
+    }
+  }
+
   private notify(): void {
     const currentState = this.getState();
-    this.listeners.forEach(listener => listener(currentState));
+    this.listeners.forEach((listener) => listener(currentState));
   }
 }
 
@@ -128,11 +206,12 @@ export class SliderController<T extends Record<string, any>> {
 export function useSliderController<T extends Record<string, any>>(
   externalParams: T,
   onChange: (params: T) => void,
-  idleDelayMs: number = 1000
+  idleDelayMs: number = 600
 ) {
-  const controllerRef = useRef<SliderController<T> | null>(null);
   const onChangeRef = useRef(onChange);
   onChangeRef.current = onChange;
+
+  const controllerRef = useRef<SliderController<T> | null>(null);
 
   if (!controllerRef.current) {
     controllerRef.current = new SliderController<T>(
@@ -160,11 +239,15 @@ export function useSliderController<T extends Record<string, any>>(
 
   useEffect(() => {
     const handleGlobalPointerUp = () => {
-      controllerRef.current?.endInteraction();
+      if (controllerRef.current?.getState().status !== 'idle') {
+        controllerRef.current?.endInteraction();
+      }
     };
+
     window.addEventListener('pointerup', handleGlobalPointerUp);
     window.addEventListener('mouseup', handleGlobalPointerUp);
     window.addEventListener('touchend', handleGlobalPointerUp);
+
     return () => {
       window.removeEventListener('pointerup', handleGlobalPointerUp);
       window.removeEventListener('mouseup', handleGlobalPointerUp);
@@ -172,13 +255,40 @@ export function useSliderController<T extends Record<string, any>>(
     };
   }, []);
 
+  const startInteraction = useCallback(() => {
+    controllerRef.current?.startInteraction();
+  }, []);
+
+  const endInteraction = useCallback(() => {
+    controllerRef.current?.endInteraction();
+  }, []);
+
+  const updateValue = useCallback(<K extends keyof T>(key: K, val: T[K]) => {
+    controllerRef.current?.updateValue(key, val);
+  }, []);
+
+  const updateWorkingParams = useCallback((partial: Partial<T>) => {
+    controllerRef.current?.updateWorkingParams(partial);
+  }, []);
+
+  const commitNow = useCallback(() => {
+    controllerRef.current?.commitNow();
+  }, []);
+
+  const reset = useCallback((defaultParams?: T) => {
+    controllerRef.current?.reset(defaultParams);
+  }, []);
+
   return {
     workingParams: state.workingParams,
+    committedParams: state.committedParams,
     status: state.status,
-    startInteraction: () => controllerRef.current?.startInteraction(),
-    endInteraction: () => controllerRef.current?.endInteraction(),
-    updateValue: <K extends keyof T>(key: K, val: T[K]) =>
-      controllerRef.current?.updateValue(key, val),
-    reset: (defaultParams: T) => controllerRef.current?.resetToDefault(defaultParams),
+    isInteracting: state.status !== 'idle',
+    startInteraction,
+    endInteraction,
+    updateValue,
+    updateWorkingParams,
+    commitNow,
+    reset,
   };
 }

@@ -183,7 +183,7 @@ function isDuplicateTask(
  * Produces 0–2 child problems derived from the anchor targetFunction,
  * without inventing prize claims or fake Clay titles.
  */
-function buildOfflineDiscoveries(
+export function buildOfflineDiscoveries(
   anchor: ProblemNode,
   keys: Set<string>,
   maxNew: number

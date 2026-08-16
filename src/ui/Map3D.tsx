@@ -20,7 +20,12 @@ import {
   Sparkles,
   RefreshCw,
   Crosshair,
+  Cpu,
+  Terminal,
+  Settings,
 } from 'lucide-react';
+import { SettingsModal } from './SettingsModal';
+import { RicisProofConsoleModal } from './RicisProofConsoleModal';
 import {
   isNodeAvailable,
   findPathToRicis,
@@ -29,6 +34,8 @@ import {
   isRicisCore,
 } from '../model/access';
 import { layoutZones, layoutNodes, zoneVisualRadius, nodeVisualRadius, type PhysicsParams, DEFAULT_PHYSICS_PARAMS } from '../model/physics';
+import { physicsStorageService } from '../services/physicsStorage';
+import { filterStorageService } from '../services/filterStorage';
 import { ZoneBubble, ZoneLabel, NodeBubble, NodeLabel } from './Bubbles';
 import { downloadTexPreprint, type TexBridgeMode, expandToRoot } from '../model/texPreprint';
 import { AuditPanel } from './AuditPanel';
@@ -39,10 +46,16 @@ import { TelegramBotPanel } from './TelegramBotPanel';
 import { AgentLogModal } from './AgentLogModal';
 import { LatexRenderer } from './LatexRenderer';
 import { useAdaptiveUI } from '../hooks/useAdaptiveUI';
+import { UniverseSkybox } from './UniverseSkybox';
+import { useTerminalStore } from '../store/useTerminalStore';
+import { RicisTerminalModal } from './RicisTerminalModal';
+import { UrlShareService } from '../services/UrlShareService';
+import { AVAILABLE_GEMINI_MODELS } from '../model/modelPool.types';
+import { useI18nStore } from '../store/useI18nStore';
+import { LanguageToggle } from './LanguageToggle';
 
 const UI_ELEMENTS = [
   { id: 'actions', label: 'Быстрые действия' },
-  { id: 'search', label: 'Поиск по карте' },
   { id: 'zones', label: 'Сферы науки' },
   { id: 'available', label: 'Доступно к решению' },
   { id: 'physics', label: 'Параметры симуляции' },
@@ -81,7 +94,66 @@ const zoneColors: Record<string, string> = {
   bioinformatics: '#2dd4bf',
 };
 
-function OrbitControls({ controlsRef: externalRef }: { controlsRef?: React.MutableRefObject<any> }) {
+interface FlightTarget {
+  target: THREE.Vector3;
+  cameraPos: THREE.Vector3;
+  startTime: number;
+  startLookAt: THREE.Vector3;
+  startCamPos: THREE.Vector3;
+  durationMs: number;
+}
+
+function CameraFlightRig({
+  flightRef,
+  controlsRef,
+}: {
+  flightRef: React.MutableRefObject<FlightTarget | null>;
+  controlsRef: React.MutableRefObject<ThreeOrbitControls | null>;
+}) {
+  const { camera } = useThree();
+
+  useFrame(() => {
+    const flight = flightRef.current;
+    if (!flight || !controlsRef.current) return;
+
+    const now = performance.now();
+    const elapsed = now - flight.startTime;
+    const progress = Math.min(1, elapsed / flight.durationMs);
+
+    // Smooth cubic bezier easing
+    const ease = (t: number) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
+
+    if (progress >= 1) {
+      controlsRef.current.target.copy(flight.target);
+      camera.position.copy(flight.cameraPos);
+      controlsRef.current.update();
+      flightRef.current = null;
+      return;
+    }
+
+    // Фаза 1 (0..0.45): Плавное наведение фокуса (look-at target)
+    const pLook = ease(Math.min(1, progress / 0.45));
+    controlsRef.current.target.lerpVectors(flight.startLookAt, flight.target, pLook);
+
+    // Фаза 2 (0.2..1.0): Плавный полет камеры к целевой позиции
+    if (progress > 0.2) {
+      const pFly = ease(Math.min(1, (progress - 0.2) / 0.8));
+      camera.position.lerpVectors(flight.startCamPos, flight.cameraPos, pFly);
+    }
+
+    controlsRef.current.update();
+  });
+
+  return null;
+}
+
+function OrbitControls({
+  controlsRef: externalRef,
+  flightRef,
+}: {
+  controlsRef?: React.MutableRefObject<any>;
+  flightRef?: React.MutableRefObject<FlightTarget | null>;
+}) {
   const { camera, gl } = useThree();
   const controlsRef = useRef<ThreeOrbitControls | null>(null);
   useEffect(() => {
@@ -162,17 +234,47 @@ function nodeMatchesQuery(n: ProblemNode, q: string, hiddenZones: Set<string>, s
 }
 
 export const Map3D: React.FC = () => {
-  const [physicsParams, setPhysicsParams] = React.useState<PhysicsParams>(DEFAULT_PHYSICS_PARAMS);
+  const { t } = useI18nStore();
+  const toggleTerminal = useTerminalStore(s => s.toggleTerminal);
+  const setTerminalInput = useTerminalStore(s => s.setInput);
+  const [physicsParams, setPhysicsParams] = React.useState<PhysicsParams>(() => {
+    return physicsStorageService.load() || DEFAULT_PHYSICS_PARAMS;
+  });
   const map = useMapStore();
-  const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
-  const [hiddenZones, setHiddenZones] = useState<Set<string>>(new Set());
+
+  // Load initial saved filters & Deep Link URL params
+  const initialSavedFilters = React.useMemo(() => filterStorageService.load(), []);
+  const initialUrlParams = React.useMemo(() => UrlShareService.parseInitialParams(), []);
+
+  const [selectedNodeId, setSelectedNodeId] = useState<string | null>(() => {
+    return initialUrlParams.initialNodeId || initialSavedFilters?.selectedNodeId || null;
+  });
+  const [navigationStack, setNavigationStack] = useState<string[]>([]);
+  const [hiddenZones, setHiddenZones] = useState<Set<string>>(() => {
+    return new Set(initialSavedFilters?.hiddenZones || []);
+  });
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+  // Инициализация Sandbox из URL параметров при старте
+  useEffect(() => {
+    if (initialUrlParams.initialSandboxExpr) {
+      setTerminalInput(initialUrlParams.initialSandboxExpr);
+      toggleTerminal(true);
+    }
+  }, []);
+
+  // Синхронизация активного узла с URL
+  useEffect(() => {
+    UrlShareService.updateBrowserUrl({ nodeId: selectedNodeId });
+  }, [selectedNodeId]);
 
   const [isNodeExpanded, setIsNodeExpanded] = useState(false);
   const [showProof, setShowProof] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
   const [showAddNode, setShowAddNode] = useState(false);
   const [showTelegramBot, setShowTelegramBot] = useState(false);
   const [showAgentLogs, setShowAgentLogs] = useState(false);
+  const [showProofConsole, setShowProofConsole] = useState(false);
   const [editingNode, setEditingNode] = useState<ProblemNode | null>(null);
   const [isSolving, setIsSolving] = useState(false);
   const [isAgentSearching, setIsAgentSearching] = useState(false);
@@ -186,8 +288,12 @@ export const Map3D: React.FC = () => {
     return localStorage.getItem('ricis_selected_ai_model') || 'gemini-3.6-flash';
   });
   /** Filter: show only purple derivative_claim nodes (and edges between them / to anchors). */
-  const [showOnlyDerivatives, setShowOnlyDerivatives] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
+  const [showOnlyDerivatives, setShowOnlyDerivatives] = useState<boolean>(() => {
+    return initialSavedFilters?.showOnlyDerivatives ?? false;
+  });
+  const [searchQuery, setSearchQuery] = useState<string>(() => {
+    return initialSavedFilters?.searchQuery ?? '';
+  });
   const [searchHistory, setSearchHistory] = useState<string[]>(() => {
     try {
       const saved = localStorage.getItem('ricis_search_history');
@@ -216,9 +322,45 @@ export const Map3D: React.FC = () => {
   });
 
   const [showOverflow, setShowOverflow] = useState(false);
+  const [userDisabledPanelIds, setUserDisabledPanelIds] = useState<Set<string>>(() => {
+    try {
+      const saved = localStorage.getItem('ricis_disabled_panel_ids');
+      return saved ? new Set(JSON.parse(saved)) : new Set();
+    } catch {
+      return new Set();
+    }
+  });
+
+  const togglePanelVisibility = (panelId: string) => {
+    setUserDisabledPanelIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(panelId)) {
+        next.delete(panelId);
+      } else {
+        next.add(panelId);
+      }
+      try {
+        localStorage.setItem('ricis_disabled_panel_ids', JSON.stringify(Array.from(next)));
+      } catch (e) {
+        console.error('Failed to save disabled panels', e);
+      }
+      return next;
+    });
+  };
+
+  // Auto-persist filter state changes
+  useEffect(() => {
+    filterStorageService.save({
+      hiddenZones: Array.from(hiddenZones),
+      searchQuery,
+      showOnlyDerivatives,
+      selectedNodeId,
+    });
+  }, [hiddenZones, searchQuery, showOnlyDerivatives, selectedNodeId]);
 
 
   const controlsRef = useRef<any>(null);
+  const flightRef = useRef<FlightTarget | null>(null);
 
   const handleZoomIn = () => {
     if (controlsRef.current) {
@@ -588,6 +730,46 @@ export const Map3D: React.FC = () => {
     return m;
   }, [map.nodes]);
 
+  const triggerFlight = (targetNodeId: string) => {
+    const nPos = nodePositions[targetNodeId];
+    if (nPos && controlsRef.current) {
+      const targetVec = new THREE.Vector3(nPos[0], nPos[1], nPos[2]);
+      const currentCamPos = controlsRef.current.object.position.clone();
+      const currentLookAt = controlsRef.current.target.clone();
+
+      // Calculate desired camera position (slightly offset based on current angle, or a fixed distance)
+      const dir = currentCamPos.clone().sub(currentLookAt).normalize();
+      const distance = 15; // Closer zoom
+      const desiredCamPos = targetVec.clone().add(dir.multiplyScalar(distance));
+
+      flightRef.current = {
+        target: targetVec,
+        cameraPos: desiredCamPos,
+        startTime: performance.now(),
+        startLookAt: currentLookAt,
+        startCamPos: currentCamPos,
+        durationMs: 1500, // 1.5s flight
+      };
+    }
+  };
+
+  const handleNavigateToNode = (targetId: string) => {
+    if (selectedNodeId && selectedNodeId !== targetId) {
+      setNavigationStack(prev => [...prev, selectedNodeId]);
+    }
+    setSelectedNodeId(targetId);
+    triggerFlight(targetId);
+  };
+
+  const handleNavigateBack = () => {
+    if (navigationStack.length > 0) {
+      const prevId = navigationStack[navigationStack.length - 1];
+      setNavigationStack(prev => prev.slice(0, -1));
+      setSelectedNodeId(prevId);
+      triggerFlight(prevId);
+    }
+  };
+
   const edgesLines = useMemo(() => {
     return map.edges.filter(e => {
       const fromNode = map.nodes.find(n => n.id === e.fromId);
@@ -622,6 +804,10 @@ export const Map3D: React.FC = () => {
         color = '#eab308';
         opacity = 0.55;
       }
+      
+      // Apply global physics parameter modifier to edge opacity
+      opacity *= (physicsParams.edgeOpacity ?? 0.5);
+
       const points = [new THREE.Vector3(...fromPos), new THREE.Vector3(...toPos)];
       const geometry = new THREE.BufferGeometry().setFromPoints(points);
       return (
@@ -634,7 +820,7 @@ export const Map3D: React.FC = () => {
         />
       );
     });
-  }, [map.edges, map.nodes, nodePositions, pathEdgeKeys, nodeStateById, visibleNodeIds]);
+  }, [map.edges, map.nodes, nodePositions, pathEdgeKeys, nodeStateById, visibleNodeIds, physicsParams.edgeOpacity]);
 
   return (
     <div className="w-full h-screen bg-[#050505] text-[#e0e0e0] font-sans overflow-hidden flex flex-col">
@@ -651,54 +837,94 @@ export const Map3D: React.FC = () => {
         </div>
         <div className="flex items-center gap-5">
           <div className="flex gap-4 text-xs font-mono">
-            <div className="flex flex-col"><span className="text-slate-400 text-[10px]">УЗЛЫ</span><span className="text-slate-100 font-bold">{map.nodes.length}</span></div>
-            <div className="flex flex-col"><span className="text-slate-400 text-[10px]">ДОСТУПНО</span><span className="text-emerald-400 font-bold">{availability.available}</span></div>
-            <div className="flex flex-col"><span className="text-slate-400 text-[10px]">ЗАБЛОКИРОВАНО</span><span className="text-slate-300 font-bold">{availability.locked}</span></div>
-            <div className="flex flex-col"><span className="text-slate-400 text-[10px]">РЕШЕНО</span><span className="text-green-400 font-bold">{availability.resolved}</span></div>
+            <div className="flex flex-col"><span className="text-slate-400 text-[10px]">{t('header.nodes')}</span><span className="text-slate-100 font-bold">{map.nodes.length}</span></div>
+            <div className="flex flex-col"><span className="text-slate-400 text-[10px]">{t('header.available')}</span><span className="text-emerald-400 font-bold">{availability.available}</span></div>
+            <div className="flex flex-col"><span className="text-slate-400 text-[10px]">{t('header.locked')}</span><span className="text-slate-300 font-bold">{availability.locked}</span></div>
+            <div className="flex flex-col"><span className="text-slate-400 text-[10px]">{t('header.resolved')}</span><span className="text-green-400 font-bold">{availability.resolved}</span></div>
           </div>
+          <LanguageToggle />
           <button
             type="button"
-            onClick={() => document.getElementById('accordion-physics')?.click()}
-            className="bg-cyan-500 hover:bg-cyan-400 text-black font-extrabold text-xs px-3.5 py-1.5 rounded-md shadow-[0_0_12px_rgba(6,182,212,0.4)] transition-all cursor-pointer flex items-center gap-1.5"
+            onClick={() => setShowSettings(true)}
+            className="bg-neutral-800 hover:bg-neutral-700 border border-neutral-700 text-slate-200 font-bold text-xs px-3.5 py-1.5 rounded-md shadow-[0_0_12px_rgba(255,255,255,0.05)] transition-all cursor-pointer flex items-center gap-1.5 uppercase tracking-wider"
           >
-            ⚡ Параметры физики
+            <Settings size={14} className="text-cyan-400" /> {t('header.settings')}
+          </button>
+          <button
+            type="button"
+            onClick={() => toggleTerminal(true)}
+            className="bg-purple-900/50 hover:bg-purple-800/60 border border-purple-700/50 text-purple-300 font-bold text-xs px-3.5 py-1.5 rounded-md shadow-[0_0_12px_rgba(168,85,247,0.2)] transition-all cursor-pointer flex items-center gap-1.5 uppercase tracking-wider"
+          >
+            <Terminal size={14} /> {t('header.sandbox')}
           </button>
         </div>
       </header>
 
       <main className="flex-1 flex relative overflow-hidden">
         <aside className="w-84 border-r border-cyan-900/40 bg-[#070707] p-3 flex flex-col gap-3 shrink-0 z-10 overflow-y-auto h-full">
-          {/* UI Profiles (Adaptive Logic) */}
-          <div className="flex flex-col gap-1.5 mb-2 pb-3 border-b border-neutral-800/60">
-            <span className="text-[10px] uppercase font-mono text-slate-500 font-bold">Профиль интерфейса:</span>
-            <div className="flex items-center gap-2">
-              <select
-                value={currentRole.id}
-                onChange={e => switchRole(e.target.value)}
-                className="flex-1 bg-neutral-900 border border-neutral-700 rounded px-2 py-1.5 text-xs text-cyan-100 font-bold focus:outline-none focus:border-cyan-500 cursor-pointer"
-              >
-                {roles.map((r: any) => <option key={r.id} value={r.id}>{r.name}</option>)}
-              </select>
-              <button
-                type="button"
-                onClick={() => {
-                  const name = prompt('Введите название новой роли:');
-                  if (name) {
-                    const clone = confirm('Скопировать текущие веса как базу?');
-                    createRole(name, clone ? currentRole.id : undefined);
+          {/* SEARCH BAR (Top of Sidebar) */}
+          <div className="relative border border-cyan-900/40 rounded-lg overflow-visible bg-[#050810]/90 backdrop-blur-md px-3.5 py-2.5 mb-1 flex items-center gap-2.5 z-20">
+            <Search size={16} className="text-cyan-400 shrink-0" />
+            <div className="relative flex-1">
+              <input
+                type="text"
+                placeholder={t('search.placeholder')}
+                value={searchQuery}
+                onChange={e => setSearchQuery(e.target.value)}
+                onFocus={() => setIsSearchFocused(true)}
+                onBlur={() => { saveToHistory(searchQuery); setTimeout(() => setIsSearchFocused(false), 200); }}
+                onKeyDown={e => {
+                  if (e.key === 'ArrowDown') { e.preventDefault(); if (!filteredHistory.length) return; setSelectedHistoryIndex(prev => (prev < filteredHistory.length - 1 ? prev + 1 : 0)); }
+                  else if (e.key === 'ArrowUp') { e.preventDefault(); if (!filteredHistory.length) return; setSelectedHistoryIndex(prev => (prev > 0 ? prev - 1 : filteredHistory.length - 1)); }
+                  else if (e.key === 'Enter') {
+                    e.preventDefault();
+                    if (selectedHistoryIndex >= 0 && selectedHistoryIndex < filteredHistory.length) {
+                      setSearchQuery(filteredHistory[selectedHistoryIndex]);
+                      setIsSearchFocused(false);
+                      return;
+                    }
+                    saveToHistory(searchQuery);
                   }
                 }}
-                className="w-7 h-7 shrink-0 flex items-center justify-center bg-neutral-800 hover:bg-neutral-700 rounded text-slate-300 font-bold transition-colors"
-                title="Создать профиль"
-              >
-                +
-              </button>
+                className="w-full bg-transparent border-0 p-0 text-xs text-slate-200 placeholder:text-slate-500 focus:outline-none focus:ring-0"
+              />
+              
+              {isSearchFocused && filteredHistory.length > 0 && (
+                <div className="absolute top-full left-0 right-0 mt-3 bg-[#050810] border border-cyan-900/80 rounded-md shadow-[0_8px_32px_rgba(0,0,0,0.85)] z-50 py-1 max-h-48 overflow-y-auto">
+                  {filteredHistory.map((query, index) => (
+                    <button
+                      key={query}
+                      type="button"
+                      className={`w-full text-left px-3 py-1.5 text-xs font-mono cursor-pointer flex items-center justify-between ${index === selectedHistoryIndex ? 'bg-cyan-950 text-cyan-300' : 'text-slate-400 hover:bg-neutral-900 hover:text-slate-200'}`}
+                      onMouseDown={(e) => { e.preventDefault(); setSearchQuery(query); setIsSearchFocused(false); saveToHistory(query); }}
+                    >
+                      <span>{query}</span>
+                      <span className="opacity-50 text-[10px]">История</span>
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
+            {searchQuery.trim() && (
+              <button 
+                onClick={() => setSearchQuery('')}
+                className="text-slate-500 hover:text-white text-xs px-1 cursor-pointer transition-colors"
+                title="Очистить"
+              >
+                ✕
+              </button>
+            )}
+            {searchQuery.trim() && (
+              <span className={`text-[10px] font-mono px-1.5 py-0.5 rounded border leading-none ${searchMatchCount > 0 ? 'bg-cyan-950/80 text-cyan-200 border-cyan-700/80 font-bold' : 'bg-rose-950/80 text-rose-200 border-rose-700/80 font-bold'}`}>
+                {searchMatchCount}
+              </span>
+            )}
           </div>
 
           {/* Render active panels */}
           <div className="accordion-container flex flex-col gap-0 border-0 bg-transparent overflow-visible w-full">
           {[...visibleElements.map((el: any) => ({ ...el, isHidden: false })), ...hiddenElements.map((el: any) => ({ ...el, isHidden: true }))].map(({ id, isHidden }: any) => {
+            if (userDisabledPanelIds.has(id)) return null;
             if (isHidden && !showOverflow) return null;
             
             // PHYSICS PANEL IS UNIQUE
@@ -709,69 +935,6 @@ export const Map3D: React.FC = () => {
                     params={physicsParams}
                     onChange={setPhysicsParams}
                   />
-                </div>
-              );
-            }
-
-            // SEARCH PANEL IS NOW A SINGLE ROW WITH PLACEHOLDER "Поиск по карте"
-            if (id === 'search') {
-              return (
-                <div key="search" className={`relative border border-cyan-900/40 rounded-lg overflow-visible bg-[#050810]/90 backdrop-blur-md px-3.5 py-2.5 mb-2 flex items-center gap-2.5 z-20 ${isHidden ? 'opacity-90 border-dashed border-neutral-700' : ''}`}>
-                  <Search size={16} className="text-cyan-400 shrink-0" />
-                  <div className="relative flex-1">
-                    <input
-                      type="text"
-                      placeholder="Поиск по карте..."
-                      value={searchQuery}
-                      onChange={e => setSearchQuery(e.target.value)}
-                      onFocus={() => setIsSearchFocused(true)}
-                      onBlur={() => { saveToHistory(searchQuery); setTimeout(() => setIsSearchFocused(false), 200); }}
-                      onKeyDown={e => {
-                        if (e.key === 'ArrowDown') { e.preventDefault(); if (!filteredHistory.length) return; setSelectedHistoryIndex(prev => (prev < filteredHistory.length - 1 ? prev + 1 : 0)); }
-                        else if (e.key === 'ArrowUp') { e.preventDefault(); if (!filteredHistory.length) return; setSelectedHistoryIndex(prev => (prev > 0 ? prev - 1 : filteredHistory.length - 1)); }
-                        else if (e.key === 'Enter') {
-                          e.preventDefault();
-                          if (selectedHistoryIndex >= 0 && selectedHistoryIndex < filteredHistory.length) {
-                            setSearchQuery(filteredHistory[selectedHistoryIndex]);
-                            setIsSearchFocused(false);
-                            return;
-                          }
-                          saveToHistory(searchQuery);
-                        }
-                      }}
-                      className="w-full bg-transparent border-0 p-0 text-xs text-slate-200 placeholder:text-slate-500 focus:outline-none focus:ring-0"
-                    />
-                    
-                    {isSearchFocused && filteredHistory.length > 0 && (
-                      <div className="absolute top-full left-0 right-0 mt-3 bg-[#050810] border border-cyan-900/80 rounded-md shadow-[0_8px_32px_rgba(0,0,0,0.85)] z-50 py-1 max-h-48 overflow-y-auto">
-                        {filteredHistory.map((query, index) => (
-                          <button
-                            key={query}
-                            type="button"
-                            className={`w-full text-left px-3 py-1.5 text-xs font-mono cursor-pointer flex items-center justify-between ${index === selectedHistoryIndex ? 'bg-cyan-950 text-cyan-300' : 'text-slate-400 hover:bg-neutral-900 hover:text-slate-200'}`}
-                            onMouseDown={(e) => { e.preventDefault(); setSearchQuery(query); setIsSearchFocused(false); saveToHistory(query); }}
-                          >
-                            <span>{query}</span>
-                            <span className="opacity-50 text-[10px]">История</span>
-                          </button>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                  {searchQuery.trim() && (
-                    <button 
-                      onClick={() => setSearchQuery('')}
-                      className="text-slate-500 hover:text-white text-xs px-1 cursor-pointer transition-colors"
-                      title="Очистить"
-                    >
-                      ✕
-                    </button>
-                  )}
-                  {searchQuery.trim() && (
-                    <span className={`text-[10px] font-mono px-1.5 py-0.5 rounded border leading-none ${searchMatchCount > 0 ? 'bg-cyan-950/80 text-cyan-200 border-cyan-700/80 font-bold' : 'bg-rose-950/80 text-rose-200 border-rose-700/80 font-bold'}`}>
-                      {searchMatchCount}
-                    </span>
-                  )}
                 </div>
               );
             }
@@ -866,9 +1029,19 @@ export const Map3D: React.FC = () => {
                   <div className={`accordion-inner p-3 border-t border-neutral-800/60 bg-neutral-950/40 relative overflow-y-auto ${id === 'zones' || id === 'available' || id === 'agent' ? 'max-h-64' : 'max-h-56'}`}>
                     
                     {id === 'actions' && (
-                      <ActionButton onClick={() => setShowAddNode(true)} variant="emerald" className="w-full uppercase font-bold tracking-wider cursor-pointer py-2 text-xs">
-                        + Добавить новую задачу
-                      </ActionButton>
+                      <div className="space-y-2">
+                        <ActionButton onClick={() => setShowAddNode(true)} variant="emerald" className="w-full uppercase font-bold tracking-wider cursor-pointer py-2 text-xs">
+                          + Добавить новую задачу
+                        </ActionButton>
+                        <button
+                          type="button"
+                          onClick={() => setShowProofConsole(true)}
+                          className="w-full flex items-center justify-center gap-2 py-2 px-3 rounded bg-cyan-950/80 hover:bg-cyan-900 border border-cyan-500/40 text-cyan-300 font-bold text-xs uppercase tracking-wider transition-colors cursor-pointer shadow-lg shadow-cyan-950/40"
+                        >
+                          <Cpu className="w-4 h-4 text-cyan-400" />
+                          Консоль доказательств RICIS
+                        </button>
+                      </div>
                     )}
                     {id === 'audit' && <AuditPanel />}
 
@@ -927,11 +1100,18 @@ export const Map3D: React.FC = () => {
                           <label className="text-[10px] text-slate-500 uppercase font-bold mb-1 block">Нейросеть (Gemini)</label>
                           <select
                             value={selectedModel}
-                            onChange={(e) => setSelectedModel(e.target.value as string)}
-                            className="w-full bg-[#050810] border border-cyan-900/40 rounded px-2 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-cyan-400"
+                            onChange={(e) => {
+                              const m = e.target.value;
+                              setSelectedModel(m);
+                              localStorage.setItem('ricis_selected_ai_model', m);
+                            }}
+                            className="w-full bg-[#050810] border border-cyan-900/40 rounded px-2 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-cyan-400 font-sans"
                           >
-                            <option value="gemini-3.6-flash">Gemini 3.6 Flash (Fast)</option>
-                            <option value="gemini-3.1-pro-preview">Gemini 3.1 Pro (Smart)</option>
+                            {AVAILABLE_GEMINI_MODELS.map(m => (
+                              <option key={m.id} value={m.id}>
+                                {m.name}
+                              </option>
+                            ))}
                           </select>
                         </div>
                         <div className="pt-2 border-t border-neutral-800/40 flex flex-col gap-2">
@@ -1015,7 +1195,9 @@ export const Map3D: React.FC = () => {
 
         <div className="flex-1 relative bg-[radial-gradient(circle_at_center,_#0a0f1a_0%,_#050505_100%)]">
           <Canvas camera={{ position: [0, 0, 32], fov: 55, far: 10000, near: 0.1 }} gl={{ antialias: true, alpha: true }}>
-            <OrbitControls controlsRef={controlsRef} />
+            <UniverseSkybox radius={3200} />
+            <OrbitControls controlsRef={controlsRef} flightRef={flightRef} />
+            <CameraFlightRig flightRef={flightRef} controlsRef={controlsRef} />
             <ambientLight intensity={0.22} />
             <hemisphereLight args={['#1e3a5f', '#050508', 0.55]} />
             <pointLight position={[18, 22, 14]} intensity={1.35} color="#e8f4ff" distance={80} />
@@ -1102,7 +1284,7 @@ export const Map3D: React.FC = () => {
                     locked={locked}
                     onClick={e => {
                       e.stopPropagation();
-                      setSelectedNodeId(node.id);
+                      handleNavigateToNode(node.id);
                     }}
                   />
                   <NodeLabel
@@ -1164,8 +1346,7 @@ export const Map3D: React.FC = () => {
                         <ActionButton
                           onClick={() => { handleGenerateTex(); setIsMenuOpen(false); }}
                           variant="amber"
-                          className="w-full mt-1"
-                        >
+                                                  >
                           Генерировать TEX
                         </ActionButton>
                       </div>
@@ -1188,50 +1369,66 @@ export const Map3D: React.FC = () => {
               {(() => {
                 const parents = map.nodes.filter(n => selectedNode.dependencyIds.includes(n.id));
                 return (
-                  <div className="text-[9px] font-mono text-cyan-500/80 mb-3 flex flex-wrap items-center gap-1">
-                    <span className="text-gray-500">{map.zones.find(z => z.id === selectedNode.zoneIds[0])?.name || 'Zone'}</span>
-                    <span className="text-gray-600">/</span>
-                    {parents.length > 0 ? (
-                      <>
-                        <span className="flex gap-1 flex-wrap">
-                          {parents.map((p, idx) => (
-                            <span key={p.id}>
-                              <button type="button" onClick={() => setSelectedNodeId(p.id)} className="hover:text-cyan-300 transition-colors underline decoration-cyan-900/50 underline-offset-2">{p.title}</button>
-                              {idx < parents.length - 1 && <span className="text-gray-600">,</span>}
-                            </span>
-                          ))}
-                        </span>
-                        <span className="text-gray-600">/</span>
-                      </>
-                    ) : (
-                      <>
-                        <span className="text-gray-500">RICIS Core</span>
-                        <span className="text-gray-600">/</span>
-                      </>
-                    )}
-                    <span className="text-cyan-400 font-bold">{selectedNode.title}</span>
+                  <div>
+                    <div className="text-[10px] font-mono text-cyan-500/80 mb-1.5 flex flex-wrap items-center gap-1">
+                      <span className="text-gray-500">{map.zones.find(z => z.id === selectedNode.zoneIds[0])?.name || 'Zone'}</span>
+                      <span className="text-gray-600">/</span>
+                      {parents.length > 0 ? (
+                        <>
+                          <span className="flex gap-1 flex-wrap">
+                            {parents.map((p, idx) => (
+                              <span key={p.id}>
+                                <button type="button" onClick={() => setSelectedNodeId(p.id)} className="hover:text-cyan-300 transition-colors underline decoration-cyan-900/50 underline-offset-2">{p.title}</button>
+                                {idx < parents.length - 1 && <span className="text-gray-600">,</span>}
+                              </span>
+                            ))}
+                          </span>
+                        </>
+                      ) : (
+                        <>
+                          <span className="text-gray-500">RICIS Core</span>
+                        </>
+                      )}
+                    </div>
+                    <h2 className="text-lg font-bold text-slate-100 tracking-tight leading-tight mb-3">
+                      {selectedNode.title}
+                    </h2>
                   </div>
                 );
               })()}
-              <div className="mb-3 flex gap-2 flex-wrap">
-                {(() => {
-                  const hasSorry = nodeHasSorry(selectedNode, map.proofs?.[selectedNode.id]);
-                  const isOk = selectedNode.state === 'resolved' && !isMissingTargetFunction(selectedNode) && !hasSorry;
-                  const isPartial = selectedNode.state === 'partial' || isMissingTargetFunction(selectedNode) || hasSorry;
-                  return (
-                    <span className={'px-2 py-0.5 rounded text-[9px] font-bold uppercase ' + (isOk ? 'bg-green-900/50 text-green-400 border border-green-700/60' : isPartial ? 'bg-yellow-900/50 text-yellow-400 border border-yellow-700/60' : 'bg-red-900/50 text-red-400 border border-red-700/60')}>
-                      {isOk ? 'RESOLVED' : isPartial ? (hasSorry ? 'PARTIAL (SORRY)' : 'PARTIAL') : 'UNRESOLVED'}
-                    </span>
-                  );
-                })()}
-                {!isNodeAvailable(selectedNode, map) && selectedNode.state !== 'resolved' && (
-                  <span className="px-2 py-0.5 rounded text-[9px] font-bold uppercase bg-gray-800 text-gray-400 border border-gray-700">LOCKED</span>
-                )}
-                {isRicisCore(selectedNode) && (
-                  <span className="px-2 py-0.5 rounded text-[9px] font-bold uppercase bg-cyan-900/50 text-cyan-300 border border-cyan-700/40">RICIS CORE</span>
-                )}
-              </div>
-              <NodeCardDetails node={selectedNode} isExpanded={isNodeExpanded} onEdit={() => setEditingNode(selectedNode)} />
+
+            <div className="mb-4 flex gap-2 flex-wrap items-center">
+              {(() => {
+                const hasSorry = nodeHasSorry(selectedNode, map.proofs?.[selectedNode.id]);
+                const isOk = selectedNode.state === 'resolved' && !isMissingTargetFunction(selectedNode) && !hasSorry;
+                const isPartial = selectedNode.state === 'partial' || isMissingTargetFunction(selectedNode) || hasSorry;
+                
+                let badgeClass = 'bg-neutral-900 text-neutral-400 border border-neutral-700/60';
+                if (isOk) badgeClass = 'bg-emerald-950/80 text-emerald-400 border border-emerald-900/60';
+                else if (isPartial) badgeClass = 'bg-amber-950/80 text-amber-400 border border-amber-900/60';
+                
+                return (
+                  <span className={`px-2 py-1 rounded-full text-[9px] font-bold uppercase tracking-wider ${badgeClass}`}>
+                    {isOk ? 'RESOLVED' : isPartial ? (hasSorry ? 'PARTIAL (SORRY)' : 'PARTIAL') : 'UNRESOLVED'}
+                  </span>
+                );
+              })()}
+              {!isNodeAvailable(selectedNode, map) && selectedNode.state !== 'resolved' && (
+                <span className="px-2 py-1 rounded-full text-[9px] font-bold uppercase tracking-wider bg-neutral-900/80 text-neutral-500 border border-neutral-800">LOCKED</span>
+              )}
+              {isRicisCore(selectedNode) && (
+                <span className="px-2 py-1 rounded-full text-[9px] font-bold uppercase tracking-wider bg-cyan-950/60 text-cyan-400 border border-cyan-900/40">RICIS CORE</span>
+              )}
+            </div>
+              <NodeCardDetails 
+                node={selectedNode} 
+                map={map}
+                isExpanded={isNodeExpanded} 
+                onEdit={() => setEditingNode(selectedNode)}
+                onNavigateToNode={handleNavigateToNode}
+                onNavigateBack={navigationStack.length > 0 ? handleNavigateBack : undefined}
+                previousNodeTitle={navigationStack.length > 0 ? map.nodes.find(n => n.id === navigationStack[navigationStack.length - 1])?.title : null}
+              />
 
               {pathNodeIds.length > 0 && (
                 <div className="mb-3 text-[10px] text-cyan-400/90 font-mono bg-cyan-950/20 border border-cyan-900/40 rounded p-2 max-h-24 overflow-y-auto leading-relaxed relative">
@@ -1246,19 +1443,6 @@ export const Map3D: React.FC = () => {
                     </span>
                   ))}
                   </div>
-                </div>
-              )}
-              {unlockReqs.length > 0 && (
-                <div className="mb-3 bg-gray-900/60 border border-gray-700/50 rounded p-2">
-                  <p className="text-[9px] text-gray-500 uppercase font-bold mb-1">Чтобы открыть — решите:</p>
-                  <ul className="space-y-1 max-h-28 overflow-y-auto">
-                    {unlockReqs.map(n => (
-                      <li key={n.id} className="text-[10px] text-gray-300 flex items-start gap-1">
-                        <span className="text-gray-600 mt-0.5">●</span>
-                        <button type="button" className="text-left hover:text-cyan-300 leading-tight" onClick={() => setSelectedNodeId(n.id)}>{n.title}</button>
-                      </li>
-                    ))}
-                  </ul>
                 </div>
               )}
               {texMsg && <p className="mb-3 text-[9px] text-amber-300/90 font-mono break-all">{texMsg}</p>}
@@ -1314,6 +1498,19 @@ export const Map3D: React.FC = () => {
       {showAddNode && (
         <AddNodeModal onClose={() => setShowAddNode(false)} parentId={selectedNodeId || undefined} />
       )}
+      {showSettings && (
+        <SettingsModal
+          isOpen={showSettings}
+          onClose={() => setShowSettings(false)}
+          currentRoleId={currentRole.id}
+          roles={roles}
+          onSelectRole={switchRole}
+          onCreateRole={createRole}
+          uiElements={UI_ELEMENTS}
+          hiddenElementIds={userDisabledPanelIds}
+          onToggleElement={togglePanelVisibility}
+        />
+      )}
       {showTelegramBot && (
         <TelegramBotPanel onClose={() => setShowTelegramBot(false)} />
       )}
@@ -1328,6 +1525,14 @@ export const Map3D: React.FC = () => {
         <AgentLogModal
           onClose={() => setShowAgentLogs(false)}
           onSelectNode={setSelectedNodeId}
+        />
+      )}
+      {showProofConsole && (
+        <RicisProofConsoleModal
+          isOpen={showProofConsole}
+          onClose={() => setShowProofConsole(false)}
+          initialClaim={selectedNode?.title || '0_5 * inf_3'}
+          initialProblemId={selectedNode?.id}
         />
       )}
       <footer className="h-10 border-t border-cyan-900/40 bg-[#080808] flex items-center justify-between px-4 shrink-0 z-10 w-full overflow-visible">
@@ -1405,6 +1610,7 @@ export const Map3D: React.FC = () => {
           </button>
         </div>
       </footer>
+      <RicisTerminalModal />
     </div>
   );
 };

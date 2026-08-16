@@ -161,3 +161,61 @@ export function countAvailable(map: MapState): { available: number; locked: numb
   }
   return { available, locked, resolved };
 }
+
+/**
+ * Отчет о разблокируемых узлах при решении текущей задачи.
+ */
+export interface UnlockedTargetsReport {
+  immediateUnlockTargets: ProblemNode[];
+  allDependentTargets: ProblemNode[];
+}
+
+/**
+ * Находит все задачи в графе, которые зависят от решения текущей ноды:
+ * - allDependentTargets: все узлы, в формулу или зависимости которых входит текущий узел.
+ * - immediateUnlockTargets: узлы, которые станут немедленно доступны (все остальные их зависимости уже решены).
+ */
+export function getUnlockedTargets(
+  node: ProblemNode,
+  map: { nodes: ProblemNode[]; edges?: Array<{ source?: string; target?: string; fromId?: string; toId?: string }> }
+): UnlockedTargetsReport {
+  const byId = new Map(map.nodes.map(n => [n.id, n]));
+  const dependentSet = new Set<string>();
+
+  // 1. Прямые ссылки через dependencyIds
+  for (const n of map.nodes) {
+    if (n.id === node.id) continue;
+    if (n.dependencyIds && n.dependencyIds.includes(node.id)) {
+      dependentSet.add(n.id);
+    }
+  }
+
+  // 2. Ориентированные ребра графа
+  if (map.edges) {
+    for (const e of map.edges) {
+      const from = e.source || e.fromId;
+      const to = e.target || e.toId;
+      if (from === node.id && to && to !== node.id) {
+        dependentSet.add(to);
+      }
+    }
+  }
+
+  const allDependentTargets = Array.from(dependentSet)
+    .map(id => byId.get(id))
+    .filter((n): n is ProblemNode => !!n);
+
+  const immediateUnlockTargets = allDependentTargets.filter(depNode => {
+    if (depNode.state === 'resolved') return false;
+    const remainingUnresolved = (depNode.dependencyIds || []).filter(
+      depId => depId !== node.id && byId.get(depId)?.state !== 'resolved'
+    );
+    return remainingUnresolved.length === 0;
+  });
+
+  return {
+    immediateUnlockTargets,
+    allDependentTargets,
+  };
+}
+

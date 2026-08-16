@@ -137,4 +137,148 @@ describe('Zustand mapStore.ts Integration Tests (RICIS-III v7.7 Diagnostics & GC
     expect(finalStateWithAudit.transformationHistory).toHaveLength(3);
     expect(finalStateWithAudit.transformationHistory[0].operation).toBe('purge_orphan');
   });
+
+  it('должен корректно управлять журналом логов (addAgentLog & clearAgentLogs)', () => {
+    const store = useMapStore.getState();
+    store.addAgentLog('Тестовое сообщение RICIS', 'ricis', 'Детали вычисления', 'test-node-1');
+
+    let state = useMapStore.getState();
+    expect(state.agentLogs.length).toBeGreaterThan(0);
+    expect(state.agentLogs[0]?.message).toBe('Тестовое сообщение RICIS');
+    expect(state.agentLogs[0]?.level).toBe('ricis');
+    expect(state.agentLogs[0]?.nodeId).toBe('test-node-1');
+
+    store.clearAgentLogs();
+    state = useMapStore.getState();
+    expect(state.agentLogs[0]?.message).toContain('очищен');
+  });
+
+  it('должен обновлять параметры узла (updateNode)', async () => {
+    const node: ProblemNode = {
+      id: 'target-node',
+      title: 'Начальный заголовок',
+      targetFunction: '0/0',
+      description: 'Описание',
+      state: 'unresolved',
+      type: 'scientific_task',
+      economic: { costToSolve: 10, costUnresolved: 20, marketGain: 50, riskLoss: 5 },
+      dependencyIds: [],
+      dependentIds: [],
+      zoneIds: ['math'],
+      fractalDepth: 0,
+    };
+
+    useMapStore.setState({ nodes: [node] } as any);
+    const store = useMapStore.getState();
+
+    await store.updateNode('target-node', {
+      title: 'Обновленный заголовок RICIS',
+      state: 'resolved',
+    });
+
+    const updated = useMapStore.getState().nodes.find(n => n.id === 'target-node');
+    expect(updated?.title).toBe('Обновленный заголовок RICIS');
+    expect(updated?.state).toBe('resolved');
+  });
+
+  it('должен обновлять доказательство (updateProof) и возвращать через getLatexProof', async () => {
+    const node: ProblemNode = {
+      id: 'proof-node',
+      title: 'Узел с доказательством',
+      targetFunction: '0_5 * inf_3',
+      description: 'Доказательство A6',
+      state: 'unresolved',
+      type: 'core_singularity',
+      economic: { costToSolve: 0, costUnresolved: 0, marketGain: 100, riskLoss: 0 },
+      dependencyIds: [],
+      dependentIds: [],
+      zoneIds: ['math'],
+      fractalDepth: 0,
+    };
+
+    useMapStore.setState({ nodes: [node], proofs: {} } as any);
+    const store = useMapStore.getState();
+
+    await store.updateProof('proof-node', '\\text{det}(u,v) = 15');
+
+    const latex = store.getLatexProof('proof-node');
+    expect(latex).toBe('\\text{det}(u,v) = 15');
+  });
+
+  it('должен выполнять академический перерасчет доказательства (recalculateAcademicProof)', async () => {
+    const node: ProblemNode = {
+      id: 'acad-node',
+      title: 'Академическая сингулярность',
+      targetFunction: '0_5 * inf_3 = 15',
+      description: 'Проверка академического протокола',
+      state: 'unresolved',
+      type: 'core_singularity',
+      economic: { costToSolve: 0, costUnresolved: 0, marketGain: 100, riskLoss: 0 },
+      dependencyIds: [],
+      dependentIds: [],
+      zoneIds: ['math'],
+      fractalDepth: 0,
+    };
+
+    useMapStore.setState({ nodes: [node], proofs: {} } as any);
+    const store = useMapStore.getState();
+
+    const result = await store.recalculateAcademicProof('acad-node', ['0_5 * inf_3'], '15');
+
+    expect(result).not.toBeNull();
+    expect(result?.academicStatus).toBe('QED_VERIFIED');
+    expect(result?.reducedInvariant).toBe('15');
+    expect(result?.goalMatched).toBe(true);
+
+    const updatedNode = useMapStore.getState().nodes.find(n => n.id === 'acad-node');
+    expect(updatedNode?.state).toBe('resolved');
+
+    const proof = useMapStore.getState().proofs['acad-node'];
+    expect(proof).toBeDefined();
+    expect(proof?.finalResult).toBe('15');
+    expect(proof?.steps.length).toBeGreaterThanOrEqual(4);
+  });
+
+  it('должен добавлять пользовательский узел (addCustomNode)', async () => {
+    const parentNode: ProblemNode = {
+      id: 'math-singularity',
+      title: 'Root',
+      targetFunction: 'X = X',
+      description: 'Root Node',
+      state: 'resolved',
+      type: 'core_singularity',
+      economic: { costToSolve: 0, costUnresolved: 0, marketGain: 100, riskLoss: 0 },
+      dependencyIds: [],
+      dependentIds: [],
+      zoneIds: ['math'],
+      fractalDepth: 0,
+    };
+
+    useMapStore.setState({
+      nodes: [parentNode],
+      edges: [],
+      zones: [{ id: 'math', name: 'Mathematics', description: '', nodeIds: ['math-singularity'], economicProfile: {} as any }]
+    } as any);
+
+    const newNode: ProblemNode = {
+      id: 'custom-child',
+      title: 'Custom Child',
+      targetFunction: '0_7 / 0_7 = 1',
+      description: 'Child Description',
+      state: 'unresolved',
+      type: 'scientific_task',
+      economic: { costToSolve: 10, costUnresolved: 20, marketGain: 30, riskLoss: 5 },
+      dependencyIds: [],
+      dependentIds: [],
+      zoneIds: ['math'],
+      fractalDepth: 0,
+    };
+
+    const store = useMapStore.getState();
+    await store.addCustomNode(newNode, 'math-singularity');
+
+    const state = useMapStore.getState();
+    expect(state.nodes.some(n => n.id === 'custom-child')).toBe(true);
+    expect(state.edges.some(e => e.fromId === 'math-singularity' && e.toId === 'custom-child')).toBe(true);
+  });
 });

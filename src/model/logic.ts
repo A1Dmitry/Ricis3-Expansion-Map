@@ -7,6 +7,7 @@ import {
 import { auditProofContent, buildCanonicalRicisProofLatex, containsSorry, transformCauchyToRicisBridge } from './ricisCoreRules';
 import { verifyLeanProof } from './leanVerifier';
 import { nodeHasSorry, recolorEdgesForTargets } from './audit';
+import { getRicisCoreEngine } from '../services/ricisCore';
 
 import { KNOWN_SINGULARITY_PROBLEMS } from './catalog';
 
@@ -52,9 +53,34 @@ export async function generateProof(node: ProblemNode, allAxioms: Axiom[]): Prom
         const audit = auditProofContent(transformed);
         latex = audit.isValid ? transformed : fallback;
       }
+    } else {
+      // ИИ-агент заблокирован или недоступен — используем детерминированное ядро Ricis.Core
+      const coreEngine = getRicisCoreEngine();
+      const coreProofDoc = await coreEngine.generateFormalProof(
+        node.title || node.id,
+        'geometric_bridge',
+        { problemId: node.id }
+      );
+      if (coreProofDoc && coreProofDoc.lean4CodeSnippet) {
+        latex = coreProofDoc.lean4CodeSnippet;
+      }
     }
   } catch {
-    latex = fallback;
+    try {
+      const coreEngine = getRicisCoreEngine();
+      const coreProofDoc = await coreEngine.generateFormalProof(
+        node.title || node.id,
+        'geometric_bridge',
+        { problemId: node.id }
+      );
+      if (coreProofDoc && coreProofDoc.lean4CodeSnippet) {
+        latex = coreProofDoc.lean4CodeSnippet;
+      } else {
+        latex = fallback;
+      }
+    } catch {
+      latex = fallback;
+    }
   }
 
   const finalResult = 'Axiom Extracted: ' + node.id + '_resolved';

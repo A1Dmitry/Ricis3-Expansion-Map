@@ -122,12 +122,32 @@ function renderFormattedText(text: string): React.ReactNode {
 
 /** Helper to render inline elements (LaTeX math $...$, bold text **...**, code `...`) */
 function renderInlineElements(line: string): React.ReactNode[] {
-  // Regex splitting by $$...$$, $...$, \(...\), `...`, **...**, [text](url)
-  const pattern = /(\$\$[\s\S]+?\$\$|\$[^\$]+?\$|\\\(.*?\\\)|`[^`]+?`|\*\*[^*]+?\*\*|\[[^\]]+\]\([^)]+\))/g;
+  // Regex splitting by $$...$$, $...$, \(...\), `...`, **...**, [text](url), and bare https?:// urls
+  const pattern = /(\$\$[\s\S]+?\$\$|\$[^\$]+?\$|\\\(.*?\\\)|`[^`]+?`|\*\*[^*]+?\*\*|\[[^\]]+\]\([^)]+\)|https?:\/\/[^\s<>"']+)/g;
   const parts = line.split(pattern);
 
   return parts.map((part, idx) => {
     if (!part) return null;
+
+    // Bare URL https://...
+    if (part.startsWith('http://') || part.startsWith('https://')) {
+      const cleaned = part.replace(/[)\],.;:!?]+$/g, '');
+      const trailing = part.slice(cleaned.length);
+      return (
+        <React.Fragment key={idx}>
+          <a
+            href={cleaned}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-cyan-400 hover:text-cyan-200 underline underline-offset-2 transition-colors break-all"
+            onClick={e => e.stopPropagation()}
+          >
+            {cleaned}
+          </a>
+          {trailing}
+        </React.Fragment>
+      );
+    }
 
     // Link [text](url)
     const linkMatch = part.match(/^\[([^\]]+)\]\(([^)]+)\)$/);

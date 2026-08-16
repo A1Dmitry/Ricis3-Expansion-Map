@@ -3,7 +3,8 @@ import { useMapStore } from '../store/mapStore';
 import { ProblemNode } from '../model/types';
 import { ActionButton } from './ActionButton';
 import { isAutoFormulaRequest } from '../model/audit';
-
+import { Sparkles, Bot, Share2, Check } from 'lucide-react';
+import { UrlShareService } from '../services/UrlShareService';
 
 interface AiAssistantResponse {
   title?: string;
@@ -14,29 +15,53 @@ interface AiAssistantResponse {
   link?: string;
 }
 
-export function AddNodeModal({ onClose, parentId }: { onClose: () => void; parentId?: string }) {
+export interface AddNodePrefillData {
+  title?: string;
+  targetFunction?: string;
+  description?: string;
+  hint?: string;
+  link?: string;
+  zoneId?: string;
+}
+
+export function AddNodeModal({ 
+  onClose, 
+  parentId, 
+  initialData 
+}: { 
+  onClose: () => void; 
+  parentId?: string; 
+  initialData?: AddNodePrefillData;
+}) {
   const map = useMapStore();
   
-  const [title, setTitle] = useState('');
-  const [targetFunction, setTargetFunction] = useState('');
-  const [description, setDescription] = useState('');
-  const [hint, setHint] = useState('');
-  const [link, setLink] = useState('');
-  const [zoneId, setZoneId] = useState(map.zones.length > 0 ? map.zones[0].id : 'math');
+  const [title, setTitle] = useState(initialData?.title || '');
+  const [targetFunction, setTargetFunction] = useState(initialData?.targetFunction || '');
+  const [description, setDescription] = useState(initialData?.description || '');
+  const [hint, setHint] = useState(initialData?.hint || '');
+  const [link, setLink] = useState(initialData?.link || '');
+  const [zoneId, setZoneId] = useState(initialData?.zoneId || (map.zones.length > 0 ? map.zones[0].id : 'math'));
   const [newZoneName, setNewZoneName] = useState('');
   const [loadingAI, setLoadingAI] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
+  const [createdNodeId, setCreatedNodeId] = useState<string | null>(null);
+  const [copiedLink, setCopiedLink] = useState(false);
 
   const handleAI = async () => {
     if (!title && !targetFunction) {
-      setErrorMsg("Введите хотя бы название или функцию!");
+      setErrorMsg("Введите хотя бы название или функцию для подсказки агенту!");
       return;
     }
     setErrorMsg('');
     setLoadingAI(true);
     try {
       const { postJson } = await import('../model/apiClient');
-      const api = await postJson<AiAssistantResponse>('/api/aiAssistantNode', { title, targetFunction, zoneId, hint });
+      const api = await postJson<AiAssistantResponse>('/api/aiAssistantNode', { 
+        title, 
+        targetFunction, 
+        zoneId: zoneId === 'NEW_ZONE' ? 'math' : zoneId, 
+        hint 
+      });
       if (!api.ok) {
         setErrorMsg(api.error);
       } else {
@@ -50,7 +75,7 @@ export function AddNodeModal({ onClose, parentId }: { onClose: () => void; paren
       }
     } catch (e) {
       console.error(e);
-      setErrorMsg('Ошибка при запросе к ИИ');
+      setErrorMsg('Ошибка при запросе к ИИ-агенту Gemini');
     }
     setLoadingAI(false);
   };
@@ -65,7 +90,6 @@ export function AddNodeModal({ onClose, parentId }: { onClose: () => void; paren
     let finalHint = hint.trim();
     let finalLink = link.trim();
 
-    // Если функция пустая или содержит запрос 'найди формулу сам' / 'ищи сам' -> обратимся к ИИ за формулой
     if (!resolvedTargetFn || isAutoFormulaRequest(resolvedTargetFn)) {
       setLoadingAI(true);
       try {
@@ -73,7 +97,7 @@ export function AddNodeModal({ onClose, parentId }: { onClose: () => void; paren
         const api = await postJson<AiAssistantResponse>('/api/aiAssistantNode', {
           title,
           targetFunction: resolvedTargetFn || 'найди формулу сам',
-          zoneId,
+          zoneId: zoneId === 'NEW_ZONE' ? 'math' : zoneId,
           hint: finalHint,
         });
 
@@ -109,15 +133,17 @@ export function AddNodeModal({ onClose, parentId }: { onClose: () => void; paren
           : 'https://' + finalLink.replace(/^\/+/, ''))
       : undefined;
 
+    const newId = 'custom-node-' + Date.now();
+
     const node: ProblemNode = {
-      id: 'custom-node-' + Date.now(),
+      id: newId,
       title,
       description: finalDesc + (normalizedLink ? `\nИсточник: ${normalizedLink}` : ''),
       targetFunction: resolvedTargetFn,
       state: 'unresolved',
       type: 'scientific_task',
-      zoneIds: [zoneId],
-      dependencyIds: [],
+      zoneIds: [zoneId === 'NEW_ZONE' ? 'custom' : zoneId],
+      dependencyIds: parentId ? [parentId] : [],
       dependentIds: [],
       fractalDepth: 1,
       economic: {
@@ -128,97 +154,207 @@ export function AddNodeModal({ onClose, parentId }: { onClose: () => void; paren
       },
       rewardClass: 'reputation',
       prizeNote: 'Manual addition',
-      singularityHint: finalHint || 'Неизвестно',
+      singularityHint: finalHint || 'Разрешено через аксиомы RICIS-III',
       sourceUrl: normalizedLink,
     };
 
     await map.addCustomNode(node, parentId, zoneId === 'NEW_ZONE' ? newZoneName : undefined);
+    
+    setCreatedNodeId(newId);
+    
+    // Обновляем URL для deep-linking
+    UrlShareService.updateBrowserUrl({ nodeId: newId });
+
     onClose();
+  };
+
+  const handleShareCreated = async () => {
+    if (createdNodeId) {
+      await UrlShareService.copyShareUrlToClipboard({ nodeId: createdNodeId });
+      setCopiedLink(true);
+      setTimeout(() => setCopiedLink(false), 2000);
+    }
   };
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
-      <div className="bg-[#050505] border border-cyan-800/60 rounded-lg p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-[0_0_40px_rgba(34,211,238,0.15)] text-gray-300">
-        <h2 className="text-xl font-bold text-cyan-400 mb-4 uppercase tracking-widest">
-          {parentId ? 'Добавить зависимую ноду' : 'Новая научная проблема (Нода)'}
-        </h2>
-        {parentId && (
-          <p className="text-xs text-gray-500 mb-4">
-            Будет создана как зависимая от: <span className="text-cyan-300">{map.nodes.find(n => n.id === parentId)?.title}</span>
-          </p>
-        )}
+      <div className="bg-[#090c12] border border-cyan-900/60 rounded-xl max-w-lg w-full p-6 shadow-[0_0_50px_rgba(0,0,0,0.9)] max-h-[90vh] overflow-y-auto custom-scrollbar">
         
+        {/* Header */}
+        <div className="flex items-center justify-between mb-4 border-b border-neutral-800 pb-3">
+          <div className="flex items-center gap-2">
+            <h2 className="text-base font-bold text-white uppercase tracking-wider font-mono">
+              Добавление задачи на карту
+            </h2>
+            {initialData && (
+              <span className="px-2 py-0.5 rounded bg-cyan-950/80 border border-cyan-800 text-[10px] text-cyan-300 font-mono font-bold">
+                Из Sandbox
+              </span>
+            )}
+          </div>
+          <button 
+            type="button"
+            onClick={onClose} 
+            className="text-slate-400 hover:text-white p-1 rounded hover:bg-neutral-800 transition-colors"
+          >
+            ✕
+          </button>
+        </div>
+
+        {errorMsg && (
+          <div className="mb-4 p-3 bg-red-950/40 border border-red-800/80 rounded-lg text-red-300 text-xs font-mono">
+            {errorMsg}
+          </div>
+        )}
+
         <form onSubmit={handleSubmit} className="space-y-4">
+          
+          {/* Title */}
           <div>
-            <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Название проблемы</label>
-            <input required value={title} onChange={e => setTitle(e.target.value)} className="w-full bg-black border border-neutral-700 rounded p-2 text-sm text-white focus:border-cyan-500 outline-none" placeholder="Например: Гладкое решение уравнений Навье-Стокса" />
+            <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1">
+              Название задачи / сингулярности *
+            </label>
+            <input
+              type="text"
+              required
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              placeholder="например, Разрешение 0_3 * inf_4 или Задача Эйлера"
+              className="w-full bg-[#050810] border border-cyan-900/40 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-cyan-400 font-sans"
+            />
           </div>
 
-          <div className="flex gap-2 items-end">
-            <div className="flex-1">
-              <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Целевая функция / Формула</label>
-              <input value={targetFunction} onChange={e => setTargetFunction(e.target.value)} className="w-full bg-black border border-neutral-700 rounded p-2 text-sm font-mono text-cyan-200 focus:border-cyan-500 outline-none" placeholder='Например: \zeta(s) = 0 или "найди формулу сам"' />
-            </div>
-            <ActionButton
-              onClick={handleAI}
-              isLoading={loadingAI}
-              variant="violet"
-              className="py-2.5"
-            >
-              Поиск ИИ 🪄
-            </ActionButton>
-          </div>
-          {errorMsg && <p className="text-red-400 text-[10px] col-span-2">{errorMsg}</p>}
-
+          {/* Target Function / Formula */}
           <div>
-            <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Научная зона</label>
-            <select value={zoneId} onChange={e => setZoneId(e.target.value)} className="w-full bg-black border border-neutral-700 rounded p-2 text-sm text-white focus:border-cyan-500 outline-none">
-              {map.zones.map(z => (
-                <option key={z.id} value={z.id}>{z.name}</option>
-              ))}
-              <option value="NEW_ZONE">+ Добавить новую зону</option>
-            </select>
+            <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1 flex items-center justify-between">
+              <span>Целевая функция / Математическая модель</span>
+              <span className="text-[10px] text-slate-500 font-normal">LaTeX / RICIS формат</span>
+            </label>
+            <textarea
+              rows={2}
+              value={targetFunction}
+              onChange={(e) => setTargetFunction(e.target.value)}
+              placeholder="например, 0_3 * inf_4 = 12 или \lim_{x \to 2} \frac{x^2 - 4}{x - 2}"
+              className="w-full bg-[#050810] border border-cyan-900/40 rounded-lg px-3 py-2 text-xs font-mono text-cyan-200 focus:outline-none focus:border-cyan-400"
+            />
           </div>
 
-          {zoneId === 'NEW_ZONE' && (
-            <div>
-              <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Название новой зоны</label>
-              <input required value={newZoneName} onChange={e => setNewZoneName(e.target.value)} className="w-full bg-black border border-neutral-700 rounded p-2 text-sm text-white focus:border-cyan-500 outline-none" placeholder="Например: Квантовая биология" />
-            </div>
-          )}
-
-          <div>
-            <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Описание</label>
-            <textarea value={description} onChange={e => setDescription(e.target.value)} rows={3} className="w-full bg-black border border-neutral-700 rounded p-2 text-sm text-white focus:border-cyan-500 outline-none" placeholder="Научное описание проблемы..." />
-          </div>
-
-          <div>
-            <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Подсказка о сингулярности</label>
-            <input value={hint} onChange={e => setHint(e.target.value)} className="w-full bg-black border border-neutral-700 rounded p-2 text-sm text-white focus:border-cyan-500 outline-none" placeholder="Где возникает расходимость или деление на ноль?" />
-          </div>
-
-          <div>
-            <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Ссылка (Wiki / Источник)</label>
-            <input value={link} onChange={e => setLink(e.target.value)} className="w-full bg-black border border-neutral-700 rounded p-2 text-sm text-blue-300 focus:border-cyan-500 outline-none" placeholder="https://ru.wikipedia.org/wiki/..." />
-          </div>
-
-          <div className="flex justify-end gap-3 pt-4 mt-4 border-t border-neutral-800">
-            <ActionButton
-              onClick={onClose}
-              variant="neutral"
-            >
-              Отмена
-            </ActionButton>
+          {/* AI Helper Button */}
+          <div className="flex justify-end">
             <button
-              type="submit"
-              className="px-6 py-2 bg-cyan-600 hover:bg-cyan-500 text-white rounded text-xs font-bold uppercase tracking-wider font-mono cursor-pointer transition-colors shadow-md"
+              type="button"
+              disabled={loadingAI}
+              onClick={handleAI}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-violet-950/80 hover:bg-violet-900 border border-violet-700/80 text-violet-200 text-xs font-semibold transition-all cursor-pointer shadow-sm disabled:opacity-50"
+              title="Заполнить или дополнить карточку с помощью ИИ-агента Gemini"
             >
-              Сохранить Ноду
+              {loadingAI ? (
+                <>
+                  <div className="w-3.5 h-3.5 border-2 border-violet-300 border-t-transparent rounded-full animate-spin" />
+                  <span>ИИ анализирует...</span>
+                </>
+              ) : (
+                <>
+                  <Bot size={14} className="text-violet-300" />
+                  <span>🤖 ИИ-Агент: Дополнить поля</span>
+                </>
+              )}
             </button>
           </div>
+
+          {/* Description */}
+          <div>
+            <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1">
+              Описание и доказательство
+            </label>
+            <textarea
+              rows={3}
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              placeholder="Формальное описание, аксиоматический путь или пошаговый вывод..."
+              className="w-full bg-[#050810] border border-cyan-900/40 rounded-lg px-3 py-2 text-xs text-slate-200 focus:outline-none focus:border-cyan-400 font-sans"
+            />
+          </div>
+
+          {/* Singularity Hint */}
+          <div>
+            <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1">
+              Значение инварианта / Примененная аксиома
+            </label>
+            <input
+              type="text"
+              value={hint}
+              onChange={(e) => setHint(e.target.value)}
+              placeholder="например, Инвариант = 12 [O(1)], Аксиома A6 (Geometric Bridge)"
+              className="w-full bg-[#050810] border border-cyan-900/40 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-cyan-400 font-mono"
+            />
+          </div>
+
+          {/* Zone Selector */}
+          <div>
+            <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1">
+              Сфера науки / Область знаний
+            </label>
+            <select
+              value={zoneId}
+              onChange={(e) => setZoneId(e.target.value)}
+              className="w-full bg-[#050810] border border-cyan-900/40 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-cyan-400"
+            >
+              {map.zones.map(z => (
+                <option key={z.id} value={z.id}>
+                  {z.name}
+                </option>
+              ))}
+              <option value="NEW_ZONE">+ Создать новую сферу науки...</option>
+            </select>
+
+            {zoneId === 'NEW_ZONE' && (
+              <input
+                type="text"
+                required
+                value={newZoneName}
+                onChange={(e) => setNewZoneName(e.target.value)}
+                placeholder="Название новой сферы..."
+                className="w-full mt-2 bg-[#050810] border border-cyan-700/60 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-cyan-400"
+              />
+            )}
+          </div>
+
+          {/* Source Link */}
+          <div>
+            <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1">
+              Ссылка на первоисточник / DOI (опционально)
+            </label>
+            <input
+              type="text"
+              value={link}
+              onChange={(e) => setLink(e.target.value)}
+              placeholder="например, https://doi.org/10.5281/zenodo.17872755"
+              className="w-full bg-[#050810] border border-cyan-900/40 rounded-lg px-3 py-2 text-xs text-cyan-300 focus:outline-none focus:border-cyan-400 font-mono"
+            />
+          </div>
+
+          {/* Actions */}
+          <div className="flex items-center justify-end gap-3 pt-3 border-t border-neutral-800">
+            <button
+              type="button"
+              onClick={onClose}
+              className="px-4 py-2 rounded-lg bg-neutral-900 hover:bg-neutral-800 border border-neutral-700 text-xs font-semibold text-slate-300 transition-colors"
+            >
+              Отмена
+            </button>
+            <ActionButton
+              type="submit"
+              variant="emerald"
+              className="px-5 py-2 text-xs uppercase font-bold tracking-wider"
+            >
+              + Добавить на 3D Карту
+            </ActionButton>
+          </div>
+
         </form>
+
       </div>
     </div>
   );
 }
-
