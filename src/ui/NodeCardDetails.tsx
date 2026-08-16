@@ -8,6 +8,7 @@ import { ExecutionTraceViewer } from './ExecutionTraceViewer';
 import type { ITransformationLogDTO } from '../model/traceVisualizer.types';
 import { getRicisCoreEngine } from '../services/ricisCore';
 import { UrlShareService } from '../services/UrlShareService';
+import { useI18nStore } from '../store/useI18nStore';
 
 /** Normalize URL: add https:// if scheme is missing (www. or domain-like). */
 function normalizeUrl(raw: string): string {
@@ -142,6 +143,7 @@ export const NodeCardDetails: React.FC<Props> = ({
   onNavigateBack,
   previousNodeTitle,
 }) => {
+  const { t } = useI18nStore();
   const refs = getReferencesForNode(node);
 
   // Стейт раскрытия секций аккордеона
@@ -247,7 +249,7 @@ export const NodeCardDetails: React.FC<Props> = ({
         >
           <span className="text-[10px] font-bold uppercase tracking-wider text-cyan-400 flex items-center gap-1.5">
             <Terminal size={13} />
-            Целевая функция и сингулярность
+            {t('node.targetFunction')}
           </span>
           <div className="flex items-center gap-2">
             <button
@@ -447,7 +449,7 @@ export const NodeCardDetails: React.FC<Props> = ({
         >
           <span className="text-[10px] font-bold uppercase tracking-wider text-cyan-300 flex items-center gap-1.5">
             <ShieldCheck size={13} />
-            Формальная верификация Lean 4
+            {t('node.formalVerification')}
           </span>
           <div className="flex items-center gap-2">
             {(() => {
@@ -521,7 +523,7 @@ export const NodeCardDetails: React.FC<Props> = ({
         >
           <span className="text-[10px] font-bold uppercase tracking-wider text-purple-400 flex items-center gap-1.5">
             <Terminal size={13} />
-            Трассировка RICIS-III (L1_IDENTITY)
+            {t('node.traceRicis')}
           </span>
           <div className="flex items-center gap-2">
             {openSections['trace'] ? <ChevronUp size={14} className="text-neutral-400" /> : <ChevronDown size={14} className="text-neutral-400" />}
@@ -549,7 +551,7 @@ export const NodeCardDetails: React.FC<Props> = ({
         >
           <span className="text-[10px] font-bold uppercase tracking-wider text-sky-400 flex items-center gap-1.5">
             <BookOpen size={13} />
-            Первоисточники и публикации
+            {t('node.sourcesAndDocs')}
           </span>
           <div className="flex items-center gap-2">
             {openSections['sources'] ? <ChevronUp size={14} className="text-neutral-400" /> : <ChevronDown size={14} className="text-neutral-400" />}
@@ -616,7 +618,7 @@ export const NodeCardDetails: React.FC<Props> = ({
           >
             <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-400 flex items-center gap-1.5">
               <DollarSign size={13} />
-              Экономика и прибыльность
+              {t('node.economicsAndProfit')}
             </span>
             <div className="flex items-center gap-2">
               <span className="text-[9px] font-mono font-bold text-emerald-300">
@@ -660,7 +662,7 @@ export const NodeCardDetails: React.FC<Props> = ({
           >
             <span className="text-[10px] font-bold uppercase tracking-wider text-cyan-300 flex items-center gap-1.5">
               <Sparkles size={13} />
-              Доказательство авторства RICIS-III
+              {t('node.provenanceAuthorship')}
             </span>
             <div className="flex items-center gap-2">
               {openSections['provenance'] ? <ChevronUp size={14} className="text-cyan-400" /> : <ChevronDown size={14} className="text-cyan-400" />}

@@ -228,6 +228,86 @@ export const DICTIONARY = {
     ru: 'ЗАБЛОКИРОВАНО',
     en: 'LOCKED',
   },
+  'node.share': {
+    ru: 'Поделиться',
+    en: 'Share',
+  },
+  'node.edit': {
+    ru: 'Правка',
+    en: 'Edit',
+  },
+  'node.formalVerification': {
+    ru: 'Формальная верификация Lean 4',
+    en: 'Formal Lean 4 Verification',
+  },
+  'node.traceRicis': {
+    ru: 'Трассировка RICIS-III (L1_IDENTITY)',
+    en: 'RICIS-III Trace (L1_IDENTITY)',
+  },
+  'node.sourcesAndDocs': {
+    ru: 'Первоисточники и публикации',
+    en: 'Primary Sources & Publications',
+  },
+  'node.economicsAndProfit': {
+    ru: 'Экономика и прибыльность',
+    en: 'Economics & Profitability',
+  },
+  'node.provenanceAuthorship': {
+    ru: 'Доказательство авторства RICIS-III',
+    en: 'RICIS-III Authorship Provenance',
+  },
+
+  // Settings & Physics
+  'settings.title': {
+    ru: 'Настройки интерфейса',
+    en: 'UI Settings',
+  },
+  'settings.subtitle': {
+    ru: 'Профили и управление панелями в реальном времени',
+    en: 'Profiles & real-time panel management',
+  },
+  'settings.language': {
+    ru: 'Язык / Language',
+    en: 'Language / Язык',
+  },
+  'physics.title': {
+    ru: 'Параметры симуляции',
+    en: 'Simulation Parameters',
+  },
+  'physics.reset': {
+    ru: 'Сброс',
+    en: 'Reset',
+  },
+  'physics.save': {
+    ru: 'Сохранить',
+    en: 'Save',
+  },
+  'physics.saved': {
+    ru: 'Сохранено',
+    en: 'Saved',
+  },
+
+  // Audit Panel
+  'audit.systemAudit': {
+    ru: 'Аудит системы',
+    en: 'System Audit',
+  },
+  'audit.cleanGraph': {
+    ru: 'Очистить граф (GC)',
+    en: 'Clean Graph (GC)',
+  },
+  'audit.emptyTargets': {
+    ru: 'Пустые цели',
+    en: 'Empty Targets',
+  },
+  'audit.fillAi': {
+    ru: 'Заполнить ИИ',
+    en: 'Fill via AI',
+  },
+  'audit.executing': {
+    ru: 'Выполнение канонической операции...',
+    en: 'Executing canonical operation...',
+  },
 } as const;
 
 export type TranslationKey = keyof typeof DICTIONARY;

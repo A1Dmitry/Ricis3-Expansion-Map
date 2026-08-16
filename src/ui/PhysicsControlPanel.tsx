@@ -3,6 +3,7 @@ import { useSliderController } from '../hooks/useSliderController';
 import { PhysicsParams, DEFAULT_PHYSICS_PARAMS } from '../model/physics';
 import { SlidersHorizontal, RefreshCw, Save, Check } from 'lucide-react';
 import { physicsStorageService } from '../services/physicsStorage';
+import { useI18nStore } from '../store/useI18nStore';
 
 interface PhysicsControlPanelProps {
   params: PhysicsParams;
@@ -132,6 +133,7 @@ export function PhysicsControlPanel({
   isOpen = false,
   onToggle,
 }: PhysicsControlPanelProps) {
+  const { t } = useI18nStore();
   const {
     workingParams,
     status,
@@ -184,7 +186,7 @@ export function PhysicsControlPanel({
           <div className="flex items-center gap-2">
             <SlidersHorizontal size={16} className="text-emerald-400" />
             <span className="text-xs font-bold text-slate-100 uppercase tracking-wider accordion-title p-0">
-              ФИЗИКА ПУЗЫРЕЙ
+              {t('physics.title')}
             </span>
           </div>
           <div className="flex items-center gap-2">

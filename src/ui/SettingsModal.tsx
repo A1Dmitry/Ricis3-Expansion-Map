@@ -33,6 +33,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   hiddenElementIds = new Set(),
   onToggleElement,
 }) => {
+  const { t } = useI18nStore();
   const [newRoleName, setNewRoleName] = useState('');
   const [isCreating, setIsCreating] = useState(false);
   const [cloneCurrent, setCloneCurrent] = useState(true);
@@ -68,10 +69,10 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
             </div>
             <div>
               <h2 className="text-sm font-bold text-slate-100 uppercase tracking-wider">
-                Настройки интерфейса
+                {t('settings.title')}
               </h2>
               <p className="text-[11px] text-slate-400">
-                Профили и управление панелями в реальном времени
+                {t('settings.subtitle')}
               </p>
             </div>
           </div>

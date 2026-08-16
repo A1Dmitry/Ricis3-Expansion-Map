@@ -5,6 +5,7 @@ import { ActionButton } from './ActionButton';
 import { isAutoFormulaRequest } from '../model/audit';
 import { Sparkles, Bot, Share2, Check } from 'lucide-react';
 import { UrlShareService } from '../services/UrlShareService';
+import { useI18nStore } from '../store/useI18nStore';
 
 interface AiAssistantResponse {
   title?: string;
@@ -33,6 +34,7 @@ export function AddNodeModal({
   parentId?: string; 
   initialData?: AddNodePrefillData;
 }) {
+  const { t } = useI18nStore();
   const map = useMapStore();
   
   const [title, setTitle] = useState(initialData?.title || '');
@@ -184,11 +186,11 @@ export function AddNodeModal({
         <div className="flex items-center justify-between mb-4 border-b border-neutral-800 pb-3">
           <div className="flex items-center gap-2">
             <h2 className="text-base font-bold text-white uppercase tracking-wider font-mono">
-              Добавление задачи на карту
+              {t('modal.addTitle')}
             </h2>
             {initialData && (
               <span className="px-2 py-0.5 rounded bg-cyan-950/80 border border-cyan-800 text-[10px] text-cyan-300 font-mono font-bold">
-                Из Sandbox
+                {t('modal.fromSandbox')}
               </span>
             )}
           </div>
@@ -212,7 +214,7 @@ export function AddNodeModal({
           {/* Title */}
           <div>
             <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1">
-              Название задачи / сингулярности *
+              {t('modal.taskTitle')}
             </label>
             <input
               type="text"
@@ -227,8 +229,8 @@ export function AddNodeModal({
           {/* Target Function / Formula */}
           <div>
             <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1 flex items-center justify-between">
-              <span>Целевая функция / Математическая модель</span>
-              <span className="text-[10px] text-slate-500 font-normal">LaTeX / RICIS формат</span>
+              <span>{t('modal.taskFormula')}</span>
+              <span className="text-[10px] text-slate-500 font-normal">LaTeX / RICIS</span>
             </label>
             <textarea
               rows={2}
@@ -341,14 +343,14 @@ export function AddNodeModal({
               onClick={onClose}
               className="px-4 py-2 rounded-lg bg-neutral-900 hover:bg-neutral-800 border border-neutral-700 text-xs font-semibold text-slate-300 transition-colors"
             >
-              Отмена
+              {t('modal.cancel')}
             </button>
             <ActionButton
               type="submit"
               variant="emerald"
               className="px-5 py-2 text-xs uppercase font-bold tracking-wider"
             >
-              + Добавить на 3D Карту
+              {t('modal.submit')}
             </ActionButton>
           </div>
 

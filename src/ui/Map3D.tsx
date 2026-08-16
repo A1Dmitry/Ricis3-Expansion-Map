@@ -954,7 +954,13 @@ export const Map3D: React.FC = () => {
                        {id === 'audit' && <RefreshCw size={16} className="text-amber-400" />}
                        
                        <span className="text-xs font-bold text-slate-100 uppercase tracking-wider accordion-title p-0">
-                         {UI_ELEMENTS.find(e => e.id === id)?.label}
+                         {id === 'actions' && t('filter.quickActions')}
+                         {id === 'zones' && t('filter.scientificFields')}
+                         {id === 'available' && t('filter.availableToSolve')}
+                         {id === 'physics' && (t('sandbox.title') === 'RICIS-III ПЕСОЧНИЦА СИНГУЛЯРНОСТЕЙ' ? 'Параметры симуляции' : 'Simulation Parameters')}
+                         {id === 'agent' && t('filter.aiAgent')}
+                         {id === 'persistence' && t('filter.saveAndExport')}
+                         {id === 'audit' && (t('sandbox.title') === 'RICIS-III ПЕСОЧНИЦА СИНГУЛЯРНОСТЕЙ' ? 'Аудит и Верификация' : 'Audit & Verification')}
                        </span>
 
                        {id === 'zones' && (
@@ -1031,7 +1037,7 @@ export const Map3D: React.FC = () => {
                     {id === 'actions' && (
                       <div className="space-y-2">
                         <ActionButton onClick={() => setShowAddNode(true)} variant="emerald" className="w-full uppercase font-bold tracking-wider cursor-pointer py-2 text-xs">
-                          + Добавить новую задачу
+                          {t('filter.addNewTask')}
                         </ActionButton>
                         <button
                           type="button"
@@ -1039,7 +1045,7 @@ export const Map3D: React.FC = () => {
                           className="w-full flex items-center justify-center gap-2 py-2 px-3 rounded bg-cyan-950/80 hover:bg-cyan-900 border border-cyan-500/40 text-cyan-300 font-bold text-xs uppercase tracking-wider transition-colors cursor-pointer shadow-lg shadow-cyan-950/40"
                         >
                           <Cpu className="w-4 h-4 text-cyan-400" />
-                          Консоль доказательств RICIS
+                          {t('sandbox.title') === 'RICIS-III ПЕСОЧНИЦА СИНГУЛЯРНОСТЕЙ' ? 'Консоль доказательств RICIS' : 'RICIS Proof Console'}
                         </button>
                       </div>
                     )}

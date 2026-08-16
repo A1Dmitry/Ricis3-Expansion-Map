@@ -1,7 +1,7 @@
 {
   "name": "ricis3-expansion",
   "private": false,
-  "version": "0.4.04",
+  "version": "0.4.05",
   "description": "RICIS-III Singularity Map",
   "type": "module",
   "scripts": {

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useMapStore } from '../store/mapStore';
+import { useI18nStore } from '../store/useI18nStore';
 import { 
   Activity, 
   Trash2, 
@@ -11,6 +12,7 @@ import {
 } from 'lucide-react';
 
 export const AuditPanel: React.FC = () => {
+  const { t } = useI18nStore();
   const store = useMapStore() as any;
   const { 
     isAuditing, 
@@ -31,17 +33,17 @@ export const AuditPanel: React.FC = () => {
     setIsError(false);
     try {
       const result = await actionFn();
-      let msg = `Успешно: ${name}`;
+      let msg = `OK: ${name}`;
       if (name === 'Сборка мусора' && result) {
-        msg = `GC завершен. Удалено узлов: ${result.removedNodeIds.length}, связей: ${result.removedEdgeIds.length}.`;
+        msg = `GC. Nodes: ${result.removedNodeIds.length}, edges: ${result.removedEdgeIds.length}.`;
       }
       setStatusMessage(msg);
-      addAgentLog(`Операция "${name}" выполнена успешно.`, 'ricis');
+      addAgentLog(`Operation "${name}" completed successfully.`, 'ricis');
     } catch (err: any) {
       console.error(err);
       setIsError(true);
-      setStatusMessage(`Ошибка: ${err.message || err}`);
-      addAgentLog(`Сбой операции "${name}": ${err.message || err}`, 'warn');
+      setStatusMessage(`Error: ${err.message || err}`);
+      addAgentLog(`Operation "${name}" failed: ${err.message || err}`, 'warn');
     } finally {
       setLocalLoading(false);
     }
@@ -54,47 +56,47 @@ export const AuditPanel: React.FC = () => {
       {/* Кнопочный интерфейс управления */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-2" id="audit-buttons-grid">
         <button
-          onClick={() => handleAction('Системный аудит', runSystemAudit)}
+          onClick={() => handleAction('System Audit', runSystemAudit)}
           disabled={isLoading}
           className="px-3 py-2 text-[11px] font-medium bg-slate-900 hover:bg-slate-800 disabled:opacity-50 text-slate-300 border border-slate-800 rounded flex items-center justify-center gap-1.5 transition active:scale-95 cursor-pointer"
           id="btn-run-audit"
-          title="Запустить полный анализ структуры графа"
+          title="Audit graph structure"
         >
           <Activity className="w-3.5 h-3.5 text-violet-400 shrink-0" />
-          <span>Аудит системы</span>
+          <span>{t('audit.systemAudit')}</span>
         </button>
 
         <button
-          onClick={() => handleAction('Сборка мусора', executeGarbageCollection)}
+          onClick={() => handleAction('Garbage Collection', executeGarbageCollection)}
           disabled={isLoading}
           className="px-3 py-2 text-[11px] font-medium bg-slate-900 hover:bg-slate-800 disabled:opacity-50 text-slate-300 border border-slate-800 rounded flex items-center justify-center gap-1.5 transition active:scale-95 cursor-pointer"
           id="btn-run-gc"
-          title="Удалить изолированные узлы и битые связи"
+          title="Clean isolated nodes"
         >
           <Trash2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
-          <span>Очистить граф (GC)</span>
+          <span>{t('audit.cleanGraph')}</span>
         </button>
 
         <button
-          onClick={() => handleAction('Поиск пустых целей', runAuditMissingTargets)}
+          onClick={() => handleAction('Search Empty Targets', runAuditMissingTargets)}
           disabled={isLoading}
           className="px-3 py-2 text-[11px] font-medium bg-slate-900 hover:bg-slate-800 disabled:opacity-50 text-slate-300 border border-slate-800 rounded flex items-center justify-center gap-1.5 transition active:scale-95 cursor-pointer"
           id="btn-audit-missing"
-          title="Найти узлы с незаполненными целевыми выражениями"
+          title="Find empty target expressions"
         >
           <Search className="w-3.5 h-3.5 text-blue-400 shrink-0" />
-          <span>Пустые цели</span>
+          <span>{t('audit.emptyTargets')}</span>
         </button>
 
         <button
-          onClick={() => handleAction('Заполнение целей ИИ', runFillMissingTargets)}
+          onClick={() => handleAction('Fill Missing Targets AI', runFillMissingTargets)}
           disabled={isLoading}
           className="px-3 py-2 text-[11px] font-medium bg-slate-900 hover:bg-slate-800 disabled:opacity-50 text-slate-300 border border-slate-800 rounded flex items-center justify-center gap-1.5 transition active:scale-95 cursor-pointer"
           id="btn-fill-missing"
-          title="Заполнить пустые цели с помощью ИИ"
+          title="Fill empty targets via AI"
         >
           <Sparkles className="w-3.5 h-3.5 text-amber-400 shrink-0" />
-          <span>Заполнить ИИ</span>
+          <span>{t('audit.fillAi')}</span>
         </button>
       </div>
 
@@ -102,7 +104,7 @@ export const AuditPanel: React.FC = () => {
       {isLoading && (
         <div className="text-[10px] text-slate-500 flex items-center gap-1.5 px-1 py-0.5" id="audit-loading-indicator">
           <RefreshCw className="w-3 h-3 animate-spin text-violet-400" />
-          <span>Выполнение канонической операции...</span>
+          <span>{t('audit.executing')}</span>
         </div>
       )}
 
