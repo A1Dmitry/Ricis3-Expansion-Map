@@ -1,14 +1,15 @@
 {
   "name": "ricis3-expansion",
   "private": false,
-  "version": "0.4.05",
+  "version": "0.4.6",
   "description": "RICIS-III Singularity Map",
   "type": "module",
   "scripts": {
     "dev": "node -e \"const pkg = require('./package.json'); const fs = require('fs'); fs.writeFileSync('src/version.ts', '/** App version RICIS3-Expansion (synced with package.json). */\\nexport const APP_VERSION = \\'' + pkg.version + '\\';\\nexport const APP_NAME = \\'RICIS-III Singularity Map\\';\\nexport const APP_BUILD_LABEL = \\`v\\${APP_VERSION}\\`;\\n');\" && tsx server.ts",
     "build": "node -e \"const pkg = require('./package.json'); const fs = require('fs'); fs.writeFileSync('src/version.ts', '/** App version RICIS3-Expansion (synced with package.json). */\\nexport const APP_VERSION = \\'' + pkg.version + '\\';\\nexport const APP_NAME = \\'RICIS-III Singularity Map\\';\\nexport const APP_BUILD_LABEL = \\`v\\${APP_VERSION}\\`;\\n');\" && vite build && esbuild server.ts --bundle --platform=node --format=cjs --packages=external --sourcemap --outfile=dist/server.cjs",
     "start": "node dist/server.cjs",
-    "lint": "tsc --noEmit"
+    "lint": "tsc --noEmit",
+    "test": "vitest run"
   },
   "dependencies": {
     "@google/genai": "^2.16.0",
@@ -30,6 +31,7 @@
     "@vitejs/plugin-react": "^6.0.5",
     "autoprefixer": "^10.4.20",
     "esbuild": "^0.28.2",
+    "jsdom": "^29.1.1",
     "postcss": "^8.4.41",
     "tailwindcss": "^4.0.0-alpha.20",
     "tsx": "^4.16.5",

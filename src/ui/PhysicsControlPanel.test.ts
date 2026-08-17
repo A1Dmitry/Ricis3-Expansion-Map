@@ -32,7 +32,7 @@ describe('PhysicsControlPanel Layout and Accordion Structure', () => {
 
     expect(html).toContain('id="accordion-physics"');
     expect(html).toContain('type="checkbox"');
-    expect(html).toContain('ФИЗИКА ПУЗЫРЕЙ');
+    expect(html).toContain('Параметры симуляции');
   });
 
   it('должен содержать группы параметров зон и узлов без внутренних скроллеров', () => {

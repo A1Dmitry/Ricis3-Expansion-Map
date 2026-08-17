@@ -9,7 +9,7 @@ interface MockPhysicsParams {
 
 describe('useSliderController / SliderController Unit Tests', () => {
   let initialValues: MockPhysicsParams;
-  let commitSpy: ReturnType<typeof vi.fn>;
+  let commitSpy: (params: MockPhysicsParams) => void;
 
   beforeEach(() => {
     vi.useFakeTimers();
@@ -18,7 +18,7 @@ describe('useSliderController / SliderController Unit Tests', () => {
       springK: 1.5,
       label: 'default',
     };
-    commitSpy = vi.fn();
+    commitSpy = vi.fn<(params: MockPhysicsParams) => void>();
   });
 
   afterEach(() => {

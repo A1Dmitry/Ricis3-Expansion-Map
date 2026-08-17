@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import type { ITerminalStore, ProofReportMode } from '../model/terminal.types';
+import type { ITransformationLogDTO, TransformationPhase } from '../model/traceVisualizer.types';
 import { getRicisCoreEngine } from '../services/ricisCore';
 
 export const useTerminalStore = create<ITerminalStore>((set, get) => ({
@@ -40,7 +41,7 @@ export const useTerminalStore = create<ITerminalStore>((set, get) => ({
       }
 
       // 3. Формирование пошагового лога
-      let newLog = null;
+      let newLog: ITransformationLogDTO | null = null;
       if (res && res.trace && res.trace.length > 0) {
         newLog = {
           evaluationId: Date.now().toString(),
@@ -54,7 +55,7 @@ export const useTerminalStore = create<ITerminalStore>((set, get) => ({
             outputState: t.outputState,
             appliedAxiom: t.appliedAxiom,
             complexity: t.complexity,
-            phaseIdentifier: 2,
+            phaseIdentifier: 2 as TransformationPhase,
             phaseBadgeLabel: t.phase,
             isAxiomApplied: !!t.appliedAxiom,
             requiresL1Verification: true

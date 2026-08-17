@@ -528,7 +528,7 @@ export const useMapStore = create<MapStore>((set, get) => ({
       leanWarnings = ver.warnings;
     } else {
       const audit = auditProofContent(proofLatex);
-      const hasSorry = nodeHasSorry(node, newProof);
+      const hasSorry = node ? nodeHasSorry(node, newProof) : false;
       isFullyResolved = audit.isValid && !hasSorry;
       if (!isFullyResolved) {
         leanErrors = audit.issues;

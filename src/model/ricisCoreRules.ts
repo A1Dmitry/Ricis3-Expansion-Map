@@ -348,7 +348,7 @@ theorem resolve_${cleanId.replace(/[^a-zA-Z0-9]/g, '_')}_p_eq_np (V : \\mathbb{N
   func = func.replace(/^\[|\]$/g, '').trim();
   func = func.replace(/^\\?lim\s*(?:_{[^}]+})?\s*/i, '').trim();
 
-  let steps = [];
+  let steps: string[] = [];
   let simplified = '';
   let finalResult = '';
 
