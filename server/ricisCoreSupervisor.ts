@@ -5,6 +5,8 @@ import path from 'node:path';
 const CORE_PORT = Number(process.env.RICIS_CORE_PORT || 5044);
 const CORE_URL = process.env.RICIS_CORE_URL || `http://127.0.0.1:${CORE_PORT}`;
 const CORE_REPO = path.resolve(process.cwd(), process.env.RICIS_CORE_REPO || '../Ricis.Core');
+const CORE_RUNTIME = path.resolve(process.cwd(), process.env.RICIS_CORE_RUNTIME || 'runtime/ricis-core');
+const CORE_DLL = path.resolve(CORE_RUNTIME, 'Ricis.WebApi.dll');
 const CORE_PROJECT = path.resolve(
   CORE_REPO,
   process.env.RICIS_CORE_PROJECT || 'Ricis.WebApi/Ricis.WebApi.csproj',
@@ -26,24 +28,25 @@ async function isHealthy(): Promise<boolean> {
   }
 }
 
-function assertCoreProject(): void {
-  if (!existsSync(CORE_PROJECT)) {
-    throw new Error(
-      `Ricis.Core Web API project was not found at relative path ${path.relative(process.cwd(), CORE_PROJECT)}. ` +
-      'Place Ricis.Core next to Ricis3-Expansion-Map or set RICIS_CORE_REPO.',
-    );
-  }
+function assertCoreRuntime(): void {
+  if (existsSync(CORE_DLL)) return;
+  if (existsSync(CORE_PROJECT)) return;
+  throw new Error(
+    `Ricis.Core runtime was not found. Checked bundled path ${path.relative(process.cwd(), CORE_DLL)} ` +
+    `and source project ${path.relative(process.cwd(), CORE_PROJECT)}.`,
+  );
 }
 
 function launchCoreProcess(): void {
   if (coreProcess && coreProcess.exitCode === null) return;
 
-  assertCoreProject();
-  coreProcess = spawn(
-    'dotnet',
-    ['run', '--project', CORE_PROJECT, '--no-launch-profile', '--urls', CORE_URL],
-    {
-      cwd: CORE_REPO,
+  assertCoreRuntime();
+  const bundledRuntimeAvailable = existsSync(CORE_DLL);
+  const args = bundledRuntimeAvailable
+    ? [CORE_DLL, '--urls', CORE_URL]
+    : ['run', '--project', CORE_PROJECT, '--no-launch-profile', '--urls', CORE_URL];
+  coreProcess = spawn('dotnet', args, {
+      cwd: bundledRuntimeAvailable ? CORE_RUNTIME : CORE_REPO,
       env: { ...process.env, ASPNETCORE_ENVIRONMENT: process.env.ASPNETCORE_ENVIRONMENT || 'Production' },
       stdio: ['ignore', 'pipe', 'pipe'],
     },
@@ -99,7 +102,9 @@ export function getRicisCoreIntegrationInfo() {
   return {
     url: CORE_URL,
     relativeRepository: path.relative(process.cwd(), CORE_REPO) || '.',
+    relativeRuntime: path.relative(process.cwd(), CORE_RUNTIME),
     relativeProject: path.relative(process.cwd(), CORE_PROJECT),
+    mode: existsSync(CORE_DLL) ? 'bundled-dll' : 'adjacent-source',
     running: Boolean(coreProcess && coreProcess.exitCode === null),
   };
 }

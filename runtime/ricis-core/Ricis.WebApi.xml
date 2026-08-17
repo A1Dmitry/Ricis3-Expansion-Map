@@ -1,0 +1,123 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Ricis.WebApi</name>
+    </assembly>
+    <members>
+        <member name="T:ExpressionRequest">
+            <summary>
+            Request containing one lambda expression or a semicolon-separated expression system.
+            </summary>
+            <param name="Expression">Restricted expression text accepted by <c>LambdaTextParser</c>.</param>
+        </member>
+        <member name="M:ExpressionRequest.#ctor(System.String)">
+            <summary>
+            Request containing one lambda expression or a semicolon-separated expression system.
+            </summary>
+            <param name="Expression">Restricted expression text accepted by <c>LambdaTextParser</c>.</param>
+        </member>
+        <member name="P:ExpressionRequest.Expression">
+            <summary>Restricted expression text accepted by <c>LambdaTextParser</c>.</summary>
+        </member>
+        <member name="T:ExpressionResponse">
+            <summary>
+            Result returned after parsing and applying a RICIS operation.
+            </summary>
+            <param name="Source">Original user input.</param>
+            <param name="Operation">Operation name, such as <c>simplify</c> or <c>derivative</c>.</param>
+            <param name="Parsed">Parsed expression-tree representation.</param>
+            <param name="Ricis">RICIS-derived structural result.</param>
+        </member>
+        <member name="M:ExpressionResponse.#ctor(System.String,System.String,System.String,System.String)">
+            <summary>
+            Result returned after parsing and applying a RICIS operation.
+            </summary>
+            <param name="Source">Original user input.</param>
+            <param name="Operation">Operation name, such as <c>simplify</c> or <c>derivative</c>.</param>
+            <param name="Parsed">Parsed expression-tree representation.</param>
+            <param name="Ricis">RICIS-derived structural result.</param>
+        </member>
+        <member name="P:ExpressionResponse.Source">
+            <summary>Original user input.</summary>
+        </member>
+        <member name="P:ExpressionResponse.Operation">
+            <summary>Operation name, such as <c>simplify</c> or <c>derivative</c>.</summary>
+        </member>
+        <member name="P:ExpressionResponse.Parsed">
+            <summary>Parsed expression-tree representation.</summary>
+        </member>
+        <member name="P:ExpressionResponse.Ricis">
+            <summary>RICIS-derived structural result.</summary>
+        </member>
+        <member name="T:ExpressionSystemResponse">
+            <summary>
+            Result returned for a semicolon-separated expression system.
+            </summary>
+            <param name="Source">Original system input.</param>
+            <param name="Count">Number of parsed expressions.</param>
+            <param name="System">Structural system representation.</param>
+            <param name="Expressions">Parsed expression-tree representations.</param>
+            <param name="RicisExpressions">RICIS result for each expression.</param>
+        </member>
+        <member name="M:ExpressionSystemResponse.#ctor(System.String,System.Int32,System.String,System.Collections.Generic.IReadOnlyList{System.String},System.Collections.Generic.IReadOnlyList{System.String})">
+            <summary>
+            Result returned for a semicolon-separated expression system.
+            </summary>
+            <param name="Source">Original system input.</param>
+            <param name="Count">Number of parsed expressions.</param>
+            <param name="System">Structural system representation.</param>
+            <param name="Expressions">Parsed expression-tree representations.</param>
+            <param name="RicisExpressions">RICIS result for each expression.</param>
+        </member>
+        <member name="P:ExpressionSystemResponse.Source">
+            <summary>Original system input.</summary>
+        </member>
+        <member name="P:ExpressionSystemResponse.Count">
+            <summary>Number of parsed expressions.</summary>
+        </member>
+        <member name="P:ExpressionSystemResponse.System">
+            <summary>Structural system representation.</summary>
+        </member>
+        <member name="P:ExpressionSystemResponse.Expressions">
+            <summary>Parsed expression-tree representations.</summary>
+        </member>
+        <member name="P:ExpressionSystemResponse.RicisExpressions">
+            <summary>RICIS result for each expression.</summary>
+        </member>
+        <member name="T:ErrorResponse">
+            <summary>
+            Describes a rejected request or controlled processing failure.
+            </summary>
+            <param name="Error">Safe, non-sensitive error message.</param>
+        </member>
+        <member name="M:ErrorResponse.#ctor(System.String)">
+            <summary>
+            Describes a rejected request or controlled processing failure.
+            </summary>
+            <param name="Error">Safe, non-sensitive error message.</param>
+        </member>
+        <member name="P:ErrorResponse.Error">
+            <summary>Safe, non-sensitive error message.</summary>
+        </member>
+        <member name="T:ParseErrorResponse">
+            <summary>
+            Describes a parser failure and its zero-based input position.
+            </summary>
+            <param name="Error">Safe parser error message.</param>
+            <param name="Position">Zero-based position reported by the parser.</param>
+        </member>
+        <member name="M:ParseErrorResponse.#ctor(System.String,System.Int32)">
+            <summary>
+            Describes a parser failure and its zero-based input position.
+            </summary>
+            <param name="Error">Safe parser error message.</param>
+            <param name="Position">Zero-based position reported by the parser.</param>
+        </member>
+        <member name="P:ParseErrorResponse.Error">
+            <summary>Safe parser error message.</summary>
+        </member>
+        <member name="P:ParseErrorResponse.Position">
+            <summary>Zero-based position reported by the parser.</summary>
+        </member>
+    </members>
+</doc>

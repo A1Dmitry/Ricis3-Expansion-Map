@@ -1,0 +1,3231 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Ricis.Core</name>
+    </assembly>
+    <members>
+        <member name="T:Ricis.Core.CircleSectors">
+            <summary>
+            Represents the RICIS public type <c>CircleSectors</c>.
+            </summary>
+        </member>
+        <member name="P:Ricis.Core.CircleSectors.Fraction">
+            <summary>
+            Gets the <c>Fraction</c> value of <c>CircleSectors</c>.
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.CircleSectors.FromRadians(System.Double,System.Int32)">
+            <summary>
+            Executes <c>FromRadians</c> for the RICIS expression model.
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.CircleSectors.InSectors(System.Int32)">
+            <summary>
+            Executes <c>InSectors</c> for the RICIS expression model.
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.CircleSectors.ToString">
+            <inheritdoc />
+        </member>
+        <member name="T:Ricis.Core.ExactEvaluator">
+            <summary>
+            Represents the RICIS public type <c>ExactEvaluator</c>.
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.ExactEvaluator.TryEvaluate(System.Linq.Expressions.Expression,System.String,Ricis.Core.Rationals.Rational,Ricis.Core.Rationals.Rational@)">
+            <summary>
+            Attempts to <c>Evaluate</c> within the RICIS model.
+            </summary>
+        </member>
+        <member name="T:Ricis.Core.Execution.NumericalEvaluationSafety">
+            <summary>
+            Classifies expression trees that may be evaluated by the double-domain
+            numerical root facilities without executing caller-provided code.
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.Execution.NumericalEvaluationSafety.IsSafeDoubleExpression(System.Linq.Expressions.Expression)">
+            <summary>
+            Returns whether an expression contains only finite built-in operators,
+            constants, parameters, conditionals, and static <see cref="T:System.Math"/> calls.
+            </summary>
+        </member>
+        <member name="T:Ricis.Core.Execution.StrictExpressionExecutor">
+            <summary>
+            Executes ordinary double-based expression trees in strict reference mode.
+            In contrast to IEEE-754 double division, a zero denominator is an explicit
+            DivideByZeroException. This mode is intended for immutable source
+            expressions; RICIS-derived symbolic expressions are simplified first.
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.Execution.StrictExpressionExecutor.Compile(System.Linq.Expressions.Expression{System.Func{System.Double,System.Double}})">
+            <summary>
+            Executes <c>Compile</c> for the RICIS expression model.
+            </summary>
+        </member>
+        <member name="T:Ricis.Core.Expressions.AuthorAnnotatedExpression">
+            <summary>
+            Keeps an already derived RICIS expression unchanged while extending its
+            textual representation with an opt-in author SEO block.
+            </summary>
+        </member>
+        <member name="P:Ricis.Core.Expressions.AuthorAnnotatedExpression.Body">
+            <summary>
+            Gets the <c>Body</c> value of <c>AuthorAnnotatedExpression</c>.
+            </summary>
+        </member>
+        <member name="P:Ricis.Core.Expressions.AuthorAnnotatedExpression.Profile">
+            <summary>
+            Gets the <c>Profile</c> value of <c>AuthorAnnotatedExpression</c>.
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.Expressions.AuthorAnnotatedExpression.#ctor(System.Linq.Expressions.Expression,Ricis.Core.Metadata.AuthorSeoProfile)">
+            <summary>
+            Initializes a new instance of <c>AuthorAnnotatedExpression</c>.
+            </summary>
+        </member>
+        <member name="P:Ricis.Core.Expressions.AuthorAnnotatedExpression.NodeType">
+            <inheritdoc />
+        </member>
+        <member name="P:Ricis.Core.Expressions.AuthorAnnotatedExpression.Type">
+            <inheritdoc />
+        </member>
+        <member name="P:Ricis.Core.Expressions.AuthorAnnotatedExpression.CanReduce">
+            <inheritdoc />
+        </member>
+        <member name="M:Ricis.Core.Expressions.AuthorAnnotatedExpression.Reduce">
+            <inheritdoc />
+        </member>
+        <member name="M:Ricis.Core.Expressions.AuthorAnnotatedExpression.ToString">
+            <inheritdoc />
+        </member>
+        <member name="T:Ricis.Core.Expressions.DeferredDerivativeExpression">
+            <summary>
+            A formal derivative D_variable(operand) retained when no symbolic
+            rearrangement is defined for the operand. It is intentionally not a limit,
+            a numerical approximation, or an implicit zero.
+            </summary>
+        </member>
+        <member name="P:Ricis.Core.Expressions.DeferredDerivativeExpression.Operand">
+            <summary>
+            Gets the <c>Operand</c> value of <c>DeferredDerivativeExpression</c>.
+            </summary>
+        </member>
+        <member name="P:Ricis.Core.Expressions.DeferredDerivativeExpression.DifferentiationVariable">
+            <summary>
+            Gets the <c>DifferentiationVariable</c> value of <c>DeferredDerivativeExpression</c>.
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.Expressions.DeferredDerivativeExpression.#ctor(System.Linq.Expressions.Expression,System.Linq.Expressions.ParameterExpression)">
+            <summary>
+            Initializes a new instance of <c>DeferredDerivativeExpression</c>.
+            </summary>
+        </member>
+        <member name="P:Ricis.Core.Expressions.DeferredDerivativeExpression.NodeType">
+            <inheritdoc />
+        </member>
+        <member name="P:Ricis.Core.Expressions.DeferredDerivativeExpression.Type">
+            <inheritdoc />
+        </member>
+        <member name="P:Ricis.Core.Expressions.DeferredDerivativeExpression.CanReduce">
+            <inheritdoc />
+        </member>
+        <member name="M:Ricis.Core.Expressions.DeferredDerivativeExpression.ToString">
+            <inheritdoc />
+        </member>
+        <member name="T:Ricis.Core.Expressions.ErrorInfinityExpression">
+            <summary>
+            Represents the RICIS public type <c>ErrorInfinityExpression</c>.
+            </summary>
+        </member>
+        <member name="P:Ricis.Core.Expressions.ErrorInfinityExpression.Numerator">
+            <summary>
+            Gets the <c>Numerator</c> value of <c>ErrorInfinityExpression</c>.
+            </summary>
+        </member>
+        <member name="P:Ricis.Core.Expressions.ErrorInfinityExpression.CanReduce">
+            <inheritdoc />
+        </member>
+        <member name="M:Ricis.Core.Expressions.ErrorInfinityExpression.#ctor(System.Linq.Expressions.Expression,System.Collections.Generic.List{System.ValueTuple{System.Linq.Expressions.ParameterExpression,System.Double}})">
+            <summary>
+            Initializes a new instance of <c>ErrorInfinityExpression</c>.
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.Expressions.ErrorInfinityExpression.ToString">
+            <inheritdoc />
+        </member>
+        <member name="T:Ricis.Core.Expressions.ExpressionComparable`1">
+            <summary>
+            Универсальная дженерик-обёртка для Expression-потомков.
+            Даёт оператор ==, != и строгую структурную идентичность.
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.Expressions.ExpressionComparable`1.#ctor(`0)">
+            <summary>
+            Универсальная дженерик-обёртка для Expression-потомков.
+            Даёт оператор ==, != и строгую структурную идентичность.
+            </summary>
+        </member>
+        <member name="P:Ricis.Core.Expressions.ExpressionComparable`1.Expr">
+            <summary>
+            Gets the <c>Expr</c> value of <c>ExpressionComparable&lt;T&gt;</c>.
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.Expressions.ExpressionComparable`1.op_Implicit(`0)~Ricis.Core.Expressions.ExpressionComparable{`0}">
+            <summary>
+            Converts a value through <c>implicit operator ExpressionComparable&lt;T&gt;</c>.
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.Expressions.ExpressionComparable`1.op_Equality(Ricis.Core.Expressions.ExpressionComparable{`0},Ricis.Core.Expressions.ExpressionComparable{`0})">
+            <summary>
+            Performs the <c>operator ==</c> operation.
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.Expressions.ExpressionComparable`1.op_Inequality(Ricis.Core.Expressions.ExpressionComparable{`0},Ricis.Core.Expressions.ExpressionComparable{`0})">
+            <summary>
+            Performs the <c>operator !=</c> operation.
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.Expressions.ExpressionComparable`1.Equals(Ricis.Core.Expressions.ExpressionComparable{`0})">
+            <summary>
+            Executes <c>Equals</c> for the RICIS expression model.
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.Expressions.ExpressionComparable`1.Equals(System.Object)">
+            <inheritdoc />
+        </member>
+        <member name="M:Ricis.Core.Expressions.ExpressionComparable`1.GetHashCode">
+            <inheritdoc />
+        </member>
+        <member name="T:Ricis.Core.Expressions.ExpressionStructuralComparer">
+            <summary>
+            Structural equality for ordinary LINQ expressions and RICIS extension nodes.
+            The comparer preserves the concrete kind and complete indexed structure of
+            singularities so phase-0 identity is applied only to the same RICIS entity.
+            Lambda-bound parameters are compared by alpha-equivalence, never by their
+            display names alone.
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.Expressions.ExpressionStructuralComparer.AreEqual(System.Linq.Expressions.Expression,System.Linq.Expressions.Expression)">
+            <summary>
+            Returns whether two expression trees represent the same structure,
+            including special RICIS indices, keys, branches and deferred operands.
+            Parameters bound by matching lambda positions may have different names;
+            unrelated parameters with the same name are not treated as identical.
+            </summary>
+        </member>
+        <member name="T:Ricis.Core.Expressions.ExpressionSystem`1">
+            <summary>
+            Represents a structured system of delayed scalar expressions.
+            The system preserves each expression as a separate geometric line or boundary
+            and delegates vector-level validation and operations to <see cref="T:Ricis.Core.Expressions.RicisVectorExpression`1"/>.
+            </summary>
+            <typeparam name="T">The scalar result type of every expression in the system.</typeparam>
+        </member>
+        <member name="M:Ricis.Core.Expressions.ExpressionSystem`1.#ctor(System.Collections.Generic.IEnumerable{System.Linq.Expressions.LambdaExpression})">
+            <summary>
+            Initializes a system from a non-empty set of scalar lambda expressions.
+            </summary>
+            <param name="expressions">The delayed expressions forming the system.</param>
+            <exception cref="T:System.ArgumentNullException">Thrown when <paramref name="expressions"/> is null.</exception>
+            <exception cref="T:System.ArgumentException">Thrown when expressions are empty or have incompatible signatures.</exception>
+        </member>
+        <member name="M:Ricis.Core.Expressions.ExpressionSystem`1.FromLambdas(System.Linq.Expressions.LambdaExpression[])">
+            <summary>
+            Creates a system from one or more lambda expressions.
+            </summary>
+            <param name="expressions">The delayed scalar expressions forming the system.</param>
+            <returns>A structured expression system.</returns>
+        </member>
+        <member name="P:Ricis.Core.Expressions.ExpressionSystem`1.Count">
+            <summary>
+            Gets the number of expressions in the system.
+            </summary>
+        </member>
+        <member name="P:Ricis.Core.Expressions.ExpressionSystem`1.ParameterCount">
+            <summary>
+            Gets the number of input parameters shared by every expression.
+            </summary>
+        </member>
+        <member name="P:Ricis.Core.Expressions.ExpressionSystem`1.Expressions">
+            <summary>
+            Gets the immutable expressions forming the system.
+            </summary>
+        </member>
+        <member name="P:Ricis.Core.Expressions.ExpressionSystem`1.Item(System.Int32)">
+            <summary>
+            Gets the expression at the specified zero-based index.
+            </summary>
+        </member>
+        <member name="P:Ricis.Core.Expressions.ExpressionSystem`1.Vector">
+            <summary>
+            Gets the underlying RICIS vector expression without rebuilding or copying its logic.
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.Expressions.ExpressionSystem`1.IsStructuralZero">
+            <summary>
+            Determines whether every expression in the system is a structural RICIS zero.
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.Expressions.ExpressionSystem`1.Add(Ricis.Core.Expressions.ExpressionSystem{`0},Ricis.Core.Expressions.ExpressionSystem{`0})">
+            <summary>
+            Adds two systems componentwise through the existing RICIS vector overload.
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.Expressions.ExpressionSystem`1.Subtract(Ricis.Core.Expressions.ExpressionSystem{`0},Ricis.Core.Expressions.ExpressionSystem{`0})">
+            <summary>
+            Subtracts two systems componentwise through the existing RICIS vector overload.
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.Expressions.ExpressionSystem`1.ToVector">
+            <summary>
+            Returns the underlying vector expression for interoperability with existing RICIS APIs.
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.Expressions.ExpressionSystem`1.ToString">
+            <summary>
+            Returns the structured system record without collapsing its expressions into a scalar.
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.Expressions.ExpressionSystem`1.op_Addition(Ricis.Core.Expressions.ExpressionSystem{`0},Ricis.Core.Expressions.ExpressionSystem{`0})">
+            <summary>
+            Adds two systems componentwise through the existing RICIS vector overload.
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.Expressions.ExpressionSystem`1.op_Subtraction(Ricis.Core.Expressions.ExpressionSystem{`0},Ricis.Core.Expressions.ExpressionSystem{`0})">
+            <summary>
+            Subtracts two systems componentwise through the existing RICIS vector overload.
+            </summary>
+        </member>
+        <member name="T:Ricis.Core.Expressions.InfinityExpression">
+            <summary>
+            Base class for RICIS indexed singularity expressions. A singularity keeps
+            the scalar type of its symbolic index, so replacing a subexpression never
+            changes the return type of its enclosing lambda.
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.Expressions.InfinityExpression.#ctor(System.Collections.Generic.List{System.ValueTuple{System.Linq.Expressions.ParameterExpression,System.Double}})">
+            <summary>
+            Initializes a singularity with a defensive copy of its certified keys.
+            </summary>
+        </member>
+        <member name="P:Ricis.Core.Expressions.InfinityExpression.Roots">
+            <summary>
+            Gets a defensive copy of the certified singularity keys. Mutating the
+            returned list cannot alter the already-built RICIS expression.
+            </summary>
+        </member>
+        <member name="P:Ricis.Core.Expressions.InfinityExpression.NodeType">
+            <inheritdoc />
+        </member>
+        <member name="P:Ricis.Core.Expressions.InfinityExpression.Type">
+            <summary>
+            Gets the scalar type of the singularity index. This is the type exposed
+            to an enclosing expression tree and therefore matches the original
+            numerator or deferred function rather than being forced to <see cref="T:System.Double"/>.
+            </summary>
+        </member>
+        <member name="P:Ricis.Core.Expressions.InfinityExpression.Variable">
+            <summary>
+            Gets the first key parameter when a certified key exists.
+            </summary>
+        </member>
+        <member name="P:Ricis.Core.Expressions.InfinityExpression.SingularityValue">
+            <summary>
+            Gets the first certified singularity value, or <see cref="F:System.Double.NaN"/>
+            when the singularity is not bound to one concrete key.
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.Expressions.InfinityExpression.CreateLazy(System.Linq.Expressions.Expression,System.Collections.Generic.List{System.ValueTuple{System.Linq.Expressions.ParameterExpression,System.Double}})">
+            <summary>
+            Creates a lazy indexed infinity while preserving the type of
+            <paramref name="numerator"/> and defensively copying its keys.
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.Expressions.InfinityExpression.CreateLazy(System.Linq.Expressions.Expression,System.Linq.Expressions.ParameterExpression,System.Double)">
+            <summary>
+            Creates a lazy indexed infinity with one certified key.
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.Expressions.InfinityExpression.FormatInfinity(System.String,System.Collections.Generic.IReadOnlyList{System.ValueTuple{System.Linq.Expressions.ParameterExpression,System.Double}})">
+            <summary>
+            Formats an indexed infinity and its certified keys.
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.Expressions.InfinityExpression.FormatZero(System.String,System.Collections.Generic.IReadOnlyList{System.ValueTuple{System.Linq.Expressions.ParameterExpression,System.Double}})">
+            <summary>
+            Formats an indexed zero and its certified keys.
+            </summary>
+        </member>
+        <member name="T:Ricis.Core.Expressions.KeyedInfinityExpression">
+            <summary>
+            A finite union of A1 poles whose certified keys have different values of
+            F(a). Each branch remains an ordinary indexed infinity; this wrapper keeps
+            the complete key-to-index correspondence instead of collapsing it to one
+            global numerator.
+            </summary>
+        </member>
+        <member name="P:Ricis.Core.Expressions.KeyedInfinityExpression.Branches">
+            <summary>
+            Gets immutable pole branches. Each branch carries its own exact key set
+            and numerator index.
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.Expressions.KeyedInfinityExpression.#ctor(System.Collections.Generic.IReadOnlyList{Ricis.Core.Expressions.PoleInfinityExpression})">
+            <summary>
+            Initializes a keyed infinity from at least two non-null pole branches.
+            The branch list and roots are copied so later caller mutations cannot
+            change the established key-to-index relation.
+            </summary>
+        </member>
+        <member name="P:Ricis.Core.Expressions.KeyedInfinityExpression.Numerator">
+            <summary>
+            A keyed pole has no single global index. This non-semantic placeholder
+            exists only for legacy APIs; equality and RICIS operations must inspect
+            <see cref="P:Ricis.Core.Expressions.KeyedInfinityExpression.Branches"/> rather than this value.
+            </summary>
+        </member>
+        <member name="P:Ricis.Core.Expressions.KeyedInfinityExpression.Type">
+            <summary>
+            Gets the scalar type shared by all branches.
+            </summary>
+        </member>
+        <member name="P:Ricis.Core.Expressions.KeyedInfinityExpression.CanReduce">
+            <inheritdoc />
+        </member>
+        <member name="M:Ricis.Core.Expressions.KeyedInfinityExpression.ToString">
+            <inheritdoc />
+        </member>
+        <member name="T:Ricis.Core.Expressions.LazyInfinityExpression">
+            <summary>
+            Represents the RICIS public type <c>LazyInfinityExpression</c>.
+            </summary>
+        </member>
+        <member name="P:Ricis.Core.Expressions.LazyInfinityExpression.Numerator">
+            <summary>
+            Gets the <c>Numerator</c> value of <c>LazyInfinityExpression</c>.
+            </summary>
+        </member>
+        <member name="P:Ricis.Core.Expressions.LazyInfinityExpression.CanReduce">
+            <inheritdoc />
+        </member>
+        <member name="M:Ricis.Core.Expressions.LazyInfinityExpression.#ctor(System.Linq.Expressions.Expression,System.Collections.Generic.List{System.ValueTuple{System.Linq.Expressions.ParameterExpression,System.Double}})">
+            <summary>
+            Initializes a new instance of <c>LazyInfinityExpression</c>.
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.Expressions.LazyInfinityExpression.Reduce">
+            <inheritdoc />
+        </member>
+        <member name="M:Ricis.Core.Expressions.LazyInfinityExpression.ToString">
+            <inheritdoc />
+        </member>
+        <member name="T:Ricis.Core.Expressions.PoleInfinityExpression">
+            <summary>
+            A resolved RICIS pole ∞_F with certified denominator keys and optional
+            numerator roots used only for diagnostic and branch-aware operations.
+            </summary>
+        </member>
+        <member name="P:Ricis.Core.Expressions.PoleInfinityExpression.Numerator">
+            <summary>
+            Gets the symbolic numerator index F of ∞_F.
+            </summary>
+        </member>
+        <member name="P:Ricis.Core.Expressions.PoleInfinityExpression.NumeratorRoots">
+            <summary>
+            Gets a defensive copy of roots belonging to the numerator. Mutating the
+            returned list does not modify this pole.
+            </summary>
+        </member>
+        <member name="P:Ricis.Core.Expressions.PoleInfinityExpression.CanReduce">
+            <inheritdoc />
+        </member>
+        <member name="M:Ricis.Core.Expressions.PoleInfinityExpression.#ctor(System.Linq.Expressions.Expression,System.Collections.Generic.List{System.ValueTuple{System.Linq.Expressions.ParameterExpression,System.Double}},System.Collections.Generic.List{System.ValueTuple{System.Linq.Expressions.ParameterExpression,System.Double}})">
+            <summary>
+            Initializes a resolved pole, defensively copying denominator and
+            numerator root collections.
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.Expressions.PoleInfinityExpression.ToString">
+            <inheritdoc />
+        </member>
+        <member name="T:Ricis.Core.Expressions.RicisComplexFunction`1">
+            <summary>
+            Represents a deferred complex-valued RICIS function as two independent
+            scalar expression trees: the real part Re(F) and the imaginary part Im(F).
+            The type stores symbolic components only; it never invokes either delegate
+            while constructing complex operations.
+            </summary>
+        </member>
+        <member name="P:Ricis.Core.Expressions.RicisComplexFunction`1.Real">
+            <summary>
+            Gets the normalized deferred real component Re(F).
+            </summary>
+        </member>
+        <member name="P:Ricis.Core.Expressions.RicisComplexFunction`1.Imaginary">
+            <summary>
+            Gets the normalized deferred imaginary component Im(F).
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.Expressions.RicisComplexFunction`1.#ctor(System.Linq.Expressions.Expression{System.Func{`0,`0}},System.Linq.Expressions.Expression{System.Func{`0,`0}})">
+            <summary>
+            Initializes a complex deferred function from real and imaginary scalar
+            lambdas. Both components are normalized and rebound to one shared
+            parameter without numerical evaluation.
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.Expressions.RicisComplexFunction`1.Conjugate">
+            <summary>
+            Builds the complex conjugate F̄ = Re(F) − i·Im(F) as a new independent
+            pair of deferred expression trees.
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.Expressions.RicisComplexFunction`1.Add(Ricis.Core.Expressions.RicisComplexFunction{`0})">
+            <summary>
+            Builds the pointwise complex sum F+G by combining the corresponding real
+            and imaginary scalar expression trees.
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.Expressions.RicisComplexFunction`1.Subtract(Ricis.Core.Expressions.RicisComplexFunction{`0})">
+            <summary>
+            Builds the pointwise complex difference F−G by combining the
+            corresponding scalar expression trees.
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.Expressions.RicisComplexFunction`1.Multiply(Ricis.Core.Expressions.RicisComplexFunction{`0})">
+            <summary>
+            Builds the pointwise complex product F·G using
+            (ac−bd) + i(ad+bc), where F=a+ib and G=c+id.
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.Expressions.RicisComplexFunction`1.SquaredNorm">
+            <summary>
+            Builds the exact scalar squared norm |F|² = Re(F)² + Im(F)². This is
+            generic over <typeparamref name="T"/> and therefore retains exact types
+            such as <see cref="T:System.Numerics.BigInteger"/> without conversion to <see cref="T:System.Double"/>.
+            </summary>
+        </member>
+        <member name="T:Ricis.Core.Expressions.RicisExpression">
+            <summary>
+            Represents the RICIS public type <c>RicisExpression</c>.
+            </summary>
+        </member>
+        <member name="P:Ricis.Core.Expressions.RicisExpression.Numerator">
+            <summary>
+            Gets the <c>Numerator</c> value of <c>RicisExpression</c>.
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.Expressions.RicisExpression.op_Equality(Ricis.Core.Expressions.RicisExpression,Ricis.Core.Expressions.RicisExpression)">
+            <summary>
+            Performs the <c>operator ==</c> operation.
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.Expressions.RicisExpression.op_Inequality(Ricis.Core.Expressions.RicisExpression,Ricis.Core.Expressions.RicisExpression)">
+            <summary>
+            Performs the <c>operator !=</c> operation.
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.Expressions.RicisExpression.Equals(System.Object)">
+            <inheritdoc />
+        </member>
+        <member name="M:Ricis.Core.Expressions.RicisExpression.GetHashCode">
+            <inheritdoc />
+        </member>
+        <member name="T:Ricis.Core.Expressions.RicisFieldCoordinate">
+            <summary>
+            Identifies a coordinate of a deferred scalar field
+            <c>F(x,y,z,t)</c> used by formal RICIS vector calculus.
+            </summary>
+        </member>
+        <member name="F:Ricis.Core.Expressions.RicisFieldCoordinate.X">
+            <summary>The first spatial coordinate x.</summary>
+        </member>
+        <member name="F:Ricis.Core.Expressions.RicisFieldCoordinate.Y">
+            <summary>The second spatial coordinate y.</summary>
+        </member>
+        <member name="F:Ricis.Core.Expressions.RicisFieldCoordinate.Z">
+            <summary>The third spatial coordinate z.</summary>
+        </member>
+        <member name="F:Ricis.Core.Expressions.RicisFieldCoordinate.T">
+            <summary>The time coordinate t.</summary>
+        </member>
+        <member name="T:Ricis.Core.Expressions.RicisJacobianSingularityExpression`1">
+            <summary>
+            Represents the RICIS structural state of a singular Jacobian.
+            The determinant is retained as the indexed zero payload and the formal inverse
+            entries are retained as indexed infinity payloads; this is not a classical matrix inverse.
+            </summary>
+            <typeparam name="T">The scalar coordinate type of the Jacobian entries.</typeparam>
+        </member>
+        <member name="M:Ricis.Core.Expressions.RicisJacobianSingularityExpression`1.#ctor(System.Linq.Expressions.LambdaExpression,System.Collections.Generic.IEnumerable{System.Linq.Expressions.LambdaExpression},System.Collections.Generic.IEnumerable{System.ValueTuple{System.Linq.Expressions.ParameterExpression,System.Double}})">
+            <summary>
+            Initializes a singular Jacobian state from its determinant and formal inverse payload entries.
+            </summary>
+            <param name="determinant">The delayed determinant expression, normally structurally zero at the singular key.</param>
+            <param name="inversePayload">The delayed formal inverse entries with a common parameter signature.</param>
+            <param name="roots">Certified singularity keys retained by both indexed nodes.</param>
+            <exception cref="T:System.ArgumentNullException">Thrown when an input is null.</exception>
+            <exception cref="T:System.ArgumentException">Thrown when payload entries have incompatible signatures or result types.</exception>
+        </member>
+        <member name="P:Ricis.Core.Expressions.RicisJacobianSingularityExpression`1.Determinant">
+            <summary>
+            Gets the delayed determinant expression used as the `0_det(J)` index.
+            </summary>
+        </member>
+        <member name="P:Ricis.Core.Expressions.RicisJacobianSingularityExpression`1.InversePayload">
+            <summary>
+            Gets the delayed formal inverse payload entries used as `∞_Inv(J)` numerators.
+            </summary>
+        </member>
+        <member name="P:Ricis.Core.Expressions.RicisJacobianSingularityExpression`1.Roots">
+            <summary>
+            Gets the certified singularity keys carried by the indexed determinant and inverse nodes.
+            </summary>
+        </member>
+        <member name="P:Ricis.Core.Expressions.RicisJacobianSingularityExpression`1.IsStructuralSingular">
+            <summary>
+            Gets whether the determinant body is structurally an indexed zero candidate.
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.Expressions.RicisJacobianSingularityExpression`1.ApplyA6GeometricBridge">
+            <summary>
+            Applies the RICIS A6 geometric bridge entrywise.
+            Each result is the exact structural product `det(J)·Inv(J)` and retains
+            the determinant and inverse payload in the resulting expression tree.
+            </summary>
+            <returns>The bridged scalar payload entries.</returns>
+        </member>
+        <member name="M:Ricis.Core.Expressions.RicisJacobianSingularityExpression`1.ToString">
+            <summary>
+            Returns the structural RICIS record of determinant and inverse payload.
+            </summary>
+        </member>
+        <member name="T:Ricis.Core.Expressions.RicisMatrixExpression`1">
+            <summary>
+            Represents an immutable matrix of delayed scalar RICIS expressions.
+            Matrix entries share one parameter signature and remain ordinary scalar RICIS lambdas.
+            </summary>
+            <typeparam name="T">The scalar result type of every matrix entry.</typeparam>
+        </member>
+        <member name="M:Ricis.Core.Expressions.RicisMatrixExpression`1.#ctor(System.Collections.Generic.IEnumerable{System.Collections.Generic.IEnumerable{System.Linq.Expressions.LambdaExpression}})">
+            <summary>
+            Initializes a non-empty rectangular matrix from delayed scalar expressions.
+            </summary>
+            <param name="rows">The matrix rows, each containing scalar lambda expressions.</param>
+            <exception cref="T:System.ArgumentNullException">Thrown when <paramref name="rows"/> is null.</exception>
+            <exception cref="T:System.ArgumentException">Thrown when the matrix is empty, ragged, or has incompatible entry signatures.</exception>
+        </member>
+        <member name="P:Ricis.Core.Expressions.RicisMatrixExpression`1.RowCount">
+            <summary>
+            Gets the number of matrix rows.
+            </summary>
+        </member>
+        <member name="P:Ricis.Core.Expressions.RicisMatrixExpression`1.ColumnCount">
+            <summary>
+            Gets the number of matrix columns.
+            </summary>
+        </member>
+        <member name="P:Ricis.Core.Expressions.RicisMatrixExpression`1.Item(System.Int32,System.Int32)">
+            <summary>
+            Gets the delayed entry at the specified zero-based row and column.
+            </summary>
+        </member>
+        <member name="P:Ricis.Core.Expressions.RicisMatrixExpression`1.Rows">
+            <summary>
+            Gets an immutable view of the matrix rows.
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.Expressions.RicisMatrixExpression`1.Determinant2x2">
+            <summary>
+            Computes the normalized symbolic determinant of a 2×2 RICIS matrix.
+            </summary>
+            <returns>A delayed scalar lambda for <c>a·d−b·c</c>.</returns>
+            <exception cref="T:System.InvalidOperationException">Thrown when the matrix is not 2×2.</exception>
+        </member>
+        <member name="M:Ricis.Core.Expressions.RicisMatrixExpression`1.Determinant3x3">
+            <summary>
+            Computes the normalized symbolic determinant of a 3×3 RICIS matrix.
+            </summary>
+            <returns>A delayed scalar lambda expanded by the internal permutation formula.</returns>
+            <exception cref="T:System.InvalidOperationException">Thrown when the matrix is not 3×3.</exception>
+        </member>
+        <member name="M:Ricis.Core.Expressions.RicisMatrixExpression`1.IsStructuralZero">
+            <summary>
+            Determines whether every matrix entry is a structural RICIS zero.
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.Expressions.RicisMatrixExpression`1.ToString">
+            <summary>
+            Returns the matrix as rows of delayed coordinate records.
+            </summary>
+        </member>
+        <member name="T:Ricis.Core.Expressions.RicisMultivariateAlgebraicVisitor`1">
+            <summary>
+            Applies finite structural algebraic identities that are needed after
+            multivariate coordinate substitution. It never compiles expressions and
+            never evaluates limits or numerical samples.
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.Expressions.RicisMultivariateAlgebraicVisitor`1.VisitExtension(System.Linq.Expressions.Expression)">
+            <inheritdoc />
+        </member>
+        <member name="M:Ricis.Core.Expressions.RicisMultivariateAlgebraicVisitor`1.VisitBinary(System.Linq.Expressions.BinaryExpression)">
+            <inheritdoc />
+        </member>
+        <member name="T:Ricis.Core.Expressions.RicisSpecialExpressionRebinder">
+            <summary>
+            Rebinds parameter references inside RICIS extension nodes without invoking
+            <see cref="M:System.Linq.Expressions.Expression.Reduce"/>. This is an implementation utility only:
+            it does not introduce or alter any RICIS axiom.
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.Expressions.RicisSpecialExpressionRebinder.Rebind(System.Linq.Expressions.Expression,System.Func{System.Linq.Expressions.Expression,System.Linq.Expressions.Expression})">
+            <summary>
+            Rebinds a special expression node using the supplied ordinary expression
+            visitor for its deferred operands and certified root parameters.
+            </summary>
+        </member>
+        <member name="T:Ricis.Core.Expressions.RicisVector`1">
+            <summary>
+            Represents an immutable RICIS vector as an ordered collection of N scalar coordinates.
+            Each coordinate is a value of the generic numeric domain <typeparamref name="T"/>;
+            vector operations are structural and do not introduce a second arithmetic system.
+            </summary>
+            <typeparam name="T">The scalar coordinate type.</typeparam>
+        </member>
+        <member name="M:Ricis.Core.Expressions.RicisVector`1.#ctor(System.Collections.Generic.IEnumerable{`0})">
+            <summary>
+            Initializes a vector from an ordered non-empty coordinate sequence.
+            </summary>
+            <param name="coordinates">The coordinates defining the vector direction.</param>
+            <exception cref="T:System.ArgumentNullException">Thrown when <paramref name="coordinates"/> is null.</exception>
+            <exception cref="T:System.ArgumentException">Thrown when the sequence is empty.</exception>
+        </member>
+        <member name="P:Ricis.Core.Expressions.RicisVector`1.Dimension">
+            <summary>
+            Gets the number of coordinates in the vector.
+            </summary>
+        </member>
+        <member name="P:Ricis.Core.Expressions.RicisVector`1.Count">
+            <summary>
+            Gets the number of coordinates for the <see cref="T:System.Collections.Generic.IReadOnlyCollection`1"/> contract.
+            </summary>
+        </member>
+        <member name="P:Ricis.Core.Expressions.RicisVector`1.Item(System.Int32)">
+            <summary>
+            Gets the coordinate at the specified zero-based index.
+            </summary>
+            <param name="index">The zero-based coordinate index.</param>
+        </member>
+        <member name="P:Ricis.Core.Expressions.RicisVector`1.Coordinates">
+            <summary>
+            Gets the immutable coordinate sequence.
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.Expressions.RicisVector`1.GetEnumerator">
+            <summary>
+            Gets an enumerator over the ordered coordinates.
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.Expressions.RicisVector`1.System#Collections#IEnumerable#GetEnumerator">
+            <summary>
+            Gets a non-generic enumerator over the ordered coordinates.
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.Expressions.RicisVector`1.Zero(System.Int32)">
+            <summary>
+            Creates the typed zero vector of the requested dimension.
+            </summary>
+            <param name="dimension">The positive number of coordinates.</param>
+            <returns>A vector whose every coordinate is типизированного нуля координатного домена.</returns>
+            <exception cref="T:System.ArgumentOutOfRangeException">Thrown when <paramref name="dimension"/> is not positive.</exception>
+        </member>
+        <member name="M:Ricis.Core.Expressions.RicisVector`1.Add(Ricis.Core.Expressions.RicisVector{`0},Ricis.Core.Expressions.RicisVector{`0})">
+            <summary>
+            Adds two vectors componentwise.
+            </summary>
+            <param name="left">The first vector.</param>
+            <param name="right">The second vector.</param>
+            <returns>The componentwise sum.</returns>
+            <exception cref="T:System.ArgumentException">Thrown when the dimensions differ.</exception>
+        </member>
+        <member name="M:Ricis.Core.Expressions.RicisVector`1.Subtract(Ricis.Core.Expressions.RicisVector{`0},Ricis.Core.Expressions.RicisVector{`0})">
+            <summary>
+            Subtracts the second vector from the first componentwise.
+            </summary>
+            <param name="left">The minuend vector.</param>
+            <param name="right">The subtrahend vector.</param>
+            <returns>The componentwise difference.</returns>
+            <exception cref="T:System.ArgumentException">Thrown when the dimensions differ.</exception>
+        </member>
+        <member name="M:Ricis.Core.Expressions.RicisVector`1.Scale(Ricis.Core.Expressions.RicisVector{`0},`0)">
+            <summary>
+            Scales a vector componentwise by a scalar.
+            </summary>
+            <param name="vector">The vector to scale.</param>
+            <param name="scalar">The scalar multiplier.</param>
+            <returns>The scaled vector.</returns>
+        </member>
+        <member name="M:Ricis.Core.Expressions.RicisVector`1.Dot(Ricis.Core.Expressions.RicisVector{`0},Ricis.Core.Expressions.RicisVector{`0})">
+            <summary>
+            Computes the ordinary finite-domain dot product of two equal-dimensional vectors.
+            </summary>
+            <param name="left">The first vector.</param>
+            <param name="right">The second vector.</param>
+            <returns>The scalar dot product.</returns>
+            <exception cref="T:System.ArgumentException">Thrown when the dimensions differ.</exception>
+        </member>
+        <member name="M:Ricis.Core.Expressions.RicisVector`1.op_Addition(Ricis.Core.Expressions.RicisVector{`0},Ricis.Core.Expressions.RicisVector{`0})">
+            <summary>
+            Returns the componentwise sum of two vectors.
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.Expressions.RicisVector`1.op_Subtraction(Ricis.Core.Expressions.RicisVector{`0},Ricis.Core.Expressions.RicisVector{`0})">
+            <summary>
+            Returns the componentwise difference of two vectors.
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.Expressions.RicisVector`1.op_Multiply(Ricis.Core.Expressions.RicisVector{`0},`0)">
+            <summary>
+            Returns a vector scaled by a scalar on the right.
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.Expressions.RicisVector`1.op_Multiply(`0,Ricis.Core.Expressions.RicisVector{`0})">
+            <summary>
+            Returns a vector scaled by a scalar on the left.
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.Expressions.RicisVector`1.Equals(Ricis.Core.Expressions.RicisVector{`0})">
+            <summary>
+            Determines whether two vectors have equal dimensions and equal coordinates.
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.Expressions.RicisVector`1.Equals(System.Object)">
+            <summary>
+            Determines whether an object is an equal vector in the same scalar domain.
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.Expressions.RicisVector`1.GetHashCode">
+            <summary>
+            Returns a coordinate-based hash code.
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.Expressions.RicisVector`1.ToString">
+            <summary>
+            Returns the coordinate record of the vector.
+            </summary>
+        </member>
+        <member name="T:Ricis.Core.Expressions.RicisVectorExpression`1">
+            <summary>
+            Represents an immutable vector whose coordinates are delayed scalar RICIS lambda expressions.
+            The vector is an aggregate of scalar expressions; it does not define a competing arithmetic system.
+            </summary>
+            <typeparam name="T">The scalar result type of every coordinate expression.</typeparam>
+        </member>
+        <member name="M:Ricis.Core.Expressions.RicisVectorExpression`1.#ctor(System.Collections.Generic.IEnumerable{System.Linq.Expressions.LambdaExpression})">
+            <summary>
+            Initializes a vector from non-empty lambdas with a common parameter signature and result type <typeparamref name="T"/>.
+            </summary>
+            <param name="coordinates">The delayed scalar coordinate expressions.</param>
+            <exception cref="T:System.ArgumentNullException">Thrown when <paramref name="coordinates"/> is null.</exception>
+            <exception cref="T:System.ArgumentException">Thrown when coordinates are empty, have different signatures, or do not return <typeparamref name="T"/>.</exception>
+        </member>
+        <member name="P:Ricis.Core.Expressions.RicisVectorExpression`1.Dimension">
+            <summary>
+            Gets the number of vector coordinates.
+            </summary>
+        </member>
+        <member name="P:Ricis.Core.Expressions.RicisVectorExpression`1.ParameterCount">
+            <summary>
+            Gets the number of input parameters in every coordinate lambda.
+            </summary>
+        </member>
+        <member name="P:Ricis.Core.Expressions.RicisVectorExpression`1.Coordinates">
+            <summary>
+            Gets the immutable delayed coordinate expressions.
+            </summary>
+        </member>
+        <member name="P:Ricis.Core.Expressions.RicisVectorExpression`1.Item(System.Int32)">
+            <summary>
+            Gets the coordinate lambda at the specified zero-based index.
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.Expressions.RicisVectorExpression`1.Add(Ricis.Core.Expressions.RicisVectorExpression{`0},Ricis.Core.Expressions.RicisVectorExpression{`0})">
+            <summary>
+            Adds two symbolic vectors componentwise and normalizes every resulting lambda through RICIS.
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.Expressions.RicisVectorExpression`1.Subtract(Ricis.Core.Expressions.RicisVectorExpression{`0},Ricis.Core.Expressions.RicisVectorExpression{`0})">
+            <summary>
+            Subtracts two symbolic vectors componentwise and normalizes every resulting lambda through RICIS.
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.Expressions.RicisVectorExpression`1.Compose(Ricis.Core.Expressions.RicisVectorExpression{`0},Ricis.Core.Expressions.RicisVectorExpression{`0})">
+            <summary>
+            Composes a same-dimensional symbolic vector mapping with another vector mapping.
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.Expressions.RicisVectorExpression`1.Zero(System.Collections.Generic.IReadOnlyList{System.Linq.Expressions.ParameterExpression},System.Int32)">
+            <summary>
+            Returns the typed symbolic zero vector for a given parameter signature and dimension.
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.Expressions.RicisVectorExpression`1.IsStructuralZero">
+            <summary>
+            Determines whether every coordinate is a structural RICIS zero.
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.Expressions.RicisVectorExpression`1.ToString">
+            <summary>
+            Returns the componentwise symbolic vector record.
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.Expressions.RicisVectorExpression`1.op_Addition(Ricis.Core.Expressions.RicisVectorExpression{`0},Ricis.Core.Expressions.RicisVectorExpression{`0})">
+            <summary>
+            Adds two symbolic vectors using componentwise expression-tree addition.
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.Expressions.RicisVectorExpression`1.op_Subtraction(Ricis.Core.Expressions.RicisVectorExpression{`0},Ricis.Core.Expressions.RicisVectorExpression{`0})">
+            <summary>
+            Subtracts two symbolic vectors using componentwise expression-tree subtraction.
+            </summary>
+        </member>
+        <member name="T:Ricis.Core.Expressions.RicisVectorExpressionVisitor`1">
+            <summary>
+            Visits every coordinate of a deferred RICIS vector expression and applies the
+            complete internal phase pipeline without compiling or numerically evaluating it.
+            </summary>
+            <typeparam name="T">The scalar coordinate type.</typeparam>
+        </member>
+        <member name="M:Ricis.Core.Expressions.RicisVectorExpressionVisitor`1.Visit(Ricis.Core.Expressions.RicisVectorExpression{`0})">
+            <summary>
+            Normalizes every coordinate lambda through the normative RICIS pipeline.
+            </summary>
+            <param name="vector">The deferred vector expression.</param>
+            <returns>A new normalized vector expression.</returns>
+        </member>
+        <member name="M:Ricis.Core.Expressions.RicisVectorExpressionVisitor`1.Identity(Ricis.Core.Expressions.RicisVectorExpression{`0})">
+            <summary>
+            Builds the coordinate identity mapping for a square vector signature.
+            </summary>
+            <param name="vector">A vector whose parameter count equals its dimension.</param>
+            <returns>The delayed identity vector.</returns>
+            <exception cref="T:System.ArgumentException">Thrown when the vector is not square.</exception>
+        </member>
+        <member name="M:Ricis.Core.Expressions.RicisVectorExpressionVisitor`1.Residual(Ricis.Core.Expressions.RicisVectorExpression{`0},Ricis.Core.Expressions.RicisVectorExpression{`0})">
+            <summary>
+            Builds and normalizes the vector residual <c>left−right</c>.
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.Expressions.RicisVectorExpressionVisitor`1.ProveIdentity(Ricis.Core.Expressions.RicisVectorExpression{`0},Ricis.Core.Expressions.RicisVectorExpression{`0})">
+            <summary>
+            Proves a vector identity exactly when every normalized residual coordinate
+            is a structural RICIS zero.
+            </summary>
+        </member>
+        <member name="T:Ricis.Core.Expressions.RicisVectorProofResult`1">
+            <summary>
+            Contains the normalized residual and the exact structural result of a vector identity proof.
+            </summary>
+            <typeparam name="T">The scalar coordinate type.</typeparam>
+        </member>
+        <member name="M:Ricis.Core.Expressions.RicisVectorProofResult`1.#ctor(Ricis.Core.Expressions.RicisVectorExpression{`0},System.Boolean)">
+            <summary>
+            Initializes an identity proof result.
+            </summary>
+        </member>
+        <member name="P:Ricis.Core.Expressions.RicisVectorProofResult`1.Residual">
+            <summary>
+            Gets the normalized vector residual.
+            </summary>
+        </member>
+        <member name="P:Ricis.Core.Expressions.RicisVectorProofResult`1.IsProved">
+            <summary>
+            Gets whether every residual coordinate is a structural RICIS zero.
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.Expressions.RicisVectorProofResult`1.ToString">
+            <inheritdoc />
+        </member>
+        <member name="T:Ricis.Core.Expressions.RicisVectorField3">
+            <summary>
+            Represents a three-component deferred scalar field
+            <c>(U,V,W)(x,y,z,t)</c> for formal RICIS vector calculus.
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.Expressions.RicisVectorField3.#ctor(System.Linq.Expressions.Expression{System.Func{System.Double,System.Double,System.Double,System.Double,System.Double}},System.Linq.Expressions.Expression{System.Func{System.Double,System.Double,System.Double,System.Double,System.Double}},System.Linq.Expressions.Expression{System.Func{System.Double,System.Double,System.Double,System.Double,System.Double}})">
+            <summary>
+            Initializes a three-component deferred field.
+            </summary>
+            <param name="u">The first field component.</param>
+            <param name="v">The second field component.</param>
+            <param name="w">The third field component.</param>
+            <exception cref="T:System.ArgumentNullException">Thrown when a component is null.</exception>
+            <exception cref="T:System.ArgumentException">Thrown when a component does not have exactly four double parameters.</exception>
+        </member>
+        <member name="P:Ricis.Core.Expressions.RicisVectorField3.U">
+            <summary>Gets the first component <c>U(x,y,z,t)</c>.</summary>
+        </member>
+        <member name="P:Ricis.Core.Expressions.RicisVectorField3.V">
+            <summary>Gets the second component <c>V(x,y,z,t)</c>.</summary>
+        </member>
+        <member name="P:Ricis.Core.Expressions.RicisVectorField3.W">
+            <summary>Gets the third component <c>W(x,y,z,t)</c>.</summary>
+        </member>
+        <member name="T:Ricis.Core.Expressions.ZeroInfinityExpression">
+            <summary>
+            Indexed zero 0_F. The index remains the deferred parent expression F,
+            even when evaluating F at a singular point yields the numeric value zero.
+            </summary>
+        </member>
+        <member name="P:Ricis.Core.Expressions.ZeroInfinityExpression.Numerator">
+            <summary>
+            Gets the <c>Numerator</c> value of <c>ZeroInfinityExpression</c>.
+            </summary>
+        </member>
+        <member name="P:Ricis.Core.Expressions.ZeroInfinityExpression.CanReduce">
+            <inheritdoc />
+        </member>
+        <member name="M:Ricis.Core.Expressions.ZeroInfinityExpression.Reduce">
+            <summary>
+            Projects the symbolic indexed zero to the native typed zero only when
+            an enclosing .NET expression tree is compiled. RICIS visitors retain
+            this node itself, so its deferred index remains available to symbolic
+            transformations and proof documents.
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.Expressions.ZeroInfinityExpression.#ctor(System.Linq.Expressions.Expression,System.Collections.Generic.List{System.ValueTuple{System.Linq.Expressions.ParameterExpression,System.Double}})">
+            <summary>
+            Initializes a new instance of <c>ZeroInfinityExpression</c>.
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.Expressions.ZeroInfinityExpression.#ctor(System.Collections.Generic.List{System.ValueTuple{System.Linq.Expressions.ParameterExpression,System.Double}})">
+            <summary>
+            Initializes a new instance of <c>ZeroInfinityExpression</c>.
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.Expressions.ZeroInfinityExpression.ToString">
+            <inheritdoc />
+        </member>
+        <member name="T:Ricis.Core.Extensions.ExpressionExtensions">
+            <summary>
+            Represents the RICIS public type <c>ExpressionExtensions</c>.
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.Extensions.ExpressionExtensions.Prepare(System.Linq.Expressions.Expression,System.Linq.Expressions.ParameterExpression)">
+            <summary>
+            Executes <c>Prepare</c> for the RICIS expression model.
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.Extensions.ExpressionExtensions.Prepare``1(System.Linq.Expressions.Expression,System.Linq.Expressions.ParameterExpression)">
+            <summary>
+            Creates a typed lambda for an ordinary finite RICIS expression. The
+            constraint permits <see cref="T:System.Numerics.BigInteger"/> and user
+            scalar types that implement .NET generic math.
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.Extensions.ExpressionExtensions.CompileFinite``1(System.Linq.Expressions.Expression,System.Linq.Expressions.ParameterExpression)">
+            <summary>
+            Compiles an already derived, finite RICIS expression without converting
+            it to <see cref="T:System.Double"/>. This preserves arbitrary precision and the
+            semantics of custom <c>INumber&lt;TSelf&gt;</c> scalar types.
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.Extensions.ExpressionExtensions.Evaluate(System.Linq.Expressions.Expression,System.Linq.Expressions.ParameterExpression,System.Double)">
+            <summary>
+            Executes <c>Evaluate</c> for the RICIS expression model.
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.Extensions.ExpressionExtensions.EvaluateFinite``1(System.Linq.Expressions.Expression,System.Linq.Expressions.ParameterExpression,``0)">
+            <summary>
+            Evaluates a finite expression with a generic-math value. This API is
+            intentionally separate from double-based singularity/root discovery.
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.Extensions.ExpressionExtensions.Evaluate(System.Linq.Expressions.Expression,System.String,System.Double)">
+            <summary>
+            Executes <c>Evaluate</c> for the RICIS expression model.
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.Extensions.ExpressionExtensions.Evaluate(System.Linq.Expressions.Expression,System.Double,System.String)">
+            <summary>
+            Executes <c>Evaluate</c> for the RICIS expression model.
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.Extensions.ExpressionExtensions.IsCommutative(System.Linq.Expressions.Expression)">
+            <summary>
+            Определяет, является ли бинарная операция коммутативной (a+b = b+a)
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.Extensions.ExpressionExtensions.ShouldCommute(System.Linq.Expressions.Expression,System.Linq.Expressions.Expression)">
+            <summary>
+            Лексикографическая нормализация для коммутации (x+y → y+x если y проще)
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.Extensions.ExpressionExtensions.GetComplexityScore(System.Linq.Expressions.Expression)">
+            <summary>
+            Сложность поддерева для нормализации
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.Extensions.ExpressionExtensions.TryEvaluate(System.Linq.Expressions.Expression,System.String,System.Double,System.Double@)">
+            <summary>
+            Attempts to <c>Evaluate</c> within the RICIS model.
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.Extensions.ExpressionExtensions.EvaluateAtPoint(System.Linq.Expressions.Expression,System.Double,System.String)">
+            <summary>
+            Executes <c>EvaluateAtPoint</c> for the RICIS expression model.
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.Extensions.ExpressionExtensions.AddSingularityIfValid(System.Linq.Expressions.Expression,System.Linq.Expressions.ParameterExpression,System.Double,System.Collections.Generic.List{Ricis.Core.Expressions.InfinityExpression})">
+            <summary>
+            Executes <c>AddSingularityIfValid</c> for the RICIS expression model.
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.Extensions.ExpressionExtensions.IsZero(System.Linq.Expressions.Expression)">
+            <summary>
+            Determines whether an expression denotes zero, including a RICIS indexed
+            zero <c>0_F</c> whose deferred index is retained for symbolic work.
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.Extensions.ExpressionExtensions.FindParameter(System.Linq.Expressions.Expression)">
+            <summary>
+            Executes <c>FindParameter</c> for the RICIS expression model.
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.Extensions.ExpressionExtensions.IsTranscendentalCandidate(System.Linq.Expressions.Expression)">
+            <summary>
+            Determines whether <c>IsTranscendentalCandidate</c> holds for the supplied RICIS expression.
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.Extensions.ExpressionExtensions.IsOne(System.Linq.Expressions.Expression)">
+            <summary>
+            Является ли выражение единицей
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.Extensions.ExpressionExtensions.ToBigInteger(System.Object)">
+            <summary>
+            Безопасное приведение к BigInteger
+            </summary>
+        </member>
+        <member name="T:Ricis.Core.Extensions.RicisAcademicProofExtensions">
+            <summary>
+            Builds auditable academic proof protocols for deferred RICIS expressions.
+            The proof is a symbolic derivation: supplied conditions and constraints are
+            recorded as hypotheses but are never compiled, evaluated, or treated as an
+            oracle of semantic truth.
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.Extensions.RicisAcademicProofExtensions.Prove``1(System.Collections.Generic.IEnumerable{System.Linq.Expressions.Expression{System.Func{``0,System.Boolean}}},System.Collections.Generic.IEnumerable{System.Linq.Expressions.Expression{System.Func{``0,System.Boolean}}},System.Linq.Expressions.Expression{System.Func{``0,``0}},System.Text.StringBuilder)">
+            <summary>
+            Derives a provable unary scalar expression through the normative RICIS
+            pipeline and appends an academic protocol containing only effective
+            RICIS transformations to <paramref name="proof"/>. The returned lambda is an independent derived
+            expression; all conditions and constraints remain unevaluated expression
+            trees in the written hypotheses.
+            </summary>
+            <typeparam name="T">
+            The intrinsic or generic-math scalar type of the delayed RICIS function.
+            </typeparam>
+            <param name="conditions">
+            Formal assumptions represented by unary boolean lambdas over the same
+            scalar parameter as <paramref name="claim"/>.
+            </param>
+            <param name="constraints">
+            Formal domain restrictions represented by unary boolean lambdas. They
+            are recorded separately from assumptions to preserve academic meaning.
+            </param>
+            <param name="claim">
+            The deferred scalar expression whose RICIS normal form is to be derived.
+            </param>
+            <param name="proof">
+            An output buffer that receives the proof protocol. Its existing contents
+            are preserved and a complete new proof section is appended.
+            </param>
+            <returns>The independently normalized <see cref="T:System.Linq.Expressions.Expression`1"/> representing the derived RICIS expression.</returns>
+            <exception cref="T:System.ArgumentNullException">
+            Thrown when a required collection, claim, or proof buffer is null.
+            </exception>
+            <exception cref="T:System.ArgumentException">
+            Thrown when a hypothesis or the claim is not a unary lambda over T.
+            </exception>
+        </member>
+        <member name="M:Ricis.Core.Extensions.RicisAcademicProofExtensions.Prove``1(System.Collections.Generic.IEnumerable{System.Linq.Expressions.Expression{System.Func{``0,System.Boolean}}},System.Collections.Generic.IEnumerable{System.Linq.Expressions.Expression{System.Func{``0,System.Boolean}}},System.Linq.Expressions.Expression{System.Func{``0,``0}},System.Linq.Expressions.Expression{System.Func{``0,``0}},System.Text.StringBuilder)">
+            <summary>
+            Proves a real unary lambda claim and structurally checks it against a real
+            expected lambda expression. Conditions and constraints remain expression
+            trees and are never compiled or evaluated.
+            </summary>
+            <typeparam name="T">The intrinsic or generic-math scalar type.</typeparam>
+            <param name="conditions">Actual unary lambda assumptions.</param>
+            <param name="constraints">Actual unary lambda domain constraints.</param>
+            <param name="claim">The actual deferred claim expression.</param>
+            <param name="expected">The actual deferred expression expected after RICIS normalization.</param>
+            <param name="proof">The buffer receiving the derivation and verification record.</param>
+            <returns>A result containing derived, expected and verification expression trees.</returns>
+        </member>
+        <member name="M:Ricis.Core.Extensions.RicisAcademicProofExtensions.ProveChecked``1(System.Collections.Generic.IEnumerable{System.Linq.Expressions.Expression{System.Func{``0,System.Boolean}}},System.Collections.Generic.IEnumerable{System.Linq.Expressions.Expression{System.Func{``0,System.Boolean}}},System.Linq.Expressions.Expression{System.Func{``0,``0}},System.Linq.Expressions.Expression{System.Func{``0,``0}},System.Text.StringBuilder)">
+            <summary>
+            Backward-compatible named alias for the extended <see cref="M:Ricis.Core.Extensions.RicisAcademicProofExtensions.Prove``1(System.Collections.Generic.IEnumerable{System.Linq.Expressions.Expression{System.Func{``0,System.Boolean}}},System.Collections.Generic.IEnumerable{System.Linq.Expressions.Expression{System.Func{``0,System.Boolean}}},System.Linq.Expressions.Expression{System.Func{``0,``0}},System.Linq.Expressions.Expression{System.Func{``0,``0}},System.Text.StringBuilder)"/> overload.
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.Extensions.RicisAcademicProofExtensions.ProveDocument``1(System.Collections.Generic.IEnumerable{System.Linq.Expressions.Expression{System.Func{``0,System.Boolean}}},System.Collections.Generic.IEnumerable{System.Linq.Expressions.Expression{System.Func{``0,System.Boolean}}},System.Linq.Expressions.Expression{System.Func{``0,``0}},System.Linq.Expressions.Expression{System.Func{``0,``0}},Ricis.Core.Proofs.RicisProofDocumentProfile,System.Text.StringBuilder)">
+            <summary>
+            Builds an academic proof document from real lambda hypotheses and a real
+            expected expression, preserving the structural verification expression.
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.Extensions.RicisAcademicProofExtensions.ProveDocumentChecked``1(System.Collections.Generic.IEnumerable{System.Linq.Expressions.Expression{System.Func{``0,System.Boolean}}},System.Collections.Generic.IEnumerable{System.Linq.Expressions.Expression{System.Func{``0,System.Boolean}}},System.Linq.Expressions.Expression{System.Func{``0,``0}},System.Linq.Expressions.Expression{System.Func{``0,``0}},Ricis.Core.Proofs.RicisProofDocumentProfile,System.Text.StringBuilder)">
+            <summary>
+            Backward-compatible named alias for the extended <see cref="M:Ricis.Core.Extensions.RicisAcademicProofExtensions.ProveDocument``1(System.Collections.Generic.IEnumerable{System.Linq.Expressions.Expression{System.Func{``0,System.Boolean}}},System.Collections.Generic.IEnumerable{System.Linq.Expressions.Expression{System.Func{``0,System.Boolean}}},System.Linq.Expressions.Expression{System.Func{``0,``0}},System.Linq.Expressions.Expression{System.Func{``0,``0}},Ricis.Core.Proofs.RicisProofDocumentProfile,System.Text.StringBuilder)"/> overload.
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.Extensions.RicisAcademicProofExtensions.ProveDocument``1(System.Collections.Generic.IEnumerable{System.Linq.Expressions.Expression{System.Func{``0,System.Boolean}}},System.Collections.Generic.IEnumerable{System.Linq.Expressions.Expression{System.Func{``0,System.Boolean}}},System.Linq.Expressions.Expression{System.Func{``0,``0}},Ricis.Core.Proofs.RicisProofDocumentProfile,System.Text.StringBuilder)">
+            <summary>
+            Derives a unary scalar expression and writes an academic proof document
+            with an explicit finite or conditional proof scope. The document records
+            the supplied hypotheses without evaluating them and embeds the effective
+            RICIS derivation produced by <see cref="M:Ricis.Core.Extensions.RicisAcademicProofExtensions.Prove``1(System.Collections.Generic.IEnumerable{System.Linq.Expressions.Expression{System.Func{``0,System.Boolean}}},System.Collections.Generic.IEnumerable{System.Linq.Expressions.Expression{System.Func{``0,System.Boolean}}},System.Linq.Expressions.Expression{System.Func{``0,``0}},System.Text.StringBuilder)"/>.
+            </summary>
+            <typeparam name="T">The intrinsic or generic-math scalar type of the delayed expression.</typeparam>
+            <param name="conditions">The formal unary assumptions.</param>
+            <param name="constraints">The formal unary domain restrictions.</param>
+            <param name="claim">The delayed scalar expression to derive.</param>
+            <param name="profile">Academic metadata, stated premises, and proof boundaries.</param>
+            <param name="document">The buffer receiving the complete Markdown proof document.</param>
+            <returns>The independent expression tree returned by the underlying symbolic derivation.</returns>
+            <exception cref="T:System.ArgumentNullException">Thrown when <paramref name="profile"/> or <paramref name="document"/> is null.</exception>
+        </member>
+        <member name="M:Ricis.Core.Extensions.RicisAcademicProofExtensions.ProveDocument``1(System.Collections.Generic.IEnumerable{System.Linq.Expressions.Expression{System.Func{``0,System.Boolean}}},System.Collections.Generic.IEnumerable{System.Linq.Expressions.Expression{System.Func{``0,System.Boolean}}},System.Linq.Expressions.Expression{System.Func{``0,``0}},Ricis.Core.Proofs.RicisProofDocumentProfile,Ricis.Core.Proofs.RicisProofDocumentFormat,System.Func{System.String,System.String},System.Text.StringBuilder)">
+            <summary>
+            Derives a unary scalar claim once through the existing RICIS proof engine
+            and renders the resulting proof with the selected document template.
+            The <paramref name="documentTextTransform"/> callback receives the complete
+            template output and returns the exact text appended to <paramref name="document"/>.
+            It may add organisation-specific lines or apply a final textual transform,
+            but it cannot change the proof expression, proof scope, or RICIS trace.
+            </summary>
+            <typeparam name="T">The intrinsic or generic-math scalar type of the delayed expression.</typeparam>
+            <param name="conditions">Formal unary assumptions.</param>
+            <param name="constraints">Formal unary domain restrictions.</param>
+            <param name="claim">The delayed scalar expression to derive.</param>
+            <param name="profile">Proof metadata, stated premises, and limitations.</param>
+            <param name="format">The requested Log, Academic, Lean scaffold, or Json template.</param>
+            <param name="documentTextTransform">A non-null final-text transformation callback.</param>
+            <param name="document">The buffer receiving the rendered proof document.</param>
+            <returns>The independently derived RICIS expression.</returns>
+            <exception cref="T:System.ArgumentNullException">Thrown when the profile, callback, or document is null.</exception>
+            <exception cref="T:System.ArgumentOutOfRangeException">Thrown when <paramref name="format"/> is unknown.</exception>
+        </member>
+        <member name="M:Ricis.Core.Extensions.RicisAcademicProofExtensions.ProveDocument``1(System.Collections.Generic.IEnumerable{System.Linq.Expressions.Expression{System.Func{``0,System.Boolean}}},System.Collections.Generic.IEnumerable{System.Linq.Expressions.Expression{System.Func{``0,System.Boolean}}},System.Linq.Expressions.Expression{System.Func{``0,``0}},Ricis.Core.Proofs.RicisProofDocumentProfile,Ricis.Core.Proofs.RicisProofDocumentFormat,System.Text.StringBuilder)">
+            <summary>
+            Derives a unary scalar claim and renders it with the selected proof format
+            without applying a caller-specific text transformation.
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.Extensions.RicisAcademicProofExtensions.ProveDocument(System.Collections.Generic.IEnumerable{System.Linq.Expressions.Expression{System.Func{System.Double,System.Double,System.Boolean}}},System.Collections.Generic.IEnumerable{System.Linq.Expressions.Expression{System.Func{System.Double,System.Double,System.Boolean}}},System.Linq.Expressions.Expression{System.Func{System.Double,System.Double,System.Boolean}},Ricis.Core.Proofs.RicisProofDocumentProfile,Ricis.Core.Proofs.RicisProofDocumentFormat,System.Func{System.String,System.String},System.Text.StringBuilder)">
+            <summary>
+            Specialized overload: derives a stated coordinate of a supported two-variable
+            linear system once and renders the existing symbolic protocol through the
+            selected template. This overload does not restrict the universal generic
+            RICIS proof/document overloads for deferred F expressions.
+            </summary>
+            <param name="equations">The two formal linear equations.</param>
+            <param name="constraints">The formal binary domain restrictions.</param>
+            <param name="claim">The coordinate equality to derive.</param>
+            <param name="profile">Proof metadata, stated premises, and limitations.</param>
+            <param name="format">The requested output template.</param>
+            <param name="documentTextTransform">A non-null final-text transformation callback.</param>
+            <param name="document">The buffer receiving the rendered proof document.</param>
+            <returns>The independently derived coordinate equality.</returns>
+        </member>
+        <member name="M:Ricis.Core.Extensions.RicisAcademicProofExtensions.ProveDocument(System.Collections.Generic.IEnumerable{System.Linq.Expressions.Expression{System.Func{System.Double,System.Double,System.Boolean}}},System.Collections.Generic.IEnumerable{System.Linq.Expressions.Expression{System.Func{System.Double,System.Double,System.Boolean}}},System.Linq.Expressions.Expression{System.Func{System.Double,System.Double,System.Boolean}},Ricis.Core.Proofs.RicisProofDocumentProfile,Ricis.Core.Proofs.RicisProofDocumentFormat,System.Text.StringBuilder)">
+            <summary>
+            Derives a supported two-variable linear system and renders it with the
+            selected proof format without a caller-specific text transformation.
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.Extensions.RicisAcademicProofExtensions.ProveDocument(System.Collections.Generic.IEnumerable{System.Linq.Expressions.Expression{System.Func{System.Double,System.Double,System.Boolean}}},System.Collections.Generic.IEnumerable{System.Linq.Expressions.Expression{System.Func{System.Double,System.Double,System.Boolean}}},System.Linq.Expressions.Expression{System.Func{System.Double,System.Double,System.Boolean}},Ricis.Core.Proofs.RicisProofDocumentProfile,System.Text.StringBuilder)">
+            <summary>
+            Derives a stated coordinate of a supported two-variable linear system and
+            writes an academic proof document with an explicit finite or conditional
+            proof scope. The system and restrictions remain unevaluated expression trees.
+            </summary>
+            <param name="equations">The two formal linear equations.</param>
+            <param name="constraints">The formal binary domain restrictions.</param>
+            <param name="claim">The coordinate equality to derive.</param>
+            <param name="profile">Academic metadata, stated premises, and proof boundaries.</param>
+            <param name="document">The buffer receiving the complete Markdown proof document.</param>
+            <returns>The independent coordinate equality returned by symbolic elimination.</returns>
+            <exception cref="T:System.ArgumentNullException">Thrown when <paramref name="profile"/> or <paramref name="document"/> is null.</exception>
+            <exception cref="T:System.ArgumentException">Thrown when the linear system or its claim is unsupported or contradictory.</exception>
+        </member>
+        <member name="M:Ricis.Core.Extensions.RicisAcademicProofExtensions.ProveTypeIdentityCriticalLine(System.Collections.Generic.IEnumerable{System.Linq.Expressions.Expression{System.Func{System.Double,System.Double,System.Boolean}}},System.Linq.Expressions.Expression{System.Func{System.Double,System.Double,System.Boolean}},System.Text.StringBuilder)">
+            <summary>
+            Applies the normative RICIS type-identity chain ID-01 through ID-06 to a
+            formal reflected pair and writes a fully named academic proof document.
+            The method constructs the two derived linear consequences
+            <c>sigma+mirrorSigma=1</c> and <c>sigma-mirrorSigma=0</c> from the
+            registered identity rules, then delegates exact elimination to the
+            ordinary two-variable proof engine. No supplied constraint is compiled.
+            </summary>
+            <param name="constraints">Optional binary domain restrictions over the formal reflected pair.</param>
+            <param name="claim">The coordinate equality to derive, normally <c>sigma=1/2</c>.</param>
+            <param name="document">The buffer receiving the complete named proof document.</param>
+            <returns>An independent derived equality expression for the claimed coordinate.</returns>
+            <exception cref="T:System.ArgumentException">Thrown when the claim is not a supported exact coordinate consequence of the ID chain.</exception>
+        </member>
+        <member name="M:Ricis.Core.Extensions.RicisAcademicProofExtensions.Prove(System.Collections.Generic.IEnumerable{System.Linq.Expressions.Expression{System.Func{System.Double,System.Double,System.Boolean}}},System.Collections.Generic.IEnumerable{System.Linq.Expressions.Expression{System.Func{System.Double,System.Double,System.Boolean}}},System.Linq.Expressions.Expression{System.Func{System.Double,System.Double,System.Boolean}},System.Text.StringBuilder)">
+            <summary>
+            Specialized overload: derives a stated coordinate of a two-variable linear
+            system through symbolic elimination and writes an academic proof protocol to
+            <paramref name="proof"/>. The supported system contains exactly two
+            independent equations in the forms <c>x+y=c</c>, <c>x-y=c</c>,
+            <c>y+x=c</c>, or <c>y-x=c</c>, together with optional two-variable
+            boolean domain constraints. No equation or constraint is compiled.
+            </summary>
+            <param name="equations">The two formal equations of this specialized linear-system overload; generic RICIS proof APIs accept broader deferred F expressions.</param>
+            <param name="constraints">Optional domain constraints over the same pair of variables.</param>
+            <param name="claim">A coordinate claim of the form <c>x=c</c> or <c>y=c</c>.</param>
+            <param name="proof">The output buffer for the academic derivation.</param>
+            <returns>An independent derived equality expression for the proved coordinate.</returns>
+            <exception cref="T:System.ArgumentException">Thrown when the system is unsupported, degenerate, non-finite, overflows its finite double derivation, or the claim contradicts its symbolic solution.</exception>
+        </member>
+        <member name="T:Ricis.Core.Extensions.RicisAnalyticExtensions">
+            <summary>
+            Analytic mathematical sugar for deferred double-domain RICIS functions.
+            Every extension creates an explicit <see cref="T:System.Math"/> method-call node over
+            a normalized expression tree; no input delegate is invoked while the new
+            function is built.
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.Extensions.RicisAnalyticExtensions.Sin(System.Linq.Expressions.Expression{System.Func{System.Double,System.Double}})">
+            <summary>
+            Builds sin(F) as an explicit <see cref="M:System.Math.Sin(System.Double)"/> expression node.
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.Extensions.RicisAnalyticExtensions.Cos(System.Linq.Expressions.Expression{System.Func{System.Double,System.Double}})">
+            <summary>
+            Builds cos(F) as an explicit <see cref="M:System.Math.Cos(System.Double)"/> expression node.
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.Extensions.RicisAnalyticExtensions.Tan(System.Linq.Expressions.Expression{System.Func{System.Double,System.Double}})">
+            <summary>
+            Builds tan(F) as an explicit <see cref="M:System.Math.Tan(System.Double)"/> expression node.
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.Extensions.RicisAnalyticExtensions.Sinh(System.Linq.Expressions.Expression{System.Func{System.Double,System.Double}})">
+            <summary>
+            Builds sinh(F) as an explicit <see cref="M:System.Math.Sinh(System.Double)"/> expression node.
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.Extensions.RicisAnalyticExtensions.Cosh(System.Linq.Expressions.Expression{System.Func{System.Double,System.Double}})">
+            <summary>
+            Builds cosh(F) as an explicit <see cref="M:System.Math.Cosh(System.Double)"/> expression node.
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.Extensions.RicisAnalyticExtensions.Tanh(System.Linq.Expressions.Expression{System.Func{System.Double,System.Double}})">
+            <summary>
+            Builds tanh(F) as an explicit <see cref="M:System.Math.Tanh(System.Double)"/> expression node.
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.Extensions.RicisAnalyticExtensions.Exp(System.Linq.Expressions.Expression{System.Func{System.Double,System.Double}})">
+            <summary>
+            Builds exp(F) as an explicit <see cref="M:System.Math.Exp(System.Double)"/> expression node.
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.Extensions.RicisAnalyticExtensions.Log(System.Linq.Expressions.Expression{System.Func{System.Double,System.Double}})">
+            <summary>
+            Builds the natural logarithm log(F) as an explicit <see cref="M:System.Math.Log(System.Double)"/> expression node.
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.Extensions.RicisAnalyticExtensions.Log10(System.Linq.Expressions.Expression{System.Func{System.Double,System.Double}})">
+            <summary>
+            Builds the decimal logarithm log10(F) as an explicit <see cref="M:System.Math.Log10(System.Double)"/> expression node.
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.Extensions.RicisAnalyticExtensions.Sqrt(System.Linq.Expressions.Expression{System.Func{System.Double,System.Double}})">
+            <summary>
+            Builds sqrt(F) as an explicit <see cref="M:System.Math.Sqrt(System.Double)"/> expression node.
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.Extensions.RicisAnalyticExtensions.Pow(System.Linq.Expressions.Expression{System.Func{System.Double,System.Double}},System.Double)">
+            <summary>
+            Builds F^p with a constant double exponent p as an explicit
+            <see cref="M:System.Math.Pow(System.Double,System.Double)"/> expression node.
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.Extensions.RicisAnalyticExtensions.Pow(System.Linq.Expressions.Expression{System.Func{System.Double,System.Double}},System.Linq.Expressions.Expression{System.Func{System.Double,System.Double}})">
+            <summary>
+            Builds F^G from two deferred double-domain functions. Both operands are
+            normalized and rebound to one shared parameter before the explicit
+            <see cref="M:System.Math.Pow(System.Double,System.Double)"/> node is created.
+            </summary>
+        </member>
+        <member name="T:Ricis.Core.Extensions.RicisComplexExtensions">
+            <summary>
+            Expression-tree builders for <see cref="T:Ricis.Core.Expressions.RicisComplexFunction`1"/>.
+            The extensions keep complex functions as symbolic real and imaginary pairs
+            instead of compiling delegates or converting values to <see cref="T:System.Numerics.Complex"/>.
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.Extensions.RicisComplexExtensions.AsComplex``1(System.Linq.Expressions.Expression{System.Func{``0,``0}})">
+            <summary>
+            Lifts a deferred scalar function F into the complex plane as F+i·0.
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.Extensions.RicisComplexExtensions.AsComplex``1(System.Linq.Expressions.Expression{System.Func{``0,``0}},System.Linq.Expressions.Expression{System.Func{``0,``0}})">
+            <summary>
+            Builds a deferred complex function Re+i·Im from two scalar lambdas.
+            The constructor of <see cref="T:Ricis.Core.Expressions.RicisComplexFunction`1"/> normalizes and
+            rebinds both components to a shared parameter.
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.Extensions.RicisComplexExtensions.Re``1(Ricis.Core.Expressions.RicisComplexFunction{``0})">
+            <summary>
+            Returns the deferred real expression Re(F) of a complex RICIS function.
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.Extensions.RicisComplexExtensions.Im``1(Ricis.Core.Expressions.RicisComplexFunction{``0})">
+            <summary>
+            Returns the deferred imaginary expression Im(F) of a complex RICIS function.
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.Extensions.RicisComplexExtensions.Norm(Ricis.Core.Expressions.RicisComplexFunction{System.Double})">
+            <summary>
+            Builds the Euclidean norm |F| for a double-domain complex deferred
+            function as sqrt(Re(F)²+Im(F)²). The square root remains an explicit
+            <see cref="M:System.Math.Sqrt(System.Double)"/> expression-tree call.
+            </summary>
+        </member>
+        <member name="T:Ricis.Core.Extensions.RicisCompoundInterestExtensions">
+            <summary>
+            Deferred RICIS builders for the compound-interest formula
+            P=S·(1+r/100)^n. The extensions construct formula trees only; they do not
+            perform a forecast, invoke source delegates, or introduce limits.
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.Extensions.RicisCompoundInterestExtensions.CompoundInterest``1(System.Linq.Expressions.Expression{System.Func{``0,``0}},System.Linq.Expressions.Expression{System.Func{``0,``0}},System.Int32)">
+            <summary>
+            Builds P=S·(1+r/100)^n from deferred principal S, deferred rate r in
+            percent, and a non-negative integer number of periods n. The scalar
+            domain must represent r/100 without integer truncation; known integral
+            .NET domains are rejected explicitly instead of silently losing a rate.
+            The power is represented by repeated typed multiplication without a
+            conversion to <see cref="T:System.Double"/>.
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.Extensions.RicisCompoundInterestExtensions.CompoundInterest``1(System.Linq.Expressions.Expression{System.Func{``0,``0}},``0,System.Int32)">
+            <summary>
+            Builds P=S·(1+r/100)^n from deferred principal S, a typed constant rate
+            r in percent, and a non-negative integer number of periods n.
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.Extensions.RicisCompoundInterestExtensions.CompoundInterest(System.Linq.Expressions.Expression{System.Func{System.Double,System.Double}},System.Linq.Expressions.Expression{System.Func{System.Double,System.Double}},System.Linq.Expressions.Expression{System.Func{System.Double,System.Double}})">
+            <summary>
+            Builds P=S·(1+r/100)^n with a deferred double-domain period n. The
+            result preserves <see cref="M:System.Math.Pow(System.Double,System.Double)"/> explicitly in
+            the expression tree, allowing non-integer periods without hidden
+            evaluation during construction.
+            </summary>
+        </member>
+        <member name="T:Ricis.Core.Extensions.RicisContinuousExtensions">
+            <summary>
+            Continuous piecewise mathematical sugar for deferred RICIS lambdas.
+            Every operation constructs a finite <see cref="T:System.Linq.Expressions.ConditionalExpression"/>
+            tree, performs no delegate invocation, and applies the ordinary RICIS
+            phase pipeline only after the tree has been constructed.
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.Extensions.RicisContinuousExtensions.Abs``1(System.Linq.Expressions.Expression{System.Func{``0,``0}})">
+            <summary>
+            Builds the absolute-value expression |F| as the finite piecewise tree
+            <c>F &lt; 0 ? −F : F</c>. For unsigned built-in scalar types, |F| is F.
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.Extensions.RicisContinuousExtensions.Min``1(System.Linq.Expressions.Expression{System.Func{``0,``0}},System.Linq.Expressions.Expression{System.Func{``0,``0}})">
+            <summary>
+            Builds the pointwise minimum min(F,G) as a finite conditional expression.
+            Structurally identical normalized operands return their common tree.
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.Extensions.RicisContinuousExtensions.Max``1(System.Linq.Expressions.Expression{System.Func{``0,``0}},System.Linq.Expressions.Expression{System.Func{``0,``0}})">
+            <summary>
+            Builds the pointwise maximum max(F,G) as a finite conditional expression.
+            Structurally identical normalized operands return their common tree.
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.Extensions.RicisContinuousExtensions.Clamp``1(System.Linq.Expressions.Expression{System.Func{``0,``0}},``0,``0)">
+            <summary>
+            Builds the pointwise clamp of F to finite constant bounds as
+            min(max(F, lower), upper). Bounds are represented as typed expression
+            constants and are never used to invoke F during construction.
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.Extensions.RicisContinuousExtensions.Clamp``1(System.Linq.Expressions.Expression{System.Func{``0,``0}},System.Linq.Expressions.Expression{System.Func{``0,``0}},System.Linq.Expressions.Expression{System.Func{``0,``0}})">
+            <summary>
+            Builds the pointwise clamp min(max(F,L),U) for three deferred lambdas.
+            Each operand is normalized and rebound to one shared parameter without
+            numerical evaluation or a limit construction.
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.Extensions.RicisContinuousExtensions.PositivePart``1(System.Linq.Expressions.Expression{System.Func{``0,``0}})">
+            <summary>
+            Builds the continuous positive part F⁺ = max(F,0). The result is a
+            finite conditional tree and not a call to a numerical library routine.
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.Extensions.RicisContinuousExtensions.NegativePart``1(System.Linq.Expressions.Expression{System.Func{``0,``0}})">
+            <summary>
+            Builds the continuous negative part F⁻ = min(F,0). The result is a
+            finite conditional tree and preserves the scalar type T exactly.
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.Extensions.RicisContinuousExtensions.Distance``1(System.Linq.Expressions.Expression{System.Func{``0,``0}},System.Linq.Expressions.Expression{System.Func{``0,``0}})">
+            <summary>
+            Builds the pointwise distance |F−G| from two independent deferred
+            lambdas. The difference is normalized before the absolute-value tree
+            is formed, so the ordinary RICIS identity and algebraic priorities hold.
+            </summary>
+        </member>
+        <member name="T:Ricis.Core.Extensions.RicisDerivativeExtensions">
+            <summary>
+            Formal RICIS derivatives for generic-math scalar lambdas.
+            The implementation performs symbolic tree rearrangement only: it never
+            uses limits, L'Hopital's rule, numerical differences, or approximation.
+            Any singularity created by the new tree is subsequently handled only by
+            the ordinary RICIS phase pipeline and its O(1) bridges.
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.Extensions.RicisDerivativeExtensions.DxDt``1(System.Linq.Expressions.Expression{System.Func{``0,``0}})">
+            <summary>
+            Builds the formal derivative dF/dt for a single-variable lambda.
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.Extensions.RicisDerivativeExtensions.Derivative``1(System.Linq.Expressions.Expression{System.Func{``0,``0}})">
+            <summary>
+            Alias for <see cref="M:Ricis.Core.Extensions.RicisDerivativeExtensions.DxDt``1(System.Linq.Expressions.Expression{System.Func{``0,``0}})"/>.
+            </summary>
+        </member>
+        <member name="T:Ricis.Core.Extensions.RicisIntegralExtensions">
+            <summary>
+            Geometric RICIS integrals. The operation is the API form of A6:
+            0_F * infinity_L -> F * L. It never constructs a Riemann sum,
+            a classical limit, a quadrature point, or an antiderivative.
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.Extensions.RicisIntegralExtensions.Sum``1(System.Linq.Expressions.Expression{System.Func{``0,``0}},System.Linq.Expressions.Expression{System.Func{``0,``0}})">
+            <summary>
+            Builds an independent deferred sum F + G. The two source lambdas are
+            normalized separately, rebound to one common parameter, and only then
+            processed by the ordinary RICIS pipeline.
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.Extensions.RicisIntegralExtensions.Integral``1(System.Linq.Expressions.Expression{System.Func{``0,``0}},``0)">
+            <summary>
+            Builds a geometric RICIS integral for a deferred function F and a
+            finite range width L. The independent result is the symbolic lambda
+            F * L, obtained by the geometry of A6.
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.Extensions.RicisIntegralExtensions.Integral``1(System.Linq.Expressions.Expression{System.Func{``0,``0}},System.Linq.Expressions.Expression{System.Func{``0,``0}})">
+            <summary>
+            Builds a geometric RICIS integral for deferred function F and a
+            deferred width L. Both lambdas are rebound to one common parameter;
+            no operand is numerically evaluated during construction.
+            </summary>
+        </member>
+        <member name="T:Ricis.Core.Extensions.RicisNavierStokesProofExtensions">
+            <summary>
+            Academic proof operations for exact RICIS Navier-Stokes field identities.
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.Extensions.RicisNavierStokesProofExtensions.ProveNavierStokesIdentity(Ricis.Core.Expressions.RicisVectorField3,System.Linq.Expressions.Expression{System.Func{System.Double,System.Double,System.Double,System.Double,System.Double}},System.Double,System.Text.StringBuilder)">
+            <summary>
+            Constructs and certifies the incompressible Navier-Stokes residual
+            <c>∂t u+(u·∇)u+∇p−νΔu</c> for a supplied deferred velocity and pressure.
+            The method is purely symbolic: no field component is compiled, sampled,
+            discretized, or evaluated numerically.
+            </summary>
+            <param name="velocity">The deferred velocity field <c>u(x,y,z,t)</c>.</param>
+            <param name="pressure">The deferred pressure scalar <c>p(x,y,z,t)</c>.</param>
+            <param name="viscosity">The finite viscosity coefficient <c>ν</c>.</param>
+            <param name="proof">The output buffer for the academic proof document.</param>
+            <returns>All intermediate deferred fields and the certified residual.</returns>
+            <exception cref="T:System.ArgumentOutOfRangeException">Thrown when viscosity is negative or non-finite.</exception>
+            <exception cref="T:System.InvalidOperationException">Thrown when the supplied field does not satisfy exact incompressibility or the normalized residual is non-zero.</exception>
+        </member>
+        <member name="T:Ricis.Core.Extensions.RicisProofExtensions">
+            <summary>
+            Proof-oriented transformations for deferred RICIS lambdas.
+            Each operation constructs an independent expression tree, never invokes a
+            delegate while building it, and delegates all normalization to the ordinary
+            RICIS phase pipeline.
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.Extensions.RicisProofExtensions.Compose``1(System.Linq.Expressions.Expression{System.Func{``0,``0}},System.Linq.Expressions.Expression{System.Func{``0,``0}})">
+            <summary>
+            Builds the formal composition F∘G by structurally substituting the body
+            of G for the parameter of F. No numerical evaluation is performed.
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.Extensions.RicisProofExtensions.At``1(System.Linq.Expressions.Expression{System.Func{``0,``0}},System.Linq.Expressions.Expression{System.Func{``0,``0}})">
+            <summary>
+            Explicit proof-reading alias for structural application F[G].
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.Extensions.RicisProofExtensions.Difference``1(System.Linq.Expressions.Expression{System.Func{``0,``0}},System.Linq.Expressions.Expression{System.Func{``0,``0}})">
+            <summary>
+            Builds the independent difference F−G. If the normalized deferred
+            expressions have the same RICIS identity, it returns the typed zero.
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.Extensions.RicisProofExtensions.Ratio``1(System.Linq.Expressions.Expression{System.Func{``0,``0}},System.Linq.Expressions.Expression{System.Func{``0,``0}})">
+            <summary>
+            Builds the independent ratio F/G. The phase-0 identity rule is then
+            allowed to reduce equal expressions to the typed one before bridges or
+            singular transformations are considered.
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.Extensions.RicisProofExtensions.Product``1(System.Linq.Expressions.Expression{System.Func{``0,``0}},System.Linq.Expressions.Expression{System.Func{``0,``0}})">
+            <summary>
+            Builds the independent product F·G. It is ordinary structural product,
+            distinct from Integral(F,L), whose geometric meaning is the A6 result.
+            </summary>
+        </member>
+        <member name="T:Ricis.Core.Extensions.RicisVectorCalculusExtensions">
+            <summary>
+            Formal vector-calculus operations over four-variable deferred RICIS fields.
+            All operations construct and transform expression trees only; no component
+            or field is compiled or numerically sampled.
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.Extensions.RicisVectorCalculusExtensions.PartialDerivative(System.Linq.Expressions.Expression{System.Func{System.Double,System.Double,System.Double,System.Double,System.Double}},Ricis.Core.Expressions.RicisFieldCoordinate)">
+            <summary>
+            Builds the exact symbolic partial derivative of a scalar field with respect
+            to one coordinate of <c>(x,y,z,t)</c>.
+            </summary>
+            <param name="field">The deferred scalar field.</param>
+            <param name="coordinate">The selected coordinate.</param>
+            <returns>A normalized deferred scalar field for the partial derivative.</returns>
+        </member>
+        <member name="M:Ricis.Core.Extensions.RicisVectorCalculusExtensions.Gradient(System.Linq.Expressions.Expression{System.Func{System.Double,System.Double,System.Double,System.Double,System.Double}})">
+            <summary>
+            Builds the spatial gradient <c>(∂x F,∂y F,∂z F)</c> of a scalar field.
+            </summary>
+            <param name="field">The deferred scalar field.</param>
+            <returns>The exact symbolic gradient field.</returns>
+        </member>
+        <member name="M:Ricis.Core.Extensions.RicisVectorCalculusExtensions.Divergence(Ricis.Core.Expressions.RicisVectorField3)">
+            <summary>
+            Builds the spatial divergence <c>∂x U+∂y V+∂z W</c> of a vector field.
+            </summary>
+            <param name="field">The deferred vector field.</param>
+            <returns>The exact deferred divergence scalar field.</returns>
+        </member>
+        <member name="M:Ricis.Core.Extensions.RicisVectorCalculusExtensions.Laplacian(Ricis.Core.Expressions.RicisVectorField3)">
+            <summary>
+            Builds the componentwise spatial Laplacian of a vector field.
+            </summary>
+            <param name="field">The deferred vector field.</param>
+            <returns>The exact vector field <c>Δfield</c>.</returns>
+        </member>
+        <member name="M:Ricis.Core.Extensions.RicisVectorCalculusExtensions.TimeDerivative(Ricis.Core.Expressions.RicisVectorField3)">
+            <summary>
+            Builds the componentwise exact time derivative of a vector field.
+            </summary>
+            <param name="field">The deferred vector field.</param>
+            <returns>The field <c>∂t field</c>.</returns>
+        </member>
+        <member name="M:Ricis.Core.Extensions.RicisVectorCalculusExtensions.ConvectiveDerivative(Ricis.Core.Expressions.RicisVectorField3,Ricis.Core.Expressions.RicisVectorField3)">
+            <summary>
+            Builds the convective field <c>(u·∇)v</c> without evaluating either field.
+            </summary>
+            <param name="transport">The deferred transport velocity <c>u</c>.</param>
+            <param name="field">The deferred field <c>v</c>.</param>
+            <returns>The exact symbolic convective derivative.</returns>
+        </member>
+        <member name="M:Ricis.Core.Extensions.RicisVectorCalculusExtensions.Add(Ricis.Core.Expressions.RicisVectorField3,Ricis.Core.Expressions.RicisVectorField3)">
+            <summary>
+            Adds two deferred vector fields componentwise.
+            </summary>
+            <param name="left">The first field.</param>
+            <param name="right">The second field.</param>
+            <returns>The exact field <c>left+right</c>.</returns>
+        </member>
+        <member name="M:Ricis.Core.Extensions.RicisVectorCalculusExtensions.Subtract(Ricis.Core.Expressions.RicisVectorField3,Ricis.Core.Expressions.RicisVectorField3)">
+            <summary>
+            Subtracts the second deferred vector field from the first componentwise.
+            </summary>
+            <param name="left">The minuend field.</param>
+            <param name="right">The subtrahend field.</param>
+            <returns>The exact field <c>left-right</c>.</returns>
+        </member>
+        <member name="M:Ricis.Core.Extensions.RicisVectorCalculusExtensions.Scale(Ricis.Core.Expressions.RicisVectorField3,System.Double)">
+            <summary>
+            Scales every component of a deferred vector field by a finite scalar.
+            </summary>
+            <param name="field">The source field.</param>
+            <param name="scalar">The scalar multiplier.</param>
+            <returns>The exact scaled field.</returns>
+        </member>
+        <member name="M:Ricis.Core.Extensions.RicisVectorCalculusExtensions.IsStructuralZero(Ricis.Core.Expressions.RicisVectorField3)">
+            <summary>
+            Determines whether every component of a deferred field is structurally a typed zero after RICIS normalization.
+            </summary>
+            <param name="field">The field to inspect.</param>
+            <returns><see langword="true"/> when all three components are exact zeros.</returns>
+        </member>
+        <member name="T:Ricis.Core.Extensions.SymbolicDerivator">
+            <summary>
+            Compatibility entry point for formal symbolic differentiation.
+            It delegates to <see cref="M:Ricis.Core.Extensions.RicisDerivativeExtensions.DxDt``1(System.Linq.Expressions.Expression{System.Func{``0,``0}})"/> and never
+            uses limits, L'Hopital's rule, numerical differences, or approximation.
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.Extensions.SymbolicDerivator.Derive(System.Linq.Expressions.Expression,System.Linq.Expressions.ParameterExpression)">
+            <summary>
+            Builds dF/dt for an existing double expression. New generic callers
+            should prefer <c>Expression&lt;Func&lt;T,T&gt;&gt;.DxDt()</c>.
+            </summary>
+        </member>
+        <member name="T:Ricis.Core.Limits.LimitBridge">
+            <summary>
+            O(1) recognition of direct RICIS limit bridges.
+            The detector inspects only the current binary node and its two immediate
+            children; the index F is kept as an untouched deferred expression.
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.Limits.LimitBridge.TryApply(System.Linq.Expressions.Expression,System.Linq.Expressions.Expression@)">
+            <summary>
+            Replaces F·0 or 0·F with 0_F, and F/0 with ∞_F.
+            Returns false without modifying expressions outside these direct forms.
+            </summary>
+        </member>
+        <member name="T:Ricis.Core.Metadata.AboutCaptureDetector">
+            <summary>
+            Detects the opt-in variable or lambda parameter named <c>about</c>.
+            Closure capture and parameter-based opt-in are both supported.
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.Metadata.AboutCaptureDetector.IsCaptured(System.Linq.Expressions.Expression)">
+            <summary>
+            Determines whether the supplied expression captures an outer variable named <c>about</c>.
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.Metadata.AboutCaptureDetector.IsAboutOptIn(System.Linq.Expressions.Expression)">
+            <summary>
+            Determines whether the supplied expression opts into author metadata by
+            either capturing an outer <c>about</c> variable or naming a lambda parameter <c>about</c>.
+            </summary>
+        </member>
+        <member name="T:Ricis.Core.Metadata.AuthorSeoProfile">
+            <summary>
+            Public, source-backed author metadata rendered only when an expression
+            explicitly captures the opt-in variable named <c>about</c>.
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.Metadata.AuthorSeoProfile.#ctor(System.String,System.String,System.String,System.DateOnly,System.String,System.Collections.Generic.IReadOnlyList{System.String},System.Collections.Generic.IReadOnlyList{Ricis.Core.Metadata.AuthorSeoWork})">
+            <summary>
+            Public, source-backed author metadata rendered only when an expression
+            explicitly captures the opt-in variable named <c>about</c>.
+            </summary>
+        </member>
+        <member name="P:Ricis.Core.Metadata.AuthorSeoProfile.RicisAuthor">
+            <summary>
+            Gets the <c>RicisAuthor</c> value of <c>AuthorSeoProfile</c>.
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.Metadata.AuthorSeoProfile.ToDisplayBlock">
+            <summary>
+            Executes <c>ToDisplayBlock</c> for the RICIS expression model.
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.Metadata.AuthorSeoProfile.ToJsonLd">
+            <summary>
+            Executes <c>ToJsonLd</c> for the RICIS expression model.
+            </summary>
+        </member>
+        <member name="T:Ricis.Core.Metadata.AuthorSeoWork">
+            <summary>
+            Represents the RICIS public type <c>AuthorSeoWork</c>.
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.Metadata.AuthorSeoWork.#ctor(System.String,System.String,System.DateOnly)">
+            <summary>
+            Represents the RICIS public type <c>AuthorSeoWork</c>.
+            </summary>
+        </member>
+        <member name="T:Ricis.Core.NumericConstants">
+            <summary>
+            Typed additive and multiplicative identities for scalar types used in RICIS
+            expressions. Built-in numeric types are registered automatically. A custom
+            <c>INumber&lt;TSelf&gt;</c> type is registered by either
+            <see cref="M:Ricis.Core.NumericConstants.Register``1"/> or the generic finite-expression API.
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.NumericConstants.Register``1">
+            <summary>
+            Registers a scalar implementing .NET generic math. Call this once before
+            passing a custom scalar directly into the non-generic phase pipeline.
+            Generic entry points register their <c>T</c> automatically.
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.NumericConstants.ZeroOf(System.Type)">
+            <summary>Returns <c>T.Zero</c> as a typed expression constant.</summary>
+        </member>
+        <member name="M:Ricis.Core.NumericConstants.OneOf(System.Type)">
+            <summary>Returns <c>T.One</c> as a typed expression constant.</summary>
+        </member>
+        <member name="M:Ricis.Core.NumericConstants.TryOneOf(System.Type,System.Linq.Expressions.ConstantExpression@)">
+            <summary>
+            Attempts to obtain the typed multiplicative identity for a scalar. This
+            lets the highest-priority F/F rule fall back safely when an arbitrary
+            user type has not supplied a numeric identity to RICIS.
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.NumericConstants.IsIntrinsicNumeric(System.Type)">
+            <summary>
+            Indicates whether a type belongs to the intrinsic .NET numeric domain
+            whose arithmetic is covered by RICIS scalar rules. User-defined
+            overloaded operators remain classical unless a separate RICIS rule
+            explicitly supports their semantic domain.
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.NumericConstants.IsZero(System.Object)">
+            <summary>Returns whether the supplied registered scalar is <c>T.Zero</c>.</summary>
+        </member>
+        <member name="M:Ricis.Core.NumericConstants.IsOne(System.Object)">
+            <summary>Returns whether the supplied registered scalar is <c>T.One</c>.</summary>
+        </member>
+        <member name="T:Ricis.Core.Phases.IdentityReductionVisitor">
+            <summary>
+            RICIS Phase 0 — highest-priority identity of essence.
+            For intrinsic .NET numeric scalar types, structurally identical operands
+            satisfy F/F → 1 before polar, algebraic, bridge or singularity phases.
+            User-defined operator methods remain classical even when their type also
+            implements generic math.
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.Phases.IdentityReductionVisitor.VisitBinary(System.Linq.Expressions.BinaryExpression)">
+            <inheritdoc />
+        </member>
+        <member name="M:Ricis.Core.Phases.IdentityReductionVisitor.VisitExtension(System.Linq.Expressions.Expression)">
+            <inheritdoc />
+        </member>
+        <member name="T:Ricis.Core.Phases.LimitBridgeVisitor">
+            <summary>
+            Applies direct O(1) limit bridges after SP2 has completed algebraic
+            cancellation and before singularity operations consume the resulting node.
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.Phases.LimitBridgeVisitor.VisitBinary(System.Linq.Expressions.BinaryExpression)">
+            <inheritdoc />
+        </member>
+        <member name="M:Ricis.Core.Phases.LimitBridgeVisitor.VisitExtension(System.Linq.Expressions.Expression)">
+            <inheritdoc />
+        </member>
+        <member name="T:Ricis.Core.Phases.RicisPhasePipeline">
+            <summary>
+            Normative RICIS phase order:
+            identity of essence F≡F→1; polar reduction; SP2 algebra; O(1) bridges;
+            A1/A4 singular transforms; and standard operations A5–A7 plus indexed-zero
+            rules. Operations outside an explicit RICIS rule retain classical semantics.
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.Phases.RicisPhasePipeline.Simplify(System.Linq.Expressions.Expression)">
+            <summary>
+            Simplifies an expression through the complete normative RICIS pipeline.
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.Phases.RicisPhasePipeline.SimplifyWithTrace(System.Linq.Expressions.Expression,System.Collections.Generic.ICollection{Ricis.Core.Phases.RicisPhaseTraceStep})">
+            <summary>
+            Simplifies an expression through the normative RICIS pipeline and appends
+            one immutable trace record for every phase attempt. The supplied trace is
+            output-only: existing records are preserved and the input expression is
+            never executed during simplification.
+            </summary>
+        </member>
+        <member name="T:Ricis.Core.Phases.RicisPhaseTraceStep">
+            <summary>
+            Represents one deterministic transformation attempt of the normative RICIS
+            pipeline. The step stores the complete before and after expression trees,
+            the phase name, and the family of rules that governed the attempt.
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.Phases.RicisPhaseTraceStep.#ctor(System.String,System.String,System.Linq.Expressions.Expression,System.Linq.Expressions.Expression,System.Boolean)">
+            <summary>
+            Initializes one pipeline trace step.
+            </summary>
+        </member>
+        <member name="P:Ricis.Core.Phases.RicisPhaseTraceStep.PhaseName">
+            <summary>
+            Gets the ordered normative phase that attempted a transformation.
+            </summary>
+        </member>
+        <member name="P:Ricis.Core.Phases.RicisPhaseTraceStep.RuleFamily">
+            <summary>
+            Gets the RICIS axiom family or structural rule family governing the phase.
+            </summary>
+        </member>
+        <member name="P:Ricis.Core.Phases.RicisPhaseTraceStep.Before">
+            <summary>
+            Gets the expression tree before this phase.
+            </summary>
+        </member>
+        <member name="P:Ricis.Core.Phases.RicisPhaseTraceStep.After">
+            <summary>
+            Gets the expression tree after this phase.
+            </summary>
+        </member>
+        <member name="P:Ricis.Core.Phases.RicisPhaseTraceStep.WasSkipped">
+            <summary>
+            Gets whether the phase was deliberately skipped because its certified
+            double-domain precondition was unavailable for the current expression.
+            </summary>
+        </member>
+        <member name="P:Ricis.Core.Phases.RicisPhaseTraceStep.Changed">
+            <summary>
+            Gets whether the phase changed the structural RICIS expression.
+            A deliberately skipped phase is never reported as a transformation.
+            </summary>
+        </member>
+        <member name="T:Ricis.Core.Phases.StandardOperationsPhase">
+            <summary>
+            Phase 5: Standard operations (по RICIS 7.3)
+            Применяет безопасные стандартные упрощения после RICIS
+            DRY-подход: минимальный визитор только для очевидных случаев
+            Не трогает ∞_F, Monolith и другие кастомные узлы
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.Phases.StandardOperationsPhase.Apply(System.Linq.Expressions.Expression)">
+            <summary>
+            Executes <c>Apply</c> for the RICIS expression model.
+            </summary>
+        </member>
+        <member name="T:Ricis.Core.Phases.StandardOperationsVisitor">
+            <summary>
+            Applies the standard RICIS operations A4–A7 after bridge and transform
+            phases. Indexed zeros and indexed infinities are distinct forms and are
+            deliberately handled by separate rules.
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.Phases.StandardOperationsVisitor.VisitExtension(System.Linq.Expressions.Expression)">
+            <inheritdoc />
+        </member>
+        <member name="M:Ricis.Core.Phases.StandardOperationsVisitor.VisitBinary(System.Linq.Expressions.BinaryExpression)">
+            <inheritdoc />
+        </member>
+        <member name="T:Ricis.Core.Phases.TypeConsistencyPhase">
+            <summary>
+            Phase 4: Type Consistency Protocol (SP3).
+            Validates indexed RICIS nodes without reducing or rewriting their payload.
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.Phases.TypeConsistencyPhase.Apply(System.Linq.Expressions.Expression)">
+            <summary>
+            Validates type consistency for the supplied RICIS expression and returns
+            the original expression unchanged.
+            </summary>
+            <param name="expr">The expression to validate.</param>
+            <returns>The same expression instance after validation.</returns>
+            <exception cref="T:System.ArgumentException">Thrown when an indexed node has an invalid payload or key.</exception>
+        </member>
+        <member name="T:Ricis.Core.Phases.TypeConsistencyVisitor">
+            <summary>
+            Non-reducing SP3 visitor for indexed RICIS nodes.
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.Phases.TypeConsistencyVisitor.VisitExtension(System.Linq.Expressions.Expression)">
+            <inheritdoc />
+        </member>
+        <member name="T:Ricis.Core.PolarConverter">
+            <summary>
+            Trigonometry via polar sectors (RICIS).
+            Angle → fraction of circle → exact algebraic value when sector is rational
+            with known closed form. Half of trig singularities collapse here (SP2 on the circle):
+              sin/cos → 0, ±1, ±1/2, … or stay as indexed 0_F / ∞_F.
+            No Taylor series. No L'Hôpital.
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.PolarConverter.ExactSinCos(Ricis.Core.Rationals.Rational)">
+            <summary>
+            Exact (sin, cos) at rational sector p/q of the full circle, when known.
+            Fraction is in [0,1) = angle/(2π).
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.PolarConverter.TryCollapseTrig(System.String,System.Double)">
+            <summary>
+            Collapse trig at a numeric angle via polar sector.
+            Returns Expression.Constant when exact; null if sector not algebraic.
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.PolarConverter.CollapseConstantTrig(System.Linq.Expressions.MethodCallExpression)">
+            <summary>
+            SP2-on-circle: if MethodCall is Sin/Cos/Tan of a constant angle,
+            replace by exact polar value (or indexed ∞).
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.PolarConverter.ToPolarSector(Ricis.Core.Expressions.InfinityExpression,System.Int32,System.Int32)">
+            <summary>
+            Polar representation of a singularity monolith — each root as sector text.
+            </summary>
+        </member>
+        <member name="T:Ricis.Core.Polynomial.PolynomialLongDivision">
+            <summary>
+            Represents the RICIS public type <c>PolynomialLongDivision</c>.
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.Polynomial.PolynomialLongDivision.TryDivide(System.Linq.Expressions.Expression,System.Linq.Expressions.Expression,System.Linq.Expressions.ParameterExpression)">
+            <summary>
+            Attempts to <c>Divide</c> within the RICIS model.
+            </summary>
+        </member>
+        <member name="T:Ricis.Core.Polynomial.PolynomialParser">
+            <summary>
+            Robust quadratic extractor: walks the expression, collects additive terms,
+            for each term extracts coefficient and degree (power of the single parameter).
+            Returns (parameter, a, b, c) for a*x^2 + b*x + c if found (otherwise null).
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.Polynomial.PolynomialParser.ParseQuadratic(System.Linq.Expressions.Expression)">
+            <summary>
+            Executes <c>ParseQuadratic</c> for the RICIS expression model.
+            </summary>
+        </member>
+        <member name="T:Ricis.Core.Polynomial.PolynomialZeroSolver">
+            <summary>
+            Represents the RICIS public type <c>PolynomialZeroSolver</c>.
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.Polynomial.PolynomialZeroSolver.FindRoots(System.Linq.Expressions.Expression,System.Linq.Expressions.ParameterExpression)">
+            <summary>
+            Поиск корней
+            </summary>
+            <param name="expr"></param>
+            <param name="param"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Ricis.Core.Polynomial.PolynomialZeroSolver.FindNumericalRoots(System.Linq.Expressions.Expression,System.Linq.Expressions.ParameterExpression)">
+            <summary>
+            Подбор параметров
+            </summary>
+            <param name="expr"></param>
+            <param name="param"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Ricis.Core.Polynomial.PolynomialZeroSolver.Bisection(System.Linq.Expressions.Expression,System.Linq.Expressions.ParameterExpression,System.Double,System.Double,System.Double)">
+            <summary>
+            
+            </summary>
+            <param name="expr"></param>
+            <param name="param"></param>
+            <param name="a"></param>
+            <param name="b"></param>
+            <param name="tol"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Ricis.Core.Polynomial.PolynomialZeroSolver.FindRootsInRange(System.Linq.Expressions.Expression,System.Linq.Expressions.ParameterExpression,System.Double,System.Double,System.Int32)">
+            <summary>
+            Executes <c>FindRootsInRange</c> for the RICIS expression model.
+            </summary>
+        </member>
+        <member name="T:Ricis.Core.Proofs.RicisCheckedProofResult`1">
+            <summary>
+            Stores the result of a proof driven by real lambda hypotheses and a real
+            expected expression. The verification expression is retained as an
+            expression tree and is never compiled by the proof engine.
+            </summary>
+            <typeparam name="T">The scalar type of the deferred expression.</typeparam>
+        </member>
+        <member name="M:Ricis.Core.Proofs.RicisCheckedProofResult`1.#ctor(System.Linq.Expressions.Expression{System.Func{`0,`0}},System.Linq.Expressions.Expression{System.Func{`0,`0}},System.Linq.Expressions.Expression{System.Func{`0,System.Boolean}},System.Boolean,System.Collections.Generic.IReadOnlyList{System.Linq.Expressions.Expression{System.Func{`0,System.Boolean}}},System.Collections.Generic.IReadOnlyList{System.Linq.Expressions.Expression{System.Func{`0,System.Boolean}}})">
+            <summary>
+            Initializes a checked proof result.
+            </summary>
+        </member>
+        <member name="P:Ricis.Core.Proofs.RicisCheckedProofResult`1.Derived">
+            <summary>Gets the independently derived RICIS expression.</summary>
+        </member>
+        <member name="P:Ricis.Core.Proofs.RicisCheckedProofResult`1.Expected">
+            <summary>Gets the real expected expression supplied by the caller.</summary>
+        </member>
+        <member name="P:Ricis.Core.Proofs.RicisCheckedProofResult`1.Verification">
+            <summary>
+            Gets the real structural verification expression <c>derived == expected</c>.
+            </summary>
+        </member>
+        <member name="P:Ricis.Core.Proofs.RicisCheckedProofResult`1.IsVerified">
+            <summary>Gets whether the normalized derived and expected trees are structurally equal.</summary>
+        </member>
+        <member name="P:Ricis.Core.Proofs.RicisCheckedProofResult`1.Conditions">
+            <summary>Gets the actual lambda conditions supplied to the proof engine.</summary>
+        </member>
+        <member name="P:Ricis.Core.Proofs.RicisCheckedProofResult`1.Constraints">
+            <summary>Gets the actual lambda constraints supplied to the proof engine.</summary>
+        </member>
+        <member name="M:Ricis.Core.Proofs.RicisCheckedProofResult`1.ToString">
+            <inheritdoc />
+        </member>
+        <member name="T:Ricis.Core.Proofs.RicisLeanProofRow">
+            <summary>
+            Selects a theorem row that the canonical RICIS Lean identity model can emit.
+            Rows are structural proof requests, not arbitrary text fragments.
+            </summary>
+        </member>
+        <member name="F:Ricis.Core.Proofs.RicisLeanProofRow.Id01TypePreserved">
+            <summary>Emits the ID-01 type-preservation theorem.</summary>
+        </member>
+        <member name="F:Ricis.Core.Proofs.RicisLeanProofRow.Id02ReflectionSum">
+            <summary>Emits the ID-02 reflection-sum theorem.</summary>
+        </member>
+        <member name="F:Ricis.Core.Proofs.RicisLeanProofRow.Id03SameCoordinate">
+            <summary>Emits the ID-03 faithful-coordinate theorem.</summary>
+        </member>
+        <member name="F:Ricis.Core.Proofs.RicisLeanProofRow.Id04LinearPair">
+            <summary>Emits the ID-04 linear-pair theorem.</summary>
+        </member>
+        <member name="F:Ricis.Core.Proofs.RicisLeanProofRow.Id05DoubledCoordinate">
+            <summary>Emits the ID-05 doubled-coordinate theorem.</summary>
+        </member>
+        <member name="F:Ricis.Core.Proofs.RicisLeanProofRow.Id06ExactHalf">
+            <summary>Emits the ID-06 exact-half theorem.</summary>
+        </member>
+        <member name="F:Ricis.Core.Proofs.RicisLeanProofRow.Id06ReflectedExactHalf">
+            <summary>Emits the reflected-coordinate exact-half theorem.</summary>
+        </member>
+        <member name="F:Ricis.Core.Proofs.RicisLeanProofRow.CollapsedTypeGuard">
+            <summary>Emits the negative ID-03 collapsed-type guard theorem.</summary>
+        </member>
+        <member name="F:Ricis.Core.Proofs.RicisLeanProofRow.A6IndexedZeroInfinityBridge">
+            <summary>Emits the A6 indexed-zero times indexed-infinity geometric bridge theorem.</summary>
+        </member>
+        <member name="T:Ricis.Core.Proofs.RicisLeanStructuredData">
+            <summary>
+            Supplies the structured identifiers and type names used by the canonical
+            Lean ID-01–ID-06 template. Values are validated as Lean identifiers before
+            source generation, so they cannot inject arbitrary Lean statements.
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.Proofs.RicisLeanStructuredData.#ctor(System.String,System.String,System.String,System.String,System.String,System.String,System.String,System.String)">
+            <summary>
+            Initializes structured Lean names for the reflected-coordinate model.
+            </summary>
+            <param name="namespaceName">The Lean namespace to generate.</param>
+            <param name="typeTagName">The type parameter name of TypeIdentityAxioms.</param>
+            <param name="typeOfName">The identity type-map field name.</param>
+            <param name="reflectName">The reflection field name.</param>
+            <param name="sigmaName">The primary coordinate name.</param>
+            <param name="mirrorSigmaName">The reflected coordinate name used in comments and bridge rows.</param>
+            <param name="zeroPayloadName">The indexed-zero payload field name for A6.</param>
+            <param name="infinityPayloadName">The indexed-infinity payload field name for A6.</param>
+        </member>
+        <member name="P:Ricis.Core.Proofs.RicisLeanStructuredData.NamespaceName">
+            <summary>Gets the generated Lean namespace.</summary>
+        </member>
+        <member name="P:Ricis.Core.Proofs.RicisLeanStructuredData.TypeTagName">
+            <summary>Gets the generated Lean type parameter name.</summary>
+        </member>
+        <member name="P:Ricis.Core.Proofs.RicisLeanStructuredData.TypeOfName">
+            <summary>Gets the generated identity type-map field name.</summary>
+        </member>
+        <member name="P:Ricis.Core.Proofs.RicisLeanStructuredData.ReflectName">
+            <summary>Gets the generated reflection field name.</summary>
+        </member>
+        <member name="P:Ricis.Core.Proofs.RicisLeanStructuredData.SigmaName">
+            <summary>Gets the generated primary coordinate name.</summary>
+        </member>
+        <member name="P:Ricis.Core.Proofs.RicisLeanStructuredData.MirrorSigmaName">
+            <summary>Gets the generated reflected-coordinate name.</summary>
+        </member>
+        <member name="P:Ricis.Core.Proofs.RicisLeanStructuredData.ZeroPayloadName">
+            <summary>Gets the generated indexed-zero payload field name.</summary>
+        </member>
+        <member name="P:Ricis.Core.Proofs.RicisLeanStructuredData.InfinityPayloadName">
+            <summary>Gets the generated indexed-infinity payload field name.</summary>
+        </member>
+        <member name="T:Ricis.Core.Proofs.RicisUnsupportedLeanProofShapeException">
+            <summary>
+            Indicates that a generic C# proof shape has no supported structured Lean bridge.
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.Proofs.RicisUnsupportedLeanProofShapeException.#ctor(System.String)">
+            <summary>Creates an unsupported Lean proof shape exception.</summary>
+            <param name="message">The diagnostic message.</param>
+        </member>
+        <member name="T:Ricis.Core.Proofs.RicisLeanRequestedRows">
+            <summary>
+            Represents an immutable requested-row set for the Lean template. Required
+            dependencies are expanded in canonical theorem order before rendering.
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.Proofs.RicisLeanRequestedRows.#ctor(System.Collections.Generic.IEnumerable{Ricis.Core.Proofs.RicisLeanProofRow})">
+            <summary>
+            Initializes and dependency-expands requested Lean proof rows.
+            </summary>
+            <param name="rows">The requested theorem rows.</param>
+        </member>
+        <member name="P:Ricis.Core.Proofs.RicisLeanRequestedRows.Rows">
+            <summary>Gets the dependency-expanded rows in canonical enum order.</summary>
+        </member>
+        <member name="T:Ricis.Core.Proofs.RicisLeanDoc">
+            <summary>
+            Contains generated Lean source and the exact structured rows used to create it.
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.Proofs.RicisLeanDoc.#ctor(System.String,Ricis.Core.Proofs.RicisLeanRequestedRows)">
+            <summary>Creates a generated Lean document.</summary>
+            <param name="source">The complete Lean source text.</param>
+            <param name="rows">The expanded requested rows used by the template.</param>
+        </member>
+        <member name="P:Ricis.Core.Proofs.RicisLeanDoc.Source">
+            <summary>Gets the generated Lean source.</summary>
+        </member>
+        <member name="P:Ricis.Core.Proofs.RicisLeanDoc.Rows">
+            <summary>Gets the expanded requested rows.</summary>
+        </member>
+        <member name="M:Ricis.Core.Proofs.RicisLeanDoc.ToString">
+            <summary>Returns the generated Lean source.</summary>
+        </member>
+        <member name="T:Ricis.Core.Proofs.RicisLeanTemplate">
+            <summary>
+            Generates compilable Lean source from structured RICIS data and requested
+            theorem rows. The renderer never interpolates arbitrary proof text or C#
+            expression ToString output into Lean code.
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.Proofs.RicisLeanTemplate.Render(Ricis.Core.Proofs.RicisLeanStructuredData,Ricis.Core.Proofs.RicisLeanRequestedRows)">
+            <summary>
+            Builds a Lean document from structured names and requested theorem rows.
+            Dependencies are expanded by <see cref="T:Ricis.Core.Proofs.RicisLeanRequestedRows"/> before
+            this method emits the canonical ID-01–ID-06 proof shape.
+            </summary>
+            <param name="data">Validated structured Lean identifiers.</param>
+            <param name="requestedRows">Requested theorem rows and their dependencies.</param>
+            <returns>A typed Lean document containing compilable source.</returns>
+        </member>
+        <member name="T:Ricis.Core.Proofs.RicisNavierStokesProofResult">
+            <summary>
+            Stores the exact deferred fields produced by a RICIS Navier-Stokes proof scenario.
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.Proofs.RicisNavierStokesProofResult.#ctor(System.Linq.Expressions.Expression{System.Func{System.Double,System.Double,System.Double,System.Double,System.Double}},Ricis.Core.Expressions.RicisVectorField3,Ricis.Core.Expressions.RicisVectorField3,Ricis.Core.Expressions.RicisVectorField3,Ricis.Core.Expressions.RicisVectorField3,Ricis.Core.Expressions.RicisVectorField3)">
+            <summary>
+            Initializes a certified proof result.
+            </summary>
+            <param name="divergence">The formal incompressibility scalar.</param>
+            <param name="timeDerivative">The exact field <c>∂t u</c>.</param>
+            <param name="convection">The exact field <c>(u·∇)u</c>.</param>
+            <param name="pressureGradient">The exact field <c>∇p</c>.</param>
+            <param name="laplacian">The exact field <c>Δu</c>.</param>
+            <param name="residual">The normalized Navier-Stokes residual.</param>
+            <exception cref="T:System.ArgumentNullException">Thrown when an intermediate proof expression is null.</exception>
+        </member>
+        <member name="P:Ricis.Core.Proofs.RicisNavierStokesProofResult.Divergence">
+            <summary>Gets the formal divergence <c>∇·u</c>.</summary>
+        </member>
+        <member name="P:Ricis.Core.Proofs.RicisNavierStokesProofResult.TimeDerivative">
+            <summary>Gets the formal time derivative <c>∂t u</c>.</summary>
+        </member>
+        <member name="P:Ricis.Core.Proofs.RicisNavierStokesProofResult.Convection">
+            <summary>Gets the formal convective field <c>(u·∇)u</c>.</summary>
+        </member>
+        <member name="P:Ricis.Core.Proofs.RicisNavierStokesProofResult.PressureGradient">
+            <summary>Gets the formal pressure gradient <c>∇p</c>.</summary>
+        </member>
+        <member name="P:Ricis.Core.Proofs.RicisNavierStokesProofResult.Laplacian">
+            <summary>Gets the formal viscous base field <c>Δu</c>.</summary>
+        </member>
+        <member name="P:Ricis.Core.Proofs.RicisNavierStokesProofResult.Residual">
+            <summary>Gets the normalized Navier-Stokes residual.</summary>
+        </member>
+        <member name="P:Ricis.Core.Proofs.RicisNavierStokesProofResult.IsCertified">
+            <summary>Gets whether incompressibility and every residual component are exact structural zeros.</summary>
+        </member>
+        <member name="T:Ricis.Core.Proofs.RicisPreviousParameterIdentityProofCase">
+            <summary>
+            Proves the RICIS identity for one delayed function evaluated at x and x−1
+            when the two responses are structurally equal.
+            </summary>
+            <remarks>
+            The case constructs <c>(F(x)/F(x−1))-1</c>. The second parameter is the
+            exact previous parameter expression <c>x−1</c>; no independent y parameter
+            and no periodicity claim are introduced.
+            </remarks>
+        </member>
+        <member name="M:Ricis.Core.Proofs.RicisPreviousParameterIdentityProofCase.#ctor(System.Linq.Expressions.Expression{System.Func{System.Double,System.Double}})">
+            <summary>
+            Initializes a previous-parameter identity proof case.
+            </summary>
+            <param name="function">The delayed unary function F(u).</param>
+            <exception cref="T:System.ArgumentNullException">Thrown when <paramref name="function"/> is null.</exception>
+        </member>
+        <member name="P:Ricis.Core.Proofs.RicisPreviousParameterIdentityProofCase.Name">
+            <inheritdoc />
+        </member>
+        <member name="P:Ricis.Core.Proofs.RicisPreviousParameterIdentityProofCase.UnresolvedObligations">
+            <inheritdoc />
+        </member>
+        <member name="M:Ricis.Core.Proofs.RicisPreviousParameterIdentityProofCase.Execute(System.Collections.Generic.ICollection{Ricis.Core.Proofs.RicisProofMonitorEntry})">
+            <inheritdoc />
+        </member>
+        <member name="T:Ricis.Core.Proofs.RicisProofAxiomStep">
+            <summary>
+            Represents a named normative axiom or derived axiom step that is explicitly
+            declared in a RICIS proof document before the expression-tree derivation.
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.Proofs.RicisProofAxiomStep.#ctor(System.String,System.String,System.String)">
+            <summary>
+            Initializes a named normative proof step.
+            </summary>
+            <param name="ruleId">The stable normative identifier, such as <c>ID-01</c>.</param>
+            <param name="title">The concise name of the applied rule.</param>
+            <param name="statement">The exact formal consequence supplied by the rule.</param>
+            <exception cref="T:System.ArgumentException">Thrown when any textual component is null, empty, or whitespace.</exception>
+        </member>
+        <member name="P:Ricis.Core.Proofs.RicisProofAxiomStep.RuleId">
+            <summary>Gets the stable normative identifier.</summary>
+        </member>
+        <member name="P:Ricis.Core.Proofs.RicisProofAxiomStep.Title">
+            <summary>Gets the concise title of the rule.</summary>
+        </member>
+        <member name="P:Ricis.Core.Proofs.RicisProofAxiomStep.Statement">
+            <summary>Gets the exact formal consequence of the rule.</summary>
+        </member>
+        <member name="T:Ricis.Core.Proofs.RicisProofCase">
+            <summary>
+            Defines the orchestration boundary for a proof case. The base class owns
+            monitoring and output state; a derived case owns its domain-specific premises
+            and the proof protocol it delegates to the RICIS engine.
+            </summary>
+        </member>
+        <member name="P:Ricis.Core.Proofs.RicisProofCase.Name">
+            <summary>
+            Gets the human-readable proof-case name.
+            </summary>
+        </member>
+        <member name="P:Ricis.Core.Proofs.RicisProofCase.Monitor">
+            <summary>
+            Gets the monitored proof events in execution order.
+            </summary>
+        </member>
+        <member name="P:Ricis.Core.Proofs.RicisProofCase.UnresolvedObligations">
+            <summary>
+            Gets the unresolved domain obligations that are outside the generic RICIS algebra engine.
+            </summary>
+        </member>
+        <member name="P:Ricis.Core.Proofs.RicisProofCase.Result">
+            <summary>
+            Gets the proof result and monitored output after <see cref="M:Ricis.Core.Proofs.RicisProofCase.Run"/> completes.
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.Proofs.RicisProofCase.Run">
+            <summary>
+            Executes the proof case once and returns its independent result.
+            </summary>
+            <returns>The derived expression, rendered document and monitoring snapshot.</returns>
+        </member>
+        <member name="M:Ricis.Core.Proofs.RicisProofCase.AddMonitor(System.String,System.String,System.String)">
+            <summary>
+            Adds a monitored event for a derived proof case.
+            </summary>
+            <param name="stage">Stable stage identifier.</param>
+            <param name="status">Stage status such as <c>OPEN</c>, <c>PASS</c> or <c>BLOCKED</c>.</param>
+            <param name="message">Human-readable stage message.</param>
+        </member>
+        <member name="M:Ricis.Core.Proofs.RicisProofCase.Execute(System.Collections.Generic.ICollection{Ricis.Core.Proofs.RicisProofMonitorEntry})">
+            <summary>
+            Performs domain-specific proof orchestration while preserving the base monitoring contract.
+            </summary>
+            <param name="events">The mutable event sink owned by the base class.</param>
+            <returns>The independent result for this case.</returns>
+        </member>
+        <member name="T:Ricis.Core.Proofs.RicisProofMonitorEntry">
+            <summary>
+            Represents one monitored event emitted by a proof case.
+            </summary>
+            <param name="Stage">Stable stage identifier.</param>
+            <param name="Status">Stage status.</param>
+            <param name="Message">Human-readable stage message.</param>
+        </member>
+        <member name="M:Ricis.Core.Proofs.RicisProofMonitorEntry.#ctor(System.String,System.String,System.String)">
+            <summary>
+            Represents one monitored event emitted by a proof case.
+            </summary>
+            <param name="Stage">Stable stage identifier.</param>
+            <param name="Status">Stage status.</param>
+            <param name="Message">Human-readable stage message.</param>
+        </member>
+        <member name="P:Ricis.Core.Proofs.RicisProofMonitorEntry.Stage">
+            <summary>Stable stage identifier.</summary>
+        </member>
+        <member name="P:Ricis.Core.Proofs.RicisProofMonitorEntry.Status">
+            <summary>Stage status.</summary>
+        </member>
+        <member name="P:Ricis.Core.Proofs.RicisProofMonitorEntry.Message">
+            <summary>Human-readable stage message.</summary>
+        </member>
+        <member name="T:Ricis.Core.Proofs.RicisProofCaseResult">
+            <summary>
+            Contains the output of a specialized proof case.
+            </summary>
+            <param name="Status">Proof status, normally <c>ConditionalTheorem</c> for cases with external obligations.</param>
+            <param name="DerivedExpression">The independent expression tree derived by RICIS.</param>
+            <param name="Document">The rendered proof document.</param>
+        </member>
+        <member name="M:Ricis.Core.Proofs.RicisProofCaseResult.#ctor(System.String,System.String,System.String)">
+            <summary>
+            Contains the output of a specialized proof case.
+            </summary>
+            <param name="Status">Proof status, normally <c>ConditionalTheorem</c> for cases with external obligations.</param>
+            <param name="DerivedExpression">The independent expression tree derived by RICIS.</param>
+            <param name="Document">The rendered proof document.</param>
+        </member>
+        <member name="P:Ricis.Core.Proofs.RicisProofCaseResult.Status">
+            <summary>Proof status, normally <c>ConditionalTheorem</c> for cases with external obligations.</summary>
+        </member>
+        <member name="P:Ricis.Core.Proofs.RicisProofCaseResult.DerivedExpression">
+            <summary>The independent expression tree derived by RICIS.</summary>
+        </member>
+        <member name="P:Ricis.Core.Proofs.RicisProofCaseResult.Document">
+            <summary>The rendered proof document.</summary>
+        </member>
+        <member name="T:Ricis.Core.Proofs.RicisProofDocumentFormat">
+            <summary>
+            Selects the presentation template used to render a RICIS proof document.
+            The selected format changes only the textual representation; it never
+            changes the symbolic derivation, its expression tree, or its proof scope.
+            </summary>
+        </member>
+        <member name="F:Ricis.Core.Proofs.RicisProofDocumentFormat.Log">
+            <summary>
+            Emits a compact line-oriented diagnostic protocol.
+            </summary>
+        </member>
+        <member name="F:Ricis.Core.Proofs.RicisProofDocumentFormat.Academic">
+            <summary>
+            Emits the full academic Markdown document with definitions, stated
+            premises, proof scope, trace, result, and limitations.
+            </summary>
+        </member>
+        <member name="F:Ricis.Core.Proofs.RicisProofDocumentFormat.Lean">
+            <summary>
+            Emits a Lean-oriented documentation scaffold. It records the RICIS
+            derivation in comments and explicitly does not claim that arbitrary C#
+            expression trees have been checked by Lean.
+            </summary>
+        </member>
+        <member name="F:Ricis.Core.Proofs.RicisProofDocumentFormat.Json">
+            <summary>
+            Emits a machine-readable JSON representation of the proof document.
+            </summary>
+        </member>
+        <member name="T:Ricis.Core.Proofs.RicisProofScope">
+            <summary>
+            Declares the epistemic scope assigned to a document produced from a RICIS
+            derivation. The scope is descriptive and never upgrades a finite derivation
+            into a proof of external assumptions.
+            </summary>
+        </member>
+        <member name="F:Ricis.Core.Proofs.RicisProofScope.FiniteDerivation">
+            <summary>
+            The document certifies only a finite derivation from the expression trees
+            explicitly supplied to the proof API.
+            </summary>
+        </member>
+        <member name="F:Ricis.Core.Proofs.RicisProofScope.ConditionalTheorem">
+            <summary>
+            The document states a conditional theorem whose conclusion is valid only
+            under its enumerated formal premises.
+            </summary>
+        </member>
+        <member name="T:Ricis.Core.Proofs.RicisProofDocumentProfile">
+            <summary>
+            Supplies academic metadata and explicit proof boundaries for a document
+            generated from a RICIS symbolic derivation.
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.Proofs.RicisProofDocumentProfile.#ctor(System.String,Ricis.Core.Proofs.RicisProofScope,System.String,System.String,System.Collections.Generic.IEnumerable{System.String},System.Collections.Generic.IEnumerable{System.String},System.Collections.Generic.IEnumerable{Ricis.Core.Proofs.RicisProofAxiomStep},System.Collections.Generic.IEnumerable{System.String})">
+            <summary>
+            Initializes a document profile.
+            </summary>
+            <param name="title">The title printed at the beginning of the document.</param>
+            <param name="scope">The declared epistemic scope of the derived conclusion.</param>
+            <param name="abstract">A concise statement of the document's purpose.</param>
+            <param name="theorem">The theorem or finite claim stated in the document.</param>
+            <param name="definitions">Definitions required to read the formal premises.</param>
+            <param name="axioms">Named axioms, lemmas, or external premises used by the stated theorem.</param>
+            <param name="normativeSteps">Named RICIS axiom steps that generate the machine-derived premises.</param>
+            <param name="limitations">Statements deliberately excluded from the document's proof status.</param>
+            <exception cref="T:System.ArgumentException">Thrown when a required textual field is null, empty, or whitespace.</exception>
+            <exception cref="T:System.ArgumentOutOfRangeException">Thrown when <paramref name="scope"/> is not a declared proof scope.</exception>
+        </member>
+        <member name="P:Ricis.Core.Proofs.RicisProofDocumentProfile.Title">
+            <summary>Gets the document title.</summary>
+        </member>
+        <member name="P:Ricis.Core.Proofs.RicisProofDocumentProfile.Scope">
+            <summary>Gets the declared proof scope.</summary>
+        </member>
+        <member name="P:Ricis.Core.Proofs.RicisProofDocumentProfile.Abstract">
+            <summary>Gets the concise purpose statement.</summary>
+        </member>
+        <member name="P:Ricis.Core.Proofs.RicisProofDocumentProfile.Theorem">
+            <summary>Gets the theorem or finite claim.</summary>
+        </member>
+        <member name="P:Ricis.Core.Proofs.RicisProofDocumentProfile.Definitions">
+            <summary>Gets immutable copies of the stated definitions.</summary>
+        </member>
+        <member name="P:Ricis.Core.Proofs.RicisProofDocumentProfile.Axioms">
+            <summary>Gets immutable copies of the named axioms or external premises.</summary>
+        </member>
+        <member name="P:Ricis.Core.Proofs.RicisProofDocumentProfile.NormativeSteps">
+            <summary>Gets immutable copies of the named normative RICIS steps.</summary>
+        </member>
+        <member name="P:Ricis.Core.Proofs.RicisProofDocumentProfile.Limitations">
+            <summary>Gets immutable copies of the stated proof limitations.</summary>
+        </member>
+        <member name="T:Ricis.Core.Proofs.RicisProofDocumentTemplates">
+            <summary>
+            Renders non-academic textual representations of an already-derived RICIS
+            proof. This layer never evaluates hypotheses or changes expression trees.
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.Proofs.RicisProofDocumentTemplates.Render(Ricis.Core.Proofs.RicisProofDocumentFormat,Ricis.Core.Proofs.RicisProofDocumentProfile,System.String,System.Linq.Expressions.LambdaExpression)">
+            <summary>
+            Renders a non-academic proof template selected by <paramref name="format"/>.
+            </summary>
+        </member>
+        <member name="T:Ricis.Core.Proofs.RiemannHypothesisProofCase">
+            <summary>
+            Orchestrates the Riemann critical-line proof case without placing analytic
+            zeta-function assumptions inside the generic RICIS proof engine.
+            </summary>
+            <remarks>
+            This case proves the conditional algebraic consequence of a reflected pair:
+            <c>sigma+mirrorSigma=1</c> and <c>sigma-mirrorSigma=0</c> imply
+            <c>sigma=1/2</c>. The analytic obligations remain explicit and unresolved
+            until a typed complex zeta model supplies them.
+            </remarks>
+        </member>
+        <member name="M:Ricis.Core.Proofs.RiemannHypothesisProofCase.#ctor(System.Collections.Generic.IEnumerable{System.Linq.Expressions.Expression{System.Func{System.Double,System.Double,System.Boolean}}},System.Linq.Expressions.Expression{System.Func{System.Double,System.Double,System.Boolean}})">
+            <summary>
+            Initializes a conditional Riemann proof case.
+            </summary>
+            <param name="constraints">Formal domain restrictions for the reflected pair.</param>
+            <param name="claim">The coordinate claim, normally <c>sigma=1/2</c>.</param>
+            <exception cref="T:System.ArgumentNullException">Thrown when an argument is null.</exception>
+        </member>
+        <member name="P:Ricis.Core.Proofs.RiemannHypothesisProofCase.Name">
+            <inheritdoc />
+        </member>
+        <member name="P:Ricis.Core.Proofs.RiemannHypothesisProofCase.UnresolvedObligations">
+            <inheritdoc />
+        </member>
+        <member name="P:Ricis.Core.Proofs.RiemannHypothesisProofCase.DerivedClaim">
+            <summary>
+            Gets the single derived predicate produced by the last <see cref="M:Ricis.Core.Proofs.RicisProofCase.Run"/> call.
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.Proofs.RiemannHypothesisProofCase.Execute(System.Collections.Generic.ICollection{Ricis.Core.Proofs.RicisProofMonitorEntry})">
+            <inheritdoc />
+        </member>
+        <member name="T:Ricis.Core.Rationals.Rational">
+            <summary>
+            Represents the RICIS public type <c>Rational</c>.
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.Rationals.Rational.GetHashCode">
+            <inheritdoc />
+        </member>
+        <member name="F:Ricis.Core.Rationals.Rational.Zero">
+            <summary>
+            Gets the <c>Zero</c> value of <c>Rational</c>.
+            </summary>
+        </member>
+        <member name="F:Ricis.Core.Rationals.Rational.One">
+            <summary>
+            Gets the <c>One</c> value of <c>Rational</c>.
+            </summary>
+        </member>
+        <member name="P:Ricis.Core.Rationals.Rational.Numerator">
+            <summary>
+            Gets the <c>Numerator</c> value of <c>Rational</c>.
+            </summary>
+        </member>
+        <member name="P:Ricis.Core.Rationals.Rational.Denominator">
+            <summary>
+            Gets the <c>Denominator</c> value of <c>Rational</c>.
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.Rationals.Rational.op_UnaryNegation(Ricis.Core.Rationals.Rational)">
+            <summary>
+            Performs the <c>operator -</c> operation.
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.Rationals.Rational.#ctor(System.Numerics.BigInteger,System.Numerics.BigInteger)">
+            <summary>
+            Initializes a new instance of <c>Rational</c>.
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.Rationals.Rational.#ctor(System.Numerics.BigInteger)">
+            <summary>
+            Initializes a new instance of <c>Rational</c>.
+            </summary>
+        </member>
+        <member name="P:Ricis.Core.Rationals.Rational.IsZero">
+            <summary>
+            Gets the <c>IsZero</c> value of <c>Rational</c>.
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.Rationals.Rational.Create(System.Int64)">
+            <summary>
+            Executes <c>Create</c> for the RICIS expression model.
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.Rationals.Rational.FromDecimal(System.Decimal)">
+            <summary>
+            Executes <c>FromDecimal</c> for the RICIS expression model.
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.Rationals.Rational.ToDouble">
+            <summary>
+            Executes <c>ToDouble</c> for the RICIS expression model.
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.Rationals.Rational.op_Addition(Ricis.Core.Rationals.Rational,Ricis.Core.Rationals.Rational)">
+            <summary>
+            Performs the <c>operator +</c> operation.
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.Rationals.Rational.op_Subtraction(Ricis.Core.Rationals.Rational,Ricis.Core.Rationals.Rational)">
+            <summary>
+            Performs the <c>operator -</c> operation.
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.Rationals.Rational.op_Multiply(Ricis.Core.Rationals.Rational,Ricis.Core.Rationals.Rational)">
+            <summary>
+            Performs the <c>operator *</c> operation.
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.Rationals.Rational.op_Division(Ricis.Core.Rationals.Rational,Ricis.Core.Rationals.Rational)">
+            <summary>
+            Performs the <c>operator /</c> operation.
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.Rationals.Rational.ToString">
+            <inheritdoc />
+        </member>
+        <member name="M:Ricis.Core.Rationals.Rational.Equals(Ricis.Core.Rationals.Rational)">
+            <summary>
+            Executes <c>Equals</c> for the RICIS expression model.
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.Rationals.Rational.Floor(Ricis.Core.Rationals.Rational)">
+            <summary>
+            Executes <c>Floor</c> for the RICIS expression model.
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.Rationals.Rational.op_LessThan(Ricis.Core.Rationals.Rational,Ricis.Core.Rationals.Rational)">
+            <summary>
+            Performs the <c>operator &lt;</c> operation.
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.Rationals.Rational.op_Equality(Ricis.Core.Rationals.Rational,Ricis.Core.Rationals.Rational)">
+            <summary>
+            Performs the <c>operator ==</c> operation.
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.Rationals.Rational.op_Inequality(Ricis.Core.Rationals.Rational,Ricis.Core.Rationals.Rational)">
+            <summary>
+            Performs the <c>operator !=</c> operation.
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.Rationals.Rational.op_GreaterThan(Ricis.Core.Rationals.Rational,Ricis.Core.Rationals.Rational)">
+            <summary>
+            Performs the <c>operator &gt;</c> operation.
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.Rationals.Rational.op_LessThanOrEqual(Ricis.Core.Rationals.Rational,Ricis.Core.Rationals.Rational)">
+            <summary>
+            Performs the <c>operator &lt;=</c> operation.
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.Rationals.Rational.op_GreaterThanOrEqual(Ricis.Core.Rationals.Rational,Ricis.Core.Rationals.Rational)">
+            <summary>
+            Performs the <c>operator &gt;=</c> operation.
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.Rationals.Rational.op_Implicit(System.Int32)~Ricis.Core.Rationals.Rational">
+            <summary>
+            Converts a value through <c>implicit operator Rational</c>.
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.Rationals.Rational.op_Implicit(System.Int64)~Ricis.Core.Rationals.Rational">
+            <summary>
+            Converts a value through <c>implicit operator Rational</c>.
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.Rationals.Rational.op_Implicit(System.Numerics.BigInteger)~Ricis.Core.Rationals.Rational">
+            <summary>
+            Converts a value through <c>implicit operator Rational</c>.
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.Rationals.Rational.op_Explicit(Ricis.Core.Rationals.Rational)~System.Double">
+            <summary>
+            Converts a value through <c>explicit operator double</c>.
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.Rationals.Rational.op_Addition(Ricis.Core.Rationals.Rational,System.Int32)">
+            <summary>
+            Performs the <c>operator +</c> operation.
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.Rationals.Rational.op_Addition(System.Int32,Ricis.Core.Rationals.Rational)">
+            <summary>
+            Performs the <c>operator +</c> operation.
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.Rationals.Rational.op_Subtraction(Ricis.Core.Rationals.Rational,System.Int32)">
+            <summary>
+            Performs the <c>operator -</c> operation.
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.Rationals.Rational.op_Subtraction(System.Int32,Ricis.Core.Rationals.Rational)">
+            <summary>
+            Performs the <c>operator -</c> operation.
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.Rationals.Rational.op_Multiply(Ricis.Core.Rationals.Rational,System.Int32)">
+            <summary>
+            Performs the <c>operator *</c> operation.
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.Rationals.Rational.op_Multiply(System.Int32,Ricis.Core.Rationals.Rational)">
+            <summary>
+            Performs the <c>operator *</c> operation.
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.Rationals.Rational.op_Division(Ricis.Core.Rationals.Rational,System.Int32)">
+            <summary>
+            Performs the <c>operator /</c> operation.
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.Rationals.Rational.op_Division(System.Int32,Ricis.Core.Rationals.Rational)">
+            <summary>
+            Performs the <c>operator /</c> operation.
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.Rationals.Rational.op_Equality(Ricis.Core.Rationals.Rational,System.Int32)">
+            <summary>
+            Performs the <c>operator ==</c> operation.
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.Rationals.Rational.op_Equality(System.Int32,Ricis.Core.Rationals.Rational)">
+            <summary>
+            Performs the <c>operator ==</c> operation.
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.Rationals.Rational.op_Inequality(Ricis.Core.Rationals.Rational,System.Int32)">
+            <summary>
+            Performs the <c>operator !=</c> operation.
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.Rationals.Rational.op_Inequality(System.Int32,Ricis.Core.Rationals.Rational)">
+            <summary>
+            Performs the <c>operator !=</c> operation.
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.Rationals.Rational.Equals(System.Object)">
+            <inheritdoc />
+        </member>
+        <member name="T:Ricis.Core.RicisType">
+            <summary>
+            Represents the RICIS public type <c>RicisType</c>.
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.RicisType.#ctor(System.String,System.Boolean)">
+            <summary>
+            Represents the RICIS public type <c>RicisType</c>.
+            </summary>
+        </member>
+        <member name="F:Ricis.Core.RicisType.Scalar">
+            <summary>
+            Gets the <c>Scalar</c> value of <c>RicisType</c>.
+            </summary>
+        </member>
+        <member name="F:Ricis.Core.RicisType.InfinityZero">
+            <summary>
+            Gets the <c>InfinityZero</c> value of <c>RicisType</c>.
+            </summary>
+        </member>
+        <member name="F:Ricis.Core.RicisType.InfinityOne">
+            <summary>
+            Gets the <c>InfinityOne</c> value of <c>RicisType</c>.
+            </summary>
+        </member>
+        <member name="P:Ricis.Core.RicisType.Signature">
+            <summary>
+            Gets the <c>Signature</c> value of <c>RicisType</c>.
+            </summary>
+        </member>
+        <member name="P:Ricis.Core.RicisType.IsComposite">
+            <summary>
+            Gets the <c>IsComposite</c> value of <c>RicisType</c>.
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.RicisType.Equals(Ricis.Core.RicisType)">
+            <summary>
+            Executes <c>Equals</c> for the RICIS expression model.
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.RicisType.Equals(System.Object)">
+            <inheritdoc />
+        </member>
+        <member name="M:Ricis.Core.RicisType.GetHashCode">
+            <inheritdoc />
+        </member>
+        <member name="M:Ricis.Core.RicisType.IsCompatibleWith(Ricis.Core.RicisType)">
+            <summary>
+            Determines whether <c>IsCompatibleWith</c> holds for the supplied RICIS expression.
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.RicisType.Operate(Ricis.Core.RicisType,Ricis.Core.RicisType,System.String)">
+            <summary>
+            Executes <c>Operate</c> for the RICIS expression model.
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.RicisType.CreateTuple(Ricis.Core.RicisType,Ricis.Core.RicisType)">
+            <summary>
+            Executes <c>CreateTuple</c> for the RICIS expression model.
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.RicisType.ToString">
+            <inheritdoc />
+        </member>
+        <member name="T:Ricis.Core.Root">
+            <summary>
+                Представление одного точного корня
+            </summary>
+        </member>
+        <member name="P:Ricis.Core.Root.Parameter">
+            <summary>
+            Gets the <c>Parameter</c> value of <c>Root</c>.
+            </summary>
+        </member>
+        <member name="P:Ricis.Core.Root.RationalValue">
+            <summary>
+            Gets the <c>RationalValue</c> value of <c>Root</c>.
+            </summary>
+        </member>
+        <member name="P:Ricis.Core.Root.DoubleValue">
+            <summary>
+            Gets the <c>DoubleValue</c> value of <c>Root</c>.
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.Root.#ctor(System.Linq.Expressions.ParameterExpression,Ricis.Core.Rationals.Rational)">
+            <summary>
+            Initializes a new instance of <c>Root</c>.
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.Root.#ctor(System.Linq.Expressions.ParameterExpression,System.Double)">
+            <summary>
+            Initializes a new instance of <c>Root</c>.
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.Root.Equals(Ricis.Core.Root)">
+            <summary>
+            Executes <c>Equals</c> for the RICIS expression model.
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.Root.GetHashCode">
+            <inheritdoc />
+        </member>
+        <member name="M:Ricis.Core.Root.ToString">
+            <inheritdoc />
+        </member>
+        <member name="T:Ricis.Core.Simplifiers.AlgebraicReductionVisitor">
+             <summary>
+             RICIS Phase 1 — SP2 Clean First.
+             Algebraic cancellation BEFORE singularity axioms.
+             NO limits. NO L'Hôpital.
+            
+               X/X → 1
+               polynomial long division when possible
+               remaining 0_F/0_G is NOT collapsed numerically — left for A4 (F/G)
+             </summary>
+        </member>
+        <member name="M:Ricis.Core.Simplifiers.AlgebraicReductionVisitor.VisitBinary(System.Linq.Expressions.BinaryExpression)">
+            <inheritdoc />
+        </member>
+        <member name="M:Ricis.Core.Simplifiers.AlgebraicReductionVisitor.TryNormalizeNestedRatio(System.Linq.Expressions.Expression,System.Linq.Expressions.Expression)">
+            <summary>
+            Clears one explicit nested denominator without numerical evaluation.
+            F/(G/H) becomes (F·H)/G; F/(A±B/C) becomes (F·C)/(A·C±B).
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.Simplifiers.AlgebraicReductionVisitor.TryReduceAdjacentPowers(System.Linq.Expressions.Expression,System.Linq.Expressions.Expression)">
+            <summary>
+            Applies the RICIS exponent-difference identity a^N/a^(N−X) → a^X
+            for structurally identical deferred bases. The exponent subtraction is
+            preserved structurally; constant integral exponents remain supported.
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.Simplifiers.AlgebraicReductionVisitor.TryReduceDifferenceOfSquares(System.Linq.Expressions.Expression,System.Linq.Expressions.Expression)">
+            <summary>
+            Exact structural factorization of a difference of squares. The
+            denominator supplies the two deferred factors, so a constant square
+            such as 25 is accepted as the normalised square of its factor 5.
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.Simplifiers.AlgebraicReductionVisitor.TryReduceAdjacentFactorials(System.Linq.Expressions.Expression,System.Linq.Expressions.Expression)">
+            <summary>
+            SP2 cancellation for a single common deferred factor. This covers ratios
+            such as F/(F·G) → 1/G and (F·G)/F → G before polynomial division runs.
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.Simplifiers.AlgebraicReductionVisitor.TryCancelAssociativeFactors(System.Linq.Expressions.Expression,System.Linq.Expressions.Expression)">
+            <summary>
+            SP2 for arbitrary parenthesization of a product. The operation first
+            flattens only built-in multiplication trees, then removes matching
+            factors as a multiset. Thus (a·a·a·a·a)/(a·a·a·a) → a regardless of
+            the binary-tree association used by the expression builder.
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.Simplifiers.AlgebraicReductionVisitor.VisitMethodCall(System.Linq.Expressions.MethodCallExpression)">
+            <inheritdoc />
+        </member>
+        <member name="M:Ricis.Core.Simplifiers.AlgebraicReductionVisitor.VisitUnary(System.Linq.Expressions.UnaryExpression)">
+            <inheritdoc />
+        </member>
+        <member name="M:Ricis.Core.Simplifiers.AlgebraicReductionVisitor.VisitExtension(System.Linq.Expressions.Expression)">
+            <inheritdoc />
+        </member>
+        <member name="T:Ricis.Core.Simplifiers.AlgebraicSimplifier">
+            <summary>
+            Represents the RICIS public type <c>AlgebraicSimplifier</c>.
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.Simplifiers.AlgebraicSimplifier.Apply(System.Linq.Expressions.Expression)">
+            <summary>
+            Executes <c>Apply</c> for the RICIS expression model.
+            </summary>
+        </member>
+        <member name="T:Ricis.Core.Simplifiers.ExpressionSimplifierVisitor">
+            <summary>
+            Represents the RICIS public type <c>ExpressionSimplifierVisitor</c>.
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.Simplifiers.ExpressionSimplifierVisitor.VisitExtension(System.Linq.Expressions.Expression)">
+            <inheritdoc />
+        </member>
+        <member name="M:Ricis.Core.Simplifiers.ExpressionSimplifierVisitor.VisitBinary(System.Linq.Expressions.BinaryExpression)">
+            <inheritdoc />
+        </member>
+        <member name="M:Ricis.Core.Simplifiers.ExpressionSimplifierVisitor.VisitUnary(System.Linq.Expressions.UnaryExpression)">
+            <inheritdoc />
+        </member>
+        <member name="M:Ricis.Core.Simplifiers.ExpressionSimplifierVisitor.VisitConditional(System.Linq.Expressions.ConditionalExpression)">
+            <inheritdoc />
+        </member>
+        <member name="T:Ricis.Core.Simplifiers.IExpressionVisitor">
+            <summary>
+            Represents the RICIS public type <c>IExpressionVisitor</c>.
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.Simplifiers.IExpressionVisitor.Visit(System.Linq.Expressions.Expression)">
+            <inheritdoc />
+        </member>
+        <member name="T:Ricis.Core.Simplifiers.ParameterVisitor">
+            <summary>
+            Represents the RICIS public type <c>ParameterVisitor</c>.
+            </summary>
+        </member>
+        <member name="P:Ricis.Core.Simplifiers.ParameterVisitor.FoundParameter">
+            <summary>
+            Gets the <c>FoundParameter</c> value of <c>ParameterVisitor</c>.
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.Simplifiers.ParameterVisitor.VisitExtension(System.Linq.Expressions.Expression)">
+            <inheritdoc />
+        </member>
+        <member name="M:Ricis.Core.Simplifiers.ParameterVisitor.VisitParameter(System.Linq.Expressions.ParameterExpression)">
+            <inheritdoc />
+        </member>
+        <member name="T:Ricis.Core.Simplifiers.PolarTrigVisitor">
+            <summary>
+            RICIS polar phase: trig → rational sector of the circle → exact collapse.
+            Runs before algebraic SP2 so half of trig singularities become
+            constants / 0_F / ∞_F without limits or series.
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.Simplifiers.PolarTrigVisitor.VisitMethodCall(System.Linq.Expressions.MethodCallExpression)">
+            <inheritdoc />
+        </member>
+        <member name="M:Ricis.Core.Simplifiers.PolarTrigVisitor.VisitExtension(System.Linq.Expressions.Expression)">
+            <inheritdoc />
+        </member>
+        <member name="T:Ricis.Core.Simplifiers.RicisTransformVisitor">
+             <summary>
+             RICIS Phase 2 — pure singularity transform.
+             NO limits. NO L'Hôpital. NO ε-δ.
+            
+             Theory v7.7:
+               SP2 already applied upstream (AlgebraicReductionVisitor).
+               A1:  F(a)/0  → ∞_{F(a)} at every certified key a (F(a) ≠ 0)
+               A4:  0_F/0_G = F/G  (structural ratio of deferred indices; 1 iff F≡G via SP2)
+               SP4: preserve every certified key while applying the index in that key.
+             </summary>
+        </member>
+        <member name="M:Ricis.Core.Simplifiers.RicisTransformVisitor.VisitBinary(System.Linq.Expressions.BinaryExpression)">
+            <inheritdoc />
+        </member>
+        <member name="M:Ricis.Core.Simplifiers.RicisTransformVisitor.VisitExtension(System.Linq.Expressions.Expression)">
+            <inheritdoc />
+        </member>
+        <member name="T:Ricis.Core.Solvers.ExponentialZeroSolver">
+            <summary>
+            Решатель для exp(g(x)) - 1 = 0  =>  g(x) = 0
+            Использует ZeroSolverUtils для уменьшения дублирования.
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.Solvers.ExponentialZeroSolver.FindRoots(System.Linq.Expressions.Expression,System.Linq.Expressions.ParameterExpression)">
+            <summary>
+            Executes <c>FindRoots</c> for the RICIS expression model.
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.Solvers.ExponentialZeroSolver.Solve(System.Linq.Expressions.Expression)">
+            <summary>
+            Executes <c>Solve</c> for the RICIS expression model.
+            </summary>
+        </member>
+        <member name="T:Ricis.Core.Solvers.Fermat.FermatFactorizationResult">
+            <summary>
+            Contains the exact structural result of an N-only Fermat factorization.
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.Solvers.Fermat.FermatFactorizationResult.#ctor(System.Numerics.BigInteger,System.Numerics.BigInteger,System.Numerics.BigInteger,System.Numerics.BigInteger,System.Numerics.BigInteger,System.Numerics.BigInteger,System.Int32,System.Int32,System.Numerics.BigInteger)">
+            <summary>
+            Contains the exact structural result of an N-only Fermat factorization.
+            </summary>
+        </member>
+        <member name="T:Ricis.Core.Solvers.Fermat.FermatFactorizer">
+            <summary>
+            Finds a balanced factor pair from N using the difference-of-squares identity.
+            The only mathematical input is N; factors are never supplied by the caller.
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.Solvers.Fermat.FermatFactorizer.Solve(System.Numerics.BigInteger)">
+            <summary>
+            Solves <c>x² - N = y²</c> and returns <c>P=x-y</c>, <c>Q=x+y</c>.
+            The search starts at the exact integer ceiling of sqrt(N) and advances
+            the deferred difference by <c>Δ(x+1)=Δ(x)+2x+1</c>.
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.Solvers.Fermat.FermatFactorizer.ProveDocument(System.Numerics.BigInteger,Ricis.Core.Proofs.RicisProofDocumentProfile,Ricis.Core.Proofs.RicisProofDocumentFormat,System.Text.StringBuilder)">
+            <summary>
+            Solves the N-only Fermat system and renders the solver-created derivation
+            through the shared proof-document renderer.
+            </summary>
+            <param name="n">The only numeric input to the factorization.</param>
+            <param name="profile">Metadata and explicit proof boundaries for the document.</param>
+            <param name="format">The requested document format, including <see cref="F:Ricis.Core.Proofs.RicisProofDocumentFormat.Log"/>.</param>
+            <param name="document">The output buffer receiving the rendered document.</param>
+            <returns>The recovered factorization result.</returns>
+        </member>
+        <member name="T:Ricis.Core.Solvers.LogSolver">
+            <summary>
+                Log solver: ðàñïîçíà¸ò Math.Log(x) == 0 => x = 1.
+                Ðåàëèçóåò FindTrigonometricRoots/FindFirstRoot pattern ñîâìåñòèìî ñ ZeroSolverUtils.
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.Solvers.LogSolver.FindRoots(System.Linq.Expressions.Expression,System.Linq.Expressions.ParameterExpression)">
+            <summary>
+            Executes <c>FindRoots</c> for the RICIS expression model.
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.Solvers.LogSolver.Solve(System.Linq.Expressions.Expression)">
+            <summary>
+            Executes <c>Solve</c> for the RICIS expression model.
+            </summary>
+        </member>
+        <member name="T:Ricis.Core.Solvers.SingularitySolver">
+            <summary>
+            Represents the RICIS public type <c>SingularitySolver</c>.
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.Solvers.SingularitySolver.SolveRoots(System.Linq.Expressions.Expression)">
+            <summary>
+            Executes <c>SolveRoots</c> for the RICIS expression model.
+            </summary>
+        </member>
+        <member name="T:Ricis.Core.Solvers.TrigSolver">
+            <summary>
+            Improved trig solver: supports composite linear arguments a*x + b (a,b constants).
+            Returns principal root for cos/sin/tan (can be extended to families).
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.Solvers.TrigSolver.Solve(System.Linq.Expressions.Expression)">
+            <summary>
+            Executes <c>Solve</c> for the RICIS expression model.
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.Solvers.TrigSolver.TryExtractLinear(System.Linq.Expressions.Expression,System.Linq.Expressions.ParameterExpression@,System.Double@,System.Double@)">
+            <summary>
+            Attempts to <c>ExtractLinear</c> within the RICIS model.
+            </summary>
+        </member>
+        <member name="T:Ricis.Core.Solvers.ZeroSolver.TrigonometricZeroSolver">
+            <summary>
+            Represents the RICIS public type <c>TrigonometricZeroSolver</c>.
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.Solvers.ZeroSolver.TrigonometricZeroSolver.FindTrigonometricRoots(System.Linq.Expressions.Expression,System.Linq.Expressions.ParameterExpression)">
+            <summary>
+            Executes <c>FindTrigonometricRoots</c> for the RICIS expression model.
+            </summary>
+        </member>
+        <member name="T:Ricis.Core.Solvers.ZeroSolver.UniversalZeroSolver">
+            <summary>
+                Универсальный точный решатель уравнения expr = 0
+                Возвращает список точных корней в виде Rational (если возможно)
+                или double с высокой точностью для трансцендентных случаев (π, π/2 и т.д.)
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.Solvers.ZeroSolver.UniversalZeroSolver.FindExactRoots(System.Linq.Expressions.Expression,System.Linq.Expressions.ParameterExpression)">
+            <summary>
+                Находит все точные конечные корни уравнения expr = 0 для заданного параметра
+            </summary>
+        </member>
+        <member name="T:Ricis.Core.Solvers.ZeroSolver.ZeroSolverUtils">
+            <summary>
+            Общие вспомогательные методы для zero‑solvers:
+            - поиск первого параметра в выражении,
+            - нормализация корня +0.0,
+            - адаптер: из FindRoots(Func(expr, param) -> ICollection{Root}) получить (ParameterExpression,double)?.
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.Solvers.ZeroSolver.ZeroSolverUtils.FindFirstParameter(System.Linq.Expressions.Expression)">
+            <summary>
+            Executes <c>FindFirstParameter</c> for the RICIS expression model.
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.Solvers.ZeroSolver.ZeroSolverUtils.NormalizeZero(System.Double)">
+            <summary>
+            Executes <c>NormalizeZero</c> for the RICIS expression model.
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.Solvers.ZeroSolver.ZeroSolverUtils.FindFirstRootFromFindRoots(System.Func{System.Linq.Expressions.Expression,System.Linq.Expressions.ParameterExpression,System.Collections.Generic.ICollection{Ricis.Core.Root}},System.Linq.Expressions.Expression)">
+            <summary>
+            Вызвать реализацию FindRoots, передав найденный параметр; возвращает первый root как (param,double)?
+            Упрощает повторяющийся код в солверах.
+            </summary>
+        </member>
+        <member name="T:Ricis.Core.SpecialFunctions.Factorial">
+            <summary>
+            Exact factorial over <see cref="T:System.Numerics.BigInteger"/>. It is intentionally a
+            first-class method so a LINQ expression tree can keep <c>n!</c> symbolic
+            until an algebraic RICIS phase reduces it or a derived finite expression is
+            compiled.
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.SpecialFunctions.Factorial.Of(System.Numerics.BigInteger)">
+            <summary>
+            Returns <c>value!</c> exactly. The factorial is defined here only for
+            non-negative integer arguments.
+            </summary>
+        </member>
+        <member name="T:Ricis.Core.SubstitutionVisitor">
+            <summary>
+            Represents the RICIS public type <c>SubstitutionVisitor</c>.
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.SubstitutionVisitor.#ctor(System.Double,System.String)">
+            <summary>
+            Represents the RICIS public type <c>SubstitutionVisitor</c>.
+            </summary>
+        </member>
+        <member name="M:Ricis.Core.SubstitutionVisitor.VisitParameter(System.Linq.Expressions.ParameterExpression)">
+            <inheritdoc />
+        </member>
+        <member name="T:PolynomialCoefficientCollector">
+            <summary>
+            Represents the RICIS public type <c>PolynomialCoefficientCollector</c>.
+            </summary>
+        </member>
+        <member name="M:PolynomialCoefficientCollector.#ctor(System.Linq.Expressions.ParameterExpression)">
+            <summary>
+            Represents the RICIS public type <c>PolynomialCoefficientCollector</c>.
+            </summary>
+        </member>
+        <member name="P:PolynomialCoefficientCollector.IsPolynomial">
+            <summary>
+            Gets the <c>IsPolynomial</c> value of <c>PolynomialCoefficientCollector</c>.
+            </summary>
+        </member>
+        <member name="P:PolynomialCoefficientCollector.Coefficients">
+            <summary>
+            Gets the <c>Coefficients</c> value of <c>PolynomialCoefficientCollector</c>.
+            </summary>
+        </member>
+        <member name="M:PolynomialCoefficientCollector.Visit(System.Linq.Expressions.Expression)">
+            <inheritdoc />
+        </member>
+        <member name="M:PolynomialCoefficientCollector.VisitParameter(System.Linq.Expressions.ParameterExpression)">
+            <inheritdoc />
+        </member>
+        <member name="M:PolynomialCoefficientCollector.VisitConstant(System.Linq.Expressions.ConstantExpression)">
+            <inheritdoc />
+        </member>
+        <member name="M:PolynomialCoefficientCollector.VisitBinary(System.Linq.Expressions.BinaryExpression)">
+            <inheritdoc />
+        </member>
+        <member name="M:PolynomialCoefficientCollector.VisitUnary(System.Linq.Expressions.UnaryExpression)">
+            <inheritdoc />
+        </member>
+        <member name="M:PolynomialCoefficientCollector.VisitMethodCall(System.Linq.Expressions.MethodCallExpression)">
+            <inheritdoc />
+        </member>
+        <member name="T:RicisEngine">
+            <summary>
+            Collects independently simplified indexed-infinity terms for consumers that
+            explicitly operate on resolved RICIS poles.
+            </summary>
+        </member>
+        <member name="M:RicisEngine.Add(System.Linq.Expressions.Expression{System.Func{System.Double,System.Double}})">
+            <summary>
+            Simplifies <paramref name="expr"/> and adds its body only when it is an
+            indexed infinity. Finite expressions are rejected explicitly because
+            this collector has no finite-term storage or combination contract.
+            </summary>
+            <exception cref="T:System.ArgumentException">
+            Thrown when the simplified body is finite, an indexed zero, or another
+            RICIS expression that is not a true infinity.
+            </exception>
+        </member>
+        <member name="T:ExpressionTraverser">
+            <summary>
+            Represents the RICIS public type <c>ExpressionTraverser</c>.
+            </summary>
+        </member>
+        <member name="M:ExpressionTraverser.#ctor(System.Action{System.Linq.Expressions.Expression})">
+            <summary>
+            Initializes a new instance of <c>ExpressionTraverser</c>.
+            </summary>
+        </member>
+        <member name="M:ExpressionTraverser.VisitExtension(System.Linq.Expressions.Expression)">
+            <inheritdoc />
+        </member>
+        <member name="M:ExpressionTraverser.Visit(System.Linq.Expressions.Expression)">
+            <inheritdoc />
+        </member>
+        <member name="T:RicisTransformPhase">
+            <summary>
+            Represents the RICIS public type <c>RicisTransformPhase</c>.
+            </summary>
+        </member>
+        <member name="M:RicisTransformPhase.Apply(System.Linq.Expressions.Expression)">
+            <summary>
+            Executes <c>Apply</c> for the RICIS expression model.
+            </summary>
+        </member>
+    </members>
+</doc>

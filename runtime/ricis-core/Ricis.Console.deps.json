@@ -1,0 +1,36 @@
+{
+  "runtimeTarget": {
+    "name": ".NETCoreApp,Version=v8.0",
+    "signature": ""
+  },
+  "compilationOptions": {},
+  "targets": {
+    ".NETCoreApp,Version=v8.0": {
+      "Ricis.Console/0.1.0": {
+        "dependencies": {
+          "Ricis.Core": "0.1.0"
+        },
+        "runtime": {
+          "Ricis.Console.dll": {}
+        }
+      },
+      "Ricis.Core/0.1.0": {
+        "runtime": {
+          "Ricis.Core.dll": {}
+        }
+      }
+    }
+  },
+  "libraries": {
+    "Ricis.Console/0.1.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "Ricis.Core/0.1.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    }
+  }
+}

@@ -343,3 +343,15 @@
 **Статус:** правило зафиксировано в нормативной документации.
 
 ---
+
+---
+
+## 2026-08-17 — Bundled Release mirror for Ricis.Core
+
+В `runtime/ricis-core` добавлено локальное зеркало Release-сборки `Ricis.WebApi` и `Ricis.Core` объёмом около 3.4 MB. Зеркало содержит `Ricis.WebApi.dll`, `Ricis.Core.dll`, `.deps.json`, `.runtimeconfig.json` и связанные DLL Swagger/API.
+
+Supervisor теперь выбирает bundled DLL первым способом запуска: `dotnet runtime/ricis-core/Ricis.WebApi.dll --urls http://127.0.0.1:5044`. Соседний `../Ricis.Core` остаётся резервным источником, если зеркало удалено или обновляется. Smoke test с намеренно недоступным `RICIS_CORE_REPO` подтвердил режим `bundled-dll`, автоматический health startup и рабочий proxy-ответ C# API.
+
+**Статус:** готовое DLL-зеркало интегрировано и проверено.
+
+---
