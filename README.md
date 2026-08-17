@@ -40,7 +40,9 @@ npm run build
 
 ## Интеграция с Ricis.Core
 
-`Ricis3-Expansion-Map` не запускает отдельный процесс C# при старте Express. Интеграция выполняется через `RicisWasmBridge`: создание bridge не запускает runtime, а первый реальный вызов (`evaluate`, `verifyIdentity`, генерация или проверка доказательства) выполняет ленивую инициализацию. Если `public/wasm/ricis_core.wasm` присутствует и загружается, используется WASM-движок; если артефакта нет, используется детерминированный `RicisFallbackEngine` на TypeScript. В текущем репозитории WASM-артефакт отсутствует, поэтому фактический runtime — TypeScript fallback. Серверные Express-маршруты сами по себе `Ricis.Core` не стартуют.
+`Ricis3-Expansion-Map` не запускает отдельный процесс C# при старте Express. При первом реальном обращении к `Ricis.Core` `RicisWasmBridge` вызывает относительный маршрут `/api/ricis-core/health`. Серверный supervisor автоматически находит соседний `../Ricis.Core/Ricis.WebApi/Ricis.WebApi.csproj`, запускает `dotnet run` и ожидает `/health`. После этого клиент использует `/api/ricis-core/expressions/{simplify|derivative|system}`; неподдержанные или недоступные выражения переходят в детерминированный `RicisFallbackEngine`.
+
+По умолчанию используется относительный путь `../Ricis.Core`. Для иной структуры задайте `RICIS_CORE_REPO` относительно корня Expansion. Дополнительно доступны `RICIS_CORE_PROJECT`, `RICIS_CORE_PORT`, `RICIS_CORE_URL` и `RICIS_CORE_START_TIMEOUT_MS`. Абсолютные пути в коде не требуются. На статическом GitHub Pages серверный supervisor недоступен, поэтому сохраняется локальный fallback; при `npm run dev` и соседнем репозитории C# API запускается автоматически только при фактическом использовании Core.
 
 ## Архитектурные правила
 

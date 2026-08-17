@@ -319,3 +319,15 @@
 **Статус:** исправлено; lint, Core integration tests и build проходят.
 
 ---
+
+---
+
+## 2026-08-17 — Автоматическая интеграция соседнего Ricis.Core
+
+Добавлен `server/ricisCoreSupervisor.ts`. При первом обращении к `/api/ricis-core/health` или `/api/ricis-core/expressions/*` Expansion проверяет соседний `../Ricis.Core`, автоматически запускает `Ricis.WebApi` через `dotnet run` с относительным project path и ждёт его `/health`. Повторные запросы используют уже запущенный процесс; параллельные первые запросы объединяются в один start promise.
+
+`RicisWasmBridge` сначала пробует WASM, затем относительный C# API, а при недоступности API использует TypeScript fallback. Runtime-проверка подтвердила: Express стартует без Core, health-запрос автоматически поднимает `Ricis.WebApi` на порту 5044, а proxy `simplify` возвращает ответ C# API.
+
+**Статус:** автоматическая интеграция реализована и проверена.
+
+---

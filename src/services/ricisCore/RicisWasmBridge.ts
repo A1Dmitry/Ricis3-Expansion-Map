@@ -32,7 +32,7 @@ export class RicisWasmBridge implements IRicisCoreEngine {
   }
 
   public initialize(wasmUrl: string = '/wasm/ricis_core.wasm'): Promise<void> {
-    if (this._status === 'ready_wasm' || this._status === 'fallback_ts') {
+    if (this._status === 'ready_wasm' || this._status === 'ready_api' || this._status === 'fallback_ts') {
       return Promise.resolve();
     }
     if (this._initializationPromise) {
@@ -57,7 +57,22 @@ export class RicisWasmBridge implements IRicisCoreEngine {
         }
       }
     } catch {
-      // Graceful fallback to Native TypeScript engine
+      // Continue with the relative Ricis.WebApi integration or TypeScript fallback.
+    }
+
+    try {
+      if (typeof window !== 'undefined') {
+        const response = await fetch('/api/ricis-core/health', { headers: { accept: 'application/json' } });
+        if (response.ok) {
+          const payload = (await response.json()) as { status?: string };
+          if (payload.status === 'ready') {
+            this._status = 'ready_api';
+            return;
+          }
+        }
+      }
+    } catch {
+      // Static hosting or an unavailable sibling repository uses the native fallback.
     }
 
     await this._fallbackEngine.initialize();
@@ -70,6 +85,30 @@ export class RicisWasmBridge implements IRicisCoreEngine {
 
   public async evaluate(request: RicisEvaluationRequest): Promise<RicisEvaluationResult> {
     await this.ensureInitialized();
+    if (this._status === 'ready_api' && typeof window !== 'undefined') {
+      try {
+        const response = await fetch('/api/ricis-core/expressions/simplify', {
+          method: 'POST',
+          headers: { 'content-type': 'application/json', accept: 'application/json' },
+          body: JSON.stringify({ expression: request.expression }),
+        });
+        if (response.ok) {
+          const payload = (await response.json()) as { Ricis?: string; Parsed?: string };
+          if (typeof payload.Ricis === 'string') {
+            return {
+              success: true,
+              invariant: payload.Ricis,
+              isSingular: /(?:0_|inf_|\\infty|\/0)/.test(payload.Ricis),
+              executionEngine: 'csharp_api',
+              trace: [],
+            };
+          }
+        }
+      } catch {
+        // Fall back to the deterministic local engine for unsupported expressions.
+      }
+    }
+
     if (this._status === 'ready_wasm' && this._wasmExports?.evaluate) {
       try {
         // Future C# Wasm Interop execution entry

@@ -25,12 +25,12 @@ export interface RicisEvaluationResult {
   readonly invariant: string;
   readonly isSingular: boolean;
   readonly semanticIndex?: string;
-  readonly executionEngine: 'csharp_wasm' | 'typescript_native';
+  readonly executionEngine: 'csharp_wasm' | 'csharp_api' | 'typescript_native';
   readonly trace: readonly RicisPhaseTraceStep[];
   readonly error?: string;
 }
 
-export type RicisCoreStatus = 'uninitialized' | 'loading' | 'ready_wasm' | 'fallback_ts' | 'error';
+export type RicisCoreStatus = 'uninitialized' | 'loading' | 'ready_wasm' | 'ready_api' | 'fallback_ts' | 'error';
 
 /**
  * Canonical formal proof methods in RICIS-III v7.7

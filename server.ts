@@ -4,6 +4,11 @@ import { createServer as createViteServer } from "vite";
 import { GoogleGenAI } from "@google/genai";
 import { RICIS_CORE_SYSTEM_PROMPT, auditProofContent, buildCanonicalRicisProofLatex } from "./src/model/ricisCoreRules";
 import { TokenPoolManager } from "./src/services/tokenPool/TokenPoolManager";
+import {
+  ensureRicisCoreApi,
+  getRicisCoreIntegrationInfo,
+  proxyRicisCoreApi,
+} from "./server/ricisCoreSupervisor";
 
 
 
@@ -131,6 +136,37 @@ async function startServer() {
 
   app.get("/api/health", (req, res) => {
     res.json({ status: "ok" });
+  });
+
+  app.get("/api/ricis-core/health", async (_req, res) => {
+    const info = getRicisCoreIntegrationInfo();
+    try {
+      await ensureRicisCoreApi();
+      res.json({ status: "ready", ...info, running: true });
+    } catch (error) {
+      res.status(503).json({
+        status: "unavailable",
+        ...info,
+        error: error instanceof Error ? error.message : String(error),
+      });
+    }
+  });
+
+  app.post("/api/ricis-core/expressions/:operation", async (req, res) => {
+    const operation = req.params.operation;
+    if (operation !== "simplify" && operation !== "derivative" && operation !== "system") {
+      return res.status(404).json({ error: "Unsupported Ricis.Core operation." });
+    }
+
+    try {
+      const result = await proxyRicisCoreApi(operation, req.body);
+      return res.status(result.status).json(result.body);
+    } catch (error) {
+      return res.status(503).json({
+        error: error instanceof Error ? error.message : String(error),
+        integration: getRicisCoreIntegrationInfo(),
+      });
+    }
   });
 
   app.post("/api/generateProof", async (req, res) => {
