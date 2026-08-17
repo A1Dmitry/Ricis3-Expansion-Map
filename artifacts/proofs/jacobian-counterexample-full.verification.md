@@ -12,7 +12,7 @@ Q(x,y,z) = y + 3x(1+xy)^2 z + 3xy^2(4+3xy)
 R(x,y,z) = 2x - 3x^2 y - x^3 z
 ```
 
-The Lean file uses exact rational arithmetic. The nine Jacobian entries are written explicitly and the determinant is expanded as a polynomial identity over `Q`.
+The Lean file uses exact rational arithmetic. The nine Jacobian entries are written explicitly, named formal polynomial partials are defined for `P`, `Q`, and `R`, and Lean proves that every matrix entry matches its corresponding formal partial. The determinant is then expanded as a polynomial identity over `Q`.
 
 ## Independent checks
 
@@ -28,10 +28,16 @@ determinant=-2
 The theorem
 
 ```lean
+jacobian_entries_match_formal_partials (x y z : ℚ)
+```
+
+compiles by exact simplification of the named formal partials. The theorem
+
+```lean
 jacobian_det_is_constant (x y z : ℚ) : jacDet x y z = -2
 ```
 
-compiles with `ring`, proving the identity for arbitrary rational `x`, `y`, and `z`, not only at sampled points.
+then compiles with `ring`, proving the identity for arbitrary rational `x`, `y`, and `z`, not only at sampled points.
 
 The following point equalities also compile with exact `norm_num`:
 

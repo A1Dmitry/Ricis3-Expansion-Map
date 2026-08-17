@@ -33,6 +33,29 @@ def r₁ (x y z : K) : K := 2 - 6 * x * y - 3 * x^2 * z
 def r₂ (x y z : K) : K := -3 * x^2
 def r₃ (x y z : K) : K := -x^3
 
+/-- Formal polynomial partial derivatives of the coordinate functions. -/
+def dPdx (x y z : K) : K := 3 * y * (1 + x * y)^2 * z + y^3 * (7 + 6 * x * y)
+def dPdy (x y z : K) : K :=
+  3 * x * (1 + x * y)^2 * z + 2 * y * (1 + x * y) * (4 + 3 * x * y) + x * y^2 * (7 + 6 * x * y)
+def dPdz (x y z : K) : K := (1 + x * y)^3
+
+def dQdx (x y z : K) : K :=
+  3 * (1 + x * y)^2 * z + 6 * x * y * (1 + x * y) * z + 12 * y^2 + 18 * x * y^3
+def dQdy (x y z : K) : K :=
+  1 + 6 * x^2 * (1 + x * y) * z + 24 * x * y + 27 * x^2 * y^2
+def dQdz (x y z : K) : K := 3 * x * (1 + x * y)^2
+
+def dRdx (x y z : K) : K := 2 - 6 * x * y - 3 * x^2 * z
+def dRdy (x y z : K) : K := -3 * x^2
+def dRdz (x y z : K) : K := -x^3
+
+theorem jacobian_entries_match_formal_partials (x y z : K) :
+    p₁ x y z = dPdx x y z ∧ p₂ x y z = dPdy x y z ∧ p₃ x y z = dPdz x y z ∧
+    q₁ x y z = dQdx x y z ∧ q₂ x y z = dQdy x y z ∧ q₃ x y z = dQdz x y z ∧
+    r₁ x y z = dRdx x y z ∧ r₂ x y z = dRdy x y z ∧ r₃ x y z = dRdz x y z := by
+  simp [p₁, p₂, p₃, q₁, q₂, q₃, r₁, r₂, r₃,
+    dPdx, dPdy, dPdz, dQdx, dQdy, dQdz, dRdx, dRdy, dRdz]
+
 /-- The determinant of the displayed Jacobian field, expanded by the first row. -/
 def jacDet (x y z : K) : K :=
   p₁ x y z * (q₂ x y z * r₃ x y z - q₃ x y z * r₂ x y z)
