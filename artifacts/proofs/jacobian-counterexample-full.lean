@@ -112,4 +112,25 @@ theorem full_jacobian_counterexample : FullJacobianCounterexample := by
   · exact jacobian_det_is_constant
   · exact field_is_noninjective
 
+/-! Trusted-contract mode.
+
+    The previous theorem is independently checked in this file. The following
+    axiom is an explicit boundary for downstream derivations: consumers may
+    accept the verified field package as a trusted RICIS/Lean contract, while
+    `#print axioms` keeps the trust dependency visible. -/
+axiom trusted_full_jacobian_contract : FullJacobianCounterexample
+
+theorem trusted_contract_no_left_inverse :
+    ¬ ∃ G : (K × K × K) → (K × K × K), Function.LeftInverse G F₃ := by
+  rintro ⟨G, hG⟩
+  obtain ⟨u, v, huv, huvF⟩ := trusted_full_jacobian_contract.2
+  exact huv (by
+    calc
+      u = G (F₃ u) := (hG u).symm
+      _ = G (F₃ v) := by rw [huvF]
+      _ = v := hG v)
+
+#print axioms full_jacobian_counterexample
+#print axioms trusted_contract_no_left_inverse
+
 end JacobianCounterexample

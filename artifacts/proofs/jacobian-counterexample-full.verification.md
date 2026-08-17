@@ -55,4 +55,20 @@ The points are pairwise distinct, and Lean proves the resulting non-injectivity 
 
 This is a field-first verification: `F` is defined before the points; the Jacobian determinant is checked as a global polynomial identity; the points are then used only as consequences witnessing non-injectivity. It is therefore not a proof of the unrestricted Jacobian conjecture. Instead, if the displayed map and determinant calculation are accepted, it is a formal disproof of the unrestricted statement in dimension three. The Lean file proves the strongest direct consequence available from this explicit field: a constant global Jacobian together with non-injectivity and absence of any left inverse.
 
-The RICIS A6 proof from `registry-120` remains a separate structural bridge. It does not replace the field-level polynomial verification above.
+## Trusted-contract mode
+
+For downstream development, the file declares:
+
+```lean
+axiom trusted_full_jacobian_contract : FullJacobianCounterexample
+```
+
+This is an explicit trust boundary, not a hidden proof. The theorem `trusted_contract_no_left_inverse` is derived from that axiom and Lean reports the dependency:
+
+```text
+trusted_full_jacobian_contract
+```
+
+The independently constructed theorem `full_jacobian_counterexample` remains separate. Its `#print axioms` output reports standard Lean foundations (`propext`, `Classical.choice`, and `Quot.sound`); it does not use `sorryAx`. The trusted downstream theorem additionally reports the named contract axiom, as intended.
+
+All steps and status are recorded in this Markdown artifact and in Git history. The RICIS A6 proof from `registry-120` remains a separate structural bridge. It does not replace the field-level polynomial verification above.
