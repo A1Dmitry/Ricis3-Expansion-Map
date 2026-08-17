@@ -84,9 +84,32 @@ theorem points_are_distinct : a ≠ b ∧ a ≠ c ∧ b ≠ c := by
   norm_num [a, b, c]
 
 /-- The polynomial field is locally unramified everywhere but not injective. -/
-theorem field_is_noninjective : ∃ u v : K × K × K, u ≠ v ∧ F u.1 u.2.1 u.2.2 = F v.1 v.2.1 v.2.2 := by
+def F₃ (p : K × K × K) : K × K × K := F p.1 p.2.1 p.2.2
+
+theorem field_is_noninjective : ∃ u v : K × K × K, u ≠ v ∧ F₃ u = F₃ v := by
   refine ⟨a, b, ?_, ?_⟩
   · exact points_are_distinct.1
-  · rw [point_a_maps_to, point_b_maps_to]
+  · rw [F₃, F₃, point_a_maps_to, point_b_maps_to]
+
+/-- Full consequence for the explicit polynomial field: no left inverse exists. -/
+theorem no_left_inverse : ¬ ∃ G : (K × K × K) → (K × K × K), Function.LeftInverse G F₃ := by
+  rintro ⟨G, hG⟩
+  obtain ⟨u, v, huv, huvF⟩ := field_is_noninjective
+  have huv' : u = v := by
+    calc
+      u = G (F₃ u) := (hG u).symm
+      _ = G (F₃ v) := by rw [huvF]
+      _ = v := hG v
+  exact huv huv'
+
+/-- Field-first package: constant global Jacobian plus a certified non-injective witness. -/
+def FullJacobianCounterexample : Prop :=
+  (∀ x y z : K, jacDet x y z = -2) ∧
+    (∃ u v : K × K × K, u ≠ v ∧ F₃ u = F₃ v)
+
+theorem full_jacobian_counterexample : FullJacobianCounterexample := by
+  constructor
+  · exact jacobian_det_is_constant
+  · exact field_is_noninjective
 
 end JacobianCounterexample

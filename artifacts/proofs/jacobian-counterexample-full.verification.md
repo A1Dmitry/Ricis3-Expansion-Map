@@ -39,6 +39,8 @@ jacobian_det_is_constant (x y z : ℚ) : jacDet x y z = -2
 
 then compiles with `ring`, proving the identity for arbitrary rational `x`, `y`, and `z`, not only at sampled points.
 
+Lean additionally proves `no_left_inverse`: no function `G` can satisfy `Function.LeftInverse G F₃`, because the certified equal-image pair contradicts left-injectivity. The combined proposition `full_jacobian_counterexample` packages the global constant determinant and non-injective witness in one theorem.
+
 The following point equalities also compile with exact `norm_num`:
 
 ```text
@@ -51,6 +53,6 @@ The points are pairwise distinct, and Lean proves the resulting non-injectivity 
 
 ## Interpretation
 
-This is a field-first verification: `F` is defined before the points; the Jacobian determinant is checked as a global polynomial identity; the points are then used only as consequences witnessing non-injectivity. It is therefore not a proof of the unrestricted Jacobian conjecture. Instead, if the displayed map and determinant calculation are accepted, it is a formal disproof of the unrestricted statement in dimension three.
+This is a field-first verification: `F` is defined before the points; the Jacobian determinant is checked as a global polynomial identity; the points are then used only as consequences witnessing non-injectivity. It is therefore not a proof of the unrestricted Jacobian conjecture. Instead, if the displayed map and determinant calculation are accepted, it is a formal disproof of the unrestricted statement in dimension three. The Lean file proves the strongest direct consequence available from this explicit field: a constant global Jacobian together with non-injectivity and absence of any left inverse.
 
 The RICIS A6 proof from `registry-120` remains a separate structural bridge. It does not replace the field-level polynomial verification above.
