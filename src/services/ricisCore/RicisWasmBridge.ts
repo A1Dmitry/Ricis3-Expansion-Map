@@ -21,6 +21,7 @@ export class RicisWasmBridge implements IRicisCoreEngine {
   private _status: RicisCoreStatus = 'uninitialized';
   private _fallbackEngine: RicisFallbackEngine;
   private _wasmExports: any = null;
+  private _initializationPromise: Promise<void> | null = null;
 
   constructor() {
     this._fallbackEngine = new RicisFallbackEngine();
@@ -30,9 +31,20 @@ export class RicisWasmBridge implements IRicisCoreEngine {
     return this._status;
   }
 
-  public async initialize(wasmUrl: string = '/wasm/ricis_core.wasm'): Promise<void> {
-    this._status = 'loading';
+  public initialize(wasmUrl: string = '/wasm/ricis_core.wasm'): Promise<void> {
+    if (this._status === 'ready_wasm' || this._status === 'fallback_ts') {
+      return Promise.resolve();
+    }
+    if (this._initializationPromise) {
+      return this._initializationPromise;
+    }
 
+    this._status = 'loading';
+    this._initializationPromise = this.loadRuntime(wasmUrl);
+    return this._initializationPromise;
+  }
+
+  private async loadRuntime(wasmUrl: string): Promise<void> {
     try {
       if (typeof window !== 'undefined' && 'WebAssembly' in window) {
         const response = await fetch(wasmUrl);
@@ -52,7 +64,12 @@ export class RicisWasmBridge implements IRicisCoreEngine {
     this._status = 'fallback_ts';
   }
 
+  private async ensureInitialized(): Promise<void> {
+    await this.initialize();
+  }
+
   public async evaluate(request: RicisEvaluationRequest): Promise<RicisEvaluationResult> {
+    await this.ensureInitialized();
     if (this._status === 'ready_wasm' && this._wasmExports?.evaluate) {
       try {
         // Future C# Wasm Interop execution entry
@@ -73,6 +90,7 @@ export class RicisWasmBridge implements IRicisCoreEngine {
   }
 
   public async verifyIdentity(targetA: string, targetB: string): Promise<boolean> {
+    await this.ensureInitialized();
     return this._fallbackEngine.verifyIdentity(targetA, targetB);
   }
 
@@ -81,10 +99,12 @@ export class RicisWasmBridge implements IRicisCoreEngine {
     method?: RicisProofMethod,
     context?: { problemId?: string; variables?: Record<string, string> }
   ): Promise<RicisFormalProof> {
+    await this.ensureInitialized();
     return this._fallbackEngine.generateFormalProof(claim, method, context);
   }
 
   public async verifyProofChain(proof: RicisFormalProof): Promise<RicisProofVerificationResult> {
+    await this.ensureInitialized();
     return this._fallbackEngine.verifyProofChain(proof);
   }
 
@@ -101,6 +121,7 @@ export class RicisWasmBridge implements IRicisCoreEngine {
     expectedGoal: string,
     problemId?: string
   ): Promise<RicisAcademicProofResult> {
+    await this.ensureInitialized();
     return this._fallbackEngine.proveSystem(premises, expectedGoal, problemId);
   }
 

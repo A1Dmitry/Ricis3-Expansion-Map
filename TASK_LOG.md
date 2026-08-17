@@ -307,3 +307,15 @@
 **Статус:** выполнено без замечаний.
 
 ---
+
+---
+
+## 2026-08-17 — Аудит интеграции Ricis.Core и lazy lifecycle
+
+Проверена связь Expansion с `Ricis.Core`. Отдельной C#-зависимости, процесса и WASM-файла `public/wasm/ricis_core.wasm` в текущем репозитории нет. Реальная схема состоит из `IRicisCoreEngine`, `RicisWasmBridge` и детерминированного `RicisFallbackEngine` на TypeScript.
+
+Фабрика теперь только создаёт bridge. Runtime не запускается при старте Express и не запускается при простом создании bridge. Первый реальный вызов операции Core вызывает идемпотентную инициализацию: при доступном WASM используется `ready_wasm`, иначе — `fallback_ts`. Добавлены проверки, что создание bridge оставляет статус `uninitialized`, а первый `evaluate` переводит его в рабочий fallback-статус.
+
+**Статус:** исправлено; lint, Core integration tests и build проходят.
+
+---

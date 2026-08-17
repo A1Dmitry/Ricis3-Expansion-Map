@@ -8,7 +8,8 @@ export * from './RicisWasmBridge';
 let globalRicisEngine: IRicisCoreEngine | null = null;
 
 /**
- * Get or initialize the global RICIS-III Core Engine instance.
+ * Get the lazily-created global RICIS-III Core Engine instance.
+ * Runtime initialization starts only when a real engine operation is invoked.
  */
 export function getRicisCoreEngine(): IRicisCoreEngine {
   if (!globalRicisEngine) {

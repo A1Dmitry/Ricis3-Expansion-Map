@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { RicisFallbackEngine } from './RicisFallbackEngine';
+import { RicisWasmBridge } from './RicisWasmBridge';
 import { IRicisCoreEngine, RicisEvaluationRequest } from './IRicisCoreEngine';
 
 describe('RICIS-III Core Engine & Reference Bridge', () => {
@@ -10,6 +11,21 @@ describe('RICIS-III Core Engine & Reference Bridge', () => {
   });
 
   describe('L0 Continuity & Engine Status', () => {
+    it('should not start the external runtime when the bridge is only constructed', () => {
+      const bridge = new RicisWasmBridge();
+      expect(bridge.status).toBe('uninitialized');
+    });
+
+    it('should start the runtime lazily on the first real Core operation', async () => {
+      const bridge = new RicisWasmBridge();
+      expect(bridge.status).toBe('uninitialized');
+
+      const result = await bridge.evaluate({ expression: '0_5 * inf_3' });
+
+      expect(result.invariant).toBe('15');
+      expect(bridge.status).toBe('fallback_ts');
+    });
+
     it('should initialize successfully into ready state without throwing', async () => {
       await engine.initialize();
       expect(['ready_wasm', 'fallback_ts']).toContain(engine.status);
