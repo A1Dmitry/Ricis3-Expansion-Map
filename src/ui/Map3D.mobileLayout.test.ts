@@ -9,9 +9,10 @@ describe('Map3D mobile graph layout contract', () => {
     expect(mapSource).toContain('order-3 h-[58dvh]');
     expect(mapSource).toContain('order-1 relative flex min-h-0 w-full min-w-0 flex-1 flex-col');
     expect(mapSource).toContain('data-testid="desktop-task-panel"');
-    expect(mapSource).toContain('md:col-start-3 md:row-start-1');
+    expect(mapSource).toContain('md:col-start-2 md:row-start-1');
+    expect(mapSource).toContain('md:grid-cols-[minmax(0,1fr)_minmax(24rem,30rem)]');
     expect(mapSource).toContain('h-full w-full');
-    expect(mapSource).toContain('w-full min-w-0 shrink-0 md:col-start-2');
+    expect(mapSource).toContain('w-full min-w-0 shrink-0 md:col-start-1');
     expect(mapSource).not.toContain('md:absolute md:inset-x-auto');
     expect(mapSource).not.toContain('fixed inset-x-2 bottom-2 z-30');
     expect(mapSource).toContain("taskPanelMode === 'open'");
