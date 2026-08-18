@@ -453,3 +453,15 @@ Supervisor теперь выбирает bundled DLL первым способо
 **Release metadata.** Версия повышена с `0.4.12` до `0.4.13` и синхронизирована в package metadata, runtime label, README, CITATION и обязательных release-артефактах.
 
 **Статус:** статический Pages-клиент готов к подключению production C# Core API через явную build-time конфигурацию; выбор и развёртывание самого HTTPS endpoint остаются следующим инфраструктурным инкрементом.
+
+---
+
+## 2026-08-18 — Production CORS и строгая диагностика endpoint v0.4.14
+
+**C# Core API.** В отдельном репозитории `A1Dmitry/Ricis.Core` default allowlist `Cors:AllowedOrigins` расширен origin `https://a1dmitry.github.io` при сохранении local development origin. Release C# API был собран без ошибок, а реальный `OPTIONS /api/expressions/simplify` preflight вернул `204`, `Access-Control-Allow-Methods: POST` и `Access-Control-Allow-Origin: https://a1dmitry.github.io`.
+
+**Strict endpoint diagnostics.** `RicisWasmBridge.evaluate()` теперь до выбора API/WASM результата распознаёт некорректный `VITE_RICIS_CORE_API_BASE_URL` и возвращает `CORE_INFRASTRUCTURE_ERROR` с безопасной причиной. Некорректный HTTP/credential/query/fragment endpoint не маскируется общим `CORE_UNAVAILABLE` и по-прежнему не вызывает TypeScript fallback. Добавлена регрессия strict bridge; число тестов увеличено до 152.
+
+**Release metadata.** Версия Expansion повышена с `0.4.13` до `0.4.14` и синхронизирована в package metadata, runtime label, README, CITATION и обязательных release-артефактах.
+
+**Статус:** оба независимых production-пункта timebox завершены. Следующая инфраструктурная задача — выбор и фактическое развёртывание HTTPS C# Core API; клиент и CORS boundary к этому готовы.

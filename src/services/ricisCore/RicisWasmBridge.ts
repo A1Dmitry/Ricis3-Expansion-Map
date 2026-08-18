@@ -163,8 +163,16 @@ export class RicisWasmBridge implements IRicisCoreEngine {
   public async evaluate(request: RicisEvaluationRequest): Promise<CoreExecutionResult> {
     await this.ensureInitialized();
 
+    const endpoint = resolveRicisCoreApiEndpoint();
+    if (this._status !== 'ready_wasm' && endpoint.source === 'invalid_remote') {
+      return this.createFailure(
+        'CORE_INFRASTRUCTURE_ERROR',
+        'Production endpoint Ricis.Core настроен некорректно. Результат не вычислялся.',
+        { runtime: 'not_ready', retryable: false, safeDetail: endpoint.safeDetail, request },
+      );
+    }
+
     if (this._status === 'ready_api' && typeof window !== 'undefined') {
-      const endpoint = resolveRicisCoreApiEndpoint();
       const simplifyUrl = ricisCoreApiUrl(endpoint, 'expressions/simplify');
       if (!simplifyUrl) {
         return this.createFailure(

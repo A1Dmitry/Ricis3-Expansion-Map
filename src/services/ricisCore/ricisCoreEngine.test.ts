@@ -13,6 +13,7 @@ describe('RICIS-III Core Engine & Reference Bridge', () => {
   afterEach(() => {
     vi.restoreAllMocks();
     vi.unstubAllGlobals();
+    vi.unstubAllEnvs();
   });
 
   describe('L0 Continuity & Engine Status', () => {
@@ -66,6 +67,21 @@ describe('RICIS-III Core Engine & Reference Bridge', () => {
       if (result.success) throw new Error('Expected CORE_INPUT_REJECTED.');
       expect(result.code).toBe('CORE_INPUT_REJECTED');
       expect(result.diagnostic.parserPosition).toBe(1);
+      expect(fallbackSpy).not.toHaveBeenCalled();
+    });
+
+    it('returns a typed infrastructure failure for an invalid production endpoint without invoking fallback', async () => {
+      const fallbackSpy = vi.spyOn(RicisFallbackEngine.prototype, 'evaluate');
+      vi.stubEnv('VITE_RICIS_CORE_API_BASE_URL', 'http://insecure.example.test/api/ricis-core');
+      vi.stubGlobal('window', {});
+      vi.stubGlobal('fetch', vi.fn());
+
+      const result = await new RicisWasmBridge().evaluate({ expression: 'x => 8 / 0' });
+
+      expect(result.success).toBe(false);
+      if (result.success) throw new Error('Expected CORE_INFRASTRUCTURE_ERROR.');
+      expect(result.code).toBe('CORE_INFRASTRUCTURE_ERROR');
+      expect(result.diagnostic.safeDetail).toContain('absolute HTTPS URL');
       expect(fallbackSpy).not.toHaveBeenCalled();
     });
 
