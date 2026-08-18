@@ -1804,7 +1804,7 @@ export const Map3D: React.FC = () => {
           )}
         </aside>
 
-        <div className={`order-1 relative flex min-h-0 w-full min-w-0 flex-1 flex-col bg-[radial-gradient(circle_at_center,_#0a0f1a_0%,_#050505_100%)] md:grid md:col-start-2 md:row-start-1 md:h-full md:min-h-0 ${selectedNode && taskPanelMode === 'open' ? 'md:grid-cols-[minmax(0,1fr)_minmax(24rem,30rem)]' : 'md:grid-cols-[minmax(0,1fr)_0]'}`}>
+        <div className={`order-1 relative flex min-h-0 w-full min-w-0 flex-1 flex-col bg-[radial-gradient(circle_at_center,_#0a0f1a_0%,_#050505_100%)] md:grid md:col-start-2 md:row-start-1 md:h-full md:min-h-0 ${selectedNode && taskPanelMode === 'open' ? 'md:grid-cols-[minmax(0,1fr)_minmax(24rem,30rem)]' : selectedNode && taskPanelMode === 'rail' ? 'md:grid-cols-[minmax(0,1fr)_2.75rem]' : 'md:grid-cols-[minmax(0,1fr)_0]'}`}>
           <div className="relative h-[42dvh] min-h-[16rem] w-full min-w-0 shrink-0 md:col-start-1 md:row-start-1 md:h-full md:min-h-0">
           {leftPanelMode === 'rail' && (
             <button type="button" onClick={() => setLeftPanelMode('open')} className="hidden md:inline-flex absolute left-2 top-2 z-20 min-h-8 min-w-8 items-center justify-center rounded bg-neutral-950/90 text-neutral-400 shadow-lg transition-colors hover:bg-cyan-950/70 hover:text-cyan-200" aria-label="Развернуть левую панель" title="Развернуть левую панель">
@@ -1820,7 +1820,7 @@ export const Map3D: React.FC = () => {
           </div>
 
           {selectedNode && (
-            <aside data-testid="desktop-task-panel" data-panel-mode={taskPanelMode} className={`relative order-2 min-h-0 w-full shrink-0 overflow-hidden border-t border-cyan-900/40 bg-[#070707] md:order-none md:col-start-2 md:row-start-1 md:h-full md:w-auto md:border-l md:border-t-0 ${taskPanelMode === 'rail' ? 'md:hidden' : ''}`}>
+            <aside data-testid="desktop-task-panel" data-panel-mode={taskPanelMode} className={`relative order-2 min-h-0 w-full shrink-0 overflow-hidden border-t border-cyan-900/40 bg-[#070707] md:order-none md:col-start-2 md:row-start-1 md:h-full md:border-l md:border-t-0 ${taskPanelMode === 'rail' ? 'md:w-[2.75rem]' : 'md:w-auto'}`}>
               <div className="flex h-full min-h-0 flex-col">
               {taskPanelMode === 'rail' ? (
                 <button
