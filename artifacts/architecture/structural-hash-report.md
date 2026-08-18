@@ -1,12 +1,12 @@
 # Structural Hash Refactoring Report
 
 **Версия формата отчёта:** 0.1.0
-**Релиз приложения:** 0.4.25
+**Релиз приложения:** 0.4.26
 **Дата:** 2026-08-17
 **Источник данных:** `src/**/*.ts` и `src/**/*.tsx` без test-файлов
 **Машинный отчёт:** `structural-hash-report.json`
 
-## Релиз v0.4.25: desktop task-panel rail composition boundary
+## Релиз v0.4.26: desktop task-panel rail composition boundary
 
 Desktop task card остаётся отдельной третьей grid-колонкой, пристыкованной к правому краю, но теперь имеет open и узкий rail режимы. В rail-режиме колонка сокращается до 2.75rem, а центральная 3D-сцена получает освободившееся пространство; mobile shell и общий 3D/list renderer остаются неизменными.
 

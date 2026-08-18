@@ -1837,11 +1837,7 @@ export const Map3D: React.FC = () => {
               ) : (
               <>
               <div className="flex shrink-0 items-start justify-between gap-3 border-b border-neutral-800/60 bg-neutral-950/80 px-3.5 py-3">
-                <button
-                  type="button"
-                  onClick={() => setIsNodeExpanded(!isNodeExpanded)}
-                  className="min-w-0 flex-1 text-left"
-                  aria-expanded={isNodeExpanded}
+                <div className="min-w-0 flex-1 text-left"
                 >
                   <h2 className="truncate text-sm font-bold text-white leading-tight mb-1">{selectedNode.title}</h2>
                   <span className="text-[9px] font-mono text-cyan-400 block mb-1">ID: {selectedNode.id}</span>
@@ -1850,7 +1846,7 @@ export const Map3D: React.FC = () => {
                       Оценка: {formatCurrency(selectedNode.economic.marketGain)}
                     </span>
                   )}
-                </button>
+                </div>
                 <div className="flex items-center gap-3 relative">
                   <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="text-neutral-500 hover:text-cyan-400 transition-colors" title="Menu">
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" /></svg>
@@ -1920,7 +1916,7 @@ export const Map3D: React.FC = () => {
                   )}
                 </div>
               </div>
-              {isNodeExpanded && <div className="min-h-0 flex-1 overflow-y-auto px-3.5 py-3 touch-pan-y">
+              <div className="min-h-0 flex-1 overflow-y-auto px-3.5 py-3 touch-pan-y">
               {(() => {
                 const parents = map.nodes.filter(n => selectedNode.dependencyIds.includes(n.id));
                 return (
@@ -2045,7 +2041,7 @@ export const Map3D: React.FC = () => {
                   )}
                 </div>
               )}
-              </div>}
+              </div>
               <button
                 type="button"
                 onClick={() => setTaskPanelMode('rail')}

@@ -15,6 +15,8 @@ describe('Map3D mobile graph layout contract', () => {
     expect(mapSource).toContain("taskPanelMode === 'rail' ? 'md:hidden' : 'md:w-auto'");
     expect(mapSource).toContain('Развернуть правую панель задачи');
     expect(mapSource).toContain('>Задача</span>');
+    expect(mapSource).toContain('<NodeCardDetails');
+    expect(mapSource).not.toContain('onClick={() => setIsNodeExpanded(!isNodeExpanded)}');
     expect(mapSource).toContain('h-full w-full');
     expect(mapSource).toContain('w-full min-w-0 shrink-0 md:col-start-1');
     expect(mapSource).not.toContain('md:absolute md:inset-x-auto');
