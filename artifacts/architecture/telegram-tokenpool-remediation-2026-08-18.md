@@ -1,10 +1,10 @@
 # Telegram/token-pool remediation
 
-**Версия:** 0.4.21
+**Версия:** 0.4.22
 **Дата:** 2026-08-18
 **Основание:** `telegram-tokenpool-bug-graph-2026-08-18.md`
 
-## Релиз v0.4.21
+## Релиз v0.4.22
 
 Desktop UI patch добавляет Manus-подобные состояния right task panel: полноценную docked-панель и узкую rail-полосу с возвратом по стрелке. Изменение не затрагивает ingress Telegram, обработку секретов, server-side API-key policy или Core-first boundary.
 

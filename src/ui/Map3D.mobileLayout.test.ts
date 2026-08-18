@@ -7,9 +7,11 @@ const mapSource = readFileSync(resolve(process.cwd(), 'src/ui/Map3D.tsx'), 'utf8
 describe('Map3D mobile graph layout contract', () => {
   it('keeps mobile flow below the scene and docks the desktop task card in a dedicated right grid column', () => {
     expect(mapSource).toContain('order-3 h-[58dvh]');
-    expect(mapSource).toContain('order-1 relative flex min-h-0 flex-1 flex-col');
+    expect(mapSource).toContain('order-1 relative flex min-h-0 w-full min-w-0 flex-1 flex-col');
     expect(mapSource).toContain('data-testid="desktop-task-panel"');
     expect(mapSource).toContain('md:col-start-3 md:row-start-1');
+    expect(mapSource).toContain('h-full w-full');
+    expect(mapSource).toContain('w-full min-w-0 shrink-0 md:col-start-2');
     expect(mapSource).not.toContain('md:absolute md:inset-x-auto');
     expect(mapSource).not.toContain('fixed inset-x-2 bottom-2 z-30');
     expect(mapSource).toContain("taskPanelMode === 'open'");
@@ -26,7 +28,7 @@ describe('Map3D mobile graph layout contract', () => {
 
   it('assigns canvas-only touch suppression and explicit two-finger OrbitControls configuration', () => {
     expect(mapSource).toContain('configureGraphTouchControls(controls)');
-    expect(mapSource).toContain('<Canvas className="touch-none"');
+    expect(mapSource).toContain('<Canvas className="touch-none block h-full w-full"');
     expect(mapSource).toContain('touch-pan-y md:order-1');
   });
 

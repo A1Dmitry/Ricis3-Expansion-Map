@@ -1091,7 +1091,7 @@ export const Map3D: React.FC = () => {
             setMapPresentationMode('accessible_list');
           }}
         >
-          <Canvas className="touch-none" camera={{ position: [0, 0, 32], fov: 55, far: 10000, near: 0.1 }} gl={{ antialias: true, alpha: true }}>
+          <Canvas className="touch-none block h-full w-full" camera={{ position: [0, 0, 32], fov: 55, far: 10000, near: 0.1 }} gl={{ antialias: true, alpha: true }}>
             <UniverseSkybox radius={3200} />
             <OrbitControls controlsRef={controlsRef} flightRef={flightRef} />
             <CameraFlightRig flightRef={flightRef} controlsRef={controlsRef} />
@@ -1806,8 +1806,8 @@ export const Map3D: React.FC = () => {
           )}
         </aside>
 
-        <div className="order-1 relative flex min-h-0 flex-1 flex-col bg-[radial-gradient(circle_at_center,_#0a0f1a_0%,_#050505_100%)] md:contents">
-          <div className="relative h-[42dvh] min-h-[16rem] shrink-0 md:col-start-2 md:row-start-1 md:h-full md:min-h-0">
+        <div className="order-1 relative flex min-h-0 w-full min-w-0 flex-1 flex-col bg-[radial-gradient(circle_at_center,_#0a0f1a_0%,_#050505_100%)] md:contents">
+          <div className="relative h-[42dvh] min-h-[16rem] w-full min-w-0 shrink-0 md:col-start-2 md:row-start-1 md:h-full md:min-h-0">
           {leftPanelMode === 'rail' && (
             <button type="button" onClick={() => setLeftPanelMode('open')} className="hidden md:inline-flex absolute left-2 top-2 z-20 min-h-8 min-w-8 items-center justify-center rounded bg-neutral-950/90 text-neutral-400 shadow-lg transition-colors hover:bg-cyan-950/70 hover:text-cyan-200" aria-label="Развернуть левую панель" title="Развернуть левую панель">
               <ChevronRight size={15} />
