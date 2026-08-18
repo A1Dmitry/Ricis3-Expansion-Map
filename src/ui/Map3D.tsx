@@ -351,6 +351,7 @@ export const Map3D: React.FC = () => {
 
   const [isNodeExpanded, setIsNodeExpanded] = useState(false);
   const [taskPanelMode, setTaskPanelMode] = useState<'open' | 'rail'>('open');
+  const [leftPanelMode, setLeftPanelMode] = useState<'open' | 'rail'>('open');
   const [showProof, setShowProof] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const [showAddNode, setShowAddNode] = useState(false);
@@ -1450,8 +1451,10 @@ export const Map3D: React.FC = () => {
         </div>
       </header>
 
-      <main className={`flex-1 min-h-0 flex flex-col md:grid relative overflow-y-auto md:overflow-hidden ${selectedNode ? (taskPanelMode === 'open' ? 'md:grid-cols-[21rem_minmax(0,1fr)_minmax(24rem,30rem)]' : 'md:grid-cols-[21rem_minmax(0,1fr)_2.75rem]') : 'md:grid-cols-[21rem_minmax(0,1fr)]'}`}>
-        <aside className="order-3 h-[58dvh] w-full border-t border-cyan-900/40 bg-[#070707] p-3 flex flex-col gap-3 shrink-0 z-10 overflow-y-auto touch-pan-y md:order-1 md:row-start-1 md:col-start-1 md:h-full md:w-auto md:border-t-0 md:border-r">
+      <main className={`flex-1 min-h-0 flex flex-col md:grid relative overflow-y-auto md:overflow-hidden ${selectedNode
+        ? `${leftPanelMode === 'open' ? 'md:grid-cols-[21rem_minmax(0,1fr)' : 'md:grid-cols-[0_minmax(0,1fr)'}${taskPanelMode === 'open' ? '_minmax(24rem,30rem)]' : '_0]'}`
+        : (leftPanelMode === 'open' ? 'md:grid-cols-[21rem_minmax(0,1fr)]' : 'md:grid-cols-[0_minmax(0,1fr)]')}`}>
+        <aside data-testid="desktop-navigation-panel" data-panel-mode={leftPanelMode} className={`order-3 h-[58dvh] w-full border-t border-cyan-900/40 bg-[#070707] p-3 flex flex-col gap-3 shrink-0 z-10 overflow-y-auto touch-pan-y md:order-1 md:row-start-1 md:col-start-1 md:h-full md:w-auto md:border-t-0 md:border-r ${leftPanelMode === 'rail' ? 'md:hidden' : ''}`}>
           {/* SEARCH BAR (Top of Sidebar) */}
           <div className="relative border border-cyan-900/40 rounded-lg overflow-visible bg-[#050810]/90 backdrop-blur-md px-3.5 py-2.5 mb-1 flex items-center gap-2.5 z-20">
             <Search size={16} className="text-cyan-400 shrink-0" />
@@ -1796,11 +1799,21 @@ export const Map3D: React.FC = () => {
 
         <div className="order-1 relative flex min-h-0 flex-1 flex-col bg-[radial-gradient(circle_at_center,_#0a0f1a_0%,_#050505_100%)] md:contents">
           <div className="relative h-[42dvh] min-h-[16rem] shrink-0 md:col-start-2 md:row-start-1 md:h-full md:min-h-0">
+          {leftPanelMode === 'rail' && (
+            <button type="button" onClick={() => setLeftPanelMode('open')} className="hidden md:inline-flex absolute left-2 top-2 z-20 min-h-8 min-w-8 items-center justify-center rounded bg-neutral-950/90 text-neutral-400 shadow-lg transition-colors hover:bg-cyan-950/70 hover:text-cyan-200" aria-label="Развернуть левую панель" title="Развернуть левую панель">
+              <ChevronRight size={15} />
+            </button>
+          )}
+          {selectedNode && taskPanelMode === 'rail' && (
+            <button type="button" onClick={() => setTaskPanelMode('open')} className="hidden md:inline-flex absolute right-2 top-2 z-20 min-h-8 min-w-8 items-center justify-center rounded bg-neutral-950/90 text-neutral-400 shadow-lg transition-colors hover:bg-cyan-950/70 hover:text-cyan-200" aria-label="Развернуть правую панель задачи" title="Развернуть правую панель задачи">
+              <ChevronLeft size={15} />
+            </button>
+          )}
           {renderMapScene()}
           </div>
 
           {selectedNode && (
-            <aside data-testid="desktop-task-panel" data-panel-mode={taskPanelMode} className={`relative order-2 min-h-0 w-full shrink-0 overflow-hidden border-t border-cyan-900/40 bg-[#070707] md:order-none md:col-start-3 md:row-start-1 md:h-full md:w-auto md:border-l md:border-t-0 ${taskPanelMode === 'rail' ? 'md:bg-neutral-950/90' : ''}`}>
+            <aside data-testid="desktop-task-panel" data-panel-mode={taskPanelMode} className={`relative order-2 min-h-0 w-full shrink-0 overflow-hidden border-t border-cyan-900/40 bg-[#070707] md:order-none md:col-start-3 md:row-start-1 md:h-full md:w-auto md:border-l md:border-t-0 ${taskPanelMode === 'rail' ? 'md:hidden' : ''}`}>
               <div className="flex h-full min-h-0 flex-col">
               {taskPanelMode === 'rail' ? (
                 <button

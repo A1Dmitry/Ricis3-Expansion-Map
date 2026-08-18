@@ -1,10 +1,10 @@
 # Lean boundary audit
 
-**Версия:** 0.4.19
+**Версия:** 0.4.20
 **Дата:** 2026-08-18
 **Цель:** установить проверяемую границу между Lean kernel, статическим анализом TypeScript, независимой символьной проверкой и RICIS-черновиком.
 
-## Релиз v0.4.19
+## Релиз v0.4.20
 
 Manus-подобный desktop rail для right task panel является UI-композицией и не меняет `LEAN_VERIFIED`, `TRUSTED_AXIOM`, `REQUIRES_CORE_LEAN` или Core-first policy. Все вычислительные trust boundaries остаются прежними.
 

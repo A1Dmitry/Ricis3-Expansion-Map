@@ -13,9 +13,14 @@ describe('Map3D mobile graph layout contract', () => {
     expect(mapSource).not.toContain('md:absolute md:inset-x-auto');
     expect(mapSource).not.toContain('fixed inset-x-2 bottom-2 z-30');
     expect(mapSource).toContain("taskPanelMode === 'open'");
-    expect(mapSource).toContain("md:grid-cols-[21rem_minmax(0,1fr)_2.75rem]");
+    expect(mapSource).toContain("md:grid-cols-[0_minmax(0,1fr)");
+    expect(mapSource).toContain("leftPanelMode === 'open'");
+    expect(mapSource).toContain('data-testid="desktop-navigation-panel"');
+    expect(mapSource).toContain('data-panel-mode={leftPanelMode}');
     expect(mapSource).toContain('data-panel-mode={taskPanelMode}');
+    expect(mapSource).toContain('md:hidden');
     expect(mapSource).toContain('Развернуть правую панель задачи');
+    expect(mapSource).toContain('Развернуть левую панель');
     expect(mapSource).toContain('Свернуть правую панель в узкую полосу');
   });
 
