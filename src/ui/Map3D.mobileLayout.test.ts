@@ -12,6 +12,11 @@ describe('Map3D mobile graph layout contract', () => {
     expect(mapSource).toContain('md:col-start-3 md:row-start-1');
     expect(mapSource).not.toContain('md:absolute md:inset-x-auto');
     expect(mapSource).not.toContain('fixed inset-x-2 bottom-2 z-30');
+    expect(mapSource).toContain("taskPanelMode === 'open'");
+    expect(mapSource).toContain("md:grid-cols-[21rem_minmax(0,1fr)_2.75rem]");
+    expect(mapSource).toContain('data-panel-mode={taskPanelMode}');
+    expect(mapSource).toContain('Развернуть правую панель задачи');
+    expect(mapSource).toContain('Свернуть правую панель в узкую полосу');
   });
 
   it('assigns canvas-only touch suppression and explicit two-finger OrbitControls configuration', () => {

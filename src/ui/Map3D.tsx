@@ -9,6 +9,8 @@ import { APP_BUILD_LABEL, APP_VERSION } from '../version';
 import {
   ChevronDown,
   ChevronUp,
+  ChevronLeft,
+  ChevronRight,
   Layers,
   CheckCircle2,
   Search,
@@ -348,6 +350,7 @@ export const Map3D: React.FC = () => {
   }, [selectedNodeId]);
 
   const [isNodeExpanded, setIsNodeExpanded] = useState(false);
+  const [taskPanelMode, setTaskPanelMode] = useState<'open' | 'rail'>('open');
   const [showProof, setShowProof] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const [showAddNode, setShowAddNode] = useState(false);
@@ -738,6 +741,7 @@ export const Map3D: React.FC = () => {
 
   useEffect(() => {
     setShowProof(false);
+    if (selectedNodeId) setTaskPanelMode('open');
   }, [selectedNodeId]);
 
   const handleSolve = async (id: string) => {
@@ -1446,7 +1450,7 @@ export const Map3D: React.FC = () => {
         </div>
       </header>
 
-      <main className="flex-1 min-h-0 flex flex-col md:grid md:grid-cols-[21rem_minmax(0,1fr)_minmax(24rem,30rem)] relative overflow-y-auto md:overflow-hidden">
+      <main className={`flex-1 min-h-0 flex flex-col md:grid relative overflow-y-auto md:overflow-hidden ${selectedNode ? (taskPanelMode === 'open' ? 'md:grid-cols-[21rem_minmax(0,1fr)_minmax(24rem,30rem)]' : 'md:grid-cols-[21rem_minmax(0,1fr)_2.75rem]') : 'md:grid-cols-[21rem_minmax(0,1fr)]'}`}>
         <aside className="order-3 h-[58dvh] w-full border-t border-cyan-900/40 bg-[#070707] p-3 flex flex-col gap-3 shrink-0 z-10 overflow-y-auto touch-pan-y md:order-1 md:row-start-1 md:col-start-1 md:h-full md:w-auto md:border-t-0 md:border-r">
           {/* SEARCH BAR (Top of Sidebar) */}
           <div className="relative border border-cyan-900/40 rounded-lg overflow-visible bg-[#050810]/90 backdrop-blur-md px-3.5 py-2.5 mb-1 flex items-center gap-2.5 z-20">
@@ -1796,8 +1800,21 @@ export const Map3D: React.FC = () => {
           </div>
 
           {selectedNode && (
-            <aside data-testid="desktop-task-panel" className="order-2 min-h-0 w-full shrink-0 overflow-hidden border-t border-cyan-900/40 bg-[#070707] md:order-none md:col-start-3 md:row-start-1 md:h-full md:w-auto md:border-l md:border-t-0">
+            <aside data-testid="desktop-task-panel" data-panel-mode={taskPanelMode} className={`relative order-2 min-h-0 w-full shrink-0 overflow-hidden border-t border-cyan-900/40 bg-[#070707] md:order-none md:col-start-3 md:row-start-1 md:h-full md:w-auto md:border-l md:border-t-0 ${taskPanelMode === 'rail' ? 'md:bg-neutral-950/90' : ''}`}>
               <div className="flex h-full min-h-0 flex-col">
+              {taskPanelMode === 'rail' ? (
+                <button
+                  type="button"
+                  className="flex h-full min-h-0 w-full flex-col items-center justify-center gap-3 text-neutral-500 transition-colors hover:bg-cyan-950/30 hover:text-cyan-300"
+                  onClick={() => setTaskPanelMode('open')}
+                  aria-label="Развернуть правую панель задачи"
+                  title="Развернуть правую панель задачи"
+                >
+                  <ChevronLeft size={16} />
+                  <span className="[writing-mode:vertical-rl] text-[9px] font-bold uppercase tracking-[0.18em]">Задача</span>
+                </button>
+              ) : (
+              <>
               <div className="flex shrink-0 items-start justify-between gap-3 border-b border-neutral-800/60 bg-neutral-950/80 px-3.5 py-3">
                 <button
                   type="button"
@@ -2008,6 +2025,17 @@ export const Map3D: React.FC = () => {
                 </div>
               )}
               </div>}
+              <button
+                type="button"
+                onClick={() => setTaskPanelMode('rail')}
+                className="absolute right-2 top-2 z-10 inline-flex min-h-7 min-w-7 items-center justify-center rounded text-neutral-500 transition-colors hover:bg-cyan-950/50 hover:text-cyan-300"
+                aria-label="Свернуть правую панель в узкую полосу"
+                title="Свернуть правую панель в узкую полосу"
+              >
+                <ChevronRight size={14} />
+              </button>
+              </>
+              )}
               </div>
             </aside>
           )}
