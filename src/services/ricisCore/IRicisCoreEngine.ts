@@ -1,7 +1,9 @@
 /**
- * RICIS-III v7.7 Engine Contract
- * Abstract interface for both C# WebAssembly (Ricis.Core) and Native TypeScript Runtime.
- * Strictly adheres to SOLID, DRY and DDD principles.
+ * RICIS-III v7.7 Engine Contract.
+ *
+ * `evaluate` is Core-first: a singularity calculation either returns a result
+ * produced by C# Core or a typed recovery status. It never substitutes a
+ * TypeScript invariant after Core is unavailable or rejects the input.
  */
 
 export interface RicisEvaluationRequest {
@@ -12,16 +14,17 @@ export interface RicisEvaluationRequest {
 }
 
 export interface RicisPhaseTraceStep {
-  readonly phase: string; // e.g. "Phase -1", "Phase 0", "Phase 2"
+  readonly phase: string;
   readonly title: string;
   readonly inputState: string;
   readonly outputState: string;
-  readonly appliedAxiom?: string; // e.g. "A6", "SP2", "L1", "A4", "A10"
+  readonly appliedAxiom?: string;
   readonly complexity: 'O(1)' | 'O(log N)' | 'O(N)';
 }
 
+/** A successful singularity calculation can only originate from C# Core. */
 export interface RicisEvaluationResult {
-  readonly success: boolean;
+  readonly success: true;
   readonly invariant: string;
   readonly isSingular: boolean;
   readonly semanticIndex?: string;
@@ -30,24 +33,56 @@ export interface RicisEvaluationResult {
   readonly error?: string;
 }
 
-export type RicisCoreStatus = 'uninitialized' | 'loading' | 'ready_wasm' | 'ready_api' | 'fallback_ts' | 'error';
+export type CoreRecoveryCode =
+  | 'CORE_UNAVAILABLE'
+  | 'CORE_INPUT_REJECTED'
+  | 'CORE_INFRASTRUCTURE_ERROR'
+  | 'CORE_INVALID_RESPONSE';
+
+export type CoreRecoveryOrigin = 'terminal' | 'node_trace' | 'proof_console' | 'unknown';
+
+export interface CoreRecoveryDiagnostic {
+  readonly origin: CoreRecoveryOrigin;
+  readonly runtime: 'csharp_api' | 'csharp_wasm' | 'not_ready';
+  readonly retryable: boolean;
+  readonly httpStatus?: number;
+  readonly parserPosition?: number;
+  readonly safeDetail?: string;
+  readonly occurredAt: number;
+}
 
 /**
- * Canonical formal proof methods in RICIS-III v7.7
+ * A Core failure deliberately has no invariant, trace, proof or execution
+ * engine. It is an operational state, not a mathematical result.
  */
-export type RicisProofMethod = 
-  | 'geometric_bridge'        // Resolution via 2D vector determinant det(u,v) = F * G
-  | 'identity_conservation'   // L1 preservation proof (0_F / 0_F = 1)
-  | 'discrete_monolith'       // Monolith difference operator Delta_plane without limits
-  | 'singularity_separation'  // SP1/SP2 factorization and tail preservation (No Total Amnesia)
-  | 'infinity_arithmetic';    // A7/A10 infinity arithmetic axioms
+export interface CoreExecutionFailure {
+  readonly success: false;
+  readonly code: CoreRecoveryCode;
+  readonly userMessage: string;
+  readonly diagnostic: CoreRecoveryDiagnostic;
+}
+
+export type CoreExecutionResult = RicisEvaluationResult | CoreExecutionFailure;
+
+export function isCoreExecutionFailure(result: CoreExecutionResult): result is CoreExecutionFailure {
+  return result.success === false;
+}
+
+export type RicisCoreStatus = 'uninitialized' | 'loading' | 'ready_wasm' | 'ready_api' | 'fallback_ts' | 'error';
+
+export type RicisProofMethod =
+  | 'geometric_bridge'
+  | 'identity_conservation'
+  | 'discrete_monolith'
+  | 'singularity_separation'
+  | 'infinity_arithmetic';
 
 export interface RicisProofStep {
   readonly stepNumber: number;
-  readonly phase: string; // e.g. "Phase -1", "Phase 2"
+  readonly phase: string;
   readonly statement: string;
   readonly mathematicalForm: string;
-  readonly justificationAxiom: string; // e.g. "L1", "SP2", "A6", "TCP", "SP1"
+  readonly justificationAxiom: string;
   readonly notation: 'ricis_math' | 'latex' | 'lean4';
 }
 
@@ -73,29 +108,20 @@ export interface RicisProofVerificationResult {
   readonly verifiedAxioms: readonly string[];
 }
 
-/**
- * Expression Input: either a mathematical string or an executable lambda function
- */
 export type RicisExpressionInput = string | ((...args: any[]) => any);
 
-/**
- * Step in an academic proof log
- */
 export interface RicisAcademicStep {
   readonly stepNumber: number;
-  readonly phase: string; // e.g. "Phase -1", "Phase 1: SP2 Reduction", "Phase 2: Axiom A6"
+  readonly phase: string;
   readonly title: string;
   readonly academicDescription: string;
   readonly previousState: string;
   readonly reducedState: string;
-  readonly appliedAxiom: string; // e.g. "A6", "SP1", "SP2", "SP4", "L1", "A4", "A10"
+  readonly appliedAxiom: string;
   readonly mathLatex: string;
   readonly complexity: 'O(1)';
 }
 
-/**
- * Academic Proof Protocol Result
- */
 export interface RicisAcademicProofResult {
   readonly proofId: string;
   readonly problemId?: string;
@@ -118,46 +144,21 @@ export interface BracketValidationResult {
 
 export interface IRicisCoreEngine {
   readonly status: RicisCoreStatus;
-  
-  /** Initialize the Wasm/Native runtime */
   initialize(wasmUrl?: string): Promise<void>;
-  
-  /** Evaluate mathematical expressions involving singularities strictly through RICIS-III */
-  evaluate(request: RicisEvaluationRequest): Promise<RicisEvaluationResult>;
-  
-  /** Verify L1 Identity (X = X) structural preservation */
+  evaluate(request: RicisEvaluationRequest): Promise<CoreExecutionResult>;
   verifyIdentity(targetA: string, targetB: string): Promise<boolean>;
-
-  /** Generate formal theorem proof by specified RICIS-III method */
   generateFormalProof(
-    claim: string, 
-    method?: RicisProofMethod, 
+    claim: string,
+    method?: RicisProofMethod,
     context?: { problemId?: string; variables?: Record<string, string> }
   ): Promise<RicisFormalProof>;
-
-  /** Verify formal proof step-by-step against RICIS-III axioms */
   verifyProofChain(proof: RicisFormalProof): Promise<RicisProofVerificationResult>;
-
-  /** Convert a lambda function into a normalized mathematical expression string */
   lambdaToString(fn: Function): string;
-
-  /** Compile a mathematical expression string into an executable lambda function */
   stringToLambda(expr: string): (vars?: Record<string, number | string>) => string | number;
-
-  /**
-   * Academic Proof of Expression System:
-   * Takes an array of premises (strings or lambdas) and an expected Goal.
-   * Recursively reduces, tests L1 goal equivalence, and formats an academic proof log.
-   */
   proveSystem(
     premises: readonly RicisExpressionInput[],
     expectedGoal: string,
     problemId?: string
   ): Promise<RicisAcademicProofResult>;
-
-  /**
-   * Validate and normalize bracket structures for Lean 4 / mathematical parser compatibility
-   */
   validateBrackets(text: string): BracketValidationResult;
 }
-

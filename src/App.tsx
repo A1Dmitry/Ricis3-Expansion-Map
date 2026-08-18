@@ -1,16 +1,14 @@
-/**
- * @license
- * SPDX-License-Identifier: Apache-2.0
- */
-
 import { useEffect, useState } from 'react';
 import { Map3D } from './ui/Map3D';
+import { CoreRecoveryPage } from './ui/CoreRecoveryPage';
+import { isCoreRecoveryRoute } from './services/coreRecovery';
 import { useMapStore } from './store/mapStore';
 
 export default function App() {
   const hydrate = useMapStore(s => s.hydrate);
   const hydrated = useMapStore(s => s.hydrated);
   const [error, setError] = useState<string | null>(null);
+  const [locationSearch, setLocationSearch] = useState(() => window.location.search);
 
   useEffect(() => {
     hydrate().catch(e => {
@@ -18,6 +16,12 @@ export default function App() {
       setError(String(e));
     });
   }, [hydrate]);
+
+  useEffect(() => {
+    const onPopState = () => setLocationSearch(window.location.search);
+    window.addEventListener('popstate', onPopState);
+    return () => window.removeEventListener('popstate', onPopState);
+  }, []);
 
   if (error) {
     return (
@@ -33,6 +37,10 @@ export default function App() {
         RICIS-III // loading map from IndexedDB…
       </div>
     );
+  }
+
+  if (isCoreRecoveryRoute(locationSearch)) {
+    return <CoreRecoveryPage />;
   }
 
   return <Map3D />;

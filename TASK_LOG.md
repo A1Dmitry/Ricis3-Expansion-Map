@@ -414,3 +414,12 @@ Supervisor теперь выбирает bundled DLL первым способо
 - **Lean boundary.** В этом изменении не повышался ни один статус Lean. Минимальный A6 artifact и прежние evidence остаются отдельными от UI/CI TypeScript проверок согласно P-04.
 
 **Статус:** функциональное восстановление и quality gate завершены локально в изолированном Node 22.23.2 / npm 12.0.2 workspace; публикация и проверка GitHub Pages — следующий шаг.
+
+---
+## 2026-08-18 — Строгий Ricis.Core-first расчёт сингулярностей v0.4.11
+- **P-01 / P-06: Core-first граница.** `RicisWasmBridge.evaluate()` больше не возвращает `RicisFallbackEngine.evaluate()` при недоступном WASM/API, HTTP 400, network/5xx error или некорректном payload. Успех имеет только `csharp_api` или `csharp_wasm`; неуспех передаётся как типизированный `CORE_UNAVAILABLE`, `CORE_INPUT_REJECTED`, `CORE_INFRASTRUCTURE_ERROR` или `CORE_INVALID_RESPONSE` без invariant, trace и proof.
+- **P-08: причинный UI recovery.** Добавлены `coreRecovery` и SPA query-route `?view=core-recovery`. Terminal, node trace и Proof Console направляют Core failure на страницу с кодом, origin, безопасной диагностикой, health-check без fallback, возвратом к карте и пошаговой инструкцией восстановления. URL не содержит выражения, API URL, stack trace или секреты; DTO хранится санитизированно в `sessionStorage`.
+- **Proof boundary.** На Core failure terminal не создаёт formal proof/trace, а node trace не отображает пустой или подменённый TypeScript trace. Legacy proof helpers оставлены отдельным изолированным слоем и не повышают источник вычисления сингулярности до C# Core.
+- **QA.** Добавлены strict bridge tests для Core success, HTTP 400, HTTP 503, malformed payload и явного запрета fallback; добавлены recovery route tests для санитизации URL/DTO, нормализации query, health-check и возврата на карту. Выполнены в Node `22.23.2` / npm `12.0.2`: `npm ci`, `npm run lint`, `npm test` — 23 файлов / 139 тестов, `npm run build`, `npm audit --audit-level=moderate` — 0 vulnerabilities, `git diff --check`. Vite зафиксировал не-блокирующие предупреждения о `__dirname` native config loader, ineffective dynamic import и chunk > 500 kB.
+- **Release metadata.** Patch-версия повышена с `0.4.10` до `0.4.11` и синхронизирована в `package.json`, `package-lock.json`, `src/version.ts`, README, CITATION и release-артефактах.
+**Статус:** строгая граница доверия реализована локально. На GitHub Pages без C# API или настоящего browser-WASM сингулярный результат намеренно отображается как недоступный, а не подменяется fallback-вычислением.

@@ -1,13 +1,18 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { RicisFallbackEngine } from './RicisFallbackEngine';
 import { RicisWasmBridge } from './RicisWasmBridge';
-import { IRicisCoreEngine, RicisEvaluationRequest } from './IRicisCoreEngine';
+import { RicisEvaluationRequest } from './IRicisCoreEngine';
 
 describe('RICIS-III Core Engine & Reference Bridge', () => {
-  let engine: IRicisCoreEngine;
+  let engine: RicisFallbackEngine;
 
   beforeEach(() => {
     engine = new RicisFallbackEngine();
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+    vi.unstubAllGlobals();
   });
 
   describe('L0 Continuity & Engine Status', () => {
@@ -16,19 +21,107 @@ describe('RICIS-III Core Engine & Reference Bridge', () => {
       expect(bridge.status).toBe('uninitialized');
     });
 
-    it('should start the runtime lazily on the first real Core operation', async () => {
+    it('should return a controlled Core failure when no C# runtime is available', async () => {
       const bridge = new RicisWasmBridge();
       expect(bridge.status).toBe('uninitialized');
 
       const result = await bridge.evaluate({ expression: '0_5 * inf_3' });
 
-      expect(result.invariant).toBe('15');
-      expect(bridge.status).toBe('fallback_ts');
+      expect(result.success).toBe(false);
+      if (result.success) throw new Error('Expected a controlled Core failure.');
+      expect(result.code).toBe('CORE_UNAVAILABLE');
+      expect(bridge.status).toBe('error');
     });
 
     it('should initialize successfully into ready state without throwing', async () => {
       await engine.initialize();
       expect(['ready_wasm', 'fallback_ts']).toContain(engine.status);
+    });
+  });
+
+  describe('Strict Core bridge', () => {
+    const healthReady = { ok: true, status: 200, json: async () => ({ status: 'ready' }) };
+
+    it('does not invoke fallback when Core rejects a legacy monolith input', async () => {
+      const fallbackSpy = vi.spyOn(RicisFallbackEngine.prototype, 'evaluate');
+      vi.stubGlobal('window', {});
+      vi.stubGlobal('fetch', vi.fn()
+        .mockResolvedValueOnce(healthReady)
+        .mockResolvedValueOnce({ ok: false, status: 400, json: async () => ({ error: 'Unexpected token', position: 1 }) }));
+
+      const result = await new RicisWasmBridge().evaluate({ expression: '0_5 * inf_3' });
+
+      expect(result.success).toBe(false);
+      if (result.success) throw new Error('Expected CORE_INPUT_REJECTED.');
+      expect(result.code).toBe('CORE_INPUT_REJECTED');
+      expect(result.diagnostic.parserPosition).toBe(1);
+      expect(fallbackSpy).not.toHaveBeenCalled();
+    });
+
+    it('does not invoke fallback after a Core infrastructure error', async () => {
+      const fallbackSpy = vi.spyOn(RicisFallbackEngine.prototype, 'evaluate');
+      vi.stubGlobal('window', {});
+      vi.stubGlobal('fetch', vi.fn()
+        .mockResolvedValueOnce(healthReady)
+        .mockResolvedValueOnce({ ok: false, status: 503, json: async () => ({ error: 'service unavailable' }) }));
+
+      const result = await new RicisWasmBridge().evaluate({ expression: 'x => 8 / 0' });
+
+      expect(result.success).toBe(false);
+      if (result.success) throw new Error('Expected CORE_INFRASTRUCTURE_ERROR.');
+      expect(result.code).toBe('CORE_INFRASTRUCTURE_ERROR');
+      expect(fallbackSpy).not.toHaveBeenCalled();
+    });
+
+    it('rejects malformed successful payloads instead of accepting a false invariant', async () => {
+      const fallbackSpy = vi.spyOn(RicisFallbackEngine.prototype, 'evaluate');
+      vi.stubGlobal('window', {});
+      vi.stubGlobal('fetch', vi.fn()
+        .mockResolvedValueOnce(healthReady)
+        .mockResolvedValueOnce({ ok: true, status: 200, json: async () => ({ parsed: 'x => (8 / 0)' }) }));
+
+      const result = await new RicisWasmBridge().evaluate({ expression: 'x => 8 / 0' });
+
+      expect(result.success).toBe(false);
+      if (result.success) throw new Error('Expected CORE_INVALID_RESPONSE.');
+      expect(result.code).toBe('CORE_INVALID_RESPONSE');
+      expect(fallbackSpy).not.toHaveBeenCalled();
+    });
+
+    it('retries Core discovery after a prior unavailable state without using fallback', async () => {
+      const fallbackSpy = vi.spyOn(RicisFallbackEngine.prototype, 'evaluate');
+      vi.stubGlobal('window', {});
+      vi.stubGlobal('fetch', vi.fn()
+        .mockResolvedValueOnce({ ok: false, status: 503, json: async () => ({ status: 'unavailable' }) })
+        .mockResolvedValueOnce(healthReady)
+        .mockResolvedValueOnce({ ok: true, status: 200, json: async () => ({ ricis: 'x => ∞_{8}' }) }));
+
+      const bridge = new RicisWasmBridge();
+      const first = await bridge.evaluate({ expression: 'x => 8 / 0' });
+      expect(first.success).toBe(false);
+
+      const recovered = await bridge.evaluate({ expression: 'x => 8 / 0' });
+      expect(recovered.success).toBe(true);
+      if (!recovered.success) throw new Error('Expected Core recovery to succeed.');
+      expect(recovered.executionEngine).toBe('csharp_api');
+      expect(fallbackSpy).not.toHaveBeenCalled();
+    });
+
+    it('accepts an explicit C# API result without creating fallback trace steps', async () => {
+      const fallbackSpy = vi.spyOn(RicisFallbackEngine.prototype, 'evaluate');
+      vi.stubGlobal('window', {});
+      vi.stubGlobal('fetch', vi.fn()
+        .mockResolvedValueOnce(healthReady)
+        .mockResolvedValueOnce({ ok: true, status: 200, json: async () => ({ ricis: 'x => ∞_{8}' }) }));
+
+      const result = await new RicisWasmBridge().evaluate({ expression: 'x => 8 / 0' });
+
+      expect(result.success).toBe(true);
+      if (!result.success) throw new Error('Expected a Core result.');
+      expect(result.executionEngine).toBe('csharp_api');
+      expect(result.invariant).toBe('x => ∞_{8}');
+      expect(result.trace).toEqual([]);
+      expect(fallbackSpy).not.toHaveBeenCalled();
     });
   });
 

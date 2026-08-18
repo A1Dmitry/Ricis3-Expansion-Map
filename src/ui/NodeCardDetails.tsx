@@ -7,6 +7,8 @@ import { LatexRenderer } from './LatexRenderer';
 import { ExecutionTraceViewer } from './ExecutionTraceViewer';
 import type { ITransformationLogDTO } from '../model/traceVisualizer.types';
 import { getRicisCoreEngine } from '../services/ricisCore';
+import { isCoreExecutionFailure } from '../services/ricisCore/IRicisCoreEngine';
+import { writeCoreRecovery } from '../services/coreRecovery';
 import { UrlShareService } from '../services/UrlShareService';
 import { useI18nStore } from '../store/useI18nStore';
 import { ProofTrustBadge } from './ProofTrustBadge';
@@ -173,8 +175,13 @@ export const NodeCardDetails: React.FC<Props> = ({
     setIsTracing(true);
     try {
       const engine = getRicisCoreEngine();
-      const res = await engine.evaluate({ expression: node.targetFunction || '', contextProblemId: node.id });
-      if (res && res.trace && res.trace.length > 0) {
+      const res = await engine.evaluate({ expression: node.targetFunction || '', contextProblemId: 'node_trace' });
+      if (isCoreExecutionFailure(res)) {
+        setTraceLog(null);
+        writeCoreRecovery(res);
+        return;
+      }
+      if (res.trace.length > 0) {
         setTraceLog({
           evaluationId: Date.now().toString(),
           targetExpression: node.targetFunction || '',
@@ -196,9 +203,19 @@ export const NodeCardDetails: React.FC<Props> = ({
       } else {
         setTraceLog(null);
       }
-    } catch (e) {
-      console.error(e);
+    } catch {
       setTraceLog(null);
+      writeCoreRecovery({
+        success: false,
+        code: 'CORE_INFRASTRUCTURE_ERROR',
+        userMessage: 'Инфраструктура Ricis.Core не завершила запрос. Результат не вычислялся.',
+        diagnostic: {
+          origin: 'node_trace',
+          runtime: 'not_ready',
+          retryable: true,
+          occurredAt: Date.now(),
+        },
+      });
     } finally {
       setIsTracing(false);
     }

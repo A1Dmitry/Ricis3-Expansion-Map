@@ -105,12 +105,13 @@ describe('Node Card Accordion, Navigation & Ricis.Core Audit Tests', () => {
       expect(proofDoc.complexity).toBe('O(1)');
     });
 
-    it('Ricis.Core должен успешно вычислять геометрический мост 0_F * inf_G = F * G', async () => {
+    it('при недоступном Core не подменяет геометрический мост fallback-вычислением', async () => {
       const engine = getRicisCoreEngine();
       const result = await engine.evaluate({ expression: '0_4 * \\infty_5', contextProblemId: 'geom-bridge' });
 
-      expect(result.invariant).toBeDefined();
-      expect(result.trace.length).toBeGreaterThan(0);
+      expect(result.success).toBe(false);
+      if (result.success) throw new Error('Ожидался контролируемый Core failure.');
+      expect(result.code).toBe('CORE_UNAVAILABLE');
     });
   });
 });

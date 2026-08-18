@@ -8,6 +8,8 @@ import {
   RicisProofVerificationResult,
   RicisAcademicProofResult
 } from '../services/ricisCore';
+import { isCoreExecutionFailure } from '../services/ricisCore/IRicisCoreEngine';
+import { writeCoreRecovery } from '../services/coreRecovery';
 import { APP_BUILD_LABEL } from '../version';
 import { X, Play, ShieldCheck, Cpu, BookOpen, Layers, CheckCircle2, AlertCircle, Sparkles, FileText } from 'lucide-react';
 
@@ -63,8 +65,17 @@ export const RicisProofConsoleModal: React.FC<RicisProofConsoleModalProps> = ({
     try {
       const res = await engine.evaluate({
         expression: expression.trim(),
+        contextProblemId: 'proof_console',
         enableTracePhases: true,
       });
+      if (isCoreExecutionFailure(res)) {
+        setEvalResult(null);
+        writeCoreRecovery({
+          ...res,
+          diagnostic: { ...res.diagnostic, origin: 'proof_console' },
+        });
+        return;
+      }
       setEvalResult(res);
     } finally {
       setIsEvaluating(false);

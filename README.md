@@ -1,6 +1,6 @@
 # RICIS3-Expansion-Map
 
-**Версия: v0.4.10**
+**Версия: v0.4.11**
 
 RICIS3-Expansion-Map — открытая интерактивная карта задач, выражений и зависимостей RICIS-III. Она объединяет исследовательский каталог, визуальную навигацию по графу, локальные RICIS-вычисления, интеграцию с Ricis.Core и явные уровни доверия к proof-артефактам. Цель проекта — сделать путь от задачи и выражения до проверяемого артефакта обозримым, а не заменить проверку сильными визуальными заявлениями.
 
@@ -63,9 +63,9 @@ npm run build
 
 ## Интеграция с Ricis.Core
 
-Expansion не запускает C# runtime при старте Express. При первом реальном обращении к Ricis.Core `RicisWasmBridge` запрашивает относительный маршрут `/api/ricis-core/health`. Supervisor сначала использует Release-зеркало `runtime/ricis-core/Ricis.WebApi.dll`, а при его отсутствии — соседний проект `../Ricis.Core/Ricis.WebApi/Ricis.WebApi.csproj` через `dotnet run`. После health-check клиент обращается к `/api/ricis-core/expressions/{simplify|derivative|system}`; только диагностированная недоступность Core допускает детерминированный `RicisFallbackEngine`.
+Expansion не запускает C# runtime при старте Express. При первом реальном обращении к Ricis.Core `RicisWasmBridge` запрашивает относительный маршрут `/api/ricis-core/health`. Supervisor сначала использует Release-зеркало `runtime/ricis-core/Ricis.WebApi.dll`, а при его отсутствии — соседний проект `../Ricis.Core/Ricis.WebApi/Ricis.WebApi.csproj` через `dotnet run`. После health-check клиент обращается к `/api/ricis-core/expressions/{simplify|derivative|system}`.
 
-На статическом GitHub Pages server-side supervisor недоступен, поэтому интерфейс сохраняет локальный fallback и честно показывает уровень evidence. Дополнительные относительные настройки: `RICIS_CORE_RUNTIME`, `RICIS_CORE_REPO`, `RICIS_CORE_PROJECT`, `RICIS_CORE_PORT`, `RICIS_CORE_URL` и `RICIS_CORE_START_TIMEOUT_MS`.
+Расчёт сингулярностей работает в **строгом Core-first режиме**: успешный результат может иметь происхождение только `csharp_api` или `csharp_wasm`. Если Core недоступен, отклонил lambda-ввод, вернул инфраструктурную ошибку или неполный payload, TypeScript fallback не вычисляет заменяющий инвариант. Пользователь направляется на `?view=core-recovery` с пошаговым объяснением восстановления. На статическом GitHub Pages без browser-WASM или развёрнутого C# API математический результат честно остаётся недоступным. Дополнительные относительные настройки: `RICIS_CORE_RUNTIME`, `RICIS_CORE_REPO`, `RICIS_CORE_PROJECT`, `RICIS_CORE_PORT`, `RICIS_CORE_URL` и `RICIS_CORE_START_TIMEOUT_MS`.
 
 ## Нормативные ограничения RICIS-III
 
