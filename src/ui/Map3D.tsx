@@ -1455,6 +1455,15 @@ export const Map3D: React.FC = () => {
         ? `${leftPanelMode === 'open' ? 'md:grid-cols-[21rem_minmax(0,1fr)' : 'md:grid-cols-[0_minmax(0,1fr)'}${taskPanelMode === 'open' ? '_minmax(24rem,30rem)]' : '_0]'}`
         : (leftPanelMode === 'open' ? 'md:grid-cols-[21rem_minmax(0,1fr)]' : 'md:grid-cols-[0_minmax(0,1fr)]')}`}>
         <aside data-testid="desktop-navigation-panel" data-panel-mode={leftPanelMode} className={`order-3 h-[58dvh] w-full border-t border-cyan-900/40 bg-[#070707] p-3 flex flex-col gap-3 shrink-0 z-10 overflow-y-auto touch-pan-y md:order-1 md:row-start-1 md:col-start-1 md:h-full md:w-auto md:border-t-0 md:border-r ${leftPanelMode === 'rail' ? 'md:hidden' : ''}`}>
+          <button
+            type="button"
+            onClick={() => setLeftPanelMode('rail')}
+            className="absolute right-2 top-2 z-30 hidden md:inline-flex min-h-7 min-w-7 items-center justify-center rounded text-neutral-500 transition-colors hover:bg-cyan-950/50 hover:text-cyan-300"
+            aria-label="Свернуть левую панель"
+            title="Свернуть левую панель"
+          >
+            <ChevronLeft size={14} />
+          </button>
           {/* SEARCH BAR (Top of Sidebar) */}
           <div className="relative border border-cyan-900/40 rounded-lg overflow-visible bg-[#050810]/90 backdrop-blur-md px-3.5 py-2.5 mb-1 flex items-center gap-2.5 z-20">
             <Search size={16} className="text-cyan-400 shrink-0" />
@@ -1849,12 +1858,12 @@ export const Map3D: React.FC = () => {
                   </button>
                   <button
                     type="button"
-                    onClick={() => setIsNodeExpanded(!isNodeExpanded)}
+                    onClick={() => setTaskPanelMode('rail')}
                     className="text-neutral-500 hover:text-cyan-400 transition-colors"
-                    title={isNodeExpanded ? t('node.card.collapse') : t('node.card.expand')}
-                    aria-label={isNodeExpanded ? t('node.card.collapse') : t('node.card.expand')}
+                    title="Свернуть правую панель"
+                    aria-label="Свернуть правую панель"
                   >
-                    {isNodeExpanded ? '▲' : '▼'}
+                    <ChevronRight size={14} />
                   </button>
                   <button
                     type="button"
