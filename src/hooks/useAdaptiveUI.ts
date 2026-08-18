@@ -1,9 +1,7 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useCallback, useEffect, useState } from 'react';
+import type { UIElement } from '../domain/ui/uiElement.types';
 
-export interface UIElement {
-  id: string;
-  label: string;
-}
+export type { UIElement } from '../domain/ui/uiElement.types';
 
 export interface AdaptiveRole {
   id: string;

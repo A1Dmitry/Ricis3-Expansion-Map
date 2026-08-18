@@ -205,6 +205,47 @@ describe('Zustand mapStore.ts Integration Tests (RICIS-III v7.7 Diagnostics & GC
     expect(latex).toBe('\\text{det}(u,v) = 15');
   });
 
+  it('фиксирует внешний Lean source без замены и принимает его как trusted axiom только с kernel evidence', async () => {
+    const node: ProblemNode = {
+      id: 'external-lean-node',
+      title: 'Внешнее Lean доказательство',
+      targetFunction: 'X = X',
+      description: 'Проверка immutable source',
+      state: 'unresolved',
+      type: 'core_singularity',
+      economic: { costToSolve: 0, costUnresolved: 0, marketGain: 0, riskLoss: 0 },
+      dependencyIds: [],
+      dependentIds: [],
+      zoneIds: ['math'],
+      fractalDepth: 0,
+    };
+    const source = `import Mathlib\ntheorem external_identity (X : Prop) : X → X := by\n  intro h\n  exact h\n`;
+    useMapStore.setState({ nodes: [node], proofs: {}, axioms: [] } as any);
+    const store = useMapStore.getState();
+
+    await store.submitExternalLeanProof(node.id, source);
+    let state = useMapStore.getState();
+    expect(state.proofs[node.id]?.latex).toBe(source);
+    expect(state.proofs[node.id]?.externalLean?.sourceLocked).toBe(true);
+    expect(state.proofs[node.id]?.externalLean?.trustStatus).toBe('REQUIRES_CORE_LEAN');
+    expect(state.nodes[0]?.state).toBe('partial');
+    await expect(store.updateProof(node.id, 'replacement by agent')).rejects.toThrow('immutable');
+
+    await store.acceptVerifiedExternalLeanProof(node.id, {
+      toolchain: 'Lean 4.33.0',
+      command: 'lake env lean External.lean && #print axioms external_identity',
+      compilerOutput: 'External.lean: compiled successfully',
+      axiomReport: 'external_identity does not depend on any axioms',
+      verifiedAt: '2026-08-18T00:00:00.000Z',
+    });
+    state = useMapStore.getState();
+    expect(state.proofs[node.id]?.latex).toBe(source);
+    expect(state.proofs[node.id]?.externalLean?.trustStatus).toBe('TRUSTED_AXIOM');
+    expect(state.proofs[node.id]?.externalLean?.kernelEvidence?.toolchain).toBe('Lean 4.33.0');
+    expect(state.nodes[0]?.state).toBe('resolved');
+    expect(state.axioms.some(axiom => axiom.sourceNodeId === node.id)).toBe(true);
+  });
+
   it('должен выполнять академический перерасчет доказательства (recalculateAcademicProof)', async () => {
     const node: ProblemNode = {
       id: 'acad-node',

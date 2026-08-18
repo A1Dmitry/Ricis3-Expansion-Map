@@ -3,7 +3,6 @@ import path from "path";
 import { createServer as createViteServer } from "vite";
 import { GoogleGenAI } from "@google/genai";
 import { RICIS_CORE_SYSTEM_PROMPT, auditProofContent, buildCanonicalRicisProofLatex } from "./src/model/ricisCoreRules";
-import { TokenPoolManager } from "./src/services/tokenPool/TokenPoolManager";
 import {
   ensureRicisCoreApi,
   getRicisCoreIntegrationInfo,
@@ -31,7 +30,11 @@ async function callAIWithFallback(
   responseMimeType = "text/plain",
   preferredModel?: string
 ) {
-  const tokenPool = TokenPoolManager.getInstance();
+  const apiKey = process.env.GEMINI_API_KEY;
+  if (!apiKey) {
+    throw new Error("GEMINI_API_KEY is not configured on the server.");
+  }
+
   let pool = [...MODELS_POOL];
   if (preferredModel && pool.includes(preferredModel)) {
     pool = [preferredModel, ...pool.filter((m) => m !== preferredModel)];
@@ -41,13 +44,8 @@ async function callAIWithFallback(
   for (const model of pool) {
     // Внутренний цикл попыток для одной модели
     for (let attempt = 1; attempt <= 2; attempt++) {
-      const activeKeyObj = tokenPool.getNextActiveKey();
-      const apiKey = activeKeyObj.rawKey || process.env.GEMINI_API_KEY || "dummy";
-
       try {
-        console.log(
-          `[AI] Calling model ${model} (key: ${activeKeyObj.maskedKey}, attempt ${attempt})...`
-        );
+        console.log(`[AI] Calling model ${model}, attempt ${attempt}...`);
         const ai = new GoogleGenAI({
           apiKey,
           httpOptions: { headers: { "User-Agent": "aistudio-build" } },
@@ -59,12 +57,11 @@ async function callAIWithFallback(
           config: { responseMimeType },
         });
 
-        console.log(`[AI] Success with model ${model} (key: ${activeKeyObj.maskedKey})`);
-        tokenPool.reportKeyExecutionResult(activeKeyObj.maskedKey, true, false);
+        console.log(`[AI] Success with model ${model}`);
         return { text: response.text || "", model };
       } catch (e: any) {
         const errMsg = String(e?.message || e);
-        console.warn(`[AI] Model ${model} (key: ${activeKeyObj.maskedKey}) attempt ${attempt} failed: ${errMsg}`);
+        console.warn(`[AI] Model ${model} attempt ${attempt} failed: ${errMsg}`);
         lastError = e;
 
         const isQuotaError =
@@ -76,8 +73,6 @@ async function callAIWithFallback(
           errMsg.includes("404") ||
           errMsg.includes("NOT_FOUND") ||
           errMsg.includes("not found");
-
-        tokenPool.reportKeyExecutionResult(activeKeyObj.maskedKey, false, isQuotaError);
 
         if (isQuotaError) {
           await delay(1000 * attempt);
@@ -129,8 +124,6 @@ function validatePayload(body: any, schema: Record<string, string>): { isValid: 
 async function startServer() {
   const app = express();
   const PORT = 3000;
-  const tokenPool = TokenPoolManager.getInstance();
-
   app.use(express.json({ limit: "50mb" }));
   app.use(express.urlencoded({ limit: "50mb", extended: true }));
 
@@ -485,109 +478,50 @@ ${axiomList}
     }
   });
 
-  // Telegram Bot Endpoints (RICIS-III Gateway)
-  app.get("/api/telegram/status", (req, res) => {
+  // Telegram transport is intentionally disabled until a separately configured gateway is installed.
+  app.get("/api/telegram/status", (_req, res) => {
     res.json({
-      status: "online",
+      status: "disabled",
       botUsername: "RicisSingularityBot",
       hasToken: Boolean(process.env.TELEGRAM_BOT_TOKEN),
-      mode: process.env.TELEGRAM_BOT_TOKEN ? "webhook" : "simulation",
+      hasWebhookSecret: Boolean(process.env.TELEGRAM_WEBHOOK_SECRET),
+      mode: "acknowledgement_only",
       engine: "RICIS-III v7.7 Analytical Engine",
     });
   });
 
-  // REST API v1: Token Pool & Singularity Resolution API ("Вскладчину")
-  app.get("/api/v1/keys/pool-stats", (req, res) => {
-    try {
-      const stats = tokenPool.getPoolStats();
-      const maskedKeys = tokenPool.listMaskedKeys();
-      res.json({
-        ok: true,
-        stats,
-        activeKeysPool: maskedKeys,
-        monetizationModel: "Collaborative Pool (Вскладчину) + 1 Free Request",
-      });
-    } catch (e: any) {
-      res.status(500).json({ ok: false, error: String(e) });
-    }
-  });
-
-  app.post("/api/v1/keys/contribute", async (req, res) => {
-    try {
-      const validation = validatePayload(req.body, {
-        apiKey: "string",
-        contributorId: "string?"
-      });
-      if (!validation.isValid) {
-        return res.status(400).json({ ok: false, error: validation.error });
-      }
-
-      const { apiKey, contributorId } = req.body || {};
-      const userId = contributorId || req.headers["x-client-id"] || req.ip || "rest-api-user";
-
-      if (!apiKey) {
-        return res.status(400).json({ ok: false, error: "Параметр apiKey обязателен." });
-      }
-
-      const result = await tokenPool.contributeKey(String(apiKey), String(userId));
-      res.json({ ok: result.success, result });
-    } catch (e: any) {
-      res.status(500).json({ ok: false, error: String(e) });
-    }
-  });
+  // Legacy shared-key endpoints are intentionally disabled. The service never accepts user API keys.
+  const sharedKeyPoolDisabled = (_req: express.Request, res: express.Response) => {
+    res.status(410).json({
+      ok: false,
+      error: "SHARED_KEY_POOL_DISABLED",
+      message: "The service does not accept, store, or share user API keys.",
+    });
+  };
+  app.get("/api/v1/keys/pool-stats", sharedKeyPoolDisabled);
+  app.post("/api/v1/keys/contribute", sharedKeyPoolDisabled);
 
   app.post("/api/v1/solve", async (req, res) => {
-    try {
-      const validation = validatePayload(req.body, {
-        targetFunction: "string",
-        clientIdentifier: "string?",
-        userProvidedKey: "string?"
-      });
-      if (!validation.isValid) {
-        return res.status(400).json({ ok: false, error: validation.error });
-      }
-
-      const { targetFunction, clientIdentifier, userProvidedKey } = req.body || {};
-      const clientId = String(clientIdentifier || req.headers["x-client-id"] || req.ip || "anonymous_client");
-
-      if (!targetFunction) {
-        return res.status(400).json({ ok: false, error: "Параметр targetFunction обязателен." });
-      }
-
-      // If user provided a key directly in request, contribute it to pool
-      if (userProvidedKey) {
-        await tokenPool.contributeKey(String(userProvidedKey), clientId);
-      }
-
-      // Check Freemium quota (1 free query or contributed pool key)
-      const quota = tokenPool.checkUserQuota(clientId);
-      if (!quota.canExecute) {
-        return res.status(402).json({
-          ok: false,
-          error: "QUOTA_EXHAUSTED",
-          message: quota.reason,
-          suggestedAction: "Contribute Google AI Studio key via POST /api/v1/keys/contribute or /addkey in Telegram bot",
-        });
-      }
-
-      const activeKey = tokenPool.getNextActiveKey();
-
-      // Record query
-      tokenPool.recordUserQuery(clientId);
-      tokenPool.reportKeyExecutionResult(activeKey.maskedKey, true, false);
-
-      res.json({
-        ok: true,
-        nodeId: `api-task-${Date.now()}`,
-        targetFunction,
-        keyUsedMasked: activeKey.maskedKey,
-        isDeveloperKey: activeKey.isDeveloperKey,
-        quotaRemaining: quota.isFreeTier ? 0 : 999999,
-        status: "Resolved via RICIS-III v7.7 Analytical Engine",
-      });
-    } catch (e: any) {
-      res.status(500).json({ ok: false, error: String(e) });
+    const validation = validatePayload(req.body, { targetFunction: "string" });
+    if (!validation.isValid) {
+      return res.status(400).json({ ok: false, error: validation.error });
     }
+
+    const targetFunction = String(req.body.targetFunction).trim();
+    if (!targetFunction) {
+      return res.status(400).json({ ok: false, error: "targetFunction must not be empty." });
+    }
+
+    const nodeId = `api-task-${Date.now()}`;
+    const proofLatex = buildCanonicalRicisProofLatex("REST RICIS request", targetFunction, nodeId);
+    res.status(202).json({
+      ok: true,
+      nodeId,
+      targetFunction,
+      proofLatex,
+      verificationStatus: "REQUIRES_CORE_LEAN",
+      status: "Canonical RICIS draft generated; separate Core or Lean verification is required.",
+    });
   });
 
   app.post("/api/telegram/simulate", async (req, res) => {
@@ -596,12 +530,12 @@ ${axiomList}
       const userText = text || "/start";
       const userChatId = chatId || 10001;
 
-      // Simulated Telegram Bot handler call
+      // This endpoint demonstrates transport formatting only; it does not run Core or Lean.
       const replyText = userText.startsWith("/start")
-        ? "🤖 *RICIS-III Singularity Bot (Эмулятор)*\n\nПриветствую! Я готов разрешить любую сингулярность через аксиоматику RICIS-III (SP1-SP4, Skew Product A6).\nОтправьте команду:\n`/solve (x^2-4)/(x-2) при x=2`"
+        ? "🤖 *RICIS-III Telegram simulator*\n\nЭто безопасная симуляция интерфейса. Она не принимает API-ключи и не выполняет внешнюю верификацию."
         : userText.startsWith("/help")
-        ? "📜 *Инструкция по командам:*\n• `/solve <формула>` — разрешить сингулярность за O(1)\n• `/stats` — состояние обученной базы знаний"
-        : `✅ *Задача принята в обработку движком RICIS-III!*\nВыражение: \`${userText.replace('/solve', '').trim()}\`\n\nСингулярность успешно решена и квантована в единую базу знаний.`;
+        ? "📜 *Справка симулятора:*\n• `/solve <формула>` — показать запрос в формате Telegram.\n• Результат должен отдельно пройти Core или Lean-проверку."
+        : `ℹ️ *Симуляция приняла выражение:* \`${userText.replace('/solve', '').trim()}\`\n\nСтатус доверия: \`REQUIRES_CORE_LEAN\`.`;
 
       res.json({
         ok: true,
@@ -617,20 +551,15 @@ ${axiomList}
   });
 
   app.post("/api/telegram/webhook", async (req, res) => {
-    try {
-      const update = req.body || {};
-      const message = update.message || update.edited_message;
-
-      if (message && message.text) {
-        console.log(`[Telegram Bot] Incoming message from @${message.from?.username || message.from?.id}: ${message.text}`);
-        // Telegram webhook acknowledgement
-      }
-
-      res.json({ ok: true });
-    } catch (e: any) {
-      console.error("[Telegram Bot Webhook Error]:", e);
-      res.status(200).json({ ok: true });
+    const expectedSecret = process.env.TELEGRAM_WEBHOOK_SECRET;
+    const suppliedSecret = req.header("x-telegram-bot-api-secret-token");
+    if (!expectedSecret || suppliedSecret !== expectedSecret) {
+      return res.status(401).json({ ok: false, error: "UNAUTHORIZED_WEBHOOK" });
     }
+
+    // The live gateway is not enabled in this process. Acknowledge only an authenticated event
+    // without logging message content or personal identifiers.
+    res.status(204).end();
   });
 
   if (process.env.NODE_ENV !== "production") {

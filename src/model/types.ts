@@ -79,12 +79,36 @@ export interface ProofStep {
   expression: string;
 }
 
+export type ExternalLeanTrustStatus =
+  | 'REQUIRES_CORE_LEAN'
+  | 'LEAN_VERIFIED'
+  | 'TRUSTED_AXIOM'
+  | 'REJECTED';
+
+export interface LeanKernelVerificationEvidence {
+  toolchain: string;
+  command: string;
+  compilerOutput: string;
+  axiomReport: string;
+  verifiedAt: string;
+}
+
+export interface ExternalLeanProvenance {
+  sourceHash: string;
+  submittedAt: string;
+  sourceLocked: true;
+  trustStatus: ExternalLeanTrustStatus;
+  kernelEvidence?: LeanKernelVerificationEvidence;
+}
+
 export interface Proof {
   nodeId: string;
   targetFunction: string;
   steps: ProofStep[];
   finalResult: string;
   latex: string;
+  /** Present only when the original text was supplied externally as Lean source. */
+  externalLean?: ExternalLeanProvenance;
 }
 
 export type AgentLogLevel = 'info' | 'success' | 'warn' | 'error' | 'ricis';

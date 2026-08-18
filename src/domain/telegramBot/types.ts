@@ -44,6 +44,14 @@ export interface SingularitySolveRequest {
   zoneId?: string;
 }
 
+export type ProofTrustStatus =
+  | 'RICIS_PROVEN'
+  | 'CORE_VERIFIED'
+  | 'LEAN_VERIFIED'
+  | 'CLASSICAL_INHERITED'
+  | 'HYPOTHESIS'
+  | 'REQUIRES_CORE_LEAN';
+
 export interface SingularitySolveResponse {
   success: boolean;
   nodeId: string;
@@ -53,6 +61,8 @@ export interface SingularitySolveResponse {
   marketGain: number;
   costToSolve: number;
   auditValid: boolean;
+  /** Explicit trust boundary; generated LaTeX is never silently represented as Lean verification. */
+  verificationStatus: ProofTrustStatus;
   isCached?: boolean;
   errorMessage?: string;
 }

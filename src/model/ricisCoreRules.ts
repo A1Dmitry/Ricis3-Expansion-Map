@@ -156,6 +156,7 @@ export function auditProofContent(proofText: string): RicisAuditResult {
     text.includes('F^2') ||
     text.includes('F * G');
   const containsSorryFlag = containsSorry(text);
+  const requiresExternalVerification = text.includes('REQUIRES_CORE_LEAN');
   
   // Check for forbidden placeholders, unreduced classical limits or undefined states
   const forbiddenPlaceholders = ['0_E', 'Reduced(E)', 'Result = Result', 'T(target)', 'undefined', 'NaN', 'Division by Zero', 'exact RICIS.AxiomL1_proof', 'Formalize(', 'T(Formalize'];
@@ -195,6 +196,9 @@ export function auditProofContent(proofText: string): RicisAuditResult {
   if (containsSorryFlag) {
     issues.push('Обнаружена незавершенная лемма или sorry-заглушка');
   }
+  if (requiresExternalVerification) {
+    issues.push('Черновик явно требует отдельной проверки Ricis.Core или Lean 4.');
+  }
 
   let score = 100;
   if (!containsLeanRef) score -= 30;
@@ -204,7 +208,7 @@ export function auditProofContent(proofText: string): RicisAuditResult {
   else if (containsPlaceholders) score -= 40;
 
   return {
-    isValid: score >= 70 && !containsPlaceholders && !containsSorryFlag && !isPureClassicalUnreduced,
+    isValid: score >= 70 && !containsPlaceholders && !containsSorryFlag && !isPureClassicalUnreduced && !requiresExternalVerification,
     score: Math.max(0, score),
     issues,
     containsLeanRef,
@@ -309,28 +313,13 @@ export function buildCanonicalRicisProofLatex(
                   /ResolveComplexity|Mersenne|P.*NP|Factorize|GraphIsomorphism|ResolveNPComplete/i.test(formula);
 
   if (isPvsNP) {
-    return `**RICIS-III Аналитическое доказательство v7.7 (P vs NP)**
+    return `**RICIS-III исследовательский черновик (P vs NP)**
 
-**Целевая функция:** $p \\cdot q = N$ в кольце Мерсенна $M = 2^k - 1$
+**Предмет:** $p \\cdot q = N$ и структурные ограничения в кольцах Мерсенна.
 
-**Пошаговое упрощение:**
-1. Семантический каркас задачи представлен непрерывной гиперболой: $p \\cdot q = N$
-2. Параметризация семейства лучей $q = k \\cdot p$ определяет единственную точку пересечения: $(p_k, q_k) = \\left(\\sqrt{\\frac{N}{k}}, \\sqrt{k N}\\right)$
-3. Наложение дискретной решетки $\\mathbb{Z}^2$ и маски малых простых $\\mathcal{M}_P$ сужает область решений: $(p, q) \\in \\{(p, q) : p \\cdot q = N\\} \\cap \\mathbb{Z}^2 \\cap \\mathcal{M}_P$
-4. Перенос вычислений в циклическое кольцо Мерсенна $M_k = 2^k - 1$ сводит проверку к побитовым операциям сдвига, логического И/ИЛИ над битовыми регистрами: $(R_{start} \\mid R_{end}) == 2^V - 1$
+**Статус доверия:** \`HYPOTHESIS\`
 
-**Упрощенное выражение:** $O(1)$ побитовых операций в кольце Мерсенна $M = 2^k - 1$
-
-**Точка схождения (Результат):** Полносвязный детерминированный проход за $O(1)$ без перебора вариантов.
-
-**Формализация на Lean 4 (RICIS3.Core):**
-\`\`\`lean4
-import RICIS3.Core
--- Lean 4 Spec: ${LEAN_SPEC_URL}
-theorem resolve_${cleanId.replace(/[^a-zA-Z0-9]/g, '_')}_p_eq_np (V : \\mathbb{N}) (MersenneMod : \\mathbb{N}) :
-  RICIS.ComplexityClass "NP" = RICIS.ComplexityClass "P" := by
-  exact RICIS.MersenneBitwiseNetwork_O1_proof V MersenneMod
-\`\`\``;
+Материал фиксирует направление исследования и не является доказательством $P = NP$, результатом Ricis.Core или Lean-верифицированной теоремой. Для любого сильного утверждения требуется отдельная формальная постановка, проверяемый Lean-файл и воспроизводимый запуск toolchain.`;
   }
 
   let func = formula.trim();
@@ -479,9 +468,7 @@ theorem resolve_${cleanId.replace(/[^a-zA-Z0-9]/g, '_')}_p_eq_np (V : \\mathbb{N
     resultSection = `\n\n**Точка схождения (Результат):** $${finalResult}$`;
   }
 
-  const validCleanId = cleanId.replace(/[^a-zA-Z0-9]/g, '_') || 'singularity_node';
-
-  return `**RICIS-III Аналитическое доказательство v7.7**
+  return `**RICIS-III структурный черновик**
 
 **Целевая функция:** $f(${variable}) = ${func}$${limitPoint ? ` при $${variable} = ${limitPoint}$` : ''}
 
@@ -490,17 +477,7 @@ ${stepsFormatted}
 
 **Упрощенное выражение:** $f(${variable}) = ${simplified}$${resultSection}
 
-**Формализация на Lean 4 (RICIS3.Core):**
-\`\`\`lean4
-import RICIS3.Core
--- Lean 4 Spec: ${LEAN_SPEC_URL}
-theorem resolve_${validCleanId}_geometric_bridge (F G : Real) (h_pos : F > 0 ∧ G > 0) :
-  let u : RICIS.Vector2D := ⟨F, 0⟩
-  let v : RICIS.Vector2D := ⟨0, G⟩
-  RICIS.skew_product u v = F * G ∧ RICIS.Invariant (F * G) = True := by
-  constructor
-  · unfold RICIS.skew_product
-    ring
-  · exact RICIS.theorem_invariant_stability (F * G)
-\`\`\``;
+**Статус доверия:** \`REQUIRES_CORE_LEAN\`
+
+Этот текст описывает локальный RICIS-путь и не является Lean-верифицированной теоремой. Проверка требует отдельного Lean-файла, воспроизводимого запуска toolchain и явного отчёта об аксиомах.`;
 }

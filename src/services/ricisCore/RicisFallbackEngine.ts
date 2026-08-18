@@ -14,6 +14,55 @@ import {
   RicisProofVerificationResult 
 } from './IRicisCoreEngine';
 
+/** Evaluates a deliberately small arithmetic grammar without executing source text. */
+function evaluateSafeArithmetic(expression: string, variables: Record<string, number | string>): number | undefined {
+  const compact = expression.replace(/\s+/g, '');
+  const tokens = compact.match(/(?:\d+(?:\.\d+)?|[A-Za-z_$][A-Za-z0-9_$]*|[()+\-*/])/g);
+  if (!tokens || tokens.join('') !== compact) return undefined;
+
+  let position = 0;
+  const peek = (): string | undefined => tokens[position];
+  const consume = (): string | undefined => tokens[position++];
+  const parsePrimary = (): number | undefined => {
+    const token = consume();
+    if (!token) return undefined;
+    if (token === '(') {
+      const value = parseSum();
+      return value === undefined || consume() !== ')' ? undefined : value;
+    }
+    if (token === '-') {
+      const value = parsePrimary();
+      return value === undefined ? undefined : -value;
+    }
+    if (/^\d/.test(token)) return Number(token);
+    const value = variables[token];
+    return typeof value === 'number' && Number.isFinite(value) ? value : undefined;
+  };
+  const parseProduct = (): number | undefined => {
+    let value = parsePrimary();
+    while (value !== undefined && (peek() === '*' || peek() === '/')) {
+      const operator = consume();
+      const right = parsePrimary();
+      if (right === undefined || (operator === '/' && right === 0)) return undefined;
+      value = operator === '*' ? value * right : value / right;
+    }
+    return value;
+  };
+  const parseSum = (): number | undefined => {
+    let value = parseProduct();
+    while (value !== undefined && (peek() === '+' || peek() === '-')) {
+      const operator = consume();
+      const right = parseProduct();
+      if (right === undefined) return undefined;
+      value = operator === '+' ? value + right : value - right;
+    }
+    return value;
+  };
+
+  const result = parseSum();
+  return position === tokens.length && result !== undefined && Number.isFinite(result) ? result : undefined;
+}
+
 /**
  * Deterministic Native TypeScript Engine for RICIS-III v7.7.
  * Evaluates singularities and generates formal proofs in exact O(1) without Cauchy limits.
@@ -118,17 +167,9 @@ export class RicisFallbackEngine implements IRicisCoreEngine {
       if (/^-?\d+(\.\d+)?$/.test(rawExpr)) {
         return parseFloat(rawExpr);
       }
-      if (vars && Object.keys(vars).length > 0) {
-        try {
-          const keys = Object.keys(vars);
-          const values = Object.values(vars);
-          const fn = new Function(...keys, `return (${rawExpr});`);
-          return fn(...values);
-        } catch {
-          return rawExpr;
-        }
-      }
-      return rawExpr;
+      const evaluated = vars ? evaluateSafeArithmetic(rawExpr, vars) : undefined;
+      // Expressions outside the small audited grammar remain structural values for Core.
+      return evaluated === undefined ? rawExpr : evaluated;
     };
   }
 

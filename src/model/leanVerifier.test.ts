@@ -2,13 +2,14 @@ import { describe, it, expect } from 'vitest';
 import { verifyLeanProof } from './leanVerifier';
 
 describe('leanVerifier Unit Tests', () => {
-  it('should pass on empty or non-lean code gracefully', () => {
+  it('should classify empty or non-lean code as NOT_LEAN', () => {
     const res = verifyLeanProof('', 'Test Node', '0/0');
     expect(res.isValid).toBe(true);
+    expect(res.status).toBe('NOT_LEAN');
     expect(res.errors).toHaveLength(0);
   });
 
-  it('should verify well-formed Lean 4 theorem without errors', () => {
+  it('should mark well-formed Lean as static-check-passed, not kernel-verified', () => {
     const validLean = `
 import Mathlib
 theorem geometric_bridge_proof (F G : Real) : F * G = F * G := by
@@ -16,6 +17,8 @@ theorem geometric_bridge_proof (F G : Real) : F * G = F * G := by
 `;
     const res = verifyLeanProof(validLean, 'Geometric Bridge', '0_F * inf_G');
     expect(res.isValid).toBe(true);
+    expect(res.status).toBe('STATIC_CHECK_PASSED');
+    expect(res.warnings.some(warning => warning.includes('Lean kernel'))).toBe(true);
     expect(res.errors).toHaveLength(0);
   });
 

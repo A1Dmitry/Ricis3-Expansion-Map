@@ -355,3 +355,33 @@ Supervisor теперь выбирает bundled DLL первым способо
 **Статус:** готовое DLL-зеркало интегрировано и проверено.
 
 ---
+
+---
+
+## 2026-08-18 — Security и trust-boundary remediation Telegram/API
+
+- Построен причинный граф рисков Telegram/token-pool: `artifacts/architecture/telegram-tokenpool-bug-graph-2026-08-18.md`.
+- Удалены активные token-pool модули, а также UI, Telegram и REST-входы, принимавшие пользовательские API-ключи. Legacy key-pool endpoints возвращают `410 SHARED_KEY_POOL_DISABLED`.
+- `callAIWithFallback` использует только server-side `GEMINI_API_KEY`; идентификаторы ключей перестали выводиться в логи.
+- В `SingularitySolveResponse` введён обязательный `verificationStatus`. Канонический текст теперь является `RICIS-III структурный черновик` со статусом `REQUIRES_CORE_LEAN`; он больше не генерирует Lean-теорему или не подтверждённое утверждение `P = NP`.
+- `RicisBotService` переведён на `IRicisKnowledgeRepository`; Zustand изолирован в infrastructure adapter. Cache-hit больше не перезаписывает сохранённое proof, а новые Telegram-задачи не получают случайные economic values.
+- Удалено `new Function` из fallback evaluator. Вместо него применяется ограниченный parser чисел, переменных и `+ - * / ()`; все иные выражения остаются структурными до trusted Core evaluation.
+- Webhook требует `TELEGRAM_WEBHOOK_SECRET` и не логирует текст/идентификаторы обновления; статус transport честно показывает `disabled/acknowledgement_only`.
+- Добавлены tests command handler и RicisBotService. Runtime-проверка подтвердила: `/api/v1/keys/contribute` возвращает 410; webhook без secret — 401; `/api/v1/solve` игнорирует post-body key field и отдаёт только structural draft с `REQUIRES_CORE_LEAN`.
+- Версия повышена до `0.4.7`.
+
+**Статус:** исходный код исправлен и проверен. Внешнее обязательное действие: отозвать Telegram token, раскрытый в историческом commit/diff, и выпускать новый только через защищённый environment secret.
+
+---
+
+## 2026-08-18 — External Lean source protocol и trusted axiom lifecycle
+
+Введён неизменяемый lifecycle пользовательского Lean source. `Proof` теперь может хранить `externalLean` provenance: deterministic FNV-1a hash, дату фиксации, source lock, trust status и kernel evidence. Метод `submitExternalLeanProof` сохраняет исходник дословно и не позволяет агенту или обычному `updateProof` заменить его; до отдельного kernel run source имеет `REQUIRES_CORE_LEAN` либо `REJECTED`.
+
+Метод `acceptVerifiedExternalLeanProof` принимает только locked source с полным evidence: toolchain, command, compiler output, `#print axioms` output и timestamp. Evidence с compiler error или `sorryAx` отклоняется. Принятый артефакт получает `TRUSTED_AXIOM`, а в map axioms добавляется явный trusted contract с source hash. Исходник и evidence остаются сохранёнными; downstream reasoning использует contract как явно именованный trusted input.
+
+`leanVerifier` разделён на `NOT_LEAN`, `STATIC_CHECK_FAILED`, `STATIC_CHECK_PASSED` и `LEAN_VERIFIED`. Static check больше не переводит узлы в `resolved`; `logic.ts`, `mapStore.ts` и `EditNodeModal.tsx` требуют отдельной kernel-проверки. Версия повышена до `0.4.8`.
+
+Проверки: `npm run lint`, полный `npm test`, `npm run build`, `npm audit --audit-level=moderate` и `git diff --check` завершились успешно.
+
+---

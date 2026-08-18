@@ -14,6 +14,8 @@ type Props = {
 export const EditNodeModal: React.FC<Props> = ({ node, onClose, onSolveAfterSave }) => {
   const updateNode = useMapStore(s => s.updateNode);
   const updateProof = useMapStore(s => s.updateProof);
+  const submitExternalLeanProof = useMapStore(s => s.submitExternalLeanProof);
+  const sourceLocked = useMapStore(s => Boolean(s.proofs[node.id]?.externalLean?.sourceLocked));
   const getLatexProof = useMapStore(s => s.getLatexProof);
   const solveNode = useMapStore(s => s.solveNode);
 
@@ -39,6 +41,7 @@ export const EditNodeModal: React.FC<Props> = ({ node, onClose, onSolveAfterSave
         const aud = auditProofContent(proofLatex);
         return {
           isValid: aud.isValid,
+          status: 'NOT_LEAN' as const,
           errors: aud.isValid ? [] : aud.issues,
           warnings: [] as string[],
         };
@@ -65,8 +68,15 @@ export const EditNodeModal: React.FC<Props> = ({ node, onClose, onSolveAfterSave
 
       await updateNode(node.id, updates);
 
-      if (proofLatex.trim() !== currentProof.trim()) {
-        await updateProof(node.id, proofLatex.trim());
+      if (proofLatex !== currentProof) {
+        if (sourceLocked) {
+          throw new Error('Внешний Lean source заблокирован: для новой версии создайте отдельный proof-узел.');
+        }
+        if (isLean) {
+          await submitExternalLeanProof(node.id, proofLatex);
+        } else {
+          await updateProof(node.id, proofLatex.trim());
+        }
       }
 
       if (andSolve) {
@@ -199,10 +209,23 @@ export const EditNodeModal: React.FC<Props> = ({ node, onClose, onSolveAfterSave
               <textarea
                 rows={6}
                 value={proofLatex}
+                disabled={sourceLocked}
                 onChange={e => setProofLatex(e.target.value)}
-                placeholder="Вставьте новое или исправленное Lean 4 / LaTeX доказательство (например, theorem resolve_p_vs_np ...)"
+                placeholder="Вставьте Lean 4 или LaTeX. Lean-код получает статус verified только после воспроизводимого запуска kernel."
                 className="w-full bg-[#030508] border border-neutral-700 rounded p-2 text-cyan-300 font-mono text-[10px] leading-relaxed focus:border-cyan-500 focus:outline-none whitespace-pre"
               />
+            )}
+
+            {sourceLocked && (
+              <div className="mt-2 p-2.5 bg-cyan-950/30 border border-cyan-800/50 rounded text-[10px] text-cyan-100 leading-relaxed">
+                Внешний Lean source сохранён дословно и заблокирован от замены агентом. После kernel verification он может быть принят как `TRUSTED_AXIOM` вместе с compiler evidence и `#print axioms`.
+              </div>
+            )}
+
+            {isLean && realTimeAudit.status === 'STATIC_CHECK_PASSED' && (
+              <div className="mt-2 p-2.5 bg-amber-950/30 border border-amber-800/50 rounded text-[10px] text-amber-200 leading-relaxed">
+                Статический Lean-анализ пройден. Это не результат Lean kernel: proof остаётся в статусе `REQUIRES_CORE_LEAN` до отдельной воспроизводимой компиляции.
+              </div>
             )}
 
             {/* Real-time Lean 4/LaTeX compiler-style audit feedback */}

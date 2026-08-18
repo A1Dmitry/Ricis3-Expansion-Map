@@ -5,8 +5,16 @@ import { containsSorry } from './ricisCoreRules';
  * Author: Dmitry V. Aleynikov (ORCID: 0009-0004-3226-7700)
  */
 
+export type LeanVerificationStatus =
+  | 'NOT_LEAN'
+  | 'STATIC_CHECK_FAILED'
+  | 'STATIC_CHECK_PASSED'
+  | 'LEAN_VERIFIED';
+
 export interface LeanAuditResult {
+  /** True only for the local static check; it is not a Lean kernel result. */
   isValid: boolean;
+  status: LeanVerificationStatus;
   errors: string[];
   warnings: string[];
 }
@@ -19,7 +27,7 @@ export function verifyLeanProof(leanCode: string, nodeTitle: string, targetFunct
   const warnings: string[] = [];
 
   if (!leanCode || leanCode.trim() === '') {
-    return { isValid: true, errors: [], warnings: [] };
+    return { isValid: true, status: 'NOT_LEAN', errors: [], warnings: [] };
   }
 
   // Check if Lean syntax is present (keywords)
@@ -28,7 +36,7 @@ export function verifyLeanProof(leanCode: string, nodeTitle: string, targetFunct
     if (leanCode.toLowerCase().includes('lean')) {
       warnings.push("Обнаружено упоминание Lean, но ключевые слова (theorem, lemma, def) отсутствуют. Код трактуется как LaTeX/текстовое описание.");
     }
-    return { isValid: true, errors: [], warnings };
+    return { isValid: true, status: 'NOT_LEAN', errors: [], warnings };
   }
 
   const lines = leanCode.split('\n');
@@ -142,8 +150,14 @@ export function verifyLeanProof(leanCode: string, nodeTitle: string, targetFunct
     warnings.push("Обнаружено выражение '0/0'. По закону L1C2 и аксиоме A3, нули должны иметь индексацию происхождения (например, 0_F / 0_G) для избежания сингулярности.");
   }
 
+  const staticCheckPassed = errors.length === 0 && !hasSorry;
+  if (staticCheckPassed) {
+    warnings.push('Локальная статическая проверка пройдена, но Lean kernel/toolchain не запускался. Статус остаётся REQUIRES_CORE_LEAN.');
+  }
+
   return {
-    isValid: errors.length === 0 && !hasSorry,
+    isValid: staticCheckPassed,
+    status: staticCheckPassed ? 'STATIC_CHECK_PASSED' : 'STATIC_CHECK_FAILED',
     errors,
     warnings
   };

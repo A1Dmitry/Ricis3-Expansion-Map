@@ -1,14 +1,11 @@
 import React, { useState } from 'react';
 import { Settings, Plus, User, Sliders, X, Check, Eye, EyeOff, LayoutGrid, Globe } from 'lucide-react';
 import type { AdaptiveRole } from '../hooks/useAdaptiveUI';
+import type { UIElement } from '../domain/ui/uiElement.types';
+
+export type { UIElementToggle } from '../domain/ui/uiElement.types';
 import { useI18nStore } from '../store/useI18nStore';
 import { LanguageToggle } from './LanguageToggle';
-
-export interface UIElementToggle {
-  id: string;
-  label: string;
-  isVisible: boolean;
-}
 
 export interface SettingsModalProps {
   isOpen: boolean;
@@ -17,7 +14,7 @@ export interface SettingsModalProps {
   currentRoleId: string;
   onSelectRole: (roleId: string) => void;
   onCreateRole: (name: string, templateRoleId?: string) => void;
-  uiElements?: { id: string; label: string }[];
+  uiElements?: UIElement[];
   hiddenElementIds?: Set<string>;
   onToggleElement?: (id: string) => void;
 }

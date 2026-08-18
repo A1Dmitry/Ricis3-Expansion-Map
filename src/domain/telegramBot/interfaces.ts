@@ -3,6 +3,7 @@
  * Enforces Dependency Inversion Principle (DIP in SOLID).
  */
 
+import type { ProblemNode } from '../../model/types';
 import type {
   TelegramIncomingMessage,
   TelegramBotReply,
@@ -28,6 +29,14 @@ export interface ITelegramBotGateway {
   ): Promise<boolean>;
 
   getStats(): Promise<BotStateStats>;
+}
+
+export interface IRicisKnowledgeRepository {
+  findByNormalizedRequest(targetFunction: string, title: string): ProblemNode | undefined;
+  getProof(nodeId: string): string | null;
+  createNode(node: ProblemNode): Promise<void>;
+  solveNode(nodeId: string): Promise<void>;
+  getSummary(): { solvedNodes: number; totalMarketValue: number };
 }
 
 export interface ITelegramRepository {

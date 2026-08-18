@@ -8,12 +8,14 @@ import {
 
 describe('ricisCoreRules Unit Tests', () => {
   describe('buildCanonicalRicisProofLatex', () => {
-    it('should generate canonical RICIS-III proof LaTeX for given title, function, and id', () => {
+    it('should generate a structural RICIS draft with an explicit external-verification boundary', () => {
       const latex = buildCanonicalRicisProofLatex('Test Singularity', '0_5 * inf_3', 'test-node');
-      expect(latex).toContain('RICIS-III Аналитическое доказательство');
+      expect(latex).toContain('RICIS-III структурный черновик');
       expect(latex).toContain('0_5 * inf_3');
       expect(latex).toContain('A6');
       expect(latex).toContain('Geometric Bridge');
+      expect(latex).toContain('REQUIRES_CORE_LEAN');
+      expect(latex).not.toContain('theorem resolve_');
     });
   });
 
@@ -45,11 +47,11 @@ describe('ricisCoreRules Unit Tests', () => {
   });
 
   describe('auditProofContent', () => {
-    it('should validate canonical proofs with all essential RICIS phases', () => {
+    it('should require external Lean verification for a canonical structural draft', () => {
       const canonicalProof = buildCanonicalRicisProofLatex('Axiom Verification', '0_4 * inf_4', 'node-1');
       const audit = auditProofContent(canonicalProof);
-      expect(audit.isValid).toBe(true);
-      expect(audit.issues).toHaveLength(0);
+      expect(audit.isValid).toBe(false);
+      expect(audit.issues.some(issue => issue.includes('Lean 4'))).toBe(true);
     });
 
     it('should detect missing RICIS rules or sorry placeholders', () => {

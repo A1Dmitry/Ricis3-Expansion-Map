@@ -1,5 +1,14 @@
 import { create } from 'zustand';
-import { MapState, ProblemNode, DependencyEdge, ScienceZone, Proof, AgentLogEntry, AgentLogLevel } from '../model/types';
+import {
+  MapState,
+  ProblemNode,
+  DependencyEdge,
+  ScienceZone,
+  Proof,
+  AgentLogEntry,
+  AgentLogLevel,
+  LeanKernelVerificationEvidence,
+} from '../model/types';
 import { initialMap, deepCopyInitialMap } from '../model/initialMap';
 import { solveNodeLogic } from '../model/logic';
 import { applyAgentDiscoveries, catalogExhausted, remainingCatalogCount, trainAgentFromDb, AgentTrainingMemory } from '../model/agent';
@@ -20,6 +29,15 @@ import { runDatabaseMigration, MigrationAuditReport } from '../model/migrationAu
 import { DependencyGraphAuditor } from '../model/dependencyGraph';
 import { AuditReportMonolith, GarbageCollectionResult, TransformationLog } from '../model/dependencyGraph.types';
 import { getRicisCoreEngine, RicisAcademicProofResult } from '../services/ricisCore';
+
+function stableContentHash(value: string): string {
+  let hash = 0x811c9dc5;
+  for (let index = 0; index < value.length; index++) {
+    hash ^= value.charCodeAt(index);
+    hash = Math.imul(hash, 0x01000193);
+  }
+  return `fnv1a-${(hash >>> 0).toString(16).padStart(8, '0')}`;
+}
 
 function createLogEntry(message: string, level: AgentLogLevel = 'info', details?: string, nodeId?: string): AgentLogEntry {
   const now = new Date();
@@ -63,6 +81,10 @@ interface MapStore extends MapState {
   runAgentDbTraining: () => Promise<AgentTrainingMemory>;
   updateNode: (nodeId: string, updates: Partial<ProblemNode>) => Promise<void>;
   updateProof: (nodeId: string, proofLatex: string) => Promise<void>;
+  /** Stores user-supplied Lean source verbatim and locks it against agent replacement. */
+  submitExternalLeanProof: (nodeId: string, leanSource: string) => Promise<void>;
+  /** Accepts an already externally kernel-verified source as a visible trusted contract. */
+  acceptVerifiedExternalLeanProof: (nodeId: string, evidence: LeanKernelVerificationEvidence) => Promise<void>;
   lastAuditReport: AuditReportMonolith | null;
   isAuditing: boolean;
   transformationHistory: TransformationLog<string>[];
@@ -491,6 +513,9 @@ export const useMapStore = create<MapStore>((set, get) => ({
   updateProof: async (nodeId: string, proofLatex: string) => {
     const state = get();
     const existingProof = state.proofs[nodeId];
+    if (existingProof?.externalLean?.sourceLocked) {
+      throw new Error('External Lean source is immutable and cannot be replaced by updateProof.');
+    }
     const node = state.nodes.find(n => n.id === nodeId);
     const targetFunction = node?.targetFunction || '';
 
@@ -507,7 +532,7 @@ export const useMapStore = create<MapStore>((set, get) => ({
               expression: 'Formal Proof',
             },
           ],
-          finalResult: 'RICIS-III Lean 4 Verified',
+          finalResult: 'RICIS-III proof text awaiting Core/Lean verification',
           latex: proofLatex,
         };
 
@@ -523,9 +548,12 @@ export const useMapStore = create<MapStore>((set, get) => ({
 
     if (hasLeanKeywords) {
       const ver = verifyLeanProof(proofLatex, node?.title || '', targetFunction);
-      isFullyResolved = ver.isValid;
+      isFullyResolved = ver.status === 'LEAN_VERIFIED';
       leanErrors = ver.errors;
       leanWarnings = ver.warnings;
+      if (ver.status === 'STATIC_CHECK_PASSED') {
+        leanWarnings.push('Статическая проверка не заменяет Lean kernel; proof сохранён как REQUIRES_CORE_LEAN.');
+      }
     } else {
       const audit = auditProofContent(proofLatex);
       const hasSorry = node ? nodeHasSorry(node, newProof) : false;
@@ -555,6 +583,117 @@ export const useMapStore = create<MapStore>((set, get) => ({
     // Retrain agent training memory from updated DB proofs
     const memory = await trainAgentFromDb(newState);
     set({ agentTrainingMemory: memory });
+  },
+
+  submitExternalLeanProof: async (nodeId: string, leanSource: string) => {
+    const state = get();
+    const existingProof = state.proofs[nodeId];
+    const node = state.nodes.find(item => item.id === nodeId);
+    if (!node) throw new Error(`Unknown node '${nodeId}'.`);
+    if (existingProof?.externalLean?.sourceLocked) {
+      throw new Error('External Lean source is immutable. Submit a new proof version instead of replacing it.');
+    }
+
+    // Preserve the submitted bytes verbatim: do not normalize, generate or replace user source.
+    const staticAudit = verifyLeanProof(leanSource, node.title, node.targetFunction);
+    const sourceHash = stableContentHash(leanSource);
+    const trustStatus = staticAudit.status === 'STATIC_CHECK_PASSED'
+      ? 'REQUIRES_CORE_LEAN' as const
+      : 'REJECTED' as const;
+    const proof: Proof = {
+      nodeId,
+      targetFunction: node.targetFunction,
+      steps: [{
+        phase: 'external',
+        name: 'Внешнее Lean-доказательство',
+        action: 'Исходник зафиксирован без замены агентом',
+        expression: sourceHash,
+      }],
+      finalResult: trustStatus === 'REQUIRES_CORE_LEAN'
+        ? 'External Lean source awaiting reproducible kernel verification'
+        : 'External Lean source rejected by static validation',
+      latex: leanSource,
+      externalLean: {
+        sourceHash,
+        submittedAt: new Date().toISOString(),
+        sourceLocked: true,
+        trustStatus,
+      },
+    };
+    const newState = {
+      ...state,
+      proofs: { ...state.proofs, [nodeId]: proof },
+      nodes: state.nodes.map(item => item.id === nodeId ? {
+        ...item,
+        state: 'partial' as const,
+        leanErrors: staticAudit.errors,
+        leanWarnings: [
+          ...staticAudit.warnings,
+          'Внешний Lean source сохранён неизменным; до kernel run он не является trusted axiom.',
+        ],
+      } : item),
+      agentLogs: [
+        ...state.agentLogs,
+        createLogEntry('Внешний Lean source зафиксирован без замены.', 'ricis', `hash=${sourceHash}; status=${trustStatus}`, nodeId),
+      ],
+    };
+    set(newState);
+    await saveMapToDb(newState);
+  },
+
+  acceptVerifiedExternalLeanProof: async (nodeId: string, evidence: LeanKernelVerificationEvidence) => {
+    const state = get();
+    const proof = state.proofs[nodeId];
+    const node = state.nodes.find(item => item.id === nodeId);
+    if (!node || !proof?.externalLean?.sourceLocked) {
+      throw new Error('A locked external Lean source is required before it can be accepted.');
+    }
+    if (stableContentHash(proof.latex) !== proof.externalLean.sourceHash) {
+      throw new Error('External Lean source integrity check failed. The stored source does not match its provenance hash.');
+    }
+    if (!evidence.toolchain.trim() || !evidence.command.trim() || !evidence.compilerOutput.trim() || !evidence.axiomReport.trim()) {
+      throw new Error('Kernel evidence must include toolchain, command, compiler output and #print axioms output.');
+    }
+    if (/\berror:/i.test(evidence.compilerOutput) || /sorryAx/i.test(evidence.axiomReport)) {
+      throw new Error('Kernel evidence contains a compilation error or sorryAx dependency.');
+    }
+
+    const trustedProof: Proof = {
+      ...proof,
+      finalResult: `Trusted external Lean contract (${proof.externalLean.sourceHash})`,
+      externalLean: {
+        ...proof.externalLean,
+        trustStatus: 'TRUSTED_AXIOM',
+        kernelEvidence: evidence,
+      },
+    };
+    const axiomId = `trusted-lean-${nodeId}-${proof.externalLean.sourceHash}`;
+    const trustedAxiom = {
+      id: axiomId,
+      sourceNodeId: nodeId,
+      formalStatement: `Trusted external Lean contract ${proof.externalLean.sourceHash}; toolchain: ${evidence.toolchain}`,
+      usedByNodeIds: [] as string[],
+    };
+    const axioms = state.axioms.some(axiom => axiom.id === axiomId)
+      ? state.axioms
+      : [...state.axioms, trustedAxiom];
+    const newState = {
+      ...state,
+      axioms,
+      proofs: { ...state.proofs, [nodeId]: trustedProof },
+      nodes: state.nodes.map(item => item.id === nodeId ? {
+        ...item,
+        state: 'resolved' as const,
+        leanErrors: [],
+        leanWarnings: ['Внешний Lean proof принят как TRUSTED_AXIOM; исходник заблокирован и evidence сохранён.'],
+      } : item),
+      agentLogs: [
+        ...state.agentLogs,
+        createLogEntry('Внешний Lean proof принят как trusted axiom.', 'success', `hash=${proof.externalLean.sourceHash}; axiom=${axiomId}`, nodeId),
+      ],
+    };
+    set(newState);
+    await saveMapToDb(newState);
   },
 
   runSystemAudit: async () => {

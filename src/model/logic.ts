@@ -187,9 +187,12 @@ export async function solveNodeLogic(map: MapState, nodeId: string): Promise<Map
     // Priority: verify user-provided Lean 4 proof on recalculation input
     proof = existingProof;
     const verification = verifyLeanProof(existingProof.latex, node.title, node.targetFunction);
-    isFullyResolved = verification.isValid;
+    isFullyResolved = verification.status === 'LEAN_VERIFIED';
     leanErrors = verification.errors;
     leanWarnings = verification.warnings;
+    if (verification.status === 'STATIC_CHECK_PASSED') {
+      leanWarnings.push('Статическая проверка не заменяет запуск Lean kernel; узел остаётся partial.');
+    }
   } else {
     // Fallback: run normal proof generation
     proof = await generateProof(node, map.axioms);

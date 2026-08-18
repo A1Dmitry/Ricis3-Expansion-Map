@@ -6,24 +6,12 @@ import { isAutoFormulaRequest } from '../model/audit';
 import { Sparkles, Bot, Share2, Check } from 'lucide-react';
 import { UrlShareService } from '../services/UrlShareService';
 import { useI18nStore } from '../store/useI18nStore';
+import {
+  AddNodePrefillData,
+  AiAssistantNodeResponse,
+} from '../domain/node/nodeDraft.types';
 
-interface AiAssistantResponse {
-  title?: string;
-  normalizedFunction?: string;
-  targetFunction?: string;
-  description?: string;
-  hint?: string;
-  link?: string;
-}
-
-export interface AddNodePrefillData {
-  title?: string;
-  targetFunction?: string;
-  description?: string;
-  hint?: string;
-  link?: string;
-  zoneId?: string;
-}
+export type { AddNodePrefillData } from '../domain/node/nodeDraft.types';
 
 export function AddNodeModal({ 
   onClose, 
@@ -58,11 +46,11 @@ export function AddNodeModal({
     setLoadingAI(true);
     try {
       const { postJson } = await import('../model/apiClient');
-      const api = await postJson<AiAssistantResponse>('/api/aiAssistantNode', { 
-        title, 
-        targetFunction, 
-        zoneId: zoneId === 'NEW_ZONE' ? 'math' : zoneId, 
-        hint 
+      const api = await postJson<AiAssistantNodeResponse>('/api/aiAssistantNode', {
+        title,
+        targetFunction,
+        zoneId: zoneId === 'NEW_ZONE' ? 'math' : zoneId,
+        hint,
       });
       if (!api.ok) {
         setErrorMsg(api.error);
@@ -96,7 +84,7 @@ export function AddNodeModal({
       setLoadingAI(true);
       try {
         const { postJson } = await import('../model/apiClient');
-        const api = await postJson<AiAssistantResponse>('/api/aiAssistantNode', {
+        const api = await postJson<AiAssistantNodeResponse>('/api/aiAssistantNode', {
           title,
           targetFunction: resolvedTargetFn || 'найди формулу сам',
           zoneId: zoneId === 'NEW_ZONE' ? 'math' : zoneId,
