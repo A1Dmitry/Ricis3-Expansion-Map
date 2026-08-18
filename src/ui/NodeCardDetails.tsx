@@ -341,7 +341,7 @@ export const NodeCardDetails: React.FC<Props> = ({
       </div>
 
       {/* 2. СЕКЦИЯ АККОРДЕОНА: РАЗБЛОКИРУЕТ СЛЕДУЮЩИЕ ЗАДАЧИ */}
-      {unlockedReport.allDependentTargets.length > 0 && (
+      {node.state === 'resolved' && (
         <div className="flex flex-col border-b border-neutral-800/50">
           <button
             type="button"
@@ -350,11 +350,11 @@ export const NodeCardDetails: React.FC<Props> = ({
           >
             <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-400 flex items-center gap-1.5">
               <Unlock size={13} />
-              Разблокирует задачи ({unlockedReport.allDependentTargets.length})
+              {t('node.relatedAvailable')} ({unlockedReport.immediateUnlockTargets.length})
             </span>
             <div className="flex items-center gap-2">
               <span className="text-[8px] font-bold px-1.5 py-0.5 rounded bg-emerald-950 border border-emerald-700/60 text-emerald-300 font-mono">
-                +{unlockedReport.allDependentTargets.length} нод
+                {unlockedReport.immediateUnlockTargets.length} задач
               </span>
               {openSections['forward'] ? <ChevronUp size={14} className="text-emerald-400" /> : <ChevronDown size={14} className="text-emerald-400" />}
             </div>
@@ -363,11 +363,15 @@ export const NodeCardDetails: React.FC<Props> = ({
           {openSections['forward'] && (
             <div className="p-3 space-y-2">
               <p className="text-[9px] text-emerald-300/80 leading-tight">
-                Решение этой сингулярности открывает или продвигает следующие проблемы графа:
+                После решения доступны только задачи, уже разблокированные текущими зависимостями:
               </p>
               <div className="space-y-1.5 max-h-48 overflow-y-auto pr-1">
-                {unlockedReport.allDependentTargets.map(targetNode => {
-                  const isImmediate = unlockedReport.immediateUnlockTargets.some(t => t.id === targetNode.id);
+                {unlockedReport.immediateUnlockTargets.length === 0 && (
+                  <p className="rounded bg-neutral-900/70 border border-neutral-800 px-2 py-2 text-[10px] text-slate-400">
+                    {t('node.noRelatedAvailable')}
+                  </p>
+                )}
+                {unlockedReport.immediateUnlockTargets.map(targetNode => {
                   return (
                     <div
                       key={targetNode.id}
@@ -382,15 +386,9 @@ export const NodeCardDetails: React.FC<Props> = ({
                         {targetNode.title}
                       </button>
                       <div className="flex items-center gap-1.5 shrink-0">
-                        {isImmediate ? (
-                          <span className="text-[8px] font-bold uppercase px-1.5 py-0.5 rounded bg-emerald-900/80 text-emerald-200 border border-emerald-600/70">
-                            Откроется сразу
-                          </span>
-                        ) : (
-                          <span className="text-[8px] font-bold uppercase px-1.5 py-0.5 rounded bg-neutral-900 text-slate-400 border border-neutral-700">
-                            Каскад
-                          </span>
-                        )}
+                        <span className="text-[8px] font-bold uppercase px-1.5 py-0.5 rounded bg-emerald-900/80 text-emerald-200 border border-emerald-600/70">
+                          Доступна
+                        </span>
                         <button
                           type="button"
                           onClick={() => onNavigateToNode?.(targetNode.id)}

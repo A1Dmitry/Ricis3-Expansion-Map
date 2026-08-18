@@ -46,6 +46,16 @@ export class RicisWasmBridge implements IRicisCoreEngine {
     return this._status;
   }
 
+  /**
+   * Explicit runtime check for UI status. Map startup reads `status` only and
+   * never triggers this method, so Core discovery stays lazy until a user asks
+   * to check it or starts a real Core operation.
+   */
+  public async checkRuntimeStatus(): Promise<RicisCoreStatus> {
+    await this.initialize();
+    return this._status;
+  }
+
   public initialize(wasmUrl: string = '/wasm/ricis_core.wasm'): Promise<void> {
     if (this._status === 'ready_wasm' || this._status === 'ready_api') {
       return Promise.resolve();

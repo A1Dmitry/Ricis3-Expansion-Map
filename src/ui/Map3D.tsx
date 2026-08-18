@@ -30,6 +30,7 @@ import {
   isNodeAvailable,
   findPathToRicis,
   getUnlockRequirements,
+  getUnlockedTargets,
   countAvailable,
   isRicisCore,
 } from '../model/access';
@@ -41,7 +42,6 @@ import { downloadTexPreprint, type TexBridgeMode, expandToRoot } from '../model/
 import { AuditPanel } from './AuditPanel';
 import { NodeCardDetails } from './NodeCardDetails';
 import { EditNodeModal } from './EditNodeModal';
-import { PhysicsControlPanel } from './PhysicsControlPanel';
 import { TelegramBotPanel } from './TelegramBotPanel';
 import { AgentLogModal } from './AgentLogModal';
 import { LatexRenderer } from './LatexRenderer';
@@ -54,12 +54,15 @@ import { AVAILABLE_GEMINI_MODELS } from '../model/modelPool.types';
 import { useI18nStore } from '../store/useI18nStore';
 import { LanguageToggle } from './LanguageToggle';
 import { AccessibleMapFallback } from './AccessibleMapFallback';
+import { checkRicisCoreRuntimeStatus, getRicisCoreRuntimeStatus } from '../services/ricisCore';
+import type { RicisCoreStatus } from '../services/ricisCore';
+
+type PanelId = 'actions' | 'zones' | 'available' | 'agent' | 'persistence';
 
 const UI_ELEMENTS = [
   { id: 'actions', label: 'Быстрые действия' },
   { id: 'zones', label: 'Сферы науки' },
   { id: 'available', label: 'Доступно к решению' },
-  { id: 'physics', label: 'Параметры симуляции' },
   { id: 'agent', label: 'ИИ-Агент и Сервисы' },
   { id: 'persistence', label: 'Сохранение и Экспорт' },
 ];
@@ -355,11 +358,69 @@ export const Map3D: React.FC = () => {
     createRole
   } = useAdaptiveUI({
     elements: UI_ELEMENTS,
-    maxVisible: 5,
+    maxVisible: 3,
     decayInterval: 10,
     decayFactor: 0.9,
     hysteresisDelta: 0.03
   });
+
+  const [openPanelIds, setOpenPanelIds] = useState<Set<PanelId>>(() => new Set());
+  const initializedAdaptiveRoleRef = useRef<string | null>(null);
+  const [coreRuntimeStatus, setCoreRuntimeStatus] = useState<RicisCoreStatus>(() => getRicisCoreRuntimeStatus());
+  const [isCheckingCoreRuntime, setIsCheckingCoreRuntime] = useState(false);
+
+  useEffect(() => {
+    if (initializedAdaptiveRoleRef.current === currentRole.id) return;
+
+    const nextOpenPanelIds = new Set<PanelId>();
+    visibleElements.forEach((element) => {
+      if (element.id === 'actions' || element.id === 'zones' || element.id === 'available') {
+        nextOpenPanelIds.add(element.id as PanelId);
+      }
+    });
+    setOpenPanelIds(nextOpenPanelIds);
+    initializedAdaptiveRoleRef.current = currentRole.id;
+  }, [currentRole.id, visibleElements]);
+
+  const toggleAccordion = useCallback((panelId: PanelId) => {
+    const isOpening = !openPanelIds.has(panelId);
+    if (isOpening) trackClick(panelId);
+
+    setOpenPanelIds((previous) => {
+      const next = new Set(previous);
+      if (next.has(panelId)) next.delete(panelId);
+      else next.add(panelId);
+      return next;
+    });
+  }, [openPanelIds, trackClick]);
+
+  const checkCoreRuntime = useCallback(async () => {
+    setIsCheckingCoreRuntime(true);
+    setCoreRuntimeStatus('loading');
+    try {
+      setCoreRuntimeStatus(await checkRicisCoreRuntimeStatus());
+    } catch {
+      setCoreRuntimeStatus('error');
+    } finally {
+      setIsCheckingCoreRuntime(false);
+    }
+  }, []);
+
+  const coreStatusPresentation = (() => {
+    switch (coreRuntimeStatus) {
+      case 'loading':
+        return { label: t('core.status.checking'), className: 'text-amber-300 border-amber-800/70 bg-amber-950/50', dotClassName: 'bg-amber-400 animate-pulse' };
+      case 'ready_api':
+        return { label: t('core.status.readyApi'), className: 'text-emerald-300 border-emerald-800/70 bg-emerald-950/50', dotClassName: 'bg-emerald-400' };
+      case 'ready_wasm':
+        return { label: t('core.status.readyWasm'), className: 'text-emerald-300 border-emerald-800/70 bg-emerald-950/50', dotClassName: 'bg-emerald-400' };
+      case 'error':
+      case 'fallback_ts':
+        return { label: t('core.status.unavailable'), className: 'text-rose-300 border-rose-800/70 bg-rose-950/50', dotClassName: 'bg-rose-400' };
+      default:
+        return { label: t('core.status.unchecked'), className: 'text-slate-300 border-neutral-700 bg-neutral-900/80', dotClassName: 'bg-slate-500' };
+    }
+  })();
 
   const [showOverflow, setShowOverflow] = useState(false);
   const [userDisabledPanelIds, setUserDisabledPanelIds] = useState<Set<string>>(() => {
@@ -983,23 +1044,17 @@ export const Map3D: React.FC = () => {
             if (userDisabledPanelIds.has(id)) return null;
             if (isHidden && !showOverflow) return null;
             
-            // PHYSICS PANEL IS UNIQUE
-            if (id === 'physics') {
-              return (
-                <div key="physics" className={`accordion-item border border-neutral-800/80 rounded-lg overflow-hidden bg-neutral-900/40 mb-2 ${isHidden ? 'opacity-80 border-dashed' : ''}`}>
-                  <PhysicsControlPanel
-                    params={physicsParams}
-                    onChange={setPhysicsParams}
-                  />
-                </div>
-              );
-            }
-
-            // OTHER PANELS
+            // Every sidebar panel uses the existing adaptive ranking; physics lives in SettingsModal.
             return (
               <div key={id} className={`accordion-item border border-neutral-800/80 rounded-lg overflow-hidden bg-neutral-900/40 mb-2 relative ${isHidden ? 'opacity-90 border-dashed border-neutral-700' : ''}`}>
-                <input type="checkbox" id={`accordion-${id}`} className="accordion-trigger" />
-                <label htmlFor={`accordion-${id}`} className="accordion-header bg-neutral-950/80 hover:bg-neutral-900/90 transition-colors cursor-pointer w-full flex flex-col items-start px-3.5 py-2.5 h-auto rounded-none border-0 m-0" onClick={() => trackClick(id)}>
+                <input type="checkbox" id={`accordion-${id}`} className="accordion-trigger" checked={openPanelIds.has(id as PanelId)} readOnly />
+                <button
+                  type="button"
+                  aria-expanded={openPanelIds.has(id as PanelId)}
+                  aria-controls={`accordion-content-${id}`}
+                  className="accordion-header bg-neutral-950/80 hover:bg-neutral-900/90 transition-colors cursor-pointer w-full flex flex-col items-start px-3.5 py-2.5 h-auto rounded-none border-0 m-0 text-left"
+                  onClick={() => toggleAccordion(id as PanelId)}
+                >
                   <div className="flex items-center justify-between w-full">
                     <div className="flex items-center gap-2">
                        {id === 'actions' && <Plus size={16} className="text-emerald-400" />}
@@ -1085,13 +1140,24 @@ export const Map3D: React.FC = () => {
                       </>
                     )}
                   </div>
-                </label>
+                </button>
 
-                <div className={`accordion-content`}>
+                <div id={`accordion-content-${id}`} className="accordion-content">
                   <div className={`accordion-inner p-3 border-t border-neutral-800/60 bg-neutral-950/40 relative overflow-y-auto ${id === 'zones' || id === 'available' || id === 'agent' ? 'max-h-64' : 'max-h-56'}`}>
                     
                     {id === 'actions' && (
                       <div className="space-y-2">
+                        <ActionButton
+                          onClick={() => {
+                            const firstAvailable = availableNodes[0];
+                            if (firstAvailable) handleNavigateToNode(firstAvailable.id);
+                          }}
+                          isDisabled={availableNodes.length === 0}
+                          variant="cyan"
+                          className="w-full uppercase font-bold tracking-wider cursor-pointer py-2 text-xs"
+                        >
+                          {t('research.openAvailable')}
+                        </ActionButton>
                         <ActionButton onClick={() => setShowAddNode(true)} variant="emerald" className="w-full uppercase font-bold tracking-wider cursor-pointer py-2 text-xs">
                           {t('filter.addNewTask')}
                         </ActionButton>
@@ -1101,7 +1167,7 @@ export const Map3D: React.FC = () => {
                           className="w-full flex items-center justify-center gap-2 py-2 px-3 rounded bg-cyan-950/80 hover:bg-cyan-900 border border-cyan-500/40 text-cyan-300 font-bold text-xs uppercase tracking-wider transition-colors cursor-pointer shadow-lg shadow-cyan-950/40"
                         >
                           <Cpu className="w-4 h-4 text-cyan-400" />
-                          {t('sandbox.title') === 'RICIS-III ПЕСОЧНИЦА СИНГУЛЯРНОСТЕЙ' ? 'Консоль доказательств RICIS' : 'RICIS Proof Console'}
+                          {t('research.proofConsole')}
                         </button>
                       </div>
                     )}
@@ -1137,7 +1203,7 @@ export const Map3D: React.FC = () => {
                           <button
                             key={node.id}
                             type="button"
-                            onClick={() => setSelectedNodeId(node.id)}
+                            onClick={() => handleNavigateToNode(node.id)}
                             className={`w-full text-left px-2 py-2 rounded text-xs transition-colors cursor-pointer border ${selectedNodeId === node.id ? 'bg-emerald-950/40 border-emerald-800/80 text-emerald-300' : 'bg-transparent border-transparent hover:bg-neutral-800/40 text-slate-300 hover:text-slate-100'}`}
                           >
                             <div className="font-bold truncate">{node.title}</div>
@@ -1399,10 +1465,24 @@ export const Map3D: React.FC = () => {
                   <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="text-neutral-500 hover:text-cyan-400 transition-colors" title="Menu">
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" /></svg>
                   </button>
-                  <button onClick={() => setIsNodeExpanded(!isNodeExpanded)} className="text-neutral-500 hover:text-cyan-400 transition-colors" title="Expand/Collapse">
+                  <button
+                    type="button"
+                    onClick={() => setIsNodeExpanded(!isNodeExpanded)}
+                    className="text-neutral-500 hover:text-cyan-400 transition-colors"
+                    title={isNodeExpanded ? t('node.card.collapse') : t('node.card.expand')}
+                    aria-label={isNodeExpanded ? t('node.card.collapse') : t('node.card.expand')}
+                  >
                     {isNodeExpanded ? '▶' : '◀'}
                   </button>
-                  <button onClick={() => setSelectedNodeId(null)} className="text-neutral-500 hover:text-white transition-colors">✕</button>
+                  <button
+                    type="button"
+                    onClick={() => setSelectedNodeId(null)}
+                    className="text-neutral-500 hover:text-white transition-colors"
+                    title={t('node.card.close')}
+                    aria-label={t('node.card.close')}
+                  >
+                    ✕
+                  </button>
                   
                   {isMenuOpen && (
                     <div className="absolute right-0 top-full mt-2 w-64 bg-[#050810] border border-cyan-800/80 rounded-md shadow-[0_4px_20px_rgba(0,0,0,0.8)] z-30 p-3 flex flex-col gap-3">
@@ -1593,6 +1673,8 @@ export const Map3D: React.FC = () => {
           uiElements={UI_ELEMENTS}
           hiddenElementIds={userDisabledPanelIds}
           onToggleElement={togglePanelVisibility}
+          physicsParams={physicsParams}
+          onPhysicsChange={setPhysicsParams}
         />
       )}
       {showTelegramBot && (
@@ -1638,6 +1720,17 @@ export const Map3D: React.FC = () => {
           </button>
 
           <span className="text-neutral-700 font-sans select-none shrink-0">|</span>
+
+          <button
+            type="button"
+            onClick={() => { void checkCoreRuntime(); }}
+            disabled={isCheckingCoreRuntime}
+            className={`flex items-center gap-1.5 px-2 py-0.5 rounded border text-[10px] font-mono font-bold transition-all shrink-0 ${coreStatusPresentation.className} ${isCheckingCoreRuntime ? 'cursor-wait opacity-80' : 'cursor-pointer hover:brightness-125'}`}
+            title={t('core.status.check')}
+          >
+            <span className={`w-1.5 h-1.5 rounded-full ${coreStatusPresentation.dotClassName}`} />
+            <span>{coreStatusPresentation.label}</span>
+          </button>
 
           {/* Latest AI agent log message */}
           {map.agentLogs && map.agentLogs.length > 0 ? (

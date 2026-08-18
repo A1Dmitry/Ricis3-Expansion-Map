@@ -52,6 +52,62 @@ export const DICTIONARY = {
     ru: 'Ссылка скопирована',
     en: 'Link copied',
   },
+  'core.status.unchecked': {
+    ru: 'Core: не проверен',
+    en: 'Core: not checked',
+  },
+  'core.status.checking': {
+    ru: 'Core: проверяется',
+    en: 'Core: checking',
+  },
+  'core.status.readyApi': {
+    ru: 'Core: готов (API)',
+    en: 'Core: ready (API)',
+  },
+  'core.status.readyWasm': {
+    ru: 'Core: готов (WebAssembly)',
+    en: 'Core: ready (WebAssembly)',
+  },
+  'core.status.unavailable': {
+    ru: 'Core: недоступен',
+    en: 'Core: unavailable',
+  },
+  'core.status.check': {
+    ru: 'Проверить Core',
+    en: 'Check Core',
+  },
+  'core.status.recovery': {
+    ru: 'Открыть инструкцию восстановления Core',
+    en: 'Open Core recovery instructions',
+  },
+  'research.openAvailable': {
+    ru: 'Открыть доступную задачу',
+    en: 'Open available problem',
+  },
+  'research.proofConsole': {
+    ru: 'Консоль RICIS',
+    en: 'RICIS Console',
+  },
+  'node.relatedAvailable': {
+    ru: 'Доступные связанные задачи',
+    en: 'Available related problems',
+  },
+  'node.noRelatedAvailable': {
+    ru: 'Связанные задачи пока не разблокированы.',
+    en: 'No related problems are unlocked yet.',
+  },
+  'node.card.collapse': {
+    ru: 'Свернуть карточку задачи',
+    en: 'Collapse problem card',
+  },
+  'node.card.expand': {
+    ru: 'Развернуть карточку задачи',
+    en: 'Expand problem card',
+  },
+  'node.card.close': {
+    ru: 'Закрыть карточку задачи',
+    en: 'Close problem card',
+  },
 
   // Search & Filters
   'search.placeholder': {

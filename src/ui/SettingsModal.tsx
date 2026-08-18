@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { Settings, Plus, User, Sliders, X, Check, Eye, EyeOff, LayoutGrid, Globe } from 'lucide-react';
 import type { AdaptiveRole } from '../hooks/useAdaptiveUI';
 import type { UIElement } from '../domain/ui/uiElement.types';
+import type { PhysicsParams } from '../model/physics';
+import { PhysicsControlFields } from './PhysicsControlPanel';
 
 export type { UIElementToggle } from '../domain/ui/uiElement.types';
 import { useI18nStore } from '../store/useI18nStore';
@@ -17,6 +19,8 @@ export interface SettingsModalProps {
   uiElements?: UIElement[];
   hiddenElementIds?: Set<string>;
   onToggleElement?: (id: string) => void;
+  physicsParams?: PhysicsParams;
+  onPhysicsChange?: (params: PhysicsParams) => void;
 }
 
 export const SettingsModal: React.FC<SettingsModalProps> = ({
@@ -29,6 +33,8 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   uiElements = [],
   hiddenElementIds = new Set(),
   onToggleElement,
+  physicsParams,
+  onPhysicsChange,
 }) => {
   const { t } = useI18nStore();
   const [newRoleName, setNewRoleName] = useState('');
@@ -101,6 +107,22 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
               <LanguageToggle />
             </div>
           </div>
+
+          {/* Section: Physics / Simulation */}
+          {physicsParams && onPhysicsChange && (
+            <div className="space-y-3">
+              <div className="flex items-center justify-between border-b border-neutral-800/80 pb-1.5">
+                <label className="text-xs font-semibold text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
+                  <Sliders size={14} className="text-emerald-400" />
+                  <span>Параметры симуляции</span>
+                </label>
+                <span className="text-[10px] text-slate-500 font-mono">Local physics</span>
+              </div>
+              <div className="rounded-lg border border-neutral-800 bg-neutral-950/40 p-3">
+                <PhysicsControlFields params={physicsParams} onChange={onPhysicsChange} />
+              </div>
+            </div>
+          )}
 
           {/* Section: UI Panels Visibility */}
           {uiElements.length > 0 && (

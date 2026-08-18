@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import React from 'react';
 import { renderToString } from 'react-dom/server';
-import { PhysicsControlPanel } from './PhysicsControlPanel';
+import { PhysicsControlFields, PhysicsControlPanel } from './PhysicsControlPanel';
 import { DEFAULT_PHYSICS_PARAMS } from '../model/physics';
 
 describe('PhysicsControlPanel Layout and Accordion Structure', () => {
@@ -33,6 +33,19 @@ describe('PhysicsControlPanel Layout and Accordion Structure', () => {
     expect(html).toContain('id="accordion-physics"');
     expect(html).toContain('type="checkbox"');
     expect(html).toContain('Параметры симуляции');
+  });
+
+  it('должен содержать единое переиспользуемое содержимое для SettingsModal', () => {
+    const html = renderToString(
+      React.createElement(PhysicsControlFields, {
+        params: DEFAULT_PHYSICS_PARAMS,
+        onChange: () => {},
+      })
+    );
+
+    expect(html).toContain('Настройки точной физики');
+    expect(html).toContain('Макро-пузыри (Зоны)');
+    expect(html).toContain('Микро-узлы (Задачи)');
   });
 
   it('должен содержать группы параметров зон и узлов без внутренних скроллеров', () => {

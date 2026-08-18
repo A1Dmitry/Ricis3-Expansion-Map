@@ -37,6 +37,17 @@ describe('RICIS-III Core Engine & Reference Bridge', () => {
       await engine.initialize();
       expect(['ready_wasm', 'fallback_ts']).toContain(engine.status);
     });
+
+    it('checks Core runtime status only on an explicit UI request and never invokes fallback', async () => {
+      const fallbackSpy = vi.spyOn(RicisFallbackEngine.prototype, 'evaluate');
+      vi.stubGlobal('window', {});
+      vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: true, status: 200, json: async () => ({ status: 'ready' }) }));
+
+      const bridge = new RicisWasmBridge();
+      expect(bridge.status).toBe('uninitialized');
+      await expect(bridge.checkRuntimeStatus()).resolves.toBe('ready_api');
+      expect(fallbackSpy).not.toHaveBeenCalled();
+    });
   });
 
   describe('Strict Core bridge', () => {

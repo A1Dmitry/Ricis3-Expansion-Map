@@ -423,3 +423,17 @@ Supervisor теперь выбирает bundled DLL первым способо
 - **QA.** Добавлены strict bridge tests для Core success, HTTP 400, HTTP 503, malformed payload и явного запрета fallback; добавлены recovery route tests для санитизации URL/DTO, нормализации query, health-check и возврата на карту. Выполнены в Node `22.23.2` / npm `12.0.2`: `npm ci`, `npm run lint`, `npm test` — 23 файлов / 139 тестов, `npm run build`, `npm audit --audit-level=moderate` — 0 vulnerabilities, `git diff --check`. Vite зафиксировал не-блокирующие предупреждения о `__dirname` native config loader, ineffective dynamic import и chunk > 500 kB.
 - **Release metadata.** Patch-версия повышена с `0.4.10` до `0.4.11` и синхронизирована в `package.json`, `package-lock.json`, `src/version.ts`, README, CITATION и release-артефактах.
 **Статус:** строгая граница доверия реализована локально. На GitHub Pages без C# API или настоящего browser-WASM сингулярный результат намеренно отображается как недоступный, а не подменяется fallback-вычислением.
+
+---
+
+## 2026-08-18 — Адаптивная навигация и рабочая карточка задачи v0.4.12
+
+- **U-01 / U-05 / U-06: адаптивные аккордеоны без дублирования состояния.** Левая панель использует существующий `useAdaptiveUI` и его единственный localStorage-ключ `ricis_adaptive_ui`. На холодном старте открываются наиболее востребованные панели; панели с меньшим весом доступны через overflow. Аккордеоны стали controlled: открытие вызывает `trackClick(id)` только при переходе `closed → open`, а закрытие не увеличивает вес.
+- **U-02: наблюдаемый Core-first статус.** В строке статуса добавлена интерактивная индикация `Core: не проверен / проверяется / готов (API|WebAssembly) / недоступен`. Она обращается только к существующему bridge через `checkRicisCoreRuntimeStatus()`, не выполняет прямой fetch из `Map3D` и не активирует TypeScript fallback.
+- **U-03: единые настройки физики.** Параметры симуляции удалены из стартовой боковой панели и размещены в Settings. `PhysicsControlFields` служит единственным переиспользуемым источником inputs, Save и Reset для `SettingsModal` и legacy accordion-обёртки; дублирование physics-формы отсутствует.
+- **U-04: ближайшие связанные задачи.** `NodeCardDetails` отображает связанные задачи только у `resolved`-узла и только из `immediateUnlockTargets`, полученных через `getUnlockedTargets`; каскадные зависимости не выдаются за доступные.
+- **Закреплённая карточка.** Выбранная задача остаётся закреплённой у правого края как в 3D-карте, так и в доступном list fallback. Стрелка управляет шириной collapsed/expanded, а отдельная доступная кнопка закрытия очищает выбранный узел; для обоих действий добавлены двуязычные aria-label и title.
+- **QA.** Добавлены регрессии для cold-start / ranking `useAdaptiveUI`, единого physics content и явного Core runtime status без fallback. Локально выполнены Node `22.23.2` / npm `12.0.2`: `npm run lint`, `npm test` — 24 файла / 144 теста, `npm run build`, `npm audit --audit-level=moderate` — `0 vulnerabilities`, `git diff --check`. Vite успешно собрал production bundle; предупреждения `configLoader`, ineffective dynamic import и chunk > 500 kB оставлены как известный performance/configuration backlog, а не release failure.
+- **Release metadata.** Patch-версия повышена с `0.4.11` до `0.4.12` и синхронизирована в `package.json`, `package-lock.json`, `src/version.ts`, README и `CITATION.cff`.
+
+**Статус:** usability-пакет и локальный quality gate завершены; следующий шаг — commit, push, проверка GitHub Pages CI и тег `v0.4.12`.
