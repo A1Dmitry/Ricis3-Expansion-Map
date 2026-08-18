@@ -11,8 +11,10 @@ describe('Map3D mobile graph layout contract', () => {
     expect(mapSource).toContain('data-testid="desktop-task-panel"');
     expect(mapSource).toContain('md:col-start-2 md:row-start-1');
     expect(mapSource).toContain('md:grid-cols-[minmax(0,1fr)_minmax(24rem,30rem)]');
-    expect(mapSource).toContain('md:grid-cols-[minmax(0,1fr)_2.75rem]');
-    expect(mapSource).toContain("taskPanelMode === 'rail' ? 'md:w-[2.75rem]' : 'md:w-auto'");
+    expect(mapSource).not.toContain("taskPanelMode === 'rail' ? 'md:w-[2.75rem]' : 'md:w-auto'");
+    expect(mapSource).toContain("taskPanelMode === 'rail' ? 'md:hidden' : 'md:w-auto'");
+    expect(mapSource).toContain('Развернуть правую панель задачи');
+    expect(mapSource).toContain('>Задача</span>');
     expect(mapSource).toContain('h-full w-full');
     expect(mapSource).toContain('w-full min-w-0 shrink-0 md:col-start-1');
     expect(mapSource).not.toContain('md:absolute md:inset-x-auto');

@@ -1812,15 +1812,16 @@ export const Map3D: React.FC = () => {
             </button>
           )}
           {selectedNode && taskPanelMode === 'rail' && (
-            <button type="button" onClick={() => setTaskPanelMode('open')} className="hidden md:inline-flex absolute right-2 top-2 z-20 min-h-8 min-w-8 items-center justify-center rounded bg-neutral-950/90 text-neutral-400 shadow-lg transition-colors hover:bg-cyan-950/70 hover:text-cyan-200" aria-label="Развернуть правую панель задачи" title="Развернуть правую панель задачи">
+            <button type="button" onClick={() => setTaskPanelMode('open')} className="hidden md:inline-flex absolute right-2 top-2 z-30 min-h-10 min-w-9 items-center justify-center gap-1 rounded-md border border-cyan-700/70 bg-[#07121c]/95 px-1.5 text-cyan-300 shadow-[0_0_16px_rgba(34,211,238,0.18)] transition-colors hover:bg-cyan-900/80 hover:text-white" aria-label="Развернуть правую панель задачи" title="Развернуть правую панель задачи">
               <ChevronLeft size={15} />
+              <span className="[writing-mode:vertical-rl] text-[9px] font-bold uppercase tracking-[0.16em]">Задача</span>
             </button>
           )}
           {renderMapScene()}
           </div>
 
           {selectedNode && (
-            <aside data-testid="desktop-task-panel" data-panel-mode={taskPanelMode} className={`relative order-2 min-h-0 w-full shrink-0 overflow-hidden border-t border-cyan-900/40 bg-[#070707] md:order-none md:col-start-2 md:row-start-1 md:h-full md:border-l md:border-t-0 ${taskPanelMode === 'rail' ? 'md:w-[2.75rem]' : 'md:w-auto'}`}>
+            <aside data-testid="desktop-task-panel" data-panel-mode={taskPanelMode} className={`relative order-2 min-h-0 w-full shrink-0 overflow-hidden border-t border-cyan-900/40 bg-[#070707] md:order-none md:col-start-2 md:row-start-1 md:h-full md:border-l md:border-t-0 ${taskPanelMode === 'rail' ? 'md:hidden' : 'md:w-auto'}`}>
               <div className="flex h-full min-h-0 flex-col">
               {taskPanelMode === 'rail' ? (
                 <button
