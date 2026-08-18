@@ -5,11 +5,12 @@ import { describe, expect, it } from 'vitest';
 const mapSource = readFileSync(resolve(process.cwd(), 'src/ui/Map3D.tsx'), 'utf8');
 
 describe('Map3D mobile graph layout contract', () => {
-  it('keeps the mobile detail region in normal flow below the scene while retaining desktop side-card positioning', () => {
+  it('keeps mobile flow below the scene and docks the desktop task card in a dedicated right grid column', () => {
     expect(mapSource).toContain('order-3 h-[58dvh]');
     expect(mapSource).toContain('order-1 relative flex min-h-0 flex-1 flex-col');
-    expect(mapSource).toContain('w-full touch-pan-y bg-black/90');
-    expect(mapSource).toContain('md:absolute md:inset-x-auto');
+    expect(mapSource).toContain('data-testid="desktop-task-panel"');
+    expect(mapSource).toContain('md:col-start-3 md:row-start-1');
+    expect(mapSource).not.toContain('md:absolute md:inset-x-auto');
     expect(mapSource).not.toContain('fixed inset-x-2 bottom-2 z-30');
   });
 

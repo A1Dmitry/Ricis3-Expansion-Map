@@ -242,7 +242,7 @@ export const NodeCardDetails: React.FC<Props> = ({
   };
 
   return (
-    <div className={`space-y-2.5 ${isExpanded ? 'text-[12px]' : 'text-[11px]'}`}>
+    <div className={`space-y-0 ${isExpanded ? 'text-[12px]' : 'text-[11px]'}`}>
       {/* Кнопка навигации назад, если пользователь перешел по ссылке */}
       {onNavigateBack && previousNodeTitle && (
         <button
@@ -260,11 +260,11 @@ export const NodeCardDetails: React.FC<Props> = ({
       )}
 
       {/* 1. СЕКЦИЯ АККОРДЕОНА: ЦЕЛЕВАЯ ФУНКЦИЯ И СИНГУЛЯРНОСТЬ */}
-      <div className="border border-neutral-800/80 rounded-xl overflow-hidden bg-[#0d1117] flex flex-col">
+      <div className="flex flex-col border-b border-neutral-800/50 bg-transparent">
         <div className="flex flex-col border-b border-neutral-800/50">
         <div
           onClick={() => toggleSection('target')}
-          className="w-full flex items-center justify-between min-h-[44px] px-4 py-3 bg-[#0d1117] hover:bg-neutral-900 text-left cursor-pointer transition-colors"
+          className="w-full flex items-center justify-between min-h-[44px] px-3.5 py-3 bg-neutral-950/40 hover:bg-neutral-900/70 text-left cursor-pointer transition-colors"
         >
           <span className="text-[10px] font-bold uppercase tracking-wider text-cyan-400 flex items-center gap-1.5">
             <Terminal size={13} />
@@ -346,7 +346,7 @@ export const NodeCardDetails: React.FC<Props> = ({
           <button
             type="button"
             onClick={() => toggleSection('forward')}
-            className="w-full flex items-center justify-between min-h-[44px] px-4 py-3 bg-[#0d1117] hover:bg-neutral-900 text-left cursor-pointer transition-colors"
+            className="w-full flex items-center justify-between min-h-[44px] px-3.5 py-3 bg-neutral-950/40 hover:bg-neutral-900/70 text-left cursor-pointer transition-colors"
           >
             <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-400 flex items-center gap-1.5">
               <Unlock size={13} />
@@ -413,7 +413,7 @@ export const NodeCardDetails: React.FC<Props> = ({
           <button
             type="button"
             onClick={() => toggleSection('prereqs')}
-            className="w-full flex items-center justify-between min-h-[44px] px-4 py-3 bg-[#0d1117] hover:bg-neutral-900 text-left cursor-pointer transition-colors"
+            className="w-full flex items-center justify-between min-h-[44px] px-3.5 py-3 bg-neutral-950/40 hover:bg-neutral-900/70 text-left cursor-pointer transition-colors"
           >
             <span className="text-[10px] font-bold uppercase tracking-wider text-amber-400 flex items-center gap-1.5">
               <Lock size={13} />
@@ -462,7 +462,7 @@ export const NodeCardDetails: React.FC<Props> = ({
         <button
           type="button"
           onClick={() => toggleSection('verification')}
-          className="w-full flex items-center justify-between min-h-[44px] px-4 py-3 bg-[#0d1117] hover:bg-neutral-900 text-left cursor-pointer transition-colors"
+          className="w-full flex items-center justify-between min-h-[44px] px-3.5 py-3 bg-neutral-950/40 hover:bg-neutral-900/70 text-left cursor-pointer transition-colors"
         >
           <span className="text-[10px] font-bold uppercase tracking-wider text-cyan-300 flex items-center gap-1.5">
             <ShieldCheck size={13} />
@@ -515,7 +515,7 @@ export const NodeCardDetails: React.FC<Props> = ({
         <button
           type="button"
           onClick={() => toggleSection('trace')}
-          className="w-full flex items-center justify-between min-h-[44px] px-4 py-3 bg-[#0d1117] hover:bg-neutral-900 text-left cursor-pointer transition-colors"
+          className="w-full flex items-center justify-between min-h-[44px] px-3.5 py-3 bg-neutral-950/40 hover:bg-neutral-900/70 text-left cursor-pointer transition-colors"
         >
           <span className="text-[10px] font-bold uppercase tracking-wider text-purple-400 flex items-center gap-1.5">
             <Terminal size={13} />
@@ -543,7 +543,7 @@ export const NodeCardDetails: React.FC<Props> = ({
         <button
           type="button"
           onClick={() => toggleSection('sources')}
-          className="w-full flex items-center justify-between min-h-[44px] px-4 py-3 bg-[#0d1117] hover:bg-neutral-900 text-left cursor-pointer transition-colors"
+          className="w-full flex items-center justify-between min-h-[44px] px-3.5 py-3 bg-neutral-950/40 hover:bg-neutral-900/70 text-left cursor-pointer transition-colors"
         >
           <span className="text-[10px] font-bold uppercase tracking-wider text-sky-400 flex items-center gap-1.5">
             <BookOpen size={13} />
@@ -610,7 +610,7 @@ export const NodeCardDetails: React.FC<Props> = ({
           <button
             type="button"
             onClick={() => toggleSection('economics')}
-            className="w-full flex items-center justify-between min-h-[44px] px-4 py-3 bg-[#0d1117] hover:bg-neutral-900 text-left cursor-pointer transition-colors"
+            className="w-full flex items-center justify-between min-h-[44px] px-3.5 py-3 bg-neutral-950/40 hover:bg-neutral-900/70 text-left cursor-pointer transition-colors"
           >
             <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-400 flex items-center gap-1.5">
               <DollarSign size={13} />
@@ -654,7 +654,7 @@ export const NodeCardDetails: React.FC<Props> = ({
           <button
             type="button"
             onClick={() => toggleSection('provenance')}
-            className="w-full flex items-center justify-between min-h-[44px] px-4 py-3 bg-[#0d1117] hover:bg-neutral-900 text-left cursor-pointer transition-colors"
+            className="w-full flex items-center justify-between min-h-[44px] px-3.5 py-3 bg-neutral-950/40 hover:bg-neutral-900/70 text-left cursor-pointer transition-colors"
           >
             <span className="text-[10px] font-bold uppercase tracking-wider text-cyan-300 flex items-center gap-1.5">
               <Sparkles size={13} />

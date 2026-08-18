@@ -1,12 +1,12 @@
 # Lean boundary audit
 
-**Версия:** 0.4.17
+**Версия:** 0.4.18
 **Дата:** 2026-08-18
 **Цель:** установить проверяемую границу между Lean kernel, статическим анализом TypeScript, независимой символьной проверкой и RICIS-черновиком.
 
-## Релиз v0.4.17
+## Релиз v0.4.18
 
-Независимый mobile shell, fullscreen 3D и opt-in sensor mode не меняют `LEAN_VERIFIED`, `TRUSTED_AXIOM`, `REQUIRES_CORE_LEAN` или Core-first policy. Все вычислительные trust boundaries остаются прежними.
+Desktop right-docked task accordion является UI-композицией и не меняет `LEAN_VERIFIED`, `TRUSTED_AXIOM`, `REQUIRES_CORE_LEAN` или Core-first policy. Все вычислительные trust boundaries остаются прежними.
 
 ## Итоговая классификация
 

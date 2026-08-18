@@ -1446,8 +1446,8 @@ export const Map3D: React.FC = () => {
         </div>
       </header>
 
-      <main className="flex-1 flex flex-col md:flex-row relative overflow-y-auto md:overflow-hidden">
-        <aside className="order-3 h-[58dvh] w-full border-t border-cyan-900/40 bg-[#070707] p-3 flex flex-col gap-3 shrink-0 z-10 overflow-y-auto touch-pan-y md:order-1 md:h-full md:w-84 md:border-t-0 md:border-r">
+      <main className="flex-1 min-h-0 flex flex-col md:grid md:grid-cols-[21rem_minmax(0,1fr)_minmax(24rem,30rem)] relative overflow-y-auto md:overflow-hidden">
+        <aside className="order-3 h-[58dvh] w-full border-t border-cyan-900/40 bg-[#070707] p-3 flex flex-col gap-3 shrink-0 z-10 overflow-y-auto touch-pan-y md:order-1 md:row-start-1 md:col-start-1 md:h-full md:w-auto md:border-t-0 md:border-r">
           {/* SEARCH BAR (Top of Sidebar) */}
           <div className="relative border border-cyan-900/40 rounded-lg overflow-visible bg-[#050810]/90 backdrop-blur-md px-3.5 py-2.5 mb-1 flex items-center gap-2.5 z-20">
             <Search size={16} className="text-cyan-400 shrink-0" />
@@ -1790,23 +1790,29 @@ export const Map3D: React.FC = () => {
           )}
         </aside>
 
-        <div className="order-1 relative flex min-h-0 flex-1 flex-col bg-[radial-gradient(circle_at_center,_#0a0f1a_0%,_#050505_100%)] md:order-2">
-          <div className="relative h-[42dvh] min-h-[16rem] shrink-0 md:h-auto md:min-h-0 md:flex-1">
+        <div className="order-1 relative flex min-h-0 flex-1 flex-col bg-[radial-gradient(circle_at_center,_#0a0f1a_0%,_#050505_100%)] md:contents">
+          <div className="relative h-[42dvh] min-h-[16rem] shrink-0 md:col-start-2 md:row-start-1 md:h-full md:min-h-0">
           {renderMapScene()}
           </div>
 
           {selectedNode && (
-            <div className={`w-full touch-pan-y bg-black/90 border-y border-cyan-500/30 p-4 shadow-2xl pointer-events-auto overflow-y-auto transition-all duration-300 md:absolute md:inset-x-auto md:bottom-auto md:right-6 md:top-6 md:z-20 md:w-auto md:max-h-[90%] md:rounded-lg md:border md:p-5 ${isNodeExpanded ? 'md:w-[640px]' : 'md:w-[26rem]'}`}>
-              <div className="flex justify-between items-start mb-3">
-                <div>
-                  <h2 className="text-sm font-bold text-white leading-tight mb-1">{selectedNode.title}</h2>
+            <aside data-testid="desktop-task-panel" className="order-2 min-h-0 w-full shrink-0 overflow-hidden border-t border-cyan-900/40 bg-[#070707] md:order-none md:col-start-3 md:row-start-1 md:h-full md:w-auto md:border-l md:border-t-0">
+              <div className="flex h-full min-h-0 flex-col">
+              <div className="flex shrink-0 items-start justify-between gap-3 border-b border-neutral-800/60 bg-neutral-950/80 px-3.5 py-3">
+                <button
+                  type="button"
+                  onClick={() => setIsNodeExpanded(!isNodeExpanded)}
+                  className="min-w-0 flex-1 text-left"
+                  aria-expanded={isNodeExpanded}
+                >
+                  <h2 className="truncate text-sm font-bold text-white leading-tight mb-1">{selectedNode.title}</h2>
                   <span className="text-[9px] font-mono text-cyan-400 block mb-1">ID: {selectedNode.id}</span>
                   {selectedNode.economic?.marketGain > 0 && (
-                    <span className="text-[10px] font-bold text-green-400 bg-green-950/30 border border-green-900/50 px-1.5 py-0.5 rounded inline-block">
+                    <span className="text-[10px] font-bold text-green-400 bg-green-950/30 px-1.5 py-0.5 rounded inline-block">
                       Оценка: {formatCurrency(selectedNode.economic.marketGain)}
                     </span>
                   )}
-                </div>
+                </button>
                 <div className="flex items-center gap-3 relative">
                   <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="text-neutral-500 hover:text-cyan-400 transition-colors" title="Menu">
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" /></svg>
@@ -1818,7 +1824,7 @@ export const Map3D: React.FC = () => {
                     title={isNodeExpanded ? t('node.card.collapse') : t('node.card.expand')}
                     aria-label={isNodeExpanded ? t('node.card.collapse') : t('node.card.expand')}
                   >
-                    {isNodeExpanded ? '▶' : '◀'}
+                    {isNodeExpanded ? '▲' : '▼'}
                   </button>
                   <button
                     type="button"
@@ -1876,6 +1882,7 @@ export const Map3D: React.FC = () => {
                   )}
                 </div>
               </div>
+              {isNodeExpanded && <div className="min-h-0 flex-1 overflow-y-auto px-3.5 py-3 touch-pan-y">
               {(() => {
                 const parents = map.nodes.filter(n => selectedNode.dependencyIds.includes(n.id));
                 return (
@@ -2000,7 +2007,9 @@ export const Map3D: React.FC = () => {
                   )}
                 </div>
               )}
-            </div>
+              </div>}
+              </div>
+            </aside>
           )}
         </div>
       </main>

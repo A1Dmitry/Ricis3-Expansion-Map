@@ -1,12 +1,12 @@
 # Telegram/token-pool remediation
 
-**Версия:** 0.4.17
+**Версия:** 0.4.18
 **Дата:** 2026-08-18
 **Основание:** `telegram-tokenpool-bug-graph-2026-08-18.md`
 
-## Релиз v0.4.17
+## Релиз v0.4.18
 
-Mobile redesign добавляет независимую touch-first композицию, fullscreen 3D и opt-in DeviceOrientation только на клиентском UI-слое. Он не меняет ingress Telegram, обработку секретов, server-side API-key policy или Core-first boundary.
+Desktop UI patch переносит карточку выбранной задачи из overlay в правую пристыкованную grid-панель и объединяет её в единый accordion surface. Изменение не затрагивает ingress Telegram, обработку секретов, server-side API-key policy или Core-first boundary.
 
 ## Выполненные слои
 

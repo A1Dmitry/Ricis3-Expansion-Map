@@ -1,14 +1,14 @@
 # Structural Hash Refactoring Report
 
 **Версия формата отчёта:** 0.1.0
-**Релиз приложения:** 0.4.17
+**Релиз приложения:** 0.4.18
 **Дата:** 2026-08-17
 **Источник данных:** `src/**/*.ts` и `src/**/*.tsx` без test-файлов
 **Машинный отчёт:** `structural-hash-report.json`
 
-## Релиз v0.4.17: mobile composition boundary
+## Релиз v0.4.18: desktop task-panel composition boundary
 
-Mobile redesign использует независимый `renderMobileShell` с history-backed screen stack, не превращая desktop sidebar и side-card в условно скрытые overlay-слои. Общая 3D/list сцена остаётся единым renderer; fullscreen, double-tap и sensor hooks изолированы как небольшие контрактные units. Это composition boundary, а не повод вводить общую иерархию UI-классов.
+Desktop task card теперь является отдельной третьей grid-колонкой, пристыкованной к правому краю, вместо absolute overlay внутри scene region. Единый accordion header управляет содержимым панели, а mobile shell и общий 3D/list renderer остаются неизменными.
 
 ## Результат первого прохода
 
