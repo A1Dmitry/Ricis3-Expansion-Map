@@ -23,6 +23,13 @@ import {
   Cpu,
   Terminal,
   Settings,
+  Menu,
+  ArrowLeft,
+  Maximize2,
+  Minimize2,
+  Compass,
+  Map as MapIcon,
+  List,
 } from 'lucide-react';
 import { SettingsModal } from './SettingsModal';
 import { RicisProofConsoleModal } from './RicisProofConsoleModal';
@@ -47,6 +54,16 @@ import { AgentLogModal } from './AgentLogModal';
 import { LatexRenderer } from './LatexRenderer';
 import { useAdaptiveUI } from '../hooks/useAdaptiveUI';
 import { useMobileLayout } from '../hooks/useMobileLayout';
+import { useMobileViewStack } from '../hooks/useMobileViewStack';
+import { useImmersiveCanvas } from '../hooks/useImmersiveCanvas';
+import { isDoubleTap } from '../hooks/mobileGestures';
+import {
+  alignDeltaToScreen,
+  calculateOrientationDelta,
+  isUsableOrientationSample,
+  requestDeviceOrientationPermission,
+  type OrientationBaseline,
+} from '../services/deviceOrientation';
 import { UniverseSkybox } from './UniverseSkybox';
 import { configureGraphTouchControls } from './orbitTouchControls';
 import { useTerminalStore } from '../store/useTerminalStore';
@@ -282,6 +299,13 @@ export const Map3D: React.FC = () => {
   });
   const map = useMapStore();
   const isMobileLayout = useMobileLayout();
+  const { view: mobileView, open: openMobileView, back: backMobileView } = useMobileViewStack(isMobileLayout);
+  const { isImmersive, toggle: toggleImmersiveCanvas, exit: exitImmersiveCanvas } = useImmersiveCanvas();
+  const sceneContainerRef = useRef<HTMLDivElement | null>(null);
+  const lastSceneTapRef = useRef<{ time: number; x: number; y: number } | null>(null);
+  const sensorBaselineRef = useRef<OrientationBaseline | null>(null);
+  const [sensorModeEnabled, setSensorModeEnabled] = useState(false);
+  const [sensorNotice, setSensorNotice] = useState<string | null>(null);
   const mobilePresentationInitializedRef = useRef(false);
 
   // Load initial saved filters & Deep Link URL params
@@ -303,12 +327,10 @@ export const Map3D: React.FC = () => {
   });
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
-  // Compact touch-first devices start in the semantic list. Users can still
-  // explicitly switch to the 3D canvas from the header at any time.
+  // The redesigned mobile shell is scene-first. The semantic list remains an
+  // explicit, accessible alternative in the map quick control and on WebGL failure.
   useEffect(() => {
-    if (!isMobileLayout || mobilePresentationInitializedRef.current || !supportsWebGL()) return;
-    setMapFallbackReason('user_selected');
-    setMapPresentationMode('accessible_list');
+    if (!isMobileLayout || mobilePresentationInitializedRef.current) return;
     mobilePresentationInitializedRef.current = true;
   }, [isMobileLayout]);
 
@@ -329,6 +351,24 @@ export const Map3D: React.FC = () => {
   const [showProof, setShowProof] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const [showAddNode, setShowAddNode] = useState(false);
+
+  useEffect(() => {
+    if (!isMobileLayout) return;
+    if (mobileView === 'settings' && !showSettings) setShowSettings(true);
+    if (mobileView !== 'settings' && showSettings) setShowSettings(false);
+  }, [isMobileLayout, mobileView, showSettings]);
+
+  const openMobileSettings = () => {
+    openMobileView('settings');
+  };
+
+  const closeSettings = () => {
+    if (isMobileLayout && mobileView === 'settings') {
+      backMobileView();
+      return;
+    }
+    setShowSettings(false);
+  };
   const [showTelegramBot, setShowTelegramBot] = useState(false);
   const [showAgentLogs, setShowAgentLogs] = useState(false);
   const [showProofConsole, setShowProofConsole] = useState(false);
@@ -476,6 +516,93 @@ export const Map3D: React.FC = () => {
 
   const controlsRef = useRef<any>(null);
   const flightRef = useRef<FlightTarget | null>(null);
+  const sensorCameraBaselineRef = useRef<{ theta: number; phi: number; radius: number } | null>(null);
+
+  useEffect(() => {
+    if (!isMobileLayout || !sensorModeEnabled) return undefined;
+
+    const onDeviceOrientation = (event: DeviceOrientationEvent) => {
+      if (!isUsableOrientationSample(event)) return;
+      const controls = controlsRef.current;
+      if (!controls) return;
+
+      if (!sensorBaselineRef.current || !sensorCameraBaselineRef.current) {
+        sensorBaselineRef.current = { beta: event.beta as number, gamma: event.gamma as number };
+        const offset = controls.object.position.clone().sub(controls.target);
+        const spherical = new THREE.Spherical().setFromVector3(offset);
+        sensorCameraBaselineRef.current = {
+          theta: spherical.theta,
+          phi: spherical.phi,
+          radius: spherical.radius,
+        };
+        setSensorNotice('Ориентация откалибрована по текущему виду.');
+        return;
+      }
+
+      const rawDelta = calculateOrientationDelta(event, sensorBaselineRef.current);
+      if (!rawDelta) return;
+      const delta = alignDeltaToScreen(rawDelta);
+
+      const baseline = sensorCameraBaselineRef.current;
+      const offset = controls.object.position.clone().sub(controls.target);
+      const spherical = new THREE.Spherical().setFromVector3(offset);
+      const targetTheta = baseline.theta - THREE.MathUtils.degToRad(THREE.MathUtils.clamp(delta.yaw, -70, 70) * 0.72);
+      const targetPhi = THREE.MathUtils.clamp(
+        baseline.phi + THREE.MathUtils.degToRad(THREE.MathUtils.clamp(delta.pitch, -55, 55) * 0.55),
+        controls.minPolarAngle + 0.04,
+        controls.maxPolarAngle - 0.04,
+      );
+
+      spherical.theta = THREE.MathUtils.lerp(spherical.theta, targetTheta, 0.14);
+      spherical.phi = THREE.MathUtils.lerp(spherical.phi, targetPhi, 0.14);
+      spherical.radius = baseline.radius;
+      controls.object.position.copy(controls.target).add(new THREE.Vector3().setFromSpherical(spherical));
+      controls.update();
+    };
+
+    window.addEventListener('deviceorientation', onDeviceOrientation, { passive: true });
+    return () => window.removeEventListener('deviceorientation', onDeviceOrientation);
+  }, [isMobileLayout, sensorModeEnabled]);
+
+  const toggleSensorMode = useCallback(async () => {
+    if (sensorModeEnabled) {
+      setSensorModeEnabled(false);
+      sensorBaselineRef.current = null;
+      sensorCameraBaselineRef.current = null;
+      setSensorNotice('Управление наклоном отключено.');
+      return;
+    }
+
+    const permission = await requestDeviceOrientationPermission();
+    if (permission === 'granted') {
+      sensorBaselineRef.current = null;
+      sensorCameraBaselineRef.current = null;
+      setSensorModeEnabled(true);
+      setSensorNotice('Поверните устройство: первая корректная позиция станет точкой калибровки.');
+      return;
+    }
+
+    const messages: Record<string, string> = {
+      denied: 'Доступ к датчикам отклонён. Разрешите «Движение и ориентацию» в настройках браузера.',
+      unsupported: 'В этом браузере недоступны датчики ориентации.',
+      error: 'Не удалось запросить доступ к датчикам. Попробуйте ещё раз из меню.',
+    };
+    setSensorNotice(messages[permission] ?? 'Датчики недоступны.');
+  }, [sensorModeEnabled]);
+
+  const handleScenePointerUp = (event: React.PointerEvent<HTMLDivElement>) => {
+    if (!isMobileLayout || event.pointerType !== 'touch' || mapPresentationMode !== 'three_dimensional') return;
+
+    const tap = { time: performance.now(), x: event.clientX, y: event.clientY };
+    if (isDoubleTap(lastSceneTapRef.current, tap)) {
+      lastSceneTapRef.current = null;
+      event.preventDefault();
+      void toggleImmersiveCanvas(sceneContainerRef.current);
+      return;
+    }
+
+    lastSceneTapRef.current = tap;
+  };
 
   const handleZoomIn = () => {
     if (controlsRef.current) {
@@ -869,6 +996,13 @@ export const Map3D: React.FC = () => {
   };
 
   const handleNavigateToNode = (targetId: string) => {
+    if (isMobileLayout) {
+      setSelectedNodeId(targetId);
+      triggerFlight(targetId);
+      openMobileView('details');
+      return;
+    }
+
     if (selectedNodeId && selectedNodeId !== targetId) {
       setNavigationStack(prev => [...prev, selectedNodeId]);
     }
@@ -877,6 +1011,11 @@ export const Map3D: React.FC = () => {
   };
 
   const handleNavigateBack = () => {
+    if (isMobileLayout) {
+      backMobileView();
+      return;
+    }
+
     if (navigationStack.length > 0) {
       const prevId = navigationStack[navigationStack.length - 1];
       setNavigationStack(prev => prev.slice(0, -1));
@@ -937,8 +1076,321 @@ export const Map3D: React.FC = () => {
     });
   }, [map.edges, map.nodes, nodePositions, pathEdgeKeys, nodeStateById, visibleNodeIds, physicsParams.edgeOpacity]);
 
+  const renderMapScene = () => (
+    <>
+      {mapPresentationMode === 'three_dimensional' ? (
+        <MapCanvasErrorBoundary
+          key="three-dimensional-map"
+          onRenderFailure={() => {
+            setMapFallbackReason('render_failed');
+            setMapPresentationMode('accessible_list');
+          }}
+        >
+          <Canvas className="touch-none" camera={{ position: [0, 0, 32], fov: 55, far: 10000, near: 0.1 }} gl={{ antialias: true, alpha: true }}>
+            <UniverseSkybox radius={3200} />
+            <OrbitControls controlsRef={controlsRef} flightRef={flightRef} />
+            <CameraFlightRig flightRef={flightRef} controlsRef={controlsRef} />
+            <ambientLight intensity={0.22} />
+            <hemisphereLight args={['#1e3a5f', '#050508', 0.55]} />
+            <pointLight position={[18, 22, 14]} intensity={1.35} color="#e8f4ff" distance={80} />
+            <pointLight position={[-16, -8, 12]} intensity={0.85} color="#67e8f9" distance={70} />
+            <pointLight position={[8, -14, -18]} intensity={0.55} color="#a78bfa" distance={60} />
+            <pointLight position={[0, 28, 0]} intensity={0.45} color="#ffffff" distance={90} />
+            <spotLight position={[12, 30, 8]} angle={0.45} penumbra={0.6} intensity={0.7} color="#cffafe" />
+
+            {map.zones.filter(z => visibleZoneIds.has(z.id)).map(zone => {
+              const pos = zonePositions[zone.id] || [0, 0, 0];
+              const color = getZoneColor(zone.id);
+              const radius = zoneRadii[zone.id] || 5;
+              return (
+                <group key={zone.id}>
+                  <ZoneBubble position={pos} color={color} radius={radius} />
+                  <ZoneLabel position={pos} text={zone.name} radius={radius} color={color} />
+                </group>
+              );
+            })}
+
+            {edgesLines}
+
+            {map.nodes.filter(n => visibleNodeIds.has(n.id)).map(node => {
+              const pos = nodePositions[node.id] || [0, 0, 0];
+              const isSelected = selectedNode?.id === node.id;
+              const isCore = isRicisCore(node);
+              const available = isNodeAvailable(node, map);
+              const onPath = pathSet.has(node.id);
+              const locked = !available && node.state !== 'resolved';
+              const isDeriv = node.type === 'derivative_claim' || node.isDerivativeClaim === true;
+              const hasSorry = nodeHasSorry(node, map.proofs?.[node.id]);
+
+              let color = '#ef4444';
+              if (isDeriv) color = '#a855f7';
+              else if (node.state === 'resolved' && !isMissingTargetFunction(node) && !hasSorry) color = '#22c55e';
+              else if (node.state === 'partial' || isMissingTargetFunction(node) || hasSorry) color = '#eab308';
+              else if (locked) color = '#6b7280';
+              if (onPath && !isDeriv) color = locked ? '#94a3b8' : '#22d3ee';
+
+              const baseR = nodeVisualRadius(node, map.nodes);
+              const radius = isSelected ? baseR * 1.28 : onPath ? baseR * 1.12 : isDeriv ? baseR * 1.15 : baseR;
+              const emissive = isSelected ? '#22d3ee' : isDeriv ? '#7e22ce' : onPath ? '#0891b2' : isCore ? '#155e75' : color;
+              const emissiveIntensity = isSelected ? 0.65 : isDeriv ? 0.55 : onPath ? 0.45 : isCore ? 0.35 : locked ? 0.08 : 0.22;
+
+              return (
+                <group
+                  key={node.id}
+                  onPointerOver={e => {
+                    e.stopPropagation();
+                    hoveredNodePos = new THREE.Vector3(pos[0], pos[1], pos[2]);
+                  }}
+                  onPointerOut={() => {
+                    hoveredNodePos = null;
+                  }}
+                >
+                  <NodeBubble
+                    position={pos}
+                    color={color}
+                    radius={radius}
+                    emissive={emissive}
+                    emissiveIntensity={emissiveIntensity}
+                    opacity={locked ? 0.5 : 0.92}
+                    locked={locked}
+                    onClick={e => {
+                      e.stopPropagation();
+                      handleNavigateToNode(node.id);
+                    }}
+                  />
+                  <NodeLabel
+                    position={pos}
+                    text={node.title}
+                    subtitle={map.zones.find(z => z.id === node.zoneIds[0])?.name || node.zoneIds[0]}
+                    valueText={formatCurrency(node.economic?.marketGain)}
+                    offsetY={radius + 0.35}
+                  />
+                </group>
+              );
+            })}
+          </Canvas>
+        </MapCanvasErrorBoundary>
+      ) : (
+        <AccessibleMapFallback
+          nodes={map.nodes.filter(node => visibleNodeIds.has(node.id))}
+          zones={map.zones}
+          selectedNodeId={selectedNodeId}
+          reason={mapFallbackReason}
+          onSelectNode={handleNavigateToNode}
+          onEnable3d={() => {
+            setMapFallbackReason('user_selected');
+            setMapPresentationMode('three_dimensional');
+          }}
+        />
+      )}
+    </>
+  );
+
+  const renderMobileShell = () => {
+    const selectedNodeTitle = selectedNode?.title ?? 'Карточка узла';
+    const shouldRenderMap = mobileView === 'map' || mobileView === 'settings' || isImmersive;
+
+    return (
+      <div className="flex min-h-0 flex-1 flex-col" data-testid="mobile-map-shell">
+        {!isImmersive && (
+          <header className="min-h-14 shrink-0 border-b border-cyan-900/40 bg-[#080808] px-3 py-2 flex items-center justify-between gap-2" data-testid="mobile-map-header">
+            <div className="flex min-w-0 items-center gap-2">
+              {mobileView !== 'map' ? (
+                <button
+                  type="button"
+                  onClick={handleNavigateBack}
+                  className="min-h-10 min-w-10 inline-flex items-center justify-center rounded-md border border-cyan-900/60 bg-cyan-950/30 text-cyan-300"
+                  aria-label="Назад"
+                >
+                  <ArrowLeft size={18} />
+                </button>
+              ) : (
+                <div className="w-2.5 h-2.5 shrink-0 bg-cyan-400 rounded-full animate-pulse shadow-[0_0_12px_#22d3ee]" />
+              )}
+              <div className="min-w-0">
+                <h1 className="truncate text-xs font-extrabold uppercase tracking-[0.16em] text-cyan-300">RICIS-III</h1>
+                <p className="text-[9px] font-mono text-slate-500">
+                  {mobileView === 'details' ? selectedNodeTitle : mobileView === 'menu' ? 'Навигация и действия' : mobileView === 'settings' ? 'Настройки' : '3D Singularity Map'}
+                </p>
+              </div>
+            </div>
+            <div className="flex shrink-0 items-center gap-1.5">
+              <span className={`hidden xs:inline-flex items-center gap-1 rounded-full border px-2 py-1 text-[9px] font-mono ${coreStatusPresentation.className}`} title={coreStatusPresentation.label}>
+                <span className={`h-1.5 w-1.5 rounded-full ${coreStatusPresentation.dotClassName}`} />
+                CORE
+              </span>
+              <LanguageToggle />
+              <button
+                type="button"
+                onClick={() => (mobileView === 'menu' ? handleNavigateBack() : openMobileView('menu'))}
+                className="min-h-10 min-w-10 inline-flex items-center justify-center rounded-md border border-cyan-800/70 bg-cyan-950/60 text-cyan-100"
+                aria-label={mobileView === 'menu' ? 'Вернуться к карте' : 'Открыть меню'}
+              >
+                {mobileView === 'menu' ? <MapIcon size={17} /> : <Menu size={18} />}
+              </button>
+            </div>
+          </header>
+        )}
+
+        {shouldRenderMap && (
+          <section className={`mobile-map-layout min-h-0 flex-1 ${isImmersive ? 'mobile-map-layout--immersive' : ''}`} data-testid="mobile-map-layout">
+            <div
+              ref={sceneContainerRef}
+              onPointerUp={handleScenePointerUp}
+              className="mobile-map-layout__viewport relative min-h-0 overflow-hidden bg-[radial-gradient(circle_at_center,_#0a0f1a_0%,_#050505_100%)]"
+              data-testid="mobile-map-viewport"
+            >
+              {renderMapScene()}
+              <div className="mobile-map-layout__quickbar pointer-events-none absolute inset-x-3 bottom-3 z-20 flex items-center justify-between gap-2">
+                <div className="pointer-events-auto flex items-center gap-1.5 rounded-xl border border-cyan-900/60 bg-black/70 p-1.5 shadow-xl backdrop-blur-sm">
+                  <button type="button" onClick={handleZoomOut} className="min-h-10 min-w-10 rounded-lg text-cyan-200 hover:bg-cyan-950/70" aria-label="Уменьшить масштаб">−</button>
+                  <button type="button" onClick={handleResetCamera} className="min-h-10 min-w-10 rounded-lg text-cyan-200 hover:bg-cyan-950/70" aria-label="Сбросить вид"><Crosshair size={16} /></button>
+                  <button type="button" onClick={handleZoomIn} className="min-h-10 min-w-10 rounded-lg text-cyan-200 hover:bg-cyan-950/70" aria-label="Увеличить масштаб">+</button>
+                </div>
+                <div className="pointer-events-auto flex items-center gap-1.5 rounded-xl border border-cyan-900/60 bg-black/70 p-1.5 shadow-xl backdrop-blur-sm">
+                  <button
+                    type="button"
+                    onClick={() => void toggleSensorMode()}
+                    className={`min-h-10 min-w-10 rounded-lg inline-flex items-center justify-center ${sensorModeEnabled ? 'bg-emerald-900/70 text-emerald-200' : 'text-cyan-200 hover:bg-cyan-950/70'}`}
+                    aria-pressed={sensorModeEnabled}
+                    aria-label={sensorModeEnabled ? 'Отключить управление наклоном' : 'Включить управление наклоном'}
+                  >
+                    <Compass size={16} />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => void toggleImmersiveCanvas(sceneContainerRef.current)}
+                    className="min-h-10 min-w-10 rounded-lg inline-flex items-center justify-center text-cyan-200 hover:bg-cyan-950/70"
+                    aria-label={isImmersive ? 'Выйти из полноэкранного режима' : 'Развернуть 3D на полный экран'}
+                  >
+                    {isImmersive ? <Minimize2 size={16} /> : <Maximize2 size={16} />}
+                  </button>
+                </div>
+              </div>
+              {isImmersive && (
+                <button
+                  type="button"
+                  onClick={() => void exitImmersiveCanvas()}
+                  className="absolute left-3 top-3 z-30 min-h-11 rounded-lg border border-cyan-700/70 bg-black/70 px-3 text-xs font-bold text-cyan-200 backdrop-blur-sm"
+                >
+                  Выйти
+                </button>
+              )}
+              {!isImmersive && mapPresentationMode === 'three_dimensional' && (
+                <p className="pointer-events-none absolute left-3 top-3 z-20 rounded-md border border-cyan-950/80 bg-black/55 px-2 py-1 text-[9px] font-mono text-cyan-200/80">
+                  Двойное касание — полный экран
+                </p>
+              )}
+            </div>
+
+            {!isImmersive && (
+              <div className="min-h-0 overflow-y-auto border-t border-cyan-900/40 bg-[#070707] p-3 touch-pan-y">
+                <div className="mb-3 flex items-center justify-between gap-2">
+                  <div>
+                    <p className="text-[10px] font-bold uppercase tracking-wider text-cyan-300">Карта</p>
+                    <p className="text-[10px] text-slate-500">{map.nodes.length} узлов · {availability.available} доступны</p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (mapPresentationMode === 'three_dimensional') {
+                        setMapFallbackReason('user_selected');
+                        setMapPresentationMode('accessible_list');
+                      } else {
+                        setMapPresentationMode('three_dimensional');
+                      }
+                    }}
+                    className="min-h-10 rounded-lg border border-cyan-800/70 bg-cyan-950/50 px-3 text-[10px] font-bold text-cyan-100 inline-flex items-center gap-1.5"
+                    aria-pressed={mapPresentationMode === 'accessible_list'}
+                  >
+                    {mapPresentationMode === 'three_dimensional' ? <List size={14} /> : <MapIcon size={14} />}
+                    {mapPresentationMode === 'three_dimensional' ? 'Список' : '3D'}
+                  </button>
+                </div>
+                {sensorNotice && (
+                  <p className={`mb-3 rounded-lg border px-3 py-2 text-[10px] leading-relaxed ${sensorModeEnabled ? 'border-emerald-900/60 bg-emerald-950/30 text-emerald-200' : 'border-cyan-900/60 bg-cyan-950/30 text-cyan-200'}`}>
+                    {sensorNotice}
+                  </p>
+                )}
+                <button
+                  type="button"
+                  onClick={() => openMobileView('menu')}
+                  className="min-h-12 w-full rounded-lg border border-cyan-800/80 bg-cyan-950/50 px-4 text-left text-xs font-bold text-cyan-100 flex items-center justify-between"
+                >
+                  <span>Меню: поиск, карточки и настройки</span><Menu size={17} />
+                </button>
+              </div>
+            )}
+          </section>
+        )}
+
+        {mobileView === 'menu' && !isImmersive && (
+          <main className="min-h-0 flex-1 overflow-y-auto bg-[#070707] p-3 touch-pan-y" data-testid="mobile-menu-screen">
+            <div className="space-y-3">
+              <label className="flex items-center gap-2 rounded-lg border border-cyan-900/50 bg-[#050810] px-3 py-2.5">
+                <Search size={16} className="shrink-0 text-cyan-400" />
+                <input
+                  type="search"
+                  placeholder={t('search.placeholder')}
+                  value={searchQuery}
+                  onChange={event => setSearchQuery(event.target.value)}
+                  className="min-w-0 flex-1 bg-transparent text-sm text-slate-100 outline-none placeholder:text-slate-500"
+                />
+                {searchQuery && <span className="text-[10px] font-mono text-cyan-300">{searchMatchCount}</span>}
+              </label>
+
+              <div className="grid grid-cols-1 gap-2">
+                <button type="button" onClick={openMobileSettings} className="min-h-12 rounded-lg border border-neutral-700 bg-neutral-900/70 px-3 text-left text-xs font-bold text-slate-100 inline-flex items-center gap-2"><Settings size={16} className="text-cyan-400" /> Настройки интерфейса и физики</button>
+                <button type="button" onClick={() => void toggleSensorMode()} className="min-h-12 rounded-lg border border-neutral-700 bg-neutral-900/70 px-3 text-left text-xs font-bold text-slate-100 inline-flex items-center gap-2"><Compass size={16} className={sensorModeEnabled ? 'text-emerald-400' : 'text-cyan-400'} /> {sensorModeEnabled ? 'Отключить управление наклоном' : 'Включить управление наклоном'}</button>
+                <button type="button" disabled={!selectedNode} onClick={() => selectedNode && openMobileView('details')} className="min-h-12 rounded-lg border border-neutral-700 bg-neutral-900/70 px-3 text-left text-xs font-bold text-slate-100 inline-flex items-center gap-2 disabled:cursor-not-allowed disabled:opacity-40"><Layers size={16} className="text-cyan-400" /> {selectedNode ? `Открыть: ${selectedNode.title}` : 'Выберите узел на карте'}</button>
+                <button type="button" onClick={() => setShowAddNode(true)} className="min-h-12 rounded-lg border border-emerald-800/70 bg-emerald-950/40 px-3 text-left text-xs font-bold text-emerald-100 inline-flex items-center gap-2"><Plus size={16} /> {t('filter.addNewTask')}</button>
+                <button type="button" onClick={checkCoreRuntime} disabled={isCheckingCoreRuntime} className="min-h-12 rounded-lg border border-violet-800/70 bg-violet-950/30 px-3 text-left text-xs font-bold text-violet-100 inline-flex items-center gap-2 disabled:opacity-50"><Cpu size={16} /> {isCheckingCoreRuntime ? t('core.status.checking') : 'Проверить RICIS Core'}</button>
+              </div>
+
+              <section className="rounded-lg border border-neutral-800 bg-neutral-950/50 p-3">
+                <div className="mb-2 flex items-center justify-between"><h2 className="text-[10px] font-bold uppercase tracking-wider text-slate-300">Найденные узлы</h2><span className="text-[10px] font-mono text-slate-500">{searchMatchCount}</span></div>
+                <div className="space-y-1">
+                  {map.nodes.filter(node => visibleNodeIds.has(node.id)).slice(0, 24).map(node => (
+                    <button key={node.id} type="button" onClick={() => handleNavigateToNode(node.id)} className="w-full rounded-md px-2 py-2 text-left text-xs text-slate-300 hover:bg-cyan-950/40 hover:text-cyan-100">
+                      <span className="block truncate font-semibold">{node.title}</span>
+                      <span className="block truncate text-[10px] text-slate-500">{map.zones.find(zone => zone.id === node.zoneIds[0])?.name ?? node.zoneIds[0]}</span>
+                    </button>
+                  ))}
+                  {searchMatchCount > 24 && <p className="px-2 pt-2 text-[10px] text-slate-500">Уточните запрос, чтобы сузить список.</p>}
+                </div>
+              </section>
+            </div>
+          </main>
+        )}
+
+        {mobileView === 'details' && selectedNode && !isImmersive && (
+          <main className="min-h-0 flex-1 overflow-y-auto bg-[#070707] p-3 touch-pan-y" data-testid="mobile-details-screen">
+            <article className="rounded-xl border border-cyan-900/60 bg-black/70 p-3 shadow-xl">
+              <div className="mb-3 flex items-start justify-between gap-3 border-b border-cyan-900/30 pb-3">
+                <div className="min-w-0"><p className="text-[9px] font-mono text-cyan-500">ID: {selectedNode.id}</p><h2 className="mt-1 text-sm font-bold leading-tight text-white">{selectedNode.title}</h2></div>
+                <button type="button" onClick={handleNavigateBack} className="min-h-10 shrink-0 rounded-md border border-cyan-800/70 bg-cyan-950/50 px-3 text-xs font-bold text-cyan-100 inline-flex items-center gap-1"><ArrowLeft size={14} /> Назад</button>
+              </div>
+              <NodeCardDetails node={selectedNode} map={map} isExpanded={true} onEdit={() => setEditingNode(selectedNode)} onNavigateToNode={handleNavigateToNode} />
+              <ActionButton
+                onClick={() => handleSolve(selectedNode.id)}
+                isLoading={isSolving}
+                isDisabled={!isNodeAvailable(selectedNode, map) && selectedNode.state !== 'resolved'}
+                variant="cyan"
+                className="mt-4 w-full py-3 text-[11px] font-bold uppercase tracking-wider"
+              >
+                {selectedNode.state === 'resolved' ? 'Перерассчитать RICIS-решение' : 'Запустить RICIS-решение'}
+              </ActionButton>
+            </article>
+          </main>
+        )}
+      </div>
+    );
+  };
+
   return (
-    <div className="w-full h-screen bg-[#050505] text-[#e0e0e0] font-sans overflow-hidden flex flex-col">
+    <div className={`w-full bg-[#050505] text-[#e0e0e0] font-sans overflow-hidden flex flex-col ${isImmersive ? 'fixed inset-0 z-[100] h-[100dvh]' : 'h-screen'}`}>
+      {isMobileLayout ? renderMobileShell() : (
+        <>
       <header className="min-h-16 border-b border-cyan-900/40 bg-[#080808] flex items-center justify-between gap-2 px-3 py-2 sm:px-6 shrink-0 z-20">
         <div className="flex min-w-0 items-center gap-2 sm:gap-4">
           <div className="w-3.5 h-3.5 bg-cyan-400 rounded-full animate-pulse shadow-[0_0_12px_#22d3ee]" />
@@ -1340,132 +1792,7 @@ export const Map3D: React.FC = () => {
 
         <div className="order-1 relative flex min-h-0 flex-1 flex-col bg-[radial-gradient(circle_at_center,_#0a0f1a_0%,_#050505_100%)] md:order-2">
           <div className="relative h-[42dvh] min-h-[16rem] shrink-0 md:h-auto md:min-h-0 md:flex-1">
-          {mapPresentationMode === 'three_dimensional' ? (
-          <MapCanvasErrorBoundary
-            key="three-dimensional-map"
-            onRenderFailure={() => {
-              setMapFallbackReason('render_failed');
-              setMapPresentationMode('accessible_list');
-            }}
-          >
-          <Canvas className="touch-none" camera={{ position: [0, 0, 32], fov: 55, far: 10000, near: 0.1 }} gl={{ antialias: true, alpha: true }}>
-            <UniverseSkybox radius={3200} />
-            <OrbitControls controlsRef={controlsRef} flightRef={flightRef} />
-            <CameraFlightRig flightRef={flightRef} controlsRef={controlsRef} />
-            <ambientLight intensity={0.22} />
-            <hemisphereLight args={['#1e3a5f', '#050508', 0.55]} />
-            <pointLight position={[18, 22, 14]} intensity={1.35} color="#e8f4ff" distance={80} />
-            <pointLight position={[-16, -8, 12]} intensity={0.85} color="#67e8f9" distance={70} />
-            <pointLight position={[8, -14, -18]} intensity={0.55} color="#a78bfa" distance={60} />
-            <pointLight position={[0, 28, 0]} intensity={0.45} color="#ffffff" distance={90} />
-            <spotLight position={[12, 30, 8]} angle={0.45} penumbra={0.6} intensity={0.7} color="#cffafe" />
-
-            {map.zones.filter(z => visibleZoneIds.has(z.id)).map(zone => {
-              const pos = zonePositions[zone.id] || [0, 0, 0];
-              const color = getZoneColor(zone.id);
-              const radius = zoneRadii[zone.id] || 5;
-              return (
-                <group key={zone.id}>
-                  <ZoneBubble position={pos} color={color} radius={radius} />
-                  <ZoneLabel position={pos} text={zone.name} radius={radius} color={color} />
-                </group>
-              );
-            })}
-
-            
-            {edgesLines}
-
-            {map.nodes.filter(n => visibleNodeIds.has(n.id)).map(node => {
-              const pos = nodePositions[node.id] || [0, 0, 0];
-              const isSelected = selectedNode?.id === node.id;
-              const isCore = isRicisCore(node);
-              const available = isNodeAvailable(node, map);
-              const onPath = pathSet.has(node.id);
-              const locked = !available && node.state !== 'resolved';
-
-              const isDeriv =
-                node.type === 'derivative_claim' || node.isDerivativeClaim === true;
-
-              const hasSorry = nodeHasSorry(node, map.proofs?.[node.id]);
-
-              let color = '#ef4444';
-              if (isDeriv) color = '#a855f7';
-              else if (node.state === 'resolved' && !isMissingTargetFunction(node) && !hasSorry) color = '#22c55e';
-              else if (node.state === 'partial' || isMissingTargetFunction(node) || hasSorry) color = '#eab308';
-              else if (locked) color = '#6b7280';
-              if (onPath && !isDeriv) color = locked ? '#94a3b8' : '#22d3ee';
-
-              const baseR = nodeVisualRadius(node, map.nodes);
-              const radius = isSelected ? baseR * 1.28 : onPath ? baseR * 1.12 : isDeriv ? baseR * 1.15 : baseR;
-              const emissive = isSelected
-                ? '#22d3ee'
-                : isDeriv
-                  ? '#7e22ce'
-                  : onPath
-                    ? '#0891b2'
-                    : isCore
-                      ? '#155e75'
-                      : color;
-              const emissiveIntensity = isSelected
-                ? 0.65
-                : isDeriv
-                  ? 0.55
-                  : onPath
-                    ? 0.45
-                    : isCore
-                      ? 0.35
-                      : locked
-                        ? 0.08
-                        : 0.22;
-
-              return (
-                <group key={node.id} 
-                  onPointerOver={e => {
-                    e.stopPropagation();
-                    hoveredNodePos = new THREE.Vector3(pos[0], pos[1], pos[2]);
-                  }}
-                  onPointerOut={e => {
-                    hoveredNodePos = null;
-                  }}
-                >
-                  <NodeBubble
-                    position={pos}
-                    color={color}
-                    radius={radius}
-                    emissive={emissive}
-                    emissiveIntensity={emissiveIntensity}
-                    opacity={locked ? 0.5 : 0.92}
-                    locked={locked}
-                    onClick={e => {
-                      e.stopPropagation();
-                      handleNavigateToNode(node.id);
-                    }}
-                  />
-                  <NodeLabel
-                    position={pos}
-                    text={node.title}
-                    subtitle={map.zones.find(z => z.id === node.zoneIds[0])?.name || node.zoneIds[0]}
-                    valueText={formatCurrency(node.economic?.marketGain)}
-                    offsetY={radius + 0.35}
-                  />
-                </group>
-              );
-            })}
-          </Canvas>
-          </MapCanvasErrorBoundary>
-          ) : (
-            <AccessibleMapFallback
-              nodes={map.nodes.filter(node => visibleNodeIds.has(node.id))}
-              zones={map.zones}
-              selectedNodeId={selectedNodeId}
-              reason={mapFallbackReason}
-              onSelectNode={(nodeId) => setSelectedNodeId(nodeId)}
-              onEnable3d={() => {
-                setMapFallbackReason('user_selected');
-                setMapPresentationMode('three_dimensional');
-              }}
-            />
-          )}
+          {renderMapScene()}
           </div>
 
           {selectedNode && (
@@ -1677,6 +2004,8 @@ export const Map3D: React.FC = () => {
           )}
         </div>
       </main>
+        </>
+      )}
 
       {showAddNode && (
         <AddNodeModal onClose={() => setShowAddNode(false)} parentId={selectedNodeId || undefined} />
@@ -1684,7 +2013,7 @@ export const Map3D: React.FC = () => {
       {showSettings && (
         <SettingsModal
           isOpen={showSettings}
-          onClose={() => setShowSettings(false)}
+          onClose={closeSettings}
           currentRoleId={currentRole.id}
           roles={roles}
           onSelectRole={switchRole}

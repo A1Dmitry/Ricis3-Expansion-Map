@@ -167,3 +167,39 @@
   display: none;
 }
 
+
+/* Independent mobile map shell: portrait is vertically staged, while a short landscape
+   screen reserves a scrollable control column beside the 3D viewport. */
+.mobile-map-layout {
+  display: grid;
+  grid-template-rows: minmax(18rem, 56dvh) minmax(0, 1fr);
+}
+
+@media ((max-width: 767px) or ((pointer: coarse) and (max-width: 1023px))) and (orientation: landscape) {
+  .mobile-map-layout {
+    grid-template-columns: minmax(0, 1.35fr) minmax(17rem, 0.65fr);
+    grid-template-rows: minmax(0, 1fr);
+  }
+
+  .mobile-map-layout__viewport {
+    min-height: 0;
+  }
+
+  .mobile-map-layout__quickbar {
+    position: absolute;
+    top: 0.75rem;
+    right: 0.75rem;
+    flex-direction: column;
+    align-items: end;
+  }
+}
+
+.mobile-map-layout--immersive {
+  grid-template-rows: minmax(0, 1fr);
+}
+
+@media ((max-width: 767px) or ((pointer: coarse) and (max-width: 1023px))) and (orientation: landscape) {
+  .mobile-map-layout--immersive {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

@@ -18,4 +18,20 @@ describe('Map3D mobile graph layout contract', () => {
     expect(mapSource).toContain('<Canvas className="touch-none"');
     expect(mapSource).toContain('touch-pan-y md:order-1');
   });
+
+  it('keeps a distinct mobile shell with screen-stack menu navigation and a separate details screen', () => {
+    expect(mapSource).toContain('const renderMobileShell = () =>');
+    expect(mapSource).toContain('data-testid="mobile-map-shell"');
+    expect(mapSource).toContain('data-testid="mobile-menu-screen"');
+    expect(mapSource).toContain('data-testid="mobile-details-screen"');
+    expect(mapSource).toContain("openMobileView('menu')");
+    expect(mapSource).toContain("openMobileView('settings')");
+    expect(mapSource).toContain("openMobileView('details')");
+  });
+
+  it('uses the portrait/landscape mobile layout class and fullscreen-aware viewport interaction', () => {
+    expect(mapSource).toContain('mobile-map-layout');
+    expect(mapSource).toContain('onPointerUp={handleScenePointerUp}');
+    expect(mapSource).toContain('toggleImmersiveCanvas(sceneContainerRef.current)');
+  });
 });
