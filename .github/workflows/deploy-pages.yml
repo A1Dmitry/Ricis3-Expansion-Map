@@ -19,31 +19,40 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7.0.1
 
       - name: Setup Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7.0.0
         with:
-          node-version: '22'
+          node-version: '22.23.2'
           cache: npm
+
+      - name: Setup npm
+        run: npm install --global npm@12.0.2 && npm --version
 
       - name: Configure GitHub Pages
         id: pages
-        uses: actions/configure-pages@v5
+        uses: actions/configure-pages@v6.0.0
         with:
           enablement: true
 
       - name: Install dependencies
         run: npm ci
 
+      - name: Verify release alignment and TypeScript
+        run: npm run release:check && npm run lint
+
+      - name: Run test suite
+        run: npm test
+
       - name: Build static site
         env:
           GITHUB_PAGES: 'true'
-        # Only Vite client bundle for Pages (server is not deployed to Pages)
+        # Pages receives only the Vite client bundle; the Express server is not deployed.
         run: npx vite build
 
       - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
+        uses: actions/upload-pages-artifact@v5.0.0
         with:
           path: dist
 
@@ -56,4 +65,4 @@ jobs:
     steps:
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v5.0.0

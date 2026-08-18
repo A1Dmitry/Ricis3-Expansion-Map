@@ -385,3 +385,19 @@ Supervisor теперь выбирает bundled DLL первым способо
 Проверки: `npm run lint`, полный `npm test`, `npm run build`, `npm audit --audit-level=moderate` и `git diff --check` завершились успешно.
 
 ---
+
+## 2026-08-18 — Release alignment и modern-stack migration (v0.4.9)
+
+`package.json.version`, `package-lock.json`, `src/version.ts`, активная шапка README и текущие release-артефакты синхронизированы на `0.4.9`. Исторические номера сохранены только в хронологических записях; для `structural-hash-report.md` явно разделены версия формата отчёта `0.1.0` и релиз приложения `0.4.9`.
+
+Добавлены `tools/syncVersion.ts` и `tools/releaseConsistency.test.ts`. Первый инструмент генерирует `src/version.ts` исключительно из `package.json`; второй проверяет SemVer, runtime label, lockfile, активные документы, отсутствие конкурирующего lockfile, Node runtime и точные GitHub Actions refs. Новый `npm run release:check` включён в `build` и GitHub Pages workflow.
+
+Зависимости обновлены согласованными группами: React/React DOM `19.2.8`, React Three Fiber `9.7.0`, Three `0.185.1`, Express `5.2.1`, Lucide `1.31.0`, их актуальные типы и TypeScript `5.9.3`. TypeScript `7.0.2` был проверен, но не совместим с используемым compiler API в `tools/structuralHashAnalyzer.ts`; поэтому сохранён последний совместимый стабильный API-релиз ветки 5.x, а не применён некорректный major upgrade.
+
+`bun.lock` удалён: проект использует только npm и `package-lock.json`. Добавлены `.nvmrc`, `packageManager`, `engines` и CI runtime: Node `22.23.2`, npm `12.0.2`. Pages workflow обновлён на проверенные актуальные GitHub Actions releases: `checkout@v7.0.1`, `setup-node@v7.0.0`, `configure-pages@v6.0.0`, `upload-pages-artifact@v5.0.0`, `deploy-pages@v5.0.0`.
+
+Проверки в точно воспроизведённой среде Node `22.23.2` / npm `12.0.2`: чистый `npm ci`, `npm run release:check` (9 tests), `npm run lint`, полный `npm test` (118 tests), `npm run build` и `npm audit --audit-level=moderate` завершились успешно; audit сообщил `0 vulnerabilities`. `npm ls three` подтвердил один deduplicated экземпляр Three `0.185.1`. Vite сообщает только не-блокирующие предупреждения о размере client chunk и ineffective dynamic import; они не относятся к версии, trust boundary или RICIS-вычислениям.
+
+**Статус:** релизный контур согласован, CI больше не зависит от Actions с Node 20 runtime, а возврат к устаревшим активным ссылкам блокируется автоматической проверкой.
+
+---
