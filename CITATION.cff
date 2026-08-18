@@ -1,0 +1,20 @@
+cff-version: 1.2.0
+message: "If you use RICIS3-Expansion-Map, please cite this software version."
+title: "RICIS3-Expansion-Map"
+type: software
+version: 0.4.10
+date-released: 2026-08-18
+authors:
+  - family-names: Aleinikov
+    given-names: Dmitry
+    orcid: "https://orcid.org/0009-0004-3226-7700"
+repository-code: "https://github.com/A1Dmitry/Ricis3-Expansion-Map"
+url: "https://a1dmitry.github.io/Ricis3-Expansion-Map/"
+license: MIT
+abstract: "Interactive RICIS-III singularity research map with explicit proof-trust boundaries, Lean provenance and Ricis.Core integration."
+keywords:
+  - RICIS-III
+  - singularity
+  - formal verification
+  - Lean 4
+  - research software

@@ -401,3 +401,16 @@ Supervisor теперь выбирает bundled DLL первым способо
 **Статус:** релизный контур согласован, CI больше не зависит от Actions с Node 20 runtime, а возврат к устаревшим активным ссылкам блокируется автоматической проверкой.
 
 ---
+
+---
+
+## 2026-08-18 — Автономное восстановление публичного приложения v0.4.10
+
+- **P-01 / P-07: Pages delivery.** Подтверждена причина пустого экрана: production HTML приложения `Ricis3-Expansion-Map` ссылался на assets по устаревшему base path `/RICIS3-Expansion/`, который возвращал HTTP 404. `vite.config.ts` переведён на единственный канонический path `/Ricis3-Expansion-Map/`; release-check теперь блокирует возврат старого slug и неверной demo-ссылки.
+- **P-08: доступный пользовательский путь.** Добавлен семантический `AccessibleMapFallback`: он показывает те же отфильтрованные узлы, научные зоны и выбор задачи без WebGL. 3D Canvas защищён error boundary, а переключатель «Режим списка» доступен каждому пользователю.
+- **P-02 / P-04: честная proof boundary.** Добавлен единый `ProofTrustBadge`. `resolved` workflow state, RICIS chain validation и совпадение цели `proveSystem` больше не отображаются как Lean kernel verification или Q.E.D. без доказательств. Lean viewer не синтезирует theorem и не заявляет kernel check; external Lean source/evidence остаются единственными основаниями `LEAN_VERIFIED` / `TRUSTED_AXIOM`.
+- **QA / TypeScript.** Добавлены unit-тесты trust presenter и source-level regression тест boundary. Полный изолированный прогон: `release:check` — 12 assertions, `npm run lint` — успешно, `npm test` — 22 files / 129 tests, Vite Pages build — успешно с каноническими asset URLs, `npm audit --audit-level=moderate` — 0 vulnerabilities. Предупреждение bundle analyzer о chunk > 500 kB зафиксировано как performance backlog, не как build failure.
+- **Research software packaging.** Добавлены `CITATION.cff`, `CONTRIBUTING.md`, `SECURITY.md`; package metadata содержит MIT license, repository, Pages homepage, issue tracker и keywords. GitHub profile обновлён описанием, homepage и topics `ricis-iii`, `formal-verification`, `lean4`, `singularity`, `research-software`.
+- **Lean boundary.** В этом изменении не повышался ни один статус Lean. Минимальный A6 artifact и прежние evidence остаются отдельными от UI/CI TypeScript проверок согласно P-04.
+
+**Статус:** функциональное восстановление и quality gate завершены локально в изолированном Node 22.23.2 / npm 12.0.2 workspace; публикация и проверка GitHub Pages — следующий шаг.

@@ -53,6 +53,7 @@ import { UrlShareService } from '../services/UrlShareService';
 import { AVAILABLE_GEMINI_MODELS } from '../model/modelPool.types';
 import { useI18nStore } from '../store/useI18nStore';
 import { LanguageToggle } from './LanguageToggle';
+import { AccessibleMapFallback } from './AccessibleMapFallback';
 
 const UI_ELEMENTS = [
   { id: 'actions', label: 'Быстрые действия' },
@@ -233,6 +234,39 @@ function nodeMatchesQuery(n: ProblemNode, q: string, hiddenZones: Set<string>, s
   );
 }
 
+type MapPresentationMode = 'three_dimensional' | 'accessible_list';
+type MapFallbackReason = 'unsupported' | 'render_failed' | 'user_selected';
+
+function supportsWebGL(): boolean {
+  if (typeof window === 'undefined') return false;
+
+  try {
+    const canvas = document.createElement('canvas');
+    return Boolean(canvas.getContext('webgl2') || canvas.getContext('webgl'));
+  } catch {
+    return false;
+  }
+}
+
+class MapCanvasErrorBoundary extends React.Component<
+  React.PropsWithChildren<{ readonly onRenderFailure: () => void }>,
+  { readonly hasError: boolean }
+> {
+  public state = { hasError: false };
+
+  public static getDerivedStateFromError(): { hasError: boolean } {
+    return { hasError: true };
+  }
+
+  public componentDidCatch(): void {
+    this.props.onRenderFailure();
+  }
+
+  public render(): React.ReactNode {
+    return this.state.hasError ? null : this.props.children;
+  }
+}
+
 export const Map3D: React.FC = () => {
   const { t } = useI18nStore();
   const toggleTerminal = useTerminalStore(s => s.toggleTerminal);
@@ -248,6 +282,12 @@ export const Map3D: React.FC = () => {
 
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(() => {
     return initialUrlParams.initialNodeId || initialSavedFilters?.selectedNodeId || null;
+  });
+  const [mapPresentationMode, setMapPresentationMode] = useState<MapPresentationMode>(() => {
+    return supportsWebGL() ? 'three_dimensional' : 'accessible_list';
+  });
+  const [mapFallbackReason, setMapFallbackReason] = useState<MapFallbackReason>(() => {
+    return supportsWebGL() ? 'user_selected' : 'unsupported';
   });
   const [navigationStack, setNavigationStack] = useState<string[]>([]);
   const [hiddenZones, setHiddenZones] = useState<Set<string>>(() => {
@@ -845,6 +885,22 @@ export const Map3D: React.FC = () => {
           <LanguageToggle />
           <button
             type="button"
+            onClick={() => {
+              if (mapPresentationMode === 'three_dimensional') {
+                setMapFallbackReason('user_selected');
+                setMapPresentationMode('accessible_list');
+              } else {
+                setMapPresentationMode('three_dimensional');
+              }
+            }}
+            className="bg-cyan-950/60 hover:bg-cyan-900/70 border border-cyan-800/70 text-cyan-100 font-bold text-xs px-3.5 py-1.5 rounded-md transition-all cursor-pointer flex items-center gap-1.5 uppercase tracking-wider"
+            aria-pressed={mapPresentationMode === 'accessible_list'}
+            title="Переключить между 3D-картой и доступным списком"
+          >
+            <Layers size={14} /> {mapPresentationMode === 'three_dimensional' ? 'Режим списка' : '3D-карта'}
+          </button>
+          <button
+            type="button"
             onClick={() => setShowSettings(true)}
             className="bg-neutral-800 hover:bg-neutral-700 border border-neutral-700 text-slate-200 font-bold text-xs px-3.5 py-1.5 rounded-md shadow-[0_0_12px_rgba(255,255,255,0.05)] transition-all cursor-pointer flex items-center gap-1.5 uppercase tracking-wider"
           >
@@ -1200,6 +1256,14 @@ export const Map3D: React.FC = () => {
         </aside>
 
         <div className="flex-1 relative bg-[radial-gradient(circle_at_center,_#0a0f1a_0%,_#050505_100%)]">
+          {mapPresentationMode === 'three_dimensional' ? (
+          <MapCanvasErrorBoundary
+            key="three-dimensional-map"
+            onRenderFailure={() => {
+              setMapFallbackReason('render_failed');
+              setMapPresentationMode('accessible_list');
+            }}
+          >
           <Canvas camera={{ position: [0, 0, 32], fov: 55, far: 10000, near: 0.1 }} gl={{ antialias: true, alpha: true }}>
             <UniverseSkybox radius={3200} />
             <OrbitControls controlsRef={controlsRef} flightRef={flightRef} />
@@ -1304,6 +1368,20 @@ export const Map3D: React.FC = () => {
               );
             })}
           </Canvas>
+          </MapCanvasErrorBoundary>
+          ) : (
+            <AccessibleMapFallback
+              nodes={map.nodes.filter(node => visibleNodeIds.has(node.id))}
+              zones={map.zones}
+              selectedNodeId={selectedNodeId}
+              reason={mapFallbackReason}
+              onSelectNode={(nodeId) => setSelectedNodeId(nodeId)}
+              onEnable3d={() => {
+                setMapFallbackReason('user_selected');
+                setMapPresentationMode('three_dimensional');
+              }}
+            />
+          )}
 
           {selectedNode && (
             <div className={`absolute top-6 right-6 ${isNodeExpanded ? 'w-[640px]' : 'w-[26rem]'} bg-black/80 backdrop-blur-md border border-cyan-500/30 rounded-lg p-5 shadow-2xl pointer-events-auto max-h-[90%] overflow-y-auto transition-all duration-300`}>

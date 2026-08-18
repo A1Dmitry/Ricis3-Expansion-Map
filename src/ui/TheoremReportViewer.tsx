@@ -20,7 +20,7 @@ export function TheoremReportViewer({ proof, className = '' }: TheoremReportView
       'ШАГИ ДОКАЗАТЕЛЬСТВА:',
       ...proof.steps.map(s => `[${s.stepNumber}] ${s.phase} (${s.justificationAxiom}): ${s.statement}\n    ${s.mathematicalForm}`),
       '',
-      `ИТОГ: ${proof.conclusionInvariant} (Q.E.D.)`
+      `ИТОГ: ${proof.conclusionInvariant} (локальный RICIS-результат; Lean kernel evidence требуется отдельно)`
     ];
 
     navigator.clipboard.writeText(lines.join('\n')).then(() => {
@@ -82,7 +82,8 @@ export function TheoremReportViewer({ proof, className = '' }: TheoremReportView
       {/* Steps List */}
       <div className="space-y-2 pt-1">
         <div className="text-[11px] text-slate-400 font-bold uppercase tracking-wider">
-          Шаги формального доказательства:
+                        Шаги локальной RICIS-цепочки:
+
         </div>
         {proof.steps.map((step) => (
           <div 
@@ -112,7 +113,7 @@ export function TheoremReportViewer({ proof, className = '' }: TheoremReportView
       <div className="mt-3 pt-2.5 border-t border-amber-900/40 flex items-center justify-between text-xs bg-amber-950/20 px-3 py-2 rounded-md border border-amber-800/40">
         <span className="text-amber-400 font-bold uppercase tracking-wider text-[11px] flex items-center gap-1.5">
           <CheckCircle2 size={15} />
-          Заключение (Q.E.D.):
+          Локальный результат (Lean kernel не запускался):
         </span>
         <span className="text-white font-mono font-bold text-sm px-3 py-0.5 bg-black border border-amber-500/80 rounded shadow-[0_0_10px_rgba(245,158,11,0.2)]">
           {proof.conclusionInvariant}

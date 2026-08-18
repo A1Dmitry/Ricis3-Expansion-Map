@@ -3,10 +3,14 @@ import react from '@vitejs/plugin-react';
 import path from 'path';
 import { defineConfig } from 'vite';
 
+/** Canonical repository path for the public GitHub Pages deployment. */
+const GITHUB_PAGES_BASE = '/Ricis3-Expansion-Map/';
+
 export default defineConfig(() => {
   return {
-    // Для GitHub Pages: https://a1dmitry.github.io/RICIS3-Expansion/
-    base: process.env.GITHUB_PAGES === 'true' ? '/RICIS3-Expansion/' : '/',
+    // GitHub Pages serves this repository at https://a1dmitry.github.io/Ricis3-Expansion-Map/.
+    // The release-consistency test guards this repository-slug contract.
+    base: process.env.GITHUB_PAGES === 'true' ? GITHUB_PAGES_BASE : '/',
     plugins: [react(), tailwindcss()],
     resolve: {
       alias: {

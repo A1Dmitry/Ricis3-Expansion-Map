@@ -136,14 +136,14 @@ export function RicisTerminalModal() {
 
   const handleSendToMap = (entry: typeof history[0]) => {
     const formula = entry.expression;
-    const invariant = entry.result?.finalInvariant || entry.formalProof?.conclusionInvariant || 'Точный инвариант O(1)';
+    const invariant = entry.result?.finalInvariant || entry.formalProof?.conclusionInvariant || 'Инвариант не установлен';
     const title = `Сингулярность: ${formula}`;
     
-    let description = `Формальное доказательство сингулярности ${formula} через аксиоматику RICIS-III.\n`;
+    let description = `Структурный RICIS-черновик для сингулярности ${formula}. Lean kernel evidence не приложен и требуется отдельно.\n`;
     if (entry.formalProof) {
       description += `Гипотеза: ${entry.formalProof.hypothesis}\n`;
       description += `Метод: ${entry.formalProof.method}\n`;
-      description += `Итоговый инвариант: ${entry.formalProof.conclusionInvariant} (Q.E.D.)`;
+      description += `Итоговый локальный инвариант: ${entry.formalProof.conclusionInvariant} (требуется Core/Lean evidence)`;
     } else if (entry.result?.steps) {
       description += `Шаги: ${entry.result.steps.map(s => `${s.title}: ${s.inputState} -> ${s.outputState}`).join(' | ')}`;
     }

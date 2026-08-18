@@ -6,6 +6,11 @@ import { describe, expect, it } from 'vitest';
 interface PackageManifest {
   readonly version: string;
   readonly packageManager?: string;
+  readonly license?: string;
+  readonly homepage?: string;
+  readonly bugs?: { readonly url?: string };
+  readonly repository?: { readonly type?: string; readonly url?: string };
+  readonly keywords?: readonly string[];
 }
 
 interface PackageLock {
@@ -40,7 +45,14 @@ const activeReleaseDocuments: readonly VersionedDocument[] = [
     path: 'artifacts/architecture/structural-hash-report.md',
     versionPattern: /\*\*Релиз приложения:\*\*\s*(\d+\.\d+\.\d+)/u,
   },
+  {
+    path: 'CITATION.cff',
+    versionPattern: /^version:\s*(\d+\.\d+\.\d+)\s*$/mu,
+  },
 ];
+
+const canonicalPagesBase = '/Ricis3-Expansion-Map/';
+const canonicalPagesUrl = `https://a1dmitry.github.io${canonicalPagesBase}`;
 
 const requiredActions: Readonly<Record<string, string>> = {
   'actions/checkout': 'v7.0.1',
@@ -100,6 +112,18 @@ describe('release alignment policy', () => {
     expect(existsSync(join(repositoryRoot, 'bun.lock'))).toBe(false);
   });
 
+  it('publishes complete research-software metadata', () => {
+    expect(packageManifest.license).toBe('MIT');
+    expect(packageManifest.homepage).toBe(canonicalPagesUrl);
+    expect(packageManifest.bugs?.url).toBe('https://github.com/A1Dmitry/Ricis3-Expansion-Map/issues');
+    expect(packageManifest.repository).toMatchObject({
+      type: 'git',
+      url: 'git+https://github.com/A1Dmitry/Ricis3-Expansion-Map.git',
+    });
+    expect(packageManifest.keywords).toEqual(expect.arrayContaining(['ricis-iii', 'formal-verification', 'lean4']));
+    expect(readText('CITATION.cff')).toContain('repository-code: "https://github.com/A1Dmitry/Ricis3-Expansion-Map"');
+  });
+
   it('uses Node 22 and currently supported GitHub Actions releases for Pages', () => {
     const workflow = readText('.github/workflows/deploy-pages.yml');
     expect(workflow).toMatch(/node-version:\s*['"]?22['"]?/u);
@@ -107,5 +131,15 @@ describe('release alignment policy', () => {
     for (const [action, version] of Object.entries(requiredActions)) {
       expect(workflow).toContain(`uses: ${action}@${version}`);
     }
+  });
+
+  it('uses the canonical repository slug for public Pages assets and the README demo', () => {
+    const viteConfig = readText('vite.config.ts');
+    const readme = readText('README.md');
+
+    expect(viteConfig).toContain(`const GITHUB_PAGES_BASE = '${canonicalPagesBase}'`);
+    expect(viteConfig).not.toContain('/RICIS3-Expansion/');
+    expect(readme).toContain(`(${canonicalPagesUrl})`);
+    expect(readme).not.toContain('https://a1dmitry.github.io/RICIS3-Expansion/');
   });
 });

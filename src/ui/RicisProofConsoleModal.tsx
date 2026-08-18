@@ -8,6 +8,7 @@ import {
   RicisProofVerificationResult,
   RicisAcademicProofResult
 } from '../services/ricisCore';
+import { APP_BUILD_LABEL } from '../version';
 import { X, Play, ShieldCheck, Cpu, BookOpen, Layers, CheckCircle2, AlertCircle, Sparkles, FileText } from 'lucide-react';
 
 interface RicisProofConsoleModalProps {
@@ -123,12 +124,15 @@ export const RicisProofConsoleModal: React.FC<RicisProofConsoleModalProps> = ({
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h2 className="text-sm font-bold tracking-wider text-slate-100 uppercase">RICIS-III v7.7 Proof & Singularity Engine</h2>
+                <h2 className="text-sm font-bold tracking-wider text-slate-100 uppercase">RICIS-III Proof & Singularity Console</h2>
+                <span className="text-[10px] px-2 py-0.5 rounded font-mono bg-cyan-950/60 border border-cyan-800/40 text-cyan-300">
+                  {APP_BUILD_LABEL}
+                </span>
                 <span className="text-[10px] px-2 py-0.5 rounded font-mono bg-cyan-950/60 border border-cyan-800/40 text-cyan-300">
                   {engine.status === 'ready_wasm' ? 'WASM C# Core' : 'TS Deterministic Engine'}
                 </span>
               </div>
-              <p className="text-[11px] text-slate-400 font-mono">Monolith Matrix, Geometric Bridge & Formal Proof Verification (O(1))</p>
+              <p className="text-[11px] text-slate-400 font-mono">Локальная RICIS-цепочка; Lean-статус требует отдельного воспроизводимого kernel evidence.</p>
             </div>
           </div>
           <button
@@ -348,7 +352,7 @@ export const RicisProofConsoleModal: React.FC<RicisProofConsoleModalProps> = ({
                           verificationResult.valid ? 'bg-emerald-950/60 text-emerald-300 border border-emerald-800/50' : 'bg-rose-950/60 text-rose-300 border border-rose-800/50'
                         }`}>
                           {verificationResult.valid ? <ShieldCheck className="w-4 h-4" /> : <AlertCircle className="w-4 h-4" />}
-                          {verificationResult.valid ? 'Аксиоматически верифицировано' : 'Сбой верификации'}
+                          {verificationResult.valid ? 'RICIS-цепочка согласована' : 'Сбой проверки цепочки'}
                         </div>
                       )}
                     </div>
@@ -375,13 +379,13 @@ export const RicisProofConsoleModal: React.FC<RicisProofConsoleModalProps> = ({
                       <div className="text-xs font-mono text-slate-300">
                         Итоговый инвариант теоремы: <span className="text-cyan-300 font-bold text-sm ml-1">{formalProof.conclusionInvariant}</span>
                       </div>
-                      <div className="text-xs font-mono text-emerald-400">Сложность: O(1) Exact</div>
+                      <div className="text-xs font-mono text-cyan-300">Локальный структурный результат</div>
                     </div>
 
                     {/* Lean 4 Snippet */}
                     {formalProof.lean4CodeSnippet && (
                       <div className="p-3 rounded bg-[#04060b] border border-neutral-800/80 font-mono text-xs space-y-1">
-                        <div className="text-[10px] text-slate-500 uppercase tracking-wider">Формальный код Lean 4 (RICIS3.Core)</div>
+                        <div className="text-[10px] text-amber-300 uppercase tracking-wider">Lean 4 source draft — отдельный kernel run обязателен</div>
                         <pre className="text-cyan-200 overflow-x-auto">{formalProof.lean4CodeSnippet}</pre>
                       </div>
                     )}
@@ -443,7 +447,7 @@ export const RicisProofConsoleModal: React.FC<RicisProofConsoleModalProps> = ({
                             ? 'bg-emerald-950 text-emerald-300 border border-emerald-800/60'
                             : 'bg-amber-950 text-amber-300 border border-amber-800/60'
                         }`}>
-                          {academicResult.academicStatus === 'QED_VERIFIED' ? '✓ Q.E.D. VERIFIED (Совпало с целью)' : '⚠ DISCREPANCY DETECTED'}
+                          {academicResult.academicStatus === 'QED_VERIFIED' ? '✓ Цель совпала в proveSystem; Lean kernel не подразумевается' : '⚠ Цель и локальный результат не совпали'}
                         </span>
                       </div>
                       <div className="text-xs font-mono text-cyan-400">

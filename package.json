@@ -1,8 +1,8 @@
 {
   "name": "ricis3-expansion",
   "private": false,
-  "version": "0.4.9",
-  "description": "RICIS-III Singularity Map",
+  "version": "0.4.10",
+  "description": "Interactive RICIS-III singularity research map with explicit proof-trust boundaries",
   "type": "module",
   "packageManager": "npm@12.0.2",
   "engines": {
@@ -45,5 +45,21 @@
     "typescript": "^5.9.3",
     "vite": "^8.2.1",
     "vitest": "^4.1.10"
-  }
+  },
+  "license": "MIT",
+  "homepage": "https://a1dmitry.github.io/Ricis3-Expansion-Map/",
+  "bugs": {
+    "url": "https://github.com/A1Dmitry/Ricis3-Expansion-Map/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/A1Dmitry/Ricis3-Expansion-Map.git"
+  },
+  "keywords": [
+    "ricis-iii",
+    "formal-verification",
+    "lean4",
+    "singularity",
+    "research-software"
+  ]
 }

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import type { ProblemNode } from '../model/types';
+import type { ProblemNode, Proof } from '../model/types';
 import { isMissingTargetFunction, nodeHasSorry } from '../model/audit';
 import { getUnlockedTargets, getUnlockRequirements } from '../model/access';
 import { ChevronDown, ChevronUp, ArrowLeft, ExternalLink, ShieldCheck, Sparkles, Lock, Unlock, BookOpen, DollarSign, Terminal, CheckCircle2, Share2, Check } from 'lucide-react';
@@ -9,6 +9,7 @@ import type { ITransformationLogDTO } from '../model/traceVisualizer.types';
 import { getRicisCoreEngine } from '../services/ricisCore';
 import { UrlShareService } from '../services/UrlShareService';
 import { useI18nStore } from '../store/useI18nStore';
+import { ProofTrustBadge } from './ProofTrustBadge';
 
 /** Normalize URL: add https:// if scheme is missing (www. or domain-like). */
 function normalizeUrl(raw: string): string {
@@ -145,6 +146,7 @@ export const NodeCardDetails: React.FC<Props> = ({
 }) => {
   const { t } = useI18nStore();
   const refs = getReferencesForNode(node);
+  const proof = map?.proofs?.[node.id] as Proof | undefined;
 
   // Стейт раскрытия секций аккордеона
   const [openSections, setOpenSections] = useState<Record<string, boolean>>({
@@ -452,35 +454,14 @@ export const NodeCardDetails: React.FC<Props> = ({
             {t('node.formalVerification')}
           </span>
           <div className="flex items-center gap-2">
-            {(() => {
-              const hasSorry = nodeHasSorry(node);
-              const isMissingTf = isMissingTargetFunction(node);
-              if (node.state === 'resolved' && !isMissingTf && !hasSorry) {
-                return (
-                  <span className="text-[8px] font-bold uppercase px-1.5 py-0.5 rounded bg-emerald-950/90 text-emerald-300 border border-emerald-700/60">
-                    QED Verified
-                  </span>
-                );
-              }
-              if (node.state === 'partial' || isMissingTf || hasSorry) {
-                return (
-                  <span className="text-[8px] font-bold uppercase px-1.5 py-0.5 rounded bg-yellow-950/90 text-yellow-300 border border-yellow-700/60">
-                    {hasSorry ? 'Sorry Stub' : 'Partial'}
-                  </span>
-                );
-              }
-              return (
-                <span className="text-[8px] font-bold uppercase px-1.5 py-0.5 rounded bg-neutral-900 text-slate-400 border border-neutral-700">
-                  Unresolved
-                </span>
-              );
-            })()}
+            <ProofTrustBadge node={node} proof={proof} />
             {openSections['verification'] ? <ChevronUp size={14} className="text-neutral-400" /> : <ChevronDown size={14} className="text-neutral-400" />}
           </div>
         </button>
 
         {openSections['verification'] && (
           <div className="p-3 space-y-2">
+            <ProofTrustBadge node={node} proof={proof} expanded />
             {((node.leanErrors && node.leanErrors.length > 0) || (node.leanWarnings && node.leanWarnings.length > 0)) ? (
               <div className="space-y-2">
                 {node.leanErrors && node.leanErrors.length > 0 && (

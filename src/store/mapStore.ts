@@ -151,7 +151,18 @@ export const useMapStore = create<MapStore>((set, get) => ({
     const newState = await solveNodeLogic(state, nodeId);
     const memory = await trainAgentFromDb(newState);
     
-    get().addAgentLog(`[Phase 6] Доказательство Lean 4 успешно сформировано. Задача "${node.title}" [RESOLVED].`, 'success', undefined, nodeId);
+    const resultingNode = newState.nodes.find(candidate => candidate.id === nodeId);
+    const resultingProof = newState.proofs[nodeId];
+    const kernelVerified = resultingProof?.externalLean?.trustStatus === 'LEAN_VERIFIED';
+    const trustStatus = kernelVerified ? 'LEAN_VERIFIED' : 'REQUIRES_CORE_LEAN';
+    get().addAgentLog(
+      kernelVerified
+        ? `[Phase 6] Для "${node.title}" сохранено внешнее Lean kernel evidence [${trustStatus}].`
+        : `[Phase 6] Для "${node.title}" сформирован структурный RICIS-результат; требуется отдельное Core/Lean evidence [${trustStatus}]. Состояние карты: ${resultingNode?.state ?? 'unknown'}.`,
+      kernelVerified ? 'success' : 'warn',
+      undefined,
+      nodeId,
+    );
     set({ ...newState, agentTrainingMemory: memory });
     void saveMapToDb(newState);
   },
@@ -171,13 +182,13 @@ export const useMapStore = create<MapStore>((set, get) => ({
     const result = await engine.proveSystem(effectivePremises, effectiveGoal, nodeId);
     
     if (result.academicStatus === 'QED_VERIFIED') {
-      get().addAgentLog(`[Phase 6: QED] Академическое доказательство для "${node.title}" верифицировано (инвариант = ${result.reducedInvariant}).`, 'success', undefined, nodeId);
+      get().addAgentLog(`[Phase 6: Goal match] Локальная RICIS-цепочка для "${node.title}" совпала с ожидаемой целью (инвариант = ${result.reducedInvariant}); Lean kernel не запускался.`, 'success', undefined, nodeId);
     } else {
       get().addAgentLog(`[Phase 6: Discrepancy] Обнаружено расхождение: получено ${result.reducedInvariant}, ожидалось ${result.expectedGoal}.`, 'warn', undefined, nodeId);
     }
     
     const existingProof = state.proofs[nodeId];
-    const academicLatex = `\\textbf{Academic Proof (${result.academicStatus === 'QED_VERIFIED' ? 'Q.E.D.' : 'Discrepancy'})}\n\n` +
+    const academicLatex = `\\textbf{Academic RICIS calculation (${result.academicStatus === 'QED_VERIFIED' ? 'Goal match; Lean kernel not run' : 'Discrepancy'})}\n\n` +
       result.steps.map(s => `\\text{${s.phase}: } ${s.academicDescription} \\implies ${s.mathLatex}`).join('\n\n') +
       `\n\n\\textbf{Invariant: } ${result.reducedInvariant}`;
       

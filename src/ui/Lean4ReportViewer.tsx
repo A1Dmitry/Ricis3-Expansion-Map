@@ -10,10 +10,10 @@ interface Lean4ReportViewerProps {
 export function Lean4ReportViewer({ lean4Code, claim, className = '' }: Lean4ReportViewerProps) {
   const [copied, setCopied] = useState(false);
 
-  const defaultSnippet = lean4Code || `-- Formal proof for ${claim}\nimport RICIS3.Core\n\ntheorem ricis_eval_${claim.replace(/[^a-zA-Z0-9]/g, '_')} : eval_ricis "${claim}" := by\n  apply ricis_monad_l1_bridge\n  rfl`;
+  const displayedSource = lean4Code || `-- Lean source is not attached for this claim.\n-- Claim: ${claim}\n-- This viewer does not synthesize a theorem or execute the Lean kernel.\n-- Submit immutable external Lean source and reproducible kernel evidence to advance its trust status.`;
 
   const handleCopy = () => {
-    navigator.clipboard.writeText(defaultSnippet).then(() => {
+    navigator.clipboard.writeText(displayedSource).then(() => {
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     });
@@ -30,10 +30,10 @@ export function Lean4ReportViewer({ lean4Code, claim, className = '' }: Lean4Rep
           </div>
           <div>
             <h3 className="text-xs font-bold text-blue-300 font-mono tracking-wide">
-              Lean 4 Formal Specification
+              Lean 4 source and evidence
             </h3>
             <span className="text-[10px] text-slate-400">
-              RICIS3.Core Verifier Ready
+              Kernel status is not inferred by this viewer
             </span>
           </div>
         </div>
@@ -61,16 +61,16 @@ export function Lean4ReportViewer({ lean4Code, claim, className = '' }: Lean4Rep
       {/* Code Viewer */}
       <div className="relative">
         <pre className="p-3.5 bg-black rounded border border-blue-900/40 text-blue-100 font-mono text-xs leading-relaxed overflow-x-auto select-all">
-          <code>{defaultSnippet}</code>
+          <code>{displayedSource}</code>
         </pre>
       </div>
 
       <div className="flex items-center justify-between text-[11px] text-slate-400 bg-neutral-950 px-3 py-1.5 rounded border border-neutral-800">
         <div className="flex items-center gap-1.5 text-emerald-400 font-mono">
           <Terminal size={13} />
-          <span>Синтаксис: Lean 4 (RICIS-III Monad Algebra)</span>
+          <span>{lean4Code ? 'Исходник Lean предоставлен; kernel evidence проверяется отдельно' : 'Исходник Lean не предоставлен'}</span>
         </div>
-        <span className="text-slate-500 font-mono">O(1) Kernel Check</span>
+        <span className="text-amber-300 font-mono">No kernel run in this view</span>
       </div>
 
     </div>
