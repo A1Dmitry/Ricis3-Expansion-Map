@@ -13,6 +13,7 @@ import {
   RicisProofVerificationResult,
 } from './IRicisCoreEngine';
 import { RicisFallbackEngine } from './RicisFallbackEngine';
+import { ricisCoreApiUrl, resolveRicisCoreApiEndpoint } from './coreEndpoint';
 
 interface CoreApiPayload {
   readonly ricis?: unknown;
@@ -94,8 +95,10 @@ export class RicisWasmBridge implements IRicisCoreEngine {
     }
 
     try {
-      if (typeof window !== 'undefined') {
-        const response = await fetch('/api/ricis-core/health', {
+      const endpoint = resolveRicisCoreApiEndpoint();
+      const healthUrl = ricisCoreApiUrl(endpoint, 'health');
+      if (typeof window !== 'undefined' && healthUrl) {
+        const response = await fetch(healthUrl, {
           headers: { accept: 'application/json' },
         });
         if (response.ok) {
@@ -161,8 +164,18 @@ export class RicisWasmBridge implements IRicisCoreEngine {
     await this.ensureInitialized();
 
     if (this._status === 'ready_api' && typeof window !== 'undefined') {
+      const endpoint = resolveRicisCoreApiEndpoint();
+      const simplifyUrl = ricisCoreApiUrl(endpoint, 'expressions/simplify');
+      if (!simplifyUrl) {
+        return this.createFailure(
+          'CORE_INFRASTRUCTURE_ERROR',
+          'Production endpoint Ricis.Core настроен некорректно. Результат не вычислялся.',
+          { runtime: 'csharp_api', retryable: false, safeDetail: endpoint.safeDetail, request },
+        );
+      }
+
       try {
-        const response = await fetch('/api/ricis-core/expressions/simplify', {
+        const response = await fetch(simplifyUrl, {
           method: 'POST',
           headers: { 'content-type': 'application/json', accept: 'application/json' },
           body: JSON.stringify({ expression: request.expression }),

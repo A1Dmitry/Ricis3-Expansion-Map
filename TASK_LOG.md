@@ -437,3 +437,19 @@ Supervisor теперь выбирает bundled DLL первым способо
 - **Release metadata.** Patch-версия повышена с `0.4.11` до `0.4.12` и синхронизирована в `package.json`, `package-lock.json`, `src/version.ts`, README и `CITATION.cff`.
 
 **Статус:** usability-пакет и локальный quality gate завершены; следующий шаг — commit, push, проверка GitHub Pages CI и тег `v0.4.12`.
+
+---
+
+## 2026-08-18 — Production Core endpoint для статического Pages v0.4.13
+
+**Production Core runtime.** Добавлен единый `coreEndpoint` resolver для build-time параметра `VITE_RICIS_CORE_API_BASE_URL`. Если параметр пуст, приложение сохраняет прежний same-origin маршрут `/api/ricis-core`; если параметр задан, принимается только абсолютный HTTPS URL без credentials, query и fragment. Такой контракт исключает передачу пользовательских секретов в endpoint и не ослабляет strict Core-first режим.
+
+**Единый путь выполнения и восстановления.** `RicisWasmBridge` использует resolver как для `GET /health`, так и для `POST /expressions/simplify`. `coreRecovery.probeRicisCoreHealth()` использует тот же URL, поэтому статус-бар, вычисление и экран восстановления не могут проверять разные runtime. Некорректная production-конфигурация возвращает типизированную инфраструктурную ошибку без TypeScript invariant.
+
+**Эксплуатация.** В `.env.example` и README добавлен контракт удалённого C# API: `VITE_RICIS_CORE_API_BASE_URL=https://core.example.org/api/ricis-core`; endpoint обязан предоставлять `GET /health`, `POST /expressions/simplify` и разрешать CORS с Pages origin. Конфигурация готовит клиент к развёрнутому C# Core, но сама не подменяет runtime и не публикует несуществующий API.
+
+**QA.** Добавлены 7 unit-тестов resolver: same-origin default, нормализация HTTPS endpoint и блокирование HTTP, credentials, query, fragment и невалидных URL. Полный локальный gate после исправления Vite typing: `npm run lint`, `npm test` — 25 файлов / 151 тест, `npm run build`, `npm audit --audit-level=moderate` — `0 vulnerabilities`, `git diff --check`. Vite-предупреждения о размере client chunk и ineffective dynamic import остаются неблокирующими.
+
+**Release metadata.** Версия повышена с `0.4.12` до `0.4.13` и синхронизирована в package metadata, runtime label, README, CITATION и обязательных release-артефактах.
+
+**Статус:** статический Pages-клиент готов к подключению production C# Core API через явную build-time конфигурацию; выбор и развёртывание самого HTTPS endpoint остаются следующим инфраструктурным инкрементом.

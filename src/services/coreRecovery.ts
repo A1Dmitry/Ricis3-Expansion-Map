@@ -4,6 +4,7 @@ import type {
   CoreRecoveryDiagnostic,
   CoreRecoveryOrigin,
 } from './ricisCore/IRicisCoreEngine';
+import { ricisCoreApiUrl, resolveRicisCoreApiEndpoint } from './ricisCore/coreEndpoint';
 
 const RECOVERY_VIEW = 'core-recovery';
 const RECOVERY_STORAGE_KEY = 'ricis.core-recovery.v1';
@@ -148,8 +149,14 @@ export function returnFromCoreRecovery(): void {
 export async function probeRicisCoreHealth(): Promise<CoreHealthProbeResult> {
   if (!canUseBrowser()) return { available: false };
 
+  const endpoint = resolveRicisCoreApiEndpoint();
+  const healthUrl = ricisCoreApiUrl(endpoint, 'health');
+  if (!healthUrl) {
+    return { available: false, safeDetail: endpoint.safeDetail };
+  }
+
   try {
-    const response = await fetch('/api/ricis-core/health', { headers: { accept: 'application/json' } });
+    const response = await fetch(healthUrl, { headers: { accept: 'application/json' } });
     if (!response.ok) {
       return { available: false, safeDetail: `Health endpoint returned HTTP ${response.status}.` };
     }

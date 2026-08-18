@@ -1,6 +1,6 @@
 # RICIS3-Expansion-Map
 
-**Версия: v0.4.12**
+**Версия: v0.4.13**
 
 RICIS3-Expansion-Map — открытая интерактивная карта задач, выражений и зависимостей RICIS-III. Она объединяет исследовательский каталог, визуальную навигацию по графу, локальные RICIS-вычисления, интеграцию с Ricis.Core и явные уровни доверия к proof-артефактам. Цель проекта — сделать путь от задачи и выражения до проверяемого артефакта обозримым, а не заменить проверку сильными визуальными заявлениями.
 
@@ -65,7 +65,9 @@ npm run build
 
 Expansion не запускает C# runtime при старте Express. При первом реальном обращении к Ricis.Core `RicisWasmBridge` запрашивает относительный маршрут `/api/ricis-core/health`. Supervisor сначала использует Release-зеркало `runtime/ricis-core/Ricis.WebApi.dll`, а при его отсутствии — соседний проект `../Ricis.Core/Ricis.WebApi/Ricis.WebApi.csproj` через `dotnet run`. После health-check клиент обращается к `/api/ricis-core/expressions/{simplify|derivative|system}`.
 
-Расчёт сингулярностей работает в **строгом Core-first режиме**: успешный результат может иметь происхождение только `csharp_api` или `csharp_wasm`. Если Core недоступен, отклонил lambda-ввод, вернул инфраструктурную ошибку или неполный payload, TypeScript fallback не вычисляет заменяющий инвариант. Пользователь направляется на `?view=core-recovery` с пошаговым объяснением восстановления. На статическом GitHub Pages без browser-WASM или развёрнутого C# API математический результат честно остаётся недоступным. Дополнительные относительные настройки: `RICIS_CORE_RUNTIME`, `RICIS_CORE_REPO`, `RICIS_CORE_PROJECT`, `RICIS_CORE_PORT`, `RICIS_CORE_URL` и `RICIS_CORE_START_TIMEOUT_MS`.
+Расчёт сингулярностей работает в **строгом Core-first режиме**: успешный результат может иметь происхождение только `csharp_api` или `csharp_wasm`. Если Core недоступен, отклонил lambda-ввод, вернул инфраструктурную ошибку или неполный payload, TypeScript fallback не вычисляет заменяющий инвариант. Пользователь направляется на `?view=core-recovery` с пошаговым объяснением восстановления. На статическом GitHub Pages без browser-WASM или развёрнутого C# API математический результат честно остаётся недоступным.
+
+Для production Pages можно явно задать при сборке `VITE_RICIS_CORE_API_BASE_URL=https://core.example.org/api/ricis-core`. Resolver принимает только абсолютный HTTPS URL без credentials, query и fragment; пустое значение сохраняет текущий same-origin proxy `/api/ricis-core`. И вычисление, и recovery health-check используют один endpoint. Удалённый C# API обязан предоставить `GET /health` и `POST /expressions/simplify`, а также разрешить CORS с `https://a1dmitry.github.io`. Настройка не является секретом и не заменяет развёртывание самого C# runtime. Дополнительные server-side настройки локального supervisor: `RICIS_CORE_RUNTIME`, `RICIS_CORE_REPO`, `RICIS_CORE_PROJECT`, `RICIS_CORE_PORT`, `RICIS_CORE_URL` и `RICIS_CORE_START_TIMEOUT_MS`.
 
 ## Нормативные ограничения RICIS-III
 
