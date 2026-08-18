@@ -46,6 +46,7 @@ import { TelegramBotPanel } from './TelegramBotPanel';
 import { AgentLogModal } from './AgentLogModal';
 import { LatexRenderer } from './LatexRenderer';
 import { useAdaptiveUI } from '../hooks/useAdaptiveUI';
+import { useMobileLayout } from '../hooks/useMobileLayout';
 import { UniverseSkybox } from './UniverseSkybox';
 import { useTerminalStore } from '../store/useTerminalStore';
 import { RicisTerminalModal } from './RicisTerminalModal';
@@ -278,6 +279,8 @@ export const Map3D: React.FC = () => {
     return physicsStorageService.load() || DEFAULT_PHYSICS_PARAMS;
   });
   const map = useMapStore();
+  const isMobileLayout = useMobileLayout();
+  const mobilePresentationInitializedRef = useRef(false);
 
   // Load initial saved filters & Deep Link URL params
   const initialSavedFilters = React.useMemo(() => filterStorageService.load(), []);
@@ -297,6 +300,15 @@ export const Map3D: React.FC = () => {
     return new Set(initialSavedFilters?.hiddenZones || []);
   });
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+  // Compact touch-first devices start in the semantic list. Users can still
+  // explicitly switch to the 3D canvas from the header at any time.
+  useEffect(() => {
+    if (!isMobileLayout || mobilePresentationInitializedRef.current || !supportsWebGL()) return;
+    setMapFallbackReason('user_selected');
+    setMapPresentationMode('accessible_list');
+    mobilePresentationInitializedRef.current = true;
+  }, [isMobileLayout]);
 
   // Инициализация Sandbox из URL параметров при старте
   useEffect(() => {
@@ -925,19 +937,19 @@ export const Map3D: React.FC = () => {
 
   return (
     <div className="w-full h-screen bg-[#050505] text-[#e0e0e0] font-sans overflow-hidden flex flex-col">
-      <header className="h-16 border-b border-cyan-900/40 bg-[#080808] flex items-center justify-between px-6 shrink-0 z-20">
-        <div className="flex items-center gap-4">
+      <header className="min-h-16 border-b border-cyan-900/40 bg-[#080808] flex items-center justify-between gap-2 px-3 py-2 sm:px-6 shrink-0 z-20">
+        <div className="flex min-w-0 items-center gap-2 sm:gap-4">
           <div className="w-3.5 h-3.5 bg-cyan-400 rounded-full animate-pulse shadow-[0_0_12px_#22d3ee]" />
           <h1 className="text-xs font-extrabold uppercase tracking-[0.2em] text-cyan-300 flex items-center gap-2">
             <span>RICIS-III</span>
-            <span className="text-slate-400 font-normal text-xs">// 3D Singularity Map</span>
+            <span className="hidden text-slate-400 font-normal text-xs sm:inline">// 3D Singularity Map</span>
           </h1>
           <span className="text-xs font-mono px-2.5 py-0.5 rounded-full border border-cyan-700/80 bg-cyan-950/70 text-cyan-200 font-bold">
             {APP_BUILD_LABEL}
           </span>
         </div>
-        <div className="flex items-center gap-5">
-          <div className="flex gap-4 text-xs font-mono">
+        <div className="flex shrink-0 items-center gap-2 sm:gap-5">
+          <div className="hidden gap-4 text-xs font-mono sm:flex">
             <div className="flex flex-col"><span className="text-slate-400 text-[10px]">{t('header.nodes')}</span><span className="text-slate-100 font-bold">{map.nodes.length}</span></div>
             <div className="flex flex-col"><span className="text-slate-400 text-[10px]">{t('header.available')}</span><span className="text-emerald-400 font-bold">{availability.available}</span></div>
             <div className="flex flex-col"><span className="text-slate-400 text-[10px]">{t('header.locked')}</span><span className="text-slate-300 font-bold">{availability.locked}</span></div>
@@ -954,31 +966,34 @@ export const Map3D: React.FC = () => {
                 setMapPresentationMode('three_dimensional');
               }
             }}
-            className="bg-cyan-950/60 hover:bg-cyan-900/70 border border-cyan-800/70 text-cyan-100 font-bold text-xs px-3.5 py-1.5 rounded-md transition-all cursor-pointer flex items-center gap-1.5 uppercase tracking-wider"
+            className="min-h-10 min-w-10 bg-cyan-950/60 hover:bg-cyan-900/70 border border-cyan-800/70 text-cyan-100 font-bold text-xs px-2 sm:px-3.5 py-1.5 rounded-md transition-all cursor-pointer flex items-center gap-1.5 uppercase tracking-wider"
             aria-pressed={mapPresentationMode === 'accessible_list'}
+            aria-label="Переключить между 3D-картой и доступным списком"
             title="Переключить между 3D-картой и доступным списком"
           >
-            <Layers size={14} /> {mapPresentationMode === 'three_dimensional' ? 'Режим списка' : '3D-карта'}
+            <Layers size={14} /> <span className="hidden sm:inline">{mapPresentationMode === 'three_dimensional' ? 'Режим списка' : '3D-карта'}</span>
           </button>
           <button
             type="button"
             onClick={() => setShowSettings(true)}
-            className="bg-neutral-800 hover:bg-neutral-700 border border-neutral-700 text-slate-200 font-bold text-xs px-3.5 py-1.5 rounded-md shadow-[0_0_12px_rgba(255,255,255,0.05)] transition-all cursor-pointer flex items-center gap-1.5 uppercase tracking-wider"
+            className="min-h-10 min-w-10 bg-neutral-800 hover:bg-neutral-700 border border-neutral-700 text-slate-200 font-bold text-xs px-2 sm:px-3.5 py-1.5 rounded-md shadow-[0_0_12px_rgba(255,255,255,0.05)] transition-all cursor-pointer flex items-center gap-1.5 uppercase tracking-wider"
+            aria-label={t('header.settings')}
           >
-            <Settings size={14} className="text-cyan-400" /> {t('header.settings')}
+            <Settings size={14} className="text-cyan-400" /> <span className="hidden sm:inline">{t('header.settings')}</span>
           </button>
           <button
             type="button"
             onClick={() => toggleTerminal(true)}
-            className="bg-purple-900/50 hover:bg-purple-800/60 border border-purple-700/50 text-purple-300 font-bold text-xs px-3.5 py-1.5 rounded-md shadow-[0_0_12px_rgba(168,85,247,0.2)] transition-all cursor-pointer flex items-center gap-1.5 uppercase tracking-wider"
+            className="min-h-10 min-w-10 bg-purple-900/50 hover:bg-purple-800/60 border border-purple-700/50 text-purple-300 font-bold text-xs px-2 sm:px-3.5 py-1.5 rounded-md shadow-[0_0_12px_rgba(168,85,247,0.2)] transition-all cursor-pointer flex items-center gap-1.5 uppercase tracking-wider"
+            aria-label={t('header.sandbox')}
           >
-            <Terminal size={14} /> {t('header.sandbox')}
+            <Terminal size={14} /> <span className="hidden sm:inline">{t('header.sandbox')}</span>
           </button>
         </div>
       </header>
 
-      <main className="flex-1 flex relative overflow-hidden">
-        <aside className="w-84 border-r border-cyan-900/40 bg-[#070707] p-3 flex flex-col gap-3 shrink-0 z-10 overflow-y-auto h-full">
+      <main className="flex-1 flex flex-col md:flex-row relative overflow-hidden">
+        <aside className="order-2 h-[58dvh] w-full border-t border-cyan-900/40 bg-[#070707] p-3 flex flex-col gap-3 shrink-0 z-10 overflow-y-auto md:order-1 md:h-full md:w-84 md:border-t-0 md:border-r">
           {/* SEARCH BAR (Top of Sidebar) */}
           <div className="relative border border-cyan-900/40 rounded-lg overflow-visible bg-[#050810]/90 backdrop-blur-md px-3.5 py-2.5 mb-1 flex items-center gap-2.5 z-20">
             <Search size={16} className="text-cyan-400 shrink-0" />
@@ -1321,7 +1336,7 @@ export const Map3D: React.FC = () => {
           )}
         </aside>
 
-        <div className="flex-1 relative bg-[radial-gradient(circle_at_center,_#0a0f1a_0%,_#050505_100%)]">
+        <div className="order-1 h-[42dvh] min-h-[16rem] flex-1 relative bg-[radial-gradient(circle_at_center,_#0a0f1a_0%,_#050505_100%)] md:order-2 md:h-auto md:min-h-0">
           {mapPresentationMode === 'three_dimensional' ? (
           <MapCanvasErrorBoundary
             key="three-dimensional-map"
@@ -1450,7 +1465,7 @@ export const Map3D: React.FC = () => {
           )}
 
           {selectedNode && (
-            <div className={`absolute top-6 right-6 ${isNodeExpanded ? 'w-[640px]' : 'w-[26rem]'} bg-black/80 backdrop-blur-md border border-cyan-500/30 rounded-lg p-5 shadow-2xl pointer-events-auto max-h-[90%] overflow-y-auto transition-all duration-300`}>
+            <div className={`fixed inset-x-2 bottom-2 z-30 w-auto max-h-[72dvh] touch-pan-y bg-black/90 backdrop-blur-md border border-cyan-500/30 rounded-xl p-4 shadow-2xl pointer-events-auto overflow-y-auto transition-all duration-300 md:absolute md:inset-x-auto md:bottom-auto md:right-6 md:top-6 md:z-auto md:max-h-[90%] md:rounded-lg md:p-5 ${isNodeExpanded ? 'md:w-[640px]' : 'md:w-[26rem]'}`}>
               <div className="flex justify-between items-start mb-3">
                 <div>
                   <h2 className="text-sm font-bold text-white leading-tight mb-1">{selectedNode.title}</h2>

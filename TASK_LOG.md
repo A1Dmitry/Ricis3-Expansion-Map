@@ -465,3 +465,19 @@ Supervisor теперь выбирает bundled DLL первым способо
 **Release metadata.** Версия Expansion повышена с `0.4.13` до `0.4.14` и синхронизирована в package metadata, runtime label, README, CITATION и обязательных release-артефактах.
 
 **Статус:** оба независимых production-пункта timebox завершены. Следующая инфраструктурная задача — выбор и фактическое развёртывание HTTPS C# Core API; клиент и CORS boundary к этому готовы.
+
+---
+
+## 2026-08-18 — Compact touch-first mobile UI v0.4.15
+
+**Определение mobile layout.** Добавлен SSR-safe `useMobileLayout`, который использует media query viewport и `pointer: coarse`, а не user-agent sniffing. Компактный режим включается для телефонов и небольших touch-first планшетов, но desktop и крупные mouse-first экраны сохраняют исходную раскладку.
+
+**Мобильная карта.** На compact устройствах приложение стартует в семантическом list-first режиме, безопасном для WebGL-ограничений и удобном для чтения. Пользователь по-прежнему может одним касанием включить 3D-карту. Header получил компактные icon-first touch targets, а desktop-счётчики и текстовые подписи скрываются только на малой ширине при сохранении `aria-label`.
+
+**Компоновка.** Основной layout переключается с боковой колонки на вертикальный: canvas/list получает верхнюю область, фильтры и аккордеоны — прокручиваемую нижнюю. Выбранная задача на мобильном отображается как bottom sheet с безопасной высотой `72dvh`; на desktop остаётся закреплённой правой карточкой с исходной шириной и поведением.
+
+**QA.** Добавлены 4 unit-теста viewport classifier: media query contract, browser capability fallback, compact touch match и desktop mismatch. Целевые проверки после реализации: TypeScript lint и 42 Core/mobile теста успешны. Полный quality gate, release alignment и публикация выполняются перед выпуском.
+
+**Release metadata.** Версия повышена с `0.4.14` до `0.4.15` и синхронизирована в package metadata, runtime label, README, CITATION и обязательных release-артефактах.
+
+**Статус:** mobile-first адаптация реализована без user-agent зависимости и без изменения strict Core-first вычислений.
