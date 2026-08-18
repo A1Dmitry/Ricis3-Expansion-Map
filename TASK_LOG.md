@@ -481,3 +481,19 @@ Supervisor теперь выбирает bundled DLL первым способо
 **Release metadata.** Версия повышена с `0.4.14` до `0.4.15` и синхронизирована в package metadata, runtime label, README, CITATION и обязательных release-артефактах.
 
 **Статус:** mobile-first адаптация реализована без user-agent зависимости и без изменения strict Core-first вычислений.
+
+---
+
+## 2026-08-18 — Mobile graph UX and pinch zoom v0.4.16
+
+**Исследование UX.** Выполнено сопоставление RICIS3 mobile UI с паттернами map/graph приложений: contextual details отделяются от активной сцены, а карта сохраняет distinct gesture contract. Решение и карта переходов сохранены в `ricis-analysis/repo-reports/mobile-graph-ux-patterns-2026-08-18.md` с источниками NN/g, Material Design и Google Maps.
+
+**Устранение floating-card дефекта.** Выбранный узел больше не использует `fixed` mobile overlay и не перекрывает 3D canvas. На компактном layout 3D/list сцена, карточка выбранного узла и панель исследований находятся в нормальном вертикальном flow: сцена остаётся самостоятельной верхней областью, а подробности следуют за ней и прокручиваются вместе с интерфейсом. На desktop сохранена закреплённая правая side-card (`md:absolute`).
+
+**Двухпальцевый zoom.** В `OrbitControls` явно включены pan, rotate и zoom; назначение `touches.TWO = THREE.TOUCH.DOLLY_PAN` гарантирует pinch/stretch для изменения camera distance с сохранением двухпальцевой панорамы. Canvas получает `touch-action: none`, поэтому браузер не перехватывает pinch как page zoom; sidebar и details сохраняют `touch-pan-y` для чтения и прокрутки.
+
+**Regression coverage.** Добавлены `orbitTouchControls.test.ts` (контракт ONE=ROTATE, TWO=DOLLY_PAN) и `Map3D.mobileLayout.test.ts` (mobile details в normal flow, absence прежнего fixed overlay, canvas-only touch suppression). Визуальный narrow viewport smoke capture подготовлен как `mobile-layout-390x844.png`; isolated headless запуск остановился на IndexedDB loading shell, поэтому UX-проверка закреплена также source-level контрактами и полным build/test gate.
+
+**Release metadata.** Версия повышена с `0.4.15` до `0.4.16` и синхронизирована в package metadata, runtime label, README, CITATION и обязательных release-артефактах.
+
+**Статус:** исправление floating-card и явный two-finger pinch zoom готовы к quality gate и публикации.

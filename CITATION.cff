@@ -2,7 +2,7 @@ cff-version: 1.2.0
 message: "If you use RICIS3-Expansion-Map, please cite this software version."
 title: "RICIS3-Expansion-Map"
 type: software
-version: 0.4.15
+version: 0.4.16
 date-released: 2026-08-18
 authors:
   - family-names: Aleinikov

@@ -48,6 +48,7 @@ import { LatexRenderer } from './LatexRenderer';
 import { useAdaptiveUI } from '../hooks/useAdaptiveUI';
 import { useMobileLayout } from '../hooks/useMobileLayout';
 import { UniverseSkybox } from './UniverseSkybox';
+import { configureGraphTouchControls } from './orbitTouchControls';
 import { useTerminalStore } from '../store/useTerminalStore';
 import { RicisTerminalModal } from './RicisTerminalModal';
 import { UrlShareService } from '../services/UrlShareService';
@@ -173,6 +174,7 @@ function OrbitControls({
     controls.enablePan = true;
     controls.enableZoom = true;
     controls.enableRotate = true;
+    configureGraphTouchControls(controls);
     controls.screenSpacePanning = true;
     controls.target.set(0, 0, 0);
     controlsRef.current = controls;
@@ -992,8 +994,8 @@ export const Map3D: React.FC = () => {
         </div>
       </header>
 
-      <main className="flex-1 flex flex-col md:flex-row relative overflow-hidden">
-        <aside className="order-2 h-[58dvh] w-full border-t border-cyan-900/40 bg-[#070707] p-3 flex flex-col gap-3 shrink-0 z-10 overflow-y-auto md:order-1 md:h-full md:w-84 md:border-t-0 md:border-r">
+      <main className="flex-1 flex flex-col md:flex-row relative overflow-y-auto md:overflow-hidden">
+        <aside className="order-3 h-[58dvh] w-full border-t border-cyan-900/40 bg-[#070707] p-3 flex flex-col gap-3 shrink-0 z-10 overflow-y-auto touch-pan-y md:order-1 md:h-full md:w-84 md:border-t-0 md:border-r">
           {/* SEARCH BAR (Top of Sidebar) */}
           <div className="relative border border-cyan-900/40 rounded-lg overflow-visible bg-[#050810]/90 backdrop-blur-md px-3.5 py-2.5 mb-1 flex items-center gap-2.5 z-20">
             <Search size={16} className="text-cyan-400 shrink-0" />
@@ -1336,7 +1338,8 @@ export const Map3D: React.FC = () => {
           )}
         </aside>
 
-        <div className="order-1 h-[42dvh] min-h-[16rem] flex-1 relative bg-[radial-gradient(circle_at_center,_#0a0f1a_0%,_#050505_100%)] md:order-2 md:h-auto md:min-h-0">
+        <div className="order-1 relative flex min-h-0 flex-1 flex-col bg-[radial-gradient(circle_at_center,_#0a0f1a_0%,_#050505_100%)] md:order-2">
+          <div className="relative h-[42dvh] min-h-[16rem] shrink-0 md:h-auto md:min-h-0 md:flex-1">
           {mapPresentationMode === 'three_dimensional' ? (
           <MapCanvasErrorBoundary
             key="three-dimensional-map"
@@ -1345,7 +1348,7 @@ export const Map3D: React.FC = () => {
               setMapPresentationMode('accessible_list');
             }}
           >
-          <Canvas camera={{ position: [0, 0, 32], fov: 55, far: 10000, near: 0.1 }} gl={{ antialias: true, alpha: true }}>
+          <Canvas className="touch-none" camera={{ position: [0, 0, 32], fov: 55, far: 10000, near: 0.1 }} gl={{ antialias: true, alpha: true }}>
             <UniverseSkybox radius={3200} />
             <OrbitControls controlsRef={controlsRef} flightRef={flightRef} />
             <CameraFlightRig flightRef={flightRef} controlsRef={controlsRef} />
@@ -1463,9 +1466,10 @@ export const Map3D: React.FC = () => {
               }}
             />
           )}
+          </div>
 
           {selectedNode && (
-            <div className={`fixed inset-x-2 bottom-2 z-30 w-auto max-h-[72dvh] touch-pan-y bg-black/90 backdrop-blur-md border border-cyan-500/30 rounded-xl p-4 shadow-2xl pointer-events-auto overflow-y-auto transition-all duration-300 md:absolute md:inset-x-auto md:bottom-auto md:right-6 md:top-6 md:z-auto md:max-h-[90%] md:rounded-lg md:p-5 ${isNodeExpanded ? 'md:w-[640px]' : 'md:w-[26rem]'}`}>
+            <div className={`w-full touch-pan-y bg-black/90 border-y border-cyan-500/30 p-4 shadow-2xl pointer-events-auto overflow-y-auto transition-all duration-300 md:absolute md:inset-x-auto md:bottom-auto md:right-6 md:top-6 md:z-20 md:w-auto md:max-h-[90%] md:rounded-lg md:border md:p-5 ${isNodeExpanded ? 'md:w-[640px]' : 'md:w-[26rem]'}`}>
               <div className="flex justify-between items-start mb-3">
                 <div>
                   <h2 className="text-sm font-bold text-white leading-tight mb-1">{selectedNode.title}</h2>
