@@ -4,6 +4,7 @@ import { deepCopyInitialMap } from './initialMap';
 
 import { dbSaveMap, dbLoadMap, dbClear } from './db';
 import { runDatabaseMigration } from './migrationAudit';
+import { auditProofContent } from './ricisCoreRules';
 
 /** @deprecated Legacy localStorage snapshot (миграция). */
 const LEGACY_KEY = 'ricis3-map-v1';
@@ -80,7 +81,11 @@ export function sanitizeMap(map: MapState): MapState {
         zids = ['math'];
       }
     }
-    return { ...n, zoneIds: zids };
+    const proof = map.proofs?.[n.id];
+    const hasTrustedExternalLean = proof?.externalLean?.trustStatus === 'LEAN_VERIFIED' || proof?.externalLean?.trustStatus === 'TRUSTED_AXIOM';
+    const hasAcceptedProof = Boolean(proof && (hasTrustedExternalLean || auditProofContent(proof.latex).isValid));
+    const honestState = n.state === 'resolved' && !hasAcceptedProof ? 'partial' : n.state;
+    return { ...n, state: honestState, zoneIds: zids };
   });
 
   const zones = newZones.map(z => {

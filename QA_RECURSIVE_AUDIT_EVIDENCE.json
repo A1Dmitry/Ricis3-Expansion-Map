@@ -1,0 +1,287 @@
+{
+  "source": {
+    "nodes": 31,
+    "reachableNodes": 31,
+    "orphanNodes": 0,
+    "cyclicGroups": 0,
+    "edges": 12,
+    "proofs": 21,
+    "proofNodes": 21,
+    "validProofs": 0,
+    "leanVerifiedProofs": 0,
+    "findings": [
+      {
+        "severity": "error",
+        "code": "RESOLVED_WITHOUT_PROOF",
+        "subject": "ai-authorship-provenance",
+        "detail": "Resolved node has no proof record."
+      },
+      {
+        "severity": "error",
+        "code": "PROOF_CONTENT_REJECTED",
+        "subject": "registry-100",
+        "detail": "score=30; issues=Отсутствует ссылка на спецификацию Lean 4 (https://doi.org/10.5281/zenodo.21836220)"
+      },
+      {
+        "severity": "error",
+        "code": "PROOF_CONTENT_REJECTED",
+        "subject": "registry-101",
+        "detail": "score=30; issues=Отсутствует ссылка на спецификацию Lean 4 (https://doi.org/10.5281/zenodo.21836220)"
+      },
+      {
+        "severity": "error",
+        "code": "PROOF_CONTENT_REJECTED",
+        "subject": "registry-102",
+        "detail": "score=30; issues=Отсутствует ссылка на спецификацию Lean 4 (https://doi.org/10.5281/zenodo.21836220)"
+      },
+      {
+        "severity": "error",
+        "code": "PROOF_CONTENT_REJECTED",
+        "subject": "registry-103",
+        "detail": "score=30; issues=Отсутствует ссылка на спецификацию Lean 4 (https://doi.org/10.5281/zenodo.21836220)"
+      },
+      {
+        "severity": "error",
+        "code": "PROOF_CONTENT_REJECTED",
+        "subject": "registry-104",
+        "detail": "score=30; issues=Отсутствует ссылка на спецификацию Lean 4 (https://doi.org/10.5281/zenodo.21836220)"
+      },
+      {
+        "severity": "error",
+        "code": "PROOF_CONTENT_REJECTED",
+        "subject": "registry-105",
+        "detail": "score=30; issues=Отсутствует ссылка на спецификацию Lean 4 (https://doi.org/10.5281/zenodo.21836220)"
+      },
+      {
+        "severity": "error",
+        "code": "PROOF_CONTENT_REJECTED",
+        "subject": "registry-106",
+        "detail": "score=30; issues=Отсутствует ссылка на спецификацию Lean 4 (https://doi.org/10.5281/zenodo.21836220)"
+      },
+      {
+        "severity": "error",
+        "code": "PROOF_CONTENT_REJECTED",
+        "subject": "registry-107",
+        "detail": "score=30; issues=Отсутствует ссылка на спецификацию Lean 4 (https://doi.org/10.5281/zenodo.21836220)"
+      },
+      {
+        "severity": "error",
+        "code": "PROOF_CONTENT_REJECTED",
+        "subject": "registry-108",
+        "detail": "score=30; issues=Отсутствует ссылка на спецификацию Lean 4 (https://doi.org/10.5281/zenodo.21836220)"
+      },
+      {
+        "severity": "error",
+        "code": "PROOF_CONTENT_REJECTED",
+        "subject": "registry-109",
+        "detail": "score=30; issues=Отсутствует ссылка на спецификацию Lean 4 (https://doi.org/10.5281/zenodo.21836220)"
+      },
+      {
+        "severity": "error",
+        "code": "PROOF_CONTENT_REJECTED",
+        "subject": "registry-110",
+        "detail": "score=30; issues=Отсутствует ссылка на спецификацию Lean 4 (https://doi.org/10.5281/zenodo.21836220)"
+      },
+      {
+        "severity": "error",
+        "code": "PROOF_CONTENT_REJECTED",
+        "subject": "registry-111",
+        "detail": "score=30; issues=Отсутствует ссылка на спецификацию Lean 4 (https://doi.org/10.5281/zenodo.21836220)"
+      },
+      {
+        "severity": "error",
+        "code": "PROOF_CONTENT_REJECTED",
+        "subject": "registry-112",
+        "detail": "score=30; issues=Отсутствует ссылка на спецификацию Lean 4 (https://doi.org/10.5281/zenodo.21836220)"
+      },
+      {
+        "severity": "error",
+        "code": "PROOF_CONTENT_REJECTED",
+        "subject": "registry-113",
+        "detail": "score=30; issues=Отсутствует ссылка на спецификацию Lean 4 (https://doi.org/10.5281/zenodo.21836220)"
+      },
+      {
+        "severity": "error",
+        "code": "PROOF_CONTENT_REJECTED",
+        "subject": "registry-114",
+        "detail": "score=30; issues=Отсутствует ссылка на спецификацию Lean 4 (https://doi.org/10.5281/zenodo.21836220)"
+      },
+      {
+        "severity": "error",
+        "code": "PROOF_CONTENT_REJECTED",
+        "subject": "registry-115",
+        "detail": "score=30; issues=Отсутствует ссылка на спецификацию Lean 4 (https://doi.org/10.5281/zenodo.21836220)"
+      },
+      {
+        "severity": "error",
+        "code": "PROOF_CONTENT_REJECTED",
+        "subject": "registry-116",
+        "detail": "score=30; issues=Отсутствует ссылка на спецификацию Lean 4 (https://doi.org/10.5281/zenodo.21836220)"
+      },
+      {
+        "severity": "error",
+        "code": "PROOF_CONTENT_REJECTED",
+        "subject": "registry-117",
+        "detail": "score=30; issues=Отсутствует ссылка на спецификацию Lean 4 (https://doi.org/10.5281/zenodo.21836220)"
+      },
+      {
+        "severity": "error",
+        "code": "PROOF_CONTENT_REJECTED",
+        "subject": "registry-118",
+        "detail": "score=30; issues=Отсутствует ссылка на спецификацию Lean 4 (https://doi.org/10.5281/zenodo.21836220)"
+      },
+      {
+        "severity": "error",
+        "code": "PROOF_CONTENT_REJECTED",
+        "subject": "registry-119",
+        "detail": "score=30; issues=Отсутствует ссылка на спецификацию Lean 4 (https://doi.org/10.5281/zenodo.21836220)"
+      },
+      {
+        "severity": "error",
+        "code": "PROOF_CONTENT_REJECTED",
+        "subject": "registry-120",
+        "detail": "score=30; issues=Отсутствует ссылка на спецификацию Lean 4 (https://doi.org/10.5281/zenodo.21836220)"
+      }
+    ]
+  },
+  "sanitized": {
+    "nodes": 31,
+    "reachableNodes": 31,
+    "orphanNodes": 0,
+    "cyclicGroups": 0,
+    "edges": 12,
+    "proofs": 21,
+    "proofNodes": 21,
+    "validProofs": 0,
+    "leanVerifiedProofs": 0,
+    "findings": [
+      {
+        "severity": "warning",
+        "code": "PROOF_CONTENT_REJECTED",
+        "subject": "registry-100",
+        "detail": "score=30; issues=Отсутствует ссылка на спецификацию Lean 4 (https://doi.org/10.5281/zenodo.21836220)"
+      },
+      {
+        "severity": "warning",
+        "code": "PROOF_CONTENT_REJECTED",
+        "subject": "registry-101",
+        "detail": "score=30; issues=Отсутствует ссылка на спецификацию Lean 4 (https://doi.org/10.5281/zenodo.21836220)"
+      },
+      {
+        "severity": "warning",
+        "code": "PROOF_CONTENT_REJECTED",
+        "subject": "registry-102",
+        "detail": "score=30; issues=Отсутствует ссылка на спецификацию Lean 4 (https://doi.org/10.5281/zenodo.21836220)"
+      },
+      {
+        "severity": "warning",
+        "code": "PROOF_CONTENT_REJECTED",
+        "subject": "registry-103",
+        "detail": "score=30; issues=Отсутствует ссылка на спецификацию Lean 4 (https://doi.org/10.5281/zenodo.21836220)"
+      },
+      {
+        "severity": "warning",
+        "code": "PROOF_CONTENT_REJECTED",
+        "subject": "registry-104",
+        "detail": "score=30; issues=Отсутствует ссылка на спецификацию Lean 4 (https://doi.org/10.5281/zenodo.21836220)"
+      },
+      {
+        "severity": "warning",
+        "code": "PROOF_CONTENT_REJECTED",
+        "subject": "registry-105",
+        "detail": "score=30; issues=Отсутствует ссылка на спецификацию Lean 4 (https://doi.org/10.5281/zenodo.21836220)"
+      },
+      {
+        "severity": "warning",
+        "code": "PROOF_CONTENT_REJECTED",
+        "subject": "registry-106",
+        "detail": "score=30; issues=Отсутствует ссылка на спецификацию Lean 4 (https://doi.org/10.5281/zenodo.21836220)"
+      },
+      {
+        "severity": "warning",
+        "code": "PROOF_CONTENT_REJECTED",
+        "subject": "registry-107",
+        "detail": "score=30; issues=Отсутствует ссылка на спецификацию Lean 4 (https://doi.org/10.5281/zenodo.21836220)"
+      },
+      {
+        "severity": "warning",
+        "code": "PROOF_CONTENT_REJECTED",
+        "subject": "registry-108",
+        "detail": "score=30; issues=Отсутствует ссылка на спецификацию Lean 4 (https://doi.org/10.5281/zenodo.21836220)"
+      },
+      {
+        "severity": "warning",
+        "code": "PROOF_CONTENT_REJECTED",
+        "subject": "registry-109",
+        "detail": "score=30; issues=Отсутствует ссылка на спецификацию Lean 4 (https://doi.org/10.5281/zenodo.21836220)"
+      },
+      {
+        "severity": "warning",
+        "code": "PROOF_CONTENT_REJECTED",
+        "subject": "registry-110",
+        "detail": "score=30; issues=Отсутствует ссылка на спецификацию Lean 4 (https://doi.org/10.5281/zenodo.21836220)"
+      },
+      {
+        "severity": "warning",
+        "code": "PROOF_CONTENT_REJECTED",
+        "subject": "registry-111",
+        "detail": "score=30; issues=Отсутствует ссылка на спецификацию Lean 4 (https://doi.org/10.5281/zenodo.21836220)"
+      },
+      {
+        "severity": "warning",
+        "code": "PROOF_CONTENT_REJECTED",
+        "subject": "registry-112",
+        "detail": "score=30; issues=Отсутствует ссылка на спецификацию Lean 4 (https://doi.org/10.5281/zenodo.21836220)"
+      },
+      {
+        "severity": "warning",
+        "code": "PROOF_CONTENT_REJECTED",
+        "subject": "registry-113",
+        "detail": "score=30; issues=Отсутствует ссылка на спецификацию Lean 4 (https://doi.org/10.5281/zenodo.21836220)"
+      },
+      {
+        "severity": "warning",
+        "code": "PROOF_CONTENT_REJECTED",
+        "subject": "registry-114",
+        "detail": "score=30; issues=Отсутствует ссылка на спецификацию Lean 4 (https://doi.org/10.5281/zenodo.21836220)"
+      },
+      {
+        "severity": "warning",
+        "code": "PROOF_CONTENT_REJECTED",
+        "subject": "registry-115",
+        "detail": "score=30; issues=Отсутствует ссылка на спецификацию Lean 4 (https://doi.org/10.5281/zenodo.21836220)"
+      },
+      {
+        "severity": "warning",
+        "code": "PROOF_CONTENT_REJECTED",
+        "subject": "registry-116",
+        "detail": "score=30; issues=Отсутствует ссылка на спецификацию Lean 4 (https://doi.org/10.5281/zenodo.21836220)"
+      },
+      {
+        "severity": "warning",
+        "code": "PROOF_CONTENT_REJECTED",
+        "subject": "registry-117",
+        "detail": "score=30; issues=Отсутствует ссылка на спецификацию Lean 4 (https://doi.org/10.5281/zenodo.21836220)"
+      },
+      {
+        "severity": "warning",
+        "code": "PROOF_CONTENT_REJECTED",
+        "subject": "registry-118",
+        "detail": "score=30; issues=Отсутствует ссылка на спецификацию Lean 4 (https://doi.org/10.5281/zenodo.21836220)"
+      },
+      {
+        "severity": "warning",
+        "code": "PROOF_CONTENT_REJECTED",
+        "subject": "registry-119",
+        "detail": "score=30; issues=Отсутствует ссылка на спецификацию Lean 4 (https://doi.org/10.5281/zenodo.21836220)"
+      },
+      {
+        "severity": "warning",
+        "code": "PROOF_CONTENT_REJECTED",
+        "subject": "registry-120",
+        "detail": "score=30; issues=Отсутствует ссылка на спецификацию Lean 4 (https://doi.org/10.5281/zenodo.21836220)"
+      }
+    ]
+  },
+  "sanitizedResolved": 0
+}

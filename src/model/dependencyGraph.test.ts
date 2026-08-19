@@ -80,6 +80,31 @@ describe('RICIS-III v7.7 Extended System Auditor & Garbage Collector Unit Tests'
       expect(report.totalInspected).toBe(3);
     });
 
+    it('должен проходить дерево рекурсивно по dependencyIds без edge snapshot', () => {
+      const childNode: ProblemNode = {
+        id: 'dependency-only-child',
+        title: 'Дочерний узел из persisted dependencyIds',
+        targetFunction: 'F = G',
+        description: 'Связь хранится только в обратном dependency reference.',
+        state: 'unresolved',
+        type: 'derived_problem',
+        economic: { costToSolve: 10, costUnresolved: 20, marketGain: 30, riskLoss: 5 },
+        dependencyIds: ['math-singularity'],
+        dependentIds: [],
+        zoneIds: [],
+        fractalDepth: 1,
+      };
+
+      const report = auditor.audit(createMockMapState({
+        nodes: [...rootNodes, childNode],
+        edges: [],
+      }));
+
+      expect(report.isValid).toBe(true);
+      expect(report.orphans).toHaveLength(0);
+      expect(report.totalInspected).toBe(3);
+    });
+
     it('должен выявлять сиротские (orphan) узлы [OrphanSingularity 0_orphan]', () => {
       const orphanNode: ProblemNode = {
         id: 'isolated-node',

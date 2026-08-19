@@ -694,8 +694,23 @@ export class RicisFallbackEngine implements IRicisCoreEngine {
     const verifiedAxioms: string[] = [];
     const knownAxioms = new Set(['L0', 'L1', 'L1C1', 'L1C2', 'SP1', 'SP2', 'SP3', 'SP4', 'A1', 'A2', 'A3', 'A4', 'A5', 'A6', 'A7', 'A8', 'A9', 'A10', 'TCP']);
 
+    if (!proof.targetClaim.trim() || !proof.theoremTitle.trim() || !proof.conclusionInvariant.trim() || proof.steps.length === 0) {
+      return { valid: false, brokenStepIndex: 0, reason: 'Proof chain has no complete claim, theorem title, conclusion invariant, or steps.', verifiedAxioms };
+    }
+    if (proof.complexity !== 'O(1)' || proof.timestamp <= 0) {
+      return { valid: false, brokenStepIndex: 0, reason: 'Proof metadata is incomplete or has an unsupported complexity contract.', verifiedAxioms };
+    }
+
     for (let i = 0; i < proof.steps.length; i++) {
       const step = proof.steps[i]!;
+      if (step.stepNumber !== i + 1 || !step.phase.trim() || !step.statement.trim() || !step.mathematicalForm.trim()) {
+        return {
+          valid: false,
+          brokenStepIndex: i,
+          reason: `Некорректная структура шага ${i + 1}: номер, phase, statement и mathematicalForm обязательны.`,
+          verifiedAxioms,
+        };
+      }
       if (!step.justificationAxiom || !knownAxioms.has(step.justificationAxiom)) {
         return {
           valid: false,
@@ -709,10 +724,23 @@ export class RicisFallbackEngine implements IRicisCoreEngine {
       }
     }
 
-    return {
-      valid: true,
-      verifiedAxioms,
+    const requiredAxioms: Record<RicisProofMethod, string[]> = {
+      geometric_bridge: ['A6'],
+      identity_conservation: ['L1', 'A4'],
+      singularity_separation: ['SP1', 'SP2'],
+      discrete_monolith: ['L0', 'L1'],
+      infinity_arithmetic: ['A7'],
     };
+    for (const axiom of requiredAxioms[proof.method]) {
+      if (!verifiedAxioms.includes(axiom)) {
+        return { valid: false, brokenStepIndex: 0, reason: `Метод ${proof.method} требует аксиому ${axiom}.`, verifiedAxioms };
+      }
+    }
+
+    if (proof.isVerified !== true) {
+      return { valid: false, brokenStepIndex: 0, reason: 'Proof is not marked as verified by its producer.', verifiedAxioms };
+    }
+    return { valid: true, verifiedAxioms };
   }
 
   private inferMethodFromClaim(claim: string): RicisProofMethod {

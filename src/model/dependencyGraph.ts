@@ -24,27 +24,26 @@ export class DependencyGraphAuditor implements IDependencyGraphAuditor {
     const getChildren = (nodeId: string): string[] => {
       const fromEdges = state.edges.filter(e => e.fromId === nodeId).map(e => e.toId);
       const node = state.nodes.find(n => n.id === nodeId);
-      const fromDeps = node?.dependentIds ?? [];
-      return Array.from(new Set([...fromEdges, ...fromDeps]));
+      const fromDependentIds = node?.dependentIds ?? [];
+      // `dependencyIds` is the inverse representation used by persisted map data:
+      // a node is a child of the referenced dependency even when an edge snapshot
+      // is absent. The audit must validate both representations.
+      const fromDependencyReferences = state.nodes
+        .filter(candidate => candidate.dependencyIds?.includes(nodeId))
+        .map(candidate => candidate.id);
+      return Array.from(new Set([...fromEdges, ...fromDependentIds, ...fromDependencyReferences]));
     };
 
-    // 3. BFS Reachability
+    // 3. Recursive reachability with a cycle guard.
     const visited = new Set<string>();
-    const queue = roots.map(r => r.id);
-    roots.forEach(r => visited.add(r.id));
-
-    while (queue.length > 0) {
-      const currentId = queue.shift()!;
-      const children = getChildren(currentId);
-      for (const childId of children) {
-        if (!visited.has(childId)) {
-          if (state.nodes.some(n => n.id === childId)) {
-            visited.add(childId);
-            queue.push(childId);
-          }
-        }
+    const walk = (nodeId: string): void => {
+      if (visited.has(nodeId) || !state.nodes.some(node => node.id === nodeId)) return;
+      visited.add(nodeId);
+      for (const childId of getChildren(nodeId)) {
+        walk(childId);
       }
-    }
+    };
+    roots.forEach(root => walk(root.id));
 
     // 4. Identify Orphans
     const orphans = state.nodes.filter(n => !visited.has(n.id));

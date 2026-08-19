@@ -256,6 +256,42 @@ describe('RICIS-III Core Engine & Reference Bridge', () => {
       expect(verification.valid).toBe(true);
       expect(verification.verifiedAxioms).toContain('A6');
     });
+
+    it('should reject a proof chain with an unknown axiom after mutation', async () => {
+      const proof = await engine.generateFormalProof('0_4 * inf_4', 'geometric_bridge');
+      const mutated = {
+        ...proof,
+        steps: proof.steps.map((step, index) => index === 0 ? { ...step, justificationAxiom: 'A999' } : step),
+      };
+
+      const verification = await engine.verifyProofChain(mutated);
+
+      expect(verification.valid).toBe(false);
+      expect(verification.brokenStepIndex).toBe(0);
+    });
+
+    it('should reject a proof chain whose method lacks its required axiom', async () => {
+      const proof = await engine.generateFormalProof('0_4 * inf_4', 'geometric_bridge');
+      const mutated = { ...proof, method: 'identity_conservation' as const };
+
+      const verification = await engine.verifyProofChain(mutated);
+
+      expect(verification.valid).toBe(false);
+      expect(verification.reason).toContain('A4');
+    });
+
+    it('should reject a proof chain with non-sequential step numbers', async () => {
+      const proof = await engine.generateFormalProof('0_4 * inf_4', 'geometric_bridge');
+      const mutated = {
+        ...proof,
+        steps: proof.steps.map((step, index) => index === 1 ? { ...step, stepNumber: 99 } : step),
+      };
+
+      const verification = await engine.verifyProofChain(mutated);
+
+      expect(verification.valid).toBe(false);
+      expect(verification.brokenStepIndex).toBe(1);
+    });
   });
 
   describe('Lambda / String Serialization Proxy (lambdaToString & stringToLambda)', () => {
