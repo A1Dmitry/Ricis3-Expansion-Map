@@ -1,14 +1,14 @@
 # Structural Hash Refactoring Report
 
 **Версия формата отчёта:** 0.1.0
-**Релиз приложения:** 0.4.26
+**Релиз приложения:** 0.4.27
 **Дата:** 2026-08-17
 **Источник данных:** `src/**/*.ts` и `src/**/*.tsx` без test-файлов
 **Машинный отчёт:** `structural-hash-report.json`
 
-## Релиз v0.4.26: desktop task-panel rail composition boundary
+## Релиз v0.4.27: mobile interaction composition boundary
 
-Desktop task card остаётся отдельной третьей grid-колонкой, пристыкованной к правому краю, но теперь имеет open и узкий rail режимы. В rail-режиме колонка сокращается до 2.75rem, а центральная 3D-сцена получает освободившееся пространство; mobile shell и общий 3D/list renderer остаются неизменными.
+Mobile shell исключает desktop status/zoom footer, показывает task-first context на карте и отделяет вторичные инструменты от результатов поиска. В landscape список результатов использует компактную двухколоночную раскладку; desktop grid и Core-first boundary остаются неизменными.
 
 ## Результат первого прохода
 

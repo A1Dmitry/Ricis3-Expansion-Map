@@ -54,4 +54,19 @@ describe('Map3D mobile graph layout contract', () => {
     expect(mapSource).toContain('onPointerUp={handleScenePointerUp}');
     expect(mapSource).toContain('toggleImmersiveCanvas(sceneContainerRef.current)');
   });
+
+  it('keeps the desktop status strip out of mobile and immersive presentations', () => {
+    expect(mapSource).toContain('data-testid="desktop-status-strip"');
+    expect(mapSource).toContain('!isMobileLayout && !isImmersive');
+    expect(mapSource).toContain('mobile-map-layout__quickbar');
+  });
+
+  it('makes mobile navigation task-first and reserves secondary tools for an explicit group', () => {
+    expect(mapSource).toContain('data-testid="mobile-map-focus-node"');
+    expect(mapSource).toContain('mobile-menu-selected-task');
+    expect(mapSource).toContain('mobile-menu-secondary');
+    expect(mapSource).toContain('Инструменты и настройки');
+    expect(mapSource).toContain('mobile-menu-secondary-grid');
+    expect(mapSource).not.toContain('onClick={handleNavigateBack} className="min-h-10 shrink-0');
+  });
 });

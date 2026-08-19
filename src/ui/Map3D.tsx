@@ -1193,6 +1193,7 @@ export const Map3D: React.FC = () => {
 
   const renderMobileShell = () => {
     const selectedNodeTitle = selectedNode?.title ?? 'Карточка узла';
+    const mobileFocusNode = selectedNode ?? map.nodes.find(node => isNodeAvailable(node, map)) ?? map.nodes[0];
     const shouldRenderMap = mobileView === 'map' || mobileView === 'settings' || isImmersive;
 
     return (
@@ -1317,6 +1318,21 @@ export const Map3D: React.FC = () => {
                     {sensorNotice}
                   </p>
                 )}
+                {mobileFocusNode && (
+                  <button
+                    type="button"
+                    onClick={() => handleNavigateToNode(mobileFocusNode.id)}
+                    className="mobile-map-focus-card mb-2 min-h-13 w-full rounded-lg border border-cyan-800/80 bg-cyan-950/35 px-3 text-left text-cyan-100 flex items-center gap-3"
+                    data-testid="mobile-map-focus-node"
+                  >
+                    <Layers size={16} className="shrink-0 text-cyan-300" />
+                    <span className="min-w-0 flex-1">
+                      <span className="block text-[9px] font-mono uppercase tracking-wider text-cyan-400">{selectedNode ? 'Выбранная задача' : 'Начните с задачи'}</span>
+                      <span className="block truncate text-xs font-bold">{mobileFocusNode.title}</span>
+                    </span>
+                    <ChevronRight size={17} className="shrink-0 text-cyan-300" />
+                  </button>
+                )}
                 <button
                   type="button"
                   onClick={() => openMobileView('menu')}
@@ -1344,23 +1360,38 @@ export const Map3D: React.FC = () => {
                 {searchQuery && <span className="text-[10px] font-mono text-cyan-300">{searchMatchCount}</span>}
               </label>
 
-              <div className="grid grid-cols-1 gap-2">
-                <button type="button" onClick={openMobileSettings} className="min-h-12 rounded-lg border border-neutral-700 bg-neutral-900/70 px-3 text-left text-xs font-bold text-slate-100 inline-flex items-center gap-2"><Settings size={16} className="text-cyan-400" /> Настройки интерфейса и физики</button>
-                <button type="button" onClick={() => void toggleSensorMode()} className="min-h-12 rounded-lg border border-neutral-700 bg-neutral-900/70 px-3 text-left text-xs font-bold text-slate-100 inline-flex items-center gap-2"><Compass size={16} className={sensorModeEnabled ? 'text-emerald-400' : 'text-cyan-400'} /> {sensorModeEnabled ? 'Отключить управление наклоном' : 'Включить управление наклоном'}</button>
-                <button type="button" disabled={!selectedNode} onClick={() => selectedNode && openMobileView('details')} className="min-h-12 rounded-lg border border-neutral-700 bg-neutral-900/70 px-3 text-left text-xs font-bold text-slate-100 inline-flex items-center gap-2 disabled:cursor-not-allowed disabled:opacity-40"><Layers size={16} className="text-cyan-400" /> {selectedNode ? `Открыть: ${selectedNode.title}` : 'Выберите узел на карте'}</button>
-                <button type="button" onClick={() => setShowAddNode(true)} className="min-h-12 rounded-lg border border-emerald-800/70 bg-emerald-950/40 px-3 text-left text-xs font-bold text-emerald-100 inline-flex items-center gap-2"><Plus size={16} /> {t('filter.addNewTask')}</button>
-                <button type="button" onClick={checkCoreRuntime} disabled={isCheckingCoreRuntime} className="min-h-12 rounded-lg border border-violet-800/70 bg-violet-950/30 px-3 text-left text-xs font-bold text-violet-100 inline-flex items-center gap-2 disabled:opacity-50"><Cpu size={16} /> {isCheckingCoreRuntime ? t('core.status.checking') : 'Проверить RICIS Core'}</button>
-              </div>
+              {selectedNode && (
+                <button
+                  type="button"
+                  onClick={() => openMobileView('details')}
+                  className="mobile-menu-selected-task min-h-14 w-full rounded-lg border border-cyan-800/80 bg-cyan-950/35 px-3 text-left text-cyan-100 inline-flex items-center gap-3"
+                >
+                  <Layers size={17} className="shrink-0 text-cyan-300" />
+                  <span className="min-w-0 flex-1"><span className="block text-[9px] font-mono uppercase tracking-wider text-cyan-400">Выбранная задача</span><span className="block truncate text-xs font-bold">{selectedNode.title}</span></span>
+                  <ChevronRight size={17} className="shrink-0 text-cyan-300" />
+                </button>
+              )}
+
+              <details className="mobile-menu-secondary rounded-lg border border-neutral-800 bg-neutral-950/40">
+                <summary className="min-h-12 cursor-pointer list-none px-3 text-xs font-bold text-slate-300 inline-flex w-full items-center justify-between gap-3"><span className="inline-flex items-center gap-2"><SlidersHorizontal size={16} className="text-cyan-400" /> Инструменты и настройки</span><ChevronDown size={16} className="text-slate-500" /></summary>
+                <div className="mobile-menu-secondary-grid border-t border-neutral-800 p-2">
+                  <button type="button" onClick={openMobileSettings} className="min-h-12 rounded-lg border border-neutral-700 bg-neutral-900/70 px-3 text-left text-xs font-bold text-slate-100 inline-flex items-center gap-2"><Settings size={16} className="text-cyan-400" /> Настройки интерфейса и физики</button>
+                  <button type="button" onClick={() => void toggleSensorMode()} className="min-h-12 rounded-lg border border-neutral-700 bg-neutral-900/70 px-3 text-left text-xs font-bold text-slate-100 inline-flex items-center gap-2"><Compass size={16} className={sensorModeEnabled ? 'text-emerald-400' : 'text-cyan-400'} /> {sensorModeEnabled ? 'Отключить управление наклоном' : 'Включить управление наклоном'}</button>
+                  <button type="button" onClick={() => setShowAddNode(true)} className="min-h-12 rounded-lg border border-emerald-800/70 bg-emerald-950/40 px-3 text-left text-xs font-bold text-emerald-100 inline-flex items-center gap-2"><Plus size={16} /> {t('filter.addNewTask')}</button>
+                  <button type="button" onClick={checkCoreRuntime} disabled={isCheckingCoreRuntime} className="min-h-12 rounded-lg border border-violet-800/70 bg-violet-950/30 px-3 text-left text-xs font-bold text-violet-100 inline-flex items-center gap-2 disabled:opacity-50"><Cpu size={16} /> {isCheckingCoreRuntime ? t('core.status.checking') : 'Проверить RICIS Core'}</button>
+                </div>
+              </details>
 
               <section className="rounded-lg border border-neutral-800 bg-neutral-950/50 p-3">
                 <div className="mb-2 flex items-center justify-between"><h2 className="text-[10px] font-bold uppercase tracking-wider text-slate-300">Найденные узлы</h2><span className="text-[10px] font-mono text-slate-500">{searchMatchCount}</span></div>
-                <div className="space-y-1">
+                <div className="mobile-menu-results">
                   {map.nodes.filter(node => visibleNodeIds.has(node.id)).slice(0, 24).map(node => (
                     <button key={node.id} type="button" onClick={() => handleNavigateToNode(node.id)} className="w-full rounded-md px-2 py-2 text-left text-xs text-slate-300 hover:bg-cyan-950/40 hover:text-cyan-100">
                       <span className="block truncate font-semibold">{node.title}</span>
                       <span className="block truncate text-[10px] text-slate-500">{map.zones.find(zone => zone.id === node.zoneIds[0])?.name ?? node.zoneIds[0]}</span>
                     </button>
                   ))}
+                  {searchMatchCount === 0 && <p className="px-2 py-2 text-[10px] text-slate-500">Узлы по этому запросу не найдены.</p>}
                   {searchMatchCount > 24 && <p className="px-2 pt-2 text-[10px] text-slate-500">Уточните запрос, чтобы сузить список.</p>}
                 </div>
               </section>
@@ -1371,9 +1402,8 @@ export const Map3D: React.FC = () => {
         {mobileView === 'details' && selectedNode && !isImmersive && (
           <main className="min-h-0 flex-1 overflow-y-auto bg-[#070707] p-3 touch-pan-y" data-testid="mobile-details-screen">
             <article className="rounded-xl border border-cyan-900/60 bg-black/70 p-3 shadow-xl">
-              <div className="mb-3 flex items-start justify-between gap-3 border-b border-cyan-900/30 pb-3">
-                <div className="min-w-0"><p className="text-[9px] font-mono text-cyan-500">ID: {selectedNode.id}</p><h2 className="mt-1 text-sm font-bold leading-tight text-white">{selectedNode.title}</h2></div>
-                <button type="button" onClick={handleNavigateBack} className="min-h-10 shrink-0 rounded-md border border-cyan-800/70 bg-cyan-950/50 px-3 text-xs font-bold text-cyan-100 inline-flex items-center gap-1"><ArrowLeft size={14} /> Назад</button>
+              <div className="mb-3 border-b border-cyan-900/30 pb-3">
+                <p className="text-[9px] font-mono text-cyan-500">ID: {selectedNode.id}</p><h2 className="mt-1 text-sm font-bold leading-tight text-white">{selectedNode.title}</h2>
               </div>
               <NodeCardDetails node={selectedNode} map={map} isExpanded={true} onEdit={() => setEditingNode(selectedNode)} onNavigateToNode={handleNavigateToNode} />
               <ActionButton
@@ -2103,7 +2133,8 @@ export const Map3D: React.FC = () => {
           initialProblemId={selectedNode?.id}
         />
       )}
-      <footer className="h-10 border-t border-cyan-900/40 bg-[#080808] flex items-center justify-between px-4 shrink-0 z-10 w-full overflow-visible">
+      {!isMobileLayout && !isImmersive && (
+      <footer data-testid="desktop-status-strip" className="h-10 border-t border-cyan-900/40 bg-[#080808] flex items-center justify-between px-4 shrink-0 z-10 w-full overflow-visible">
         {/* Left Side: System Indicator, Arrow Button & Latest Agent Log Line */}
         <div className="flex items-center gap-2.5 text-xs text-slate-400 font-mono overflow-hidden pr-2">
           <span className="flex items-center gap-1.5 shrink-0" title="Статус ИИ-Агента">
@@ -2189,6 +2220,7 @@ export const Map3D: React.FC = () => {
           </button>
         </div>
       </footer>
+      )}
       <RicisTerminalModal />
     </div>
   );

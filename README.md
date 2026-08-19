@@ -1,6 +1,10 @@
 # RICIS3-Expansion-Map
 
-**Версия: v0.4.26**
+**Версия: v0.4.27**
+
+### v0.4.27 — Mobile task-first navigation and clean immersive canvas
+
+Mobile shell теперь исключает desktop status/zoom strip во всех portrait, landscape и fullscreen состояниях. Карта показывает доступную задачу как явную точку входа, menu-first навигация сохраняет поиск и результаты первичными, а инструменты и настройки группируются во вторичном раскрываемом блоке. В landscape результаты используют две колонки, а карточка задачи остаётся прокручиваемой до действия RICIS-решения без footer-overlay.
 
 ### v0.4.26 — Manus-style desktop task panel rail
 

@@ -192,6 +192,33 @@
     flex-direction: column;
     align-items: end;
   }
+
+}
+
+.mobile-menu-secondary-grid,
+.mobile-menu-results {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0.25rem;
+}
+
+.mobile-menu-secondary-grid {
+  gap: 0.5rem;
+}
+
+@media ((max-width: 767px) or ((pointer: coarse) and (max-width: 1023px))) and (orientation: landscape) {
+  .mobile-menu-secondary-grid,
+  .mobile-menu-results {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.mobile-menu-secondary > summary::-webkit-details-marker {
+  display: none;
+}
+
+.mobile-menu-secondary[open] > summary > svg {
+  transform: rotate(180deg);
 }
 
 .mobile-map-layout--immersive {
