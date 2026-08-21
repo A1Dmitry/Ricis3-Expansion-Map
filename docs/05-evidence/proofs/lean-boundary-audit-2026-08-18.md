@@ -1,8 +1,12 @@
 # Lean boundary audit
 
-**Версия:** 0.4.28
+**Версия:** 0.4.29
 **Дата:** 2026-08-18
 **Цель:** установить проверяемую границу между Lean kernel, статическим анализом TypeScript, независимой символьной проверкой и RICIS-черновиком.
+
+## Релиз v0.4.29
+
+Local RICIS Analyzer P0 produces only bounded structural diagnostics and `REQUIRES_CORE_VERIFICATION`. Его source hash, L1/SP4 candidate или user-mediated suggestion не создают Lean evidence, axiom trust или node-resolution state.
 
 ## Релиз v0.4.28
 

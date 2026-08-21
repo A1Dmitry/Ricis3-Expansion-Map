@@ -1,6 +1,10 @@
 # RICIS3-Expansion-Map
 
-**Версия: v0.4.28**
+**Версия: v0.4.29**
+
+### v0.4.29 — Local RICIS Analyzer P0
+
+Добавлен строго opt-in локальный структурный анализатор: immutable source hash, bounded grammar без исполнения пользовательского текста, L1/SP4 candidates, resource-key trace и user-mediated JSON suggestions. Он не запускается из Core failure и не создаёт invariant, proof, Lean evidence или `resolved` state.
 
 ### v0.4.28 — Host control plane application layer
 

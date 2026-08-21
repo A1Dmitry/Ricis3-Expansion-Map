@@ -1,10 +1,14 @@
 # Structural Hash Refactoring Report
 
 **Версия формата отчёта:** 0.1.0
-**Релиз приложения:** 0.4.28
+**Релиз приложения:** 0.4.29
 **Дата:** 2026-08-17
 **Источник данных:** `src/**/*.ts` и `src/**/*.tsx` без test-файлов
 **Машинный отчёт:** `structural-hash-report.json`
+
+## Релиз v0.4.29: Local Analyzer source-hash boundary
+
+Добавлен versioned SHA-256/UTF-8 `SourceExpression` hash для локальной корреляции. Он не является proof hash, Lean evidence, invariant или основанием для map-state promotion; deterministic analyzer остаётся opt-in и Core-first.
 
 ## Релиз v0.4.28: HostControl DI application boundary
 
