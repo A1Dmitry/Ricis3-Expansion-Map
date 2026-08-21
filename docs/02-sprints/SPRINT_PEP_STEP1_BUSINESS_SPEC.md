@@ -1,6 +1,6 @@
 # PEP-01 — Business Specification: authoritative C# Core-backed proof endpoints
 
-**Статус:** Step 1 — ожидает явного подтверждения владельца проекта.
+**Статус:** `APPROVED — владелец проекта подтвердил Step 1; последующие отдельные gates Step 2 architecture и Step 3 QA также были явно утверждены.`
 
 ## 1. Проблема
 

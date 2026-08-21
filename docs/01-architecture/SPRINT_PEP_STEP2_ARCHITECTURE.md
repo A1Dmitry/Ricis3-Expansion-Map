@@ -1,6 +1,6 @@
 # PEP-01 — Step 2 Architecture: C# Core-backed Proof Endpoints
 
-**Статус:** архитектурный контракт; реализации, тестов и production-изменений в этом шаге нет.
+**Статус:** `APPROVED — владелец проекта утвердил Step 2; отдельный Gate Step 3 QA также был явно утверждён. Данный документ определяет только архитектуру и не содержит реализации.`
 
 ## 1. Architectural decision
 
@@ -137,8 +137,8 @@ if HTTP/infrastructure failure:
     preserve current node state; attach recovery diagnostic
 else if LeanStatus == LEAN_VERIFIED:
     node state = resolved
-else if LeanStatus == TRUSTED_AXIOM and explicit NodeTrustPolicy permits it:
-    node state = resolved, visibly marked trusted external contract
+else if LeanStatus == TRUSTED_AXIOM:
+    node state = partial, visibly marked trusted external contract
 else if StructuralStatus == STRUCTURALLY_VERIFIED:
     node state = partial
 else:
@@ -181,12 +181,17 @@ All controlled errors use one safe contract:
 ```csharp
 public sealed record ProofApiErrorResponse(
     string Code,
-    string Message,
+    string MessageResourceKey,
+    IReadOnlyDictionary<string, string> SafeParameters,
     string? ClientRequestId,
     string? ProofRunId,
     IReadOnlyList<ProofRecoveryActionDto> RecoveryActions);
 
-public sealed record ProofRecoveryActionDto(string Code, string Label, string Detail);
+public sealed record ProofRecoveryActionDto(
+    string Code,
+    string LabelResourceKey,
+    string DetailResourceKey,
+    IReadOnlyDictionary<string, string> SafeParameters);
 ```
 
 | HTTP | Code | Browser behavior |
@@ -218,7 +223,7 @@ export interface IRicisProofGateway {
 }
 ```
 
-`RicisWasmBridge` implements `IRicisProofGateway` through `ricisCoreApiUrl()`. It does not call `_legacyEngine` for any method in this contract. Existing local helpers (`lambdaToString`, `stringToLambda`, bracket validation) are reclassified as non-authoritative utilities and may remain in a separate legacy/offline adapter, but they must not alter proof status or map state.
+`RicisWasmBridge` implements `IRicisProofGateway` through `ricisCoreApiUrl()`. It does not call `_legacyEngine` for any method in this contract. `RicisWasmBridge.evaluate()` is unchanged: it remains the existing strict Core-first expression path and must never receive a TypeScript fallback. Existing local helpers (`lambdaToString`, `stringToLambda`, bracket validation) are reclassified as non-authoritative utilities and may remain in a separate legacy/offline adapter, but they must not alter proof status or map state.
 
 ## 10. Bridge and UI migration sequence
 
@@ -228,7 +233,7 @@ export interface IRicisProofGateway {
 4. Change `mapStore.recalculateAcademicProof` to use `LeanEvidenceDto.Status` and `ProofVerificationDto.Status`; delete the `goalMatched → resolved` transition.
 5. Change `logic.ts` seed/document producer to store authoritative response metadata or classify old content as `REQUIRES_CORE_LEAN`.
 6. Add anti-fallback assertions for every production proof call.
-7. Once all consumers are migrated, remove proof methods from the production-facing bridge surface or make each legacy call throw a descriptive offline-only error.
+7. Once all consumers are migrated, retain legacy public proof members for isolated diagnostic/offline compatibility and mark them deprecated. Any removal, rename or behavioural break requires a separate owner approval, consumer inventory, SemVer migration and direct regression evidence.
 
 No step changes a node state silently. Each migration step preserves prior proof history as an artifact, adds an explicit limitation and is released with focused regression coverage.
 
@@ -258,7 +263,26 @@ The contract may proceed to Step 3 QA only if the owner accepts that:
 5. browser fallback never participates in production proof generation, verification or state transitions;
 6. map state follows the two-axis status policy;
 7. proof input remains bounded to the existing restricted parser and typed scenarios;
-8. persistent production proof links require a durable snapshot-store implementation.
+8. persistent production proof links require a durable snapshot-store implementation;
+9. `TRUSTED_AXIOM`, structural verification, `goalMatched`, document validity and fallback output remain `partial`/diagnostic and cannot resolve a node;
+10. every new public endpoint, port or TypeScript gateway method receives a direct deterministic regression test before implementation.
+
+## 13. Step 3 direct QA contract matrix
+
+Step 3 must create deterministic tests before any route, adapter or UI implementation. Tests use Core fixtures/fakes and local HTTP contract harnesses only; no live provider, OAuth token, external host or production Lean claim is required.
+
+| Public surface / policy | Mandatory direct regression cases |
+|---|---|
+| `IProofRunSnapshotStore.SaveAsync` | Immutable content hash, duplicate/overwrite denial, expiry metadata and no expression-tree serialization. |
+| `IProofRunSnapshotStore.FindAsync` | Existing, missing, expired and owner/tenant-denied snapshot outcomes. |
+| Proof derivation application port | Exactly one canonical Core run; invalid parser/scenario input; no user delegate/C#/Lean source; Core failure stores no accepted run. |
+| `POST /api/proofs/v1/runs` | API version/body/size/format validation, safe correlation, malformed successful Core output and controlled failure mapping. |
+| `GET /runs/{proofRunId}` | Immutable response, missing/expired/unauthorised run and no re-derivation. |
+| `GET /documents/{format}` | Every document hash/status matches the stored run; unsupported generic Lean rejects; renderer does not invoke Core again. |
+| `IRicisProofGateway.createRun/getRun/getDocument/getCapabilities` | Fixed relative route/method, runtime DTO validation and anti-fallback spy for every failure branch. |
+| Map trust policy | `LEAN_VERIFIED → resolved`; `TRUSTED_AXIOM`, structural verification, `goalMatched`, `QED_VERIFIED`, JSON/LaTeX and fallback outputs never resolve; Core unavailable preserves state. |
+| Legacy compatibility | Existing public legacy members compile/call only in explicitly isolated diagnostics; production proof consumers contain no fallback output path. |
+| Error/resources | Every controlled error returns resource keys/safe parameters only; no raw exception, token, private key, file path or unredacted input. |
 
 ## References
 
