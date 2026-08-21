@@ -88,6 +88,98 @@ export const DICTIONARY = {
     ru: 'Консоль RICIS',
     en: 'RICIS Console',
   },
+  'proofConsole.title': {
+    ru: 'Консоль доказательств и сингулярностей RICIS-III',
+    en: 'RICIS-III Proof & Singularity Console',
+  },
+  'proofConsole.runtime.wasmCore': {
+    ru: 'C# Core WebAssembly',
+    en: 'C# Core WebAssembly',
+  },
+  'proofConsole.runtime.diagnostic': {
+    ru: 'Детерминированная диагностика TypeScript',
+    en: 'TypeScript deterministic diagnostics',
+  },
+  'proofConsole.subtitle': {
+    ru: 'Локальная RICIS-цепочка; статус Lean требует отдельного воспроизводимого kernel evidence.',
+    en: 'Local RICIS path; Lean status requires separate reproducible kernel evidence.',
+  },
+  'proofConsole.tab.evaluate': {
+    ru: 'Вычисление сингулярностей O(1)',
+    en: 'O(1) singularity evaluation',
+  },
+  'proofConsole.tab.prove': {
+    ru: 'Генератор формальных доказательств',
+    en: 'Formal proof generator',
+  },
+  'proofConsole.presets': {
+    ru: 'Предустановки',
+    en: 'Presets',
+  },
+  'proofConsole.preset.a6': {
+    ru: '0_5 * inf_3 (A6)',
+    en: '0_5 * inf_3 (A6)',
+  },
+  'proofConsole.preset.l1': {
+    ru: '0_7 / 0_7 (идентичность L1)',
+    en: '0_7 / 0_7 (L1 identity)',
+  },
+  'proofConsole.preset.a4': {
+    ru: '0_10 / 0_2 (отношение A4)',
+    en: '0_10 / 0_2 (A4 ratio)',
+  },
+  'proofConsole.preset.a10': {
+    ru: '8 / 0 (A10)',
+    en: '8 / 0 (A10)',
+  },
+  'proofConsole.preset.a7': {
+    ru: 'inf_10 - inf_3 (A7)',
+    en: 'inf_10 - inf_3 (A7)',
+  },
+  'proofConsole.evaluatePlaceholder': {
+    ru: 'Введите сингулярное выражение, например 0_5 * inf_3 или 0_10 / 0_2',
+    en: 'Enter a singular expression, for example 0_5 * inf_3 or 0_10 / 0_2',
+  },
+  'proofConsole.evaluating': {
+    ru: 'Вычисление...',
+    en: 'Evaluating...',
+  },
+  'proofConsole.evaluate': {
+    ru: 'Рассчитать за O(1)',
+    en: 'Evaluate in O(1)',
+  },
+  'proofConsole.exactInvariant': {
+    ru: 'Точный инвариант RICIS-III',
+    en: 'Exact RICIS-III invariant',
+  },
+  'proofConsole.semanticIndex': {
+    ru: 'Семантический индекс',
+    en: 'Semantic index',
+  },
+  'proofConsole.complexity': {
+    ru: 'Сложность',
+    en: 'Complexity',
+  },
+  'proofConsole.runtime': {
+    ru: 'Рантайм',
+    en: 'Runtime',
+  },
+  'proofConsole.traceTitle': {
+    ru: 'Трассировка 8 фаз конвейера (фазы -1...6)',
+    en: 'Eight-phase pipeline trace (phases -1...6)',
+  },
+  'proofConsole.axiom': {
+    ru: 'Аксиома',
+    en: 'Axiom',
+  },
+  'proofConsole.input': {
+    ru: 'Вход',
+    en: 'Input',
+  },
+  'proofConsole.output': {
+    ru: 'Выход',
+    en: 'Output',
+  },
   'proofConsole.claimLabel': {
     ru: 'Утверждение / выражение',
     en: 'Claim / expression',

@@ -3,10 +3,11 @@ import React, { act } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { RicisProofConsoleModal } from './RicisProofConsoleModal';
 import type { IRicisCoreEngine } from '../services/ricisCore/IRicisCoreEngine';
 import type { IRicisProofGateway, ProofRunResponse } from '../services/ricisCore/IRicisProofGateway';
+import { useI18nStore } from '../store/useI18nStore';
 
 (globalThis as typeof globalThis & { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
 
@@ -43,6 +44,10 @@ describe('RicisProofConsoleModal authoritative proof transport', () => {
   let root: Root | undefined;
   let container: HTMLDivElement | undefined;
 
+  beforeEach(() => {
+    useI18nStore.getState().setLocale('ru');
+  });
+
   afterEach(async () => {
     if (root) {
       await act(async () => root?.unmount());
@@ -57,6 +62,30 @@ describe('RicisProofConsoleModal authoritative proof transport', () => {
 
     expect(source).toContain('proofGateway.createRun');
     expect(source).not.toMatch(/\b(generateFormalProof|verifyProofChain|proveSystem)\b/);
+    for (const formerLiteral of [
+      'RICIS-III Proof & Singularity Console',
+      'Вычисление сингулярностей O(1)',
+      'Генератор формальных доказательств',
+      'Предустановки:',
+      'Вычисление...',
+      'Точный инвариант RICIS-III',
+      'Трассировка 8 фаз конвейера',
+    ]) {
+      expect(source).not.toContain(formerLiteral);
+    }
+  });
+
+  it('provides bilingual dictionary resources for the console surface', () => {
+    const store = useI18nStore.getState();
+    store.setLocale('ru');
+    expect(store.t('proofConsole.title')).toBe('Консоль доказательств и сингулярностей RICIS-III');
+    expect(store.t('proofConsole.evaluate')).toBe('Рассчитать за O(1)');
+    expect(store.t('proofConsole.traceTitle')).toBe('Трассировка 8 фаз конвейера (фазы -1...6)');
+
+    store.setLocale('en');
+    expect(store.t('proofConsole.title')).toBe('RICIS-III Proof & Singularity Console');
+    expect(store.t('proofConsole.evaluate')).toBe('Evaluate in O(1)');
+    expect(store.t('proofConsole.traceTitle')).toBe('Eight-phase pipeline trace (phases -1...6)');
   });
 
   it('sends one bounded createRun request and never invokes legacy proof methods', async () => {

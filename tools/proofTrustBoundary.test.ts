@@ -25,7 +25,7 @@ describe('public proof-trust boundary', () => {
     const terminal = readSource('src/ui/RicisTerminalModal.tsx');
     const mapStore = readSource('src/store/mapStore.ts');
 
-    expect(proofConsole).toContain('Lean-статус требует отдельного воспроизводимого kernel evidence');
+    expect(proofConsole).toContain("t('proofConsole.subtitle')");
     expect(proofConsole).not.toContain('Q.E.D. VERIFIED');
     expect(theoremViewer).toContain('Lean kernel не запускался');
     expect(terminal).toContain('требуется Core/Lean evidence');

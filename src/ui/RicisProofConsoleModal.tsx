@@ -130,15 +130,15 @@ export const RicisProofConsoleModal: React.FC<RicisProofConsoleModalProps> = ({
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h2 className="text-sm font-bold tracking-wider text-slate-100 uppercase">RICIS-III Proof & Singularity Console</h2>
+                <h2 className="text-sm font-bold tracking-wider text-slate-100 uppercase">{t('proofConsole.title')}</h2>
                 <span className="text-[10px] px-2 py-0.5 rounded font-mono bg-cyan-950/60 border border-cyan-800/40 text-cyan-300">
                   {APP_BUILD_LABEL}
                 </span>
                 <span className="text-[10px] px-2 py-0.5 rounded font-mono bg-cyan-950/60 border border-cyan-800/40 text-cyan-300">
-                  {engine.status === 'ready_wasm' ? 'WASM C# Core' : 'TS Deterministic Engine'}
+                  {engine.status === 'ready_wasm' ? t('proofConsole.runtime.wasmCore') : t('proofConsole.runtime.diagnostic')}
                 </span>
               </div>
-              <p className="text-[11px] text-slate-400 font-mono">Локальная RICIS-цепочка; Lean-статус требует отдельного воспроизводимого kernel evidence.</p>
+              <p className="text-[11px] text-slate-400 font-mono">{t('proofConsole.subtitle')}</p>
             </div>
           </div>
           <button
@@ -160,7 +160,7 @@ export const RicisProofConsoleModal: React.FC<RicisProofConsoleModalProps> = ({
             }`}
           >
             <Play className="w-3.5 h-3.5" />
-            Вычисление сингулярностей O(1)
+            {t('proofConsole.tab.evaluate')}
           </button>
           <button
             onClick={() => setActiveTab('prove')}
@@ -171,7 +171,7 @@ export const RicisProofConsoleModal: React.FC<RicisProofConsoleModalProps> = ({
             }`}
           >
             <BookOpen className="w-3.5 h-3.5" />
-            Генератор формальных доказательств
+            {t('proofConsole.tab.prove')}
           </button>
         </div>
 
@@ -179,36 +179,36 @@ export const RicisProofConsoleModal: React.FC<RicisProofConsoleModalProps> = ({
         <div className="flex-1 overflow-y-auto p-5 space-y-4">
           {/* Quick Presets */}
           <div className="flex items-center gap-2 flex-wrap">
-            <span className="text-[11px] text-slate-500 uppercase tracking-wider font-mono">Предустановки:</span>
+            <span className="text-[11px] text-slate-500 uppercase tracking-wider font-mono">{t('proofConsole.presets')}:</span>
             <button
               onClick={() => setPreset('0_5 * inf_3')}
               className="text-[11px] font-mono px-2.5 py-1 rounded bg-[#0e1626] hover:bg-cyan-950/60 border border-cyan-900/40 text-cyan-300 transition-colors"
             >
-              0_5 * inf_3 (A6)
+              {t('proofConsole.preset.a6')}
             </button>
             <button
               onClick={() => setPreset('0_7 / 0_7')}
               className="text-[11px] font-mono px-2.5 py-1 rounded bg-[#0e1626] hover:bg-cyan-950/60 border border-cyan-900/40 text-cyan-300 transition-colors"
             >
-              0_7 / 0_7 (L1 Identity)
+              {t('proofConsole.preset.l1')}
             </button>
             <button
               onClick={() => setPreset('0_10 / 0_2')}
               className="text-[11px] font-mono px-2.5 py-1 rounded bg-[#0e1626] hover:bg-cyan-950/60 border border-cyan-900/40 text-cyan-300 transition-colors"
             >
-              0_10 / 0_2 (A4 Ratio)
+              {t('proofConsole.preset.a4')}
             </button>
             <button
               onClick={() => setPreset('8 / 0')}
               className="text-[11px] font-mono px-2.5 py-1 rounded bg-[#0e1626] hover:bg-cyan-950/60 border border-cyan-900/40 text-cyan-300 transition-colors"
             >
-              8 / 0 (A10)
+              {t('proofConsole.preset.a10')}
             </button>
             <button
               onClick={() => setPreset('inf_10 - inf_3')}
               className="text-[11px] font-mono px-2.5 py-1 rounded bg-[#0e1626] hover:bg-cyan-950/60 border border-cyan-900/40 text-cyan-300 transition-colors"
             >
-              inf_10 - inf_3 (A7)
+              {t('proofConsole.preset.a7')}
             </button>
           </div>
 
@@ -221,7 +221,7 @@ export const RicisProofConsoleModal: React.FC<RicisProofConsoleModalProps> = ({
                   value={expression}
                   onChange={(e) => setExpression(e.target.value)}
                   onKeyDown={(e) => e.key === 'Enter' && handleRunEvaluation()}
-                  placeholder="Введите сингулярное выражение (e.g. 0_5 * inf_3, 0_10 / 0_2)..."
+                  placeholder={t('proofConsole.evaluatePlaceholder')}
                   className="flex-1 bg-[#050810] border border-cyan-900/50 rounded-lg px-3.5 py-2 text-sm text-slate-100 font-mono focus:outline-none focus:border-cyan-400 shadow-inner"
                 />
                 <button
@@ -230,7 +230,7 @@ export const RicisProofConsoleModal: React.FC<RicisProofConsoleModalProps> = ({
                   className="flex items-center gap-2 px-5 py-2 rounded-lg bg-cyan-600 hover:bg-cyan-500 text-black font-semibold text-xs transition-colors shadow-lg shadow-cyan-950/50"
                 >
                   <Play className="w-3.5 h-3.5 fill-current" />
-                  {isEvaluating ? 'Вычисление...' : 'Рассчитать в O(1)'}
+                  {isEvaluating ? t('proofConsole.evaluating') : t('proofConsole.evaluate')}
                 </button>
               </div>
 
@@ -240,17 +240,17 @@ export const RicisProofConsoleModal: React.FC<RicisProofConsoleModalProps> = ({
                   {/* Summary Card */}
                   <div className="p-4 rounded-lg bg-[#070c16] border border-cyan-900/50 flex items-center justify-between">
                     <div>
-                      <div className="text-[11px] uppercase tracking-wider text-slate-400 font-mono">Точный инвариант RICIS-III</div>
+                      <div className="text-[11px] uppercase tracking-wider text-slate-400 font-mono">{t('proofConsole.exactInvariant')}</div>
                       <div className="text-2xl font-bold font-mono text-cyan-300 mt-1">{evalResult.invariant}</div>
                       {evalResult.semanticIndex && (
-                        <div className="text-xs text-slate-400 font-mono mt-1">Семантический индекс: {evalResult.semanticIndex}</div>
+                        <div className="text-xs text-slate-400 font-mono mt-1">{t('proofConsole.semanticIndex')}: {evalResult.semanticIndex}</div>
                       )}
                     </div>
                     <div className="text-right space-y-1 font-mono text-xs">
                       <div className="text-emerald-400 font-semibold flex items-center justify-end gap-1.5">
-                        <CheckCircle2 className="w-4 h-4" /> Сложность O(1)
+                        <CheckCircle2 className="w-4 h-4" /> {t('proofConsole.complexity')} O(1)
                       </div>
-                      <div className="text-slate-400">Рантайм: {evalResult.executionEngine}</div>
+                      <div className="text-slate-400">{t('proofConsole.runtime')}: {evalResult.executionEngine}</div>
                     </div>
                   </div>
 
@@ -259,7 +259,7 @@ export const RicisProofConsoleModal: React.FC<RicisProofConsoleModalProps> = ({
                     <div className="px-4 py-2.5 bg-[#080e1a] border-b border-cyan-900/30 flex items-center gap-2">
                       <Layers className="w-4 h-4 text-cyan-400" />
                       <span className="text-xs font-semibold text-slate-200 uppercase tracking-wider font-mono">
-                        Трассировка 8 фаз конвейера (Phases -1...6)
+                        {t('proofConsole.traceTitle')}
                       </span>
                     </div>
                     <div className="p-3 space-y-2 font-mono text-xs">
@@ -271,12 +271,12 @@ export const RicisProofConsoleModal: React.FC<RicisProofConsoleModalProps> = ({
                               <span className="text-slate-300 font-medium">— {step.title}</span>
                               {step.appliedAxiom && (
                                 <span className="px-1.5 py-0.2 rounded text-[10px] bg-cyan-950 text-cyan-300 border border-cyan-800/40">
-                                  Аксиома {step.appliedAxiom}
+                                  {t('proofConsole.axiom')} {step.appliedAxiom}
                                 </span>
                               )}
                             </div>
-                            <div className="text-slate-400 text-[11px]">Вход: <span className="text-slate-200">{step.inputState}</span></div>
-                            <div className="text-emerald-400/90 text-[11px]">Выход: <span className="text-emerald-300">{step.outputState}</span></div>
+                            <div className="text-slate-400 text-[11px]">{t('proofConsole.input')}: <span className="text-slate-200">{step.inputState}</span></div>
+                            <div className="text-emerald-400/90 text-[11px]">{t('proofConsole.output')}: <span className="text-emerald-300">{step.outputState}</span></div>
                           </div>
                           <span className="text-[10px] px-1.5 py-0.5 rounded bg-black/40 text-slate-400 border border-neutral-800">
                             {step.complexity}
