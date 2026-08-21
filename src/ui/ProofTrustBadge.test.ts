@@ -56,4 +56,18 @@ describe('getProofTrustPresentation', () => {
       tone: 'rose',
     });
   });
+
+  it('localizes trust presentation through the explicit Russian locale without changing the trust code', () => {
+    expect(getProofTrustPresentation(baseNode, baseProof, 'ru')).toMatchObject({
+      code: 'NODE_STATE_ONLY',
+      label: 'Состояние workflow: resolved',
+      description: 'Узел отмечен как resolved в карте. Этот статус сам по себе не является Lean kernel verification.',
+      tone: 'slate',
+    });
+    expect(getProofTrustPresentation({ state: 'partial' }, baseProof, 'ru')).toMatchObject({
+      code: 'REQUIRES_CORE_LEAN',
+      label: 'Требуется evidence Core / Lean',
+      tone: 'amber',
+    });
+  });
 });

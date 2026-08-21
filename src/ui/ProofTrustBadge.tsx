@@ -1,4 +1,6 @@
 import type { ProblemNode, Proof } from '../model/types';
+import { DICTIONARY, type SupportedLocale } from '../model/i18n.types';
+import { useI18nStore } from '../store/useI18nStore';
 
 export type ProofTrustTone = 'emerald' | 'amber' | 'rose' | 'slate' | 'cyan';
 
@@ -30,14 +32,15 @@ const TONE_CLASSES: Readonly<Record<ProofTrustTone, string>> = {
 export function getProofTrustPresentation(
   node: Pick<ProblemNode, 'state' | 'leanErrors' | 'leanWarnings'>,
   proof?: Proof,
+  locale: SupportedLocale = 'en',
 ): ProofTrustPresentation {
   const externalLean = proof?.externalLean;
 
   if (externalLean?.trustStatus === 'LEAN_VERIFIED') {
     return {
       code: 'LEAN_VERIFIED',
-      label: 'Lean kernel verified',
-      description: 'Есть воспроизводимые toolchain, compiler output и axiom report для внешнего исходника Lean.',
+      label: DICTIONARY['proofTrust.leanVerified.label'][locale],
+      description: DICTIONARY['proofTrust.leanVerified.description'][locale],
       tone: 'emerald',
     };
   }
@@ -45,8 +48,8 @@ export function getProofTrustPresentation(
   if (externalLean?.trustStatus === 'TRUSTED_AXIOM') {
     return {
       code: 'TRUSTED_AXIOM',
-      label: 'Trusted external axiom',
-      description: 'Внешний неизменяемый Lean-исходник принят как явно маркированный trusted contract; это не автоматически сгенерированная теорема.',
+      label: DICTIONARY['proofTrust.trustedAxiom.label'][locale],
+      description: DICTIONARY['proofTrust.trustedAxiom.description'][locale],
       tone: 'cyan',
     };
   }
@@ -54,8 +57,8 @@ export function getProofTrustPresentation(
   if (externalLean?.trustStatus === 'REJECTED' || (node.leanErrors?.length ?? 0) > 0) {
     return {
       code: 'REJECTED',
-      label: 'Verification rejected',
-      description: 'Есть ошибка Lean-проверки или внешнее доказательство отклонено. Утверждение нельзя использовать как подтверждённое.',
+      label: DICTIONARY['proofTrust.rejected.label'][locale],
+      description: DICTIONARY['proofTrust.rejected.description'][locale],
       tone: 'rose',
     };
   }
@@ -63,8 +66,8 @@ export function getProofTrustPresentation(
   if (externalLean?.trustStatus === 'REQUIRES_CORE_LEAN' || node.state === 'partial') {
     return {
       code: 'REQUIRES_CORE_LEAN',
-      label: 'Requires Core / Lean evidence',
-      description: 'Структурный RICIS-результат или исходник сохранён, но Lean kernel evidence ещё не приложен.',
+      label: DICTIONARY['proofTrust.requiresCoreLean.label'][locale],
+      description: DICTIONARY['proofTrust.requiresCoreLean.description'][locale],
       tone: 'amber',
     };
   }
@@ -72,16 +75,16 @@ export function getProofTrustPresentation(
   if (proof && node.state === 'resolved') {
     return {
       code: 'NODE_STATE_ONLY',
-      label: 'Resolved workflow state',
-      description: 'Узел отмечен как resolved в карте. Этот статус сам по себе не является Lean kernel verification.',
+      label: DICTIONARY['proofTrust.nodeStateOnly.label'][locale],
+      description: DICTIONARY['proofTrust.nodeStateOnly.description'][locale],
       tone: 'slate',
     };
   }
 
   return {
     code: 'NO_PROOF',
-    label: 'No proof evidence attached',
-    description: 'Для узла пока не приложен proof artifact с проверяемой provenance.',
+    label: DICTIONARY['proofTrust.noProof.label'][locale],
+    description: DICTIONARY['proofTrust.noProof.description'][locale],
     tone: 'slate',
   };
 }
@@ -95,7 +98,8 @@ export function ProofTrustBadge({
   readonly proof?: Proof;
   readonly expanded?: boolean;
 }) {
-  const presentation = getProofTrustPresentation(node, proof);
+  const locale = useI18nStore(state => state.locale);
+  const presentation = getProofTrustPresentation(node, proof, locale);
 
   return (
     <div className={`rounded border px-2 py-1 ${TONE_CLASSES[presentation.tone]}`}>

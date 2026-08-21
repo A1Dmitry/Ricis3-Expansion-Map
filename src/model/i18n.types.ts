@@ -88,6 +88,54 @@ export const DICTIONARY = {
     ru: 'Консоль RICIS',
     en: 'RICIS Console',
   },
+  'proofTrust.leanVerified.label': {
+    ru: 'Lean kernel подтверждён',
+    en: 'Lean kernel verified',
+  },
+  'proofTrust.leanVerified.description': {
+    ru: 'Для внешнего исходника Lean сохранены воспроизводимые toolchain, compiler output и axiom report.',
+    en: 'Reproducible toolchain, compiler output and axiom report are retained for the external Lean source.',
+  },
+  'proofTrust.trustedAxiom.label': {
+    ru: 'Доверенный внешний аксиоматический контракт',
+    en: 'Trusted external axiom',
+  },
+  'proofTrust.trustedAxiom.description': {
+    ru: 'Неизменяемый внешний Lean-исходник принят как явно маркированный trusted contract; это не автоматически сгенерированная теорема.',
+    en: 'An immutable external Lean source is accepted as an explicitly labelled trusted contract; it is not an automatically generated theorem.',
+  },
+  'proofTrust.rejected.label': {
+    ru: 'Верификация отклонена',
+    en: 'Verification rejected',
+  },
+  'proofTrust.rejected.description': {
+    ru: 'Есть ошибка Lean-проверки или внешнее доказательство отклонено. Утверждение нельзя использовать как подтверждённое.',
+    en: 'A Lean verification error exists or the external proof was rejected. The claim cannot be used as confirmed.',
+  },
+  'proofTrust.requiresCoreLean.label': {
+    ru: 'Требуется evidence Core / Lean',
+    en: 'Requires Core / Lean evidence',
+  },
+  'proofTrust.requiresCoreLean.description': {
+    ru: 'Структурный RICIS-результат или исходник сохранён, но Lean kernel evidence ещё не приложен.',
+    en: 'A structural RICIS result or source is retained, but Lean kernel evidence has not yet been attached.',
+  },
+  'proofTrust.nodeStateOnly.label': {
+    ru: 'Состояние workflow: resolved',
+    en: 'Resolved workflow state',
+  },
+  'proofTrust.nodeStateOnly.description': {
+    ru: 'Узел отмечен как resolved в карте. Этот статус сам по себе не является Lean kernel verification.',
+    en: 'The node is marked resolved in the map. That workflow status alone is not Lean kernel verification.',
+  },
+  'proofTrust.noProof.label': {
+    ru: 'Proof evidence не приложен',
+    en: 'No proof evidence attached',
+  },
+  'proofTrust.noProof.description': {
+    ru: 'Для узла пока не приложен proof artifact с проверяемой provenance.',
+    en: 'No proof artifact with verifiable provenance is attached to this node yet.',
+  },
   'proofConsole.title': {
     ru: 'Консоль доказательств и сингулярностей RICIS-III',
     en: 'RICIS-III Proof & Singularity Console',
