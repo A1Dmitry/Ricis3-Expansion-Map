@@ -42,7 +42,8 @@ describe('logic Unit Tests', () => {
 
       expect(proof.nodeId).toBe('math-singularity');
       expect(proof.steps.length).toBeGreaterThanOrEqual(5);
-      expect(proof.latex).toContain('geometric_bridge');
+      expect(proof.latex).toContain('REQUIRES_CORE_LEAN');
+      expect(proof.latex).not.toContain('geometric_bridge');
       expect(proof.finalResult).toContain('math-singularity_resolved');
     });
   });
@@ -65,12 +66,12 @@ describe('logic Unit Tests', () => {
   });
 
   describe('solveNodeLogic', () => {
-    it('should mark node as resolved, generate proof and expand map', async () => {
+    it('keeps locally generated proof partial without authoritative Core Lean evidence', async () => {
       const map = createTestMap();
       const solvedState = await solveNodeLogic(map, 'math-singularity');
 
       const resolvedNode = solvedState.nodes.find(n => n.id === 'math-singularity');
-      expect(resolvedNode?.state).toBe('resolved');
+      expect(resolvedNode?.state).toBe('partial');
       expect(solvedState.proofs['math-singularity']).toBeDefined();
     });
   });

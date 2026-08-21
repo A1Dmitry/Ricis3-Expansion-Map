@@ -4,10 +4,8 @@ import {
   isErrorProofLatex,
   repairAgentLatex,
 } from './latexGuard';
-import { auditProofContent, buildCanonicalRicisProofLatex, containsSorry, transformCauchyToRicisBridge } from './ricisCoreRules';
-import { verifyLeanProof } from './leanVerifier';
-import { nodeHasSorry, recolorEdgesForTargets } from './audit';
-import { getRicisCoreEngine } from '../services/ricisCore';
+import { auditProofContent, buildCanonicalRicisProofLatex, transformCauchyToRicisBridge } from './ricisCoreRules';
+import { recolorEdgesForTargets } from './audit';
 
 import { KNOWN_SINGULARITY_PROBLEMS } from './catalog';
 
@@ -53,34 +51,11 @@ export async function generateProof(node: ProblemNode, allAxioms: Axiom[]): Prom
         const audit = auditProofContent(transformed);
         latex = audit.isValid ? transformed : fallback;
       }
-    } else {
-      // ИИ-агент заблокирован или недоступен — используем детерминированное ядро Ricis.Core
-      const coreEngine = getRicisCoreEngine();
-      const coreProofDoc = await coreEngine.generateFormalProof(
-        node.title || node.id,
-        'geometric_bridge',
-        { problemId: node.id }
-      );
-      if (coreProofDoc && coreProofDoc.lean4CodeSnippet) {
-        latex = coreProofDoc.lean4CodeSnippet;
-      }
     }
   } catch {
-    try {
-      const coreEngine = getRicisCoreEngine();
-      const coreProofDoc = await coreEngine.generateFormalProof(
-        node.title || node.id,
-        'geometric_bridge',
-        { problemId: node.id }
-      );
-      if (coreProofDoc && coreProofDoc.lean4CodeSnippet) {
-        latex = coreProofDoc.lean4CodeSnippet;
-      } else {
-        latex = fallback;
-      }
-    } catch {
-      latex = fallback;
-    }
+    // A provider failure leaves only the local diagnostic document. It must not
+    // call legacy proof methods or claim authoritative Core/Lean evidence.
+    latex = fallback;
   }
 
   const finalResult = 'Axiom Extracted: ' + node.id + '_resolved';
@@ -176,37 +151,25 @@ export async function solveNodeLogic(map: MapState, nodeId: string): Promise<Map
 
   const existingProof = map.proofs[nodeId];
   let proof: Proof;
-  let isFullyResolved = false;
   let leanErrors: string[] = [];
-  let leanWarnings: string[] = [];
+  let leanWarnings: string[] = ['proof.core.state.localDiagnosticOnly'];
 
-  const hasLeanKeywords = existingProof && existingProof.latex && 
-    /\btheorem\b|\blemma\b|\bdef\b|\binductive\b|\bstructure\b|\baxiom\b|\bimport\b/i.test(existingProof.latex);
-
-  if (existingProof && existingProof.latex && hasLeanKeywords) {
-    // Priority: verify user-provided Lean 4 proof on recalculation input
+  if (existingProof && existingProof.latex) {
     proof = existingProof;
-    const verification = verifyLeanProof(existingProof.latex, node.title, node.targetFunction);
-    isFullyResolved = verification.status === 'LEAN_VERIFIED';
-    leanErrors = verification.errors;
-    leanWarnings = verification.warnings;
-    if (verification.status === 'STATIC_CHECK_PASSED') {
-      leanWarnings.push('Статическая проверка не заменяет запуск Lean kernel; узел остаётся partial.');
-    }
+    const audit = auditProofContent(existingProof.latex);
+    leanErrors = audit.isValid ? [] : audit.issues;
   } else {
-    // Fallback: run normal proof generation
     proof = await generateProof(node, map.axioms);
     const audit = auditProofContent(proof.latex);
-    const hasSorry = nodeHasSorry(node, proof);
-    isFullyResolved = audit.isValid && !hasSorry;
-    if (!isFullyResolved) {
-      leanErrors = audit.issues;
-    }
+    leanErrors = audit.isValid ? [] : audit.issues;
   }
 
   const updatedNode: ProblemNode = {
     ...node,
-    state: isFullyResolved ? 'resolved' : 'partial',
+    // Only an AuthoritativeProofStatePolicy decision over a Core proof snapshot
+    // can create `resolved`. This legacy/local route preserves prior resolution
+    // but otherwise records diagnostics as partial evidence.
+    state: node.state === 'resolved' ? 'resolved' : 'partial',
     leanErrors,
     leanWarnings,
   };
