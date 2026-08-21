@@ -88,6 +88,70 @@ export const DICTIONARY = {
     ru: 'Консоль RICIS',
     en: 'RICIS Console',
   },
+  'proofConsole.claimLabel': {
+    ru: 'Утверждение / выражение',
+    en: 'Claim / expression',
+  },
+  'proofConsole.claimPlaceholder': {
+    ru: 'Например: x => x / x',
+    en: 'For example: x => x / x',
+  },
+  'proofConsole.expectedLabel': {
+    ru: 'Ожидаемое выражение',
+    en: 'Expected expression',
+  },
+  'proofConsole.expectedPlaceholder': {
+    ru: 'Введите выражение, эквивалентность с которым проверяет Core',
+    en: 'Enter the expression whose equivalence Core should verify',
+  },
+  'proofConsole.createRun': {
+    ru: 'Создать авторитетный proof run',
+    en: 'Create authoritative proof run',
+  },
+  'proofConsole.creatingRun': {
+    ru: 'Создание proof run...',
+    en: 'Creating proof run...',
+  },
+  'proofConsole.snapshotTitle': {
+    ru: 'Неизменяемый снимок Ricis.Core',
+    en: 'Immutable Ricis.Core snapshot',
+  },
+  'proofConsole.correlationId': {
+    ru: 'Correlation ID',
+    en: 'Correlation ID',
+  },
+  'proofConsole.proofRunId': {
+    ru: 'Proof run ID',
+    en: 'Proof run ID',
+  },
+  'proofConsole.coreVersion': {
+    ru: 'Версия Core',
+    en: 'Core version',
+  },
+  'proofConsole.structuralStatus': {
+    ru: 'Структурный статус',
+    en: 'Structural status',
+  },
+  'proofConsole.trustStatus': {
+    ru: 'Статус доверия',
+    en: 'Trust status',
+  },
+  'proofConsole.evidenceBoundary': {
+    ru: 'Граница evidence',
+    en: 'Evidence boundary',
+  },
+  'proofConsole.traceCount': {
+    ru: 'Записей trace',
+    en: 'Trace entries',
+  },
+  'proofConsole.documents': {
+    ru: 'Документы снимка',
+    en: 'Snapshot documents',
+  },
+  'proofConsole.recoveryTitle': {
+    ru: 'Core не создал proof snapshot',
+    en: 'Core did not create a proof snapshot',
+  },
   'node.relatedAvailable': {
     ru: 'Доступные связанные задачи',
     en: 'Available related problems',
