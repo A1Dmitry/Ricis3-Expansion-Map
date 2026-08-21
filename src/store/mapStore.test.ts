@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { useMapStore } from './mapStore';
 import { ProblemNode, DependencyEdge } from '../model/types';
+import { auditProofContent } from '../model/ricisCoreRules';
 
 // Мокаем зависимости бэка, если необходимо (например, apiClient или db.ts)
 vi.mock('../model/apiClient', () => ({
@@ -205,7 +206,37 @@ describe('Zustand mapStore.ts Integration Tests (RICIS-III v7.7 Diagnostics & GC
     expect(latex).toBe('\\text{det}(u,v) = 15');
   });
 
-  it('фиксирует внешний Lean source без замены и принимает его как trusted axiom только с kernel evidence', async () => {
+  it('keeps locally audit-valid proof text partial until authoritative Core Lean evidence exists', async () => {
+    const node: ProblemNode = {
+      id: 'local-audit-proof-node',
+      title: 'Локальное audit-valid доказательство',
+      targetFunction: '0_F * inf_G = F * G',
+      description: 'PEP-01 local audit non-authority regression',
+      state: 'unresolved',
+      type: 'core_singularity',
+      economic: { costToSolve: 0, costUnresolved: 0, marketGain: 0, riskLoss: 0 },
+      dependencyIds: [],
+      dependentIds: [],
+      zoneIds: ['math'],
+      fractalDepth: 0,
+    };
+    const locallyValidProof = [
+      'RICIS proof artifact.',
+      'RICIS A6 rule: 0_F * \\infty_G = F * G.',
+      'Formal specification: https://doi.org/10.5281/zenodo.21836220.',
+    ].join('\n');
+
+    expect(auditProofContent(locallyValidProof).isValid).toBe(true);
+    useMapStore.setState({ nodes: [node], proofs: {} } as any);
+
+    await useMapStore.getState().updateProof(node.id, locallyValidProof);
+
+    const state = useMapStore.getState();
+    expect(state.proofs[node.id]?.latex).toBe(locallyValidProof);
+    expect(state.nodes.find(item => item.id === node.id)?.state).toBe('partial');
+  });
+
+  it('keeps an accepted trusted external Lean contract partial without Core Lean evidence', async () => {
     const node: ProblemNode = {
       id: 'external-lean-node',
       title: 'Внешнее Lean доказательство',
@@ -242,7 +273,7 @@ describe('Zustand mapStore.ts Integration Tests (RICIS-III v7.7 Diagnostics & GC
     expect(state.proofs[node.id]?.latex).toBe(source);
     expect(state.proofs[node.id]?.externalLean?.trustStatus).toBe('TRUSTED_AXIOM');
     expect(state.proofs[node.id]?.externalLean?.kernelEvidence?.toolchain).toBe('Lean 4.33.0');
-    expect(state.nodes[0]?.state).toBe('resolved');
+    expect(state.nodes[0]?.state).toBe('partial');
     expect(state.axioms.some(axiom => axiom.sourceNodeId === node.id)).toBe(true);
   });
 

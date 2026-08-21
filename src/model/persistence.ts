@@ -4,7 +4,6 @@ import { deepCopyInitialMap } from './initialMap';
 
 import { dbSaveMap, dbLoadMap, dbClear } from './db';
 import { runDatabaseMigration } from './migrationAudit';
-import { auditProofContent } from './ricisCoreRules';
 
 /** @deprecated Legacy localStorage snapshot (миграция). */
 const LEGACY_KEY = 'ricis3-map-v1';
@@ -82,9 +81,11 @@ export function sanitizeMap(map: MapState): MapState {
       }
     }
     const proof = map.proofs?.[n.id];
-    const hasTrustedExternalLean = proof?.externalLean?.trustStatus === 'LEAN_VERIFIED' || proof?.externalLean?.trustStatus === 'TRUSTED_AXIOM';
-    const hasAcceptedProof = Boolean(proof && (hasTrustedExternalLean || auditProofContent(proof.latex).isValid));
-    const honestState = n.state === 'resolved' && !hasAcceptedProof ? 'partial' : n.state;
+    // Persisted local proof text, static checks and trusted external contracts are
+    // diagnostic artifacts only. Hydration may preserve `resolved` exclusively for
+    // explicit authoritative Lean evidence recorded as LEAN_VERIFIED.
+    const hasAuthoritativeLeanEvidence = proof?.externalLean?.trustStatus === 'LEAN_VERIFIED';
+    const honestState = n.state === 'resolved' && !hasAuthoritativeLeanEvidence ? 'partial' : n.state;
     return { ...n, state: honestState, zoneIds: zids };
   });
 

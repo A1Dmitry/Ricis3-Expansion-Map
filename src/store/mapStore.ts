@@ -12,7 +12,7 @@ import {
 import { initialMap, deepCopyInitialMap } from '../model/initialMap';
 import { solveNodeLogic } from '../model/logic';
 import { applyAgentDiscoveries, catalogExhausted, remainingCatalogCount, trainAgentFromDb, AgentTrainingMemory } from '../model/agent';
-import { auditMarkMissingTargets, fillMissingTargetFunctions, isAutoFormulaRequest, nodeHasSorry } from '../model/audit';
+import { auditMarkMissingTargets, fillMissingTargetFunctions, isAutoFormulaRequest } from '../model/audit';
 import { auditProofContent } from '../model/ricisCoreRules';
 import { verifyLeanProof } from '../model/leanVerifier';
 import { applyDerivativeSearch } from '../model/derivativeSearch';
@@ -556,37 +556,30 @@ export const useMapStore = create<MapStore>((set, get) => ({
 
     const newProofs = { ...state.proofs, [nodeId]: newProof };
 
-    // Audit updated proof content
-    let isFullyResolved = false;
+    // Local audit and static Lean checks are diagnostics only. They never create
+    // authoritative Core evidence or promote a map node to `resolved`.
     let leanErrors: string[] = [];
-    let leanWarnings: string[] = [];
+    let leanWarnings: string[] = ['proof.core.state.localDiagnosticOnly'];
 
-    const hasLeanKeywords = proofLatex && 
+    const hasLeanKeywords = proofLatex &&
       /\btheorem\b|\blemma\b|\bdef\b|\binductive\b|\bstructure\b|\baxiom\b|\bimport\b/i.test(proofLatex);
 
     if (hasLeanKeywords) {
       const ver = verifyLeanProof(proofLatex, node?.title || '', targetFunction);
-      isFullyResolved = ver.status === 'LEAN_VERIFIED';
       leanErrors = ver.errors;
-      leanWarnings = ver.warnings;
-      if (ver.status === 'STATIC_CHECK_PASSED') {
-        leanWarnings.push('Статическая проверка не заменяет Lean kernel; proof сохранён как REQUIRES_CORE_LEAN.');
-      }
+      leanWarnings = [...ver.warnings, 'proof.core.state.staticLeanDiagnosticOnly'];
     } else {
       const audit = auditProofContent(proofLatex);
-      const hasSorry = node ? nodeHasSorry(node, newProof) : false;
-      isFullyResolved = audit.isValid && !hasSorry;
-      if (!isFullyResolved) {
-        leanErrors = audit.issues;
-      }
+      leanErrors = audit.issues;
     }
 
-    // Automatically adjust node state based on proof audit
+    // `updateProof` accepts local text only. A Core proof snapshot is required for
+    // any later resolved transition, so this local artifact remains partial.
     const newNodes = state.nodes.map(n => {
       if (n.id === nodeId) {
         return {
           ...n,
-          state: isFullyResolved ? ('resolved' as const) : ('partial' as const),
+          state: 'partial' as const,
           leanErrors,
           leanWarnings,
         };
@@ -701,9 +694,9 @@ export const useMapStore = create<MapStore>((set, get) => ({
       proofs: { ...state.proofs, [nodeId]: trustedProof },
       nodes: state.nodes.map(item => item.id === nodeId ? {
         ...item,
-        state: 'resolved' as const,
+        state: 'partial' as const,
         leanErrors: [],
-        leanWarnings: ['Внешний Lean proof принят как TRUSTED_AXIOM; исходник заблокирован и evidence сохранён.'],
+        leanWarnings: ['proof.core.state.trustedAxiomDiagnosticOnly'],
       } : item),
       agentLogs: [
         ...state.agentLogs,

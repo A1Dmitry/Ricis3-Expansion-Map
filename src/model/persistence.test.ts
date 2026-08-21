@@ -52,11 +52,43 @@ describe('sanitizeMap proof-state integrity', () => {
     expect(sanitized.nodes[0]?.state).toBe('partial');
   });
 
-  it('preserves resolved nodes backed by a proof record', () => {
-    const sanitized = sanitizeMap(state([node('proven', 'resolved')], { proven: proof('proven') }));
+  it('demotes resolved nodes backed only by a locally valid proof record', () => {
+    const sanitized = sanitizeMap(state([node('local-proof', 'resolved')], { 'local-proof': proof('local-proof') }));
+
+    expect(sanitized.nodes[0]?.state).toBe('partial');
+    expect(sanitized.proofs['local-proof']?.nodeId).toBe('local-proof');
+  });
+
+  it('demotes persisted trusted external contracts without authoritative Core Lean status', () => {
+    const trustedAxiomProof: Proof = {
+      ...proof('trusted-axiom'),
+      externalLean: {
+        sourceHash: 'fixture-trusted-axiom',
+        submittedAt: '2026-08-21T00:00:00.000Z',
+        sourceLocked: true,
+        trustStatus: 'TRUSTED_AXIOM',
+      },
+    };
+
+    const sanitized = sanitizeMap(state([node('trusted-axiom', 'resolved')], { 'trusted-axiom': trustedAxiomProof }));
+
+    expect(sanitized.nodes[0]?.state).toBe('partial');
+  });
+
+  it('preserves resolved nodes only when persisted Lean evidence is authoritative', () => {
+    const leanVerifiedProof: Proof = {
+      ...proof('lean-verified'),
+      externalLean: {
+        sourceHash: 'fixture-lean-verified',
+        submittedAt: '2026-08-21T00:00:00.000Z',
+        sourceLocked: true,
+        trustStatus: 'LEAN_VERIFIED',
+      },
+    };
+
+    const sanitized = sanitizeMap(state([node('lean-verified', 'resolved')], { 'lean-verified': leanVerifiedProof }));
 
     expect(sanitized.nodes[0]?.state).toBe('resolved');
-    expect(sanitized.proofs.proven?.nodeId).toBe('proven');
   });
 
   it('does not demote unresolved or partial nodes', () => {
