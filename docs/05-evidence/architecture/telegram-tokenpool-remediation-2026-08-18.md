@@ -1,12 +1,12 @@
 # Telegram/token-pool remediation
 
-**Версия:** 0.4.27
+**Версия:** 0.4.28
 **Дата:** 2026-08-18
 **Основание:** `telegram-tokenpool-bug-graph-2026-08-18.md`
 
-## Релиз v0.4.27
+## Релиз v0.4.28
 
-Mobile UI patch исключает desktop status/zoom strip из touch-first shell, добавляет task-first навигацию и двухколоночные landscape results. Изменение не затрагивает ingress Telegram, обработку секретов, server-side API-key policy или Core-first boundary.
+HostControl application layer добавляет typed state orchestration для external Core host enrollment без передачи OAuth token, private key или user API-key. Изменение не затрагивает ingress Telegram, обработку секретов, server-side API-key policy или Core-first boundary.
 
 ## Релиз v0.4.18
 

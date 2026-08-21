@@ -1,12 +1,12 @@
 # Lean boundary audit
 
-**Версия:** 0.4.27
+**Версия:** 0.4.28
 **Дата:** 2026-08-18
 **Цель:** установить проверяемую границу между Lean kernel, статическим анализом TypeScript, независимой символьной проверкой и RICIS-черновиком.
 
-## Релиз v0.4.27
+## Релиз v0.4.28
 
-Mobile task-first navigation и исключение desktop status strip являются UI-композицией и не меняют `LEAN_VERIFIED`, `TRUSTED_AXIOM`, `REQUIRES_CORE_LEAN` или Core-first policy. Все вычислительные trust boundaries остаются прежними.
+HostControl application layer добавляет execution-host lifecycle и provenance boundary, но не меняет `LEAN_VERIFIED`, `TRUSTED_AXIOM`, `REQUIRES_CORE_LEAN` или Core-first policy. Регистрация host, VPN transport и route decision не повышают вычислительный trust status.
 
 ## Итоговая классификация
 

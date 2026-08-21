@@ -1,10 +1,10 @@
 # RICIS3-Expansion-Map
 
-**Версия: v0.4.27**
+**Версия: v0.4.28**
 
-### v0.4.27 — Mobile task-first navigation and clean immersive canvas
+### v0.4.28 — Host control plane application layer
 
-Mobile shell теперь исключает desktop status/zoom strip во всех portrait, landscape и fullscreen состояниях. Карта показывает доступную задачу как явную точку входа, menu-first навигация сохраняет поиск и результаты первичными, а инструменты и настройки группируются во вторичном раскрываемом блоке. В landscape результаты используют две колонки, а карточка задачи остаётся прокручиваемой до действия RICIS-решения без footer-overlay.
+Добавлен строго DI-изолированный `HostControlApplicationService` с typed lifecycle для draft, одноразового enrollment assertion, public-key possession, direct-IP/VPN policy, bounded route decision, revocation и static-host denial. Инкремент не создаёт сетевой listener, VPN peer, ключ/сертификат, database, Express route или admin UI; все такие adapters остаются отдельными последующими шагами.
 
 ### v0.4.26 — Manus-style desktop task panel rail
 
