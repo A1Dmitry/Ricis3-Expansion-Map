@@ -14,6 +14,15 @@ import {
 } from './IRicisCoreEngine';
 import { RicisFallbackEngine } from './RicisFallbackEngine';
 import { ricisCoreApiUrl, resolveRicisCoreApiEndpoint } from './coreEndpoint';
+import { CoreProofHttpGateway } from './CoreProofHttpGateway';
+import type {
+  CreateProofRunRequest,
+  IRicisProofGateway,
+  ProofCapabilitiesResponse,
+  ProofDocumentFormat,
+  ProofDocumentResponse,
+  ProofRunResponse,
+} from './IRicisProofGateway';
 
 interface CoreApiPayload {
   readonly ricis?: unknown;
@@ -33,14 +42,16 @@ interface CoreHealthPayload {
  * Legacy helpers remain delegated to the isolated fallback engine until their
  * own C# API contracts are introduced. They are not singularity calculations.
  */
-export class RicisWasmBridge implements IRicisCoreEngine {
+export class RicisWasmBridge implements IRicisCoreEngine, IRicisProofGateway {
   private _status: RicisCoreStatus = 'uninitialized';
   private readonly _legacyEngine: RicisFallbackEngine;
+  private readonly _proofGateway: IRicisProofGateway;
   private _wasmExports: WebAssembly.Exports | null = null;
   private _initializationPromise: Promise<void> | null = null;
 
-  constructor() {
+  constructor(proofGateway: IRicisProofGateway = new CoreProofHttpGateway()) {
     this._legacyEngine = new RicisFallbackEngine();
+    this._proofGateway = proofGateway;
   }
 
   public get status(): RicisCoreStatus {
@@ -285,6 +296,26 @@ export class RicisWasmBridge implements IRicisCoreEngine {
       'Ядро Ricis.Core недоступно. Выражение не вычислялось.',
       { runtime: 'not_ready', retryable: true, request },
     );
+  }
+
+  /** Delegates to the fixed-route authoritative proof gateway without legacy fallback. */
+  public createRun(request: CreateProofRunRequest): Promise<ProofRunResponse | CoreExecutionFailure> {
+    return this._proofGateway.createRun(request);
+  }
+
+  /** Reads an immutable Core proof snapshot without local re-derivation. */
+  public getRun(proofRunId: string): Promise<ProofRunResponse | CoreExecutionFailure> {
+    return this._proofGateway.getRun(proofRunId);
+  }
+
+  /** Reads a pre-rendered snapshot document without local rendering or fallback. */
+  public getDocument(proofRunId: string, format: ProofDocumentFormat): Promise<ProofDocumentResponse | CoreExecutionFailure> {
+    return this._proofGateway.getDocument(proofRunId, format);
+  }
+
+  /** Reads bounded proof transport capabilities without inferring theorem authority. */
+  public getCapabilities(): Promise<ProofCapabilitiesResponse | CoreExecutionFailure> {
+    return this._proofGateway.getCapabilities();
   }
 
   public async verifyIdentity(targetA: string, targetB: string): Promise<boolean> {

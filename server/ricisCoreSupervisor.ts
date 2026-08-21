@@ -98,6 +98,43 @@ export async function proxyRicisCoreApi(
   return { status: response.status, body: parsed };
 }
 
+export type RicisCoreProofOperation =
+  | { readonly kind: 'create'; readonly body: unknown }
+  | { readonly kind: 'getRun'; readonly proofRunId: string }
+  | { readonly kind: 'getDocument'; readonly proofRunId: string; readonly format: 'Academic' | 'Json' | 'Latex' | 'Log' | 'Lean' }
+  | { readonly kind: 'capabilities' };
+
+/**
+ * Proxies only the fixed PEP-01 proof-v1 route set to the local C# Core API.
+ * The caller provides a typed operation, never an arbitrary upstream path.
+ */
+export async function proxyRicisCoreProofApi(operation: RicisCoreProofOperation): Promise<{ status: number; body: unknown }> {
+  await ensureRicisCoreApi();
+  const coreBase = CORE_URL.replace(/\/$/, '');
+  const route = operation.kind === 'create'
+    ? '/api/proofs/v1/runs'
+    : operation.kind === 'getRun'
+      ? `/api/proofs/v1/runs/${operation.proofRunId}`
+      : operation.kind === 'getDocument'
+        ? `/api/proofs/v1/runs/${operation.proofRunId}/documents/${operation.format}`
+        : '/api/proofs/v1/capabilities';
+  const response = await fetch(`${coreBase}${route}`, {
+    method: operation.kind === 'create' ? 'POST' : 'GET',
+    headers: operation.kind === 'create'
+      ? { 'content-type': 'application/json', accept: 'application/json' }
+      : { accept: 'application/json' },
+    body: operation.kind === 'create' ? JSON.stringify(operation.body) : undefined,
+  });
+  const text = await response.text();
+  let parsed: unknown = text;
+  try {
+    parsed = text ? JSON.parse(text) : null;
+  } catch {
+    // Preserve a non-JSON infrastructure response as non-authoritative text.
+  }
+  return { status: response.status, body: parsed };
+}
+
 export function getRicisCoreIntegrationInfo() {
   return {
     url: CORE_URL,

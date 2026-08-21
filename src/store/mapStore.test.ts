@@ -246,7 +246,7 @@ describe('Zustand mapStore.ts Integration Tests (RICIS-III v7.7 Diagnostics & GC
     expect(state.axioms.some(axiom => axiom.sourceNodeId === node.id)).toBe(true);
   });
 
-  it('должен выполнять академический перерасчет доказательства (recalculateAcademicProof)', async () => {
+  it('должен сохранять legacy academic goal match как partial до authoritative Lean evidence', async () => {
     const node: ProblemNode = {
       id: 'acad-node',
       title: 'Академическая сингулярность',
@@ -272,7 +272,7 @@ describe('Zustand mapStore.ts Integration Tests (RICIS-III v7.7 Diagnostics & GC
     expect(result?.goalMatched).toBe(true);
 
     const updatedNode = useMapStore.getState().nodes.find(n => n.id === 'acad-node');
-    expect(updatedNode?.state).toBe('resolved');
+    expect(updatedNode?.state).toBe('partial');
 
     const proof = useMapStore.getState().proofs['acad-node'];
     expect(proof).toBeDefined();

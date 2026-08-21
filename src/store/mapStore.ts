@@ -29,6 +29,7 @@ import { runDatabaseMigration, MigrationAuditReport } from '../model/migrationAu
 import { DependencyGraphAuditor } from '../model/dependencyGraph';
 import { AuditReportMonolith, GarbageCollectionResult, TransformationLog } from '../model/dependencyGraph.types';
 import { getRicisCoreEngine, RicisAcademicProofResult } from '../services/ricisCore';
+import { AuthoritativeProofStatePolicy } from '../model/authoritativeProofStatePolicy';
 
 function stableContentHash(value: string): string {
   let hash = 0x811c9dc5;
@@ -216,9 +217,15 @@ export const useMapStore = create<MapStore>((set, get) => ({
     };
     
     const nextProofs = { ...state.proofs, [nodeId]: updatedProof };
+    // Legacy local academic output is diagnostic only. It cannot carry a Core
+    // snapshot or current Lean evidence, therefore `goalMatched` never resolves.
     const updatedNode: ProblemNode = {
       ...node,
-      state: result.goalMatched ? 'resolved' : 'partial',
+      state: new AuthoritativeProofStatePolicy().apply({
+        currentState: node.state,
+        structuralVerification: 'Unsupported',
+        trustStatus: 'RequiresCoreLean',
+      }).state,
     };
     const updatedNodes = state.nodes.map(n => n.id === nodeId ? updatedNode : n);
     const nextState = { ...state, nodes: updatedNodes, proofs: nextProofs };

@@ -8,6 +8,7 @@ import {
   ensureRicisCoreApi,
   getRicisCoreIntegrationInfo,
   proxyRicisCoreApi,
+  proxyRicisCoreProofApi,
 } from "./server/ricisCoreSupervisor";
 
 
@@ -151,6 +152,49 @@ async function startServer() {
         integration: getRicisCoreIntegrationInfo(),
       });
     }
+  });
+
+  const proofRunIdPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/iu;
+  const proofFormats = new Set(['Academic', 'Json', 'Latex', 'Log', 'Lean']);
+  const proofError = (code: string, messageResourceKey: string, retryable: boolean) => ({
+    apiVersion: 'v1',
+    code,
+    messageResourceKey,
+    retryable,
+    safeParameters: {},
+  });
+  const forwardProof = async (res: express.Response, operation: Parameters<typeof proxyRicisCoreProofApi>[0]) => {
+    try {
+      const result = await proxyRicisCoreProofApi(operation);
+      return res.status(result.status).json(result.body);
+    } catch {
+      return res.status(503).json(proofError('CORE_PROOF_UNAVAILABLE', 'proof.core.unavailable', true));
+    }
+  };
+
+  app.post('/api/ricis-core/proofs/v1/runs', async (req, res) => {
+    return forwardProof(res, { kind: 'create', body: req.body });
+  });
+
+  app.get('/api/ricis-core/proofs/v1/runs/:proofRunId', async (req, res) => {
+    const proofRunId = req.params.proofRunId;
+    if (!proofRunIdPattern.test(proofRunId)) {
+      return res.status(404).json(proofError('PROOF_RUN_NOT_FOUND', 'proof.core.snapshot.notFound', false));
+    }
+    return forwardProof(res, { kind: 'getRun', proofRunId });
+  });
+
+  app.get('/api/ricis-core/proofs/v1/runs/:proofRunId/documents/:format', async (req, res) => {
+    const proofRunId = req.params.proofRunId;
+    const format = req.params.format;
+    if (!proofRunIdPattern.test(proofRunId) || !proofFormats.has(format)) {
+      return res.status(404).json(proofError('PROOF_FORMAT_NOT_FOUND', 'proof.core.format.notFound', false));
+    }
+    return forwardProof(res, { kind: 'getDocument', proofRunId, format: format as 'Academic' | 'Json' | 'Latex' | 'Log' | 'Lean' });
+  });
+
+  app.get('/api/ricis-core/proofs/v1/capabilities', async (_req, res) => {
+    return forwardProof(res, { kind: 'capabilities' });
   });
 
   app.post("/api/generateProof", async (req, res) => {
