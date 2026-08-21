@@ -3,6 +3,7 @@ import path from "path";
 import { createServer as createViteServer } from "vite";
 import { GoogleGenAI } from "@google/genai";
 import { RICIS_CORE_SYSTEM_PROMPT, auditProofContent, buildCanonicalRicisProofLatex } from "./src/model/ricisCoreRules";
+import { SERVER_GEMINI_MODEL_POOL } from "./src/model/geminiCatalogProjection";
 import {
   ensureRicisCoreApi,
   getRicisCoreIntegrationInfo,
@@ -11,17 +12,7 @@ import {
 
 
 
-const MODELS_POOL = [
-  "gemini-3.7-flash",
-  "gemini-3.5-flash",
-  "gemini-3.5-flash-lite",
-  "gemini-3.1-pro-preview",
-  "gemini-3.6-flash",
-  "gemini-3.1-flash-lite",
-  "gemini-2.5-pro",
-  "gemini-2.5-flash",
-  "gemini-2.0-flash",
-];
+const MODELS_POOL = SERVER_GEMINI_MODEL_POOL;
 
 const delay = (ms: number) => new Promise((res) => setTimeout(res, ms));
 
