@@ -49,11 +49,19 @@ RICIS3-Expansion-Map — открытая интерактивная карта 
 | `Requires Core / Lean evidence` | Сохранён структурный RICIS-результат или исходник, но kernel evidence отсутствует. | Не является формальной Lean-проверкой. |
 | `Resolved workflow state` | Узел завершён в рабочем процессе карты. | Сам по себе не является доказательством theorem в Lean. |
 
-Внешний Lean source сохраняется неизменяемо: его hash, provenance и evidence должны быть видимыми. Подробнее — в [`AGENTS.md`](AGENTS.md) и [`artifacts/proofs/lean-boundary-audit-2026-08-18.md`](artifacts/proofs/lean-boundary-audit-2026-08-18.md).
+Внешний Lean source сохраняется неизменяемо: его hash, provenance и evidence должны быть видимыми. Подробнее — в [`AGENTS.md`](AGENTS.md) и [`docs/05-evidence/proofs/lean-boundary-audit-2026-08-18.md`](docs/05-evidence/proofs/lean-boundary-audit-2026-08-18.md).
 
 ## Возможности
 
 Проект предоставляет 3D-карту и 2D fallback каталога, поиск и фильтры, локальное сохранение в IndexedDB, визуализацию научных зон, историю преобразований, экспорт TeX/JSON, карточки зависимостей, редактор proof и безопасную симуляцию Telegram-интерфейса. Live Telegram transport намеренно отключён до отдельной production-интеграции. Серверные API для AI используют только server-side `GEMINI_API_KEY`; приложение не принимает, не хранит и не разделяет пользовательские API-ключи.
+
+## Документация и строгие правила разработки
+
+`README.md` является единственным корневым human-readable loader. Все подробные Markdown-документы находятся в [`docs/`](docs/): каталог, приоритет источников и правила безопасной миграции описаны в [`docs/00-governance/DOCUMENTATION_CATALOG.md`](docs/00-governance/DOCUMENTATION_CATALOG.md). `AGENTS.md` остаётся корневым machine-readable development contract.
+
+Перед изменением кода необходимо изучить **Strict Development Rules**: [`AGENTS.md`](AGENTS.md), [`MD review requirements`](docs/00-governance/MD_REVIEW_REQUIREMENTS_2026-08-20.md) и [`Work Patterns`](docs/00-governance/WORK_PATTERNS.md). Они требуют явной постановки, архитектурного контракта, QA-покрытия, затем реализации; фиксируют trust boundary, запрет неявных допущений, воспроизводимые quality gates и отдельный статус для непроверенных утверждений.
+
+Канонический reusable blueprint нового приложения размещён в [`docs/06-canonical-template/`](docs/06-canonical-template/) и охватывает identity, consent, entitlements, payment, document export, privacy, observability и feature tiers. Он не заменяет предметные ограничения RICIS-III.
 
 ## Требования и локальный запуск
 

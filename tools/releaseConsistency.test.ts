@@ -34,15 +34,15 @@ const activeReleaseDocuments: readonly VersionedDocument[] = [
     versionPattern: /\*\*Версия:\s*v?(\d+\.\d+\.\d+)\*\*/u,
   },
   {
-    path: 'artifacts/architecture/telegram-tokenpool-remediation-2026-08-18.md',
+    path: 'docs/05-evidence/architecture/telegram-tokenpool-remediation-2026-08-18.md',
     versionPattern: /\*\*Версия:\*\*\s*(\d+\.\d+\.\d+)/u,
   },
   {
-    path: 'artifacts/proofs/lean-boundary-audit-2026-08-18.md',
+    path: 'docs/05-evidence/proofs/lean-boundary-audit-2026-08-18.md',
     versionPattern: /\*\*Версия:\*\*\s*(\d+\.\d+\.\d+)/u,
   },
   {
-    path: 'artifacts/architecture/structural-hash-report.md',
+    path: 'docs/05-evidence/architecture/structural-hash-report.md',
     versionPattern: /\*\*Релиз приложения:\*\*\s*(\d+\.\d+\.\d+)/u,
   },
   {
