@@ -6,9 +6,11 @@
 **Источник данных:** `src/**/*.ts` и `src/**/*.tsx` без test-файлов
 **Машинный отчёт:** `structural-hash-report.json`
 
-## Релиз v0.4.33: Roadmap and root-task traversal boundary
+## Релиз v0.4.33: Roadmap and Admin Core composition boundaries
 
 Добавлен чистый `rootTaskFilter` boundary, который нормализует persisted dependencyIds, parent declarations и visual edges в одно rootward-направление. UI Roadmap использует сервис как read-only adapter и не изменяет proof, Core или trust state.
+
+Добавлен isolated `adminCoreConnection` boundary: browser-safe feature/command/provenance DTO, typed static-unavailable facade и Settings projection. Contract module не импортирует React, Three.js, browser storage, HTTP/network, environment secret, database, crypto или Core singleton; реальная Auth/HostControl server composition остаётся отдельным injected adapter scope.
 
 ## Релиз v0.4.32: NodeEntry and readable-focus composition boundary
 

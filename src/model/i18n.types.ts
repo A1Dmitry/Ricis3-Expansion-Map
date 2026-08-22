@@ -614,6 +614,15 @@ export const DICTIONARY = {
   'settings.coreVersion': { ru: 'Ядро: RICIS-III v7.7', en: 'Core: RICIS-III v7.7' },
   'settings.panelLiveDrawer': { ru: 'Панель: Live Drawer', en: 'Panel: Live Drawer' },
   'settings.close': { ru: 'Закрыть', en: 'Close' },
+  'settings.adminCore': { ru: 'Администрирование Core', en: 'Core Administration' },
+  'settings.adminCoreServerRequired': {
+    ru: 'Требуется серверный control plane',
+    en: 'Server control plane required',
+  },
+  'settings.adminCoreUnavailable': {
+    ru: 'Управление внешним Ricis.Core недоступно в статической версии. Для него нужны серверная авторизация, fresh-auth, аудит и защищённый канал host agent.',
+    en: 'External Ricis.Core management is unavailable in the static deployment. It requires server authorization, fresh authentication, audit, and a protected host-agent channel.',
+  },
   'panel.actions': { ru: 'Быстрые действия', en: 'Quick actions' },
   'panel.zones': { ru: 'Сферы науки', en: 'Scientific fields' },
   'panel.available': { ru: 'Доступно к решению', en: 'Available to solve' },

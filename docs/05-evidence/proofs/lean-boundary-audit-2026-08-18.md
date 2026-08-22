@@ -8,6 +8,8 @@
 
 Roadmap, root-connected task filter и CTA Explore / Verify / Challenge являются navigation feature. Они отображают существующие зависимости и trust presentation, но не создают proof, Core calculation, trusted axiom, Lean kernel evidence или trust-class transition.
 
+Admin Core Settings facade фиксирует только operational availability и безопасно сообщает отсутствие server control plane. Его typed static state, future host provenance, enrollment DTO и route boundary не создают Core calculation, proof, trusted axiom, `LEAN_VERIFIED` или trust-class transition.
+
 ## Релиз v0.4.32
 
 Node-led static entry pages и readable camera focus являются presentation/navigation feature. Они читают existing catalog status, но не создают proof, Core calculation, trusted axiom, Lean kernel evidence или trust-class transition.

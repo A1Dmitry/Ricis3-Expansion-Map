@@ -6,7 +6,7 @@
 
 ## Релиз v0.4.33
 
-Roadmap и root-connected task filter добавляют клиентскую навигацию по четырём исследовательским маршрутам и объяснимый обход задач к выбранному корню. Изменение не включает Telegram transport, token/secret, CommunityRewards ledger или Core authority.
+Roadmap и root-connected task filter добавляют клиентскую навигацию по четырём исследовательским маршрутам и объяснимый обход задач к выбранному корню. Static-safe Admin Core Connection добавляет только typed `server_capability_unavailable` Settings facade и contract tests. Эти изменения не включают Telegram transport, token/secret, CommunityRewards ledger или Core authority; они не хранят browser token/API key/enrollment secret и не активируют external Core transport.
 
 ## Релиз v0.4.32
 

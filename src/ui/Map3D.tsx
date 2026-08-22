@@ -82,6 +82,7 @@ import type { RicisCoreStatus } from '../services/ricisCore';
 import { getCommunityRewardsClientStatus } from '../services/communityRewardsClient';
 import { ReadableNodeFocusPolicy } from '../nodeEntry/nodeFocusPolicy';
 import type { NodeFocusRequest, NodeFocusSource } from '../nodeEntry/contracts';
+import { STATIC_ADMIN_CORE_SNAPSHOT } from '../adminCoreConnection/staticAdminCoreConnection';
 
 type PanelId = 'actions' | 'zones' | 'available' | 'agent' | 'persistence';
 
@@ -2189,6 +2190,7 @@ export const Map3D: React.FC = () => {
           onToggleElement={togglePanelVisibility}
           physicsParams={physicsParams}
           onPhysicsChange={setPhysicsParams}
+          adminCoreSnapshot={STATIC_ADMIN_CORE_SNAPSHOT}
         />
       )}
       {showTelegramBot && (

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Settings, Plus, User, Sliders, X, Check, Eye, EyeOff, LayoutGrid, Globe } from 'lucide-react';
+import { Settings, Plus, User, Sliders, X, Check, Eye, EyeOff, LayoutGrid, Globe, ServerOff } from 'lucide-react';
 import type { AdaptiveRole } from '../hooks/useAdaptiveUI';
 import type { UIElement } from '../domain/ui/uiElement.types';
 import type { PhysicsParams } from '../model/physics';
@@ -8,6 +8,7 @@ import { PhysicsControlFields } from './PhysicsControlPanel';
 export type { UIElementToggle } from '../domain/ui/uiElement.types';
 import { useI18nStore } from '../store/useI18nStore';
 import { LanguageToggle } from './LanguageToggle';
+import type { AdminCoreFeatureSnapshot } from '../adminCoreConnection/contracts';
 
 export interface SettingsModalProps {
   isOpen: boolean;
@@ -21,6 +22,8 @@ export interface SettingsModalProps {
   onToggleElement?: (id: string) => void;
   physicsParams?: PhysicsParams;
   onPhysicsChange?: (params: PhysicsParams) => void;
+  /** Browser-safe server feature snapshot. No endpoint, credential or route data belongs here. */
+  adminCoreSnapshot?: AdminCoreFeatureSnapshot;
 }
 
 export const SettingsModal: React.FC<SettingsModalProps> = ({
@@ -35,6 +38,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   onToggleElement,
   physicsParams,
   onPhysicsChange,
+  adminCoreSnapshot,
 }) => {
   const { t } = useI18nStore();
   const [newRoleName, setNewRoleName] = useState('');
@@ -121,6 +125,36 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
               <div className="rounded-lg border border-neutral-800 bg-neutral-950/40 p-3">
                 <PhysicsControlFields params={physicsParams} onChange={onPhysicsChange} />
               </div>
+            </div>
+          )}
+
+          {/* Section: Admin Core — static deployment can only show the typed unavailable state. */}
+          {adminCoreSnapshot && (
+            <div className="space-y-3" data-testid="admin-core-settings-section">
+              <div className="flex items-center justify-between border-b border-neutral-800/80 pb-1.5">
+                <label className="text-xs font-semibold text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
+                  <ServerOff size={14} className="text-amber-400" />
+                  <span>{t('settings.adminCore')}</span>
+                </label>
+                <span className="text-[10px] text-slate-500 font-mono">Server-only</span>
+              </div>
+              {adminCoreSnapshot.state === 'server_capability_unavailable' ? (
+                <div
+                  className="rounded-lg border border-amber-900/60 bg-amber-950/20 p-3"
+                  role="status"
+                  data-admin-core-state={adminCoreSnapshot.state}
+                >
+                  <p className="text-xs font-semibold text-amber-200">{t('settings.adminCoreServerRequired')}</p>
+                  <p className="mt-1 text-[11px] leading-relaxed text-slate-400">{t('settings.adminCoreUnavailable')}</p>
+                </div>
+              ) : (
+                <div
+                  className="rounded-lg border border-neutral-800 bg-neutral-950/40 p-3 text-[11px] text-slate-400"
+                  data-admin-core-state={adminCoreSnapshot.state}
+                >
+                  {adminCoreSnapshot.safeDetail ?? t('settings.adminCoreUnavailable')}
+                </div>
+              )}
             </div>
           )}
 
