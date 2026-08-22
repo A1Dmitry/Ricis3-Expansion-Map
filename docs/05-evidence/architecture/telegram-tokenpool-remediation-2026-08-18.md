@@ -1,8 +1,12 @@
 # Telegram/token-pool remediation
 
-**Версия:** 0.4.31
+**Версия:** 0.4.32
 **Дата:** 2026-08-18
 **Основание:** `telegram-tokenpool-bug-graph-2026-08-18.md`
+
+## Релиз v0.4.32
+
+Node-led entry pages и readable camera focus добавляют статические предметные SEO-входы и визуальное navigation policy. Они не включают Telegram transport, не передают token/secret и не изменяют CommunityRewards ledger или Core authority.
 
 ## Релиз v0.4.31
 

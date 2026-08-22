@@ -1,6 +1,10 @@
 # RICIS Expansion Map — интерактивная карта сингулярностей, зависимостей и доказательных границ
 
-**Версия: v0.4.31**
+**Версия: v0.4.32**
+
+### v0.4.32 — Node-led research entry pages and readable graph focus
+
+Добавлены четыре проверяемые статические subject entry pages для существующих каталоговых узлов: Physics / гидродинамические сингулярности, Number Theory / гипотеза Римана, AGI / сингулярность ИИ и Pharmacy / гематоэнцефалический барьер. Каждая страница имеет собственный canonical URL, visible sources, self-matching JSON-LD, sitemap record и доступный переход в общий граф с выбранным узлом. Не решённые узлы явно остаются исследовательскими: страницы не заявляют доказательство, клинический результат или AGI-прогноз. Camera focus теперь использует общую radius-aware policy: выбранный узел становится центром вращения, но камера соблюдает читаемую дистанцию и не делает full-screen zoom.
 
 ### v0.4.31 — Community Rewards foundation and status-line invitation
 

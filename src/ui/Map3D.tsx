@@ -80,6 +80,8 @@ import { AccessibleMapFallback } from './AccessibleMapFallback';
 import { checkRicisCoreRuntimeStatus, getRicisCoreRuntimeStatus } from '../services/ricisCore';
 import type { RicisCoreStatus } from '../services/ricisCore';
 import { getCommunityRewardsClientStatus } from '../services/communityRewardsClient';
+import { ReadableNodeFocusPolicy } from '../nodeEntry/nodeFocusPolicy';
+import type { NodeFocusRequest, NodeFocusSource } from '../nodeEntry/contracts';
 
 type PanelId = 'actions' | 'zones' | 'available' | 'agent' | 'persistence';
 
@@ -178,9 +180,11 @@ function CameraFlightRig({
 function OrbitControls({
   controlsRef: externalRef,
   flightRef,
+  onReady,
 }: {
   controlsRef?: React.MutableRefObject<any>;
   flightRef?: React.MutableRefObject<FlightTarget | null>;
+  onReady?: () => void;
 }) {
   const { camera, gl } = useThree();
   const controlsRef = useRef<ThreeOrbitControls | null>(null);
@@ -203,8 +207,15 @@ function OrbitControls({
     if (externalRef) {
       externalRef.current = controls;
     }
+    onReady?.();
+
+    const cancelFlightForManualInteraction = () => {
+      if (flightRef) flightRef.current = null;
+    };
+    controls.addEventListener('start', cancelFlightForManualInteraction);
 
     const handleWheel = (e: WheelEvent) => {
+      cancelFlightForManualInteraction();
       const factor = Math.min(1.0, Math.abs(e.deltaY) * 0.002);
       
       if (e.deltaY < 0 && hoveredNodePos) {
@@ -222,13 +233,14 @@ function OrbitControls({
 
     return () => {
       gl.domElement.removeEventListener('wheel', handleWheel);
+      controls.removeEventListener('start', cancelFlightForManualInteraction);
       controls.dispose();
       controlsRef.current = null;
       if (externalRef) {
         externalRef.current = null;
       }
     };
-  }, [camera, gl, externalRef]);
+  }, [camera, gl, externalRef, onReady]);
   useFrame(() => {
     controlsRef.current?.update();
   });
@@ -312,10 +324,14 @@ export const Map3D: React.FC = () => {
   const [sensorModeEnabled, setSensorModeEnabled] = useState(false);
   const [sensorNotice, setSensorNotice] = useState<string | null>(null);
   const mobilePresentationInitializedRef = useRef(false);
+  const [cameraControlsReady, setCameraControlsReady] = useState(false);
+  const nodeFocusPolicy = React.useMemo(() => new ReadableNodeFocusPolicy(), []);
+  const markCameraControlsReady = React.useCallback(() => setCameraControlsReady(true), []);
 
   // Load initial saved filters & Deep Link URL params
   const initialSavedFilters = React.useMemo(() => filterStorageService.load(), []);
   const initialUrlParams = React.useMemo(() => UrlShareService.parseInitialParams(), []);
+  const initialUrlFocusPendingRef = useRef<string | null>(initialUrlParams.initialNodeId);
 
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(() => {
     return initialUrlParams.initialNodeId || initialSavedFilters?.selectedNodeId || null;
@@ -1002,33 +1018,40 @@ export const Map3D: React.FC = () => {
     return m;
   }, [map.nodes]);
 
-  const triggerFlight = (targetNodeId: string) => {
+  const triggerFlight = (targetNodeId: string, source: NodeFocusSource) => {
     const nPos = nodePositions[targetNodeId];
-    if (nPos && controlsRef.current) {
-      const targetVec = new THREE.Vector3(nPos[0], nPos[1], nPos[2]);
-      const currentCamPos = controlsRef.current.object.position.clone();
-      const currentLookAt = controlsRef.current.target.clone();
+    const targetNode = map.nodes.find((node) => node.id === targetNodeId);
+    if (!nPos || !targetNode || !controlsRef.current) return;
 
-      // Calculate desired camera position (slightly offset based on current angle, or a fixed distance)
-      const dir = currentCamPos.clone().sub(currentLookAt).normalize();
-      const distance = 15; // Closer zoom
-      const desiredCamPos = targetVec.clone().add(dir.multiplyScalar(distance));
+    const currentCamPos = controlsRef.current.object.position.clone();
+    const currentLookAt = controlsRef.current.target.clone();
+    const focusRequest: NodeFocusRequest = {
+      nodeId: targetNodeId as NodeFocusRequest['nodeId'],
+      source,
+      nodePosition: { x: nPos[0], y: nPos[1], z: nPos[2] },
+      nodeVisualRadius: nodeVisualRadius(targetNode, map.nodes),
+      currentCameraPosition: { x: currentCamPos.x, y: currentCamPos.y, z: currentCamPos.z },
+      currentOrbitTarget: { x: currentLookAt.x, y: currentLookAt.y, z: currentLookAt.z },
+      viewportKind: isMobileLayout ? 'mobile' : 'desktop',
+    };
+    const outcome = nodeFocusPolicy.plan(focusRequest);
+    if (outcome.kind !== 'focus_planned') return;
 
-      flightRef.current = {
-        target: targetVec,
-        cameraPos: desiredCamPos,
-        startTime: performance.now(),
-        startLookAt: currentLookAt,
-        startCamPos: currentCamPos,
-        durationMs: 1500, // 1.5s flight
-      };
-    }
+    const { plan } = outcome;
+    flightRef.current = {
+      target: new THREE.Vector3(plan.orbitCenter.x, plan.orbitCenter.y, plan.orbitCenter.z),
+      cameraPos: new THREE.Vector3(plan.cameraPosition.x, plan.cameraPosition.y, plan.cameraPosition.z),
+      startTime: performance.now(),
+      startLookAt: currentLookAt,
+      startCamPos: currentCamPos,
+      durationMs: plan.durationMs,
+    };
   };
 
-  const handleNavigateToNode = (targetId: string) => {
+  const handleNavigateToNode = (targetId: string, source: NodeFocusSource = 'graph_click') => {
     if (isMobileLayout) {
       setSelectedNodeId(targetId);
-      triggerFlight(targetId);
+      triggerFlight(targetId, source);
       openMobileView('details');
       return;
     }
@@ -1037,7 +1060,7 @@ export const Map3D: React.FC = () => {
       setNavigationStack(prev => [...prev, selectedNodeId]);
     }
     setSelectedNodeId(targetId);
-    triggerFlight(targetId);
+    triggerFlight(targetId, source);
   };
 
   const handleNavigateBack = () => {
@@ -1050,9 +1073,20 @@ export const Map3D: React.FC = () => {
       const prevId = navigationStack[navigationStack.length - 1];
       setNavigationStack(prev => prev.slice(0, -1));
       setSelectedNodeId(prevId);
-      triggerFlight(prevId);
+      triggerFlight(prevId, 'navigation_back');
     }
   };
+
+  React.useEffect(() => {
+    const pendingNodeId = initialUrlFocusPendingRef.current;
+    if (!pendingNodeId || !cameraControlsReady) return;
+    if (selectedNodeId !== pendingNodeId) {
+      initialUrlFocusPendingRef.current = null;
+      return;
+    }
+    triggerFlight(pendingNodeId, 'url_restore');
+    initialUrlFocusPendingRef.current = null;
+  }, [cameraControlsReady, selectedNodeId, nodePositions]);
 
   const edgesLines = useMemo(() => {
     return map.edges.filter(e => {
@@ -1118,7 +1152,7 @@ export const Map3D: React.FC = () => {
         >
           <Canvas className="touch-none block h-full w-full" camera={{ position: [0, 0, 32], fov: 55, far: 10000, near: 0.1 }} gl={{ antialias: true, alpha: true }}>
             <UniverseSkybox radius={3200} />
-            <OrbitControls controlsRef={controlsRef} flightRef={flightRef} />
+            <OrbitControls controlsRef={controlsRef} flightRef={flightRef} onReady={markCameraControlsReady} />
             <CameraFlightRig flightRef={flightRef} controlsRef={controlsRef} />
             <ambientLight intensity={0.22} />
             <hemisphereLight args={['#1e3a5f', '#050508', 0.55]} />

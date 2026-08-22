@@ -1,8 +1,12 @@
 # Lean boundary audit
 
-**Версия:** 0.4.31
+**Версия:** 0.4.32
 **Дата:** 2026-08-18
 **Цель:** установить проверяемую границу между Lean kernel, статическим анализом TypeScript, независимой символьной проверкой и RICIS-черновиком.
+
+## Релиз v0.4.32
+
+Node-led static entry pages и readable camera focus являются presentation/navigation feature. Они читают existing catalog status, но не создают proof, Core calculation, trusted axiom, Lean kernel evidence или trust-class transition.
 
 ## Релиз v0.4.31
 

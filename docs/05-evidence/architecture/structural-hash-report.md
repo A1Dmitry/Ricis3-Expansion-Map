@@ -1,10 +1,14 @@
 # Structural Hash Refactoring Report
 
 **Версия формата отчёта:** 0.1.0
-**Релиз приложения:** 0.4.31
+**Релиз приложения:** 0.4.32
 **Дата:** 2026-08-17
 **Источник данных:** `src/**/*.ts` и `src/**/*.tsx` без test-файлов
 **Машинный отчёт:** `structural-hash-report.json`
+
+## Релиз v0.4.32: NodeEntry and readable-focus composition boundary
+
+Добавлен isolated `nodeEntry` boundary: reviewed manifests, static entry rendering, canonical metadata, graph handoff и pure radius-aware focus policy. Он не импортирует Core, Lean, proof, CommunityRewards, React или Three.js в domain policy; `Map3D` остаётся execution adapter для полученного camera plan.
 
 ## Релиз v0.4.31: CommunityRewards composition boundary
 

@@ -1,7 +1,7 @@
 {
   "name": "ricis3-expansion",
   "private": false,
-  "version": "0.4.31",
+  "version": "0.4.32",
   "description": "Interactive RICIS-III singularity research map with explicit proof-trust boundaries",
   "type": "module",
   "packageManager": "npm@12.0.2",
@@ -13,7 +13,8 @@
     "sync:version": "tsx tools/syncVersion.ts",
     "release:check": "npm run sync:version && vitest run tools/releaseConsistency.test.ts",
     "dev": "npm run sync:version && tsx server.ts",
-    "build": "npm run release:check && vite build && esbuild server.ts --bundle --platform=node --format=cjs --packages=external --sourcemap --outfile=dist/server.cjs",
+    "generate:node-entries": "tsx tools/generateNodeEntries.ts",
+    "build": "npm run release:check && npm run generate:node-entries && vite build && esbuild server.ts --bundle --platform=node --format=cjs --packages=external --sourcemap --outfile=dist/server.cjs",
     "start": "node dist/server.cjs",
     "lint": "tsc --noEmit",
     "test": "npm run sync:version && vitest run"
