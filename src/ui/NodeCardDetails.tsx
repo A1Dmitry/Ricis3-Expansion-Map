@@ -259,6 +259,39 @@ export const NodeCardDetails: React.FC<Props> = ({
         </button>
       )}
 
+      <section className="border-b border-neutral-800/50 bg-gradient-to-br from-cyan-950/25 via-transparent to-violet-950/20 p-3">
+        <p className="mb-2 text-[9px] font-bold uppercase tracking-[0.15em] text-cyan-300">Исследовательские действия</p>
+        <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
+          <button
+            type="button"
+            onClick={() => setOpenSections(prev => ({ ...prev, target: true, prereqs: true, forward: true }))}
+            className="min-h-10 rounded-md border border-cyan-800/70 bg-cyan-950/35 px-2.5 py-2 text-left transition-colors hover:border-cyan-400 hover:bg-cyan-900/45"
+          >
+            <span className="block text-[10px] font-bold text-cyan-100">Explore</span>
+            <span className="mt-0.5 block text-[9px] leading-tight text-cyan-200/75">Посмотреть зависимости и последствия</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => setOpenSections(prev => ({ ...prev, verification: true }))}
+            className="min-h-10 rounded-md border border-emerald-800/70 bg-emerald-950/30 px-2.5 py-2 text-left transition-colors hover:border-emerald-400 hover:bg-emerald-900/40"
+          >
+            <span className="block text-[10px] font-bold text-emerald-100">Verify</span>
+            <span className="mt-0.5 block text-[9px] leading-tight text-emerald-200/75">Проверить evidence и статус доверия</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              UrlShareService.updateBrowserUrl({ roadmap: true, rootNodeId: node.id, mode: 'challenge' });
+              window.dispatchEvent(new PopStateEvent('popstate'));
+            }}
+            className="min-h-10 rounded-md border border-violet-800/70 bg-violet-950/35 px-2.5 py-2 text-left transition-colors hover:border-violet-400 hover:bg-violet-900/45"
+          >
+            <span className="block text-[10px] font-bold text-violet-100">Challenge</span>
+            <span className="mt-0.5 block text-[9px] leading-tight text-violet-200/75">Искать контрпример или открытую задачу</span>
+          </button>
+        </div>
+      </section>
+
       {/* 1. СЕКЦИЯ АККОРДЕОНА: ЦЕЛЕВАЯ ФУНКЦИЯ И СИНГУЛЯРНОСТЬ */}
       <div className="flex flex-col border-b border-neutral-800/50 bg-transparent">
         <div className="flex flex-col border-b border-neutral-800/50">

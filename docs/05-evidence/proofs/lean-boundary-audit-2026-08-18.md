@@ -1,8 +1,12 @@
 # Lean boundary audit
 
-**Версия:** 0.4.32
+**Версия:** 0.4.33
 **Дата:** 2026-08-18
 **Цель:** установить проверяемую границу между Lean kernel, статическим анализом TypeScript, независимой символьной проверкой и RICIS-черновиком.
+
+## Релиз v0.4.33
+
+Roadmap, root-connected task filter и CTA Explore / Verify / Challenge являются navigation feature. Они отображают существующие зависимости и trust presentation, но не создают proof, Core calculation, trusted axiom, Lean kernel evidence или trust-class transition.
 
 ## Релиз v0.4.32
 

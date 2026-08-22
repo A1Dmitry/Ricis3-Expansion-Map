@@ -1,8 +1,12 @@
 # Telegram/token-pool remediation
 
-**Версия:** 0.4.32
+**Версия:** 0.4.33
 **Дата:** 2026-08-18
 **Основание:** `telegram-tokenpool-bug-graph-2026-08-18.md`
+
+## Релиз v0.4.33
+
+Roadmap и root-connected task filter добавляют клиентскую навигацию по четырём исследовательским маршрутам и объяснимый обход задач к выбранному корню. Изменение не включает Telegram transport, token/secret, CommunityRewards ledger или Core authority.
 
 ## Релиз v0.4.32
 

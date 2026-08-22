@@ -1,10 +1,14 @@
 # Structural Hash Refactoring Report
 
 **Версия формата отчёта:** 0.1.0
-**Релиз приложения:** 0.4.32
+**Релиз приложения:** 0.4.33
 **Дата:** 2026-08-17
 **Источник данных:** `src/**/*.ts` и `src/**/*.tsx` без test-файлов
 **Машинный отчёт:** `structural-hash-report.json`
+
+## Релиз v0.4.33: Roadmap and root-task traversal boundary
+
+Добавлен чистый `rootTaskFilter` boundary, который нормализует persisted dependencyIds, parent declarations и visual edges в одно rootward-направление. UI Roadmap использует сервис как read-only adapter и не изменяет proof, Core или trust state.
 
 ## Релиз v0.4.32: NodeEntry and readable-focus composition boundary
 
