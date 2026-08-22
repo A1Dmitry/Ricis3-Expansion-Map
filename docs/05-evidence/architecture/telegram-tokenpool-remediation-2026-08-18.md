@@ -1,8 +1,12 @@
 # Telegram/token-pool remediation
 
-**Версия:** 0.4.32
+**Версия:** 0.4.33
 **Дата:** 2026-08-18
 **Основание:** `telegram-tokenpool-bug-graph-2026-08-18.md`
+
+## Релиз v0.4.33
+
+Static-safe Admin Core Connection добавляет только typed `server_capability_unavailable` Settings facade и contract tests. Он не хранит browser token/API key/enrollment secret, не активирует Telegram или external Core transport и не меняет Core authority.
 
 ## Релиз v0.4.32
 

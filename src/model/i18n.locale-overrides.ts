@@ -753,6 +753,24 @@ export const LOCALE_OVERRIDES: Partial<Record<TranslationKey, LocaleOverride>> =
     'hi-IN': 'प्रोफाइल और रीयल-टाइम पैनल प्रबंधन',
     'ms-MY': 'Profil & pengurusan panel masa nyata',
   },
+  'settings.adminCore': {
+    'fr-CA': 'Administration Core',
+    'de-DE': 'Core-Verwaltung',
+    'hi-IN': 'Core प्रशासन',
+    'ms-MY': 'Pentadbiran Core',
+  },
+  'settings.adminCoreServerRequired': {
+    'fr-CA': 'Plan de contrôle serveur requis',
+    'de-DE': 'Server-Control-Plane erforderlich',
+    'hi-IN': 'Server control plane आवश्यक है',
+    'ms-MY': 'Control plane pelayan diperlukan',
+  },
+  'settings.adminCoreUnavailable': {
+    'fr-CA': 'La gestion de Ricis.Core externe est indisponible dans le déploiement statique. Elle nécessite une autorisation serveur, une authentification renforcée, un audit et un canal d’agent hôte protégé.',
+    'de-DE': 'Die Verwaltung eines externen Ricis.Core ist in der statischen Bereitstellung nicht verfügbar. Sie benötigt Serverautorisierung, erneute Authentifizierung, Audit und einen geschützten Host-Agent-Kanal.',
+    'hi-IN': 'स्थिर परिनियोजन में बाहरी Ricis.Core प्रबंधन उपलब्ध नहीं है। इसके लिए सर्वर प्राधिकरण, पुनः प्रमाणीकरण, ऑडिट और सुरक्षित host-agent channel आवश्यक है।',
+    'ms-MY': 'Pengurusan Ricis.Core luaran tidak tersedia dalam penggunaan statik. Ia memerlukan kebenaran pelayan, pengesahan semula, audit dan saluran ejen hos yang dilindungi.',
+  },
   'settings.language': {
     'fr-CA': 'Langue',
     'de-DE': 'Sprache',

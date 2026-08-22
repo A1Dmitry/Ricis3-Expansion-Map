@@ -1,10 +1,14 @@
 # Structural Hash Refactoring Report
 
 **Версия формата отчёта:** 0.1.0
-**Релиз приложения:** 0.4.32
+**Релиз приложения:** 0.4.33
 **Дата:** 2026-08-17
 **Источник данных:** `src/**/*.ts` и `src/**/*.tsx` без test-файлов
 **Машинный отчёт:** `structural-hash-report.json`
+
+## Релиз v0.4.33: Admin Core static-safe composition boundary
+
+Добавлен isolated `adminCoreConnection` boundary: browser-safe feature/command/provenance DTO, typed static-unavailable facade и Settings projection. Contract module не импортирует React, Three.js, browser storage, HTTP/network, environment secret, database, crypto или Core singleton; реальная Auth/HostControl server composition остаётся отдельным injected adapter scope.
 
 ## Релиз v0.4.32: NodeEntry and readable-focus composition boundary
 

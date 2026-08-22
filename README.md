@@ -1,6 +1,10 @@
 # RICIS Expansion Map — интерактивная карта сингулярностей, зависимостей и доказательных границ
 
-**Версия: v0.4.32**
+**Версия: v0.4.33**
+
+### v0.4.33 — Static-safe Admin Core Connection foundation
+
+В Settings добавлен раздел **«Администрирование Core»**, построенный на изолированных `AdminCoreConnection` contracts и видимый как честное typed state для текущего static GitHub Pages deployment. Он сообщает, что управление external `Ricis.Core` требует server control plane с backend authorization, fresh-auth, audit и защищённым host-agent channel; интерфейс не содержит URL/API-key, host registry, browser secret storage, direct network routing или generic proxy. Добавлены deterministic contracts/tests для capability, one-time enrollment DTO, bounded `core.health`/`expression.simplify` scope и provenance без повышения proof/Lean trust. Реальные server adapters, durable registry, host agent и external execution остаются отдельной будущей server-side поставкой.
 
 ### v0.4.32 — Node-led research entry pages and readable graph focus
 
@@ -64,7 +68,7 @@ RICIS Expansion Map поддерживает визуальное исследо
 | `CORE_INPUT_REJECTED` | Parser error и безопасные детали позиции | Не обходит Core grammar локальным вычислением |
 | `CORE_INVALID_RESPONSE` | Ошибку контракта ответа и correlation context | Не выдумывает invariant из неполного payload |
 
-Для remote Core поддерживается build-time `VITE_RICIS_CORE_API_BASE_URL` с абсолютным HTTPS URL без credentials, query и fragment. При пустом значении применяется current same-origin proxy `/api/ricis-core`. Raw public Core port не является рекомендуемой схемой: production deployment должен использовать HTTPS и точный CORS origin.
+Для remote Core поддерживается build-time `VITE_RICIS_CORE_API_BASE_URL` с абсолютным HTTPS URL без credentials, query и fragment. При пустом значении применяется current same-origin proxy `/api/ricis-core`. Это deployment-time configuration, а не per-user Settings field. Раздел **«Администрирование Core»** в статической версии честно возвращает `server_capability_unavailable`; будущий server control plane будет отдельно использовать entitlement, fresh-auth, audit и bounded host-agent route decision вместо browser URL/API-key. Raw public Core port не является рекомендуемой схемой: production deployment должен использовать HTTPS и точный CORS origin.
 
 ### Локальный структурный анализ — только диагностика
 

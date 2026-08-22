@@ -1,8 +1,12 @@
 # Lean boundary audit
 
-**Версия:** 0.4.32
+**Версия:** 0.4.33
 **Дата:** 2026-08-18
 **Цель:** установить проверяемую границу между Lean kernel, статическим анализом TypeScript, независимой символьной проверкой и RICIS-черновиком.
+
+## Релиз v0.4.33
+
+Admin Core Settings facade фиксирует только operational availability и безопасно сообщает отсутствие server control plane. Его typed static state, future host provenance, enrollment DTO и route boundary не создают Core calculation, proof, trusted axiom, `LEAN_VERIFIED` или trust-class transition.
 
 ## Релиз v0.4.32
 
