@@ -86,7 +86,7 @@ const UI_ELEMENTS = [
   { id: 'available', label: '', labelKey: 'panel.available' },
   { id: 'agent', label: '', labelKey: 'panel.agent' },
   { id: 'persistence', label: '', labelKey: 'panel.persistence' },
-] as const;
+];
 import { isMissingTargetFunction, nodeHasSorry } from '../model/audit';
 import { ActionButton } from './ActionButton';
 
