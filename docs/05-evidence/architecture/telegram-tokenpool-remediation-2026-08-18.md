@@ -1,8 +1,12 @@
 # Telegram/token-pool remediation
 
-**Версия:** 0.4.29
+**Версия:** 0.4.30
 **Дата:** 2026-08-18
 **Основание:** `telegram-tokenpool-bug-graph-2026-08-18.md`
+
+## Релиз v0.4.30
+
+Публичный SEO-релиз добавляет canonical, social preview, structured data и crawler assets для GitHub Pages. Он не включает Telegram transport, не передаёт token/secret и не изменяет HostControl или Core authority.
 
 ## Релиз v0.4.29
 

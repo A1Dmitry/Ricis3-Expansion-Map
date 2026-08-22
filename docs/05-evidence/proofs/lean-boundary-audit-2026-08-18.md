@@ -1,8 +1,12 @@
 # Lean boundary audit
 
-**Версия:** 0.4.29
+**Версия:** 0.4.30
 **Дата:** 2026-08-18
 **Цель:** установить проверяемую границу между Lean kernel, статическим анализом TypeScript, независимой символьной проверкой и RICIS-черновиком.
+
+## Релиз v0.4.30
+
+Публичный SEO-релиз улучшает discoverability и presentation продукта, но не меняет trust classes: local diagnostic, Core calculation, trusted external axiom и Lean kernel verification остаются раздельными статусами.
 
 ## Релиз v0.4.29
 

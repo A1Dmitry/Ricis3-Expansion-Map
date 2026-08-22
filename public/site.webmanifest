@@ -1,0 +1,20 @@
+{
+  "name": "RICIS Expansion Map — Singularity Research Workspace",
+  "short_name": "RICIS Map",
+  "description": "Interactive 3D map for RICIS-III singularities, dependencies, Core-first computation and explicit proof trust boundaries.",
+  "lang": "ru",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#050a1a",
+  "theme_color": "#07152d",
+  "categories": ["education", "science", "productivity", "developer"],
+  "icons": [
+    {
+      "src": "ricis-expansion-map-icon.png",
+      "sizes": "1920x1920",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

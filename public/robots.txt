@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://a1dmitry.github.io/Ricis3-Expansion-Map/sitemap.xml
