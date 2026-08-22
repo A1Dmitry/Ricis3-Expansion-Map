@@ -136,23 +136,23 @@ export function RicisTerminalModal() {
 
   const handleSendToMap = (entry: typeof history[0]) => {
     const formula = entry.expression;
-    const invariant = entry.result?.finalInvariant || entry.formalProof?.conclusionInvariant || 'Инвариант не установлен';
-    const title = `Сингулярность: ${formula}`;
+    const invariant = entry.result?.finalInvariant || entry.formalProof?.conclusionInvariant || t('terminal.unknownInvariant');
+    const title = t('terminal.mapTitle', { value: formula });
     
-    let description = `Структурный RICIS-черновик для сингулярности ${formula}. Lean kernel evidence не приложен и требуется отдельно.\n`;
+    let description = `${t('terminal.mapDescription', { value: formula })}\n`;
     if (entry.formalProof) {
-      description += `Гипотеза: ${entry.formalProof.hypothesis}\n`;
-      description += `Метод: ${entry.formalProof.method}\n`;
-      description += `Итоговый локальный инвариант: ${entry.formalProof.conclusionInvariant} (требуется Core/Lean evidence)`;
+      description += `${t('terminal.hypothesis', { value: entry.formalProof.hypothesis })}\n`;
+      description += `${t('terminal.method', { value: entry.formalProof.method })}\n`;
+      description += t('terminal.invariant', { value: entry.formalProof.conclusionInvariant });
     } else if (entry.result?.steps) {
-      description += `Шаги: ${entry.result.steps.map(s => `${s.title}: ${s.inputState} -> ${s.outputState}`).join(' | ')}`;
+      description += t('terminal.steps', { value: entry.result.steps.map(s => `${s.title}: ${s.inputState} -> ${s.outputState}`).join(' | ') });
     }
 
     setPrefillDataForMap({
       title,
       targetFunction: formula,
       description,
-      hint: `Инвариант = ${invariant}`,
+      hint: t('terminal.hint', { value: invariant }),
       zoneId: 'math'
     });
 
@@ -209,6 +209,7 @@ export function RicisTerminalModal() {
                   type="button"
                   onClick={() => toggleTerminal(false)}
                   className="p-1.5 text-slate-400 hover:text-white hover:bg-slate-800 rounded transition-colors cursor-pointer"
+                  title={t('terminal.close')}
                 >
                   <X size={18} />
                 </button>
@@ -244,7 +245,7 @@ export function RicisTerminalModal() {
               </div>
 
               <span className="text-[11px] font-mono text-slate-500 hidden sm:inline">
-                Axiomatic Engine v7.7
+                {t('terminal.engineVersion')}
               </span>
             </div>
 
@@ -260,7 +261,7 @@ export function RicisTerminalModal() {
                     key={preset.id}
                     type="button"
                     onClick={() => handleSelectPreset(preset.expression)}
-                    title={`${preset.hint} (Кликните для мгновенного вычисления)`}
+                            title={`${preset.hint} (${t('terminal.clickToCompute')})`}
                     className="inline-flex items-center gap-1.5 px-3 py-1 rounded-md bg-neutral-900 hover:bg-cyan-950/80 border border-neutral-700 hover:border-cyan-600 text-xs font-mono text-slate-200 hover:text-white transition-all cursor-pointer whitespace-nowrap shadow-sm"
                   >
                     <span className="text-cyan-300 font-bold">[{preset.badge}]</span>
@@ -296,7 +297,7 @@ export function RicisTerminalModal() {
                             type="button"
                             onClick={() => handleSendToMap(entry)}
                             className="flex items-center gap-1.5 px-2.5 py-1 rounded bg-emerald-950/90 hover:bg-emerald-900 border border-emerald-700 text-xs font-sans text-emerald-200 hover:text-white transition-all cursor-pointer shadow-sm"
-                            title="Перенести это решение на 3D карту в виде нового узла"
+                            title={t('terminal.addTitle')}
                           >
                             <PlusCircle size={13} className="text-emerald-400" />
                             <span>{t('sandbox.addToMap')}</span>
@@ -307,7 +308,7 @@ export function RicisTerminalModal() {
                           type="button"
                           onClick={() => loadFromHistory(entry.expression)}
                           className="opacity-0 group-hover:opacity-100 p-1 text-slate-400 hover:text-cyan-300 transition-all cursor-pointer"
-                          title="Загрузить в строку ввода"
+                          title={t('terminal.loadTitle')}
                         >
                           <ChevronUp size={14} />
                         </button>
@@ -316,7 +317,7 @@ export function RicisTerminalModal() {
                     
                     {entry.error ? (
                       <div className="ml-4 p-3 bg-red-950/30 border border-red-800/50 rounded-lg text-red-300 font-mono text-xs font-medium">
-                        Ошибка: {entry.error}
+                        {t('terminal.error')}: {entry.error}
                       </div>
                     ) : (
                       <div className="ml-4">
@@ -366,7 +367,7 @@ export function RicisTerminalModal() {
                   onClick={evaluateExpression}
                   disabled={!currentInput.trim() || isEvaluating}
                   className="flex items-center justify-center w-9 h-9 rounded-lg bg-cyan-600 hover:bg-cyan-500 text-black font-bold disabled:opacity-40 disabled:cursor-not-allowed transition-all cursor-pointer shadow-[0_0_15px_rgba(6,182,212,0.3)]"
-                  title="Запустить вычисление (Enter)"
+                  title={t('terminal.runTitle')}
                 >
                   {isEvaluating ? (
                     <div className="w-4 h-4 border-2 border-black border-t-transparent rounded-full animate-spin" />

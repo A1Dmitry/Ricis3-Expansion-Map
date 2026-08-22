@@ -27,8 +27,12 @@ describe('public proof-trust boundary', () => {
 
     expect(proofConsole).toContain("t('proofConsole.subtitle')");
     expect(proofConsole).not.toContain('Q.E.D. VERIFIED');
-    expect(theoremViewer).toContain('Lean kernel не запускался');
-    expect(terminal).toContain('требуется Core/Lean evidence');
+    expect(theoremViewer).toContain("t('theoremReport.localResult')");
+    expect(theoremViewer).toContain("t('theoremReport.copyConclusion'");
+    expect(terminal).toContain("t('terminal.invariant'");
+    expect(terminal).toContain("t('terminal.mapDescription'");
+    expect(theoremViewer).not.toContain('Lean kernel evidence требуется отдельно');
+    expect(terminal).not.toContain('требуется Core/Lean evidence');
     expect(mapStore).toContain('требуется отдельное Core/Lean evidence');
     expect(mapStore).not.toContain('Доказательство Lean 4 успешно сформировано');
   });
