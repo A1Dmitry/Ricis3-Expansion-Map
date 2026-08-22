@@ -1,5 +1,6 @@
 import React, { useState, useMemo, useEffect, useRef, useCallback } from 'react';
 import type { ProblemNode } from '../model/types';
+import type { UIElement } from '../domain/ui/uiElement.types';
 import { AddNodeModal } from './AddNodeModal';
 import { Canvas, useThree, useFrame } from '@react-three/fiber';
 import { useMapStore } from '../store/mapStore';
@@ -80,7 +81,7 @@ import type { RicisCoreStatus } from '../services/ricisCore';
 
 type PanelId = 'actions' | 'zones' | 'available' | 'agent' | 'persistence';
 
-const UI_ELEMENTS = [
+const UI_ELEMENTS: UIElement[] = [
   { id: 'actions', label: '', labelKey: 'panel.actions' },
   { id: 'zones', label: '', labelKey: 'panel.zones' },
   { id: 'available', label: '', labelKey: 'panel.available' },
