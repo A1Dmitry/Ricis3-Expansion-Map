@@ -33,6 +33,7 @@ import {
   Compass,
   Map as MapIcon,
   List,
+  Gift,
 } from 'lucide-react';
 import { SettingsModal } from './SettingsModal';
 import { RicisProofConsoleModal } from './RicisProofConsoleModal';
@@ -78,6 +79,7 @@ import { LanguageToggle } from './LanguageToggle';
 import { AccessibleMapFallback } from './AccessibleMapFallback';
 import { checkRicisCoreRuntimeStatus, getRicisCoreRuntimeStatus } from '../services/ricisCore';
 import type { RicisCoreStatus } from '../services/ricisCore';
+import { getCommunityRewardsClientStatus } from '../services/communityRewardsClient';
 
 type PanelId = 'actions' | 'zones' | 'available' | 'agent' | 'persistence';
 
@@ -427,6 +429,28 @@ export const Map3D: React.FC = () => {
   const initializedAdaptiveRoleRef = useRef<string | null>(null);
   const [coreRuntimeStatus, setCoreRuntimeStatus] = useState<RicisCoreStatus>(() => getRicisCoreRuntimeStatus());
   const [isCheckingCoreRuntime, setIsCheckingCoreRuntime] = useState(false);
+  const [isCheckingCommunityRewards, setIsCheckingCommunityRewards] = useState(false);
+  const [communityRewardsNotice, setCommunityRewardsNotice] = useState<string | null>(null);
+
+  const handleCommunityRewardsInvite = useCallback(async () => {
+    if (isCheckingCommunityRewards) return;
+    setIsCheckingCommunityRewards(true);
+    try {
+      const [copied, status] = await Promise.all([
+        UrlShareService.copyShareUrlToClipboard({}),
+        getCommunityRewardsClientStatus(),
+      ]);
+      const sharePrefix = copied ? 'Ссылка приложения скопирована.' : 'Не удалось скопировать ссылку приложения.';
+      const detail = status.kind === 'backend_unconfigured'
+        ? ' Referral Tokens появятся после подключения защищённого identity и server ledger.'
+        : status.kind === 'backend_unreachable'
+        ? ' Referral Tokens временно недоступны: server ledger не отвечает.'
+        : ' Referral Tokens не активированы: backend status не подтверждён.';
+      setCommunityRewardsNotice(`${sharePrefix}${detail}`);
+    } finally {
+      setIsCheckingCommunityRewards(false);
+    }
+  }, [isCheckingCommunityRewards]);
 
   useEffect(() => {
     if (initializedAdaptiveRoleRef.current === currentRole.id) return;
@@ -2165,6 +2189,25 @@ export const Map3D: React.FC = () => {
             <span className={`w-1.5 h-1.5 rounded-full ${coreStatusPresentation.dotClassName}`} />
             <span>{coreStatusPresentation.label}</span>
           </button>
+
+          <button
+            type="button"
+            data-testid="community-rewards-status-button"
+            onClick={() => { void handleCommunityRewardsInvite(); }}
+            disabled={isCheckingCommunityRewards}
+            className={`flex items-center gap-1.5 px-2 py-0.5 rounded border border-violet-700/70 bg-violet-950/70 text-violet-200 hover:bg-violet-800/70 hover:text-white text-[10px] font-mono font-bold transition-all shrink-0 ${isCheckingCommunityRewards ? 'cursor-wait opacity-80' : 'cursor-pointer'}`}
+            title="Скопировать ссылку приложения для друга. Награды доступны только после server-side настройки."
+            aria-describedby={communityRewardsNotice === null ? undefined : 'community-rewards-status-notice'}
+          >
+            <Gift size={11} aria-hidden="true" />
+            <span>{isCheckingCommunityRewards ? 'Проверка…' : 'Пригласить · Tokens'}</span>
+          </button>
+
+          {communityRewardsNotice !== null && (
+            <span id="community-rewards-status-notice" role="status" className="hidden xl:inline text-[10px] text-violet-200 truncate max-w-80" title={communityRewardsNotice}>
+              {communityRewardsNotice}
+            </span>
+          )}
 
           {/* Latest AI agent log message */}
           {map.agentLogs && map.agentLogs.length > 0 ? (

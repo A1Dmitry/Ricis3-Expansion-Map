@@ -1,8 +1,12 @@
 # Lean boundary audit
 
-**Версия:** 0.4.30
+**Версия:** 0.4.31
 **Дата:** 2026-08-18
 **Цель:** установить проверяемую границу между Lean kernel, статическим анализом TypeScript, независимой символьной проверкой и RICIS-черновиком.
+
+## Релиз v0.4.31
+
+CommunityRewards вводит только продуктовый referral/token bounded context. Его ledger, reward receipt, feature reservation и status-line invitation не создают proof, Core calculation, trusted axiom или Lean kernel evidence и не могут менять trust class узла.
 
 ## Релиз v0.4.30
 

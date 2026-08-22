@@ -10,6 +10,7 @@ import {
   proxyRicisCoreApi,
   proxyRicisCoreProofApi,
 } from "./server/ricisCoreSupervisor";
+import { registerCommunityRewardsUnavailableRoutes } from "./server/communityRewardsHttpAdapter";
 
 
 
@@ -596,6 +597,11 @@ ${axiomList}
     // without logging message content or personal identifiers.
     res.status(204).end();
   });
+
+  // CommunityRewards remains unavailable until managed identity and a durable
+  // transactional ledger are composed. Register this before SPA fallback so a
+  // browser cannot mistake HTML for an authoritative token result.
+  registerCommunityRewardsUnavailableRoutes(app);
 
   if (process.env.NODE_ENV !== "production") {
     const vite = await createViteServer({

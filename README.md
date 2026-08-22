@@ -1,6 +1,10 @@
 # RICIS Expansion Map — интерактивная карта сингулярностей, зависимостей и доказательных границ
 
-**Версия: v0.4.30**
+**Версия: v0.4.31**
+
+### v0.4.31 — Community Rewards foundation and status-line invitation
+
+Добавлен изолированный bounded context `CommunityRewards`: SOLID/DDD contracts, server-authoritative append-only ledger application layer, typed referral/reward outcomes, in-memory QA adapters и protected `/api/community-rewards/v1` availability seam. В desktop status line появилась кнопка **«Пригласить · Tokens»**: она копирует только обычную ссылку приложения и честно сообщает, что реальные referral links, identity и durable ledger требуют production backend. Локальный browser balance, имитация наград, Core/Lean coupling и передача токенов не реализованы.
 
 ### v0.4.30 — Public product narrative and technical SEO
 

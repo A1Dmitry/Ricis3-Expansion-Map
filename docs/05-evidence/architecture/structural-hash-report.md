@@ -1,10 +1,14 @@
 # Structural Hash Refactoring Report
 
 **Версия формата отчёта:** 0.1.0
-**Релиз приложения:** 0.4.30
+**Релиз приложения:** 0.4.31
 **Дата:** 2026-08-17
 **Источник данных:** `src/**/*.ts` и `src/**/*.tsx` без test-файлов
 **Машинный отчёт:** `structural-hash-report.json`
+
+## Релиз v0.4.31: CommunityRewards composition boundary
+
+Добавлен изолированный `CommunityRewardsApplication` с портами identity, unit-of-work, code issue/hash, risk, trusted automation, audit, feature entitlement и notification outbox. Domain/application слой не импортирует UI, React, Core, Lean, database SDK или vendor auth SDK; adapters остаются заменяемыми через DI.
 
 ## Релиз v0.4.29: Local Analyzer source-hash boundary
 

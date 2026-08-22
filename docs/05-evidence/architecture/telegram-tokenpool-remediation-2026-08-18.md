@@ -1,8 +1,12 @@
 # Telegram/token-pool remediation
 
-**Версия:** 0.4.30
+**Версия:** 0.4.31
 **Дата:** 2026-08-18
 **Основание:** `telegram-tokenpool-bug-graph-2026-08-18.md`
+
+## Релиз v0.4.31
+
+CommunityRewards foundation добавляет server-authoritative token/referral contracts, pure application service, typed unavailable transport и статусную кнопку приглашения. Он не хранит browser token balance, не принимает user API keys и не активирует Telegram transport.
 
 ## Релиз v0.4.30
 
