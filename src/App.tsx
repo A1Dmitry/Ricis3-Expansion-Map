@@ -1,7 +1,9 @@
 import { useEffect, useState } from 'react';
 import { Map3D } from './ui/Map3D';
 import { CoreRecoveryPage } from './ui/CoreRecoveryPage';
+import { RoadmapPage } from './ui/RoadmapPage';
 import { isCoreRecoveryRoute } from './services/coreRecovery';
+import { UrlShareService } from './services/UrlShareService';
 import { useMapStore } from './store/mapStore';
 
 export default function App() {
@@ -41,6 +43,20 @@ export default function App() {
 
   if (isCoreRecoveryRoute(locationSearch)) {
     return <CoreRecoveryPage />;
+  }
+
+  const roadmapParams = new URLSearchParams(locationSearch);
+  if (roadmapParams.get('view') === 'roadmap') {
+    return (
+      <RoadmapPage
+        contextNodeId={roadmapParams.get('node')}
+        initialRootNodeId={roadmapParams.get('root')}
+        onBackToMap={() => {
+          UrlShareService.updateBrowserUrl({ roadmap: false, rootNodeId: null });
+          setLocationSearch(window.location.search);
+        }}
+      />
+    );
   }
 
   return <Map3D />;

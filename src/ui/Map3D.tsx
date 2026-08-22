@@ -1420,6 +1420,17 @@ export const Map3D: React.FC = () => {
                 {searchQuery && <span className="text-[10px] font-mono text-cyan-300">{searchMatchCount}</span>}
               </label>
 
+              <button
+                type="button"
+                onClick={() => {
+                  UrlShareService.updateBrowserUrl({ roadmap: true, rootNodeId: null });
+                  window.dispatchEvent(new PopStateEvent('popstate'));
+                }}
+                className="min-h-12 w-full rounded-lg border border-violet-800/80 bg-violet-950/35 px-3 text-left text-xs font-bold text-violet-100 inline-flex items-center justify-between"
+              >
+                <span className="inline-flex items-center gap-2"><List size={16} /> Roadmap: выбрать маршрут исследования</span><ChevronRight size={17} />
+              </button>
+
               {selectedNode && (
                 <button
                   type="button"
@@ -1505,6 +1516,18 @@ export const Map3D: React.FC = () => {
             <div className="flex flex-col"><span className="text-slate-400 text-[10px]">{t('header.resolved')}</span><span className="text-green-400 font-bold">{availability.resolved}</span></div>
           </div>
           <LanguageToggle />
+          <button
+            type="button"
+            onClick={() => {
+              UrlShareService.updateBrowserUrl({ roadmap: true, rootNodeId: null });
+              window.dispatchEvent(new PopStateEvent('popstate'));
+            }}
+            className="min-h-10 bg-violet-950/50 hover:bg-violet-900/60 border border-violet-700/60 text-violet-100 font-bold text-xs px-2 sm:px-3.5 py-1.5 rounded-md transition-all cursor-pointer flex items-center gap-1.5 uppercase tracking-wider"
+            aria-label="Открыть Roadmap"
+            title="Выбрать маршрут исследования"
+          >
+            <List size={14} /> <span className="hidden sm:inline">Roadmap</span>
+          </button>
           <button
             type="button"
             onClick={() => {

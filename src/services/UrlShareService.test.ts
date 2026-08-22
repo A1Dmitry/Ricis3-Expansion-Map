@@ -19,11 +19,19 @@ describe('Deep Linking & Share Service Tests', () => {
     expect(url).toContain('mode=theorem');
   });
 
+  it('должен генерировать ссылку Roadmap с явной корневой целью', () => {
+    const url = UrlShareService.generateShareUrl({ roadmap: true, rootNodeId: 'core-agi-target' });
+    expect(url).toContain('view=roadmap');
+    expect(url).toContain('root=core-agi-target');
+  });
+
   it('должен парсить параметры при инициализации', () => {
-    window.history.replaceState({}, '', 'http://localhost:3000/?node=NAV_STOKES&mode=lean4');
+    window.history.replaceState({}, '', 'http://localhost:3000/?node=NAV_STOKES&mode=lean4&view=roadmap&root=core-agi-target');
     const params = UrlShareService.parseInitialParams();
     expect(params.initialNodeId).toBe('NAV_STOKES');
     expect(params.initialMode).toBe('lean4');
+    expect(params.initialRoadmap).toBe(true);
+    expect(params.initialRootNodeId).toBe('core-agi-target');
   });
 
   it('должен обновлять URL в строке браузера без перезагрузки', () => {
@@ -31,9 +39,16 @@ describe('Deep Linking & Share Service Tests', () => {
     const urlParams = new URLSearchParams(window.location.search);
     expect(urlParams.get('node')).toBe('EULER_SINGULARITY');
 
-    UrlShareService.updateBrowserUrl({ nodeId: null });
+    UrlShareService.updateBrowserUrl({ nodeId: null, roadmap: true, rootNodeId: 'core-agi-target' });
+    const updatedParams = new URLSearchParams(window.location.search);
+    expect(updatedParams.get('node')).toBeNull();
+    expect(updatedParams.get('view')).toBe('roadmap');
+    expect(updatedParams.get('root')).toBe('core-agi-target');
+
+    UrlShareService.updateBrowserUrl({ roadmap: false, rootNodeId: null });
     const clearedParams = new URLSearchParams(window.location.search);
-    expect(clearedParams.get('node')).toBeNull();
+    expect(clearedParams.get('view')).toBeNull();
+    expect(clearedParams.get('root')).toBeNull();
   });
 });
 

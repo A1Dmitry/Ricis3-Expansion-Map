@@ -2,9 +2,11 @@
 
 **Версия: v0.4.33**
 
-### v0.4.33 — Static-safe Admin Core Connection foundation
+### v0.4.33 — Research Roadmap and static-safe Admin Core Connection
 
-В Settings добавлен раздел **«Администрирование Core»**, построенный на изолированных `AdminCoreConnection` contracts и видимый как честное typed state для текущего static GitHub Pages deployment. Он сообщает, что управление external `Ricis.Core` требует server control plane с backend authorization, fresh-auth, audit и защищённым host-agent channel; интерфейс не содержит URL/API-key, host registry, browser secret storage, direct network routing или generic proxy. Добавлены deterministic contracts/tests для capability, one-time enrollment DTO, bounded `core.health`/`expression.simplify` scope и provenance без повышения proof/Lean trust. Реальные server adapters, durable registry, host agent и external execution остаются отдельной будущей server-side поставкой.
+Добавлена отдельная страница **Roadmap** с четырьмя маршрутами: Explore, Verify, Challenge и работа от корневой цели. Пользователь может выбрать корень и увидеть только научные задачи, для которых существует структурный путь «задача → … → корень»; промежуточные узлы остаются поясняющим контекстом, а не становятся ложными карточками задач. Deep-link сохраняет контекст Roadmap и выбранный root, а карточка узла предоставляет явные исследовательские действия.
+
+В Settings добавлен раздел **«Администрирование Core»**, построенный на изолированных `AdminCoreConnection` contracts и отображающий честное typed state для static GitHub Pages deployment. Он сообщает, что управление external `Ricis.Core` требует server control plane с backend authorization, fresh-auth, audit и защищённым host-agent channel; интерфейс не содержит URL/API-key, host registry, browser secret storage, direct network routing или generic proxy. Добавлены deterministic contract-tests для capability, one-time enrollment DTO, bounded `core.health`/`expression.simplify` scope и provenance без повышения proof/Lean trust. Реальные server adapters, durable registry, host agent и external execution остаются отдельной будущей server-side поставкой.
 
 ### v0.4.32 — Node-led research entry pages and readable graph focus
 
