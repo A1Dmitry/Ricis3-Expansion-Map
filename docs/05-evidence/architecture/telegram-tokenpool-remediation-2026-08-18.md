@@ -1,8 +1,12 @@
 # Telegram/token-pool remediation
 
-**Версия:** 0.4.34
+**Версия:** 0.4.35
 **Дата:** 2026-08-18
 **Основание:** `telegram-tokenpool-bug-graph-2026-08-18.md`
+
+## Релиз v0.4.35
+
+Pure A6 multi-evidence contracts/application layer сохраняет typed Agent/Core/Lean provenance и unavailable states без запуска provider, Core или Lean transport. Он не читает Telegram/browser token/API key/enrollment secret, не активирует внешний маршрут и не меняет Core authority.
 
 ## Релиз v0.4.34
 

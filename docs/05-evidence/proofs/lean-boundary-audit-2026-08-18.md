@@ -1,8 +1,12 @@
 # Lean boundary audit
 
-**Версия:** 0.4.34
+**Версия:** 0.4.35
 **Дата:** 2026-08-18
 **Цель:** установить проверяемую границу между Lean kernel, статическим анализом TypeScript, независимой символьной проверкой и RICIS-черновиком.
+
+## Релиз v0.4.35
+
+A6 multi-evidence layer разделяет `agent_structural_assessment`, `core_execution_evidence` и `lean_kernel_evidence`. Совпадение Agent/Core records не создаёт Lean kernel proof, trusted axiom, `LEAN_VERIFIED` или trust-class transition; Lean record требует отдельные immutable source, compiler и axiom evidence hashes.
 
 ## Релиз v0.4.34
 

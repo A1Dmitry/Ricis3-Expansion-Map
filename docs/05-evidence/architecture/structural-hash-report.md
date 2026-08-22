@@ -1,10 +1,14 @@
 # Structural Hash Refactoring Report
 
 **Версия формата отчёта:** 0.1.0
-**Релиз приложения:** 0.4.34
+**Релиз приложения:** 0.4.35
 **Дата:** 2026-08-17
 **Источник данных:** `src/**/*.ts` и `src/**/*.tsx` без test-файлов
 **Машинный отчёт:** `structural-hash-report.json`
+
+## Релиз v0.4.35: A6 multi-evidence composition boundary
+
+Добавлен isolated `a6Evidence` boundary: typed deferred-expression witness, RICIS geometric A6 representation, independent Agent/Core/Lean records, explicit unavailable/conflict DTO и pure merger. Contracts/application не импортируют Agent provider, Core singleton, Lean process, React, browser storage, network, secret или proof-state mutation; adapters остаются отдельными injected scopes.
 
 ## Релиз v0.4.34: Optional Admin Core unavailable HTTP boundary
 

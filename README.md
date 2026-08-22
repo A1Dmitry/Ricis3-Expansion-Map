@@ -1,6 +1,10 @@
 # RICIS Expansion Map — интерактивная карта сингулярностей, зависимостей и доказательных границ
 
-**Версия: v0.4.34**
+**Версия: v0.4.35**
+
+### v0.4.35 — A6 typed multi-evidence foundation
+
+Исправлена foundation-грань A6: `F` и `G` теперь моделируются как typed deferred expressions внутри immutable `A6BridgeWitness`; RICIS geometric determinant допускается только как сохранённая representation exact `0_F × ∞_G` bridge, а не как свободный текстовый fallback. Pure application layer проверяет L0/L1/SP2/SP4/A6 premise, возвращает typed non-applicability для arbitrary determinant/function и детерминированно объединяет независимые Agent/Core/Lean evidence records. Доступность Agent и Ricis.Core независима от deployment: доступный слой сохраняет trace, недоступный — typed provenance; hash/type/product disagreements остаются `evidence_conflict` без выбора победителя или proof-trust promotion. Реальные Agent/Core/Lean adapters, UI, renderer и legacy artifact migration не включены.
 
 ### v0.4.34 — Deployment-optional Admin Core availability adapter
 
