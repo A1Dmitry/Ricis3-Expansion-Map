@@ -1,13 +1,13 @@
 import type { SupportedLocale } from './i18n.types';
 
-export type LegacyResourceStatus = 'pending-translation';
+export type LegacyResourceStatus = 'pending-translation' | 'translated-from-existing-resource';
 export interface LegacyResourceEntry {
   readonly source: string;
   readonly status: LegacyResourceStatus;
   readonly values: Partial<Record<SupportedLocale, string>>;
 }
 
-/** Generated inventory of legacy Russian UI/runtime/report phrases. Translate before wiring callers. */
+/** Generated inventory of legacy phrases; existing translations are reused DRY-style. */
 export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntry>> = {
   'runtime.legacy.000479fdd803': {
     source: `targetFunction": "Formalize(НелинейноеуравнениеШредингера)`,
@@ -18,9 +18,13 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
   },
   'runtime.legacy.00b2793a911c': {
     source: `Семантический индекс`,
-    status: 'pending-translation',
+    status: 'translated-from-existing-resource',
     values: {
       'ru': `Семантический индекс`,
+      'fr-CA': `Index sémantique`,
+      'de-DE': `Semantischer Index`,
+      'hi-IN': `सैमान्टिक इंडेक्स`,
+      'ms-MY': `Indeks semantik`,
     },
   },
   'runtime.legacy.00bfe9fdc4ed': {
@@ -137,9 +141,13 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
   },
   'runtime.legacy.048daa664e84': {
     source: `Состояние workflow: resolved`,
-    status: 'pending-translation',
+    status: 'translated-from-existing-resource',
     values: {
       'ru': `Состояние workflow: resolved`,
+      'fr-CA': `État du workflow : resolved`,
+      'de-DE': `Workflow-Status: resolved`,
+      'hi-IN': `Workflow स्थिति: resolved`,
+      'ms-MY': `Status aliran kerja: resolved`,
     },
   },
   'runtime.legacy.04f180e76c33': {
@@ -207,9 +215,13 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
   },
   'runtime.legacy.0641e6e9f103': {
     source: `Целевая функция и сингулярность`,
-    status: 'pending-translation',
+    status: 'translated-from-existing-resource',
     values: {
       'ru': `Целевая функция и сингулярность`,
+      'fr-CA': `Fonction objectif et singularité`,
+      'de-DE': `Zielfunktion & Singularität`,
+      'hi-IN': `लक्ष्य फ़ंक्शन और सिंगुलैरिटी`,
+      'ms-MY': `Fungsi Sasaran & Singulariti`,
     },
   },
   'runtime.legacy.066d268970ee': {
@@ -221,9 +233,13 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
   },
   'runtime.legacy.07205a06c301': {
     source: `Вход`,
-    status: 'pending-translation',
+    status: 'translated-from-existing-resource',
     values: {
       'ru': `Вход`,
+      'fr-CA': `Entrée`,
+      'de-DE': `Eingabe`,
+      'hi-IN': `इनपुट`,
+      'ms-MY': `Masukan`,
     },
   },
   'runtime.legacy.07347dec3ce7': {
@@ -263,9 +279,13 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
   },
   'runtime.legacy.08e1276ef57f': {
     source: `Статус доказательства всегда указан в ответе. Шаблон LaTeX не является Lean-верификацией.`,
-    status: 'pending-translation',
+    status: 'translated-from-existing-resource',
     values: {
       'ru': `Статус доказательства всегда указан в ответе. Шаблон LaTeX не является Lean-верификацией.`,
+      'fr-CA': `Le statut de preuve est toujours indiqué dans la réponse. Un modèle LaTeX n'est pas une vérification Lean.`,
+      'de-DE': `Der Beweisstatus wird immer in der Antwort angegeben. Eine LaTeX-Vorlage ist keine Lean-Verifikation.`,
+      'hi-IN': `साबित स्थिति हमेशा उत्तर में बताई जाती है। एक LaTeX टेम्पलेट Lean सत्यापन नहीं है।`,
+      'ms-MY': `Status bukti sentiasa dinyatakan dalam jawapan. Templat LaTeX bukan pengesahan Lean.`,
     },
   },
   'runtime.legacy.09084ee2a495': {
@@ -347,9 +367,13 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
   },
   'runtime.legacy.0bbb6cd6f547': {
     source: `Создать авторитетный proof run`,
-    status: 'pending-translation',
+    status: 'translated-from-existing-resource',
     values: {
       'ru': `Создать авторитетный proof run`,
+      'fr-CA': `Créer un proof run faisant autorité`,
+      'de-DE': `Authoritativen proof run erstellen`,
+      'hi-IN': `एक प्राधिकृत proof run बनाएँ`,
+      'ms-MY': `Cipta proof run berwibawa`,
     },
   },
   'runtime.legacy.0c22199eba08': {
@@ -389,9 +413,13 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
   },
   'runtime.legacy.0e2929042670': {
     source: `Доверенный внешний аксиоматический контракт`,
-    status: 'pending-translation',
+    status: 'translated-from-existing-resource',
     values: {
       'ru': `Доверенный внешний аксиоматический контракт`,
+      'fr-CA': `Axiome externe de confiance`,
+      'de-DE': `Vertrauenswürdiges externes Axiom`,
+      'hi-IN': `विश्वसनीय बाहरी ऐक्सिओम`,
+      'ms-MY': `Aksiom luaran yang dipercayai`,
     },
   },
   'runtime.legacy.0e4ad1f46e20': {
@@ -431,9 +459,13 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
   },
   'runtime.legacy.0ec753be8df9': {
     source: `Отмена`,
-    status: 'pending-translation',
+    status: 'translated-from-existing-resource',
     values: {
       'ru': `Отмена`,
+      'fr-CA': `Annuler`,
+      'de-DE': `Abbrechen`,
+      'hi-IN': `रद्द करें`,
+      'ms-MY': `Batal`,
     },
   },
   'runtime.legacy.0edd64577458': {
@@ -550,16 +582,24 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
   },
   'runtime.legacy.1304afa92bea': {
     source: `Вычисление...`,
-    status: 'pending-translation',
+    status: 'translated-from-existing-resource',
     values: {
       'ru': `Вычисление...`,
+      'fr-CA': `Évaluation en cours...`,
+      'de-DE': `Auswertung...`,
+      'hi-IN': `मूल्यांकन जारी है...`,
+      'ms-MY': `Sedang dinilai...`,
     },
   },
   'runtime.legacy.13538184a625': {
     source: `Очистить граф (GC)`,
-    status: 'pending-translation',
+    status: 'translated-from-existing-resource',
     values: {
       'ru': `Очистить граф (GC)`,
+      'fr-CA': `Nettoyer le graphe (GC)`,
+      'de-DE': `Graph bereinigen (GC)`,
+      'hi-IN': `ग्राफ़ साफ़ करें (GC)`,
+      'ms-MY': `Bersihkan Graf (GC)`,
     },
   },
   'runtime.legacy.13538d8391f0': {
@@ -571,9 +611,13 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
   },
   'runtime.legacy.14152571b80f': {
     source: `Настройки интерфейса`,
-    status: 'pending-translation',
+    status: 'translated-from-existing-resource',
     values: {
       'ru': `Настройки интерфейса`,
+      'fr-CA': `Paramètres de l'interface`,
+      'de-DE': `UI-Einstellungen`,
+      'hi-IN': `UI सेटिंग्स`,
+      'ms-MY': `Tetapan UI`,
     },
   },
   'runtime.legacy.1418c1235bed': {
@@ -634,9 +678,13 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
   },
   'runtime.legacy.15b1c1f5fbdd': {
     source: `БЫСТРЫЕ ДЕЙСТВИЯ`,
-    status: 'pending-translation',
+    status: 'translated-from-existing-resource',
     values: {
       'ru': `БЫСТРЫЕ ДЕЙСТВИЯ`,
+      'fr-CA': `ACTIONS RAPIDES`,
+      'de-DE': `SCHNELLAKTIONEN`,
+      'hi-IN': `त्वरित क्रियाएँ`,
+      'ms-MY': `TINDAKAN PANTAS`,
     },
   },
   'runtime.legacy.15d2681cd2a2': {
@@ -683,9 +731,13 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
   },
   'runtime.legacy.1721abac6e07': {
     source: `Копировать Lean 4`,
-    status: 'pending-translation',
+    status: 'translated-from-existing-resource',
     values: {
       'ru': `Копировать Lean 4`,
+      'fr-CA': `Copier Lean 4`,
+      'de-DE': `Lean 4 kopieren`,
+      'hi-IN': `Lean 4 कॉपी करें`,
+      'ms-MY': `Salin Lean 4`,
     },
   },
   'runtime.legacy.173d070996ff': {
@@ -781,9 +833,13 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
   },
   'runtime.legacy.1a7103ab1be1': {
     source: `Ожидаемое выражение`,
-    status: 'pending-translation',
+    status: 'translated-from-existing-resource',
     values: {
       'ru': `Ожидаемое выражение`,
+      'fr-CA': `Expression attendue`,
+      'de-DE': `Erwarteter Ausdruck`,
+      'hi-IN': `अपेक्षित अभिव्यक्ति`,
+      'ms-MY': `Ungkapan yang dijangka`,
     },
   },
   'runtime.legacy.1af831955cba': {
@@ -858,16 +914,24 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
   },
   'runtime.legacy.1df753f21629': {
     source: `Генератор формальных доказательств`,
-    status: 'pending-translation',
+    status: 'translated-from-existing-resource',
     values: {
       'ru': `Генератор формальных доказательств`,
+      'fr-CA': `Générateur de preuves formelles`,
+      'de-DE': `Generator für formale Beweise`,
+      'hi-IN': `औपचारिक प्रमाण जनरेटर`,
+      'ms-MY': `Penjana bukti formal`,
     },
   },
   'runtime.legacy.1f446fafa00e': {
     source: `Сложность`,
-    status: 'pending-translation',
+    status: 'translated-from-existing-resource',
     values: {
       'ru': `Сложность`,
+      'fr-CA': `Complexité`,
+      'de-DE': `Komplexität`,
+      'hi-IN': `जटिलता`,
+      'ms-MY': `Kerumitan`,
     },
   },
   'runtime.legacy.1f4e6141ff74': {
@@ -879,9 +943,13 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
   },
   'runtime.legacy.1f62f0ab48eb': {
     source: `Правка`,
-    status: 'pending-translation',
+    status: 'translated-from-existing-resource',
     values: {
       'ru': `Правка`,
+      'fr-CA': `Modifier`,
+      'de-DE': `Bearbeiten`,
+      'hi-IN': `संपादित करें`,
+      'ms-MY': `Sunting`,
     },
   },
   'runtime.legacy.1f65d981f054': {
@@ -949,9 +1017,13 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
   },
   'runtime.legacy.21597a521727': {
     source: `Экономическая модель`,
-    status: 'pending-translation',
+    status: 'translated-from-existing-resource',
     values: {
       'ru': `Экономическая модель`,
+      'fr-CA': `Modèle d'impact économique`,
+      'de-DE': `Modell der wirtschaftlichen Auswirkungen`,
+      'hi-IN': `आर्थिक प्रभाव मॉडल`,
+      'ms-MY': `Model impak ekonomi`,
     },
   },
   'runtime.legacy.221597307553': {
@@ -984,9 +1056,13 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
   },
   'runtime.legacy.24fecdab7789': {
     source: `Связанные задачи пока не разблокированы.`,
-    status: 'pending-translation',
+    status: 'translated-from-existing-resource',
     values: {
       'ru': `Связанные задачи пока не разблокированы.`,
+      'fr-CA': `Aucun problème connexe n'est encore débloqué.`,
+      'de-DE': `Verwandte Probleme sind noch nicht freigeschaltet.`,
+      'hi-IN': `कोई संबंधित समस्या अभी तक अनलॉक नहीं हुई है।`,
+      'ms-MY': `Tiada masalah berkaitan dibuka setakat ini.`,
     },
   },
   'runtime.legacy.25165139dbf0': {
@@ -998,9 +1074,13 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
   },
   'runtime.legacy.2590bf542b3a': {
     source: `Lean kernel подтверждён`,
-    status: 'pending-translation',
+    status: 'translated-from-existing-resource',
     values: {
       'ru': `Lean kernel подтверждён`,
+      'fr-CA': `Noyau Lean vérifié`,
+      'de-DE': `Lean-Kernel verifiziert`,
+      'hi-IN': `Lean कर्नेल सत्यापित`,
+      'ms-MY': `Kernel Lean disahkan`,
     },
   },
   'runtime.legacy.2658ffaf6853': {
@@ -1012,9 +1092,13 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
   },
   'runtime.legacy.2663d9ae2a21': {
     source: `Структурный RICIS-результат или исходник сохранён, но Lean kernel evidence ещё не приложен.`,
-    status: 'pending-translation',
+    status: 'translated-from-existing-resource',
     values: {
       'ru': `Структурный RICIS-результат или исходник сохранён, но Lean kernel evidence ещё не приложен.`,
+      'fr-CA': `Un résultat ou une source RICIS structurée est conservé(e), mais la preuve du noyau Lean n'a pas encore été jointe.`,
+      'de-DE': `Ein strukturelles RICIS-Ergebnis oder die Quelle ist vorhanden, aber der Lean‑Kernel‑Nachweis wurde noch nicht angehängt.`,
+      'hi-IN': `एक संरचनात्मक RICIS परिणाम या स्रोत रखा गया है, लेकिन Lean kernel प्रमाण अभी तक संलग्न नहीं किया गया है।`,
+      'ms-MY': `Keputusan RICIS struktur atau sumber disimpan, tetapi bukti kernel Lean belum dilampirkan.`,
     },
   },
   'runtime.legacy.26701508effb': {
@@ -1047,9 +1131,13 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
   },
   'runtime.legacy.2717bdc395b2': {
     source: `Открыть инструкцию восстановления Core`,
-    status: 'pending-translation',
+    status: 'translated-from-existing-resource',
     values: {
       'ru': `Открыть инструкцию восстановления Core`,
+      'fr-CA': `Ouvrir les instructions de récupération du Core`,
+      'de-DE': `Core-Wiederherstellungsanleitung öffnen`,
+      'hi-IN': `Core रिकवरी निर्देश खोलें`,
+      'ms-MY': `Buka arahan pemulihan Core`,
     },
   },
   'runtime.legacy.2748411cfb6e': {
@@ -1075,9 +1163,13 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
   },
   'runtime.legacy.27e636107a62': {
     source: `ИИ-АГЕНТ И СЕРВИСЫ`,
-    status: 'pending-translation',
+    status: 'translated-from-existing-resource',
     values: {
       'ru': `ИИ-АГЕНТ И СЕРВИСЫ`,
+      'fr-CA': `AGENT IA & SERVICES`,
+      'de-DE': `KI-AGENT & DIENSTLEISTUNGEN`,
+      'hi-IN': `एआई एजेंट और सेवाएँ`,
+      'ms-MY': `Ejen AI & Perkhidmatan`,
     },
   },
   'runtime.legacy.2833364d541b': {
@@ -1089,16 +1181,24 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
   },
   'runtime.legacy.28555bac8e83': {
     source: `Core: недоступен`,
-    status: 'pending-translation',
+    status: 'translated-from-existing-resource',
     values: {
       'ru': `Core: недоступен`,
+      'fr-CA': `Core: indisponible`,
+      'de-DE': `Core: nicht verfügbar`,
+      'hi-IN': `Core: अनुपलब्ध`,
+      'ms-MY': `Core: tidak tersedia`,
     },
   },
   'runtime.legacy.287dbc25fd5a': {
     source: `Локальная RICIS-цепочка; статус Lean требует отдельного воспроизводимого kernel evidence.`,
-    status: 'pending-translation',
+    status: 'translated-from-existing-resource',
     values: {
       'ru': `Локальная RICIS-цепочка; статус Lean требует отдельного воспроизводимого kernel evidence.`,
+      'fr-CA': `Chemin RICIS local ; le statut Lean nécessite une preuve de noyau reproductible séparée.`,
+      'de-DE': `Lokaler RICIS-Pfad; der Lean‑Status erfordert einen separaten reproduzierbaren Kernel‑Nachweis.`,
+      'hi-IN': `स्थानीय RICIS पथ; Lean स्थिति के लिए अलग से पुनरुत्पादन योग्य kernel प्रमाण की आवश्यकता है।`,
+      'ms-MY': `Jalur RICIS tempatan; status Lean memerlukan bukti kernel boleh-diulang yang berasingan.`,
     },
   },
   'runtime.legacy.288561cd6ccb': {
@@ -1222,16 +1322,24 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
   },
   'runtime.legacy.2c391173daf3': {
     source: `Core не создал proof snapshot`,
-    status: 'pending-translation',
+    status: 'translated-from-existing-resource',
     values: {
       'ru': `Core не создал proof snapshot`,
+      'fr-CA': `Core n'a pas créé de proof snapshot`,
+      'de-DE': `Core hat keinen proof snapshot erstellt`,
+      'hi-IN': `Core ने proof snapshot नहीं बनाया`,
+      'ms-MY': `Core tidak membuat proof snapshot`,
     },
   },
   'runtime.legacy.2c4a152a5edb': {
     source: `Локальная симуляция без сбора, хранения и передачи пользовательских API-ключей.`,
-    status: 'pending-translation',
+    status: 'translated-from-existing-resource',
     values: {
       'ru': `Локальная симуляция без сбора, хранения и передачи пользовательских API-ключей.`,
+      'fr-CA': `Simulation locale sans collecte, stockage ou transmission des clés API utilisateur.`,
+      'de-DE': `Lokale Simulation ohne Erfassung, Speicherung oder Übertragung von Benutzer-API-Schlüsseln.`,
+      'hi-IN': `स्थानीय सिमुलेशन जो उपयोगकर्ता API-कुंजियों को एकत्रित, संग्रहीत या स्थानांतरित नहीं करता है।`,
+      'ms-MY': `Simulasi tempatan tanpa mengumpul, menyimpan atau menghantar kunci API pengguna.`,
     },
   },
   'runtime.legacy.2c72fd3ed691': {
@@ -1334,16 +1442,24 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
   },
   'runtime.legacy.31edbf078e08': {
     source: `+ Добавить новую задачу`,
-    status: 'pending-translation',
+    status: 'translated-from-existing-resource',
     values: {
       'ru': `+ Добавить новую задачу`,
+      'fr-CA': `+ Ajouter un nouveau problème`,
+      'de-DE': `+ Neues Problem hinzufügen`,
+      'hi-IN': `+ नई समस्या जोड़ें`,
+      'ms-MY': `+ Tambah masalah baru`,
     },
   },
   'runtime.legacy.321cfa218153': {
     source: `0_7 / 0_7 (идентичность L1)`,
-    status: 'pending-translation',
+    status: 'translated-from-existing-resource',
     values: {
       'ru': `0_7 / 0_7 (идентичность L1)`,
+      'fr-CA': `0_7 / 0_7 (identité L1)`,
+      'de-DE': `0_7 / 0_7 (L1-Identität)`,
+      'hi-IN': `0_7 / 0_7 (L1 identity)`,
+      'ms-MY': `0_7 / 0_7 (identiti L1)`,
     },
   },
   'runtime.legacy.32417b1b05b3': {
@@ -1390,16 +1506,24 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
   },
   'runtime.legacy.32f76992d3f1': {
     source: `Проверить Core`,
-    status: 'pending-translation',
+    status: 'translated-from-existing-resource',
     values: {
       'ru': `Проверить Core`,
+      'fr-CA': `Vérifier Core`,
+      'de-DE': `Core prüfen`,
+      'hi-IN': `Core की जाँच करें`,
+      'ms-MY': `Periksa Core`,
     },
   },
   'runtime.legacy.3324fb4d2b57': {
     source: `+ Добавить на 3D Карту`,
-    status: 'pending-translation',
+    status: 'translated-from-existing-resource',
     values: {
       'ru': `+ Добавить на 3D Карту`,
+      'fr-CA': `+ Ajouter à la carte 3D`,
+      'de-DE': `+ Zur 3D-Karte hinzufügen`,
+      'hi-IN': `+ 3D मानचित्र में जोड़ें`,
+      'ms-MY': `+ Tambah ke Peta 3D`,
     },
   },
   'runtime.legacy.334bdc35a1f8': {
@@ -1495,9 +1619,13 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
   },
   'runtime.legacy.36d09ef59a79': {
     source: `Рантайм`,
-    status: 'pending-translation',
+    status: 'translated-from-existing-resource',
     values: {
       'ru': `Рантайм`,
+      'fr-CA': `Temps d'exécution`,
+      'de-DE': `Laufzeit`,
+      'hi-IN': `रनटाइम`,
+      'ms-MY': `Runtime`,
     },
   },
   'runtime.legacy.376851326685': {
@@ -1509,9 +1637,13 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
   },
   'runtime.legacy.37e1d3689344': {
     source: `Трассировка RICIS-III (L1_IDENTITY)`,
-    status: 'pending-translation',
+    status: 'translated-from-existing-resource',
     values: {
       'ru': `Трассировка RICIS-III (L1_IDENTITY)`,
+      'fr-CA': `Traçage RICIS-III (L1_IDENTITY)`,
+      'de-DE': `RICIS-III Trace (L1_IDENTITY)`,
+      'hi-IN': `RICIS-III ट्रेस (L1_IDENTITY)`,
+      'ms-MY': `Jejak RICIS-III (L1_IDENTITY)`,
     },
   },
   'runtime.legacy.37e9e6db8227': {
@@ -1600,9 +1732,13 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
   },
   'runtime.legacy.3b66d5695735': {
     source: `Core: готов (API)`,
-    status: 'pending-translation',
+    status: 'translated-from-existing-resource',
     values: {
       'ru': `Core: готов (API)`,
+      'fr-CA': `Core: prêt (API)`,
+      'de-DE': `Core: bereit (API)`,
+      'hi-IN': `Core: तैयार (API)`,
+      'ms-MY': `Core: sedia (API)`,
     },
   },
   'runtime.legacy.3ba0669bb72f': {
@@ -1663,9 +1799,13 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
   },
   'runtime.legacy.3e10371413a0': {
     source: `Название задачи / сингулярности *`,
-    status: 'pending-translation',
+    status: 'translated-from-existing-resource',
     values: {
       'ru': `Название задачи / сингулярности *`,
+      'fr-CA': `Titre du problème / singularité *`,
+      'de-DE': `Titel des Problems / der Singularität *`,
+      'hi-IN': `समस्या / सिंगुलैरिटी शीर्षक *`,
+      'ms-MY': `Tajuk Masalah / Singulariti *`,
     },
   },
   'runtime.legacy.3e28d6e7f9c7': {
@@ -1677,9 +1817,13 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
   },
   'runtime.legacy.40563eeeecd6': {
     source: `РЕШЕНО`,
-    status: 'pending-translation',
+    status: 'translated-from-existing-resource',
     values: {
       'ru': `РЕШЕНО`,
+      'fr-CA': `Résolu`,
+      'de-DE': `Gelöst`,
+      'hi-IN': `सुलझा`,
+      'ms-MY': `Diselesaikan`,
     },
   },
   'runtime.legacy.409704b67c31': {
@@ -1712,9 +1856,13 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
   },
   'runtime.legacy.41d581a9b290': {
     source: `Из Sandbox`,
-    status: 'pending-translation',
+    status: 'translated-from-existing-resource',
     values: {
       'ru': `Из Sandbox`,
+      'fr-CA': `Depuis le bac à sable`,
+      'de-DE': `Aus der Sandbox`,
+      'hi-IN': `सैंडबॉक्स से`,
+      'ms-MY': `Dari Sandbox`,
     },
   },
   'runtime.legacy.4295546c96f2': {
@@ -1782,9 +1930,13 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
   },
   'runtime.legacy.45f32825a237': {
     source: `Верификация отклонена`,
-    status: 'pending-translation',
+    status: 'translated-from-existing-resource',
     values: {
       'ru': `Верификация отклонена`,
+      'fr-CA': `Vérification rejetée`,
+      'de-DE': `Verifizierung abgelehnt`,
+      'hi-IN': `सत्यापन अस्वीकृत`,
+      'ms-MY': `Pengesahan ditolak`,
     },
   },
   'runtime.legacy.4625fe9805cf': {
@@ -1824,9 +1976,13 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
   },
   'runtime.legacy.47894e8ad7b7': {
     source: `Развернуть карточку задачи`,
-    status: 'pending-translation',
+    status: 'translated-from-existing-resource',
     values: {
       'ru': `Развернуть карточку задачи`,
+      'fr-CA': `Déplier la fiche du problème`,
+      'de-DE': `Problemkarte aufklappen`,
+      'hi-IN': `समस्या कार्ड खोलें`,
+      'ms-MY': `Kembangkan kad masalah`,
     },
   },
   'runtime.legacy.47a8738e9294': {
@@ -1852,9 +2008,13 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
   },
   'runtime.legacy.4864057d626a': {
     source: `Сохранить`,
-    status: 'pending-translation',
+    status: 'translated-from-existing-resource',
     values: {
       'ru': `Сохранить`,
+      'fr-CA': `Enregistrer`,
+      'de-DE': `Speichern`,
+      'hi-IN': `सहेजें`,
+      'ms-MY': `Simpan`,
     },
   },
   'runtime.legacy.486c5b1f6f08': {
@@ -1873,9 +2033,13 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
   },
   'runtime.legacy.4870cccd438a': {
     source: `Утверждение / выражение`,
-    status: 'pending-translation',
+    status: 'translated-from-existing-resource',
     values: {
       'ru': `Утверждение / выражение`,
+      'fr-CA': `Énoncé / expression`,
+      'de-DE': `Behauptung / Ausdruck`,
+      'hi-IN': `कथन / अभिव्यक्ति`,
+      'ms-MY': `Pernyataan / ungkapan`,
     },
   },
   'runtime.legacy.48ffc1d71c48': {
@@ -1887,9 +2051,13 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
   },
   'runtime.legacy.49261ec6a4c8': {
     source: `Ссылка скопирована`,
-    status: 'pending-translation',
+    status: 'translated-from-existing-resource',
     values: {
       'ru': `Ссылка скопирована`,
+      'fr-CA': `Lien copié`,
+      'de-DE': `Link kopiert`,
+      'hi-IN': `लिंक कॉपी किया गया`,
+      'ms-MY': `Pautan disalin`,
     },
   },
   'runtime.legacy.4934d2a39ac0': {
@@ -1901,9 +2069,13 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
   },
   'runtime.legacy.494913bdc3ba': {
     source: `Требует решения для открытия`,
-    status: 'pending-translation',
+    status: 'translated-from-existing-resource',
     values: {
       'ru': `Требует решения для открытия`,
+      'fr-CA': `Nécessite des prérequis pour être déverrouillé`,
+      'de-DE': `Benötigt Voraussetzungen zum Freischalten`,
+      'hi-IN': `अनलॉक करने के लिए पूर्वापेक्षाएँ आवश्यक हैं`,
+      'ms-MY': `Memerlukan prasyarat untuk membuka kunci`,
     },
   },
   'runtime.legacy.49bd615df39b': {
@@ -1978,9 +2150,13 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
   },
   'runtime.legacy.4a96856dbec7': {
     source: `Пустые цели`,
-    status: 'pending-translation',
+    status: 'translated-from-existing-resource',
     values: {
       'ru': `Пустые цели`,
+      'fr-CA': `Cibles vides`,
+      'de-DE': `Leere Ziele`,
+      'hi-IN': `खाली लक्ष्य`,
+      'ms-MY': `Sasaran Kosong`,
     },
   },
   'runtime.legacy.4aa14c68a488': {
@@ -2076,9 +2252,13 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
   },
   'runtime.legacy.4fc54e5f4794': {
     source: `Структурный статус`,
-    status: 'pending-translation',
+    status: 'translated-from-existing-resource',
     values: {
       'ru': `Структурный статус`,
+      'fr-CA': `Statut structurel`,
+      'de-DE': `Struktureller Status`,
+      'hi-IN': `संरचनात्मक स्थिति`,
+      'ms-MY': `Status struktur`,
     },
   },
   'runtime.legacy.50085d5af216': {
@@ -2153,9 +2333,13 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
   },
   'runtime.legacy.50e82e1a9141': {
     source: `Core: проверяется`,
-    status: 'pending-translation',
+    status: 'translated-from-existing-resource',
     values: {
       'ru': `Core: проверяется`,
+      'fr-CA': `Core: vérification en cours`,
+      'de-DE': `Core: Prüfung läuft`,
+      'hi-IN': `Core: जाँच हो रही है`,
+      'ms-MY': `Core: sedang diperiksa`,
     },
   },
   'runtime.legacy.5111405aa8cc': {
@@ -2195,9 +2379,13 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
   },
   'runtime.legacy.5230488a0706': {
     source: `УЗЛЫ`,
-    status: 'pending-translation',
+    status: 'translated-from-existing-resource',
     values: {
       'ru': `УЗЛЫ`,
+      'fr-CA': `Nœuds`,
+      'de-DE': `Knoten`,
+      'hi-IN': `नोड्स`,
+      'ms-MY': `Node`,
     },
   },
   'runtime.legacy.52c35b6031d1': {
@@ -2307,9 +2495,13 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
   },
   'runtime.legacy.55fc8543ba4b': {
     source: `ДОСТУПНО К РЕШЕНИЮ`,
-    status: 'pending-translation',
+    status: 'translated-from-existing-resource',
     values: {
       'ru': `ДОСТУПНО К РЕШЕНИЮ`,
+      'fr-CA': `DISPONIBLE À RÉSOUDRE`,
+      'de-DE': `ZUM LÖSEN VERFÜGBAR`,
+      'hi-IN': `हल करने के लिए उपलब्ध`,
+      'ms-MY': `TERSEDIA UNTUK DISELESAIKAN`,
     },
   },
   'runtime.legacy.562c133167a3': {
@@ -2321,9 +2513,13 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
   },
   'runtime.legacy.569251adcdb0': {
     source: `Сфера науки / Область знаний`,
-    status: 'pending-translation',
+    status: 'translated-from-existing-resource',
     values: {
       'ru': `Сфера науки / Область знаний`,
+      'fr-CA': `Discipline scientifique / Domaine`,
+      'de-DE': `Wissenschaftliches Fachgebiet / Domäne`,
+      'hi-IN': `वैज्ञानिक क्षेत्र / डोमेन`,
+      'ms-MY': `Bidang sains / Domain`,
     },
   },
   'runtime.legacy.56dd52989702': {
@@ -2349,9 +2545,13 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
   },
   'runtime.legacy.581865455153': {
     source: `/solve (x^2 - 9)/(x - 3) при x=3`,
-    status: 'pending-translation',
+    status: 'translated-from-existing-resource',
     values: {
       'ru': `/solve (x^2 - 9)/(x - 3) при x=3`,
+      'fr-CA': `/solve (x^2 - 9)/(x - 3) à x=3`,
+      'de-DE': `/solve (x^2 - 9)/(x - 3) bei x=3`,
+      'hi-IN': `/solve (x^2 - 9)/(x - 3) x=3 पर`,
+      'ms-MY': `/solve (x^2 - 9)/(x - 3) pada x=3`,
     },
   },
   'runtime.legacy.590e05d7f1f6': {
@@ -2398,9 +2598,13 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
   },
   'runtime.legacy.5af5f70867cd': {
     source: `ДОСТУПНО`,
-    status: 'pending-translation',
+    status: 'translated-from-existing-resource',
     values: {
       'ru': `ДОСТУПНО`,
+      'fr-CA': `Disponible`,
+      'de-DE': `Verfügbar`,
+      'hi-IN': `उपलब्ध`,
+      'ms-MY': `Tersedia`,
     },
   },
   'runtime.legacy.5b095499b959': {
@@ -2510,9 +2714,13 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
   },
   'runtime.legacy.5e4171936b65': {
     source: `3D КАРТА СИНГУЛЯРНОСТЕЙ`,
-    status: 'pending-translation',
+    status: 'translated-from-existing-resource',
     values: {
       'ru': `3D КАРТА СИНГУЛЯРНОСТЕЙ`,
+      'fr-CA': `Carte 3D des singularités`,
+      'de-DE': `3D-Singularitätskarte`,
+      'hi-IN': `3D सिंगुलैरिटी मानचित्र`,
+      'ms-MY': `Peta Singulariti 3D`,
     },
   },
   'runtime.legacy.5eb302347ef2': {
@@ -2594,9 +2802,13 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
   },
   'runtime.legacy.62355f2292d3': {
     source: `Есть ошибка Lean-проверки или внешнее доказательство отклонено. Утверждение нельзя использовать как подтверждённое.`,
-    status: 'pending-translation',
+    status: 'translated-from-existing-resource',
     values: {
       'ru': `Есть ошибка Lean-проверки или внешнее доказательство отклонено. Утверждение нельзя использовать как подтверждённое.`,
+      'fr-CA': `Une erreur de vérification Lean existe ou la preuve externe a été rejetée. La déclaration ne peut pas être utilisée comme confirmée.`,
+      'de-DE': `Ein Lean-Verifikationsfehler liegt vor oder der externe Beweis wurde abgelehnt. Die Behauptung kann nicht als bestätigt verwendet werden.`,
+      'hi-IN': `Lean सत्यापन त्रुटि मौजूद है या बाहरी प्रमाण अस्वीकार कर दिया गया। दावे का उपयोग पुष्टि के रूप में नहीं किया जा सकता।`,
+      'ms-MY': `Ralat pengesahan Lean wujud atau bukti luaran ditolak. Tuntutan tidak boleh digunakan sebagai disahkan.`,
     },
   },
   'runtime.legacy.62ae288c1f19': {
@@ -2629,9 +2841,13 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
   },
   'runtime.legacy.64133ff243fb': {
     source: `НЕЙРОСЕТЬ (GEMINI)`,
-    status: 'pending-translation',
+    status: 'translated-from-existing-resource',
     values: {
       'ru': `НЕЙРОСЕТЬ (GEMINI)`,
+      'fr-CA': `MODÈLE D'IA (GEMINI)`,
+      'de-DE': `KI-MODELL (GEMINI)`,
+      'hi-IN': `एआई मॉडल (GEMINI)`,
+      'ms-MY': `MODEL AI (GEMINI)`,
     },
   },
   'runtime.legacy.6450bae94702': {
@@ -2706,9 +2922,13 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
   },
   'runtime.legacy.666b8f95dde0': {
     source: `СФЕРЫ НАУКИ`,
-    status: 'pending-translation',
+    status: 'translated-from-existing-resource',
     values: {
       'ru': `СФЕРЫ НАУКИ`,
+      'fr-CA': `DOMAINES SCIENTIFIQUES`,
+      'de-DE': `WISSENSCHAFTLICHE FÄCHER`,
+      'hi-IN': `वैज्ञानिक क्षेत्र`,
+      'ms-MY': `BIDANG SAINTIFIK`,
     },
   },
   'runtime.legacy.677f33557ab5': {
@@ -2734,9 +2954,13 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
   },
   'runtime.legacy.683e204a88c1': {
     source: `Консоль доказательств и сингулярностей RICIS-III`,
-    status: 'pending-translation',
+    status: 'translated-from-existing-resource',
     values: {
       'ru': `Консоль доказательств и сингулярностей RICIS-III`,
+      'fr-CA': `Console de preuve et de singularité RICIS-III`,
+      'de-DE': `RICIS-III Proof & Singularity-Konsole`,
+      'hi-IN': `RICIS-III Proof & Singularity कंसोल`,
+      'ms-MY': `Konsol RICIS-III Proof & Singularity`,
     },
   },
   'runtime.legacy.6846f81eeb94': {
@@ -2755,9 +2979,13 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
   },
   'runtime.legacy.68731bc98398': {
     source: `Введите выражение (например: 0_3 * inf_4 или (x^2 - 4)/(x - 2) | x=2)...`,
-    status: 'pending-translation',
+    status: 'translated-from-existing-resource',
     values: {
       'ru': `Введите выражение (например: 0_3 * inf_4 или (x^2 - 4)/(x - 2) | x=2)...`,
+      'fr-CA': `Entrez une expression (p. ex., 0_3 * inf_4 ou (x^2 - 4)/(x - 2) | x=2)...`,
+      'de-DE': `Geben Sie einen Ausdruck ein (z. B. 0_3 * inf_4 oder (x^2 - 4)/(x - 2) | x=2)...`,
+      'hi-IN': `एक अभिव्यक्ति दर्ज करें (उदा., 0_3 * inf_4 या (x^2 - 4)/(x - 2) | x=2)...`,
+      'ms-MY': `Masukkan ungkapan (cth., 0_3 * inf_4 atau (x^2 - 4)/(x - 2) | x=2)...`,
     },
   },
   'runtime.legacy.6898b25c37cf': {
@@ -2825,16 +3053,24 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
   },
   'runtime.legacy.6b151b4b02db': {
     source: `Детерминированная диагностика TypeScript`,
-    status: 'pending-translation',
+    status: 'translated-from-existing-resource',
     values: {
       'ru': `Детерминированная диагностика TypeScript`,
+      'fr-CA': `Diagnostics déterministes TypeScript`,
+      'de-DE': `Deterministische TypeScript‑Diagnosen`,
+      'hi-IN': `TypeScript निर्धारित डायग्नोस्टिक्स`,
+      'ms-MY': `Diagnostik deterministik TypeScript`,
     },
   },
   'runtime.legacy.6b4cfdd63a54': {
     source: `Например: x => x / x`,
-    status: 'pending-translation',
+    status: 'translated-from-existing-resource',
     values: {
       'ru': `Например: x => x / x`,
+      'fr-CA': `Par exemple : x => x / x`,
+      'de-DE': `Zum Beispiel: x => x / x`,
+      'hi-IN': `उदाहरण के लिए: x => x / x`,
+      'ms-MY': `Sebagai contoh: x => x / x`,
     },
   },
   'runtime.legacy.6bca7aa7382c': {
@@ -2853,16 +3089,24 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
   },
   'runtime.legacy.6c9a86de581c': {
     source: `🤖 ИИ-Агент: Дополнить поля`,
-    status: 'pending-translation',
+    status: 'translated-from-existing-resource',
     values: {
       'ru': `🤖 ИИ-Агент: Дополнить поля`,
+      'fr-CA': `🤖 Agent IA : Remplir les champs`,
+      'de-DE': `🤖 KI-Agent: Felder ausfüllen`,
+      'hi-IN': `🤖 एआई एजेंट: फ़ील्ड भरें`,
+      'ms-MY': `🤖 Ejen AI: Lengkapkan medan`,
     },
   },
   'runtime.legacy.6c9f3d01b3f2': {
     source: `Выполняется структурная обработка RICIS-III…`,
-    status: 'pending-translation',
+    status: 'translated-from-existing-resource',
     values: {
       'ru': `Выполняется структурная обработка RICIS-III…`,
+      'fr-CA': `Traitement structurel RICIS-III en cours…`,
+      'de-DE': `Strukturelle Verarbeitung von RICIS-III läuft…`,
+      'hi-IN': `RICIS-III संरचनात्मक प्रसंस्करण चल रहा है…`,
+      'ms-MY': `Pemprosesan struktur RICIS-III sedang dijalankan…`,
     },
   },
   'runtime.legacy.6d1233be63d7': {
@@ -2895,9 +3139,13 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
   },
   'runtime.legacy.6ee0adb1e585': {
     source: `Добавление задачи на карту`,
-    status: 'pending-translation',
+    status: 'translated-from-existing-resource',
     values: {
       'ru': `Добавление задачи на карту`,
+      'fr-CA': `Ajouter le problème à la carte`,
+      'de-DE': `Problem zur Karte hinzufügen`,
+      'hi-IN': `समस्या को मानचित्र में जोड़ें`,
+      'ms-MY': `Tambah Masalah ke Peta`,
     },
   },
   'runtime.legacy.6f04e495835e': {
@@ -2923,23 +3171,35 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
   },
   'runtime.legacy.6f667b595b9a': {
     source: `СОХРАНЕНИЕ И ЭКСПОРТ`,
-    status: 'pending-translation',
+    status: 'translated-from-existing-resource',
     values: {
       'ru': `СОХРАНЕНИЕ И ЭКСПОРТ`,
+      'fr-CA': `ENREGISTRER & EXPORTER`,
+      'de-DE': `SPEICHERN & EXPORTIEREN`,
+      'hi-IN': `सहेजें और निर्यात करें`,
+      'ms-MY': `SIMPAN & EKSPORT`,
     },
   },
   'runtime.legacy.702fbe9eaca5': {
     source: `Документы снимка`,
-    status: 'pending-translation',
+    status: 'translated-from-existing-resource',
     values: {
       'ru': `Документы снимка`,
+      'fr-CA': `Documents de l'instantané`,
+      'de-DE': `Dokumente des Snapshots`,
+      'hi-IN': `स्नैपशॉट दस्तावेज़`,
+      'ms-MY': `Dokumen snapshot`,
     },
   },
   'runtime.legacy.70a0122fe013': {
     source: `Proof evidence не приложен`,
-    status: 'pending-translation',
+    status: 'translated-from-existing-resource',
     values: {
       'ru': `Proof evidence не приложен`,
+      'fr-CA': `Aucune preuve attachée`,
+      'de-DE': `Keine Proof‑Belege angehängt`,
+      'hi-IN': `कोई प्रमाण संलग्न नहीं`,
+      'ms-MY': `Tiada bukti dilampirkan`,
     },
   },
   'runtime.legacy.70dad8977cdc': {
@@ -3007,9 +3267,13 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
   },
   'runtime.legacy.72ecf67643f3': {
     source: `Кликните по любому примеру выше или переключите тип отчёта.`,
-    status: 'pending-translation',
+    status: 'translated-from-existing-resource',
     values: {
       'ru': `Кликните по любому примеру выше или переключите тип отчёта.`,
+      'fr-CA': `Cliquez sur un préréglage ci‑dessus ou changez le type de rapport.`,
+      'de-DE': `Klicken Sie auf eine Voreinstellung oben oder wechseln Sie den Berichtstyp.`,
+      'hi-IN': `ऊपर किसी भी प्रिसेट पर क्लिक करें या रिपोर्ट प्रकार बदलें।`,
+      'ms-MY': `Klik mana‑mana pratetap di atas atau tukar jenis laporan.`,
     },
   },
   'runtime.legacy.730ecc244f52': {
@@ -3112,9 +3376,13 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
   },
   'runtime.legacy.76dcf737a6cd': {
     source: `Отправить`,
-    status: 'pending-translation',
+    status: 'translated-from-existing-resource',
     values: {
       'ru': `Отправить`,
+      'fr-CA': `Envoyer`,
+      'de-DE': `Senden`,
+      'hi-IN': `भेजें`,
+      'ms-MY': `Hantar`,
     },
   },
   'runtime.legacy.76e9dcdea3f6': {
@@ -3133,9 +3401,13 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
   },
   'runtime.legacy.7736d666c528': {
     source: `Lean 4 Спецификация`,
-    status: 'pending-translation',
+    status: 'translated-from-existing-resource',
     values: {
       'ru': `Lean 4 Спецификация`,
+      'fr-CA': `Spécification Lean 4`,
+      'de-DE': `Lean 4-Spezifikation`,
+      'hi-IN': `Lean 4 विनिर्देश`,
+      'ms-MY': `Spesifikasi Lean 4`,
     },
   },
   'runtime.legacy.77541ff2db56': {
@@ -3350,23 +3622,35 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
   },
   'runtime.legacy.7f0a978f59c5': {
     source: `Значение инварианта / Примененная аксиома`,
-    status: 'pending-translation',
+    status: 'translated-from-existing-resource',
     values: {
       'ru': `Значение инварианта / Примененная аксиома`,
+      'fr-CA': `Valeur invariante / Axiome appliqué`,
+      'de-DE': `Invarianter Wert / Angewendetes Axiom`,
+      'hi-IN': `इनवेरिएंट मान / प्रयुक्त ऐक्सिओम`,
+      'ms-MY': `Nilai invarian / Aksiom yang digunakan`,
     },
   },
   'runtime.legacy.7f17d320499e': {
     source: `Узел отмечен как resolved в карте. Этот статус сам по себе не является Lean kernel verification.`,
-    status: 'pending-translation',
+    status: 'translated-from-existing-resource',
     values: {
       'ru': `Узел отмечен как resolved в карте. Этот статус сам по себе не является Lean kernel verification.`,
+      'fr-CA': `Le nœud est marqué comme resolved sur la carte. Ce statut de workflow seul n'est pas une vérification du noyau Lean.`,
+      'de-DE': `Der Knoten ist in der Karte als resolved markiert. Dieser Workflow‑Status allein ist keine Lean‑Kernel‑Verifikation.`,
+      'hi-IN': `यह नोड मानचित्र पर 'resolved' के रूप में चिह्नित है। यह workflow स्थिति अकेले Lean kernel सत्यापन नहीं बताती।`,
+      'ms-MY': `Nod ditandakan sebagai resolved dalam peta. Status workflow itu sendiri bukanlah pengesahan kernel Lean.`,
     },
   },
   'runtime.legacy.7f1b83dbb5ca': {
     source: `Трассировка 8 фаз конвейера (фазы -1...6)`,
-    status: 'pending-translation',
+    status: 'translated-from-existing-resource',
     values: {
       'ru': `Трассировка 8 фаз конвейера (фазы -1...6)`,
+      'fr-CA': `Trace du pipeline en huit phases (phases -1...6)`,
+      'de-DE': `Achtphasige Pipeline-Trace (Phasen -1...6)`,
+      'hi-IN': `आठ-चरण पाइपलाइन ट्रेस (चरण -1...6)`,
+      'ms-MY': `Jejak paip lapan fasa (fasa -1...6)`,
     },
   },
   'runtime.legacy.7fb9dd11033f': {
@@ -3406,9 +3690,13 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
   },
   'runtime.legacy.802f16768b6c': {
     source: `Внутренняя ошибка. Неподтверждённый результат не был объявлен доказанным.`,
-    status: 'pending-translation',
+    status: 'translated-from-existing-resource',
     values: {
       'ru': `Внутренняя ошибка. Неподтверждённый результат не был объявлен доказанным.`,
+      'fr-CA': `Erreur interne. Un résultat non vérifié n'a pas été déclaré prouvé.`,
+      'de-DE': `Interner Fehler. Ein nicht verifiziertes Ergebnis wurde nicht als bewiesen erklärt.`,
+      'hi-IN': `आंतरिक त्रुटि। एक अप्रमाणित परिणाम को प्रमाणित बताया नहीं गया था।`,
+      'ms-MY': `Ralat dalaman. Keputusan yang tidak disahkan tidak diisytiharkan terbukti.`,
     },
   },
   'runtime.legacy.804a1edf08fe': {
@@ -3434,9 +3722,13 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
   },
   'runtime.legacy.80a2acdf6616': {
     source: `Ссылка на первоисточник / DOI (опционально)`,
-    status: 'pending-translation',
+    status: 'translated-from-existing-resource',
     values: {
       'ru': `Ссылка на первоисточник / DOI (опционально)`,
+      'fr-CA': `Référence source / Lien DOI (optionnel)`,
+      'de-DE': `Quellenangabe / DOI-Link (optional)`,
+      'hi-IN': `स्रोत संदर्भ / DOI लिंक (वैकल्पिक)`,
+      'ms-MY': `Rujukan sumber / Pautan DOI (pilihan)`,
     },
   },
   'runtime.legacy.80d776c572cb': {
@@ -3497,9 +3789,13 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
   },
   'runtime.legacy.84bd9c507e02': {
     source: `Терминал готов к доказательству`,
-    status: 'pending-translation',
+    status: 'translated-from-existing-resource',
     values: {
       'ru': `Терминал готов к доказательству`,
+      'fr-CA': `Terminal prêt pour le calcul de preuve`,
+      'de-DE': `Terminal bereit für Beweisberechnungen`,
+      'hi-IN': `टर्मिनल प्रमाण गणना के लिए तैयार है`,
+      'ms-MY': `Terminal sedia untuk pengiraan bukti`,
     },
   },
   'runtime.legacy.84c7ed16ea6b': {
@@ -3525,9 +3821,13 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
   },
   'runtime.legacy.885f9abb0e19': {
     source: `Неизменяемый внешний Lean-исходник принят как явно маркированный trusted contract; это не автоматически сгенерированная теорема.`,
-    status: 'pending-translation',
+    status: 'translated-from-existing-resource',
     values: {
       'ru': `Неизменяемый внешний Lean-исходник принят как явно маркированный trusted contract; это не автоматически сгенерированная теорема.`,
+      'fr-CA': `Une source Lean externe immuable est acceptée comme un explicitly labelled trusted contract ; ce n'est pas un théorème généré automatiquement.`,
+      'de-DE': `Eine unveränderliche externe Lean-Quelle wird als explizit gekennzeichneter trusted contract akzeptiert; sie ist kein automatisch erzeugtes Theorem.`,
+      'hi-IN': `एक अपरिवर्तनीय बाहरी Lean स्रोत स्पष्ट रूप से चिह्नित trusted contract के रूप में स्वीकार किया जाता है; यह स्वचालित रूप से उत्पन्न प्रमेय नहीं है।`,
+      'ms-MY': `Satu sumber Lean luaran yang tidak boleh diubah diterima sebagai trusted contract yang dilabelkan secara eksplisit; ia bukan teorem yang dihasilkan secara automatik.`,
     },
   },
   'runtime.legacy.88d17100d787': {
@@ -3567,9 +3867,13 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
   },
   'runtime.legacy.8922542f90c1': {
     source: `Скопировано`,
-    status: 'pending-translation',
+    status: 'translated-from-existing-resource',
     values: {
       'ru': `Скопировано`,
+      'fr-CA': `Copié`,
+      'de-DE': `Kopiert`,
+      'hi-IN': `कॉपी किया गया`,
+      'ms-MY': `Disalin`,
     },
   },
   'runtime.legacy.893cbc939914': {
@@ -3602,9 +3906,13 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
   },
   'runtime.legacy.8a09af6cf86e': {
     source: `Аксиома`,
-    status: 'pending-translation',
+    status: 'translated-from-existing-resource',
     values: {
       'ru': `Аксиома`,
+      'fr-CA': `Axiome`,
+      'de-DE': `Axiom`,
+      'hi-IN': `एक्सिओम`,
+      'ms-MY': `Aksioma`,
     },
   },
   'runtime.legacy.8a10254ff4c2': {
@@ -3630,16 +3938,24 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
   },
   'runtime.legacy.8b10a04e81b0': {
     source: `Создание proof run...`,
-    status: 'pending-translation',
+    status: 'translated-from-existing-resource',
     values: {
       'ru': `Создание proof run...`,
+      'fr-CA': `Création du proof run...`,
+      'de-DE': `Proof run wird erstellt...`,
+      'hi-IN': `proof run बन रहा है...`,
+      'ms-MY': `Mencipta proof run...`,
     },
   },
   'runtime.legacy.8c774206b143': {
     source: `Предустановки`,
-    status: 'pending-translation',
+    status: 'translated-from-existing-resource',
     values: {
       'ru': `Предустановки`,
+      'fr-CA': `Préréglages`,
+      'de-DE': `Voreinstellungen`,
+      'hi-IN': `प्रिसेट्स`,
+      'ms-MY': `Pratetapan`,
     },
   },
   'runtime.legacy.8cd88cdc3889': {
@@ -3672,9 +3988,13 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
   },
   'runtime.legacy.8da6977f4fba': {
     source: `Выполнение канонической операции...`,
-    status: 'pending-translation',
+    status: 'translated-from-existing-resource',
     values: {
       'ru': `Выполнение канонической операции...`,
+      'fr-CA': `Exécution de l'opération canonique...`,
+      'de-DE': `Ausführen der kanonischen Operation...`,
+      'hi-IN': `कैनोनिकल ऑपरेशन निष्पादित किया जा रहा है...`,
+      'ms-MY': `Menjalankan operasi kanonik...`,
     },
   },
   'runtime.legacy.8dc8166acdba': {
@@ -3686,9 +4006,13 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
   },
   'runtime.legacy.8e35433658e8': {
     source: `Версия Core`,
-    status: 'pending-translation',
+    status: 'translated-from-existing-resource',
     values: {
       'ru': `Версия Core`,
+      'fr-CA': `Version de Core`,
+      'de-DE': `Core-Version`,
+      'hi-IN': `Core संस्करण`,
+      'ms-MY': `Versi Core`,
     },
   },
   'runtime.legacy.8e4494b59219': {
@@ -3714,9 +4038,13 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
   },
   'runtime.legacy.8ead3cd74771': {
     source: `Очистить историю`,
-    status: 'pending-translation',
+    status: 'translated-from-existing-resource',
     values: {
       'ru': `Очистить историю`,
+      'fr-CA': `Effacer l'historique`,
+      'de-DE': `Verlauf löschen`,
+      'hi-IN': `इतिहास साफ़ करें`,
+      'ms-MY': `Kosongkan sejarah`,
     },
   },
   'runtime.legacy.8eb318a91b4f': {
@@ -3742,9 +4070,13 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
   },
   'runtime.legacy.8f2d1361a09f': {
     source: `Аудит системы`,
-    status: 'pending-translation',
+    status: 'translated-from-existing-resource',
     values: {
       'ru': `Аудит системы`,
+      'fr-CA': `Audit du système`,
+      'de-DE': `Systemprüfung`,
+      'hi-IN': `सिस्टम ऑडिट`,
+      'ms-MY': `Audit Sistem`,
     },
   },
   'runtime.legacy.8f3d775526c5': {
@@ -3756,9 +4088,13 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
   },
   'runtime.legacy.8f7177cf7444': {
     source: `Граница evidence`,
-    status: 'pending-translation',
+    status: 'translated-from-existing-resource',
     values: {
       'ru': `Граница evidence`,
+      'fr-CA': `Frontière des preuves`,
+      'de-DE': `Beweisgrenze`,
+      'hi-IN': `प्रमाण सीमा`,
+      'ms-MY': `Sempadan bukti`,
     },
   },
   'runtime.legacy.90704284d8fc': {
@@ -3791,9 +4127,13 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
   },
   'runtime.legacy.9205a48f96a9': {
     source: `Пошаговый лог (Phases -1..6)`,
-    status: 'pending-translation',
+    status: 'translated-from-existing-resource',
     values: {
       'ru': `Пошаговый лог (Phases -1..6)`,
+      'fr-CA': `Traçage pas à pas (Phases -1..6)`,
+      'de-DE': `Schrittweises Protokoll (Phasen -1..6)`,
+      'hi-IN': `कदम-दर-कदम ट्रेस (चरण -1..6)`,
+      'ms-MY': `Jejak Langkah demi Langkah (Fasa -1..6)`,
     },
   },
   'runtime.legacy.92253c59331f': {
@@ -3854,9 +4194,13 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
   },
   'runtime.legacy.9322bf379d59': {
     source: `Сброс`,
-    status: 'pending-translation',
+    status: 'translated-from-existing-resource',
     values: {
       'ru': `Сброс`,
+      'fr-CA': `Réinitialiser`,
+      'de-DE': `Zurücksetzen`,
+      'hi-IN': `रीसेट`,
+      'ms-MY': `Tetapkan semula`,
     },
   },
   'runtime.legacy.9356f80ff7c0': {
@@ -3882,16 +4226,24 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
   },
   'runtime.legacy.9418512c89a9': {
     source: `Доступные связанные задачи`,
-    status: 'pending-translation',
+    status: 'translated-from-existing-resource',
     values: {
       'ru': `Доступные связанные задачи`,
+      'fr-CA': `Problèmes connexes disponibles`,
+      'de-DE': `Verfügbare verwandte Probleme`,
+      'hi-IN': `उपलब्ध संबंधित समस्याएँ`,
+      'ms-MY': `Masalah berkaitan yang tersedia`,
     },
   },
   'runtime.legacy.952f20735fcc': {
     source: `Теорема (LaTeX / Q.E.D.)`,
-    status: 'pending-translation',
+    status: 'translated-from-existing-resource',
     values: {
       'ru': `Теорема (LaTeX / Q.E.D.)`,
+      'fr-CA': `Théorème (LaTeX / Q.E.D.)`,
+      'de-DE': `Theorem (LaTeX / Q.E.D.)`,
+      'hi-IN': `थ्योरम (LaTeX / Q.E.D.)`,
+      'ms-MY': `Teorem (LaTeX / Q.E.D.)`,
     },
   },
   'runtime.legacy.95661457abfe': {
@@ -3910,9 +4262,13 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
   },
   'runtime.legacy.96bb3b67a2f4': {
     source: `Свернуть карточку задачи`,
-    status: 'pending-translation',
+    status: 'translated-from-existing-resource',
     values: {
       'ru': `Свернуть карточку задачи`,
+      'fr-CA': `Réduire la carte du problème`,
+      'de-DE': `Problemkarte einklappen`,
+      'hi-IN': `समस्या कार्ड संकुचित करें`,
+      'ms-MY': `Kuncupkan kad masalah`,
     },
   },
   'runtime.legacy.96c636902474': {
@@ -3931,16 +4287,24 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
   },
   'runtime.legacy.971c37cc5ad2': {
     source: `Записей trace`,
-    status: 'pending-translation',
+    status: 'translated-from-existing-resource',
     values: {
       'ru': `Записей trace`,
+      'fr-CA': `Entrées de trace`,
+      'de-DE': `Trace-Einträge`,
+      'hi-IN': `ट्रेस प्रविष्टियाँ`,
+      'ms-MY': `Entri jejak`,
     },
   },
   'runtime.legacy.9789398b623c': {
     source: `Открывает доступ к задачам`,
-    status: 'pending-translation',
+    status: 'translated-from-existing-resource',
     values: {
       'ru': `Открывает доступ к задачам`,
+      'fr-CA': `Débloque les problèmes suivants`,
+      'de-DE': `Schaltet die nächsten Probleme frei`,
+      'hi-IN': `अगली समस्याओं को अनलॉक करता है`,
+      'ms-MY': `Membuka kunci masalah seterusnya`,
     },
   },
   'runtime.legacy.97ce5e3c6c76': {
@@ -4008,16 +4372,24 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
   },
   'runtime.legacy.99ce26e80688': {
     source: `Поделиться`,
-    status: 'pending-translation',
+    status: 'translated-from-existing-resource',
     values: {
       'ru': `Поделиться`,
+      'fr-CA': `Partager`,
+      'de-DE': `Teilen`,
+      'hi-IN': `साझा करें`,
+      'ms-MY': `Kongsi`,
     },
   },
   'runtime.legacy.9a1540f018f9': {
     source: `Для внешнего исходника Lean сохранены воспроизводимые toolchain, compiler output и axiom report.`,
-    status: 'pending-translation',
+    status: 'translated-from-existing-resource',
     values: {
       'ru': `Для внешнего исходника Lean сохранены воспроизводимые toolchain, compiler output и axiom report.`,
+      'fr-CA': `La chaîne d'outils reproductible, la sortie du compilateur et le rapport d'axiome sont conservés pour la source Lean externe.`,
+      'de-DE': `Reproduzierbare Toolchain, Compiler-Ausgabe und Axiom-Bericht werden für die externe Lean-Quelle aufbewahrt.`,
+      'hi-IN': `बाहरी Lean स्रोत के लिए पुनरुत्पादन योग्य टूलचेन, कंपाइलर आउटपुट और ऐक्सिओम रिपोर्ट संग्रहीत रहती हैं।`,
+      'ms-MY': `Toolchain yang boleh direproduksi, keluaran pengkompil dan laporan aksiom disimpan untuk sumber Lean luaran.`,
     },
   },
   'runtime.legacy.9a62fe3e6ae5': {
@@ -4204,9 +4576,13 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
   },
   'runtime.legacy.a3f1d54f8ea9': {
     source: `Язык / Language`,
-    status: 'pending-translation',
+    status: 'translated-from-existing-resource',
     values: {
       'ru': `Язык / Language`,
+      'fr-CA': `Langue / Язык`,
+      'de-DE': `Sprache / Язык`,
+      'hi-IN': `भाषा / Язык`,
+      'ms-MY': `Bahasa / Язык`,
     },
   },
   'runtime.legacy.a3fe984a741c': {
@@ -4225,9 +4601,13 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
   },
   'runtime.legacy.a4763f8e7117': {
     source: `Вычисление сингулярностей O(1)`,
-    status: 'pending-translation',
+    status: 'translated-from-existing-resource',
     values: {
       'ru': `Вычисление сингулярностей O(1)`,
+      'fr-CA': `Évaluation de singularités en O(1)`,
+      'de-DE': `O(1)-Singularitätsauswertung`,
+      'hi-IN': `O(1) सिंगुलैरिटी का मूल्यांकन`,
+      'ms-MY': `Penilaian singulariti O(1)`,
     },
   },
   'runtime.legacy.a4b14dd0c708': {
@@ -4239,16 +4619,24 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
   },
   'runtime.legacy.a4d592c85024': {
     source: `Закрыть карточку задачи`,
-    status: 'pending-translation',
+    status: 'translated-from-existing-resource',
     values: {
       'ru': `Закрыть карточку задачи`,
+      'fr-CA': `Fermer la fiche du problème`,
+      'de-DE': `Problemkarte schließen`,
+      'hi-IN': `समस्या कार्ड बंद करें`,
+      'ms-MY': `Tutup kad masalah`,
     },
   },
   'runtime.legacy.a52a17ec1d05': {
     source: `Экономика и прибыльность`,
-    status: 'pending-translation',
+    status: 'translated-from-existing-resource',
     values: {
       'ru': `Экономика и прибыльность`,
+      'fr-CA': `Économie et rentabilité`,
+      'de-DE': `Wirtschaftlichkeit & Rentabilität`,
+      'hi-IN': `अर्थशास्त्र और लाभप्रदता`,
+      'ms-MY': `Ekonomi & Keuntungan`,
     },
   },
   'runtime.legacy.a538c087c2ce': {
@@ -4267,9 +4655,13 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
   },
   'runtime.legacy.a5b5cdc5ec14': {
     source: `Копировать теорему`,
-    status: 'pending-translation',
+    status: 'translated-from-existing-resource',
     values: {
       'ru': `Копировать теорему`,
+      'fr-CA': `Copier le théorème`,
+      'de-DE': `Theorem kopieren`,
+      'hi-IN': `थ्योरम कॉपी करें`,
+      'ms-MY': `Salin Teorem`,
     },
   },
   'runtime.legacy.a5e008079711': {
@@ -4463,9 +4855,13 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
   },
   'runtime.legacy.ab75915fb709': {
     source: `Core: готов (WebAssembly)`,
-    status: 'pending-translation',
+    status: 'translated-from-existing-resource',
     values: {
       'ru': `Core: готов (WebAssembly)`,
+      'fr-CA': `Core: prêt (WebAssembly)`,
+      'de-DE': `Core: bereit (WebAssembly)`,
+      'hi-IN': `Core: तैयार (WebAssembly)`,
+      'ms-MY': `Core: sedia (WebAssembly)`,
     },
   },
   'runtime.legacy.ab8b97587516': {
@@ -4477,9 +4873,13 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
   },
   'runtime.legacy.ab9c1026469f': {
     source: `Параметры симуляции`,
-    status: 'pending-translation',
+    status: 'translated-from-existing-resource',
     values: {
       'ru': `Параметры симуляции`,
+      'fr-CA': `Paramètres de simulation`,
+      'de-DE': `Simulationsparameter`,
+      'hi-IN': `सिमुलेशन पैरामीटर`,
+      'ms-MY': `Parameter Simulasi`,
     },
   },
   'runtime.legacy.ab9e905d0735': {
@@ -4491,9 +4891,13 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
   },
   'runtime.legacy.ac860de5038c': {
     source: `+ Добавить решение на карту`,
-    status: 'pending-translation',
+    status: 'translated-from-existing-resource',
     values: {
       'ru': `+ Добавить решение на карту`,
+      'fr-CA': `+ Ajouter la solution à la carte`,
+      'de-DE': `+ Lösung zur Karte hinzufügen`,
+      'hi-IN': `+ समाधान को मानचित्र में जोड़ें`,
+      'ms-MY': `+ Tambah penyelesaian ke Peta`,
     },
   },
   'runtime.legacy.aca9971c4c92': {
@@ -4582,9 +4986,13 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
   },
   'runtime.legacy.b133144b7d5c': {
     source: `Профили и управление панелями в реальном времени`,
-    status: 'pending-translation',
+    status: 'translated-from-existing-resource',
     values: {
       'ru': `Профили и управление панелями в реальном времени`,
+      'fr-CA': `Profils et gestion des panneaux en temps réel`,
+      'de-DE': `Profile und Echtzeit-Panelverwaltung`,
+      'hi-IN': `प्रोफाइल और रीयल-टाइम पैनल प्रबंधन`,
+      'ms-MY': `Profil & pengurusan panel masa nyata`,
     },
   },
   'runtime.legacy.b1365546dcb5': {
@@ -4694,16 +5102,24 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
   },
   'runtime.legacy.b57318cd6abe': {
     source: `Разрешить сингулярность`,
-    status: 'pending-translation',
+    status: 'translated-from-existing-resource',
     values: {
       'ru': `Разрешить сингулярность`,
+      'fr-CA': `Résoudre la singularité`,
+      'de-DE': `Singularität lösen`,
+      'hi-IN': `सिंगुलैरिटी हल करें`,
+      'ms-MY': `Selesaikan singulariti`,
     },
   },
   'runtime.legacy.b575ce0c3c75': {
     source: `Примеры:`,
-    status: 'pending-translation',
+    status: 'translated-from-existing-resource',
     values: {
       'ru': `Примеры:`,
+      'fr-CA': `Préréglages :`,
+      'de-DE': `Voreinstellungen:`,
+      'hi-IN': `प्रसेट:`,
+      'ms-MY': `Praset:`,
     },
   },
   'runtime.legacy.b5a1141ca7dd': {
@@ -4960,9 +5376,13 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
   },
   'runtime.legacy.c04038288722': {
     source: `Консоль RICIS`,
-    status: 'pending-translation',
+    status: 'translated-from-existing-resource',
     values: {
       'ru': `Консоль RICIS`,
+      'fr-CA': `Console RICIS`,
+      'de-DE': `RICIS-Konsole`,
+      'hi-IN': `RICIS कंसोल`,
+      'ms-MY': `Konsol RICIS`,
     },
   },
   'runtime.legacy.c0bcdfbdb655': {
@@ -5002,9 +5422,13 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
   },
   'runtime.legacy.c2796fe73f11': {
     source: `Первоисточники и публикации`,
-    status: 'pending-translation',
+    status: 'translated-from-existing-resource',
     values: {
       'ru': `Первоисточники и публикации`,
+      'fr-CA': `Sources primaires et publications`,
+      'de-DE': `Primärquellen & Publikationen`,
+      'hi-IN': `प्राथमिक स्रोत और प्रकाशन`,
+      'ms-MY': `Sumber Utama & Penerbitan`,
     },
   },
   'runtime.legacy.c2acdbf954d7': {
@@ -5065,9 +5489,13 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
   },
   'runtime.legacy.c42457057d1a': {
     source: `Выход`,
-    status: 'pending-translation',
+    status: 'translated-from-existing-resource',
     values: {
       'ru': `Выход`,
+      'fr-CA': `Sortie`,
+      'de-DE': `Ausgabe`,
+      'hi-IN': `आउटपुट`,
+      'ms-MY': `Keluaran`,
     },
   },
   'runtime.legacy.c4376823d946': {
@@ -5170,9 +5598,13 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
   },
   'runtime.legacy.c69095ac709a': {
     source: `Core: не проверен`,
-    status: 'pending-translation',
+    status: 'translated-from-existing-resource',
     values: {
       'ru': `Core: не проверен`,
+      'fr-CA': `Core: non vérifié`,
+      'de-DE': `Core: nicht geprüft`,
+      'hi-IN': `Core: जाँचा नहीं गया`,
+      'ms-MY': `Core: belum diperiksa`,
     },
   },
   'runtime.legacy.c6a488076814': {
@@ -5226,9 +5658,13 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
   },
   'runtime.legacy.ca09e3ba8cec': {
     source: `0_10 / 0_2 (отношение A4)`,
-    status: 'pending-translation',
+    status: 'translated-from-existing-resource',
     values: {
       'ru': `0_10 / 0_2 (отношение A4)`,
+      'fr-CA': `0_10 / 0_2 (rapport A4)`,
+      'de-DE': `0_10 / 0_2 (A4‑Verhältnis)`,
+      'hi-IN': `0_10 / 0_2 (A4 अनुपात)`,
+      'ms-MY': `0_10 / 0_2 (nisbah A4)`,
     },
   },
   'runtime.legacy.ca430410faab': {
@@ -5268,9 +5704,13 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
   },
   'runtime.legacy.cadc1ff02a16': {
     source: `Формальная верификация Lean 4`,
-    status: 'pending-translation',
+    status: 'translated-from-existing-resource',
     values: {
       'ru': `Формальная верификация Lean 4`,
+      'fr-CA': `Vérification formelle Lean 4`,
+      'de-DE': `Formale Verifikation mit Lean 4`,
+      'hi-IN': `Lean 4 औपचारिक सत्यापन`,
+      'ms-MY': `Pengesahan formal Lean 4`,
     },
   },
   'runtime.legacy.cb4afa84d92a': {
@@ -5282,9 +5722,13 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
   },
   'runtime.legacy.cbbde161816c': {
     source: `Описание и доказательство`,
-    status: 'pending-translation',
+    status: 'translated-from-existing-resource',
     values: {
       'ru': `Описание и доказательство`,
+      'fr-CA': `Description et preuve`,
+      'de-DE': `Beschreibung und Beweis`,
+      'hi-IN': `विवरण और प्रमाण`,
+      'ms-MY': `Keterangan dan bukti`,
     },
   },
   'runtime.legacy.ccd35c3bef5c': {
@@ -5338,9 +5782,13 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
   },
   'runtime.legacy.cdf2e95e2840': {
     source: `Введите выражение, эквивалентность с которым проверяет Core`,
-    status: 'pending-translation',
+    status: 'translated-from-existing-resource',
     values: {
       'ru': `Введите выражение, эквивалентность с которым проверяет Core`,
+      'fr-CA': `Saisissez l'expression dont Core doit vérifier l'équivalence`,
+      'de-DE': `Geben Sie den Ausdruck ein, dessen Äquivalenz Core prüfen soll.`,
+      'hi-IN': `वह अभिव्यक्ति दर्ज करें जिसकी समता Core को सत्यापित करनी चाहिए।`,
+      'ms-MY': `Masukkan ungkapan yang kesetaraannya perlu disahkan oleh Core.`,
     },
   },
   'runtime.legacy.ce9d0a67bae5': {
@@ -5359,9 +5807,13 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
   },
   'runtime.legacy.ceba9b6b4058': {
     source: `Для узла пока не приложен proof artifact с проверяемой provenance.`,
-    status: 'pending-translation',
+    status: 'translated-from-existing-resource',
     values: {
       'ru': `Для узла пока не приложен proof artifact с проверяемой provenance.`,
+      'fr-CA': `Aucun artefact de preuve avec provenance vérifiable n'est encore attaché à ce nœud.`,
+      'de-DE': `Kein Proof‑Artefakt mit verifizierbarer Provenienz ist diesem Knoten bisher angehängt.`,
+      'hi-IN': `इस नोड में अभी तक सत्यापन योग्य provenance वाले proof artifact संलग्न नहीं हैं।`,
+      'ms-MY': `Tiada artifak bukti dengan provenance yang boleh disahkan dilampirkan pada nod ini lagi.`,
     },
   },
   'runtime.legacy.ced07fd14401': {
@@ -5408,9 +5860,13 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
   },
   'runtime.legacy.d0fb3b5b89f4': {
     source: `Поиск по карте...`,
-    status: 'pending-translation',
+    status: 'translated-from-existing-resource',
     values: {
       'ru': `Поиск по карте...`,
+      'fr-CA': `Rechercher sur la carte...`,
+      'de-DE': `Karte durchsuchen...`,
+      'hi-IN': `मानचित्र पर खोजें...`,
+      'ms-MY': `Cari peta...`,
     },
   },
   'runtime.legacy.d15bb7645163': {
@@ -5478,9 +5934,13 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
   },
   'runtime.legacy.d411e3968916': {
     source: `ИИ анализирует...`,
-    status: 'pending-translation',
+    status: 'translated-from-existing-resource',
     values: {
       'ru': `ИИ анализирует...`,
+      'fr-CA': `L'IA analyse...`,
+      'de-DE': `KI analysiert...`,
+      'hi-IN': `एआई विश्लेषण कर रहा है...`,
+      'ms-MY': `AI sedang menganalisis...`,
     },
   },
   'runtime.legacy.d5172634dd4d': {
@@ -5520,9 +5980,13 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
   },
   'runtime.legacy.d5f278c439a1': {
     source: `Статус доверия`,
-    status: 'pending-translation',
+    status: 'translated-from-existing-resource',
     values: {
       'ru': `Статус доверия`,
+      'fr-CA': `Statut de confiance`,
+      'de-DE': `Vertrauensstatus`,
+      'hi-IN': `विश्वास स्थिति`,
+      'ms-MY': `Status kepercayaan`,
     },
   },
   'runtime.legacy.d6c741c91cbc': {
@@ -5569,9 +6033,13 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
   },
   'runtime.legacy.d7f3156024e3': {
     source: `Симулятор Telegram RICIS-III`,
-    status: 'pending-translation',
+    status: 'translated-from-existing-resource',
     values: {
       'ru': `Симулятор Telegram RICIS-III`,
+      'fr-CA': `Simulateur Telegram RICIS-III`,
+      'de-DE': `RICIS-III Telegram-Simulator`,
+      'hi-IN': `RICIS-III Telegram सिम्युलेटर`,
+      'ms-MY': `Simulator Telegram RICIS-III`,
     },
   },
   'runtime.legacy.d88d1de83100': {
@@ -5632,23 +6100,35 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
   },
   'runtime.legacy.da806946b13f': {
     source: `Открыть доступную задачу`,
-    status: 'pending-translation',
+    status: 'translated-from-existing-resource',
     values: {
       'ru': `Открыть доступную задачу`,
+      'fr-CA': `Ouvrir le problème disponible`,
+      'de-DE': `Verfügbares Problem öffnen`,
+      'hi-IN': `उपलब्ध समस्या खोलें`,
+      'ms-MY': `Buka masalah yang tersedia`,
     },
   },
   'runtime.legacy.dac2f54ffb12': {
     source: `Целевая функция / Математическая модель`,
-    status: 'pending-translation',
+    status: 'translated-from-existing-resource',
     values: {
       'ru': `Целевая функция / Математическая модель`,
+      'fr-CA': `Fonction objectif / Modèle mathématique`,
+      'de-DE': `Zielfunktion / Mathematisches Modell`,
+      'hi-IN': `लक्ष्य फ़ंक्शन / गणितीय मॉडल`,
+      'ms-MY': `Fungsi Sasaran / Model Matematik`,
     },
   },
   'runtime.legacy.db7f070470c4': {
     source: `/solve <формула> или /help`,
-    status: 'pending-translation',
+    status: 'translated-from-existing-resource',
     values: {
       'ru': `/solve <формула> или /help`,
+      'fr-CA': `/solve <formula> ou /help`,
+      'de-DE': `/solve <formula> oder /help`,
+      'hi-IN': `/solve <formula> या /help`,
+      'ms-MY': `/solve <formula> atau /help`,
     },
   },
   'runtime.legacy.db8b54c1931b': {
@@ -5688,9 +6168,13 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
   },
   'runtime.legacy.dd7cc306beaa': {
     source: `Требуется evidence Core / Lean`,
-    status: 'pending-translation',
+    status: 'translated-from-existing-resource',
     values: {
       'ru': `Требуется evidence Core / Lean`,
+      'fr-CA': `Nécessite une preuve Core / Lean`,
+      'de-DE': `Erfordert Core/Lean-Evidence`,
+      'hi-IN': `Core / Lean प्रमाण आवश्यक`,
+      'ms-MY': `Memerlukan bukti Core/Lean`,
     },
   },
   'runtime.legacy.dd912778a2a5': {
@@ -5751,9 +6235,13 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
   },
   'runtime.legacy.e0042351c333': {
     source: `Смотреть доказательство`,
-    status: 'pending-translation',
+    status: 'translated-from-existing-resource',
     values: {
       'ru': `Смотреть доказательство`,
+      'fr-CA': `Voir la preuve`,
+      'de-DE': `Beweis anzeigen`,
+      'hi-IN': `प्रमाण देखें`,
+      'ms-MY': `Lihat bukti`,
     },
   },
   'runtime.legacy.e007e7d3192d': {
@@ -5863,9 +6351,13 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
   },
   'runtime.legacy.e38d04cfaffb': {
     source: `Рассчитать за O(1)`,
-    status: 'pending-translation',
+    status: 'translated-from-existing-resource',
     values: {
       'ru': `Рассчитать за O(1)`,
+      'fr-CA': `Évaluer en O(1)`,
+      'de-DE': `In O(1) auswerten`,
+      'hi-IN': `O(1) में मूल्यांकन करें`,
+      'ms-MY': `Nilai dalam O(1)`,
     },
   },
   'runtime.legacy.e471a598d4c4': {
@@ -5954,9 +6446,13 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
   },
   'runtime.legacy.e9509ba2845c': {
     source: `Введите сингулярное выражение, например 0_5 * inf_3 или 0_10 / 0_2`,
-    status: 'pending-translation',
+    status: 'translated-from-existing-resource',
     values: {
       'ru': `Введите сингулярное выражение, например 0_5 * inf_3 или 0_10 / 0_2`,
+      'fr-CA': `Entrez une expression singulière, par exemple 0_5 * inf_3 ou 0_10 / 0_2`,
+      'de-DE': `Geben Sie einen singulären Ausdruck ein, z. B. 0_5 * inf_3 oder 0_10 / 0_2`,
+      'hi-IN': `एक singular अभिव्यक्ति दर्ज करें, उदाहरण के लिए 0_5 * inf_3 या 0_10 / 0_2`,
+      'ms-MY': `Masukkan ungkapan singular, contohnya 0_5 * inf_3 atau 0_10 / 0_2`,
     },
   },
   'runtime.legacy.e951be86c2d3': {
@@ -5989,9 +6485,13 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
   },
   'runtime.legacy.eb249b56eb4e': {
     source: `ЗАБЛОКИРОВАНО`,
-    status: 'pending-translation',
+    status: 'translated-from-existing-resource',
     values: {
       'ru': `ЗАБЛОКИРОВАНО`,
+      'fr-CA': `Verrouillé`,
+      'de-DE': `Gesperrt`,
+      'hi-IN': `लॉक किया गया`,
+      'ms-MY': `Terkunci`,
     },
   },
   'runtime.legacy.eb3d7a8b3853': {
@@ -6017,9 +6517,13 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
   },
   'runtime.legacy.ebe0bd199e76': {
     source: `Неизменяемый снимок Ricis.Core`,
-    status: 'pending-translation',
+    status: 'translated-from-existing-resource',
     values: {
       'ru': `Неизменяемый снимок Ricis.Core`,
+      'fr-CA': `Instantané immuable de Ricis.Core`,
+      'de-DE': `Unveränderlicher Ricis.Core-Snapshot`,
+      'hi-IN': `अपरिवर्तनीय Ricis.Core स्नैपशॉट`,
+      'ms-MY': `Snapshot Ricis.Core yang tidak boleh diubah`,
     },
   },
   'runtime.legacy.ed44613a9615': {
@@ -6115,16 +6619,24 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
   },
   'runtime.legacy.f0baf2ad0262': {
     source: `Точный инвариант RICIS-III`,
-    status: 'pending-translation',
+    status: 'translated-from-existing-resource',
     values: {
       'ru': `Точный инвариант RICIS-III`,
+      'fr-CA': `Invariant exact RICIS-III`,
+      'de-DE': `Exaktes RICIS-III-Invariant`,
+      'hi-IN': `सटीक RICIS-III इनवेरिएंट`,
+      'ms-MY': `Invarian tepat RICIS-III`,
     },
   },
   'runtime.legacy.f0dff5ab4a66': {
     source: `Сохранено`,
-    status: 'pending-translation',
+    status: 'translated-from-existing-resource',
     values: {
       'ru': `Сохранено`,
+      'fr-CA': `Enregistré`,
+      'de-DE': `Gespeichert`,
+      'hi-IN': `सहेजा गया`,
+      'ms-MY': `Disimpan`,
     },
   },
   'runtime.legacy.f1849ca10783': {
@@ -6150,9 +6662,13 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
   },
   'runtime.legacy.f2068ba11272': {
     source: `Доказательство авторства RICIS-III`,
-    status: 'pending-translation',
+    status: 'translated-from-existing-resource',
     values: {
       'ru': `Доказательство авторства RICIS-III`,
+      'fr-CA': `Preuve d'auteur RICIS-III`,
+      'de-DE': `Nachweis der Urheberschaft RICIS-III`,
+      'hi-IN': `RICIS-III लेखकत्व का प्रमाण`,
+      'ms-MY': `Bukti Kepengarangan RICIS-III`,
     },
   },
   'runtime.legacy.f20de7a76cba': {
@@ -6164,16 +6680,24 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
   },
   'runtime.legacy.f24173f14962': {
     source: `Заполнить ИИ`,
-    status: 'pending-translation',
+    status: 'translated-from-existing-resource',
     values: {
       'ru': `Заполнить ИИ`,
+      'fr-CA': `Remplir via AI`,
+      'de-DE': `Mit AI füllen`,
+      'hi-IN': `AI द्वारा भरें`,
+      'ms-MY': `Isi melalui AI`,
     },
   },
   'runtime.legacy.f2bd5ec51cb7': {
     source: `НАСТРОЙКИ`,
-    status: 'pending-translation',
+    status: 'translated-from-existing-resource',
     values: {
       'ru': `НАСТРОЙКИ`,
+      'fr-CA': `Paramètres`,
+      'de-DE': `Einstellungen`,
+      'hi-IN': `सेटिंग्स`,
+      'ms-MY': `Tetapan`,
     },
   },
   'runtime.legacy.f2e1953fc80d': {
@@ -6220,9 +6744,13 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
   },
   'runtime.legacy.f3d28f6ae1a7': {
     source: `RICIS-III ПЕСОЧНИЦА СИНГУЛЯРНОСТЕЙ`,
-    status: 'pending-translation',
+    status: 'translated-from-existing-resource',
     values: {
       'ru': `RICIS-III ПЕСОЧНИЦА СИНГУЛЯРНОСТЕЙ`,
+      'fr-CA': `Bac à sable des singularités RICIS-III`,
+      'de-DE': `RICIS-III Sandbox der Singularitäten`,
+      'hi-IN': `RICIS-III सिंगुलैरिटी सैंडबॉक्स`,
+      'ms-MY': `Sandbox Singulariti RICIS-III`,
     },
   },
   'runtime.legacy.f4768e9349a2': {
@@ -6542,9 +7070,13 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
   },
   'ui.legacy.048daa664e84': {
     source: `Состояние workflow: resolved`,
-    status: 'pending-translation',
+    status: 'translated-from-existing-resource',
     values: {
       'ru': `Состояние workflow: resolved`,
+      'fr-CA': `État du workflow : resolved`,
+      'de-DE': `Workflow-Status: resolved`,
+      'hi-IN': `Workflow स्थिति: resolved`,
+      'ms-MY': `Status aliran kerja: resolved`,
     },
   },
   'ui.legacy.0aff0e945632': {
@@ -6591,9 +7123,13 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
   },
   'ui.legacy.1304afa92bea': {
     source: `Вычисление...`,
-    status: 'pending-translation',
+    status: 'translated-from-existing-resource',
     values: {
       'ru': `Вычисление...`,
+      'fr-CA': `Évaluation en cours...`,
+      'de-DE': `Auswertung...`,
+      'hi-IN': `मूल्यांकन जारी है...`,
+      'ms-MY': `Sedang dinilai...`,
     },
   },
   'ui.legacy.1439da748125': {
@@ -6661,9 +7197,13 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
   },
   'ui.legacy.1df753f21629': {
     source: `Генератор формальных доказательств`,
-    status: 'pending-translation',
+    status: 'translated-from-existing-resource',
     values: {
       'ru': `Генератор формальных доказательств`,
+      'fr-CA': `Générateur de preuves formelles`,
+      'de-DE': `Generator für formale Beweise`,
+      'hi-IN': `औपचारिक प्रमाण जनरेटर`,
+      'ms-MY': `Penjana bukti formal`,
     },
   },
   'ui.legacy.1ec3b8813837': {
@@ -6843,9 +7383,13 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
   },
   'ui.legacy.4ae50d30739d': {
     source: `Закрыть`,
-    status: 'pending-translation',
+    status: 'translated-from-existing-resource',
     values: {
       'ru': `Закрыть`,
+      'fr-CA': `Fermer`,
+      'de-DE': `Schließen`,
+      'hi-IN': `बंद करें`,
+      'ms-MY': `Tutup`,
     },
   },
   'ui.legacy.4b59e1b7b7d3': {
@@ -7207,9 +7751,13 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
   },
   'ui.legacy.7f17d320499e': {
     source: `Узел отмечен как resolved в карте. Этот статус сам по себе не является Lean kernel verification.`,
-    status: 'pending-translation',
+    status: 'translated-from-existing-resource',
     values: {
       'ru': `Узел отмечен как resolved в карте. Этот статус сам по себе не является Lean kernel verification.`,
+      'fr-CA': `Le nœud est marqué comme resolved sur la carte. Ce statut de workflow seul n'est pas une vérification du noyau Lean.`,
+      'de-DE': `Der Knoten ist in der Karte als resolved markiert. Dieser Workflow‑Status allein ist keine Lean‑Kernel‑Verifikation.`,
+      'hi-IN': `यह नोड मानचित्र पर 'resolved' के रूप में चिह्नित है। यह workflow स्थिति अकेले Lean kernel सत्यापन नहीं बताती।`,
+      'ms-MY': `Nod ditandakan sebagai resolved dalam peta. Status workflow itu sendiri bukanlah pengesahan kernel Lean.`,
     },
   },
   'ui.legacy.7ff2b51c23aa': {
@@ -7389,9 +7937,13 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
   },
   'ui.legacy.a4763f8e7117': {
     source: `Вычисление сингулярностей O(1)`,
-    status: 'pending-translation',
+    status: 'translated-from-existing-resource',
     values: {
       'ru': `Вычисление сингулярностей O(1)`,
+      'fr-CA': `Évaluation de singularités en O(1)`,
+      'de-DE': `O(1)-Singularitätsauswertung`,
+      'hi-IN': `O(1) सिंगुलैरिटी का मूल्यांकन`,
+      'ms-MY': `Penilaian singulariti O(1)`,
     },
   },
   'ui.legacy.a5382a5c3531': {
@@ -7690,9 +8242,13 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
   },
   'ui.legacy.dd7cc306beaa': {
     source: `Требуется evidence Core / Lean`,
-    status: 'pending-translation',
+    status: 'translated-from-existing-resource',
     values: {
       'ru': `Требуется evidence Core / Lean`,
+      'fr-CA': `Nécessite une preuve Core / Lean`,
+      'de-DE': `Erfordert Core/Lean-Evidence`,
+      'hi-IN': `Core / Lean प्रमाण आवश्यक`,
+      'ms-MY': `Memerlukan bukti Core/Lean`,
     },
   },
   'ui.legacy.ddfdf6d517b0': {
@@ -7809,9 +8365,13 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
   },
   'ui.legacy.f0baf2ad0262': {
     source: `Точный инвариант RICIS-III`,
-    status: 'pending-translation',
+    status: 'translated-from-existing-resource',
     values: {
       'ru': `Точный инвариант RICIS-III`,
+      'fr-CA': `Invariant exact RICIS-III`,
+      'de-DE': `Exaktes RICIS-III-Invariant`,
+      'hi-IN': `सटीक RICIS-III इनवेरिएंट`,
+      'ms-MY': `Invarian tepat RICIS-III`,
     },
   },
   'ui.legacy.f32a4124bb27': {
