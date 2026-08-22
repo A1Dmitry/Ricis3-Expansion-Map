@@ -11,6 +11,18 @@ export interface RootTaskFilterResult {
   tasks: RootConnectedTask[];
 }
 
+export interface RootSelectionState {
+  root: ProblemNode | null;
+  missingRootNodeId: string | null;
+}
+
+/** Resolves an optional URL-selected root without treating an unknown id as a valid empty filter. */
+export function resolveRootSelection(rootNodeId: string | null | undefined, nodes: readonly ProblemNode[]): RootSelectionState {
+  if (!rootNodeId) return { root: null, missingRootNodeId: null };
+  const root = nodes.find(node => node.id === rootNodeId) ?? null;
+  return { root, missingRootNodeId: root ? null : rootNodeId };
+}
+
 function uniqueExistingIds(candidateIds: Iterable<string>, nodeById: ReadonlyMap<string, ProblemNode>): string[] {
   return Array.from(new Set(candidateIds)).filter(id => nodeById.has(id));
 }

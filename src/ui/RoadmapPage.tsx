@@ -1,7 +1,7 @@
 import { ArrowLeft, BookOpen, ChevronRight, Compass, ListTree, SearchCheck, ShieldCheck } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import type { ProblemNode } from '../model/types';
-import { getRootConnectedScientificTasks, getRootPathLabel } from '../model/rootTaskFilter';
+import { getRootConnectedScientificTasks, getRootPathLabel, resolveRootSelection } from '../model/rootTaskFilter';
 import { UrlShareService } from '../services/UrlShareService';
 import { useMapStore } from '../store/mapStore';
 
@@ -25,12 +25,7 @@ export function RoadmapPage({ contextNodeId, initialRootNodeId, onBackToMap }: R
   const map = useMapStore();
   const contextNode = map.nodes.find(node => node.id === contextNodeId) ?? null;
   const [activeRoute, setActiveRoute] = useState<RoadmapRouteId | null>(initialRootNodeId ? 'ROOT_GOAL' : null);
-  const [rootNodeId, setRootNodeId] = useState<string | null>(() => {
-    const visibleInitialRoot = initialRootNodeId && map.nodes.some(node => node.id === initialRootNodeId)
-      ? initialRootNodeId
-      : null;
-    return visibleInitialRoot;
-  });
+  const [rootNodeId, setRootNodeId] = useState<string | null>(initialRootNodeId ?? null);
 
   const rootCandidates = useMemo(() => {
     const candidates = map.nodes.filter(isRootCandidate);
@@ -39,7 +34,9 @@ export function RoadmapPage({ contextNodeId, initialRootNodeId, onBackToMap }: R
     }
     return candidates.sort((left, right) => left.title.localeCompare(right.title, 'ru'));
   }, [map.nodes, contextNode]);
-  const selectedRoot = map.nodes.find(node => node.id === rootNodeId) ?? null;
+  const rootSelection = useMemo(() => resolveRootSelection(rootNodeId, map.nodes), [rootNodeId, map.nodes]);
+  const selectedRoot = rootSelection.root;
+  const missingRootNodeId = rootSelection.missingRootNodeId;
   const connectedTasks = useMemo(
     () => rootNodeId ? getRootConnectedScientificTasks(rootNodeId, map.nodes, map.edges) : { root: null, tasks: [] },
     [rootNodeId, map.nodes, map.edges],
@@ -196,7 +193,7 @@ export function RoadmapPage({ contextNodeId, initialRootNodeId, onBackToMap }: R
             <label className="mt-5 block max-w-xl">
               <span className="mb-1.5 block text-xs font-bold text-slate-200">Корневая цель</span>
               <select
-                value={rootNodeId ?? ''}
+                value={selectedRoot?.id ?? ''}
                 onChange={event => setRootNodeId(event.target.value || null)}
                 className="min-h-11 w-full rounded-lg border border-violet-800 bg-black/45 px-3 text-sm text-slate-100 outline-none focus:border-violet-300"
               >
@@ -205,7 +202,32 @@ export function RoadmapPage({ contextNodeId, initialRootNodeId, onBackToMap }: R
               </select>
             </label>
 
-            {!selectedRoot && (
+            {missingRootNodeId && (
+              <div role="alert" className="mt-5 rounded-lg border border-amber-700/80 bg-amber-950/25 p-4">
+                <p className="font-semibold text-amber-100">Корневой узел не найден</p>
+                <p className="mt-1 break-words text-sm text-amber-50/80">
+                  Ссылка запрашивает узел <span className="font-mono text-amber-100">{missingRootNodeId}</span>, которого нет в текущем каталоге. Фильтр не применён и данные карты не изменялись.
+                </p>
+                <div className="mt-3 flex flex-wrap gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setRootNodeId(null)}
+                    className="min-h-9 rounded border border-amber-500/70 bg-black/25 px-3 text-xs font-bold text-amber-50 hover:border-amber-200"
+                  >
+                    Выбрать существующий корень
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => navigateToMap()}
+                    className="min-h-9 rounded border border-slate-500/70 bg-black/25 px-3 text-xs font-bold text-slate-100 hover:border-slate-200"
+                  >
+                    Открыть полную карту
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {!selectedRoot && !missingRootNodeId && (
               <p className="mt-5 rounded-lg border border-slate-700 bg-black/35 p-4 text-sm text-slate-300">
                 Выберите одну корневую цель. Фильтр не включается автоматически и не объединяет разные корни.
               </p>

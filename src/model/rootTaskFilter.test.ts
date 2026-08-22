@@ -5,6 +5,7 @@ import {
   getRootConnectedScientificTasks,
   getRootPathLabel,
   getRootwardDependencyIds,
+  resolveRootSelection,
 } from './rootTaskFilter';
 
 function node(overrides: Partial<ProblemNode> & Pick<ProblemNode, 'id' | 'title'>): ProblemNode {
@@ -76,6 +77,12 @@ describe('rootTaskFilter', () => {
 
   it('returns an empty result for an unknown root without throwing', () => {
     expect(getRootConnectedScientificTasks('missing-root', [root, task], [])).toEqual({ root: null, tasks: [] });
+  });
+
+  it('reports an unknown requested root separately from an intentionally empty selection', () => {
+    expect(resolveRootSelection(null, [root, task])).toEqual({ root: null, missingRootNodeId: null });
+    expect(resolveRootSelection('missing-root', [root, task])).toEqual({ root: null, missingRootNodeId: 'missing-root' });
+    expect(resolveRootSelection(root.id, [root, task])).toMatchObject({ root, missingRootNodeId: null });
   });
 
   it('shortens long paths without hiding the task or root identity', () => {
