@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { DICTIONARY, PROJECT_COVERAGE_LOCALES, resolveDictionaryText, TranslationKey } from '../model/i18n.types';
+import { LOCALE_OVERRIDES } from './i18n.locale-overrides';
 
 describe('RICIS-III i18n Dictionary Integrity Test', () => {
   it('should have non-empty Russian and English translations for every key', () => {
@@ -33,6 +34,17 @@ describe('RICIS-III i18n Dictionary Integrity Test', () => {
     for (const locale of PROJECT_COVERAGE_LOCALES) {
       for (const key of proofKeys) {
         expect(resolveDictionaryText(DICTIONARY[key], locale), `${key} missing ${locale} fallback`).toBeTruthy();
+      }
+    }
+  });
+
+  it('should provide explicit translations for every project coverage locale', () => {
+    const keys = Object.keys(DICTIONARY) as TranslationKey[];
+    for (const locale of PROJECT_COVERAGE_LOCALES.filter((candidate) => candidate !== 'en-US')) {
+      for (const key of keys) {
+        const translated = LOCALE_OVERRIDES[key]?.[locale];
+        expect(translated, `${key} missing explicit ${locale} translation`).toBeTruthy();
+        expect(translated).not.toMatch(/[\u0400-\u04FF]/);
       }
     }
   });

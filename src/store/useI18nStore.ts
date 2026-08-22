@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { DICTIONARY, resolveDictionaryText, SupportedLocale, TranslationKey } from '../model/i18n.types';
+import { LOCALE_OVERRIDES } from '../model/i18n.locale-overrides';
 
 interface I18nStoreState {
   locale: SupportedLocale;
@@ -47,8 +48,8 @@ export function detectInitialLocale(): SupportedLocale {
     console.warn('Failed to detect initial locale, fallback to en/ru:', e);
   }
 
-  // Для международных браузеров - en
-  return 'ru';
+  // Для международных браузеров — en-US, never Russian by default.
+  return 'en-US';
 }
 
 export const useI18nStore = create<I18nStoreState>((set, get) => ({
@@ -71,7 +72,7 @@ export const useI18nStore = create<I18nStoreState>((set, get) => ({
     const entry = DICTIONARY[key];
     if (!entry) return key;
 
-    let text: string = resolveDictionaryText(entry, locale) || key;
+    let text: string = (LOCALE_OVERRIDES[key]?.[locale] ?? resolveDictionaryText(entry, locale)) || key;
 
     if (params) {
       Object.entries(params).forEach(([paramKey, paramValue]) => {

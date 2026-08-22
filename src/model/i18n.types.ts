@@ -592,6 +592,68 @@ export const DICTIONARY = {
     en: 'Saved',
   },
 
+  // Settings details and panel labels
+  'settings.languageLabel': { ru: 'Язык / Language', en: 'Language / Язык' },
+  'settings.localization': { ru: 'Локализация интерфейса', en: 'Interface localization' },
+  'settings.browserDetection': { ru: 'Автоопределение по заголовку браузера', en: 'Automatic detection from browser language' },
+  'settings.sidebarPanels': { ru: 'Панели сайдбара', en: 'Sidebar panels' },
+  'settings.liveToggle': { ru: 'Live Toggle', en: 'Live Toggle' },
+  'settings.enabled': { ru: 'Вкл', en: 'On' },
+  'settings.disabled': { ru: 'Выкл', en: 'Off' },
+  'settings.profile': { ru: 'Профиль интерфейса', en: 'Interface profile' },
+  'settings.createNew': { ru: 'Создать новый', en: 'Create new' },
+  'settings.defaultProfile': { ru: 'Стандартный баланс элементов', en: 'Default element balance' },
+  'settings.researcherProfile': { ru: 'Фокус на поиске, зонах и доступных задачах', en: 'Focus on search, zones, and available problems' },
+  'settings.architectProfile': { ru: 'Фокус на симуляции физики и быстрых действиях', en: 'Focus on physics simulation and quick actions' },
+  'settings.clicks': { ru: 'Кликов: {{value}}', en: 'Clicks: {{value}}' },
+  'settings.profileName': { ru: 'Название профиля:', en: 'Profile name:' },
+  'settings.profileExample': { ru: 'Например: Эксперт RICIS-III', en: 'Example: RICIS-III Expert' },
+  'settings.copyCurrent': { ru: 'Скопировать настройки текущего профиля', en: 'Copy current profile settings' },
+  'settings.save': { ru: 'Сохранить', en: 'Save' },
+  'settings.cancel': { ru: 'Отмена', en: 'Cancel' },
+  'settings.coreVersion': { ru: 'Ядро: RICIS-III v7.7', en: 'Core: RICIS-III v7.7' },
+  'settings.panelLiveDrawer': { ru: 'Панель: Live Drawer', en: 'Panel: Live Drawer' },
+  'settings.close': { ru: 'Закрыть', en: 'Close' },
+  'panel.actions': { ru: 'Быстрые действия', en: 'Quick actions' },
+  'panel.zones': { ru: 'Сферы науки', en: 'Scientific fields' },
+  'panel.available': { ru: 'Доступно к решению', en: 'Available to solve' },
+  'panel.agent': { ru: 'ИИ-Агент и Сервисы', en: 'AI Agent & Services' },
+  'panel.persistence': { ru: 'Сохранение и Экспорт', en: 'Persistence & Export' },
+
+  // Telegram simulator
+  'telegram.header': {
+    ru: 'Симулятор Telegram RICIS-III',
+    en: 'RICIS-III Telegram Simulator',
+  },
+  'telegram.localSimulation': {
+    ru: 'Локальная симуляция без сбора, хранения и передачи пользовательских API-ключей.',
+    en: 'Local simulation without collecting, storing, or transmitting user API keys.',
+  },
+  'telegram.evidenceNotice': {
+    ru: 'Статус доказательства всегда указан в ответе. Шаблон LaTeX не является Lean-верификацией.',
+    en: 'The proof status is always stated in the reply. A LaTeX template is not Lean verification.',
+  },
+  'telegram.processing': {
+    ru: 'Выполняется структурная обработка RICIS-III…',
+    en: 'RICIS-III structural processing in progress…',
+  },
+  'telegram.placeholder': {
+    ru: '/solve <формула> или /help',
+    en: '/solve <formula> or /help',
+  },
+  'telegram.exampleCommand': {
+    ru: '/solve (x^2 - 9)/(x - 3) при x=3',
+    en: '/solve (x^2 - 9)/(x - 3) at x=3',
+  },
+  'telegram.send': {
+    ru: 'Отправить',
+    en: 'Send',
+  },
+  'telegram.error': {
+    ru: 'Внутренняя ошибка. Неподтверждённый результат не был объявлен доказанным.',
+    en: 'Internal error. An unverified result was not declared proven.',
+  },
+
   // Audit Panel
   'audit.systemAudit': {
     ru: 'Аудит системы',

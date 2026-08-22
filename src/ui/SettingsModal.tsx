@@ -95,14 +95,14 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
             <div className="flex items-center justify-between border-b border-neutral-800/80 pb-1.5">
               <label className="text-xs font-semibold text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
                 <Globe size={14} className="text-cyan-400" />
-                <span>Язык / Language</span>
+                <span>{t('settings.languageLabel')}</span>
               </label>
               <span className="text-[10px] text-slate-500 font-mono">RU / EN</span>
             </div>
             <div className="flex items-center justify-between p-3 bg-neutral-900/60 border border-neutral-800 rounded-lg">
               <div className="text-xs text-slate-300">
-                <p className="font-semibold text-slate-100">Локализация интерфейса</p>
-                <p className="text-[10px] text-slate-400">Автоопределение по заголовку браузера</p>
+                <p className="font-semibold text-slate-100">{t('settings.localization')}</p>
+                <p className="text-[10px] text-slate-400">{t('settings.browserDetection')}</p>
               </div>
               <LanguageToggle />
             </div>
@@ -114,7 +114,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
               <div className="flex items-center justify-between border-b border-neutral-800/80 pb-1.5">
                 <label className="text-xs font-semibold text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
                   <Sliders size={14} className="text-emerald-400" />
-                  <span>Параметры симуляции</span>
+                  <span>{t('physics.title')}</span>
                 </label>
                 <span className="text-[10px] text-slate-500 font-mono">Local physics</span>
               </div>
@@ -130,9 +130,9 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
               <div className="flex items-center justify-between border-b border-neutral-800/80 pb-1.5">
                 <label className="text-xs font-semibold text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
                   <LayoutGrid size={14} className="text-cyan-400" />
-                  <span>Панели сайдбара</span>
+                  <span>{t('settings.sidebarPanels')}</span>
                 </label>
-                <span className="text-[10px] text-slate-500 font-mono">Live Toggle</span>
+                <span className="text-[10px] text-slate-500 font-mono">{t('settings.liveToggle')}</span>
               </div>
 
               <div className="grid grid-cols-1 gap-1.5">
@@ -149,17 +149,17 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                           : 'bg-neutral-950/40 border-neutral-800/50 text-slate-500 line-through opacity-70 hover:opacity-100'
                       }`}
                     >
-                      <span className="text-xs font-medium">{el.label}</span>
+                      <span className="text-xs font-medium">{el.labelKey ? t(el.labelKey) : el.label}</span>
                       <div className="flex items-center gap-1.5">
                         {isVisible ? (
                           <span className="flex items-center gap-1 text-[10px] text-cyan-400 font-mono">
                             <Eye size={13} />
-                            Вкл
+                            {t('settings.enabled')}
                           </span>
                         ) : (
                           <span className="flex items-center gap-1 text-[10px] text-slate-500 font-mono">
                             <EyeOff size={13} />
-                            Выкл
+                            {t('settings.disabled')}
                           </span>
                         )}
                       </div>
@@ -175,7 +175,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
             <div className="flex items-center justify-between border-b border-neutral-800/80 pb-1.5">
               <label className="text-xs font-semibold text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
                 <User size={14} className="text-cyan-400" />
-                <span>Профиль интерфейса</span>
+                  <span>{t('settings.profile')}</span>
               </label>
               {!isCreating && (
                 <button
@@ -183,7 +183,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                   onClick={() => setIsCreating(true)}
                   className="text-xs font-semibold text-cyan-400 hover:text-cyan-300 flex items-center gap-1 transition-colors"
                 >
-                  <Plus size={14} /> Создать новый
+                  <Plus size={14} /> {t('settings.createNew')}
                 </button>
               )}
             </div>
@@ -207,12 +207,12 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                       <span className="text-xs font-bold">{role.name}</span>
                       <span className="text-[10px] text-slate-400">
                         {role.id === 'default'
-                          ? 'Стандартный баланс элементов'
+                          ? t('settings.defaultProfile')
                           : role.id === 'researcher'
-                          ? 'Фокус на поиске, зонах и доступных задачах'
+                          ? t('settings.researcherProfile')
                           : role.id === 'architect'
-                          ? 'Фокус на симуляции физики и быстрых действиях'
-                          : `Кликов: ${role.clickCount}`}
+                          ? t('settings.architectProfile')
+                          : t('settings.clicks', { value: role.clickCount })}
                       </span>
                     </div>
                     {isSelected && (
@@ -229,12 +229,12 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
             {isCreating && (
               <form onSubmit={handleCreate} className="p-3.5 bg-neutral-900/70 border border-neutral-800 rounded-lg space-y-3 mt-3">
                 <div className="space-y-1">
-                  <label className="text-[11px] font-semibold text-slate-300">Название профиля:</label>
+                  <label className="text-[11px] font-semibold text-slate-300">{t('settings.profileName')}</label>
                   <input
                     type="text"
                     value={newRoleName}
                     onChange={e => setNewRoleName(e.target.value)}
-                    placeholder="Например: Эксперт RICIS-III"
+                    placeholder={t('settings.profileExample')}
                     autoFocus
                     className="w-full h-10 px-3 bg-neutral-950 border border-neutral-700 rounded-md text-xs text-slate-100 placeholder:text-slate-500 focus:outline-none focus:border-cyan-500"
                   />
@@ -246,21 +246,21 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                     onChange={e => setCloneCurrent(e.target.checked)}
                     className="rounded border-neutral-700 bg-neutral-950 text-cyan-500 focus:ring-0"
                   />
-                  <span>Скопировать настройки текущего профиля</span>
+                  <span>{t('settings.copyCurrent')}</span>
                 </label>
                 <div className="flex items-center gap-2 pt-1">
                   <button
                     type="submit"
                     className="min-h-[36px] px-3.5 bg-cyan-500 hover:bg-cyan-400 text-black font-bold text-xs rounded-md transition-colors"
                   >
-                    Сохранить
+                    {t('settings.save')}
                   </button>
                   <button
                     type="button"
                     onClick={() => { setIsCreating(false); setNewRoleName(''); }}
                     className="min-h-[36px] px-3.5 bg-neutral-800 hover:bg-neutral-700 text-slate-300 font-medium text-xs rounded-md transition-colors"
                   >
-                    Отмена
+                    {t('settings.cancel')}
                   </button>
                 </div>
               </form>
@@ -269,8 +269,8 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 
           {/* System info */}
           <div className="pt-3 border-t border-neutral-800/80 flex items-center justify-between text-[11px] text-slate-500">
-            <span>Ядро: RICIS-III v7.7</span>
-            <span>Панель: Live Drawer</span>
+            <span>{t('settings.coreVersion')}</span>
+            <span>{t('settings.panelLiveDrawer')}</span>
           </div>
         </div>
 
@@ -281,7 +281,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
             onClick={onClose}
             className="min-h-[40px] px-5 bg-neutral-800 hover:bg-neutral-700 text-slate-100 text-xs font-bold rounded-lg transition-colors"
           >
-            Закрыть
+            {t('settings.close')}
           </button>
         </div>
       </div>

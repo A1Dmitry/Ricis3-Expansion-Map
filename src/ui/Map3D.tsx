@@ -81,12 +81,12 @@ import type { RicisCoreStatus } from '../services/ricisCore';
 type PanelId = 'actions' | 'zones' | 'available' | 'agent' | 'persistence';
 
 const UI_ELEMENTS = [
-  { id: 'actions', label: 'Быстрые действия' },
-  { id: 'zones', label: 'Сферы науки' },
-  { id: 'available', label: 'Доступно к решению' },
-  { id: 'agent', label: 'ИИ-Агент и Сервисы' },
-  { id: 'persistence', label: 'Сохранение и Экспорт' },
-];
+  { id: 'actions', label: '', labelKey: 'panel.actions' },
+  { id: 'zones', label: '', labelKey: 'panel.zones' },
+  { id: 'available', label: '', labelKey: 'panel.available' },
+  { id: 'agent', label: '', labelKey: 'panel.agent' },
+  { id: 'persistence', label: '', labelKey: 'panel.persistence' },
+] as const;
 import { isMissingTargetFunction, nodeHasSorry } from '../model/audit';
 import { ActionButton } from './ActionButton';
 
