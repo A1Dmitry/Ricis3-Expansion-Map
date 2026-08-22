@@ -11,6 +11,7 @@ import {
   proxyRicisCoreProofApi,
 } from "./server/ricisCoreSupervisor";
 import { registerCommunityRewardsUnavailableRoutes } from "./server/communityRewardsHttpAdapter";
+import { registerAdminCoreUnavailableRoutes } from "./server/adminCoreUnavailableHttpAdapter";
 
 
 
@@ -602,6 +603,7 @@ ${axiomList}
   // transactional ledger are composed. Register this before SPA fallback so a
   // browser cannot mistake HTML for an authoritative token result.
   registerCommunityRewardsUnavailableRoutes(app);
+  registerAdminCoreUnavailableRoutes(app);
 
   if (process.env.NODE_ENV !== "production") {
     const vite = await createViteServer({

@@ -1,6 +1,10 @@
 # RICIS Expansion Map — интерактивная карта сингулярностей, зависимостей и доказательных границ
 
-**Версия: v0.4.33**
+**Версия: v0.4.34**
+
+### v0.4.34 — Deployment-optional Admin Core availability adapter
+
+Добавлен устойчивый optional Express namespace `/api/admin-core/v1`: если server control plane, identity, registry, fresh-auth, agent channel или compatibility adapter не развернуты, endpoint возвращает versioned typed HTTP `503 backend_unconfigured` без попытки запустить Core, открыть внешний канал, прочитать secret или создать process-memory authority. `IAdminCoreRuntimeCapabilities` является узким injected port; default implementation не зависит от environment/deployment. Offline Express tests проверяют status, nested routes, отсутствие input reflection и безопасный fallback при ошибке capability adapter. Реальная авторизованная регистрация host, mTLS agent и external Core execution по-прежнему отключены.
 
 ### v0.4.33 — Research Roadmap and static-safe Admin Core Connection
 

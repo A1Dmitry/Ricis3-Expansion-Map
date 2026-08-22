@@ -1,14 +1,20 @@
 # Structural Hash Refactoring Report
 
 **Версия формата отчёта:** 0.1.0
-**Релиз приложения:** 0.4.33
+**Релиз приложения:** 0.4.34
 **Дата:** 2026-08-17
 **Источник данных:** `src/**/*.ts` и `src/**/*.tsx` без test-файлов
 **Машинный отчёт:** `structural-hash-report.json`
 
+## Релиз v0.4.34: Optional Admin Core unavailable HTTP boundary
+
+Добавлены isolated `adminCoreRuntimeCapabilities` и `adminCoreUnavailableHttpAdapter`: узкий injected `inspect()` port и stable typed `503` namespace. Adapter не импортирует Core supervisor, network client, process environment/secret, browser state, registry, auth, database или active host routing; `server.ts` регистрирует его рядом с existing unavailable namespaces.
+
 ## Релиз v0.4.33: Roadmap and Admin Core composition boundaries
 
 Добавлен чистый `rootTaskFilter` boundary, который нормализует persisted dependencyIds, parent declarations и visual edges в одно rootward-направление. UI Roadmap использует сервис как read-only adapter и не изменяет proof, Core или trust state.
+
+## Релиз v0.4.33: Admin Core static-safe composition boundary
 
 Добавлен isolated `adminCoreConnection` boundary: browser-safe feature/command/provenance DTO, typed static-unavailable facade и Settings projection. Contract module не импортирует React, Three.js, browser storage, HTTP/network, environment secret, database, crypto или Core singleton; реальная Auth/HostControl server composition остаётся отдельным injected adapter scope.
 

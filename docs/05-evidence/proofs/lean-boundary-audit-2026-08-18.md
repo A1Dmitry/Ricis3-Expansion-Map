@@ -1,8 +1,12 @@
 # Lean boundary audit
 
-**Версия:** 0.4.33
+**Версия:** 0.4.34
 **Дата:** 2026-08-18
 **Цель:** установить проверяемую границу между Lean kernel, статическим анализом TypeScript, независимой символьной проверкой и RICIS-черновиком.
+
+## Релиз v0.4.34
+
+Optional Admin Core `503 backend_unconfigured` transport является operational unavailability state. Capability reason, HTTP response и future route boundary не создают Core calculation, proof, trusted axiom, `LEAN_VERIFIED` или trust-class transition.
 
 ## Релиз v0.4.33
 
