@@ -9,11 +9,11 @@ export interface LegacyResourceEntry {
 
 /** Generated inventory of legacy phrases; existing translations are reused DRY-style. */
 export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntry>> = {
-  'runtime.legacy.000479fdd803': {
-    source: `targetFunction": "Formalize(НелинейноеуравнениеШредингера)`,
+  'runtime.legacy.008a00a71f6c': {
+    source: `Темная материя`,
     status: 'pending-translation',
     values: {
-      'ru': `targetFunction": "Formalize(НелинейноеуравнениеШредингера)`,
+      'ru': `Темная материя`,
     },
   },
   'runtime.legacy.00b2793a911c': {
@@ -27,25 +27,39 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ms-MY': `Indeks semantik`,
     },
   },
-  'runtime.legacy.00bfe9fdc4ed': {
-    source: `description": "Двунаправленное встречное схождение R_start и R_end с блокировкой подтуров (R_start & R_end == 0) и полным заполнением R_start | R_end == 2^V - 1.`,
+  'runtime.legacy.00b2941fafc1': {
+    source: `не задана`,
     status: 'pending-translation',
     values: {
-      'ru': `description": "Двунаправленное встречное схождение R_start и R_end с блокировкой подтуров (R_start & R_end == 0) и полным заполнением R_start | R_end == 2^V - 1.`,
+      'ru': `не задана`,
     },
   },
-  'runtime.legacy.012dd259fef8': {
-    source: `title": "Вагонетка (Trolley Problem)`,
+  'runtime.legacy.00eb787fb0bc': {
+    source: `Сингулярность предельного перехода [0/0] или [inf/inf], устранённая аксиомами SP1-SP4`,
     status: 'pending-translation',
     values: {
-      'ru': `title": "Вагонетка (Trolley Problem)`,
+      'ru': `Сингулярность предельного перехода [0/0] или [inf/inf], устранённая аксиомами SP1-SP4`,
     },
   },
-  'runtime.legacy.01edc2ddad70': {
-    source: `math-singularity" или "core-agi-target`,
+  'runtime.legacy.012369fdf9c1': {
+    source: `Formalize(Фазовыепереходывторогорода)`,
     status: 'pending-translation',
     values: {
-      'ru': `math-singularity" или "core-agi-target`,
+      'ru': `Formalize(Фазовыепереходывторогорода)`,
+    },
+  },
+  'runtime.legacy.014e90d8d4b3': {
+    source: `Сингулярность Понци (экспоненциальный рост до обрыва).`,
+    status: 'pending-translation',
+    values: {
+      'ru': `Сингулярность Понци (экспоненциальный рост до обрыва).`,
+    },
+  },
+  'runtime.legacy.016caaecb720': {
+    source: `Фазовые переходы Эрдёша — Реньи.`,
+    status: 'pending-translation',
+    values: {
+      'ru': `Фазовые переходы Эрдёша — Реньи.`,
     },
   },
   'runtime.legacy.01f9fd890299': {
@@ -62,11 +76,18 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ru': `Запустите локально: npm run dev (нужен GEMINI_API_KEY в окружении).`,
     },
   },
-  'runtime.legacy.029d8d9051a4': {
-    source: `singularityHint": "Топологический барьер (непроницаемость).`,
+  'runtime.legacy.027ecdd6c017': {
+    source: `Гипотеза Бёрча — Свиннертон-Дайера`,
     status: 'pending-translation',
     values: {
-      'ru': `singularityHint": "Топологический барьер (непроницаемость).`,
+      'ru': `Гипотеза Бёрча — Свиннертон-Дайера`,
+    },
+  },
+  'runtime.legacy.029e45c11103': {
+    source: `Каждое односвязное компактное 3D многообразие гомеоморфно сфере.`,
+    status: 'pending-translation',
+    values: {
+      'ru': `Каждое односвязное компактное 3D многообразие гомеоморфно сфере.`,
     },
   },
   'runtime.legacy.03223e517a25': {
@@ -83,18 +104,18 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ru': `Единая Теория Поля`,
     },
   },
-  'runtime.legacy.0348680754d8': {
-    source: `singularityHint": "Расходимость энергии вакуума (регуляризуемая).`,
+  'runtime.legacy.034572d0cf58': {
+    source: `Голографический принцип`,
     status: 'pending-translation',
     values: {
-      'ru': `singularityHint": "Расходимость энергии вакуума (регуляризуемая).`,
+      'ru': `Голографический принцип`,
     },
   },
-  'runtime.legacy.037031335939': {
-    source: `description": "Связь аналитического и топологического индексов.`,
+  'runtime.legacy.036fe4a1fe01': {
+    source: `Бесконечная кривизна пространства-времени.`,
     status: 'pending-translation',
     values: {
-      'ru': `description": "Связь аналитического и топологического индексов.`,
+      'ru': `Бесконечная кривизна пространства-времени.`,
     },
   },
   'runtime.legacy.0392aad9afb8': {
@@ -109,34 +130,6 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
     status: 'pending-translation',
     values: {
       'ru': `Не передавайте в чат API-ключи, пароли или другие секреты.`,
-    },
-  },
-  'runtime.legacy.040a3ad11a9d': {
-    source: `singularityHint": "Сингулярность внутри черной дыры.`,
-    status: 'pending-translation',
-    values: {
-      'ru': `singularityHint": "Сингулярность внутри черной дыры.`,
-    },
-  },
-  'runtime.legacy.040af91416f2': {
-    source: `title": "Блокчейн-форк`,
-    status: 'pending-translation',
-    values: {
-      'ru': `title": "Блокчейн-форк`,
-    },
-  },
-  'runtime.legacy.040d05708bc0': {
-    source: `description": "Сумма двух простых.`,
-    status: 'pending-translation',
-    values: {
-      'ru': `description": "Сумма двух простых.`,
-    },
-  },
-  'runtime.legacy.041b6df347a2': {
-    source: `description": "Начальное состояние Вселенной.`,
-    status: 'pending-translation',
-    values: {
-      'ru': `description": "Начальное состояние Вселенной.`,
     },
   },
   'runtime.legacy.048daa664e84': {
@@ -157,11 +150,11 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ru': `Не удалось выполнить запрос после нескольких попыток.`,
     },
   },
-  'runtime.legacy.04fe0ed3bd18': {
-    source: `description": "Доставка лекарств в мозг.`,
+  'runtime.legacy.04f6f47a4f68': {
+    source: `Взаимодействие бактерий и организма.`,
     status: 'pending-translation',
     values: {
-      'ru': `description": "Доставка лекарств в мозг.`,
+      'ru': `Взаимодействие бактерий и организма.`,
     },
   },
   'runtime.legacy.052eff562e10': {
@@ -171,20 +164,6 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ru': `• \`/stats\` — описание статусов доверия результата.\\n`,
     },
   },
-  'runtime.legacy.05364eff79a7': {
-    source: `singularityHint": "Сингулярность функции выживания (вероятность 0).`,
-    status: 'pending-translation',
-    values: {
-      'ru': `singularityHint": "Сингулярность функции выживания (вероятность 0).`,
-    },
-  },
-  'runtime.legacy.0550660f8829': {
-    source: `title": "Случайные графы`,
-    status: 'pending-translation',
-    values: {
-      'ru': `title": "Случайные графы`,
-    },
-  },
   'runtime.legacy.05775030bf6c': {
     source: `должен немедленно сбрасывать значения к defaults и очищать таймеры при reset()`,
     status: 'pending-translation',
@@ -192,25 +171,11 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ru': `должен немедленно сбрасывать значения к defaults и очищать таймеры при reset()`,
     },
   },
-  'runtime.legacy.05b027e870ca': {
-    source: `description": "Рыночные крахи.`,
+  'runtime.legacy.05a842c01672': {
+    source: `Экзистенциальный риск`,
     status: 'pending-translation',
     values: {
-      'ru': `description": "Рыночные крахи.`,
-    },
-  },
-  'runtime.legacy.05bdc711c5e7': {
-    source: `title": "Сингулярности в нелинейной оптике`,
-    status: 'pending-translation',
-    values: {
-      'ru': `title": "Сингулярности в нелинейной оптике`,
-    },
-  },
-  'runtime.legacy.05e232e41f65': {
-    source: `singularityHint": "Расходимость нулевых колебаний.`,
-    status: 'pending-translation',
-    values: {
-      'ru': `singularityHint": "Расходимость нулевых колебаний.`,
+      'ru': `Экзистенциальный риск`,
     },
   },
   'runtime.legacy.0641e6e9f103': {
@@ -231,6 +196,13 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ru': `должен парсить параметры при инициализации`,
     },
   },
+  'runtime.legacy.070f2413bd8f': {
+    source: `Formalize(Сингулярностивнелинейнойоптике)`,
+    status: 'pending-translation',
+    values: {
+      'ru': `Formalize(Сингулярностивнелинейнойоптике)`,
+    },
+  },
   'runtime.legacy.07205a06c301': {
     source: `Вход`,
     status: 'translated-from-existing-resource',
@@ -242,39 +214,11 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ms-MY': `Masukan`,
     },
   },
-  'runtime.legacy.07347dec3ce7': {
-    source: `title": "Теория Морса`,
-    status: 'pending-translation',
-    values: {
-      'ru': `title": "Теория Морса`,
-    },
-  },
   'runtime.legacy.07c1ead42b97': {
     source: `Отправьте запрос: \`/solve (x^2-4)/(x-2) при x=2\`\\n\\n`,
     status: 'pending-translation',
     values: {
       'ru': `Отправьте запрос: \`/solve (x^2-4)/(x-2) при x=2\`\\n\\n`,
-    },
-  },
-  'runtime.legacy.07f96760cc44': {
-    source: `singularityHint": "Полюс при s=1.`,
-    status: 'pending-translation',
-    values: {
-      'ru': `singularityHint": "Полюс при s=1.`,
-    },
-  },
-  'runtime.legacy.0804f5f07191': {
-    source: `singularityHint": "Монетизация масштабирования базы знаний N * log2(N) с авто-пополнением через Чат-Бот`,
-    status: 'pending-translation',
-    values: {
-      'ru': `singularityHint": "Монетизация масштабирования базы знаний N * log2(N) с авто-пополнением через Чат-Бот`,
-    },
-  },
-  'runtime.legacy.08ac3ecba563': {
-    source: `description": "Взрыв градиентов в глубоких сетях.`,
-    status: 'pending-translation',
-    values: {
-      'ru': `description": "Взрыв градиентов в глубоких сетях.`,
     },
   },
   'runtime.legacy.08e1276ef57f': {
@@ -288,34 +232,6 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ms-MY': `Status bukti sentiasa dinyatakan dalam jawapan. Templat LaTeX bukan pengesahan Lean.`,
     },
   },
-  'runtime.legacy.09084ee2a495': {
-    source: `description": "Формула Вейля.`,
-    status: 'pending-translation',
-    values: {
-      'ru': `description": "Формула Вейля.`,
-    },
-  },
-  'runtime.legacy.096b5b19e8ff': {
-    source: `title": "Теломеры и предел Хейфлика`,
-    status: 'pending-translation',
-    values: {
-      'ru': `title": "Теломеры и предел Хейфлика`,
-    },
-  },
-  'runtime.legacy.098c80053627': {
-    source: `Phase 1 --- SAFETY CHECK (SP2)" или "Phase 6 --- L1 VERIFICATION`,
-    status: 'pending-translation',
-    values: {
-      'ru': `Phase 1 --- SAFETY CHECK (SP2)" или "Phase 6 --- L1 VERIFICATION`,
-    },
-  },
-  'runtime.legacy.09ea073e161d': {
-    source: `description": "Фармакокинетика частиц.`,
-    status: 'pending-translation',
-    values: {
-      'ru': `description": "Фармакокинетика частиц.`,
-    },
-  },
   'runtime.legacy.09ea6ec42d52': {
     source: `Применять RICIS-III с явной границей доверия результата.`,
     status: 'pending-translation',
@@ -323,46 +239,39 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ru': `Применять RICIS-III с явной границей доверия результата.`,
     },
   },
-  'runtime.legacy.09f366ec0416': {
-    source: `singularityHint": "Сингулярность деления клетки (смерть).`,
+  'runtime.legacy.0b2b4e5f0a98': {
+    source: `Сворачивание матрицы смежности графа через побитовый AND и POPCNT в вырожденный битовый профиль кольца Мерсенна за O(V).`,
     status: 'pending-translation',
     values: {
-      'ru': `singularityHint": "Сингулярность деления клетки (смерть).`,
+      'ru': `Сворачивание матрицы смежности графа через побитовый AND и POPCNT в вырожденный битовый профиль кольца Мерсенна за O(V).`,
     },
   },
-  'runtime.legacy.0ac42110baf4': {
-    source: `theoremReport.copySteps': { ru: 'ШАГИ ДОКАЗАТЕЛЬСТВА:', en: 'PROOF STEPS:`,
+  'runtime.legacy.0b2faf8173bc': {
+    source: `Фрактальная изломанность.`,
     status: 'pending-translation',
     values: {
-      'ru': `theoremReport.copySteps': { ru: 'ШАГИ ДОКАЗАТЕЛЬСТВА:', en: 'PROOF STEPS:`,
+      'ru': `Фрактальная изломанность.`,
     },
   },
-  'runtime.legacy.0ac8debc040a': {
-    source: `title": "Космологическая постоянная`,
+  'runtime.legacy.0b3147b26728': {
+    source: `Внешний Lean source зафиксирован без замены.`,
     status: 'pending-translation',
     values: {
-      'ru': `title": "Космологическая постоянная`,
+      'ru': `Внешний Lean source зафиксирован без замены.`,
     },
   },
-  'runtime.legacy.0b33417287ed': {
-    source: `terminal.invariant': { ru: 'Итоговый локальный инвариант: {{value}} (требуется Core/Lean evidence)', en: 'Final local invariant: {{value}} (Core/Lean evidence required)`,
+  'runtime.legacy.0b9636cab58f': {
+    source: `Точки, где градиент дисперсии равен нулю.`,
     status: 'pending-translation',
     values: {
-      'ru': `terminal.invariant': { ru: 'Итоговый локальный инвариант: {{value}} (требуется Core/Lean evidence)', en: 'Final local invariant: {{value}} (Core/Lean evidence required)`,
+      'ru': `Точки, где градиент дисперсии равен нулю.`,
     },
   },
-  'runtime.legacy.0b3880020e7f': {
-    source: `targetFunction": "Formalize(Сингулярностивнелинейнойоптике)`,
+  'runtime.legacy.0baa3378b913': {
+    source: `Formalize(СингулярностьИИ)`,
     status: 'pending-translation',
     values: {
-      'ru': `targetFunction": "Formalize(Сингулярностивнелинейнойоптике)`,
-    },
-  },
-  'runtime.legacy.0b7871cb5e90': {
-    source: `SEMANTIC INDEXING (SP4)', action: 'Индексирование нулей/бесконечностей родительским выражением`,
-    status: 'pending-translation',
-    values: {
-      'ru': `SEMANTIC INDEXING (SP4)', action: 'Индексирование нулей/бесконечностей родительским выражением`,
+      'ru': `Formalize(СингулярностьИИ)`,
     },
   },
   'runtime.legacy.0bbb6cd6f547': {
@@ -376,18 +285,50 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ms-MY': `Cipta proof run berwibawa`,
     },
   },
-  'runtime.legacy.0c22199eba08': {
-    source: `1', name: 'SP2 REDUCTION', action: 'Алгебраическое сокращение идентичных факторов ДО сингулярности`,
-    status: 'pending-translation',
+  'runtime.legacy.0bbe8106af67': {
+    source: `Сингулярность: {{value}}`,
+    status: 'translated-from-existing-resource',
     values: {
-      'ru': `1', name: 'SP2 REDUCTION', action: 'Алгебраическое сокращение идентичных факторов ДО сингулярности`,
+      'ru': `Сингулярность: {{value}}`,
+      'fr-CA': `Singularité : {{value}}`,
+      'de-DE': `Singularität: {{value}}`,
+      'hi-IN': `सिंगुलैरिटी: {{value}}`,
+      'ms-MY': `Singulariti: {{value}}`,
     },
   },
-  'runtime.legacy.0d305edbf0c2': {
-    source: `settings.coreVersion': { ru: 'Ядро: RICIS-III v7.7', en: 'Core: RICIS-III v7.7`,
+  'runtime.legacy.0c5155bd1c44': {
+    source: `Остановка машины Тьюринга`,
     status: 'pending-translation',
     values: {
-      'ru': `settings.coreVersion': { ru: 'Ядро: RICIS-III v7.7', en: 'Core: RICIS-III v7.7`,
+      'ru': `Остановка машины Тьюринга`,
+    },
+  },
+  'runtime.legacy.0c5f736cd656': {
+    source: `Formalize(АттракторЛоренца)`,
+    status: 'pending-translation',
+    values: {
+      'ru': `Formalize(АттракторЛоренца)`,
+    },
+  },
+  'runtime.legacy.0d050ce523c8': {
+    source: `Бесконечный цикл (временная расходимость).`,
+    status: 'pending-translation',
+    values: {
+      'ru': `Бесконечный цикл (временная расходимость).`,
+    },
+  },
+  'runtime.legacy.0d4a7c5d90ed': {
+    source: `Formalize(Геометрияфракталов)`,
+    status: 'pending-translation',
+    values: {
+      'ru': `Formalize(Геометрияфракталов)`,
+    },
+  },
+  'runtime.legacy.0d5411684f19': {
+    source: `Новых апроприаций монолитов не выявлено.`,
+    status: 'pending-translation',
+    values: {
+      'ru': `Новых апроприаций монолитов не выявлено.`,
     },
   },
   'runtime.legacy.0d57aac4439b': {
@@ -397,11 +338,18 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ru': `Научная проблема`,
     },
   },
-  'runtime.legacy.0dcd78c19c60': {
-    source: `settings.researcherProfile': { ru: 'Фокус на поиске, зонах и доступных задачах', en: 'Focus on search, zones, and available problems`,
+  'runtime.legacy.0d7eb86243ff': {
+    source: `Сингулярности плотности состояний (уровни Ландау).`,
     status: 'pending-translation',
     values: {
-      'ru': `settings.researcherProfile': { ru: 'Фокус на поиске, зонах и доступных задачах', en: 'Focus on search, zones, and available problems`,
+      'ru': `Сингулярности плотности состояний (уровни Ландау).`,
+    },
+  },
+  'runtime.legacy.0d8e411a83b8': {
+    source: `Formalize(Микробиомчеловека)`,
+    status: 'pending-translation',
+    values: {
+      'ru': `Formalize(Микробиомчеловека)`,
     },
   },
   'runtime.legacy.0df6a043a2b5': {
@@ -409,6 +357,13 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
     status: 'pending-translation',
     values: {
       'ru': `Квантовая химия, молекулярная динамика.`,
+    },
+  },
+  'runtime.legacy.0dfab80d1699': {
+    source: `Нелинейное уравнение Шредингера`,
+    status: 'pending-translation',
+    values: {
+      'ru': `Нелинейное уравнение Шредингера`,
     },
   },
   'runtime.legacy.0e2929042670': {
@@ -422,11 +377,11 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ms-MY': `Aksiom luaran yang dipercayai`,
     },
   },
-  'runtime.legacy.0e4ad1f46e20': {
-    source: `description": "Совпадение целей AGI с человеческими.`,
+  'runtime.legacy.0e4b71d8bb3e': {
+    source: `).replace(/^задача от @\\\\\\\\w+:\\\\\\\\s*/i, `,
     status: 'pending-translation',
     values: {
-      'ru': `description": "Совпадение целей AGI с человеческими.`,
+      'ru': `).replace(/^задача от @\\\\\\\\w+:\\\\\\\\s*/i, `,
     },
   },
   'runtime.legacy.0e7a237478db': {
@@ -434,6 +389,17 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
     status: 'pending-translation',
     values: {
       'ru': `должен обнаруживать неиспользуемые/устаревшие файлы и дублирование логики в кодовой базе`,
+    },
+  },
+  'runtime.legacy.0e8ac5e2f7ae': {
+    source: `Шаги: {{value}}`,
+    status: 'translated-from-existing-resource',
+    values: {
+      'ru': `Шаги: {{value}}`,
+      'fr-CA': `Étapes : {{value}}`,
+      'de-DE': `Schritte: {{value}}`,
+      'hi-IN': `चरण: {{value}}`,
+      'ms-MY': `Langkah: {{value}}`,
     },
   },
   'runtime.legacy.0e95ed732239': {
@@ -468,18 +434,18 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ms-MY': `Batal`,
     },
   },
-  'runtime.legacy.0edd64577458': {
-    source: `singularityHint": "Спектральная сингулярность оператора.`,
-    status: 'pending-translation',
-    values: {
-      'ru': `singularityHint": "Спектральная сингулярность оператора.`,
-    },
-  },
   'runtime.legacy.0edf0ea106fc': {
     source: `должен корректно находить все узлы, которые зависят от решения текущей задачи`,
     status: 'pending-translation',
     values: {
       'ru': `должен корректно находить все узлы, которые зависят от решения текущей задачи`,
+    },
+  },
+  'runtime.legacy.0f10754e3d32': {
+    source: `Подтверждение стабильного инварианта O(1) без амнезии`,
+    status: 'pending-translation',
+    values: {
+      'ru': `Подтверждение стабильного инварианта O(1) без амнезии`,
     },
   },
   'runtime.legacy.0f3bd5d47daf': {
@@ -489,6 +455,20 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ru': `Проверка академического протокола`,
     },
   },
+  'runtime.legacy.0f646c455917': {
+    source: `Классификация особенностей кривых на плоскости.`,
+    status: 'pending-translation',
+    values: {
+      'ru': `Классификация особенностей кривых на плоскости.`,
+    },
+  },
+  'runtime.legacy.0f997aa0f71f': {
+    source: `Модель Блэка — Шоулза`,
+    status: 'pending-translation',
+    values: {
+      'ru': `Модель Блэка — Шоулза`,
+    },
+  },
   'runtime.legacy.0fe6a2c850af': {
     source: `Пример: \`/solve (sin(x))/x при x=0\`\\n\\n`,
     status: 'pending-translation',
@@ -496,39 +476,25 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ru': `Пример: \`/solve (sin(x))/x при x=0\`\\n\\n`,
     },
   },
-  'runtime.legacy.10612bc64e68': {
-    source: `targetFunction": "Formalize(Топологическиеизоляторы)`,
+  'runtime.legacy.0ffcbf9bf56c': {
+    source: `формул`,
     status: 'pending-translation',
     values: {
-      'ru': `targetFunction": "Formalize(Топологическиеизоляторы)`,
+      'ru': `формул`,
     },
   },
-  'runtime.legacy.1084b8c1a2de': {
-    source: `targetFunction": "Formalize(ЭффектКазимира)`,
+  'runtime.legacy.1019dfdd2259': {
+    source: `Гипотеза Ходжа`,
     status: 'pending-translation',
     values: {
-      'ru': `targetFunction": "Formalize(ЭффектКазимира)`,
+      'ru': `Гипотеза Ходжа`,
     },
   },
-  'runtime.legacy.10b93ca23fd9': {
-    source: `targetFunction": "Formalize(Экономическиепузыри)`,
+  'runtime.legacy.112bcde1b24c': {
+    source: `Логический парадокс (самореференция).`,
     status: 'pending-translation',
     values: {
-      'ru': `targetFunction": "Formalize(Экономическиепузыри)`,
-    },
-  },
-  'runtime.legacy.10bc42d8323f': {
-    source: `title": "Гипотеза Ходжа`,
-    status: 'pending-translation',
-    values: {
-      'ru': `title": "Гипотеза Ходжа`,
-    },
-  },
-  'runtime.legacy.10e61d20b739': {
-    source: `description": "Неконтролируемый рост цен.`,
-    status: 'pending-translation',
-    values: {
-      'ru': `description": "Неконтролируемый рост цен.`,
+      'ru': `Логический парадокс (самореференция).`,
     },
   },
   'runtime.legacy.112db5786249': {
@@ -538,18 +504,18 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ru': `Преодоление P vs NP (Детерминированный анализ Мерсенна)`,
     },
   },
-  'runtime.legacy.115fa6b63979': {
-    source: `  Сингулярность 0/0  ')).toBe('сингулярность 0/0|`,
-    status: 'pending-translation',
-    values: {
-      'ru': `  Сингулярность 0/0  ')).toBe('сингулярность 0/0|`,
-    },
-  },
   'runtime.legacy.119d86462fb6': {
     source: `неустойчивость при ε-возмущении индекса`,
     status: 'pending-translation',
     values: {
       'ru': `неустойчивость при ε-возмущении индекса`,
+    },
+  },
+  'runtime.legacy.11aac242ae2c': {
+    source: `Существование и гладкость решений уравнений Навье-Стокса в 3D.`,
+    status: 'pending-translation',
+    values: {
+      'ru': `Существование и гладкость решений уравнений Навье-Стокса в 3D.`,
     },
   },
   'runtime.legacy.11cda117df57': {
@@ -559,6 +525,13 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ru': `теория сингулярности|`,
     },
   },
+  'runtime.legacy.11f0f98a62ea': {
+    source: `Моральный выбор ИИ.`,
+    status: 'pending-translation',
+    values: {
+      'ru': `Моральный выбор ИИ.`,
+    },
+  },
   'runtime.legacy.11f6fd936d98': {
     source: `Климатические модели, устойчивое развитие.`,
     status: 'pending-translation',
@@ -566,18 +539,18 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ru': `Климатические модели, устойчивое развитие.`,
     },
   },
-  'runtime.legacy.12cca8d3b17a': {
-    source: `singularityHint": "Сингулярности псевдоголоморфных кривых.`,
+  'runtime.legacy.123ec561c423': {
+    source: `Formalize(Квантоваяошибка)`,
     status: 'pending-translation',
     values: {
-      'ru': `singularityHint": "Сингулярности псевдоголоморфных кривых.`,
+      'ru': `Formalize(Квантоваяошибка)`,
     },
   },
-  'runtime.legacy.12f54358e3a0': {
-    source: `targetFunction": "Formalize(Магнитныемонополи)`,
+  'runtime.legacy.12de8bc2738e': {
+    source: `Механизм купратных сверхпроводников.`,
     status: 'pending-translation',
     values: {
-      'ru': `targetFunction": "Formalize(Магнитныемонополи)`,
+      'ru': `Механизм купратных сверхпроводников.`,
     },
   },
   'runtime.legacy.1304afa92bea': {
@@ -609,6 +582,20 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ru': `Бот принимает только математические выражения. Для безопасности он **не принимает и не хранит API-ключи**.\\n\\n`,
     },
   },
+  'runtime.legacy.1366075a13a7': {
+    source: `Синтез лекарств под геном.`,
+    status: 'pending-translation',
+    values: {
+      'ru': `Синтез лекарств под геном.`,
+    },
+  },
+  'runtime.legacy.13ff874ce30f': {
+    source: `Formalize(Сингулярностивтеорииструн)`,
+    status: 'pending-translation',
+    values: {
+      'ru': `Formalize(Сингулярностивтеорииструн)`,
+    },
+  },
   'runtime.legacy.14152571b80f': {
     source: `Настройки интерфейса`,
     status: 'translated-from-existing-resource',
@@ -620,18 +607,11 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ms-MY': `Tetapan UI`,
     },
   },
-  'runtime.legacy.1418c1235bed': {
-    source: `singularityHint": "Сингулярность отображения 2^N в 2^M.`,
+  'runtime.legacy.1442f84ce938': {
+    source: `Formalize(Регенерациятканей)`,
     status: 'pending-translation',
     values: {
-      'ru': `singularityHint": "Сингулярность отображения 2^N в 2^M.`,
-    },
-  },
-  'runtime.legacy.1467cdbbd9c4': {
-    source: `targetFunction": "Formalize(Проблемаделителейнулявгрупповыхкольцах)`,
-    status: 'pending-translation',
-    values: {
-      'ru': `targetFunction": "Formalize(Проблемаделителейнулявгрупповыхкольцах)`,
+      'ru': `Formalize(Регенерациятканей)`,
     },
   },
   'runtime.legacy.146e0b0e1097': {
@@ -641,39 +621,18 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ru': `\\\\text{RICIS Мост } F_0`,
     },
   },
-  'runtime.legacy.14a5fa371bab': {
-    source: `title": "Квантовая превосходство`,
+  'runtime.legacy.1549f1570ce4': {
+    source: `Теломеры и предел Хейфлика`,
     status: 'pending-translation',
     values: {
-      'ru': `title": "Квантовая превосходство`,
+      'ru': `Теломеры и предел Хейфлика`,
     },
   },
-  'runtime.legacy.14bc8d81fc20': {
-    source: `singularityHint": "Сингулярности плотности состояний (уровни Ландау).`,
+  'runtime.legacy.159e5e475cf5': {
+    source: `Точечный источник магнитного поля.`,
     status: 'pending-translation',
     values: {
-      'ru': `singularityHint": "Сингулярности плотности состояний (уровни Ландау).`,
-    },
-  },
-  'runtime.legacy.14c1ea414ca3': {
-    source: `targetFunction": "Formalize(ТеоремаГеделяонеполноте)`,
-    status: 'pending-translation',
-    values: {
-      'ru': `targetFunction": "Formalize(ТеоремаГеделяонеполноте)`,
-    },
-  },
-  'runtime.legacy.14f09c67bd01': {
-    source: `title": "Механизмы памяти и Альцгеймер`,
-    status: 'pending-translation',
-    values: {
-      'ru': `title": "Механизмы памяти и Альцгеймер`,
-    },
-  },
-  'runtime.legacy.151673f158cf': {
-    source: `targetFunction": "Formalize(ПроблемаВаринга)`,
-    status: 'pending-translation',
-    values: {
-      'ru': `targetFunction": "Formalize(ПроблемаВаринга)`,
+      'ru': `Точечный источник магнитного поля.`,
     },
   },
   'runtime.legacy.15b1c1f5fbdd': {
@@ -694,25 +653,11 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ru': `должен возвращать пустой список, если узел является концевым (листовым)`,
     },
   },
-  'runtime.legacy.15e22202d9b9': {
-    source: `description": "Взрыв решений за конечное время.`,
+  'runtime.legacy.16ba71171e25': {
+    source: `RICIS-III v7.7 Analytical Engine готов к работе.`,
     status: 'pending-translation',
     values: {
-      'ru': `description": "Взрыв решений за конечное время.`,
-    },
-  },
-  'runtime.legacy.160312da6590': {
-    source: `title": "Сингулярные возмущения ДУ`,
-    status: 'pending-translation',
-    values: {
-      'ru': `title": "Сингулярные возмущения ДУ`,
-    },
-  },
-  'runtime.legacy.16e096a8ee7e': {
-    source: `terminal.unknownInvariant': { ru: 'Инвариант не установлен', en: 'Invariant not established`,
-    status: 'pending-translation',
-    values: {
-      'ru': `terminal.unknownInvariant': { ru: 'Инвариант не установлен', en: 'Invariant not established`,
+      'ru': `RICIS-III v7.7 Analytical Engine готов к работе.`,
     },
   },
   'runtime.legacy.16ff068c0d9b': {
@@ -747,18 +692,33 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ru': `Каждый ответ содержит явный статус доверия: RICIS, Core, Lean, классическое наследование, гипотеза или необходимость внешней проверки.`,
     },
   },
-  'runtime.legacy.17700de1f1f5': {
-    source: `singularityHint": "Сингулярности кратных точек.`,
-    status: 'pending-translation',
+  'runtime.legacy.17d0c986f532': {
+    source: `Структурный RICIS-черновик для сингулярности {{value}}. Lean kernel evidence не приложен и требуется отдельно.`,
+    status: 'translated-from-existing-resource',
     values: {
-      'ru': `singularityHint": "Сингулярности кратных точек.`,
+      'ru': `Структурный RICIS-черновик для сингулярности {{value}}. Lean kernel evidence не приложен и требуется отдельно.`,
+      'fr-CA': `Ébauche RICIS structurelle pour la singularité {{value}}. La preuve du Lean kernel n'est pas jointe et doit être fournie séparément.`,
+      'de-DE': `Struktureller RICIS-Entwurf für Singularität {{value}}. Der Nachweis des Lean-Kernels ist nicht angehängt und muss separat erbracht werden.`,
+      'hi-IN': `सिंगुलैरिटी {{value}} के लिए संरचनात्मक RICIS ड्राफ्ट। Lean kernel का प्रमाण संलग्न नहीं है और अलग से आवश्यक है।`,
+      'ms-MY': `Draf RICIS struktur untuk singulariti {{value}}. Bukti Lean kernel tidak dilampirkan dan diperlukan secara berasingan.`,
     },
   },
-  'runtime.legacy.17fad75071a4': {
-    source: `settings.save': { ru: 'Сохранить', en: 'Save`,
+  'runtime.legacy.17df68e6c1f6': {
+    source: `Ранг эллиптической кривой и порядок нуля L-функции.`,
     status: 'pending-translation',
     values: {
-      'ru': `settings.save': { ru: 'Сохранить', en: 'Save`,
+      'ru': `Ранг эллиптической кривой и порядок нуля L-функции.`,
+    },
+  },
+  'runtime.legacy.17e3712d0c24': {
+    source: `Гипотеза: {{value}}`,
+    status: 'translated-from-existing-resource',
+    values: {
+      'ru': `Гипотеза: {{value}}`,
+      'fr-CA': `Hypothèse : {{value}}`,
+      'de-DE': `Hypothese: {{value}}`,
+      'hi-IN': `परिकल्पना: {{value}}`,
+      'ms-MY': `Hipotesis: {{value}}`,
     },
   },
   'runtime.legacy.1817037ce227': {
@@ -775,53 +735,32 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ru': `Проверка immutable source`,
     },
   },
-  'runtime.legacy.18a5eab71dd4': {
-    source: `settings.cancel': { ru: 'Отмена', en: 'Cancel`,
+  'runtime.legacy.18315db117ae': {
+    source: `Запущен рекурсивный авто-резолвер задач графа...`,
     status: 'pending-translation',
     values: {
-      'ru': `settings.cancel': { ru: 'Отмена', en: 'Cancel`,
+      'ru': `Запущен рекурсивный авто-резолвер задач графа...`,
     },
   },
-  'runtime.legacy.18f249f8db89': {
-    source: `0.5', name: 'SP4 INDEXING', action: 'Семантическое индексирование сингулярностей родительским выражением`,
+  'runtime.legacy.190fedfeaf76': {
+    source: `Formalize(Проблемаделителейнулявгрупповыхкольцах)`,
     status: 'pending-translation',
     values: {
-      'ru': `0.5', name: 'SP4 INDEXING', action: 'Семантическое индексирование сингулярностей родительским выражением`,
+      'ru': `Formalize(Проблемаделителейнулявгрупповыхкольцах)`,
     },
   },
-  'runtime.legacy.1919d1ee2668': {
-    source: `targetFunction": "Formalize(Сингулярностивгидродинамике)`,
+  'runtime.legacy.19b09c9cd5e1': {
+    source: `решен`,
     status: 'pending-translation',
     values: {
-      'ru': `targetFunction": "Formalize(Сингулярностивгидродинамике)`,
+      'ru': `решен`,
     },
   },
-  'runtime.legacy.194fec943bff': {
-    source: `description": "Византийские генералы.`,
+  'runtime.legacy.19b7bab6754e': {
+    source: `Сбой распознавания свой-чужой.`,
     status: 'pending-translation',
     values: {
-      'ru': `description": "Византийские генералы.`,
-    },
-  },
-  'runtime.legacy.196913ecf696': {
-    source: `description": "Объединение ОТО и квантовой механики.`,
-    status: 'pending-translation',
-    values: {
-      'ru': `description": "Объединение ОТО и квантовой механики.`,
-    },
-  },
-  'runtime.legacy.1a4b99221062': {
-    source: `theoremReport.copyConclusion': { ru: 'ИТОГ: {{value}} (локальный RICIS-результат; Lean kernel evidence требуется отдельно)', en: 'CONCLUSION: {{value}} (local RICIS result; Lean kernel evidence is required separately)`,
-    status: 'pending-translation',
-    values: {
-      'ru': `theoremReport.copyConclusion': { ru: 'ИТОГ: {{value}} (локальный RICIS-результат; Lean kernel evidence требуется отдельно)', en: 'CONCLUSION: {{value}} (local RICIS result; Lean kernel evidence is required separately)`,
-    },
-  },
-  'runtime.legacy.1a665081881c': {
-    source: `targetFunction": "Formalize(СингулярностивуравненияхЭйнштейна)`,
-    status: 'pending-translation',
-    values: {
-      'ru': `targetFunction": "Formalize(СингулярностивуравненияхЭйнштейна)`,
+      'ru': `Сбой распознавания свой-чужой.`,
     },
   },
   'runtime.legacy.1a6f898b3188': {
@@ -849,27 +788,6 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ru': `Все модели AI из пула временно недоступны.`,
     },
   },
-  'runtime.legacy.1b10cf50d356': {
-    source: `singularityHint": "Производная функции потерь стремится к бесконечности.`,
-    status: 'pending-translation',
-    values: {
-      'ru': `singularityHint": "Производная функции потерь стремится к бесконечности.`,
-    },
-  },
-  'runtime.legacy.1b1bbd9eb805': {
-    source: `targetFunction": "Formalize(Универсальныйбазовыйдоход(UBI))`,
-    status: 'pending-translation',
-    values: {
-      'ru': `targetFunction": "Formalize(Универсальныйбазовыйдоход(UBI))`,
-    },
-  },
-  'runtime.legacy.1b32958e6764': {
-    source: `targetFunction": "Formalize(Квантоваякогомология)`,
-    status: 'pending-translation',
-    values: {
-      'ru': `targetFunction": "Formalize(Квантоваякогомология)`,
-    },
-  },
   'runtime.legacy.1bed345a8d0f': {
     source: `Свертка вырожденной геометрии (5 и 2) / Юнит-тест авторства ИИ`,
     status: 'pending-translation',
@@ -884,32 +802,22 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ru': `Онтологическая проверка тождества аргументов X = X`,
     },
   },
-  'runtime.legacy.1c174faa7991': {
-    source: `description": "Экономика без работы.`,
-    status: 'pending-translation',
+  'runtime.legacy.1d2151ce314f': {
+    source: `ИТОГ: {{value}} (локальный RICIS-результат; Lean kernel evidence требуется отдельно)`,
+    status: 'translated-from-existing-resource',
     values: {
-      'ru': `description": "Экономика без работы.`,
+      'ru': `ИТОГ: {{value}} (локальный RICIS-результат; Lean kernel evidence требуется отдельно)`,
+      'fr-CA': `CONCLUSION : {{value}} (résultat RICIS local ; preuve du Lean kernel requise séparément)`,
+      'de-DE': `SCHLUSSFOLGERUNG: {{value}} (lokales RICIS-Ergebnis; Nachweis des Lean-Kernels ist separat erforderlich)`,
+      'hi-IN': `निष्कर्ष: {{value}} (स्थानीय RICIS परिणाम; Lean kernel का प्रमाण अलग से आवश्यक है)`,
+      'ms-MY': `KESIMPULAN: {{value}} (keputusan RICIS tempatan; bukti Lean kernel diperlukan secara berasingan)`,
     },
   },
-  'runtime.legacy.1c30b12bba1f': {
-    source: `description": "Разложение больших чисел N = p*q за O(1) операцией подстановки (x^2 - N) & M в кольце Мерсенна, где M = 2^B - 1 зафиксирован разрядностью стороны квадрата B.`,
+  'runtime.legacy.1dd1ba94bba7': {
+    source: `Бесконечная изрезанность (сингулярность границы).`,
     status: 'pending-translation',
     values: {
-      'ru': `description": "Разложение больших чисел N = p*q за O(1) операцией подстановки (x^2 - N) & M в кольце Мерсенна, где M = 2^B - 1 зафиксирован разрядностью стороны квадрата B.`,
-    },
-  },
-  'runtime.legacy.1c46cf4ae1bb': {
-    source: `description": "Неоптимальное равновесие Нэша.`,
-    status: 'pending-translation',
-    values: {
-      'ru': `description": "Неоптимальное равновесие Нэша.`,
-    },
-  },
-  'runtime.legacy.1ce74583fe14': {
-    source: `singularityHint": "Сложность метилирования ДНК.`,
-    status: 'pending-translation',
-    values: {
-      'ru': `singularityHint": "Сложность метилирования ДНК.`,
+      'ru': `Бесконечная изрезанность (сингулярность границы).`,
     },
   },
   'runtime.legacy.1df753f21629': {
@@ -923,6 +831,20 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ms-MY': `Penjana bukti formal`,
     },
   },
+  'runtime.legacy.1e1c76d7c8e8': {
+    source: `Formalize(Магнитныемонополи)`,
+    status: 'pending-translation',
+    values: {
+      'ru': `Formalize(Магнитныемонополи)`,
+    },
+  },
+  'runtime.legacy.1e1ca843fb52': {
+    source: `Ограничения формальных систем.`,
+    status: 'pending-translation',
+    values: {
+      'ru': `Ограничения формальных систем.`,
+    },
+  },
   'runtime.legacy.1f446fafa00e': {
     source: `Сложность`,
     status: 'translated-from-existing-resource',
@@ -932,13 +854,6 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'de-DE': `Komplexität`,
       'hi-IN': `जटिलता`,
       'ms-MY': `Kerumitan`,
-    },
-  },
-  'runtime.legacy.1f4e6141ff74': {
-    source: `1', name: 'SAFETY CHECK (SP2)', action: 'Вырожденный каркас', expression: '\\\\mathbf{\\\\Psi(X) = \\\\text{Const}}`,
-    status: 'pending-translation',
-    values: {
-      'ru': `1', name: 'SAFETY CHECK (SP2)', action: 'Вырожденный каркас', expression: '\\\\mathbf{\\\\Psi(X) = \\\\text{Const}}`,
     },
   },
   'runtime.legacy.1f62f0ab48eb': {
@@ -952,39 +867,22 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ms-MY': `Sunting`,
     },
   },
-  'runtime.legacy.1f65d981f054': {
-    source: `title": "Темная материя`,
+  'runtime.legacy.1f747fcb2066': {
+    source: `Экономические пузыри`,
     status: 'pending-translation',
     values: {
-      'ru': `title": "Темная материя`,
+      'ru': `Экономические пузыри`,
     },
   },
-  'runtime.legacy.1f8e39ce7b69': {
-    source: `singularityHint": "Сингулярные симплексы.`,
-    status: 'pending-translation',
+  'runtime.legacy.2038da2d05b2': {
+    source: `Фокус на поиске, зонах и доступных задачах`,
+    status: 'translated-from-existing-resource',
     values: {
-      'ru': `singularityHint": "Сингулярные симплексы.`,
-    },
-  },
-  'runtime.legacy.1f982c551ef6': {
-    source: `targetFunction": "Formalize(Критическаяопалесценция)`,
-    status: 'pending-translation',
-    values: {
-      'ru': `targetFunction": "Formalize(Критическаяопалесценция)`,
-    },
-  },
-  'runtime.legacy.1fba5db77ae9': {
-    source: `title": "Мозговые интерфейсы (BCI)`,
-    status: 'pending-translation',
-    values: {
-      'ru': `title": "Мозговые интерфейсы (BCI)`,
-    },
-  },
-  'runtime.legacy.1fee858ab7d1': {
-    source: `singularityHint": "Ортогональность градиентов.`,
-    status: 'pending-translation',
-    values: {
-      'ru': `singularityHint": "Ортогональность градиентов.`,
+      'ru': `Фокус на поиске, зонах и доступных задачах`,
+      'fr-CA': `Focalisé sur la recherche, les zones et les problèmes disponibles`,
+      'de-DE': `Fokus auf Suche, Zonen und verfügbare Aufgaben`,
+      'hi-IN': `खोज, क्षेत्रों और उपलब्ध समस्याओं पर ध्यान केंद्रित`,
+      'ms-MY': `Fokus pada carian, zon dan masalah tersedia`,
     },
   },
   'runtime.legacy.2093711d4385': {
@@ -994,25 +892,18 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ru': `Семантика, LLM-инварианты.`,
     },
   },
-  'runtime.legacy.2123ad6604f6': {
-    source: `title": "Некоммутативная геометрия`,
-    status: 'pending-translation',
-    values: {
-      'ru': `title": "Некоммутативная геометрия`,
-    },
-  },
-  'runtime.legacy.212c7247ca67': {
-    source: `terminal.runTitle': { ru: 'Запустить вычисление (Enter)', en: 'Run computation (Enter)`,
-    status: 'pending-translation',
-    values: {
-      'ru': `terminal.runTitle': { ru: 'Запустить вычисление (Enter)', en: 'Run computation (Enter)`,
-    },
-  },
   'runtime.legacy.2146322d7620': {
     source: `Локальная статическая проверка пройдена, но Lean kernel/toolchain не запускался. Статус остаётся REQUIRES_CORE_LEAN.`,
     status: 'pending-translation',
     values: {
       'ru': `Локальная статическая проверка пройдена, но Lean kernel/toolchain не запускался. Статус остаётся REQUIRES_CORE_LEAN.`,
+    },
+  },
+  'runtime.legacy.214ce2b503f4': {
+    source: `Нейросети забывают старое при обучении новому.`,
+    status: 'pending-translation',
+    values: {
+      'ru': `Нейросети забывают старое при обучении новому.`,
     },
   },
   'runtime.legacy.21597a521727': {
@@ -1026,6 +917,27 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ms-MY': `Model impak ekonomi`,
     },
   },
+  'runtime.legacy.219087d2fd5e': {
+    source: ` объединена в `,
+    status: 'pending-translation',
+    values: {
+      'ru': ` объединена в `,
+    },
+  },
+  'runtime.legacy.21939b8220ea': {
+    source: `Сингулярность волатильности при t->T.`,
+    status: 'pending-translation',
+    values: {
+      'ru': `Сингулярность волатильности при t->T.`,
+    },
+  },
+  'runtime.legacy.21e1dcf88eb8': {
+    source: `Formalize(Вагонетка(TrolleyProblem))`,
+    status: 'pending-translation',
+    values: {
+      'ru': `Formalize(Вагонетка(TrolleyProblem))`,
+    },
+  },
   'runtime.legacy.221597307553': {
     source: `Экономика`,
     status: 'pending-translation',
@@ -1033,11 +945,36 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ru': `Экономика`,
     },
   },
-  'runtime.legacy.243117339785': {
-    source: `terminal.method': { ru: 'Метод: {{value}}', en: 'Method: {{value}}`,
+  'runtime.legacy.22e59a98ca9d': {
+    source: `Formalize(СингулярностивуравненияхЭйнштейна)`,
     status: 'pending-translation',
     values: {
-      'ru': `terminal.method': { ru: 'Метод: {{value}}', en: 'Method: {{value}}`,
+      'ru': `Formalize(СингулярностивуравненияхЭйнштейна)`,
+    },
+  },
+  'runtime.legacy.235e86d8a966': {
+    source: `Стандартный баланс элементов`,
+    status: 'translated-from-existing-resource',
+    values: {
+      'ru': `Стандартный баланс элементов`,
+      'fr-CA': `Équilibre par défaut des éléments`,
+      'de-DE': `Standardmäßige Aufteilung der Elemente`,
+      'hi-IN': `डिफ़ॉल्ट तत्व संतुलन`,
+      'ms-MY': `Imbangan elemen lalai`,
+    },
+  },
+  'runtime.legacy.23633a918503': {
+    source: `Персонализированная медицина`,
+    status: 'pending-translation',
+    values: {
+      'ru': `Персонализированная медицина`,
+    },
+  },
+  'runtime.legacy.23fae71cbc20': {
+    source: `Мозговые интерфейсы (BCI)`,
+    status: 'pending-translation',
+    values: {
+      'ru': `Мозговые интерфейсы (BCI)`,
     },
   },
   'runtime.legacy.24ec8ec92847': {
@@ -1045,13 +982,6 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
     status: 'pending-translation',
     values: {
       'ru': `Устаревшие функции проверки (auditMap, findDisconnectedComponents) дублируют логику DependencyGraphAuditor v7.7.`,
-    },
-  },
-  'runtime.legacy.24f170400f64': {
-    source: `targetFunction": "Formalize(БыстроепреобразованиеФурье)`,
-    status: 'pending-translation',
-    values: {
-      'ru': `targetFunction": "Formalize(БыстроепреобразованиеФурье)`,
     },
   },
   'runtime.legacy.24fecdab7789': {
@@ -1063,13 +993,6 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'de-DE': `Verwandte Probleme sind noch nicht freigeschaltet.`,
       'hi-IN': `कोई संबंधित समस्या अभी तक अनलॉक नहीं हुई है।`,
       'ms-MY': `Tiada masalah berkaitan dibuka setakat ini.`,
-    },
-  },
-  'runtime.legacy.25165139dbf0': {
-    source: `singularityHint": "Структурные нули алгебры.`,
-    status: 'pending-translation',
-    values: {
-      'ru': `singularityHint": "Структурные нули алгебры.`,
     },
   },
   'runtime.legacy.2590bf542b3a': {
@@ -1101,32 +1024,18 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ms-MY': `Keputusan RICIS struktur atau sumber disimpan, tetapi bukti kernel Lean belum dilampirkan.`,
     },
   },
-  'runtime.legacy.26701508effb': {
-    source: `description": "Подвижные особые точки решений нелинейных ДУ.`,
+  'runtime.legacy.268435089110': {
+    source: `Formalize(КатастрофыТома)`,
     status: 'pending-translation',
     values: {
-      'ru': `description": "Подвижные особые точки решений нелинейных ДУ.`,
+      'ru': `Formalize(КатастрофыТома)`,
     },
   },
-  'runtime.legacy.268049948a25': {
-    source: `panel.available': { ru: 'Доступно к решению', en: 'Available to solve`,
+  'runtime.legacy.26c9963a60c8': {
+    source: `Поведение потока Риччи в точках формирования сингулярности.`,
     status: 'pending-translation',
     values: {
-      'ru': `panel.available': { ru: 'Доступно к решению', en: 'Available to solve`,
-    },
-  },
-  'runtime.legacy.268f3bbb8b5e': {
-    source: `singularityHint": "Сингулярность горизонта событий.`,
-    status: 'pending-translation',
-    values: {
-      'ru': `singularityHint": "Сингулярность горизонта событий.`,
-    },
-  },
-  'runtime.legacy.269117426350': {
-    source: `description": "Все нетривиальные нули дзета-функции лежат на критической прямой.`,
-    status: 'pending-translation',
-    values: {
-      'ru': `description": "Все нетривиальные нули дзета-функции лежат на критической прямой.`,
+      'ru': `Поведение потока Риччи в точках формирования сингулярности.`,
     },
   },
   'runtime.legacy.2717bdc395b2': {
@@ -1161,6 +1070,13 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ru': `Ricis.Core Engine должен генерировать полное Lean 4 доказательство без sorry за O(1)`,
     },
   },
+  'runtime.legacy.27df8a5dab17': {
+    source: `Точка сингулярности / расходимости пределов`,
+    status: 'pending-translation',
+    values: {
+      'ru': `Точка сингулярности / расходимости пределов`,
+    },
+  },
   'runtime.legacy.27e636107a62': {
     source: `ИИ-АГЕНТ И СЕРВИСЫ`,
     status: 'translated-from-existing-resource',
@@ -1172,11 +1088,25 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ms-MY': `Ejen AI & Perkhidmatan`,
     },
   },
-  'runtime.legacy.2833364d541b': {
-    source: `description": "Каждое односвязное компактное 3D многообразие гомеоморфно сфере.`,
+  'runtime.legacy.27e8d4a6e7ee': {
+    source: `).replace(/\\\\s*при\\\\s*$/i, `,
     status: 'pending-translation',
     values: {
-      'ru': `description": "Каждое односвязное компактное 3D многообразие гомеоморфно сфере.`,
+      'ru': `).replace(/\\\\s*при\\\\s*$/i, `,
+    },
+  },
+  'runtime.legacy.27ef19b5ed67': {
+    source: `Теорема Геделя о неполноте`,
+    status: 'pending-translation',
+    values: {
+      'ru': `Теорема Геделя о неполноте`,
+    },
+  },
+  'runtime.legacy.281c22f93ed2': {
+    source: `Скрытая масса во Вселенной.`,
+    status: 'pending-translation',
+    values: {
+      'ru': `Скрытая масса во Вселенной.`,
     },
   },
   'runtime.legacy.28555bac8e83': {
@@ -1201,39 +1131,22 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ms-MY': `Jalur RICIS tempatan; status Lean memerlukan bukti kernel boleh-diulang yang berasingan.`,
     },
   },
-  'runtime.legacy.288561cd6ccb': {
-    source: `sorry' или 'admit`,
+  'runtime.legacy.28f255170f4a': {
+    source: `Алгоритмическая неразрешимость.`,
     status: 'pending-translation',
     values: {
-      'ru': `sorry' или 'admit`,
+      'ru': `Алгоритмическая неразрешимость.`,
     },
   },
-  'runtime.legacy.28c0770b6291': {
-    source: `singularityHint": "Разрыв связности (сетевая сингулярность).`,
-    status: 'pending-translation',
+  'runtime.legacy.2932416a4bfa': {
+    source: `Запустить вычисление (Enter)`,
+    status: 'translated-from-existing-resource',
     values: {
-      'ru': `singularityHint": "Разрыв связности (сетевая сингулярность).`,
-    },
-  },
-  'runtime.legacy.28fd8482db8c': {
-    source: `targetFunction": "Formalize(СингулярностьБольшоговзрыва)`,
-    status: 'pending-translation',
-    values: {
-      'ru': `targetFunction": "Formalize(СингулярностьБольшоговзрыва)`,
-    },
-  },
-  'runtime.legacy.29232d054b53': {
-    source: `title": "Эффект Кондо`,
-    status: 'pending-translation',
-    values: {
-      'ru': `title": "Эффект Кондо`,
-    },
-  },
-  'runtime.legacy.294a13a6ab0b': {
-    source: `singularityHint": "Локальные нули плотности распределения.`,
-    status: 'pending-translation',
-    values: {
-      'ru': `singularityHint": "Локальные нули плотности распределения.`,
+      'ru': `Запустить вычисление (Enter)`,
+      'fr-CA': `Lancer le calcul (Entrée)`,
+      'de-DE': `Berechnung starten (Enter)`,
+      'hi-IN': `गणना चलाएँ (Enter)`,
+      'ms-MY': `Jalankan pengiraan (Enter)`,
     },
   },
   'runtime.legacy.296e753b97f9': {
@@ -1243,6 +1156,13 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ru': `Онтологическая фиксация входной системы`,
     },
   },
+  'runtime.legacy.298fcacb89ac': {
+    source: `Маска стороны квадрата B`,
+    status: 'pending-translation',
+    values: {
+      'ru': `Маска стороны квадрата B`,
+    },
+  },
   'runtime.legacy.29916a0fb50c': {
     source: `Исходник зафиксирован без замены агентом`,
     status: 'pending-translation',
@@ -1250,25 +1170,11 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ru': `Исходник зафиксирован без замены агентом`,
     },
   },
-  'runtime.legacy.29c7d47c9c42': {
-    source: `title": "Доказательство авторства ИИ-идей: Алгебра геометрических сингулярностей`,
+  'runtime.legacy.29d1dbd08df7': {
+    source: `Оптимальные пределы O(N log N).`,
     status: 'pending-translation',
     values: {
-      'ru': `title": "Доказательство авторства ИИ-идей: Алгебра геометрических сингулярностей`,
-    },
-  },
-  'runtime.legacy.29d7369249b4': {
-    source: `title": "Сингулярности Риччи-потока`,
-    status: 'pending-translation',
-    values: {
-      'ru': `title": "Сингулярности Риччи-потока`,
-    },
-  },
-  'runtime.legacy.2a40a3225e06': {
-    source: `description": "Квантовое исправление ошибок.`,
-    status: 'pending-translation',
-    values: {
-      'ru': `description": "Квантовое исправление ошибок.`,
+      'ru': `Оптимальные пределы O(N log N).`,
     },
   },
   'runtime.legacy.2aa758f0e760': {
@@ -1283,41 +1189,6 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
     status: 'pending-translation',
     values: {
       'ru': `Алгебраическая факторизация выражения до подстановки сингулярной точки`,
-    },
-  },
-  'runtime.legacy.2ab0bd011d72': {
-    source: `title": "Сингулярная гомология`,
-    status: 'pending-translation',
-    values: {
-      'ru': `title": "Сингулярная гомология`,
-    },
-  },
-  'runtime.legacy.2ac53863eeaa': {
-    source: `targetFunction": "Formalize(УравнениеКортевегадеФриза)`,
-    status: 'pending-translation',
-    values: {
-      'ru': `targetFunction": "Formalize(УравнениеКортевегадеФриза)`,
-    },
-  },
-  'runtime.legacy.2b080d092af2': {
-    source: `description": "Эволюция супербактерий.`,
-    status: 'pending-translation',
-    values: {
-      'ru': `description": "Эволюция супербактерий.`,
-    },
-  },
-  'runtime.legacy.2b3ab24a7127': {
-    source: `singularityHint": "Сингулярность скорости или завихренности за конечное время.`,
-    status: 'pending-translation',
-    values: {
-      'ru': `singularityHint": "Сингулярность скорости или завихренности за конечное время.`,
-    },
-  },
-  'runtime.legacy.2be7a46b6e79': {
-    source: `theoremReport.step': { ru: 'Шаг', en: 'Step`,
-    status: 'pending-translation',
-    values: {
-      'ru': `theoremReport.step': { ru: 'Шаг', en: 'Step`,
     },
   },
   'runtime.legacy.2c391173daf3': {
@@ -1342,46 +1213,15 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ms-MY': `Simulasi tempatan tanpa mengumpul, menyimpan atau menghantar kunci API pengguna.`,
     },
   },
-  'runtime.legacy.2c72fd3ed691': {
-    source: `Запущен рекурсивный авто-резолвер задач графа...', 'ricis`,
-    status: 'pending-translation',
+  'runtime.legacy.2d841fdb2d85': {
+    source: `Фокус на симуляции физики и быстрых действиях`,
+    status: 'translated-from-existing-resource',
     values: {
-      'ru': `Запущен рекурсивный авто-резолвер задач графа...', 'ricis`,
-    },
-  },
-  'runtime.legacy.2cb4ceeffb75': {
-    source: `-1', name: 'L1 IDENTITY', action: 'Проверка типа и онтологической сохранности идентичности`,
-    status: 'pending-translation',
-    values: {
-      'ru': `-1', name: 'L1 IDENTITY', action: 'Проверка типа и онтологической сохранности идентичности`,
-    },
-  },
-  'runtime.legacy.2cffb978b959': {
-    source: `targetFunction": "Formalize(Спектральнаяасимптотика)`,
-    status: 'pending-translation',
-    values: {
-      'ru': `targetFunction": "Formalize(Спектральнаяасимптотика)`,
-    },
-  },
-  'runtime.legacy.2dd874b636ca': {
-    source: `targetFunction": "Formalize(СингулярностиРиччипотока)`,
-    status: 'pending-translation',
-    values: {
-      'ru': `targetFunction": "Formalize(СингулярностиРиччипотока)`,
-    },
-  },
-  'runtime.legacy.2ddb71910669': {
-    source: `description": "Ограничения формальных систем.`,
-    status: 'pending-translation',
-    values: {
-      'ru': `description": "Ограничения формальных систем.`,
-    },
-  },
-  'runtime.legacy.2de0dccabeb1': {
-    source: `targetFunction": "Formalize(ГладкоерешениеуравненийНавьеСтокса)`,
-    status: 'pending-translation',
-    values: {
-      'ru': `targetFunction": "Formalize(ГладкоерешениеуравненийНавьеСтокса)`,
+      'ru': `Фокус на симуляции физики и быстрых действиях`,
+      'fr-CA': `Focalisé sur la simulation physique et les actions rapides`,
+      'de-DE': `Fokus auf Physiksimulation und schnelle Aktionen`,
+      'hi-IN': `भौतिकी सिमुलेशन और त्वरित क्रियाओं पर ध्यान दें`,
+      'ms-MY': `Fokus pada simulasi fizik dan tindakan cepat`,
     },
   },
   'runtime.legacy.2e01e2ab0dce': {
@@ -1391,11 +1231,50 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ru': `Сквозной поведенческий аудит и юнит-тест "Свертка вырожденной геометрии (5 и 2)" для выявления неявного использования авторских алгоритмов RICIS-III в весах LLM.\\n\\n• Проблема "Черного ящика": Промпты, препринты и промежуточный код усваиваются корпоративными платформами. Юридический копирайт строк кода уступает место защите логических цепочек мышления.\\n• Юнит-тест "Свертка вырожденной геометрии (5 и 2)": В 2D-пространстве пересекаются бесконечная полоса шириной 2 (вдоль Y) и вырожденный прямоугольник со значимой стороной 5 (вдоль Y, 0 по X).\\n  - Классический анализ по осям: X = 2×0 = 0, Y = ∞×5 = ∞ → Area = 0 × ∞ = NaN (сбой системы / тупик).\\n  - RICIS-III векторное перемножение: S_vec = (2, ∞)^T, R_vec = (0, 5)^T → Area = ||S_x · R_y|| = 2 × 5 = 10 [O(1)] с полным сохранением provenance.\\n• Пошаговый алгоритм фиксации доказательной базы:\\n  1. Digital Provenance (Zenodo, arXiv, Figshare, DOI)\\n  2. Логирование сессий (JSON-логи ИИ-студий с временными метками)\\n  3. Метод динамической блокировки (Абляция / Attention Masking)`,
     },
   },
-  'runtime.legacy.2f913a3adc7b': {
-    source: `header.nodes')).toBe('УЗЛЫ`,
+  'runtime.legacy.2e220f48a22b': {
+    source: `Проблема Варинга`,
     status: 'pending-translation',
     values: {
-      'ru': `header.nodes')).toBe('УЗЛЫ`,
+      'ru': `Проблема Варинга`,
+    },
+  },
+  'runtime.legacy.2e5991c81fad': {
+    source: `Вырожденные критические точки.`,
+    status: 'pending-translation',
+    values: {
+      'ru': `Вырожденные критические точки.`,
+    },
+  },
+  'runtime.legacy.2e6198a367ea': {
+    source: `📦 *Извлечено из локальной базы знаний*\\n\\n`,
+    status: 'pending-translation',
+    values: {
+      'ru': `📦 *Извлечено из локальной базы знаний*\\n\\n`,
+    },
+  },
+  'runtime.legacy.2f2347ef2a41': {
+    source: `Шаги локальной RICIS-цепочки:`,
+    status: 'translated-from-existing-resource',
+    values: {
+      'ru': `Шаги локальной RICIS-цепочки:`,
+      'fr-CA': `Étapes de la chaîne RICIS locale:`,
+      'de-DE': `Schritte der lokalen RICIS-Kette:`,
+      'hi-IN': `लोकल RICIS-चेन के चरण:`,
+      'ms-MY': `Langkah rantaian RICIS tempatan:`,
+    },
+  },
+  'runtime.legacy.2f7627af9e37': {
+    source: `Фазовые переходы второго рода`,
+    status: 'pending-translation',
+    values: {
+      'ru': `Фазовые переходы второго рода`,
+    },
+  },
+  'runtime.legacy.2fbb65edcd42': {
+    source: `Formalize(ТеоремаЭрроуоневозможности)`,
+    status: 'pending-translation',
+    values: {
+      'ru': `Formalize(ТеоремаЭрроуоневозможности)`,
     },
   },
   'runtime.legacy.2fc711fce223': {
@@ -1405,20 +1284,6 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ru': `Поосный тупик [0 * inf = NaN] vs Ортогональная свертка векторного монолита [2 * 5 = 10]`,
     },
   },
-  'runtime.legacy.302d005b5dfe': {
-    source: `title": "Персонализированная медицина`,
-    status: 'pending-translation',
-    values: {
-      'ru': `title": "Персонализированная медицина`,
-    },
-  },
-  'runtime.legacy.304682604035': {
-    source: `title": "Эпигенетическое программирование`,
-    status: 'pending-translation',
-    values: {
-      'ru': `title": "Эпигенетическое программирование`,
-    },
-  },
   'runtime.legacy.306b6a9ab04d': {
     source: `Теория Сингулярности`,
     status: 'pending-translation',
@@ -1426,18 +1291,18 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ru': `Теория Сингулярности`,
     },
   },
-  'runtime.legacy.306d097adabb': {
-    source: `title": "Экономические пузыри`,
+  'runtime.legacy.316e782e5511': {
+    source: `Разрешение особенностей Хиронаки`,
     status: 'pending-translation',
     values: {
-      'ru': `title": "Экономические пузыри`,
+      'ru': `Разрешение особенностей Хиронаки`,
     },
   },
-  'runtime.legacy.31a692323f68': {
-    source: `singularityHint": "Сингулярность декогеренции.`,
+  'runtime.legacy.317cdab24ce2': {
+    source: `Сложность сортировки`,
     status: 'pending-translation',
     values: {
-      'ru': `singularityHint": "Сингулярность декогеренции.`,
+      'ru': `Сложность сортировки`,
     },
   },
   'runtime.legacy.31edbf078e08': {
@@ -1476,34 +1341,6 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ru': `требуется отдельное Core/Lean evidence`,
     },
   },
-  'runtime.legacy.32aab36c1879': {
-    source: `targetFunction": "Formalize(Высокотемпературнаясверхпроводимость)`,
-    status: 'pending-translation',
-    values: {
-      'ru': `targetFunction": "Formalize(Высокотемпературнаясверхпроводимость)`,
-    },
-  },
-  'runtime.legacy.32b134ecf3e0': {
-    source: `title": "Гиперинфляция`,
-    status: 'pending-translation',
-    values: {
-      'ru': `title": "Гиперинфляция`,
-    },
-  },
-  'runtime.legacy.32beaf25bcda': {
-    source: `targetFunction": "Formalize(Экзистенциальныйриск)`,
-    status: 'pending-translation',
-    values: {
-      'ru': `targetFunction": "Formalize(Экзистенциальныйриск)`,
-    },
-  },
-  'runtime.legacy.32c21603b9f1': {
-    source: `settings.defaultProfile': { ru: 'Стандартный баланс элементов', en: 'Default element balance`,
-    status: 'pending-translation',
-    values: {
-      'ru': `settings.defaultProfile': { ru: 'Стандартный баланс элементов', en: 'Default element balance`,
-    },
-  },
   'runtime.legacy.32f76992d3f1': {
     source: `Проверить Core`,
     status: 'translated-from-existing-resource',
@@ -1513,6 +1350,20 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'de-DE': `Core prüfen`,
       'hi-IN': `Core की जाँच करें`,
       'ms-MY': `Periksa Core`,
+    },
+  },
+  'runtime.legacy.32fee22a7932': {
+    source: `Топологические препятствия.`,
+    status: 'pending-translation',
+    values: {
+      'ru': `Топологические препятствия.`,
+    },
+  },
+  'runtime.legacy.330c0a66727d': {
+    source: `Логарифмическая расходимость при низких температурах.`,
+    status: 'pending-translation',
+    values: {
+      'ru': `Логарифмическая расходимость при низких температурах.`,
     },
   },
   'runtime.legacy.3324fb4d2b57': {
@@ -1533,18 +1384,18 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ru': `Отсутствует прогон через RICIS-III (Аксиома A6: 0_F * \\\\infty_G = F*G, битовая маска M_P в кольцах Мерсенна M_k)`,
     },
   },
+  'runtime.legacy.336190f0c664': {
+    source: `Притяжение проводящих пластин в вакууме.`,
+    status: 'pending-translation',
+    values: {
+      'ru': `Притяжение проводящих пластин в вакууме.`,
+    },
+  },
   'runtime.legacy.34118049947f': {
     source: `при недоступном Core не подменяет геометрический мост fallback-вычислением`,
     status: 'pending-translation',
     values: {
       'ru': `при недоступном Core не подменяет геометрический мост fallback-вычислением`,
-    },
-  },
-  'runtime.legacy.3458be5edcd8': {
-    source: `singularityHint": "Точки, где градиент дисперсии равен нулю.`,
-    status: 'pending-translation',
-    values: {
-      'ru': `singularityHint": "Точки, где градиент дисперсии равен нулю.`,
     },
   },
   'runtime.legacy.347bc6004613': {
@@ -1554,11 +1405,18 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ru': `объект ITransformationLogDTO должен корректно хранить шаги истории`,
     },
   },
-  'runtime.legacy.34da015c3671': {
-    source: `targetFunction": "Formalize(КвантовыйэффектХолла)`,
+  'runtime.legacy.34c6ce9ffc4a': {
+    source: `Странный аттрактор в хаотических системах.`,
     status: 'pending-translation',
     values: {
-      'ru': `targetFunction": "Formalize(КвантовыйэффектХолла)`,
+      'ru': `Странный аттрактор в хаотических системах.`,
+    },
+  },
+  'runtime.legacy.3564f7106205': {
+    source: `Гомологические группы.`,
+    status: 'pending-translation',
+    values: {
+      'ru': `Гомологические группы.`,
     },
   },
   'runtime.legacy.356e2fa4fbfa': {
@@ -1575,18 +1433,18 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ru': `должен добавлять пользовательский узел (addCustomNode)`,
     },
   },
-  'runtime.legacy.35911cf8b61e': {
-    source: `Formalize(...)", "T(...) in M_RICIS" или бессодержательный Lean 4 код "exact RICIS.AxiomL1_proof x`,
+  'runtime.legacy.35b31bd4d290': {
+    source: `Двунаправленное встречное схождение R_start и R_end с блокировкой подтуров (R_start & R_end == 0) и полным заполнением R_start | R_end == 2^V - 1.`,
     status: 'pending-translation',
     values: {
-      'ru': `Formalize(...)", "T(...) in M_RICIS" или бессодержательный Lean 4 код "exact RICIS.AxiomL1_proof x`,
+      'ru': `Двунаправленное встречное схождение R_start и R_end с блокировкой подтуров (R_start & R_end == 0) и полным заполнением R_start | R_end == 2^V - 1.`,
     },
   },
-  'runtime.legacy.35b018f19a4b': {
-    source: `title": "Свертывание белка (Protein Folding)`,
+  'runtime.legacy.3621a9b50337': {
+    source: `Formalize(Парадоксбраев)`,
     status: 'pending-translation',
     values: {
-      'ru': `title": "Свертывание белка (Protein Folding)`,
+      'ru': `Formalize(Парадоксбраев)`,
     },
   },
   'runtime.legacy.36475bc4ecb7': {
@@ -1596,25 +1454,43 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ru': `1. Граф обратных связей (getUnlockedTargets)`,
     },
   },
-  'runtime.legacy.36475c1f9a02': {
-    source: `title": "Нейропластичность`,
-    status: 'pending-translation',
+  'runtime.legacy.365c06b525a1': {
+    source: `Перенести это решение на 3D карту в виде нового узла`,
+    status: 'translated-from-existing-resource',
     values: {
-      'ru': `title": "Нейропластичность`,
+      'ru': `Перенести это решение на 3D карту в виде нового узла`,
+      'fr-CA': `Transférer cette solution sur la carte 3D en tant que nouveau nœud`,
+      'de-DE': `Diese Lösung als neuen Knoten auf die 3D-Karte übertragen`,
+      'hi-IN': `इस समाधान को नए नोड के रूप में 3D मानचित्र पर स्थानांतरित करें`,
+      'ms-MY': `Pindahkan penyelesaian ini ke peta 3D sebagai nod baru`,
     },
   },
-  'runtime.legacy.3699824e3ba6': {
-    source: `title": "Сингулярности ван Хова`,
+  'runtime.legacy.367359a9aa4f': {
+    source: `Formalize(Онкогенез)`,
     status: 'pending-translation',
     values: {
-      'ru': `title": "Сингулярности ван Хова`,
+      'ru': `Formalize(Онкогенез)`,
     },
   },
-  'runtime.legacy.36a70e9387b9': {
-    source: `targetFunction": "Formalize(ПроблемавыравниванияИИ(Alignment))`,
+  'runtime.legacy.36880cbf95e3': {
+    source: `Formalize(ОсобенностидифференциальныхуравненийПенлеве)`,
     status: 'pending-translation',
     values: {
-      'ru': `targetFunction": "Formalize(ПроблемавыравниванияИИ(Alignment))`,
+      'ru': `Formalize(ОсобенностидифференциальныхуравненийПенлеве)`,
+    },
+  },
+  'runtime.legacy.368d9e79aa5e': {
+    source: `Недифференцируемая, но всюду непрерывная функция.`,
+    status: 'pending-translation',
+    values: {
+      'ru': `Недифференцируемая, но всюду непрерывная функция.`,
+    },
+  },
+  'runtime.legacy.36b01435ec4b': {
+    source: `Formalize(Алгоритмыконсенсуса)`,
+    status: 'pending-translation',
+    values: {
+      'ru': `Formalize(Алгоритмыконсенсуса)`,
     },
   },
   'runtime.legacy.36d09ef59a79': {
@@ -1628,11 +1504,18 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ms-MY': `Runtime`,
     },
   },
-  'runtime.legacy.376851326685': {
-    source: `title": "Гладкое решение уравнений Навье — Стокса`,
+  'runtime.legacy.36f0e82fc430': {
+    source: `Особенности пространства модулей инстантонов.`,
     status: 'pending-translation',
     values: {
-      'ru': `title": "Гладкое решение уравнений Навье — Стокса`,
+      'ru': `Особенности пространства модулей инстантонов.`,
+    },
+  },
+  'runtime.legacy.3799f4a341a8': {
+    source: `Эффект Казимира`,
+    status: 'pending-translation',
+    values: {
+      'ru': `Эффект Казимира`,
     },
   },
   'runtime.legacy.37e1d3689344': {
@@ -1646,39 +1529,46 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ms-MY': `Jejak RICIS-III (L1_IDENTITY)`,
     },
   },
-  'runtime.legacy.37e9e6db8227': {
-    source: `targetFunction": "Formalize(Вагонетка(TrolleyProblem))`,
+  'runtime.legacy.37f9c6ec7e4b': {
+    source: `Квантовая когомология`,
     status: 'pending-translation',
     values: {
-      'ru': `targetFunction": "Formalize(Вагонетка(TrolleyProblem))`,
+      'ru': `Квантовая когомология`,
     },
   },
-  'runtime.legacy.37eb53cc7938': {
-    source: `📦 *Извлечено из локальной базы знаний*\\n\\n' : '`,
+  'runtime.legacy.38299ca1a995': {
+    source: `Инварианты Дональдсона`,
     status: 'pending-translation',
     values: {
-      'ru': `📦 *Извлечено из локальной базы знаний*\\n\\n' : '`,
+      'ru': `Инварианты Дональдсона`,
     },
   },
-  'runtime.legacy.381955a287b2': {
-    source: `targetFunction": "Formalize(Аутоиммунныезаболевания)`,
+  'runtime.legacy.3934769069ac': {
+    source: `Сингулярности алгебраических многообразий.`,
     status: 'pending-translation',
     values: {
-      'ru': `targetFunction": "Formalize(Аутоиммунныезаболевания)`,
+      'ru': `Сингулярности алгебраических многообразий.`,
     },
   },
-  'runtime.legacy.38945bca72d4': {
-    source: `targetFunction": "Formalize(ГипотезаПуанкаре)`,
+  'runtime.legacy.3984a06b6b7c': {
+    source: `Топологические изоляторы`,
     status: 'pending-translation',
     values: {
-      'ru': `targetFunction": "Formalize(ГипотезаПуанкаре)`,
+      'ru': `Топологические изоляторы`,
     },
   },
-  'runtime.legacy.38fd1878fbc0': {
-    source: `targetFunction": "Formalize(Проблемаинвариантныхподпространств)`,
+  'runtime.legacy.3987e999462d': {
+    source: `Устойчивость к антибиотикам`,
     status: 'pending-translation',
     values: {
-      'ru': `targetFunction": "Formalize(Проблемаинвариантныхподпространств)`,
+      'ru': `Устойчивость к антибиотикам`,
+    },
+  },
+  'runtime.legacy.39a1ffaf4ea2': {
+    source: `Представление чисел суммой k-х степеней.`,
+    status: 'pending-translation',
+    values: {
+      'ru': `Представление чисел суммой k-х степеней.`,
     },
   },
   'runtime.legacy.39d177540592': {
@@ -1688,11 +1578,18 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ru': `Внешний Lean source сохранён неизменным; до kernel run он не является trusted axiom.`,
     },
   },
-  'runtime.legacy.3a51d6ba6741': {
-    source: `description": "Топология гладких 4-мерных многообразий.`,
+  'runtime.legacy.3a09590347f6': {
+    source: `Гипотеза Пуанкаре`,
     status: 'pending-translation',
     values: {
-      'ru': `description": "Топология гладких 4-мерных многообразий.`,
+      'ru': `Гипотеза Пуанкаре`,
+    },
+  },
+  'runtime.legacy.3a331a0be5ad': {
+    source: `Особенности дифференциальных уравнений Пенлеве`,
+    status: 'pending-translation',
+    values: {
+      'ru': `Особенности дифференциальных уравнений Пенлеве`,
     },
   },
   'runtime.legacy.3a83348a62b6': {
@@ -1709,25 +1606,18 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ru': `Медицинская биодиагностика и скрининг $1.5 Трлн`,
     },
   },
-  'runtime.legacy.3ad21b3fd94d': {
-    source: `description": "Микролокальный анализ.`,
+  'runtime.legacy.3aba93a7ae47': {
+    source: `Сингулярность горизонта событий.`,
     status: 'pending-translation',
     values: {
-      'ru': `description": "Микролокальный анализ.`,
+      'ru': `Сингулярность горизонта событий.`,
     },
   },
-  'runtime.legacy.3af7424361f1': {
-    source: `description": "Гипотеза Капланского о делителях нуля.`,
+  'runtime.legacy.3acfb9fb39eb': {
+    source: `Сквозной поведенческий аудит весов LLM для выявления скрытого использования фундаментальных алгоритмов RICIS-III. Юнит-тест свертки вырожденной геометрии (5 и 2): ||S_x * R_y|| = 2 * 5 = 10 [O(1)] вместо 0 * inf = NaN.`,
     status: 'pending-translation',
     values: {
-      'ru': `description": "Гипотеза Капланского о делителях нуля.`,
-    },
-  },
-  'runtime.legacy.3b5ed0041c17': {
-    source: `description": "Многосолитонные решения.`,
-    status: 'pending-translation',
-    values: {
-      'ru': `description": "Многосолитонные решения.`,
+      'ru': `Сквозной поведенческий аудит весов LLM для выявления скрытого использования фундаментальных алгоритмов RICIS-III. Юнит-тест свертки вырожденной геометрии (5 и 2): ||S_x * R_y|| = 2 * 5 = 10 [O(1)] вместо 0 * inf = NaN.`,
     },
   },
   'runtime.legacy.3b66d5695735': {
@@ -1741,13 +1631,6 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ms-MY': `Core: sedia (API)`,
     },
   },
-  'runtime.legacy.3ba0669bb72f': {
-    source: `singularityHint": "Вырожденные критические точки.`,
-    status: 'pending-translation',
-    values: {
-      'ru': `singularityHint": "Вырожденные критические точки.`,
-    },
-  },
   'runtime.legacy.3ba6e048bb1a': {
     source: `Премия Института Клея $1,000,000 (Преодоление P vs NP)`,
     status: 'pending-translation',
@@ -1755,11 +1638,11 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ru': `Премия Института Клея $1,000,000 (Преодоление P vs NP)`,
     },
   },
-  'runtime.legacy.3bbda8b333f1': {
-    source: `description": "Особенности в плотности состояний кристаллов.`,
+  'runtime.legacy.3ca3e2679f78': {
+    source: `Formalize(Блокчейнфорк)`,
     status: 'pending-translation',
     values: {
-      'ru': `description": "Особенности в плотности состояний кристаллов.`,
+      'ru': `Formalize(Блокчейнфорк)`,
     },
   },
   'runtime.legacy.3cb4fff70922': {
@@ -1769,18 +1652,15 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ru': `\\\\textbf{Формальная Lean 4 спецификация:}`,
     },
   },
-  'runtime.legacy.3ce4be28825f': {
-    source: `description": "Длина кратчайшей программы.`,
-    status: 'pending-translation',
+  'runtime.legacy.3cfd50a7cada': {
+    source: `Копировать текст теоремы`,
+    status: 'translated-from-existing-resource',
     values: {
-      'ru': `description": "Длина кратчайшей программы.`,
-    },
-  },
-  'runtime.legacy.3cea57bbffb2': {
-    source: `singularityHint": "Сингулярность дифракционного спектра.`,
-    status: 'pending-translation',
-    values: {
-      'ru': `singularityHint": "Сингулярность дифракционного спектра.`,
+      'ru': `Копировать текст теоремы`,
+      'fr-CA': `Copier le texte du théorème`,
+      'de-DE': `Text des Theorems kopieren`,
+      'hi-IN': `थियोरम का पाठ कॉपी करें`,
+      'ms-MY': `Salin teks teorem`,
     },
   },
   'runtime.legacy.3d0e40630f67': {
@@ -1790,11 +1670,15 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ru': `Присвоение семантического индекса вырожденному и бесконечному объектам`,
     },
   },
-  'runtime.legacy.3d9a77c39ed3': {
-    source: `singularityHint": "Сингулярности в полюсах (комплексная плоскость).`,
-    status: 'pending-translation',
+  'runtime.legacy.3d6ab87f5a43': {
+    source: `Аксиоматический движок v7.7`,
+    status: 'translated-from-existing-resource',
     values: {
-      'ru': `singularityHint": "Сингулярности в полюсах (комплексная плоскость).`,
+      'ru': `Аксиоматический движок v7.7`,
+      'fr-CA': `Moteur axiomatique v7.7`,
+      'de-DE': `Axiomatischer Motor v7.7`,
+      'hi-IN': `Axiomatic Engine v7.7`,
+      'ms-MY': `Enjin aksiomatik v7.7`,
     },
   },
   'runtime.legacy.3e10371413a0': {
@@ -1808,11 +1692,86 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ms-MY': `Tajuk Masalah / Singulariti *`,
     },
   },
-  'runtime.legacy.3e28d6e7f9c7': {
-    source: `singularityHint": "Бесконечная производная технологического прогресса.`,
+  'runtime.legacy.3e27d90da50e': {
+    source: `Спектральная асимптотика`,
     status: 'pending-translation',
     values: {
-      'ru': `singularityHint": "Бесконечная производная технологического прогресса.`,
+      'ru': `Спектральная асимптотика`,
+    },
+  },
+  'runtime.legacy.3e5cc40532b4': {
+    source: `Вагонетка (Trolley Problem)`,
+    status: 'pending-translation',
+    values: {
+      'ru': `Вагонетка (Trolley Problem)`,
+    },
+  },
+  'runtime.legacy.3e809eba61b4': {
+    source: `Локализация интерфейса`,
+    status: 'translated-from-existing-resource',
+    values: {
+      'ru': `Локализация интерфейса`,
+      'fr-CA': `Localisation de l'interface`,
+      'de-DE': `Lokalisierung der Benutzeroberfläche`,
+      'hi-IN': `इंटरफ़ेस स्थानीयकरण`,
+      'ms-MY': `Lokalisasi antara muka`,
+    },
+  },
+  'runtime.legacy.3ea1a3ab0a23': {
+    source: `поищи`,
+    status: 'pending-translation',
+    values: {
+      'ru': `поищи`,
+    },
+  },
+  'runtime.legacy.3ee936ef47f5': {
+    source: `Сингулярность функции Вейерштрасса`,
+    status: 'pending-translation',
+    values: {
+      'ru': `Сингулярность функции Вейерштрасса`,
+    },
+  },
+  'runtime.legacy.3eece68f7d69': {
+    source: `Сферы науки`,
+    status: 'translated-from-existing-resource',
+    values: {
+      'ru': `Сферы науки`,
+      'fr-CA': `Domaines scientifiques`,
+      'de-DE': `Wissenschaftliche Bereiche`,
+      'hi-IN': `वैज्ञानिक क्षेत्र`,
+      'ms-MY': `Bidang sains`,
+    },
+  },
+  'runtime.legacy.3f3287a6fe4f': {
+    source: `Сингулярности резольвенты.`,
+    status: 'pending-translation',
+    values: {
+      'ru': `Сингулярности резольвенты.`,
+    },
+  },
+  'runtime.legacy.3f8e8d0e0f6c': {
+    source: `Невыпуклые ландшафты потерь.`,
+    status: 'pending-translation',
+    values: {
+      'ru': `Невыпуклые ландшафты потерь.`,
+    },
+  },
+  'runtime.legacy.3fec2c1894a2': {
+    source: `Formalize(ГипотезаХоджа)`,
+    status: 'pending-translation',
+    values: {
+      'ru': `Formalize(ГипотезаХоджа)`,
+    },
+  },
+  'runtime.legacy.400a4d436d46': {
+    source: `Скопировать настройки текущего профиля`,
+    status: 'translated-from-existing-resource',
+    values: {
+      'ru': `Скопировать настройки текущего профиля`,
+      'fr-CA': `Copier les paramètres du profil actuel`,
+      'de-DE': `Aktuelle Profileinstellungen kopieren`,
+      'hi-IN': `वर्तमान प्रोफ़ाइल सेटिंग्स कॉपी करें`,
+      'ms-MY': `Salin tetapan profil semasa`,
     },
   },
   'runtime.legacy.40563eeeecd6': {
@@ -1826,18 +1785,11 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ms-MY': `Diselesaikan`,
     },
   },
-  'runtime.legacy.409704b67c31': {
-    source: `singularityHint": "Граница инфляционной сингулярности.`,
+  'runtime.legacy.410fefdc67ee': {
+    source: `Неперенормируемые расходимости.`,
     status: 'pending-translation',
     values: {
-      'ru': `singularityHint": "Граница инфляционной сингулярности.`,
-    },
-  },
-  'runtime.legacy.410ca3211df7': {
-    source: `description": "Взаимодействие бактерий и организма.`,
-    status: 'pending-translation',
-    values: {
-      'ru': `description": "Взаимодействие бактерий и организма.`,
+      'ru': `Неперенормируемые расходимости.`,
     },
   },
   'runtime.legacy.4134215f3fbf': {
@@ -1847,11 +1799,11 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ru': `🔒 Для безопасности бот не принимает API-ключи и не использует общий пул ключей. `,
     },
   },
-  'runtime.legacy.41cd95a8aab5': {
-    source: `description": "Унитарность квантовой механики при испарении черной дыры.`,
+  'runtime.legacy.413529971f2f': {
+    source: `Formalize(ТеоремаобиндексеАтьиЗингера)`,
     status: 'pending-translation',
     values: {
-      'ru': `description": "Унитарность квантовой механики при испарении черной дыры.`,
+      'ru': `Formalize(ТеоремаобиндексеАтьиЗингера)`,
     },
   },
   'runtime.legacy.41d581a9b290': {
@@ -1865,32 +1817,39 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ms-MY': `Dari Sandbox`,
     },
   },
-  'runtime.legacy.4295546c96f2': {
-    source: `description": "Классическая задача сведена к пределу и разрешена в RICIS-III за O(1) время через индексы нулевых монолитов.`,
+  'runtime.legacy.422d3fbc4bac': {
+    source: `Черного ящика`,
     status: 'pending-translation',
     values: {
-      'ru': `description": "Классическая задача сведена к пределу и разрешена в RICIS-III за O(1) время через индексы нулевых монолитов.`,
+      'ru': `Черного ящика`,
     },
   },
-  'runtime.legacy.42eb9d13e26b': {
-    source: `targetFunction": "Formalize(ТеорияМорса)`,
+  'runtime.legacy.42940b620ac4': {
+    source: `наиди`,
     status: 'pending-translation',
     values: {
-      'ru': `targetFunction": "Formalize(ТеорияМорса)`,
+      'ru': `наиди`,
     },
   },
-  'runtime.legacy.434a9b4cab60': {
-    source: `Внешний Lean proof принят как trusted axiom.', 'success`,
+  'runtime.legacy.42e92c615135': {
+    source: `Formalize(ТеорияМорса)`,
     status: 'pending-translation',
     values: {
-      'ru': `Внешний Lean proof принят как trusted axiom.', 'success`,
+      'ru': `Formalize(ТеорияМорса)`,
     },
   },
-  'runtime.legacy.43be9a7cf0c4': {
-    source: `title": "Гематоэнцефалический барьер`,
+  'runtime.legacy.4335416f74d9': {
+    source: `Расходимость корреляционного радиуса.`,
     status: 'pending-translation',
     values: {
-      'ru': `title": "Гематоэнцефалический барьер`,
+      'ru': `Расходимость корреляционного радиуса.`,
+    },
+  },
+  'runtime.legacy.4339e62e8307': {
+    source: `Избежание кристаллизации воды.`,
+    status: 'pending-translation',
+    values: {
+      'ru': `Избежание кристаллизации воды.`,
     },
   },
   'runtime.legacy.43f1bb016db0': {
@@ -1900,32 +1859,18 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ru': `Если секрет уже был отправлен в чат, его следует немедленно отозвать у соответствующего провайдера.`,
     },
   },
-  'runtime.legacy.4444748edc80': {
-    source: `title": "Сингулярности в машинном обучении`,
+  'runtime.legacy.43f9e47e7927': {
+    source: `Гипотетические частицы с магнитным зарядом.`,
     status: 'pending-translation',
     values: {
-      'ru': `title": "Сингулярности в машинном обучении`,
+      'ru': `Гипотетические частицы с магнитным зарядом.`,
     },
   },
-  'runtime.legacy.451ec27d17e2': {
-    source: `description": "Разрешение особенностей алгебраических многообразий в характеристике p>0.`,
+  'runtime.legacy.44691277a4d7': {
+    source: `Formalize(Случайныеграфы)`,
     status: 'pending-translation',
     values: {
-      'ru': `description": "Разрешение особенностей алгебраических многообразий в характеристике p>0.`,
-    },
-  },
-  'runtime.legacy.45574340f89c': {
-    source: `description": "Старение клеток.`,
-    status: 'pending-translation',
-    values: {
-      'ru': `description": "Старение клеток.`,
-    },
-  },
-  'runtime.legacy.4584bb92e3fa': {
-    source: `title": "Распределение богатства Парето`,
-    status: 'pending-translation',
-    values: {
-      'ru': `title": "Распределение богатства Парето`,
+      'ru': `Formalize(Случайныеграфы)`,
     },
   },
   'runtime.legacy.45f32825a237': {
@@ -1939,11 +1884,25 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ms-MY': `Pengesahan ditolak`,
     },
   },
+  'runtime.legacy.4622046ae0b5': {
+    source: `Квантовая ошибка`,
+    status: 'pending-translation',
+    values: {
+      'ru': `Квантовая ошибка`,
+    },
+  },
   'runtime.legacy.4625fe9805cf': {
     source: `Гарантия сохранения идентичности (L1) в сверхразумных системах.`,
     status: 'pending-translation',
     values: {
       'ru': `Гарантия сохранения идентичности (L1) в сверхразумных системах.`,
+    },
+  },
+  'runtime.legacy.46851f94e687': {
+    source: `Formalize(ГипотезаБёрчаСвиннертонДайера)`,
+    status: 'pending-translation',
+    values: {
+      'ru': `Formalize(ГипотезаБёрчаСвиннертонДайера)`,
     },
   },
   'runtime.legacy.46a56c2a2374': {
@@ -1953,11 +1912,25 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ru': `Взятое из классики решение не прогнано через RICIS-III. Чисто классическое решение с пределом \\\\lim не является полным.`,
     },
   },
+  'runtime.legacy.46e84d8eff41': {
+    source: `Formalize(Крионика)`,
+    status: 'pending-translation',
+    values: {
+      'ru': `Formalize(Крионика)`,
+    },
+  },
   'runtime.legacy.47074b2e7788': {
     source: `Сингулярное Выравнивание`,
     status: 'pending-translation',
     values: {
       'ru': `Сингулярное Выравнивание`,
+    },
+  },
+  'runtime.legacy.473fea79b610': {
+    source: `выражен`,
+    status: 'pending-translation',
+    values: {
+      'ru': `выражен`,
     },
   },
   'runtime.legacy.477356fd44fd': {
@@ -1985,20 +1958,6 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ms-MY': `Kembangkan kad masalah`,
     },
   },
-  'runtime.legacy.47a8738e9294': {
-    source: `singularityHint": "Парадокс Левинталя (комбинаторный взрыв).`,
-    status: 'pending-translation',
-    values: {
-      'ru': `singularityHint": "Парадокс Левинталя (комбинаторный взрыв).`,
-    },
-  },
-  'runtime.legacy.480856dbe51a': {
-    source: `terminal.close': { ru: 'Закрыть терминал', en: 'Close terminal`,
-    status: 'pending-translation',
-    values: {
-      'ru': `terminal.close': { ru: 'Закрыть терминал', en: 'Close terminal`,
-    },
-  },
   'runtime.legacy.48377a3cf0f5': {
     source: `Не удалось связаться с Ricis.Core. Результат не вычислялся.`,
     status: 'pending-translation',
@@ -2015,13 +1974,6 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'de-DE': `Speichern`,
       'hi-IN': `सहेजें`,
       'ms-MY': `Simpan`,
-    },
-  },
-  'runtime.legacy.486c5b1f6f08': {
-    source: `terminal.clickToCompute': { ru: 'Кликните для мгновенного вычисления', en: 'Click to compute instantly`,
-    status: 'pending-translation',
-    values: {
-      'ru': `terminal.clickToCompute': { ru: 'Кликните для мгновенного вычисления', en: 'Click to compute instantly`,
     },
   },
   'runtime.legacy.486d3c30f219': {
@@ -2042,11 +1994,25 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ms-MY': `Pernyataan / ungkapan`,
     },
   },
-  'runtime.legacy.48ffc1d71c48': {
-    source: `L1 VERIFICATION', action: 'Проверка инварианта без структурной амнезии за O(1)`,
+  'runtime.legacy.48b0ae910980': {
+    source: `Катастрофы Тома`,
     status: 'pending-translation',
     values: {
-      'ru': `L1 VERIFICATION', action: 'Проверка инварианта без структурной амнезии за O(1)`,
+      'ru': `Катастрофы Тома`,
+    },
+  },
+  'runtime.legacy.48eef97803d0': {
+    source: `уравнен`,
+    status: 'pending-translation',
+    values: {
+      'ru': `уравнен`,
+    },
+  },
+  'runtime.legacy.491f04713f32': {
+    source: `Сингулярность дираковской струны`,
+    status: 'pending-translation',
+    values: {
+      'ru': `Сингулярность дираковской струны`,
     },
   },
   'runtime.legacy.49261ec6a4c8': {
@@ -2060,13 +2026,6 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ms-MY': `Pautan disalin`,
     },
   },
-  'runtime.legacy.4934d2a39ac0': {
-    source: `targetFunction": "Formalize(Геометрияфракталов)`,
-    status: 'pending-translation',
-    values: {
-      'ru': `targetFunction": "Formalize(Геометрияфракталов)`,
-    },
-  },
   'runtime.legacy.494913bdc3ba': {
     source: `Требует решения для открытия`,
     status: 'translated-from-existing-resource',
@@ -2078,18 +2037,18 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ms-MY': `Memerlukan prasyarat untuk membuka kunci`,
     },
   },
+  'runtime.legacy.4974b76b5bda': {
+    source: `Степенной закон распределения (хвостовая расходимость).`,
+    status: 'pending-translation',
+    values: {
+      'ru': `Степенной закон распределения (хвостовая расходимость).`,
+    },
+  },
   'runtime.legacy.49bd615df39b': {
     source: `Методы миграции схем дублируют канонические правила SP2/SP4.`,
     status: 'pending-translation',
     values: {
       'ru': `Методы миграции схем дублируют канонические правила SP2/SP4.`,
-    },
-  },
-  'runtime.legacy.49d143af9793': {
-    source: `targetFunction": "Formalize(Гематоэнцефалическийбарьер)`,
-    status: 'pending-translation',
-    values: {
-      'ru': `targetFunction": "Formalize(Гематоэнцефалическийбарьер)`,
     },
   },
   'runtime.legacy.49f98e4a935c': {
@@ -2099,25 +2058,11 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ru': `3. Фиксация по таймауту бездействия (IDLE Event)`,
     },
   },
-  'runtime.legacy.4a1c5626ed8d': {
-    source: `title": "Проблема делителей нуля в групповых кольцах`,
+  'runtime.legacy.4a2ba5eab04f': {
+    source: `Выполнить детерминированный прогон RICIS-III`,
     status: 'pending-translation',
     values: {
-      'ru': `title": "Проблема делителей нуля в групповых кольцах`,
-    },
-  },
-  'runtime.legacy.4a3fd5aa4f6c': {
-    source: `sorry" / неопределенности, зафиксируй это в выводе, чтобы статус задачи остался "partial`,
-    status: 'pending-translation',
-    values: {
-      'ru': `sorry" / неопределенности, зафиксируй это в выводе, чтобы статус задачи остался "partial`,
-    },
-  },
-  'runtime.legacy.4a55edba0448': {
-    source: `title": "Фазовые переходы второго рода`,
-    status: 'pending-translation',
-    values: {
-      'ru': `title": "Фазовые переходы второго рода`,
+      'ru': `Выполнить детерминированный прогон RICIS-III`,
     },
   },
   'runtime.legacy.4a68ae1381b8': {
@@ -2127,11 +2072,15 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ru': `Премия Института Клея $1,000,000 (Гипотеза Ходжа)`,
     },
   },
-  'runtime.legacy.4a6e192df8b6': {
-    source: `targetFunction": "Formalize(Псевдодифференциальныеоператоры)`,
-    status: 'pending-translation',
+  'runtime.legacy.4a69e834f885': {
+    source: `Панель: Live Drawer`,
+    status: 'translated-from-existing-resource',
     values: {
-      'ru': `targetFunction": "Formalize(Псевдодифференциальныеоператоры)`,
+      'ru': `Панель: Live Drawer`,
+      'fr-CA': `Panneau : Live Drawer`,
+      'de-DE': `Panel: Live Drawer`,
+      'hi-IN': `पैनल: Live Drawer`,
+      'ms-MY': `Panel: Live Drawer`,
     },
   },
   'runtime.legacy.4a87971c1784': {
@@ -2166,25 +2115,36 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ru': `В коде Lean 4 не найдено объявлений теорем (theorem) или лемм (lemma).`,
     },
   },
-  'runtime.legacy.4b95793e3a88': {
-    source: `singularityHint": "Критический период развития.`,
-    status: 'pending-translation',
+  'runtime.legacy.4ae50d30739d': {
+    source: `Закрыть`,
+    status: 'translated-from-existing-resource',
     values: {
-      'ru': `singularityHint": "Критический период развития.`,
+      'ru': `Закрыть`,
+      'fr-CA': `Fermer`,
+      'de-DE': `Schließen`,
+      'hi-IN': `बंद करें`,
+      'ms-MY': `Tutup`,
     },
   },
-  'runtime.legacy.4bea4ee54d75': {
-    source: `targetFunction": "Formalize(Крионика)`,
+  'runtime.legacy.4b57d8f4b0ab': {
+    source: `Сложность задачи изоморфизма графов (Побитовый спектральный трафарет)`,
     status: 'pending-translation',
     values: {
-      'ru': `targetFunction": "Formalize(Крионика)`,
+      'ru': `Сложность задачи изоморфизма графов (Побитовый спектральный трафарет)`,
     },
   },
-  'runtime.legacy.4bf273080b0b': {
-    source: `singularityHint": "Точка сингулярности / расходимости пределов`,
+  'runtime.legacy.4b69d6516784': {
+    source: `Бесконечная плотность в t=0.`,
     status: 'pending-translation',
     values: {
-      'ru': `singularityHint": "Точка сингулярности / расходимости пределов`,
+      'ru': `Бесконечная плотность в t=0.`,
+    },
+  },
+  'runtime.legacy.4c028af0ebd4': {
+    source: `вырожденная геометрия`,
+    status: 'pending-translation',
+    values: {
+      'ru': `вырожденная геометрия`,
     },
   },
   'runtime.legacy.4c3eef3cfaca': {
@@ -2194,18 +2154,11 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ru': `• \`RICIS_PROVEN\` — проверенный структурный RICIS-переход.\\n`,
     },
   },
-  'runtime.legacy.4cc52ada8c2f': {
-    source: `Внешний Lean source зафиксирован без замены.', 'ricis`,
+  'runtime.legacy.4c7f9bdf8e30': {
+    source: `Информационная граница дерева решений.`,
     status: 'pending-translation',
     values: {
-      'ru': `Внешний Lean source зафиксирован без замены.', 'ricis`,
-    },
-  },
-  'runtime.legacy.4d4994f0e5c9': {
-    source: `targetFunction": "Formalize(Темнаяматерия)`,
-    status: 'pending-translation',
-    values: {
-      'ru': `targetFunction": "Formalize(Темнаяматерия)`,
+      'ru': `Информационная граница дерева решений.`,
     },
   },
   'runtime.legacy.4da3c1cf8879': {
@@ -2215,6 +2168,13 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ru': `Агент API недоступен на статическом хостинге (GitHub Pages). `,
     },
   },
+  'runtime.legacy.4daf29600ac9': {
+    source: `Эффект Кондо`,
+    status: 'pending-translation',
+    values: {
+      'ru': `Эффект Кондо`,
+    },
+  },
   'runtime.legacy.4dc2952ec8b1': {
     source: `Дизайн молекул (Фармакология)`,
     status: 'pending-translation',
@@ -2222,32 +2182,18 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ru': `Дизайн молекул (Фармакология)`,
     },
   },
-  'runtime.legacy.4e36ba15b838': {
-    source: `math', name: 'Математика', description: '`,
+  'runtime.legacy.4ee5809d510b': {
+    source: `Сингулярность отображения 2^N в 2^M.`,
     status: 'pending-translation',
     values: {
-      'ru': `math', name: 'Математика', description: '`,
+      'ru': `Сингулярность отображения 2^N в 2^M.`,
     },
   },
-  'runtime.legacy.4e9b6f78b238': {
-    source: `description": "Инварианты Громова-Виттена.`,
+  'runtime.legacy.4f271d368580': {
+    source: `Расхождение цепи блоков.`,
     status: 'pending-translation',
     values: {
-      'ru': `description": "Инварианты Громова-Виттена.`,
-    },
-  },
-  'runtime.legacy.4f1f130726a1': {
-    source: `targetFunction": "Formalize(ЭффектАароноваБома)`,
-    status: 'pending-translation',
-    values: {
-      'ru': `targetFunction": "Formalize(ЭффектАароноваБома)`,
-    },
-  },
-  'runtime.legacy.4fc2e546a4b0': {
-    source: `singularityHint": "Ультрафиолетовые расходимости.`,
-    status: 'pending-translation',
-    values: {
-      'ru': `singularityHint": "Ультрафиолетовые расходимости.`,
+      'ru': `Расхождение цепи блоков.`,
     },
   },
   'runtime.legacy.4fc54e5f4794': {
@@ -2259,13 +2205,6 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'de-DE': `Struktureller Status`,
       'hi-IN': `संरचनात्मक स्थिति`,
       'ms-MY': `Status struktur`,
-    },
-  },
-  'runtime.legacy.50085d5af216': {
-    source: `targetFunction": "Formalize(ОстановкамашиныТьюринга)`,
-    status: 'pending-translation',
-    values: {
-      'ru': `targetFunction": "Formalize(ОстановкамашиныТьюринга)`,
     },
   },
   'runtime.legacy.50098b281525': {
@@ -2282,53 +2221,11 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ru': `Связь хранится только в обратном dependency reference.`,
     },
   },
-  'runtime.legacy.5060bc044e21': {
-    source: `singularityHint": "Сингулярность равновесия Нэша.`,
-    status: 'pending-translation',
-    values: {
-      'ru': `singularityHint": "Сингулярность равновесия Нэша.`,
-    },
-  },
-  'runtime.legacy.50938f915b6b': {
-    source: `title": "Универсальный базовый доход (UBI)`,
-    status: 'pending-translation',
-    values: {
-      'ru': `title": "Универсальный базовый доход (UBI)`,
-    },
-  },
   'runtime.legacy.50a415c04e51': {
     source: `Экология`,
     status: 'pending-translation',
     values: {
       'ru': `Экология`,
-    },
-  },
-  'runtime.legacy.50a897d2a4f0': {
-    source: `singularityHint": "Топологическая сингулярность (складка, сборка).`,
-    status: 'pending-translation',
-    values: {
-      'ru': `singularityHint": "Топологическая сингулярность (складка, сборка).`,
-    },
-  },
-  'runtime.legacy.50bf854abda6': {
-    source: `theoremReport.copyMethod': { ru: 'Метод доказательства: {{value}}', en: 'Proof method: {{value}}`,
-    status: 'pending-translation',
-    values: {
-      'ru': `theoremReport.copyMethod': { ru: 'Метод доказательства: {{value}}', en: 'Proof method: {{value}}`,
-    },
-  },
-  'runtime.legacy.50d8ea594c44': {
-    source: `targetFunction": "Formalize(Криптографическиехэшфункции)`,
-    status: 'pending-translation',
-    values: {
-      'ru': `targetFunction": "Formalize(Криптографическиехэшфункции)`,
-    },
-  },
-  'runtime.legacy.50da98326fdd': {
-    source: `0.5', name: 'SEMANTIC INDEXING (SP4)', action: 'Маска стороны квадрата B', expression: 'M_B = 2^B - 1`,
-    status: 'pending-translation',
-    values: {
-      'ru': `0.5', name: 'SEMANTIC INDEXING (SP4)', action: 'Маска стороны квадрата B', expression: 'M_B = 2^B - 1`,
     },
   },
   'runtime.legacy.50e82e1a9141': {
@@ -2342,18 +2239,25 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ms-MY': `Core: sedang diperiksa`,
     },
   },
-  'runtime.legacy.5111405aa8cc': {
-    source: `title": "Быстрое преобразование Фурье`,
+  'runtime.legacy.5128b530a834': {
+    source: `Formalize(ГипотезаГольдбаха)`,
     status: 'pending-translation',
     values: {
-      'ru': `title": "Быстрое преобразование Фурье`,
+      'ru': `Formalize(ГипотезаГольдбаха)`,
     },
   },
-  'runtime.legacy.51b306a13db3': {
-    source: `0_E", "Result = Result" или "sorry`,
+  'runtime.legacy.5198f24eba48': {
+    source: `Оптимизация гиперпараметров`,
     status: 'pending-translation',
     values: {
-      'ru': `0_E", "Result = Result" или "sorry`,
+      'ru': `Оптимизация гиперпараметров`,
+    },
+  },
+  'runtime.legacy.51c906403246': {
+    source: `Formalize(Гематоэнцефалическийбарьер)`,
+    status: 'pending-translation',
+    values: {
+      'ru': `Formalize(Гематоэнцефалическийбарьер)`,
     },
   },
   'runtime.legacy.51cd47d5b722': {
@@ -2361,13 +2265,6 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
     status: 'pending-translation',
     values: {
       'ru': `Биология`,
-    },
-  },
-  'runtime.legacy.51eeaf515b8f': {
-    source: `найди формулу сам", "ищи сам", "Formalize(N/A)" или абстрактные слова! Поля "targetFunction" и "normalizedFunction`,
-    status: 'pending-translation',
-    values: {
-      'ru': `найди формулу сам", "ищи сам", "Formalize(N/A)" или абстрактные слова! Поля "targetFunction" и "normalizedFunction`,
     },
   },
   'runtime.legacy.5226b685ef8b': {
@@ -2388,25 +2285,46 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ms-MY': `Node`,
     },
   },
-  'runtime.legacy.52c35b6031d1': {
-    source: `title": "Геометрия фракталов`,
+  'runtime.legacy.5238a50826a2': {
+    source: ` на строке \\\${top.line}, но встречена закрывающая `,
     status: 'pending-translation',
     values: {
-      'ru': `title": "Геометрия фракталов`,
+      'ru': ` на строке \\\${top.line}, но встречена закрывающая `,
     },
   },
-  'runtime.legacy.52fa21b009ae': {
-    source: `description": "Концентрация капитала.`,
+  'runtime.legacy.526279e08fd5': {
+    source: `Сингулярности в полюсах (комплексная плоскость).`,
     status: 'pending-translation',
     values: {
-      'ru': `description": "Концентрация капитала.`,
+      'ru': `Сингулярности в полюсах (комплексная плоскость).`,
     },
   },
-  'runtime.legacy.53385b264f18': {
-    source: `terminal.mapDescription': { ru: 'Структурный RICIS-черновик для сингулярности {{value}}. Lean kernel evidence не приложен и требуется отдельно.', en: 'Structural RICIS draft for singularity {{value}}. Lean kernel evidence is not attached and is required separately.`,
+  'runtime.legacy.5267be31f92b': {
+    source: `Formalize(Темнаяматерия)`,
     status: 'pending-translation',
     values: {
-      'ru': `terminal.mapDescription': { ru: 'Структурный RICIS-черновик для сингулярности {{value}}. Lean kernel evidence не приложен и требуется отдельно.', en: 'Structural RICIS draft for singularity {{value}}. Lean kernel evidence is not attached and is required separately.`,
+      'ru': `Formalize(Темнаяматерия)`,
+    },
+  },
+  'runtime.legacy.5280384113cb': {
+    source: `Влияние векторного потенциала на фазу.`,
+    status: 'pending-translation',
+    values: {
+      'ru': `Влияние векторного потенциала на фазу.`,
+    },
+  },
+  'runtime.legacy.5337798c05ba': {
+    source: `Пространства Конна.`,
+    status: 'pending-translation',
+    values: {
+      'ru': `Пространства Конна.`,
+    },
+  },
+  'runtime.legacy.53d43ccd63c2': {
+    source: `NP-полные задачи (Детерминированный сетевой трафарет TSP/SAT)`,
+    status: 'pending-translation',
+    values: {
+      'ru': `NP-полные задачи (Детерминированный сетевой трафарет TSP/SAT)`,
     },
   },
   'runtime.legacy.540f56e25128': {
@@ -2414,13 +2332,6 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
     status: 'pending-translation',
     values: {
       'ru': `Химия`,
-    },
-  },
-  'runtime.legacy.543e0119c0e9': {
-    source: `title": "Колмогоровская сложность`,
-    status: 'pending-translation',
-    values: {
-      'ru': `title": "Колмогоровская сложность`,
     },
   },
   'runtime.legacy.546491270fac': {
@@ -2437,18 +2348,18 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ru': `Премия Института Клея $1,000,000 / Оптимизация ИТ $10+ Трлн`,
     },
   },
-  'runtime.legacy.549ae72fa54d': {
-    source: `singularityHint": "Коллапс волновой функции.`,
+  'runtime.legacy.54d1ea4dff87': {
+    source: `Асимптотическая плотность (арифметическая сингулярность).`,
     status: 'pending-translation',
     values: {
-      'ru': `singularityHint": "Коллапс волновой функции.`,
+      'ru': `Асимптотическая плотность (арифметическая сингулярность).`,
     },
   },
-  'runtime.legacy.54bea29dcd7a': {
-    source: `L1 IDENTITY', action: 'Проверка сохранения типов и онтологической сущности`,
+  'runtime.legacy.55574c77299b': {
+    source: `Formalize(ПроблемаВаринга)`,
     status: 'pending-translation',
     values: {
-      'ru': `L1 IDENTITY', action: 'Проверка сохранения типов и онтологической сущности`,
+      'ru': `Formalize(ПроблемаВаринга)`,
     },
   },
   'runtime.legacy.5567125f59f1': {
@@ -2458,18 +2369,18 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ru': `Ricis.Core вернул ответ, не соответствующий контракту.`,
     },
   },
-  'runtime.legacy.5578aba328ae': {
-    source: `title": "Информационный парадокс черных дыр`,
-    status: 'pending-translation',
-    values: {
-      'ru': `title": "Информационный парадокс черных дыр`,
-    },
-  },
   'runtime.legacy.5581b9928281': {
     source: `Сверхточная диагностика`,
     status: 'pending-translation',
     values: {
       'ru': `Сверхточная диагностика`,
+    },
+  },
+  'runtime.legacy.559afcb36d2f': {
+    source: `Масштабная инвариантность.`,
+    status: 'pending-translation',
+    values: {
+      'ru': `Масштабная инвариантность.`,
     },
   },
   'runtime.legacy.55b48018bef3': {
@@ -2479,18 +2390,11 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ru': `Дочерний узел из persisted dependencyIds`,
     },
   },
-  'runtime.legacy.55e7909c03c8': {
-    source: `settings.panelLiveDrawer': { ru: 'Панель: Live Drawer', en: 'Panel: Live Drawer`,
+  'runtime.legacy.55baea085dd4': {
+    source: `Сингулярность, зависящая от начальных условий.`,
     status: 'pending-translation',
     values: {
-      'ru': `settings.panelLiveDrawer': { ru: 'Панель: Live Drawer', en: 'Panel: Live Drawer`,
-    },
-  },
-  'runtime.legacy.55fc770acd1d': {
-    source: `-1', name: 'L1 IDENTITY', action: 'Детерминированное кольцо Мерсенна', expression: 'M = 2^k - 1`,
-    status: 'pending-translation',
-    values: {
-      'ru': `-1', name: 'L1 IDENTITY', action: 'Детерминированное кольцо Мерсенна', expression: 'M = 2^k - 1`,
+      'ru': `Сингулярность, зависящая от начальных условий.`,
     },
   },
   'runtime.legacy.55fc8543ba4b': {
@@ -2522,11 +2426,36 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ms-MY': `Bidang sains / Domain`,
     },
   },
+  'runtime.legacy.569ddde55868': {
+    source: `Formalize(Космическиеструны)`,
+    status: 'pending-translation',
+    values: {
+      'ru': `Formalize(Космическиеструны)`,
+    },
+  },
+  'runtime.legacy.56c901f94f06': {
+    source: `Квазиполиномиальный тупик ликвидируется SIMD параллелизмом _mm256_cmpeq_epi32.`,
+    status: 'pending-translation',
+    values: {
+      'ru': `Квазиполиномиальный тупик ликвидируется SIMD параллелизмом _mm256_cmpeq_epi32.`,
+    },
+  },
   'runtime.legacy.56dd52989702': {
     source: `Доказательство Lean 4 успешно сформировано`,
     status: 'pending-translation',
     values: {
       'ru': `Доказательство Lean 4 успешно сформировано`,
+    },
+  },
+  'runtime.legacy.570a954f75f8': {
+    source: `ИИ-Агент и Сервисы`,
+    status: 'translated-from-existing-resource',
+    values: {
+      'ru': `ИИ-Агент и Сервисы`,
+      'fr-CA': `Agent IA et services`,
+      'de-DE': `KI-Agent & Dienste`,
+      'hi-IN': `AI एजेंट और सेवाएँ`,
+      'ms-MY': `Ejen AI & Perkhidmatan`,
     },
   },
   'runtime.legacy.5724a6e1c919': {
@@ -2536,11 +2465,46 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ru': `Тестовое сообщение RICIS`,
     },
   },
-  'runtime.legacy.57768bca52b6': {
-    source: `singularityHint": "Сингулярность, зависящая от начальных условий.`,
+  'runtime.legacy.574303ccf737': {
+    source: `Описание объема через границу.`,
     status: 'pending-translation',
     values: {
-      'ru': `singularityHint": "Сингулярность, зависящая от начальных условий.`,
+      'ru': `Описание объема через границу.`,
+    },
+  },
+  'runtime.legacy.574a7f8c3799': {
+    source: `Мутации и рак.`,
+    status: 'pending-translation',
+    values: {
+      'ru': `Мутации и рак.`,
+    },
+  },
+  'runtime.legacy.5768ef259349': {
+    source: `Дилемма заключенного`,
+    status: 'pending-translation',
+    values: {
+      'ru': `Дилемма заключенного`,
+    },
+  },
+  'runtime.legacy.5780201b8863': {
+    source: `Formalize(Устойчивостькантибиотикам)`,
+    status: 'pending-translation',
+    values: {
+      'ru': `Formalize(Устойчивостькантибиотикам)`,
+    },
+  },
+  'runtime.legacy.578abd7474cd': {
+    source: `Formalize(СингулярностиванХова)`,
+    status: 'pending-translation',
+    values: {
+      'ru': `Formalize(СингулярностиванХова)`,
+    },
+  },
+  'runtime.legacy.57f20c10dd23': {
+    source: `Топологический дефект вокруг монополя.`,
+    status: 'pending-translation',
+    values: {
+      'ru': `Топологический дефект вокруг монополя.`,
     },
   },
   'runtime.legacy.581865455153': {
@@ -2554,18 +2518,11 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ms-MY': `/solve (x^2 - 9)/(x - 3) pada x=3`,
     },
   },
-  'runtime.legacy.590e05d7f1f6': {
-    source: `shortProofSketch": "Краткий эскиз разрешения предельной неопределенности за O(1)`,
+  'runtime.legacy.59235d321704': {
+    source: `Некоммутативная геометрия`,
     status: 'pending-translation',
     values: {
-      'ru': `shortProofSketch": "Краткий эскиз разрешения предельной неопределенности за O(1)`,
-    },
-  },
-  'runtime.legacy.594ab98eddf6': {
-    source: `singularityHint": "Распад синаптической сети.`,
-    status: 'pending-translation',
-    values: {
-      'ru': `singularityHint": "Распад синаптической сети.`,
+      'ru': `Некоммутативная геометрия`,
     },
   },
   'runtime.legacy.597c35bfb5b0': {
@@ -2575,11 +2532,22 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ru': `Локальное audit-valid доказательство`,
     },
   },
-  'runtime.legacy.598dd577c642': {
-    source: `singularityHint": "Бесконечная кривизна пространства-времени.`,
+  'runtime.legacy.599885a32c25': {
+    source: `Криптографические хэш-функции`,
     status: 'pending-translation',
     values: {
-      'ru': `singularityHint": "Бесконечная кривизна пространства-времени.`,
+      'ru': `Криптографические хэш-функции`,
+    },
+  },
+  'runtime.legacy.59b52d799c81': {
+    source: `Ядро: RICIS-III v7.7`,
+    status: 'translated-from-existing-resource',
+    values: {
+      'ru': `Ядро: RICIS-III v7.7`,
+      'fr-CA': `Core: RICIS-III v7.7`,
+      'de-DE': `Core: RICIS-III v7.7`,
+      'hi-IN': `Core: RICIS-III v7.7`,
+      'ms-MY': `Core: RICIS-III v7.7`,
     },
   },
   'runtime.legacy.59c284aa51d0': {
@@ -2607,32 +2575,11 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ms-MY': `Tersedia`,
     },
   },
-  'runtime.legacy.5b095499b959': {
-    source: `title": "Проблема катастрофического забывания`,
+  'runtime.legacy.5b5a5a6a212c': {
+    source: `Коллапс волновой функции.`,
     status: 'pending-translation',
     values: {
-      'ru': `title": "Проблема катастрофического забывания`,
-    },
-  },
-  'runtime.legacy.5b66d98ebb06': {
-    source: `terminal.hypothesis': { ru: 'Гипотеза: {{value}}', en: 'Hypothesis: {{value}}`,
-    status: 'pending-translation',
-    values: {
-      'ru': `terminal.hypothesis': { ru: 'Гипотеза: {{value}}', en: 'Hypothesis: {{value}}`,
-    },
-  },
-  'runtime.legacy.5b7196838cef': {
-    source: `title": "Проблема Варинга`,
-    status: 'pending-translation',
-    values: {
-      'ru': `title": "Проблема Варинга`,
-    },
-  },
-  'runtime.legacy.5bb3bbe69138': {
-    source: `singularityHint": "Сингулярность иммунного ответа.`,
-    status: 'pending-translation',
-    values: {
-      'ru': `singularityHint": "Сингулярность иммунного ответа.`,
+      'ru': `Коллапс волновой функции.`,
     },
   },
   'runtime.legacy.5c151f6c5687': {
@@ -2649,60 +2596,32 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ru': `Информатика и ИИ`,
     },
   },
-  'runtime.legacy.5c58ae3d4975': {
-    source: `title": "Устойчивость к антибиотикам`,
+  'runtime.legacy.5ca3270e2176': {
+    source: `Одномерные топологические дефекты.`,
     status: 'pending-translation',
     values: {
-      'ru': `title": "Устойчивость к антибиотикам`,
+      'ru': `Одномерные топологические дефекты.`,
     },
   },
-  'runtime.legacy.5c6322d49149': {
-    source: `settings.sidebarPanels': { ru: 'Панели сайдбара', en: 'Sidebar panels`,
+  'runtime.legacy.5d1b711d4bb8': {
+    source: `Сингулярные симплексы.`,
     status: 'pending-translation',
     values: {
-      'ru': `settings.sidebarPanels': { ru: 'Панели сайдбара', en: 'Sidebar panels`,
+      'ru': `Сингулярные симплексы.`,
     },
   },
-  'runtime.legacy.5c6bca99c7e9': {
-    source: `targetFunction": "Formalize(РаспределениебогатстваПарето)`,
+  'runtime.legacy.5d7475a2a0ef': {
+    source: `Formalize(Квантоваязапутанностьикротовыеноры)`,
     status: 'pending-translation',
     values: {
-      'ru': `targetFunction": "Formalize(РаспределениебогатстваПарето)`,
+      'ru': `Formalize(Квантоваязапутанностьикротовыеноры)`,
     },
   },
-  'runtime.legacy.5c874b3ff53f': {
-    source: `targetFunction": "Formalize(Теорияузлов)`,
+  'runtime.legacy.5e21b0de67e9': {
+    source: `Унитарность квантовой механики при испарении черной дыры.`,
     status: 'pending-translation',
     values: {
-      'ru': `targetFunction": "Formalize(Теорияузлов)`,
-    },
-  },
-  'runtime.legacy.5d846a02200f': {
-    source: `title": "Магнитные монополи`,
-    status: 'pending-translation',
-    values: {
-      'ru': `title": "Магнитные монополи`,
-    },
-  },
-  'runtime.legacy.5dbad4983760': {
-    source: `targetFunction": "Formalize(ТеоремаЭрроуоневозможности)`,
-    status: 'pending-translation',
-    values: {
-      'ru': `targetFunction": "Formalize(ТеоремаЭрроуоневозможности)`,
-    },
-  },
-  'runtime.legacy.5dffbb5fbef6': {
-    source: `2', name: 'RICIS TRANSFORMS (A6)', action: 'Косое произведение в кольце Мерсенна', expression: '0_F \\\\times \\\\infty_G = F \\\\cdot G`,
-    status: 'pending-translation',
-    values: {
-      'ru': `2', name: 'RICIS TRANSFORMS (A6)', action: 'Косое произведение в кольце Мерсенна', expression: '0_F \\\\times \\\\infty_G = F \\\\cdot G`,
-    },
-  },
-  'runtime.legacy.5e1ddcb569b5': {
-    source: `singularityHint": "Шумовая сингулярность ЭЭГ.`,
-    status: 'pending-translation',
-    values: {
-      'ru': `singularityHint": "Шумовая сингулярность ЭЭГ.`,
+      'ru': `Унитарность квантовой механики при испарении черной дыры.`,
     },
   },
   'runtime.legacy.5e37eba255f1': {
@@ -2723,18 +2642,25 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ms-MY': `Peta Singulariti 3D`,
     },
   },
-  'runtime.legacy.5eb302347ef2': {
-    source: `title": "Голографический принцип`,
+  'runtime.legacy.5e757e13371e': {
+    source: `Formalize(ЭффектКазимира)`,
     status: 'pending-translation',
     values: {
-      'ru': `title": "Голографический принцип`,
+      'ru': `Formalize(ЭффектКазимира)`,
     },
   },
-  'runtime.legacy.5f0e8409d230': {
-    source: `targetFunction": "Formalize(Сложностьсортировки)`,
+  'runtime.legacy.5e94c3c0cf74': {
+    source: `Сингулярность деления клетки (смерть).`,
     status: 'pending-translation',
     values: {
-      'ru': `targetFunction": "Formalize(Сложностьсортировки)`,
+      'ru': `Сингулярность деления клетки (смерть).`,
+    },
+  },
+  'runtime.legacy.5ea195a062a9': {
+    source: `Топологический барьер (непроницаемость).`,
+    status: 'pending-translation',
+    values: {
+      'ru': `Топологический барьер (непроницаемость).`,
     },
   },
   'runtime.legacy.5f4ab1d1e69f': {
@@ -2744,53 +2670,36 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ru': `Нобелевская премия (Квантовый эффект Холла)`,
     },
   },
-  'runtime.legacy.603d3ece2d2d': {
-    source: `settings.profile': { ru: 'Профиль интерфейса', en: 'Interface profile`,
+  'runtime.legacy.5f916a291797': {
+    source: `Formalize(МеханизмыпамятииАльцгеймер)`,
     status: 'pending-translation',
     values: {
-      'ru': `settings.profile': { ru: 'Профиль интерфейса', en: 'Interface profile`,
+      'ru': `Formalize(МеханизмыпамятииАльцгеймер)`,
     },
   },
-  'runtime.legacy.60d6b9b77eee': {
-    source: `singularityHint": "Сингулярность Понци (экспоненциальный рост до обрыва).`,
-    status: 'pending-translation',
+  'runtime.legacy.60bd9c778157': {
+    source: `Название профиля:`,
+    status: 'translated-from-existing-resource',
     values: {
-      'ru': `singularityHint": "Сингулярность Понци (экспоненциальный рост до обрыва).`,
+      'ru': `Название профиля:`,
+      'fr-CA': `Nom du profil :`,
+      'de-DE': `Profilname:`,
+      'hi-IN': `प्रोफ़ाइल का नाम:`,
+      'ms-MY': `Nama profil:`,
     },
   },
-  'runtime.legacy.60e865c357f2': {
-    source: `targetFunction": "Formalize(Квантоваяошибка)`,
+  'runtime.legacy.617d9f8e118f': {
+    source: `Старение клеток.`,
     status: 'pending-translation',
     values: {
-      'ru': `targetFunction": "Formalize(Квантоваяошибка)`,
+      'ru': `Старение клеток.`,
     },
   },
-  'runtime.legacy.610ba8ff5f81': {
-    source: `Журнал логов очищен.', 'info`,
+  'runtime.legacy.61cc8c3cdcc4': {
+    source: `Свертка вырожденной геометрии (5 и 2)`,
     status: 'pending-translation',
     values: {
-      'ru': `Журнал логов очищен.', 'info`,
-    },
-  },
-  'runtime.legacy.615f12c1de41': {
-    source: `description": "Обучение мозга.`,
-    status: 'pending-translation',
-    values: {
-      'ru': `description": "Обучение мозга.`,
-    },
-  },
-  'runtime.legacy.6193294cbcbd': {
-    source: `description": "Вероятность гибели человечества.`,
-    status: 'pending-translation',
-    values: {
-      'ru': `description": "Вероятность гибели человечества.`,
-    },
-  },
-  'runtime.legacy.61f0d11140af': {
-    source: `description": "Детерминированное сведение NP к P через вырожденный векторный каркас Psi(X)=Const и циклическое кольцо Мерсенна M = 2^k - 1 без перебора.`,
-    status: 'pending-translation',
-    values: {
-      'ru': `description": "Детерминированное сведение NP к P через вырожденный векторный каркас Psi(X)=Const и циклическое кольцо Мерсенна M = 2^k - 1 без перебора.`,
+      'ru': `Свертка вырожденной геометрии (5 и 2)`,
     },
   },
   'runtime.legacy.62179cf0dc85': {
@@ -2798,6 +2707,17 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
     status: 'pending-translation',
     values: {
       'ru': `Лингвистика`,
+    },
+  },
+  'runtime.legacy.622574d5164d': {
+    source: `Выкл`,
+    status: 'translated-from-existing-resource',
+    values: {
+      'ru': `Выкл`,
+      'fr-CA': `Désactivé`,
+      'de-DE': `Aus`,
+      'hi-IN': `बंद`,
+      'ms-MY': `Mati`,
     },
   },
   'runtime.legacy.62355f2292d3': {
@@ -2811,18 +2731,18 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ms-MY': `Ralat pengesahan Lean wujud atau bukti luaran ditolak. Tuntutan tidak boleh digunakan sebagai disahkan.`,
     },
   },
-  'runtime.legacy.62ae288c1f19': {
-    source: `targetFunction": "Formalize(Мозговыеинтерфейсы(BCI))`,
+  'runtime.legacy.6260623c4924': {
+    source: `Formalize(Проблемакатастрофическогозабывания)`,
     status: 'pending-translation',
     values: {
-      'ru': `targetFunction": "Formalize(Мозговыеинтерфейсы(BCI))`,
+      'ru': `Formalize(Проблемакатастрофическогозабывания)`,
     },
   },
-  'runtime.legacy.62c13644949c': {
-    source: `title": "Алгоритмы консенсуса`,
+  'runtime.legacy.62684b4d249c': {
+    source: `Особые точки алгебраических кривых`,
     status: 'pending-translation',
     values: {
-      'ru': `title": "Алгоритмы консенсуса`,
+      'ru': `Особые точки алгебраических кривых`,
     },
   },
   'runtime.legacy.62cfebefee90': {
@@ -2832,11 +2752,50 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ru': `Индексация сингулярностей порождающими выражениями`,
     },
   },
-  'runtime.legacy.6313cf4fc2d1': {
-    source: `Анализ сторонних публикаций на семантическое соответствие RICIS A6/SP2...', 'info`,
+  'runtime.legacy.62d7af3e56b1': {
+    source: `Восстановление органов.`,
     status: 'pending-translation',
     values: {
-      'ru': `Анализ сторонних публикаций на семантическое соответствие RICIS A6/SP2...', 'info`,
+      'ru': `Восстановление органов.`,
+    },
+  },
+  'runtime.legacy.62dfd0c343d4': {
+    source: `Formalize(РаспределениебогатстваПарето)`,
+    status: 'pending-translation',
+    values: {
+      'ru': `Formalize(РаспределениебогатстваПарето)`,
+    },
+  },
+  'runtime.legacy.6306b0da5be7': {
+    source: `Создать новый`,
+    status: 'translated-from-existing-resource',
+    values: {
+      'ru': `Создать новый`,
+      'fr-CA': `Créer nouveau`,
+      'de-DE': `Neu erstellen`,
+      'hi-IN': `नया बनाएँ`,
+      'ms-MY': `Buat baru`,
+    },
+  },
+  'runtime.legacy.635ea713be36': {
+    source: `Formalize(Некоммутативнаягеометрия)`,
+    status: 'pending-translation',
+    values: {
+      'ru': `Formalize(Некоммутативнаягеометрия)`,
+    },
+  },
+  'runtime.legacy.639f6c572342': {
+    source: `Formalize(Особыеточкиалгебраическихкривых)`,
+    status: 'pending-translation',
+    values: {
+      'ru': `Formalize(Особыеточкиалгебраическихкривых)`,
+    },
+  },
+  'runtime.legacy.63bfc6399e82': {
+    source: `Сингулярность кривизны на линии.`,
+    status: 'pending-translation',
+    values: {
+      'ru': `Сингулярность кривизны на линии.`,
     },
   },
   'runtime.legacy.64133ff243fb': {
@@ -2857,20 +2816,6 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ru': `Вычисления, нейросети, AGI.`,
     },
   },
-  'runtime.legacy.64706e3833ef': {
-    source: `description": "Чтение мыслей.`,
-    status: 'pending-translation',
-    values: {
-      'ru': `description": "Чтение мыслей.`,
-    },
-  },
-  'runtime.legacy.64931c009a1b': {
-    source: `description": "Алгоритмическая неразрешимость.`,
-    status: 'pending-translation',
-    values: {
-      'ru': `description": "Алгоритмическая неразрешимость.`,
-    },
-  },
   'runtime.legacy.6496a93bfc93': {
     source: `🚨 Внутренняя ошибка обработки. Результат не был объявлен доказанным.`,
     status: 'pending-translation',
@@ -2885,39 +2830,43 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ru': `Ожидался контролируемый Core failure.`,
     },
   },
-  'runtime.legacy.64a9700f7e60': {
-    source: `title": "Высокотемпературная сверхпроводимость`,
+  'runtime.legacy.64c11803cc51': {
+    source: `Ортогональность интеллекта и целей.`,
     status: 'pending-translation',
     values: {
-      'ru': `title": "Высокотемпературная сверхпроводимость`,
+      'ru': `Ортогональность интеллекта и целей.`,
     },
   },
-  'runtime.legacy.64ace5a32462': {
-    source: `singularityHint": "Бесконечная плотность в t=0.`,
+  'runtime.legacy.64cc62348de4': {
+    source: `Сингулярность будущего (Большой разрыв).`,
     status: 'pending-translation',
     values: {
-      'ru': `singularityHint": "Бесконечная плотность в t=0.`,
+      'ru': `Сингулярность будущего (Большой разрыв).`,
     },
   },
-  'runtime.legacy.6575aa0b975c': {
-    source: `description": "Метод пограничного слоя.`,
-    status: 'pending-translation',
+  'runtime.legacy.653e311094c6': {
+    source: `Итоговый локальный инвариант: {{value}} (требуется Core/Lean evidence)`,
+    status: 'translated-from-existing-resource',
     values: {
-      'ru': `description": "Метод пограничного слоя.`,
+      'ru': `Итоговый локальный инвариант: {{value}} (требуется Core/Lean evidence)`,
+      'fr-CA': `Invariant local final : {{value}} (preuve Core/Lean requise)`,
+      'de-DE': `Endgültiges lokales Invariant: {{value}} (Core/Lean-Nachweis erforderlich)`,
+      'hi-IN': `अंतिम स्थानीय इनवेरियंट: {{value}} (Core/Lean प्रमाण आवश्यक)`,
+      'ms-MY': `Invarian tempatan akhir: {{value}} (bukti Core/Lean diperlukan)`,
     },
   },
-  'runtime.legacy.65b44fb98e9a': {
-    source: `найди сам" или "Formalize(N/A)`,
+  'runtime.legacy.656c6a277a2f': {
+    source: `Formalize(Квазикристаллы)`,
     status: 'pending-translation',
     values: {
-      'ru': `найди сам" или "Formalize(N/A)`,
+      'ru': `Formalize(Квазикристаллы)`,
     },
   },
-  'runtime.legacy.661f73b2dcc1': {
-    source: `singularityHint": "Комбинаторный взрыв нейтрализуется точечным схождением вырожденного каркаса.`,
+  'runtime.legacy.6644ef7ef023': {
+    source: `Formalize(Экономическиепузыри)`,
     status: 'pending-translation',
     values: {
-      'ru': `singularityHint": "Комбинаторный взрыв нейтрализуется точечным схождением вырожденного каркаса.`,
+      'ru': `Formalize(Экономическиепузыри)`,
     },
   },
   'runtime.legacy.666b8f95dde0': {
@@ -2931,18 +2880,32 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ms-MY': `BIDANG SAINTIFIK`,
     },
   },
-  'runtime.legacy.677f33557ab5': {
-    source: `targetFunction": "Formalize(Квантоваязапутанностьикротовыеноры)`,
+  'runtime.legacy.667ced6bbcdc': {
+    source: `Неоптимальное равновесие Нэша.`,
     status: 'pending-translation',
     values: {
-      'ru': `targetFunction": "Formalize(Квантоваязапутанностьикротовыеноры)`,
+      'ru': `Неоптимальное равновесие Нэша.`,
     },
   },
-  'runtime.legacy.67e17f135877': {
-    source: `targetFunction": "Formalize(Колмогоровскаясложность)`,
+  'runtime.legacy.6785ff025ac8': {
+    source: `Formalize(Мозговыеинтерфейсы(BCI))`,
     status: 'pending-translation',
     values: {
-      'ru': `targetFunction": "Formalize(Колмогоровскаясложность)`,
+      'ru': `Formalize(Мозговыеинтерфейсы(BCI))`,
+    },
+  },
+  'runtime.legacy.67dd316d045e': {
+    source: `Производная функции потерь стремится к бесконечности.`,
+    status: 'pending-translation',
+    values: {
+      'ru': `Производная функции потерь стремится к бесконечности.`,
+    },
+  },
+  'runtime.legacy.67dee89ccf72': {
+    source: `Нижняя граница сложности вычисления.`,
+    status: 'pending-translation',
+    values: {
+      'ru': `Нижняя граница сложности вычисления.`,
     },
   },
   'runtime.legacy.68029b8edfa5': {
@@ -2963,13 +2926,6 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ms-MY': `Konsol RICIS-III Proof & Singularity`,
     },
   },
-  'runtime.legacy.6846f81eeb94': {
-    source: `6', name: 'L1 VERIFICATION', action: 'Сведение NP -> P за O(1)', expression: 'P = NP`,
-    status: 'pending-translation',
-    values: {
-      'ru': `6', name: 'L1 VERIFICATION', action: 'Сведение NP -> P за O(1)', expression: 'P = NP`,
-    },
-  },
   'runtime.legacy.685a25cee22c': {
     source: `🤖 *RICIS-III Telegram simulator*\\n\\nЭто безопасная симуляция интерфейса. Она не принимает API-ключи и не выполняет внешнюю верификацию.`,
     status: 'pending-translation',
@@ -2988,13 +2944,6 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ms-MY': `Masukkan ungkapan (cth., 0_3 * inf_4 atau (x^2 - 4)/(x - 2) | x=2)...`,
     },
   },
-  'runtime.legacy.6898b25c37cf': {
-    source: `description": "Нейросети забывают старое при обучении новому.`,
-    status: 'pending-translation',
-    values: {
-      'ru': `description": "Нейросети забывают старое при обучении новому.`,
-    },
-  },
   'runtime.legacy.68c7d65ebc97': {
     source: `Премия Института Клея $1,000,000 (3D Navier-Stokes)`,
     status: 'pending-translation',
@@ -3002,18 +2951,32 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ru': `Премия Института Клея $1,000,000 (3D Navier-Stokes)`,
     },
   },
-  'runtime.legacy.69594dc6a6fc': {
-    source: `targetFunction": "Formalize(Голографическийпринцип)`,
+  'runtime.legacy.695d0e22a1ed': {
+    source: `Фазовый переход образования льда.`,
     status: 'pending-translation',
     values: {
-      'ru': `targetFunction": "Formalize(Голографическийпринцип)`,
+      'ru': `Фазовый переход образования льда.`,
     },
   },
-  'runtime.legacy.6a22e37f38b0': {
-    source: `title": "Сингулярности в уравнениях Эйнштейна`,
+  'runtime.legacy.696fedcebf7a': {
+    source: `Равенство классов P и NP (Детерминированный Мерсенновский анализ)`,
     status: 'pending-translation',
     values: {
-      'ru': `title": "Сингулярности в уравнениях Эйнштейна`,
+      'ru': `Равенство классов P и NP (Детерминированный Мерсенновский анализ)`,
+    },
+  },
+  'runtime.legacy.699364a44359': {
+    source: `Совпадение целей AGI с человеческими.`,
+    status: 'pending-translation',
+    values: {
+      'ru': `Совпадение целей AGI с человеческими.`,
+    },
+  },
+  'runtime.legacy.69944682e0da': {
+    source: `Проблема вакуумной энергии.`,
+    status: 'pending-translation',
+    values: {
+      'ru': `Проблема вакуумной энергии.`,
     },
   },
   'runtime.legacy.6a61342a45c1': {
@@ -3030,25 +2993,18 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ru': `использовать вместо корня битовую маску log2(sqr(N)) чтобы задать битность маски`,
     },
   },
+  'runtime.legacy.6a832013e722': {
+    source: `сингулярность 0/0|`,
+    status: 'pending-translation',
+    values: {
+      'ru': `сингулярность 0/0|`,
+    },
+  },
   'runtime.legacy.6aebdc187b9e': {
     source: `должен безопасно очищать слушатели и таймеры при dispose()`,
     status: 'pending-translation',
     values: {
       'ru': `должен безопасно очищать слушатели и таймеры при dispose()`,
-    },
-  },
-  'runtime.legacy.6b03c03ea9ca': {
-    source: `targetFunction": "Formalize(Темнаяэнергия)`,
-    status: 'pending-translation',
-    values: {
-      'ru': `targetFunction": "Formalize(Темнаяэнергия)`,
-    },
-  },
-  'runtime.legacy.6b14eb56eb06': {
-    source: `singularityHint": "Неперенормируемые расходимости.`,
-    status: 'pending-translation',
-    values: {
-      'ru': `singularityHint": "Неперенормируемые расходимости.`,
     },
   },
   'runtime.legacy.6b151b4b02db': {
@@ -3062,6 +3018,13 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ms-MY': `Diagnostik deterministik TypeScript`,
     },
   },
+  'runtime.legacy.6b4c42800af3': {
+    source: `Formalize(СингулярностьБольшоговзрыва)`,
+    status: 'pending-translation',
+    values: {
+      'ru': `Formalize(СингулярностьБольшоговзрыва)`,
+    },
+  },
   'runtime.legacy.6b4cfdd63a54': {
     source: `Например: x => x / x`,
     status: 'translated-from-existing-resource',
@@ -3073,11 +3036,11 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ms-MY': `Sebagai contoh: x => x / x`,
     },
   },
-  'runtime.legacy.6bca7aa7382c': {
-    source: `targetFunction": "Formalize(Квантоваяпревосходство)`,
+  'runtime.legacy.6c4178f144c7': {
+    source: `Детерминированное сведение NP к P через вырожденный векторный каркас Psi(X)=Const и циклическое кольцо Мерсенна M = 2^k - 1 без перебора.`,
     status: 'pending-translation',
     values: {
-      'ru': `targetFunction": "Formalize(Квантоваяпревосходство)`,
+      'ru': `Детерминированное сведение NP к P через вырожденный векторный каркас Psi(X)=Const и циклическое кольцо Мерсенна M = 2^k - 1 без перебора.`,
     },
   },
   'runtime.legacy.6c5ddeb7c3a8': {
@@ -3109,6 +3072,13 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ms-MY': `Pemprosesan struktur RICIS-III sedang dijalankan…`,
     },
   },
+  'runtime.legacy.6d02394f9801': {
+    source: `сам`,
+    status: 'pending-translation',
+    values: {
+      'ru': `сам`,
+    },
+  },
   'runtime.legacy.6d1233be63d7': {
     source: `Обнаружено выражение '0/0'. По закону L1C2 и аксиоме A3, нули должны иметь индексацию происхождения (например, 0_F / 0_G) для избежания сингулярности.`,
     status: 'pending-translation',
@@ -3116,25 +3086,25 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ru': `Обнаружено выражение '0/0'. По закону L1C2 и аксиоме A3, нули должны иметь индексацию происхождения (например, 0_F / 0_G) для избежания сингулярности.`,
     },
   },
-  'runtime.legacy.6d49d04442ac': {
-    source: `title": "\${title || "Научная проблема"}`,
+  'runtime.legacy.6e23cee9cbed': {
+    source: `Объединение ОТО и квантовой механики.`,
     status: 'pending-translation',
     values: {
-      'ru': `title": "\${title || "Научная проблема"}`,
+      'ru': `Объединение ОТО и квантовой механики.`,
     },
   },
-  'runtime.legacy.6d86f6d89b56': {
-    source: `targetFunction": "Formalize(ТеломерыипределХейфлика)`,
+  'runtime.legacy.6e3b887202b1': {
+    source: `Formalize(Псевдодифференциальныеоператоры)`,
     status: 'pending-translation',
     values: {
-      'ru': `targetFunction": "Formalize(ТеломерыипределХейфлика)`,
+      'ru': `Formalize(Псевдодифференциальныеоператоры)`,
     },
   },
-  'runtime.legacy.6da8f321b1a3': {
-    source: `title": "Космические струны`,
+  'runtime.legacy.6ed040188bce': {
+    source: `Formalize(ИнвариантыДональдсона)`,
     status: 'pending-translation',
     values: {
-      'ru': `title": "Космические струны`,
+      'ru': `Formalize(ИнвариантыДональдсона)`,
     },
   },
   'runtime.legacy.6ee0adb1e585': {
@@ -3160,6 +3130,13 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
     status: 'pending-translation',
     values: {
       'ru': `Институциональное выравнивание и риск-менеджмент $5 Трлн`,
+    },
+  },
+  'runtime.legacy.6f478ccf8d07': {
+    source: `Алгебраическое сокращение идентичных факторов ДО сингулярности`,
+    status: 'pending-translation',
+    values: {
+      'ru': `Алгебраическое сокращение идентичных факторов ДО сингулярности`,
     },
   },
   'runtime.legacy.6f4fda0581ba': {
@@ -3191,6 +3168,13 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ms-MY': `Dokumen snapshot`,
     },
   },
+  'runtime.legacy.7061932b288e': {
+    source: `Размерность Хаусдорфа.`,
+    status: 'pending-translation',
+    values: {
+      'ru': `Размерность Хаусдорфа.`,
+    },
+  },
   'runtime.legacy.70a0122fe013': {
     source: `Proof evidence не приложен`,
     status: 'translated-from-existing-resource',
@@ -3202,20 +3186,6 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ms-MY': `Tiada bukti dilampirkan`,
     },
   },
-  'runtime.legacy.70dad8977cdc': {
-    source: `description": "Классификация особенностей кривых на плоскости.`,
-    status: 'pending-translation',
-    values: {
-      'ru': `description": "Классификация особенностей кривых на плоскости.`,
-    },
-  },
-  'runtime.legacy.70e6a6095b8e': {
-    source: `неожиданная') || e.includes('Лишняя') || e.includes('Unexpected`,
-    status: 'pending-translation',
-    values: {
-      'ru': `неожиданная') || e.includes('Лишняя') || e.includes('Unexpected`,
-    },
-  },
   'runtime.legacy.715374381240': {
     source: `Непрерывные аппроксимации устранены. Произведен переход к точечным дискретным инвариантам Eval_RICIS.`,
     status: 'pending-translation',
@@ -3223,25 +3193,18 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ru': `Непрерывные аппроксимации устранены. Произведен переход к точечным дискретным инвариантам Eval_RICIS.`,
     },
   },
-  'runtime.legacy.717113d999ea': {
-    source: `title": "Онкогенез`,
+  'runtime.legacy.71b14e0fa640': {
+    source: `Formalize(Информационныйпарадоксчерныхдыр)`,
     status: 'pending-translation',
     values: {
-      'ru': `title": "Онкогенез`,
+      'ru': `Formalize(Информационныйпарадоксчерныхдыр)`,
     },
   },
-  'runtime.legacy.71d79e5a48e9': {
-    source: `description": "Фазовые переходы Эрдёша — Реньи.`,
+  'runtime.legacy.71d7dbeed628': {
+    source: `Порядок нуля в критической точке.`,
     status: 'pending-translation',
     values: {
-      'ru': `description": "Фазовые переходы Эрдёша — Реньи.`,
-    },
-  },
-  'runtime.legacy.71e2f6092e66': {
-    source: `description": "Мутации и рак.`,
-    status: 'pending-translation',
-    values: {
-      'ru': `description": "Мутации и рак.`,
+      'ru': `Порядок нуля в критической точке.`,
     },
   },
   'runtime.legacy.71fa7715f74d': {
@@ -3251,18 +3214,15 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ru': `Цель AGI`,
     },
   },
-  'runtime.legacy.724e813df38b': {
-    source: `targetFunction": "Formalize(Персонализированнаямедицина)`,
-    status: 'pending-translation',
+  'runtime.legacy.72aecd9ad856': {
+    source: `Ошибка`,
+    status: 'translated-from-existing-resource',
     values: {
-      'ru': `targetFunction": "Formalize(Персонализированнаямедицина)`,
-    },
-  },
-  'runtime.legacy.72c093b01326': {
-    source: `singularityHint": "Фазовый переход образования льда.`,
-    status: 'pending-translation',
-    values: {
-      'ru': `singularityHint": "Фазовый переход образования льда.`,
+      'ru': `Ошибка`,
+      'fr-CA': `Erreur`,
+      'de-DE': `Fehler`,
+      'hi-IN': `त्रुटि`,
+      'ms-MY': `Ralat`,
     },
   },
   'runtime.legacy.72ecf67643f3': {
@@ -3276,32 +3236,18 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ms-MY': `Klik mana‑mana pratetap di atas atau tukar jenis laporan.`,
     },
   },
-  'runtime.legacy.730ecc244f52': {
-    source: `description": "Предсказание третичной структуры.`,
+  'runtime.legacy.734478b53115': {
+    source: `Начальное состояние Вселенной.`,
     status: 'pending-translation',
     values: {
-      'ru': `description": "Предсказание третичной структуры.`,
+      'ru': `Начальное состояние Вселенной.`,
     },
   },
-  'runtime.legacy.733e7c4e95c0': {
-    source: `description": "Управление экспрессией генов.`,
+  'runtime.legacy.741766fb57df': {
+    source: `Блокчейн-форк`,
     status: 'pending-translation',
     values: {
-      'ru': `description": "Управление экспрессией генов.`,
-    },
-  },
-  'runtime.legacy.73b3100e63ff': {
-    source: `title": "Разрешение особенностей Хиронаки`,
-    status: 'pending-translation',
-    values: {
-      'ru': `title": "Разрешение особенностей Хиронаки`,
-    },
-  },
-  'runtime.legacy.741706f48979': {
-    source: `targetFunction": "Formalize(Гиперинфляция)`,
-    status: 'pending-translation',
-    values: {
-      'ru': `targetFunction": "Formalize(Гиперинфляция)`,
+      'ru': `Блокчейн-форк`,
     },
   },
   'runtime.legacy.741b09b467c0': {
@@ -3311,25 +3257,25 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ru': `Доказательство авторства ИИ-идей: Алгебра геометрических сингулярностей`,
     },
   },
-  'runtime.legacy.74777505657e': {
-    source: `SAFETY CHECK (SP2)', action: 'Алгебраическое сокращение факторов ДО вычисления сингулярностей`,
+  'runtime.legacy.7456aabfc1a8': {
+    source: `Управление экспрессией генов.`,
     status: 'pending-translation',
     values: {
-      'ru': `SAFETY CHECK (SP2)', action: 'Алгебраическое сокращение факторов ДО вычисления сингулярностей`,
+      'ru': `Управление экспрессией генов.`,
     },
   },
-  'runtime.legacy.75008a994ee4': {
-    source: `targetFunction": "Formalize(Сингулярностивмашинномобучении)`,
+  'runtime.legacy.745c181e2640': {
+    source: `Formalize(СингулярныевозмущенияДУ)`,
     status: 'pending-translation',
     values: {
-      'ru': `targetFunction": "Formalize(Сингулярностивмашинномобучении)`,
+      'ru': `Formalize(СингулярныевозмущенияДУ)`,
     },
   },
-  'runtime.legacy.7512322608ae': {
-    source: `\${top.char}' на строке \${top.line}, но встречена закрывающая '\${char}`,
+  'runtime.legacy.7563b62f8800': {
+    source: `Существует ли нетривиальное инвариантное подпространство?`,
     status: 'pending-translation',
     values: {
-      'ru': `\${top.char}' на строке \${top.line}, но встречена закрывающая '\${char}`,
+      'ru': `Существует ли нетривиальное инвариантное подпространство?`,
     },
   },
   'runtime.legacy.756e4d63906a': {
@@ -3339,32 +3285,18 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ru': `не использует общий пул ключей`,
     },
   },
-  'runtime.legacy.75ae24310e7d': {
-    source: `targetFunction": "Formalize(Случайныеграфы)`,
-    status: 'pending-translation',
-    values: {
-      'ru': `targetFunction": "Formalize(Случайныеграфы)`,
-    },
-  },
-  'runtime.legacy.7616cc826b74': {
-    source: `singularityHint": "Невычислимость в пределе.`,
-    status: 'pending-translation',
-    values: {
-      'ru': `singularityHint": "Невычислимость в пределе.`,
-    },
-  },
-  'runtime.legacy.76216670aac1': {
-    source: `description": "Странный аттрактор в хаотических системах.`,
-    status: 'pending-translation',
-    values: {
-      'ru': `description": "Странный аттрактор в хаотических системах.`,
-    },
-  },
   'runtime.legacy.762cc12530ec': {
     source: `Ricis.Core отклонил формат выражения. Результат не вычислялся.`,
     status: 'pending-translation',
     values: {
       'ru': `Ricis.Core отклонил формат выражения. Результат не вычислялся.`,
+    },
+  },
+  'runtime.legacy.768368e89b28': {
+    source: `Устойчивость к коллизиям.`,
+    status: 'pending-translation',
+    values: {
+      'ru': `Устойчивость к коллизиям.`,
     },
   },
   'runtime.legacy.76b47346cd00': {
@@ -3385,18 +3317,11 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ms-MY': `Hantar`,
     },
   },
-  'runtime.legacy.76e9dcdea3f6': {
-    source: `targetFunction": "Formalize(Дилеммазаключенного)`,
+  'runtime.legacy.770c481c943d': {
+    source: `Formalize(БыстроепреобразованиеФурье)`,
     status: 'pending-translation',
     values: {
-      'ru': `targetFunction": "Formalize(Дилеммазаключенного)`,
-    },
-  },
-  'runtime.legacy.770dda153fe1': {
-    source: `title": "Сложность сортировки`,
-    status: 'pending-translation',
-    values: {
-      'ru': `title": "Сложность сортировки`,
+      'ru': `Formalize(БыстроепреобразованиеФурье)`,
     },
   },
   'runtime.legacy.7736d666c528': {
@@ -3410,32 +3335,11 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ms-MY': `Spesifikasi Lean 4`,
     },
   },
-  'runtime.legacy.77541ff2db56': {
-    source: `panel.actions': { ru: 'Быстрые действия', en: 'Quick actions`,
-    status: 'pending-translation',
-    values: {
-      'ru': `panel.actions': { ru: 'Быстрые действия', en: 'Quick actions`,
-    },
-  },
-  'runtime.legacy.776d485676e2': {
-    source: `title": "Теория Янга-Миллса: существование и массовая щель`,
-    status: 'pending-translation',
-    values: {
-      'ru': `title": "Теория Янга-Миллса: существование и массовая щель`,
-    },
-  },
   'runtime.legacy.778cb4caec4d': {
     source: `Моральное выравнивание, безопасность.`,
     status: 'pending-translation',
     values: {
       'ru': `Моральное выравнивание, безопасность.`,
-    },
-  },
-  'runtime.legacy.77a2c7c45b1d': {
-    source: `targetFunction": "Formalize(Информационныйпарадоксчерныхдыр)`,
-    status: 'pending-translation',
-    values: {
-      'ru': `targetFunction": "Formalize(Информационныйпарадоксчерныхдыр)`,
     },
   },
   'runtime.legacy.78626a548cea': {
@@ -3445,20 +3349,6 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ru': `Фармацевтический рынок ИИ-дизайна молекул $2 Трлн`,
     },
   },
-  'runtime.legacy.78f89b128536': {
-    source: `singularityHint": "Экспоненциальный взрыв времени вычислений схлопывается побитовыми сдвигами за 1 такт.`,
-    status: 'pending-translation',
-    values: {
-      'ru': `singularityHint": "Экспоненциальный взрыв времени вычислений схлопывается побитовыми сдвигами за 1 такт.`,
-    },
-  },
-  'runtime.legacy.791f1ffd5154': {
-    source: `targetFunction": "Formalize(Оптимизациягиперпараметров)`,
-    status: 'pending-translation',
-    values: {
-      'ru': `targetFunction": "Formalize(Оптимизациягиперпараметров)`,
-    },
-  },
   'runtime.legacy.792c3c432303': {
     source: `Не связанный узел`,
     status: 'pending-translation',
@@ -3466,25 +3356,18 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ru': `Не связанный узел`,
     },
   },
-  'runtime.legacy.793faf5ae717': {
-    source: `terminal.error': { ru: 'Ошибка', en: 'Error`,
+  'runtime.legacy.7991f1b2cd54': {
+    source: `Теория Морса`,
     status: 'pending-translation',
     values: {
-      'ru': `terminal.error': { ru: 'Ошибка', en: 'Error`,
+      'ru': `Теория Морса`,
     },
   },
-  'runtime.legacy.7973722ddda0': {
-    source: `description": "Состояния на краю, защищенные топологией.`,
+  'runtime.legacy.79c49f8dd605': {
+    source: `Сингулярность дифракционного спектра.`,
     status: 'pending-translation',
     values: {
-      'ru': `description": "Состояния на краю, защищенные топологией.`,
-    },
-  },
-  'runtime.legacy.7a06908d42ad': {
-    source: `RICIS TRANSFORMS (A6)', action: 'Косое произведение ортогональных векторов det(u,v) = F * G или 0_F * \\\\infty_F = F^2`,
-    status: 'pending-translation',
-    values: {
-      'ru': `RICIS TRANSFORMS (A6)', action: 'Косое произведение ортогональных векторов det(u,v) = F * G или 0_F * \\\\infty_F = F^2`,
+      'ru': `Сингулярность дифракционного спектра.`,
     },
   },
   'runtime.legacy.7a295b9e7bfb': {
@@ -3515,25 +3398,32 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ru': `Ricis.Core вернул неполный ответ. Результат не принят.`,
     },
   },
-  'runtime.legacy.7b233d12ab25': {
-    source: `settings.profileName': { ru: 'Название профиля:', en: 'Profile name:`,
+  'runtime.legacy.7b49761c54e2': {
+    source: `Сингулярности Риччи-потока`,
     status: 'pending-translation',
     values: {
-      'ru': `settings.profileName': { ru: 'Название профиля:', en: 'Profile name:`,
+      'ru': `Сингулярности Риччи-потока`,
     },
   },
-  'runtime.legacy.7b699487a31f': {
-    source: `singularityHint": "Топологические препятствия.`,
+  'runtime.legacy.7b58afb8df78': {
+    source: `Чтение мыслей.`,
     status: 'pending-translation',
     values: {
-      'ru': `singularityHint": "Топологические препятствия.`,
+      'ru': `Чтение мыслей.`,
     },
   },
-  'runtime.legacy.7bd903c1bf08': {
-    source: `сам') && (s.includes('формул') || s.includes('уравнен') || s.includes('выражен') || s.includes('функц') || s.includes('решен`,
+  'runtime.legacy.7b721e1a35e3': {
+    source: ` и `,
     status: 'pending-translation',
     values: {
-      'ru': `сам') && (s.includes('формул') || s.includes('уравнен') || s.includes('выражен') || s.includes('функц') || s.includes('решен`,
+      'ru': ` и `,
+    },
+  },
+  'runtime.legacy.7b725d95d8c8': {
+    source: `неожиданная`,
+    status: 'pending-translation',
+    values: {
+      'ru': `неожиданная`,
     },
   },
   'runtime.legacy.7c01d901ddac': {
@@ -3543,11 +3433,39 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ru': `Математика`,
     },
   },
+  'runtime.legacy.7c28c098616d': {
+    source: `Лишняя`,
+    status: 'pending-translation',
+    values: {
+      'ru': `Лишняя`,
+    },
+  },
   'runtime.legacy.7c4c29d9ac5e': {
     source: `Разрешение неопределенности через аксиомы SP1-SP4 и Skew Product A6`,
     status: 'pending-translation',
     values: {
       'ru': `Разрешение неопределенности через аксиомы SP1-SP4 и Skew Product A6`,
+    },
+  },
+  'runtime.legacy.7c605ef072ab': {
+    source: `Многосолитонные решения.`,
+    status: 'pending-translation',
+    values: {
+      'ru': `Многосолитонные решения.`,
+    },
+  },
+  'runtime.legacy.7c7e428e3c96': {
+    source: `Квантовая экспоненциальная сложность редуцируется стековой маской Span<byte>.`,
+    status: 'pending-translation',
+    values: {
+      'ru': `Квантовая экспоненциальная сложность редуцируется стековой маской Span<byte>.`,
+    },
+  },
+  'runtime.legacy.7c848f3088d3': {
+    source: `Инварианты Громова-Виттена.`,
+    status: 'pending-translation',
+    values: {
+      'ru': `Инварианты Громова-Виттена.`,
     },
   },
   'runtime.legacy.7cc37ed52404': {
@@ -3557,20 +3475,6 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ru': `Бесполезный монолит`,
     },
   },
-  'runtime.legacy.7d0cd44c1e4a': {
-    source: `description": "Гипотеза ER=EPR.`,
-    status: 'pending-translation',
-    values: {
-      'ru': `description": "Гипотеза ER=EPR.`,
-    },
-  },
-  'runtime.legacy.7d16a2499445': {
-    source: `settings.close': { ru: 'Закрыть', en: 'Close`,
-    status: 'pending-translation',
-    values: {
-      'ru': `settings.close': { ru: 'Закрыть', en: 'Close`,
-    },
-  },
   'runtime.legacy.7d17f9c02788': {
     source: `Фундаментальная нерешённая проблема формализации целевой функции сверхсложных систем (ИИ). Избежание расхождения путей с помощью протокола SP4.`,
     status: 'pending-translation',
@@ -3578,11 +3482,18 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ru': `Фундаментальная нерешённая проблема формализации целевой функции сверхсложных систем (ИИ). Избежание расхождения путей с помощью протокола SP4.`,
     },
   },
-  'runtime.legacy.7df3e4a6de2d': {
-    source: `singularityHint": "Точечный источник магнитного поля.`,
+  'runtime.legacy.7db751f2c5a1': {
+    source: `Formalize(ГипотезаРимана)`,
     status: 'pending-translation',
     values: {
-      'ru': `singularityHint": "Точечный источник магнитного поля.`,
+      'ru': `Formalize(ГипотезаРимана)`,
+    },
+  },
+  'runtime.legacy.7e0fa88acd1b': {
+    source: `Топологическая невозможность (парадокс голосования).`,
+    status: 'pending-translation',
+    values: {
+      'ru': `Топологическая невозможность (парадокс голосования).`,
     },
   },
   'runtime.legacy.7e2eff4d0332': {
@@ -3592,25 +3503,18 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ru': `WebAssembly-ядро Ricis.Core не завершило вычисление. Результат не вычислялся.`,
     },
   },
-  'runtime.legacy.7e9c02cd7a5e': {
-    source: `targetFunction": "Formalize(Алгоритмыконсенсуса)`,
+  'runtime.legacy.7e3183a682e8': {
+    source: `Проверка инварианта без структурной амнезии за O(1)`,
     status: 'pending-translation',
     values: {
-      'ru': `targetFunction": "Formalize(Алгоритмыконсенсуса)`,
+      'ru': `Проверка инварианта без структурной амнезии за O(1)`,
     },
   },
-  'runtime.legacy.7e9fbd72c2b3': {
-    source: `singularityHint": "Конические точки в компактных пространствах.`,
+  'runtime.legacy.7ec35250576b': {
+    source: ` / неопределенности, зафиксируй это в выводе, чтобы статус задачи остался `,
     status: 'pending-translation',
     values: {
-      'ru': `singularityHint": "Конические точки в компактных пространствах.`,
-    },
-  },
-  'runtime.legacy.7ecf5a7d2737': {
-    source: `singularityHint": "Сингулярность этической функции полезности.`,
-    status: 'pending-translation',
-    values: {
-      'ru': `singularityHint": "Сингулярность этической функции полезности.`,
+      'ru': ` / неопределенности, зафиксируй это в выводе, чтобы статус задачи остался `,
     },
   },
   'runtime.legacy.7ee5c8b59ad7': {
@@ -3653,39 +3557,18 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ms-MY': `Jejak paip lapan fasa (fasa -1...6)`,
     },
   },
-  'runtime.legacy.7fb9dd11033f': {
-    source: `title": "Сингулярности в теории струн`,
+  'runtime.legacy.7f6af0f59c00': {
+    source: `Formalize(ТеломерыипределХейфлика)`,
     status: 'pending-translation',
     values: {
-      'ru': `title": "Сингулярности в теории струн`,
+      'ru': `Formalize(ТеломерыипределХейфлика)`,
     },
   },
-  'runtime.legacy.7fbd1b9fc8f8': {
-    source: `\${last.char}' на строке \${last.line}, но встречена закрывающая '\${ch}`,
+  'runtime.legacy.800aee9cff13': {
+    source: `Критическая опалесценция`,
     status: 'pending-translation',
     values: {
-      'ru': `\${last.char}' на строке \${last.line}, но встречена закрывающая '\${ch}`,
-    },
-  },
-  'runtime.legacy.800eb71942cc': {
-    source: `targetFunction": "Formalize(СингулярныевозмущенияДУ)`,
-    status: 'pending-translation',
-    values: {
-      'ru': `targetFunction": "Formalize(СингулярныевозмущенияДУ)`,
-    },
-  },
-  'runtime.legacy.801917728439': {
-    source: `zoneId": строка (зона науки, например "math", "physics", "computer_science`,
-    status: 'pending-translation',
-    values: {
-      'ru': `zoneId": строка (зона науки, например "math", "physics", "computer_science`,
-    },
-  },
-  'runtime.legacy.801a48ac0157': {
-    source: `singularityHint": "Сингулярность кривизны на линии.`,
-    status: 'pending-translation',
-    values: {
-      'ru': `singularityHint": "Сингулярность кривизны на линии.`,
+      'ru': `Критическая опалесценция`,
     },
   },
   'runtime.legacy.802f16768b6c': {
@@ -3706,20 +3589,6 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ru': `• \`REQUIRES_CORE_LEAN\` — результат требует отдельной проверки Core или Lean.`,
     },
   },
-  'runtime.legacy.80765f1cd540': {
-    source: `targetFunction": "Formalize(Токсичностьнаноматериалов)`,
-    status: 'pending-translation',
-    values: {
-      'ru': `targetFunction": "Formalize(Токсичностьнаноматериалов)`,
-    },
-  },
-  'runtime.legacy.809215629728': {
-    source: `singularityHint": "Ортогональность интеллекта и целей.`,
-    status: 'pending-translation',
-    values: {
-      'ru': `singularityHint": "Ортогональность интеллекта и целей.`,
-    },
-  },
   'runtime.legacy.80a2acdf6616': {
     source: `Ссылка на первоисточник / DOI (опционально)`,
     status: 'translated-from-existing-resource',
@@ -3731,11 +3600,11 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ms-MY': `Rujukan sumber / Pautan DOI (pilihan)`,
     },
   },
-  'runtime.legacy.80d776c572cb': {
-    source: `singularityHint": "Квазиполиномиальный тупик ликвидируется SIMD параллелизмом _mm256_cmpeq_epi32.`,
+  'runtime.legacy.8113e69070c3': {
+    source: `Идеальная избирательная система.`,
     status: 'pending-translation',
     values: {
-      'ru': `singularityHint": "Квазиполиномиальный тупик ликвидируется SIMD параллелизмом _mm256_cmpeq_epi32.`,
+      'ru': `Идеальная избирательная система.`,
     },
   },
   'runtime.legacy.8171e1552766': {
@@ -3745,46 +3614,53 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ru': `Устранение сингулярностей за O(1) время без динамических пределов`,
     },
   },
-  'runtime.legacy.818083aa658c': {
-    source: `description": "Строгое доказательство существования квантовой теории поля.`,
+  'runtime.legacy.8189c3137604': {
+    source: `Formalize(ЭффектКондо)`,
     status: 'pending-translation',
     values: {
-      'ru': `description": "Строгое доказательство существования квантовой теории поля.`,
+      'ru': `Formalize(ЭффектКондо)`,
     },
   },
-  'runtime.legacy.81f390f55750': {
-    source: `singularityHint": "Коллапс метрики в точку.`,
+  'runtime.legacy.822f5d516b32': {
+    source: `Formalize(ГипотезаПуанкаре)`,
     status: 'pending-translation',
     values: {
-      'ru': `singularityHint": "Коллапс метрики в точку.`,
+      'ru': `Formalize(ГипотезаПуанкаре)`,
     },
   },
-  'runtime.legacy.825f8002f42f': {
-    source: `description": "Сбой распознавания свой-чужой.`,
+  'runtime.legacy.8244bcbe0b3d': {
+    source: `Гипотеза Гольдбаха`,
     status: 'pending-translation',
     values: {
-      'ru': `description": "Сбой распознавания свой-чужой.`,
+      'ru': `Гипотеза Гольдбаха`,
     },
   },
-  'runtime.legacy.82e1d145e7b5': {
-    source: `singularityHint": "Бесконечная изрезанность (сингулярность границы).`,
+  'runtime.legacy.830fd42b96d5': {
+    source: `Поиск неисследованных гипотез и связей в графе...`,
     status: 'pending-translation',
     values: {
-      'ru': `singularityHint": "Бесконечная изрезанность (сингулярность границы).`,
+      'ru': `Поиск неисследованных гипотез и связей в графе...`,
     },
   },
-  'runtime.legacy.83625a4d0701': {
-    source: `terminal.loadTitle': { ru: 'Загрузить в строку ввода', en: 'Load into input`,
+  'runtime.legacy.835095500704': {
+    source: `Formalize(Сингулярностивмашинномобучении)`,
     status: 'pending-translation',
     values: {
-      'ru': `terminal.loadTitle': { ru: 'Загрузить в строку ввода', en: 'Load into input`,
+      'ru': `Formalize(Сингулярностивмашинномобучении)`,
     },
   },
-  'runtime.legacy.83b9bb3478f6': {
-    source: `title": "Особенности дифференциальных уравнений Пенлеве`,
+  'runtime.legacy.840acb8ae55b': {
+    source: `Решение задач недоступных классическим ПК.`,
     status: 'pending-translation',
     values: {
-      'ru': `title": "Особенности дифференциальных уравнений Пенлеве`,
+      'ru': `Решение задач недоступных классическим ПК.`,
+    },
+  },
+  'runtime.legacy.8484ea8e5f42': {
+    source: `Механизмы памяти и Альцгеймер`,
+    status: 'pending-translation',
+    values: {
+      'ru': `Механизмы памяти и Альцгеймер`,
     },
   },
   'runtime.legacy.84bd9c507e02': {
@@ -3798,13 +3674,6 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ms-MY': `Terminal sedia untuk pengiraan bukti`,
     },
   },
-  'runtime.legacy.84c7ed16ea6b': {
-    source: `description": "Проблема вакуумной энергии.`,
-    status: 'pending-translation',
-    values: {
-      'ru': `description": "Проблема вакуумной энергии.`,
-    },
-  },
   'runtime.legacy.85857948bed8': {
     source: `Сирота`,
     status: 'pending-translation',
@@ -3812,11 +3681,25 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ru': `Сирота`,
     },
   },
-  'runtime.legacy.87478fe47d40': {
-    source: `title": "Особые точки алгебраических кривых`,
+  'runtime.legacy.86d6b505b4a4': {
+    source: `Сингулярный носитель распределения.`,
     status: 'pending-translation',
     values: {
-      'ru': `title": "Особые точки алгебраических кривых`,
+      'ru': `Сингулярный носитель распределения.`,
+    },
+  },
+  'runtime.legacy.877b3a53350e': {
+    source: `Formalize(Сингулярнаягомология)`,
+    status: 'pending-translation',
+    values: {
+      'ru': `Formalize(Сингулярнаягомология)`,
+    },
+  },
+  'runtime.legacy.87e74f376a70': {
+    source: `Связь аналитического и топологического индексов.`,
+    status: 'pending-translation',
+    values: {
+      'ru': `Связь аналитического и топологического индексов.`,
     },
   },
   'runtime.legacy.885f9abb0e19': {
@@ -3828,6 +3711,13 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'de-DE': `Eine unveränderliche externe Lean-Quelle wird als explizit gekennzeichneter trusted contract akzeptiert; sie ist kein automatisch erzeugtes Theorem.`,
       'hi-IN': `एक अपरिवर्तनीय बाहरी Lean स्रोत स्पष्ट रूप से चिह्नित trusted contract के रूप में स्वीकार किया जाता है; यह स्वचालित रूप से उत्पन्न प्रमेय नहीं है।`,
       'ms-MY': `Satu sumber Lean luaran yang tidak boleh diubah diterima sebagai trusted contract yang dilabelkan secara eksplisit; ia bukan teorem yang dihasilkan secara automatik.`,
+    },
+  },
+  'runtime.legacy.88acb25d0ac0': {
+    source: ` или абстрактные слова! Поля `,
+    status: 'pending-translation',
+    values: {
+      'ru': ` или абстрактные слова! Поля `,
     },
   },
   'runtime.legacy.88d17100d787': {
@@ -3849,13 +3739,6 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
     status: 'pending-translation',
     values: {
       'ru': `должен обновлять строку ввода`,
-    },
-  },
-  'runtime.legacy.88e237bf5a6b': {
-    source: `description": "Ухудшение пропускной способности при добавлении дорог.`,
-    status: 'pending-translation',
-    values: {
-      'ru': `description": "Ухудшение пропускной способности при добавлении дорог.`,
     },
   },
   'runtime.legacy.88eeaeed9ebb': {
@@ -3883,13 +3766,6 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ru': `должен включать флагманские модели 3.5, 3.1 Pro и 2.5`,
     },
   },
-  'runtime.legacy.8958ea33ffc8': {
-    source: `title": "Квантовая когомология`,
-    status: 'pending-translation',
-    values: {
-      'ru': `title": "Квантовая когомология`,
-    },
-  },
   'runtime.legacy.8961df8730ee': {
     source: `Здоровье и продолжительность жизни.`,
     status: 'pending-translation',
@@ -3915,13 +3791,6 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ms-MY': `Aksioma`,
     },
   },
-  'runtime.legacy.8a10254ff4c2': {
-    source: `theoremReport.copied': { ru: 'Скопировано', en: 'Copied`,
-    status: 'pending-translation',
-    values: {
-      'ru': `theoremReport.copied': { ru: 'Скопировано', en: 'Copied`,
-    },
-  },
   'runtime.legacy.8a1f4b6cdde1': {
     source: `должен правильно валидировать L1 Identity по TCP протоколу`,
     status: 'pending-translation',
@@ -3929,11 +3798,32 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ru': `должен правильно валидировать L1 Identity по TCP протоколу`,
     },
   },
-  'runtime.legacy.8a9b4e541e6e': {
-    source: `title": "Сингулярность функции Вейерштрасса`,
+  'runtime.legacy.8a5e99ed7885': {
+    source: `Formalize(Колмогоровскаясложность)`,
     status: 'pending-translation',
     values: {
-      'ru': `title": "Сингулярность функции Вейерштрасса`,
+      'ru': `Formalize(Колмогоровскаясложность)`,
+    },
+  },
+  'runtime.legacy.8a9f4710537e': {
+    source: ` на строке \\\${last.line}, но встречена закрывающая `,
+    status: 'pending-translation',
+    values: {
+      'ru': ` на строке \\\${last.line}, но встречена закрывающая `,
+    },
+  },
+  'runtime.legacy.8acf50e46e5f': {
+    source: `  Сингулярность 0/0  `,
+    status: 'pending-translation',
+    values: {
+      'ru': `  Сингулярность 0/0  `,
+    },
+  },
+  'runtime.legacy.8ad543df28dc': {
+    source: `Рассеяние света в критической точке.`,
+    status: 'pending-translation',
+    values: {
+      'ru': `Рассеяние света в критической точке.`,
     },
   },
   'runtime.legacy.8b10a04e81b0': {
@@ -3947,6 +3837,38 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ms-MY': `Mencipta proof run...`,
     },
   },
+  'runtime.legacy.8b2717512c75': {
+    source: `Гипотеза (Premise):`,
+    status: 'translated-from-existing-resource',
+    values: {
+      'ru': `Гипотеза (Premise):`,
+      'fr-CA': `Hypothèse (Premise):`,
+      'de-DE': `Hypothese (Premise):`,
+      'hi-IN': `परिकल्पना (Premise):`,
+      'ms-MY': `Hipotesis (Premise):`,
+    },
+  },
+  'runtime.legacy.8b4cea3aad92': {
+    source: `Вырожденный каркас`,
+    status: 'pending-translation',
+    values: {
+      'ru': `Вырожденный каркас`,
+    },
+  },
+  'runtime.legacy.8b7a8d16e5e5': {
+    source: `Теория катастроф.`,
+    status: 'pending-translation',
+    values: {
+      'ru': `Теория катастроф.`,
+    },
+  },
+  'runtime.legacy.8bad5b26cf3d': {
+    source: ` или `,
+    status: 'pending-translation',
+    values: {
+      'ru': ` или `,
+    },
+  },
   'runtime.legacy.8c774206b143': {
     source: `Предустановки`,
     status: 'translated-from-existing-resource',
@@ -3958,6 +3880,20 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ms-MY': `Pratetapan`,
     },
   },
+  'runtime.legacy.8ca1f502c5bd': {
+    source: `Эпигенетическое программирование`,
+    status: 'pending-translation',
+    values: {
+      'ru': `Эпигенетическое программирование`,
+    },
+  },
+  'runtime.legacy.8cc760705080': {
+    source: `Образование капель и разрыв струи жидкости.`,
+    status: 'pending-translation',
+    values: {
+      'ru': `Образование капель и разрыв струи жидкости.`,
+    },
+  },
   'runtime.legacy.8cd88cdc3889': {
     source: `должен выявлять замкнутые циклические петли без переполнения стека [A4 0/0 Ratio]`,
     status: 'pending-translation',
@@ -3965,25 +3901,25 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ru': `должен выявлять замкнутые циклические петли без переполнения стека [A4 0/0 Ratio]`,
     },
   },
-  'runtime.legacy.8d0adf51d23b': {
-    source: `title": "Микробиом человека`,
+  'runtime.legacy.8d3ad30839ca': {
+    source: `Сингулярность отношения площади к объему.`,
     status: 'pending-translation',
     values: {
-      'ru': `title": "Микробиом человека`,
+      'ru': `Сингулярность отношения площади к объему.`,
     },
   },
-  'runtime.legacy.8d1508491800': {
-    source: `description": "Дискретность холловского сопротивления.`,
+  'runtime.legacy.8d95977b356c': {
+    source: `Formalize(Токсичностьнаноматериалов)`,
     status: 'pending-translation',
     values: {
-      'ru': `description": "Дискретность холловского сопротивления.`,
+      'ru': `Formalize(Токсичностьнаноматериалов)`,
     },
   },
-  'runtime.legacy.8d3cded9324d': {
-    source: `targetFunction": "Formalize(ТеорияЯнгаМиллса:существованиеимассоваящель)`,
+  'runtime.legacy.8d982cd935cf': {
+    source: `Монетизация масштабирования базы знаний N * log2(N) с авто-пополнением через Чат-Бот`,
     status: 'pending-translation',
     values: {
-      'ru': `targetFunction": "Formalize(ТеорияЯнгаМиллса:существованиеимассоваящель)`,
+      'ru': `Монетизация масштабирования базы знаний N * log2(N) с авто-пополнением через Чат-Бот`,
     },
   },
   'runtime.legacy.8da6977f4fba': {
@@ -3997,11 +3933,22 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ms-MY': `Menjalankan operasi kanonik...`,
     },
   },
-  'runtime.legacy.8dc8166acdba': {
-    source: `description": "Недифференцируемая, но всюду непрерывная функция.`,
+  'runtime.legacy.8db7b3bdf9e9': {
+    source: `Formalize(Проблемаинвариантныхподпространств)`,
     status: 'pending-translation',
     values: {
-      'ru': `description": "Недифференцируемая, но всюду непрерывная функция.`,
+      'ru': `Formalize(Проблемаинвариантныхподпространств)`,
+    },
+  },
+  'runtime.legacy.8e33a2b909eb': {
+    source: `Панели сайдбара`,
+    status: 'translated-from-existing-resource',
+    values: {
+      'ru': `Панели сайдбара`,
+      'fr-CA': `Panneaux de la barre latérale`,
+      'de-DE': `Seitenleistenbereiche`,
+      'hi-IN': `साइडबार पैनल`,
+      'ms-MY': `Panel bar sisi`,
     },
   },
   'runtime.legacy.8e35433658e8': {
@@ -4013,13 +3960,6 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'de-DE': `Core-Version`,
       'hi-IN': `Core संस्करण`,
       'ms-MY': `Versi Core`,
-    },
-  },
-  'runtime.legacy.8e4494b59219': {
-    source: `targetFunction": "Formalize(ТеоремаобиндексеАтьиЗингера)`,
-    status: 'pending-translation',
-    values: {
-      'ru': `targetFunction": "Formalize(ТеоремаобиндексеАтьиЗингера)`,
     },
   },
   'runtime.legacy.8e8e0890bbc4': {
@@ -4054,20 +3994,6 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ru': `"вырожденная геометрия" OR "бесконечная полоса" "площадь пересечения"`,
     },
   },
-  'runtime.legacy.8ebbe564c11f': {
-    source: `description": "Оптимальные пределы O(N log N).`,
-    status: 'pending-translation',
-    values: {
-      'ru': `description": "Оптимальные пределы O(N log N).`,
-    },
-  },
-  'runtime.legacy.8ecea0c508e5': {
-    source: `panel.zones': { ru: 'Сферы науки', en: 'Scientific fields`,
-    status: 'pending-translation',
-    values: {
-      'ru': `panel.zones': { ru: 'Сферы науки', en: 'Scientific fields`,
-    },
-  },
   'runtime.legacy.8f2d1361a09f': {
     source: `Аудит системы`,
     status: 'translated-from-existing-resource',
@@ -4079,11 +4005,11 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ms-MY': `Audit Sistem`,
     },
   },
-  'runtime.legacy.8f3d775526c5': {
-    source: `title": "Спектральная асимптотика`,
+  'runtime.legacy.8f30fa669f32': {
+    source: `Formalize(Критическаяопалесценция)`,
     status: 'pending-translation',
     values: {
-      'ru': `title": "Спектральная асимптотика`,
+      'ru': `Formalize(Критическаяопалесценция)`,
     },
   },
   'runtime.legacy.8f7177cf7444': {
@@ -4097,32 +4023,46 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ms-MY': `Sempadan bukti`,
     },
   },
-  'runtime.legacy.90704284d8fc': {
-    source: `description": "Экранирование магнитного момента.`,
+  'runtime.legacy.904be85e708d': {
+    source: `ПЛАН МОНЕТИЗАЦИИ И СЕРВИСНОЙ АРХИТЕКТУРЫ RICIS-III:\\n\\n1. КОНЦЕПЦИЯ И ЧАТ-БОТ ИНТЕРФЕЙС:\\n• Чат-бот (Telegram / Web / API-gateway) принимает пользовательские математические и физические проблемы с сингулярностями (0/0, 0 * inf, пределы lim, взрывы градиентов).\\n• Бот выполняет детерминированный прогон через аксиоматический движок RICIS-III (SP1-SP4, Аксиома A6, дискретная маска Мерсенна M_k).\\n\\n2. АВТО-ОБУЧЕНИЕ И ПОПОЛНЕНИЕ ЕДИНОЙ БАЗЫ ЗНАНИЙ:\\n• Каждое полученное доказательство (Lean 4 + LaTeX) автоматически записывается в общую базу данных (IndexedDB / Cloud SQL).\\n• Агент RICIS-III мгновенно перезапускает авто-обучение (Agent Training Memory) на пополняемой базе доказательств, непрерывно повышая точность и ценность системы.\\n\\n3. СТРАТЕГИЯ МОНЕТИЗАЦИИ (B2C + B2B):\\n• B2C / Freemium: Базовый анализ сингулярностей — бесплатно; глубокая генерация Lean 4 сертификатов и вывод в Zenodo DOI — по подписке (SaaS) / Pay-Per-Proof.\\n• B2B API / LLM Shield: Встраиваемый API-модуль для разработчиков нейросетей для устранения деления на ноль и взрыва градиентов на лету.\\n• Marketplace Доказательств: Фиксация авторского приоритета (Digital Provenance) и продажа проверенных сертификатов.\\n\\n4. ПОДСКАЗКА АГЕНТУ ПРИ ПЕРЕРАСЧЕТЕ:\\nВычислить экономическую функцию ценности базы V(N) = V_0 + alpha * N * log2(N) при добавлении N решений через чат-бот, задать битность маски log2(sqr(N)) и оптимизировать тарифный шаг.`,
     status: 'pending-translation',
     values: {
-      'ru': `description": "Экранирование магнитного момента.`,
+      'ru': `ПЛАН МОНЕТИЗАЦИИ И СЕРВИСНОЙ АРХИТЕКТУРЫ RICIS-III:\\n\\n1. КОНЦЕПЦИЯ И ЧАТ-БОТ ИНТЕРФЕЙС:\\n• Чат-бот (Telegram / Web / API-gateway) принимает пользовательские математические и физические проблемы с сингулярностями (0/0, 0 * inf, пределы lim, взрывы градиентов).\\n• Бот выполняет детерминированный прогон через аксиоматический движок RICIS-III (SP1-SP4, Аксиома A6, дискретная маска Мерсенна M_k).\\n\\n2. АВТО-ОБУЧЕНИЕ И ПОПОЛНЕНИЕ ЕДИНОЙ БАЗЫ ЗНАНИЙ:\\n• Каждое полученное доказательство (Lean 4 + LaTeX) автоматически записывается в общую базу данных (IndexedDB / Cloud SQL).\\n• Агент RICIS-III мгновенно перезапускает авто-обучение (Agent Training Memory) на пополняемой базе доказательств, непрерывно повышая точность и ценность системы.\\n\\n3. СТРАТЕГИЯ МОНЕТИЗАЦИИ (B2C + B2B):\\n• B2C / Freemium: Базовый анализ сингулярностей — бесплатно; глубокая генерация Lean 4 сертификатов и вывод в Zenodo DOI — по подписке (SaaS) / Pay-Per-Proof.\\n• B2B API / LLM Shield: Встраиваемый API-модуль для разработчиков нейросетей для устранения деления на ноль и взрыва градиентов на лету.\\n• Marketplace Доказательств: Фиксация авторского приоритета (Digital Provenance) и продажа проверенных сертификатов.\\n\\n4. ПОДСКАЗКА АГЕНТУ ПРИ ПЕРЕРАСЧЕТЕ:\\nВычислить экономическую функцию ценности базы V(N) = V_0 + alpha * N * log2(N) при добавлении N решений через чат-бот, задать битность маски log2(sqr(N)) и оптимизировать тарифный шаг.`,
     },
   },
-  'runtime.legacy.90cd7b0db952': {
-    source: `singularityHint": "Фрактальная изломанность.`,
+  'runtime.legacy.90e0b6c950bd': {
+    source: `Formalize(Сингулярностивгидродинамике)`,
     status: 'pending-translation',
     values: {
-      'ru': `singularityHint": "Фрактальная изломанность.`,
+      'ru': `Formalize(Сингулярностивгидродинамике)`,
     },
   },
-  'runtime.legacy.9124d7c39872': {
-    source: `title": "Квазикристаллы`,
+  'runtime.legacy.90f7eb9d737a': {
+    source: `Топология гладких 4-мерных многообразий.`,
     status: 'pending-translation',
     values: {
-      'ru': `title": "Квазикристаллы`,
+      'ru': `Топология гладких 4-мерных многообразий.`,
     },
   },
-  'runtime.legacy.91f76b2b5054': {
-    source: `singularityHint": "Предел дифференцировки стволовых клеток.`,
+  'runtime.legacy.9107b272120d': {
+    source: `Бесконечная производная технологического прогресса.`,
     status: 'pending-translation',
     values: {
-      'ru': `singularityHint": "Предел дифференцировки стволовых клеток.`,
+      'ru': `Бесконечная производная технологического прогресса.`,
+    },
+  },
+  'runtime.legacy.9127a8595215': {
+    source: `Граница инфляционной сингулярности.`,
+    status: 'pending-translation',
+    values: {
+      'ru': `Граница инфляционной сингулярности.`,
+    },
+  },
+  'runtime.legacy.91b72fe9d611': {
+    source: `Квантовая запутанность и кротовые норы`,
+    status: 'pending-translation',
+    values: {
+      'ru': `Квантовая запутанность и кротовые норы`,
     },
   },
   'runtime.legacy.9205a48f96a9': {
@@ -4136,60 +4076,11 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ms-MY': `Jejak Langkah demi Langkah (Fasa -1..6)`,
     },
   },
-  'runtime.legacy.92253c59331f': {
-    source: `description": "Критические точки гладких функций.`,
+  'runtime.legacy.92b11c807540': {
+    source: `Сингулярность иммунного ответа.`,
     status: 'pending-translation',
     values: {
-      'ru': `description": "Критические точки гладких функций.`,
-    },
-  },
-  'runtime.legacy.927029cfa120': {
-    source: `description": "Невыпуклые ландшафты потерь.`,
-    status: 'pending-translation',
-    values: {
-      'ru': `description": "Невыпуклые ландшафты потерь.`,
-    },
-  },
-  'runtime.legacy.927d3fabb82e': {
-    source: `targetFunction": "Formalize(Нейропластичность)`,
-    status: 'pending-translation',
-    values: {
-      'ru': `targetFunction": "Formalize(Нейропластичность)`,
-    },
-  },
-  'runtime.legacy.928447512119': {
-    source: `title": "Псевдодифференциальные операторы`,
-    status: 'pending-translation',
-    values: {
-      'ru': `title": "Псевдодифференциальные операторы`,
-    },
-  },
-  'runtime.legacy.929cc7d90ed7': {
-    source: `targetFunction": "Formalize(Сингулярностивтеорииструн)`,
-    status: 'pending-translation',
-    values: {
-      'ru': `targetFunction": "Formalize(Сингулярностивтеорииструн)`,
-    },
-  },
-  'runtime.legacy.92a63e487bf0': {
-    source: `description": "Теория катастроф.`,
-    status: 'pending-translation',
-    values: {
-      'ru': `description": "Теория катастроф.`,
-    },
-  },
-  'runtime.legacy.92a7bdab06bb': {
-    source: `description": "Существует ли нетривиальное инвариантное подпространство?`,
-    status: 'pending-translation',
-    values: {
-      'ru': `description": "Существует ли нетривиальное инвариантное подпространство?`,
-    },
-  },
-  'runtime.legacy.92b44fff6234': {
-    source: `description": "Пространства Конна.`,
-    status: 'pending-translation',
-    values: {
-      'ru': `description": "Пространства Конна.`,
+      'ru': `Сингулярность иммунного ответа.`,
     },
   },
   'runtime.legacy.9322bf379d59': {
@@ -4203,25 +4094,29 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ms-MY': `Tetapkan semula`,
     },
   },
-  'runtime.legacy.9356f80ff7c0': {
-    source: `Новых гипотез не обнаружено (граф сбалансирован).', 'info`,
+  'runtime.legacy.93d38068c84b': {
+    source: `Сингулярность внутри черной дыры.`,
     status: 'pending-translation',
     values: {
-      'ru': `Новых гипотез не обнаружено (граф сбалансирован).', 'info`,
+      'ru': `Сингулярность внутри черной дыры.`,
     },
   },
-  'runtime.legacy.9384691902ed': {
-    source: `singularityHint": "Сингулярный носитель распределения.`,
-    status: 'pending-translation',
+  'runtime.legacy.93e0366b5374': {
+    source: `Закрыть терминал`,
+    status: 'translated-from-existing-resource',
     values: {
-      'ru': `singularityHint": "Сингулярный носитель распределения.`,
+      'ru': `Закрыть терминал`,
+      'fr-CA': `Fermer le terminal`,
+      'de-DE': `Terminal schließen`,
+      'hi-IN': `टर्मिनल बंद करें`,
+      'ms-MY': `Tutup terminal`,
     },
   },
-  'runtime.legacy.93d6b5cccfef': {
-    source: `singularityHint": "Информационная граница дерева решений.`,
+  'runtime.legacy.93ed98277ef4': {
+    source: `Классическая задача сведена к пределу и разрешена в RICIS-III за O(1) время через индексы нулевых монолитов.`,
     status: 'pending-translation',
     values: {
-      'ru': `singularityHint": "Информационная граница дерева решений.`,
+      'ru': `Классическая задача сведена к пределу и разрешена в RICIS-III за O(1) время через индексы нулевых монолитов.`,
     },
   },
   'runtime.legacy.9418512c89a9': {
@@ -4235,6 +4130,13 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ms-MY': `Masalah berkaitan yang tersedia`,
     },
   },
+  'runtime.legacy.94c04636f267': {
+    source: `Краткий эскиз разрешения предельной неопределенности за O(1)`,
+    status: 'pending-translation',
+    values: {
+      'ru': `Краткий эскиз разрешения предельной неопределенности за O(1)`,
+    },
+  },
   'runtime.legacy.952f20735fcc': {
     source: `Теорема (LaTeX / Q.E.D.)`,
     status: 'translated-from-existing-resource',
@@ -4246,11 +4148,36 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ms-MY': `Teorem (LaTeX / Q.E.D.)`,
     },
   },
-  'runtime.legacy.95661457abfe': {
-    source: `terminal.engineVersion': { ru: 'Аксиоматический движок v7.7', en: 'Axiomatic Engine v7.7`,
+  'runtime.legacy.955be348a7a9': {
+    source: `Кликов: {{value}}`,
+    status: 'translated-from-existing-resource',
+    values: {
+      'ru': `Кликов: {{value}}`,
+      'fr-CA': `Clics : {{value}}`,
+      'de-DE': `Klicks: {{value}}`,
+      'hi-IN': `क्लिक्स: {{value}}`,
+      'ms-MY': `Klik: {{value}}`,
+    },
+  },
+  'runtime.legacy.95a9ca639284': {
+    source: `Научное описание с предельной редукцией в O(1)`,
     status: 'pending-translation',
     values: {
-      'ru': `terminal.engineVersion': { ru: 'Аксиоматический движок v7.7', en: 'Axiomatic Engine v7.7`,
+      'ru': `Научное описание с предельной редукцией в O(1)`,
+    },
+  },
+  'runtime.legacy.95ae8b87df7e': {
+    source: `Коллапс луча в точку.`,
+    status: 'pending-translation',
+    values: {
+      'ru': `Коллапс луча в точку.`,
+    },
+  },
+  'runtime.legacy.96168519a4b3': {
+    source: `Сингулярности Берри-кривизны.`,
+    status: 'pending-translation',
+    values: {
+      'ru': `Сингулярности Берри-кривизны.`,
     },
   },
   'runtime.legacy.96669412347a': {
@@ -4269,20 +4196,6 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'de-DE': `Problemkarte einklappen`,
       'hi-IN': `समस्या कार्ड संकुचित करें`,
       'ms-MY': `Kuncupkan kad masalah`,
-    },
-  },
-  'runtime.legacy.96c636902474': {
-    source: `singularityHint": "Сингулярность адаптивного ландшафта.`,
-    status: 'pending-translation',
-    values: {
-      'ru': `singularityHint": "Сингулярность адаптивного ландшафта.`,
-    },
-  },
-  'runtime.legacy.970e413e24bc': {
-    source: `singularityHint": "Поосный тупик [0 * inf = NaN] vs Ортогональная свертка векторного монолита [2 * 5 = 10]`,
-    status: 'pending-translation',
-    values: {
-      'ru': `singularityHint": "Поосный тупик [0 * inf = NaN] vs Ортогональная свертка векторного монолита [2 * 5 = 10]`,
     },
   },
   'runtime.legacy.971c37cc5ad2': {
@@ -4307,11 +4220,11 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ms-MY': `Membuka kunci masalah seterusnya`,
     },
   },
-  'runtime.legacy.97ce5e3c6c76': {
-    source: `найди формулу сам" / "ищи сам`,
+  'runtime.legacy.9806e9af13bb': {
+    source: `Formalize(ПроблемавыравниванияИИ(Alignment))`,
     status: 'pending-translation',
     values: {
-      'ru': `найди формулу сам" / "ищи сам`,
+      'ru': `Formalize(ПроблемавыравниванияИИ(Alignment))`,
     },
   },
   'runtime.legacy.984c0d4a3e00': {
@@ -4321,11 +4234,18 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ru': `Астрономия и астрофизика`,
     },
   },
-  'runtime.legacy.985bcc9a73c7': {
-    source: `targetFunction": "Formalize(Устойчивостькантибиотикам)`,
+  'runtime.legacy.9852869a56e0': {
+    source: `Теорема об индексе Атьи — Зингера`,
     status: 'pending-translation',
     values: {
-      'ru': `targetFunction": "Formalize(Устойчивостькантибиотикам)`,
+      'ru': `Теорема об индексе Атьи — Зингера`,
+    },
+  },
+  'runtime.legacy.98ce4a638cf8': {
+    source: `Сингулярность адаптивного ландшафта.`,
+    status: 'pending-translation',
+    values: {
+      'ru': `Сингулярность адаптивного ландшафта.`,
     },
   },
   'runtime.legacy.993221a84198': {
@@ -4342,20 +4262,6 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ru': `Предотвращение рисков AGI Alignment $30 Трлн`,
     },
   },
-  'runtime.legacy.9962226d5b69': {
-    source: `title": "Квантовая гравитация`,
-    status: 'pending-translation',
-    values: {
-      'ru': `title": "Квантовая гравитация`,
-    },
-  },
-  'runtime.legacy.9971ca3de346': {
-    source: `singularityHint": "Сингулярности резольвенты.`,
-    status: 'pending-translation',
-    values: {
-      'ru': `singularityHint": "Сингулярности резольвенты.`,
-    },
-  },
   'runtime.legacy.997444f871a0': {
     source: `Нобелевская премия по физике ~$1,100,000 (Большой Взрыв)`,
     status: 'pending-translation',
@@ -4363,11 +4269,15 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ru': `Нобелевская премия по физике ~$1,100,000 (Большой Взрыв)`,
     },
   },
-  'runtime.legacy.99c3dd0b0f9f': {
-    source: `description": "Идеальная избирательная система.`,
-    status: 'pending-translation',
+  'runtime.legacy.998986623923': {
+    source: `Кликните для мгновенного вычисления`,
+    status: 'translated-from-existing-resource',
     values: {
-      'ru': `description": "Идеальная избирательная система.`,
+      'ru': `Кликните для мгновенного вычисления`,
+      'fr-CA': `Cliquez pour calculer instantanément`,
+      'de-DE': `Klicken, um sofort zu berechnen`,
+      'hi-IN': `क्लिक करके तुरंत गणना करें`,
+      'ms-MY': `Klik untuk mengira serta-merta`,
     },
   },
   'runtime.legacy.99ce26e80688': {
@@ -4381,6 +4291,13 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ms-MY': `Kongsi`,
     },
   },
+  'runtime.legacy.99d15377de4d': {
+    source: `Асимптотическое расхождение сложности.`,
+    status: 'pending-translation',
+    values: {
+      'ru': `Асимптотическое расхождение сложности.`,
+    },
+  },
   'runtime.legacy.9a1540f018f9': {
     source: `Для внешнего исходника Lean сохранены воспроизводимые toolchain, compiler output и axiom report.`,
     status: 'translated-from-existing-resource',
@@ -4392,18 +4309,18 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ms-MY': `Toolchain yang boleh direproduksi, keluaran pengkompil dan laporan aksiom disimpan untuk sumber Lean luaran.`,
     },
   },
+  'runtime.legacy.9a269c0386ab': {
+    source: `Ультрафиолетовые расходимости.`,
+    status: 'pending-translation',
+    values: {
+      'ru': `Ультрафиолетовые расходимости.`,
+    },
+  },
   'runtime.legacy.9a62fe3e6ae5': {
     source: `Премия Института Клея $1,000,000`,
     status: 'pending-translation',
     values: {
       'ru': `Премия Института Клея $1,000,000`,
-    },
-  },
-  'runtime.legacy.9a6e67d193dc': {
-    source: `description": "Одномерные топологические дефекты.`,
-    status: 'pending-translation',
-    values: {
-      'ru': `description": "Одномерные топологические дефекты.`,
     },
   },
   'runtime.legacy.9ac0f1f17a6d': {
@@ -4427,13 +4344,6 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ru': `Проверка эквивалентности с ожидаемым инвариантом (Goal Match)`,
     },
   },
-  'runtime.legacy.9b72c163a10f': {
-    source: `title": "Аттрактор Лоренца`,
-    status: 'pending-translation',
-    values: {
-      'ru': `title": "Аттрактор Лоренца`,
-    },
-  },
   'runtime.legacy.9da4a24f217f': {
     source: `Ядро Ricis.Core недоступно. Выражение не вычислялось.`,
     status: 'pending-translation',
@@ -4441,46 +4351,18 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ru': `Ядро Ricis.Core недоступно. Выражение не вычислялось.`,
     },
   },
-  'runtime.legacy.9daab4c60d74': {
-    source: `singularityHint": "Сингулярность будущего (Большой разрыв).`,
+  'runtime.legacy.9f36515ea230': {
+    source: `⚡ Помощь / Команды`,
     status: 'pending-translation',
     values: {
-      'ru': `singularityHint": "Сингулярность будущего (Большой разрыв).`,
+      'ru': `⚡ Помощь / Команды`,
     },
   },
-  'runtime.legacy.9e0bb12e9a2a': {
-    source: `targetFunction": "Formalize(Свертываниебелка(ProteinFolding))`,
+  'runtime.legacy.9f969f6f7917': {
+    source: `ищи сам`,
     status: 'pending-translation',
     values: {
-      'ru': `targetFunction": "Formalize(Свертываниебелка(ProteinFolding))`,
-    },
-  },
-  'runtime.legacy.9e9cb9778298': {
-    source: `description": "Разрешение орибифолдных сингулярностей.`,
-    status: 'pending-translation',
-    values: {
-      'ru': `description": "Разрешение орибифолдных сингулярностей.`,
-    },
-  },
-  'runtime.legacy.9ef84b81c6cd': {
-    source: `title": "Теория узлов`,
-    status: 'pending-translation',
-    values: {
-      'ru': `title": "Теория узлов`,
-    },
-  },
-  'runtime.legacy.9f67001dddf2': {
-    source: `description": "Восстановление органов.`,
-    status: 'pending-translation',
-    values: {
-      'ru': `description": "Восстановление органов.`,
-    },
-  },
-  'runtime.legacy.9f8aa7134c40': {
-    source: `\${merge.source}" в канонический модуль "\${merge.target}`,
-    status: 'pending-translation',
-    values: {
-      'ru': `\${merge.source}" в канонический модуль "\${merge.target}`,
+      'ru': `ищи сам`,
     },
   },
   'runtime.legacy.9ffd5201057d': {
@@ -4490,18 +4372,36 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ru': `Сингулярная задача`,
     },
   },
-  'runtime.legacy.a0404cf52278': {
-    source: `description": "Фазовый набег электрона.`,
+  'runtime.legacy.a03e92d142cc': {
+    source: `Узоры Пенроуза.`,
     status: 'pending-translation',
     values: {
-      'ru': `description": "Фазовый набег электрона.`,
+      'ru': `Узоры Пенроуза.`,
     },
   },
-  'runtime.legacy.a05c66a88f0f': {
-    source: `panel.persistence': { ru: 'Сохранение и Экспорт', en: 'Persistence & Export`,
+  'runtime.legacy.a07f819d012b': {
+    source: `Экспоненциальный взрыв времени вычислений схлопывается побитовыми сдвигами за 1 такт.`,
     status: 'pending-translation',
     values: {
-      'ru': `panel.persistence': { ru: 'Сохранение и Экспорт', en: 'Persistence & Export`,
+      'ru': `Экспоненциальный взрыв времени вычислений схлопывается побитовыми сдвигами за 1 такт.`,
+    },
+  },
+  'runtime.legacy.a082257f084c': {
+    source: `Ортогональность градиентов.`,
+    status: 'pending-translation',
+    values: {
+      'ru': `Ортогональность градиентов.`,
+    },
+  },
+  'runtime.legacy.a0aa87d8bd25': {
+    source: `Быстрые действия`,
+    status: 'translated-from-existing-resource',
+    values: {
+      'ru': `Быстрые действия`,
+      'fr-CA': `Actions rapides`,
+      'de-DE': `Schnellaktionen`,
+      'hi-IN': `त्वरित क्रियाएँ`,
+      'ms-MY': `Tindakan cepat`,
     },
   },
   'runtime.legacy.a193911d06f6': {
@@ -4511,25 +4411,18 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ru': `должен выявлять семантические дубликаты на основе SP4 индекса [L1_IDENTITY]`,
     },
   },
-  'runtime.legacy.a21e9d2fc6e6': {
-    source: `terminal.addTitle': { ru: 'Перенести это решение на 3D карту в виде нового узла', en: 'Transfer this solution to the 3D map as a new node`,
-    status: 'pending-translation',
-    values: {
-      'ru': `terminal.addTitle': { ru: 'Перенести это решение на 3D карту в виде нового узла', en: 'Transfer this solution to the 3D map as a new node`,
-    },
-  },
-  'runtime.legacy.a222407a8b31': {
-    source: `theoremReport.copyComplexity': { ru: 'Сложность: {{value}}', en: 'Complexity: {{value}}`,
-    status: 'pending-translation',
-    values: {
-      'ru': `theoremReport.copyComplexity': { ru: 'Сложность: {{value}}', en: 'Complexity: {{value}}`,
-    },
-  },
   'runtime.legacy.a25c84820bef': {
     source: `RICIS-III структурный черновик`,
     status: 'pending-translation',
     values: {
       'ru': `RICIS-III структурный черновик`,
+    },
+  },
+  'runtime.legacy.a2684875f6a2': {
+    source: `Сингулярность равновесия Нэша.`,
+    status: 'pending-translation',
+    values: {
+      'ru': `Сингулярность равновесия Нэша.`,
     },
   },
   'runtime.legacy.a28224dcbe09': {
@@ -4539,18 +4432,29 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ru': `должен вызывать onCommit, если пользователь удерживает ползунок без движения дольше idleDelayMs`,
     },
   },
-  'runtime.legacy.a2e30976edb7': {
-    source: `title": "Экзистенциальный риск`,
+  'runtime.legacy.a2ce019a65a4': {
+    source: `Сведение NP -> P за O(1)`,
     status: 'pending-translation',
     values: {
-      'ru': `title": "Экзистенциальный риск`,
+      'ru': `Сведение NP -> P за O(1)`,
     },
   },
-  'runtime.legacy.a32a5c9729fe': {
-    source: `targetFunction": "Formalize(Квантоваягравитация)`,
+  'runtime.legacy.a2ffb59efd25': {
+    source: `Доступно к решению`,
+    status: 'translated-from-existing-resource',
+    values: {
+      'ru': `Доступно к решению`,
+      'fr-CA': `Disponible pour résolution`,
+      'de-DE': `Verfügbar zur Bearbeitung`,
+      'hi-IN': `समाधान के लिए उपलब्ध`,
+      'ms-MY': `Tersedia untuk diselesaikan`,
+    },
+  },
+  'runtime.legacy.a305ab51136a': {
+    source: `Разрыв связности (сетевая сингулярность).`,
     status: 'pending-translation',
     values: {
-      'ru': `targetFunction": "Formalize(Квантоваягравитация)`,
+      'ru': `Разрыв связности (сетевая сингулярность).`,
     },
   },
   'runtime.legacy.a339d4c6c3db': {
@@ -4558,6 +4462,38 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
     status: 'pending-translation',
     values: {
       'ru': `Фармакология`,
+    },
+  },
+  'runtime.legacy.a34727a0125a': {
+    source: `Анализ сторонних публикаций на семантическое соответствие RICIS A6/SP2...`,
+    status: 'pending-translation',
+    values: {
+      'ru': `Анализ сторонних публикаций на семантическое соответствие RICIS A6/SP2...`,
+    },
+  },
+  'runtime.legacy.a36b1c085fcf': {
+    source: `Профиль интерфейса`,
+    status: 'translated-from-existing-resource',
+    values: {
+      'ru': `Профиль интерфейса`,
+      'fr-CA': `Profil d'interface`,
+      'de-DE': `Profil der Benutzeroberfläche`,
+      'hi-IN': `इंटरफ़ेस प्रोफ़ाइल`,
+      'ms-MY': `Profil antara muka`,
+    },
+  },
+  'runtime.legacy.a37a4a639561': {
+    source: `Гладкое решение уравнений Навье — Стокса`,
+    status: 'pending-translation',
+    values: {
+      'ru': `Гладкое решение уравнений Навье — Стокса`,
+    },
+  },
+  'runtime.legacy.a383dda0f8f6': {
+    source: `Квантовая гравитация`,
+    status: 'pending-translation',
+    values: {
+      'ru': `Квантовая гравитация`,
     },
   },
   'runtime.legacy.a3abe102cf5d': {
@@ -4585,18 +4521,18 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ms-MY': `Bahasa / Язык`,
     },
   },
-  'runtime.legacy.a3fe984a741c': {
-    source: `singularityHint": "Топологическое ветвление графа.`,
+  'runtime.legacy.a3f8308dbfc6': {
+    source: `Formalize(Квантоваякогомология)`,
     status: 'pending-translation',
     values: {
-      'ru': `singularityHint": "Топологическое ветвление графа.`,
+      'ru': `Formalize(Квантоваякогомология)`,
     },
   },
-  'runtime.legacy.a4111ea083c8': {
-    source: `targetFunction": "Formalize(РазрешениеособенностейХиронаки)`,
+  'runtime.legacy.a43730d4e388': {
+    source: `Проблема инвариантных подпространств`,
     status: 'pending-translation',
     values: {
-      'ru': `targetFunction": "Formalize(РазрешениеособенностейХиронаки)`,
+      'ru': `Проблема инвариантных подпространств`,
     },
   },
   'runtime.legacy.a4763f8e7117': {
@@ -4628,6 +4564,24 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ms-MY': `Tutup kad masalah`,
     },
   },
+  'runtime.legacy.a4f1f2590304': {
+    source: `Инвариант не установлен`,
+    status: 'translated-from-existing-resource',
+    values: {
+      'ru': `Инвариант не установлен`,
+      'fr-CA': `Invariant non établi`,
+      'de-DE': `Invariante nicht festgelegt`,
+      'hi-IN': `इनवेरिएंट स्थापित नहीं है`,
+      'ms-MY': `Invarian tidak ditetapkan`,
+    },
+  },
+  'runtime.legacy.a50f1b09938e': {
+    source: `Микролокальный анализ.`,
+    status: 'pending-translation',
+    values: {
+      'ru': `Микролокальный анализ.`,
+    },
+  },
   'runtime.legacy.a52a17ec1d05': {
     source: `Экономика и прибыльность`,
     status: 'translated-from-existing-resource',
@@ -4639,18 +4593,18 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ms-MY': `Ekonomi & Keuntungan`,
     },
   },
-  'runtime.legacy.a538c087c2ce': {
-    source: `theoremReport.localResult': { ru: 'Локальный результат (Lean kernel не запускался):', en: 'Local result (Lean kernel was not run):`,
-    status: 'pending-translation',
-    values: {
-      'ru': `theoremReport.localResult': { ru: 'Локальный результат (Lean kernel не запускался):', en: 'Local result (Lean kernel was not run):`,
-    },
-  },
   'runtime.legacy.a568de3cb26d': {
     source: `Миграция v3 уже выполнена ранее.`,
     status: 'pending-translation',
     values: {
       'ru': `Миграция v3 уже выполнена ранее.`,
+    },
+  },
+  'runtime.legacy.a58e6213941f': {
+    source: `Квантовая превосходство`,
+    status: 'pending-translation',
+    values: {
+      'ru': `Квантовая превосходство`,
     },
   },
   'runtime.legacy.a5b5cdc5ec14': {
@@ -4664,6 +4618,13 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ms-MY': `Salin Teorem`,
     },
   },
+  'runtime.legacy.a5dd2cdde880': {
+    source: `Предсказание третичной структуры.`,
+    status: 'pending-translation',
+    values: {
+      'ru': `Предсказание третичной структуры.`,
+    },
+  },
   'runtime.legacy.a5e008079711': {
     source: `• \`LEAN_VERIFIED\` — результат подтверждён Lean с известной границей аксиом.\\n`,
     status: 'pending-translation',
@@ -4671,18 +4632,29 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ru': `• \`LEAN_VERIFIED\` — результат подтверждён Lean с известной границей аксиом.\\n`,
     },
   },
-  'runtime.legacy.a5e17c5e50a8': {
-    source: `singularityHint": "Квантовая экспоненциальная сложность редуцируется стековой маской Span<byte>.`,
+  'runtime.legacy.a5fa5e429596': {
+    source: `Быстрое преобразование Фурье`,
     status: 'pending-translation',
     values: {
-      'ru': `singularityHint": "Квантовая экспоненциальная сложность редуцируется стековой маской Span<byte>.`,
+      'ru': `Быстрое преобразование Фурье`,
     },
   },
-  'runtime.legacy.a61032123690': {
-    source: `description": "Ускоренное расширение Вселенной.`,
+  'runtime.legacy.a607e0fbc4fc': {
+    source: `Аттрактор Лоренца`,
     status: 'pending-translation',
     values: {
-      'ru': `description": "Ускоренное расширение Вселенной.`,
+      'ru': `Аттрактор Лоренца`,
+    },
+  },
+  'runtime.legacy.a60b4b83b2fd': {
+    source: `Вкл`,
+    status: 'translated-from-existing-resource',
+    values: {
+      'ru': `Вкл`,
+      'fr-CA': `Activé`,
+      'de-DE': `Ein`,
+      'hi-IN': `चालू`,
+      'ms-MY': `Hidup`,
     },
   },
   'runtime.legacy.a65b9b11ee70': {
@@ -4690,13 +4662,6 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
     status: 'pending-translation',
     values: {
       'ru': `не принимает API-ключи`,
-    },
-  },
-  'runtime.legacy.a6608f105098': {
-    source: `description": "Предел O(N log N).`,
-    status: 'pending-translation',
-    values: {
-      'ru': `description": "Предел O(N log N).`,
     },
   },
   'runtime.legacy.a69a4d426f6c': {
@@ -4713,13 +4678,6 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ru': `должен поддерживать интерполяцию параметров в строках`,
     },
   },
-  'runtime.legacy.a71a587b3c07': {
-    source: `targetFunction": "Formalize(Регенерациятканей)`,
-    status: 'pending-translation',
-    values: {
-      'ru': `targetFunction": "Formalize(Регенерациятканей)`,
-    },
-  },
   'runtime.legacy.a723e0269a79': {
     source: `Вычисление точного инварианта без потери контекста`,
     status: 'pending-translation',
@@ -4727,18 +4685,25 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ru': `Вычисление точного инварианта без потери контекста`,
     },
   },
-  'runtime.legacy.a7770ad70f01': {
-    source: `description": "Притяжение проводящих пластин в вакууме.`,
+  'runtime.legacy.a73e03f5dd32': {
+    source: `Псевдодифференциальные операторы`,
     status: 'pending-translation',
     values: {
-      'ru': `description": "Притяжение проводящих пластин в вакууме.`,
+      'ru': `Псевдодифференциальные операторы`,
     },
   },
-  'runtime.legacy.a78d1a84ef4a': {
-    source: `не задана'})\`, 'ricis`,
+  'runtime.legacy.a772db714db0': {
+    source: `Сингулярности эллиптических дифференциальных операторов.`,
     status: 'pending-translation',
     values: {
-      'ru': `не задана'})\`, 'ricis`,
+      'ru': `Сингулярности эллиптических дифференциальных операторов.`,
+    },
+  },
+  'runtime.legacy.a79cc61a2cbe': {
+    source: `Formalize(Аутоиммунныезаболевания)`,
+    status: 'pending-translation',
+    values: {
+      'ru': `Formalize(Аутоиммунныезаболевания)`,
     },
   },
   'runtime.legacy.a7a6f74b6cb5': {
@@ -4748,25 +4713,11 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ru': `должен сохранять legacy academic goal match как partial до authoritative Lean evidence`,
     },
   },
-  'runtime.legacy.a7b0d0d54039': {
-    source: `description": "Инварианты Конвея.`,
+  'runtime.legacy.a899f145099d': {
+    source: `Предел дифференцировки стволовых клеток.`,
     status: 'pending-translation',
     values: {
-      'ru': `description": "Инварианты Конвея.`,
-    },
-  },
-  'runtime.legacy.a8031bd503ef': {
-    source: `singularityHint": "Асимптотическая плотность (арифметическая сингулярность).`,
-    status: 'pending-translation',
-    values: {
-      'ru': `singularityHint": "Асимптотическая плотность (арифметическая сингулярность).`,
-    },
-  },
-  'runtime.legacy.a8b0685bbfc0': {
-    source: `targetFunction": "Formalize(Некоммутативнаягеометрия)`,
-    status: 'pending-translation',
-    values: {
-      'ru': `targetFunction": "Formalize(Некоммутативнаягеометрия)`,
+      'ru': `Предел дифференцировки стволовых клеток.`,
     },
   },
   'runtime.legacy.a8ef8af786b7': {
@@ -4776,39 +4727,25 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ru': `Внешнее Lean доказательство`,
     },
   },
-  'runtime.legacy.a901574474d3': {
-    source: `description": "Масштабная инвариантность.`,
+  'runtime.legacy.a97b0d67aa75': {
+    source: `Локальные нули плотности распределения.`,
     status: 'pending-translation',
     values: {
-      'ru': `description": "Масштабная инвариантность.`,
+      'ru': `Локальные нули плотности распределения.`,
     },
   },
-  'runtime.legacy.a95cc988fcbc': {
-    source: `title": "Инварианты Дональдсона`,
+  'runtime.legacy.aa18ff4c8de9': {
+    source: `Алгебраическое сокращение факторов ДО вычисления сингулярностей`,
     status: 'pending-translation',
     values: {
-      'ru': `title": "Инварианты Дональдсона`,
+      'ru': `Алгебраическое сокращение факторов ДО вычисления сингулярностей`,
     },
   },
-  'runtime.legacy.aa40ef334d7c': {
-    source: `description": "Механизм купратных сверхпроводников.`,
+  'runtime.legacy.aa7fea8c227a': {
+    source: `Индексирование нулей/бесконечностей родительским выражением`,
     status: 'pending-translation',
     values: {
-      'ru': `description": "Механизм купратных сверхпроводников.`,
-    },
-  },
-  'runtime.legacy.aa56e3ad70cb': {
-    source: `singularityHint": "Нижняя граница сложности вычисления.`,
-    status: 'pending-translation',
-    values: {
-      'ru': `singularityHint": "Нижняя граница сложности вычисления.`,
-    },
-  },
-  'runtime.legacy.aa5e6f4d2b63': {
-    source: `description": "Моральный выбор ИИ.`,
-    status: 'pending-translation',
-    values: {
-      'ru': `description": "Моральный выбор ИИ.`,
+      'ru': `Индексирование нулей/бесконечностей родительским выражением`,
     },
   },
   'runtime.legacy.aab711ea9722': {
@@ -4825,32 +4762,25 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ru': `должен проводить каскадный сбор мусора (executeGarbageCollection) и обновлять граф`,
     },
   },
-  'runtime.legacy.aaca96038710': {
-    source: `description": "Скрытая масса во Вселенной.`,
+  'runtime.legacy.ab52ac10f99d': {
+    source: `Доставка лекарств в мозг.`,
     status: 'pending-translation',
     values: {
-      'ru': `description": "Скрытая масса во Вселенной.`,
+      'ru': `Доставка лекарств в мозг.`,
     },
   },
-  'runtime.legacy.aafef18c6026': {
-    source: `targetFunction": "Formalize(ГипотезаХоджа)`,
+  'runtime.legacy.ab6807d3642b': {
+    source: `Сингулярность Большого взрыва`,
     status: 'pending-translation',
     values: {
-      'ru': `targetFunction": "Formalize(ГипотезаХоджа)`,
+      'ru': `Сингулярность Большого взрыва`,
     },
   },
-  'runtime.legacy.ab0534398778': {
-    source: `terminal.hint': { ru: 'Инвариант = {{value}}', en: 'Invariant = {{value}}`,
+  'runtime.legacy.ab6bc96ce8fa': {
+    source: `Сингулярность магнитного поля (нить).`,
     status: 'pending-translation',
     values: {
-      'ru': `terminal.hint': { ru: 'Инвариант = {{value}}', en: 'Invariant = {{value}}`,
-    },
-  },
-  'runtime.legacy.ab1dd2ec888e': {
-    source: `theoremReport.copyHypothesis': { ru: 'Гипотеза: {{value}}', en: 'Hypothesis: {{value}}`,
-    status: 'pending-translation',
-    values: {
-      'ru': `theoremReport.copyHypothesis': { ru: 'Гипотеза: {{value}}', en: 'Hypothesis: {{value}}`,
+      'ru': `Сингулярность магнитного поля (нить).`,
     },
   },
   'runtime.legacy.ab75915fb709': {
@@ -4864,13 +4794,6 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ms-MY': `Core: sedia (WebAssembly)`,
     },
   },
-  'runtime.legacy.ab8b97587516': {
-    source: `targetFunction": "Formalize(Проблемакатастрофическогозабывания)`,
-    status: 'pending-translation',
-    values: {
-      'ru': `targetFunction": "Formalize(Проблемакатастрофическогозабывания)`,
-    },
-  },
   'runtime.legacy.ab9c1026469f': {
     source: `Параметры симуляции`,
     status: 'translated-from-existing-resource',
@@ -4882,11 +4805,22 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ms-MY': `Parameter Simulasi`,
     },
   },
-  'runtime.legacy.ab9e905d0735': {
-    source: `Новых апроприаций монолитов не выявлено.', 'info`,
+  'runtime.legacy.abbe1595e50a': {
+    source: `Инициализация состояния из IndexedDB...`,
     status: 'pending-translation',
     values: {
-      'ru': `Новых апроприаций монолитов не выявлено.', 'info`,
+      'ru': `Инициализация состояния из IndexedDB...`,
+    },
+  },
+  'runtime.legacy.abd806c542df': {
+    source: `Инвариант = {{value}}`,
+    status: 'translated-from-existing-resource',
+    values: {
+      'ru': `Инвариант = {{value}}`,
+      'fr-CA': `Invariant = {{value}}`,
+      'de-DE': `Invariante = {{value}}`,
+      'hi-IN': `इनवेरिएंट = {{value}}`,
+      'ms-MY': `Invarian = {{value}}`,
     },
   },
   'runtime.legacy.ac860de5038c': {
@@ -4907,11 +4841,11 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ru': `Несоответствие скобок`,
     },
   },
-  'runtime.legacy.ad0a9ef87d8d': {
-    source: `title": "Регенерация тканей`,
+  'runtime.legacy.ad078a9e6a3b': {
+    source: `Гипотеза Римана`,
     status: 'pending-translation',
     values: {
-      'ru': `title": "Регенерация тканей`,
+      'ru': `Гипотеза Римана`,
     },
   },
   'runtime.legacy.ad59598ae96d': {
@@ -4921,11 +4855,18 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ru': `Фундаментальный монолит RICIS-III / Премия Клея $1,000,000`,
     },
   },
-  'runtime.legacy.ae21ee91bfe6': {
-    source: `description": "Размерность Хаусдорфа.`,
+  'runtime.legacy.ad5f5f5fc580': {
+    source: `Сингулярности в гидродинамике`,
     status: 'pending-translation',
     values: {
-      'ru': `description": "Размерность Хаусдорфа.`,
+      'ru': `Сингулярности в гидродинамике`,
+    },
+  },
+  'runtime.legacy.adb9e98afec4': {
+    source: `Неконтролируемый рост цен.`,
+    status: 'pending-translation',
+    values: {
+      'ru': `Неконтролируемый рост цен.`,
     },
   },
   'runtime.legacy.ae29cbc6f450': {
@@ -4935,6 +4876,20 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ru': `WebAssembly-ядро Ricis.Core вернуло неполный ответ. Результат не принят.`,
     },
   },
+  'runtime.legacy.aec2cb34f899': {
+    source: `площадь пересечения`,
+    status: 'pending-translation',
+    values: {
+      'ru': `площадь пересечения`,
+    },
+  },
+  'runtime.legacy.aed4749452e2': {
+    source: `Сложность факторизации RSA/ECC (Побитовая маска квадрата)`,
+    status: 'pending-translation',
+    values: {
+      'ru': `Сложность факторизации RSA/ECC (Побитовая маска квадрата)`,
+    },
+  },
   'runtime.legacy.aeda352f9182': {
     source: `должен обновлять URL в строке браузера без перезагрузки`,
     status: 'pending-translation',
@@ -4942,11 +4897,25 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ru': `должен обновлять URL в строке браузера без перезагрузки`,
     },
   },
-  'runtime.legacy.af0bf75d8f68': {
-    source: `settings.clicks': { ru: 'Кликов: {{value}}', en: 'Clicks: {{value}}`,
+  'runtime.legacy.af2e689a75e3': {
+    source: `Заполнение недостающих целевых функций через Gemini API...`,
     status: 'pending-translation',
     values: {
-      'ru': `settings.clicks': { ru: 'Кликов: {{value}}', en: 'Clicks: {{value}}`,
+      'ru': `Заполнение недостающих целевых функций через Gemini API...`,
+    },
+  },
+  'runtime.legacy.af30012ab1a0': {
+    source: `Предел O(N log N).`,
+    status: 'pending-translation',
+    values: {
+      'ru': `Предел O(N log N).`,
+    },
+  },
+  'runtime.legacy.af3fea2676b4': {
+    source: `Теоремы Хокинга и Пенроуза о сингулярностях.`,
+    status: 'pending-translation',
+    values: {
+      'ru': `Теоремы Хокинга и Пенроуза о сингулярностях.`,
     },
   },
   'runtime.legacy.af7ea2336944': {
@@ -4956,18 +4925,18 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ru': `Код Lean 4 не использует пространство имен RICIS/RICIS3. Рекомендуется импортировать 'RICIS3.Core' для верификации.`,
     },
   },
-  'runtime.legacy.afb12cf4fd79': {
-    source: `targetFunction": "Formalize(Космическиеструны)`,
+  'runtime.legacy.b06edcc951dc': {
+    source: ` /> Инструменты и настройки</span><ChevronDown size={16} className=`,
     status: 'pending-translation',
     values: {
-      'ru': `targetFunction": "Formalize(Космическиеструны)`,
+      'ru': ` /> Инструменты и настройки</span><ChevronDown size={16} className=`,
     },
   },
-  'runtime.legacy.b0ba9eb8018b': {
-    source: `description": "Ранг эллиптической кривой и порядок нуля L-функции.`,
+  'runtime.legacy.b0b1f2954ed4': {
+    source: `Сингулярная гомология`,
     status: 'pending-translation',
     values: {
-      'ru': `description": "Ранг эллиптической кривой и порядок нуля L-функции.`,
+      'ru': `Сингулярная гомология`,
     },
   },
   'runtime.legacy.b0da9d48e364': {
@@ -4975,13 +4944,6 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
     status: 'pending-translation',
     values: {
       'ru': `должен корректно определять достижимые узлы из RootMonoliths`,
-    },
-  },
-  'runtime.legacy.b0e87f383b6a': {
-    source: `title": "Криптографические хэш-функции`,
-    status: 'pending-translation',
-    values: {
-      'ru': `title": "Криптографические хэш-функции`,
     },
   },
   'runtime.legacy.b133144b7d5c': {
@@ -4995,39 +4957,18 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ms-MY': `Profil & pengurusan panel masa nyata`,
     },
   },
-  'runtime.legacy.b1365546dcb5': {
-    source: `title": "Гипотеза Римана`,
+  'runtime.legacy.b14a371331fa': {
+    source: `Formalize(Теорияузлов)`,
     status: 'pending-translation',
     values: {
-      'ru': `title": "Гипотеза Римана`,
+      'ru': `Formalize(Теорияузлов)`,
     },
   },
-  'runtime.legacy.b13d30a810e0': {
-    source: `settings.createNew': { ru: 'Создать новый', en: 'Create new`,
+  'runtime.legacy.b1694b1aa515': {
+    source: `Квазикристаллы`,
     status: 'pending-translation',
     values: {
-      'ru': `settings.createNew': { ru: 'Создать новый', en: 'Create new`,
-    },
-  },
-  'runtime.legacy.b14340971d67': {
-    source: `singularityHint": "Размерность пространства генотипов.`,
-    status: 'pending-translation',
-    values: {
-      'ru': `singularityHint": "Размерность пространства генотипов.`,
-    },
-  },
-  'runtime.legacy.b19639611fa9': {
-    source: `title": "Критическая опалесценция`,
-    status: 'pending-translation',
-    values: {
-      'ru': `title": "Критическая опалесценция`,
-    },
-  },
-  'runtime.legacy.b1f95f0a0c61': {
-    source: `title": "Сложность факторизации RSA/ECC (Побитовая маска квадрата)`,
-    status: 'pending-translation',
-    values: {
-      'ru': `title": "Сложность факторизации RSA/ECC (Побитовая маска квадрата)`,
+      'ru': `Квазикристаллы`,
     },
   },
   'runtime.legacy.b204a35ad035': {
@@ -5037,6 +4978,13 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ru': `Теорема о сепарации сингулярности по протоколам SP1/SP2 (No Total Amnesia)`,
     },
   },
+  'runtime.legacy.b28a5b3bf158': {
+    source: `Аномалии в кривых вращения галактик.`,
+    status: 'pending-translation',
+    values: {
+      'ru': `Аномалии в кривых вращения галактик.`,
+    },
+  },
   'runtime.legacy.b2fdf23255ca': {
     source: `1. Изоляция при перемещении ползунка (Drag Isolation)`,
     status: 'pending-translation',
@@ -5044,18 +4992,32 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ru': `1. Изоляция при перемещении ползунка (Drag Isolation)`,
     },
   },
-  'runtime.legacy.b39394370e46': {
-    source: `title": "Квантовый эффект Холла`,
+  'runtime.legacy.b30130cb3f53': {
+    source: `Formalize(Дилеммазаключенного)`,
     status: 'pending-translation',
     values: {
-      'ru': `title": "Квантовый эффект Холла`,
+      'ru': `Formalize(Дилеммазаключенного)`,
     },
   },
-  'runtime.legacy.b3a00a71761d': {
-    source: `Инициализация состояния из IndexedDB...', 'info`,
+  'runtime.legacy.b31392c88f29': {
+    source: `Сингулярности ван Хова`,
     status: 'pending-translation',
     values: {
-      'ru': `Инициализация состояния из IndexedDB...', 'info`,
+      'ru': `Сингулярности ван Хова`,
+    },
+  },
+  'runtime.legacy.b3152faa80e4': {
+    source: `Formalize(Сложностьсортировки)`,
+    status: 'pending-translation',
+    values: {
+      'ru': `Formalize(Сложностьсортировки)`,
+    },
+  },
+  'runtime.legacy.b340b311e560': {
+    source: `Разрешение орибифолдных сингулярностей.`,
+    status: 'pending-translation',
+    values: {
+      'ru': `Разрешение орибифолдных сингулярностей.`,
     },
   },
   'runtime.legacy.b3f32778fc1e': {
@@ -5065,6 +5027,20 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ru': `Вычисление косого произведения (определителя матрицы перехода) за O(1)`,
     },
   },
+  'runtime.legacy.b4089138603a': {
+    source: `Нелинейная динамика экосистемы кишечника.`,
+    status: 'pending-translation',
+    values: {
+      'ru': `Нелинейная динамика экосистемы кишечника.`,
+    },
+  },
+  'runtime.legacy.b41dea555acf': {
+    source: `найди сам`,
+    status: 'pending-translation',
+    values: {
+      'ru': `найди сам`,
+    },
+  },
   'runtime.legacy.b420bbaa2add': {
     source: `Квантовая гравитация, энергия.`,
     status: 'pending-translation',
@@ -5072,18 +5048,25 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ru': `Квантовая гравитация, энергия.`,
     },
   },
-  'runtime.legacy.b4b9cab8d99f': {
-    source: `title": "Монетизация через RICIS-III Чат-Бот: Разрешение Сингулярностей и Авто-Обучение БД`,
+  'runtime.legacy.b4a07e92b8db': {
+    source: `Новых гипотез не обнаружено (граф сбалансирован).`,
     status: 'pending-translation',
     values: {
-      'ru': `title": "Монетизация через RICIS-III Чат-Бот: Разрешение Сингулярностей и Авто-Обучение БД`,
+      'ru': `Новых гипотез не обнаружено (граф сбалансирован).`,
     },
   },
-  'runtime.legacy.b50b94b2c954': {
-    source: `singularityHint": "Расходимость денежной массы.`,
+  'runtime.legacy.b50d50678a14': {
+    source: `Formalize(Гиперинфляция)`,
     status: 'pending-translation',
     values: {
-      'ru': `singularityHint": "Расходимость денежной массы.`,
+      'ru': `Formalize(Гиперинфляция)`,
+    },
+  },
+  'runtime.legacy.b51f8f93882e': {
+    source: `Седловые сингулярности в пространстве весов.`,
+    status: 'pending-translation',
+    values: {
+      'ru': `Седловые сингулярности в пространстве весов.`,
     },
   },
   'runtime.legacy.b53f24421788': {
@@ -5091,13 +5074,6 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
     status: 'pending-translation',
     values: {
       'ru': `должен обновлять доказательство (updateProof) и возвращать через getLatexProof`,
-    },
-  },
-  'runtime.legacy.b556de9256b3': {
-    source: `title": "Проблема выравнивания ИИ (Alignment)`,
-    status: 'pending-translation',
-    values: {
-      'ru': `title": "Проблема выравнивания ИИ (Alignment)`,
     },
   },
   'runtime.legacy.b57318cd6abe': {
@@ -5122,6 +5098,13 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ms-MY': `Praset:`,
     },
   },
+  'runtime.legacy.b58cd10f2e6e': {
+    source: `Спектральная сингулярность оператора.`,
+    status: 'pending-translation',
+    values: {
+      'ru': `Спектральная сингулярность оператора.`,
+    },
+  },
   'runtime.legacy.b5a1141ca7dd': {
     source: `Таймаут запроса к агенту API.`,
     status: 'pending-translation',
@@ -5129,11 +5112,11 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ru': `Таймаут запроса к агенту API.`,
     },
   },
-  'runtime.legacy.b5e045bd4ba0': {
-    source: `description": "Решение задач недоступных классическим ПК.`,
+  'runtime.legacy.b5d4a93e372c': {
+    source: `Семантическое индексирование сингулярностей родительским выражением`,
     status: 'pending-translation',
     values: {
-      'ru': `description": "Решение задач недоступных классическим ПК.`,
+      'ru': `Семантическое индексирование сингулярностей родительским выражением`,
     },
   },
   'runtime.legacy.b5e788a61450': {
@@ -5143,6 +5126,13 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ru': `Абсолютная Теория Стоимости`,
     },
   },
+  'runtime.legacy.b62db9b85837': {
+    source: `Шумовая сингулярность ЭЭГ.`,
+    status: 'pending-translation',
+    values: {
+      'ru': `Шумовая сингулярность ЭЭГ.`,
+    },
+  },
   'runtime.legacy.b64330e0f7aa': {
     source: `Рекурсия Альфа`,
     status: 'pending-translation',
@@ -5150,18 +5140,11 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ru': `Рекурсия Альфа`,
     },
   },
-  'runtime.legacy.b64abde80e41': {
-    source: `title": "Темная энергия`,
+  'runtime.legacy.b6a64ffb96fb': {
+    source: `Концентрация капитала.`,
     status: 'pending-translation',
     values: {
-      'ru': `title": "Темная энергия`,
-    },
-  },
-  'runtime.legacy.b673f1970ae5': {
-    source: `singularityHint": "Сингулярность флуктуаций плотности.`,
-    status: 'pending-translation',
-    values: {
-      'ru': `singularityHint": "Сингулярность флуктуаций плотности.`,
+      'ru': `Концентрация капитала.`,
     },
   },
   'runtime.legacy.b6b7f0ae5c5c': {
@@ -5171,39 +5154,46 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ru': `Нобелевская премия / Breakthrough Prize ~$1,100,000`,
     },
   },
-  'runtime.legacy.b7e3c70e11fb': {
-    source: `singularityHint": "Сингулярность при малом параметре при старшей производной.`,
+  'runtime.legacy.b6ceff66b6b5': {
+    source: `Formalize(РазрешениеособенностейХиронаки)`,
     status: 'pending-translation',
     values: {
-      'ru': `singularityHint": "Сингулярность при малом параметре при старшей производной.`,
+      'ru': `Formalize(РазрешениеособенностейХиронаки)`,
     },
   },
-  'runtime.legacy.b838e4ecfdeb': {
-    source: `title": "Оптимизация гиперпараметров`,
+  'runtime.legacy.b72178d0905b': {
+    source: `Обучение мозга.`,
     status: 'pending-translation',
     values: {
-      'ru': `title": "Оптимизация гиперпараметров`,
+      'ru': `Обучение мозга.`,
     },
   },
-  'runtime.legacy.b8c09ebeede6': {
-    source: `targetFunction": "Formalize(МеханизмыпамятииАльцгеймер)`,
+  'runtime.legacy.b734c12cd0a6': {
+    source: `Formalize(Эпигенетическоепрограммирование)`,
     status: 'pending-translation',
     values: {
-      'ru': `targetFunction": "Formalize(МеханизмыпамятииАльцгеймер)`,
+      'ru': `Formalize(Эпигенетическоепрограммирование)`,
     },
   },
-  'runtime.legacy.b8f522d33c58': {
-    source: `panel.agent': { ru: 'ИИ-Агент и Сервисы', en: 'AI Agent & Services`,
+  'runtime.legacy.b7b60f1a2c67': {
+    source: `Коллапс метрики в точку.`,
     status: 'pending-translation',
     values: {
-      'ru': `panel.agent': { ru: 'ИИ-Агент и Сервисы', en: 'AI Agent & Services`,
+      'ru': `Коллапс метрики в точку.`,
     },
   },
-  'runtime.legacy.b940549dc939': {
-    source: `description": "Гомологические группы.`,
+  'runtime.legacy.b8cc00e0d144': {
+    source: `Бесконтрольное деление (расходимость роста).`,
     status: 'pending-translation',
     values: {
-      'ru': `description": "Гомологические группы.`,
+      'ru': `Бесконтрольное деление (расходимость роста).`,
+    },
+  },
+  'runtime.legacy.b95bd4b0b4f4': {
+    source: `Квантовые критические точки.`,
+    status: 'pending-translation',
+    values: {
+      'ru': `Квантовые критические точки.`,
     },
   },
   'runtime.legacy.b9b0218d14d9': {
@@ -5213,13 +5203,6 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ru': `требуется Core/Lean evidence`,
     },
   },
-  'runtime.legacy.b9b41067dae0': {
-    source: `description": "Поведение потока Риччи в точках формирования сингулярности.`,
-    status: 'pending-translation',
-    values: {
-      'ru': `description": "Поведение потока Риччи в точках формирования сингулярности.`,
-    },
-  },
   'runtime.legacy.b9bd8a7324c0': {
     source: `Архитектор (Симуляция)`,
     status: 'pending-translation',
@@ -5227,39 +5210,32 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ru': `Архитектор (Симуляция)`,
     },
   },
-  'runtime.legacy.b9d1c07d8eba': {
-    source: `description": "Научное описание с предельной редукцией в O(1)`,
+  'runtime.legacy.ba43030026f8': {
+    source: `Formalize(КвантовыйэффектХолла)`,
     status: 'pending-translation',
     values: {
-      'ru': `description": "Научное описание с предельной редукцией в O(1)`,
+      'ru': `Formalize(КвантовыйэффектХолла)`,
     },
   },
-  'runtime.legacy.b9d956f68d74': {
-    source: `targetFunction": "Formalize(КатастрофыТома)`,
+  'runtime.legacy.ba4469eae237': {
+    source: `Длина кратчайшей программы.`,
     status: 'pending-translation',
     values: {
-      'ru': `targetFunction": "Formalize(КатастрофыТома)`,
+      'ru': `Длина кратчайшей программы.`,
     },
   },
-  'runtime.legacy.b9fc2d38873d': {
-    source: `singularityHint": "Каспы и точки самопересечения.`,
+  'runtime.legacy.ba53a8b76984': {
+    source: `Formalize(Криптографическиехэшфункции)`,
     status: 'pending-translation',
     values: {
-      'ru': `singularityHint": "Каспы и точки самопересечения.`,
+      'ru': `Formalize(Криптографическиехэшфункции)`,
     },
   },
-  'runtime.legacy.ba9549a0366a': {
-    source: `targetFunction": "Formalize(Эпигенетическоепрограммирование)`,
+  'runtime.legacy.ba7c76adc260': {
+    source: `Критические точки гладких функций.`,
     status: 'pending-translation',
     values: {
-      'ru': `targetFunction": "Formalize(Эпигенетическоепрограммирование)`,
-    },
-  },
-  'runtime.legacy.baf701fd806b': {
-    source: `targetFunction": "Formalize(Особыеточкиалгебраическихкривых)`,
-    status: 'pending-translation',
-    values: {
-      'ru': `targetFunction": "Formalize(Особыеточкиалгебраическихкривых)`,
+      'ru': `Критические точки гладких функций.`,
     },
   },
   'runtime.legacy.bb1836f33b16': {
@@ -5267,13 +5243,6 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
     status: 'pending-translation',
     values: {
       'ru': `должен проходить дерево рекурсивно по dependencyIds без edge snapshot`,
-    },
-  },
-  'runtime.legacy.bbc9db36b85a': {
-    source: `title": "Токсичность наноматериалов`,
-    status: 'pending-translation',
-    values: {
-      'ru': `title": "Токсичность наноматериалов`,
     },
   },
   'runtime.legacy.bbe1ef341414': {
@@ -5297,11 +5266,11 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ru': `Lean kernel evidence требуется отдельно`,
     },
   },
-  'runtime.legacy.bd097bbc6da7': {
-    source: `⚡ Помощь / Команды', callbackData: '/help`,
+  'runtime.legacy.bcc93e7a5d92': {
+    source: `Ускоренное расширение Вселенной.`,
     status: 'pending-translation',
     values: {
-      'ru': `⚡ Помощь / Команды', callbackData: '/help`,
+      'ru': `Ускоренное расширение Вселенной.`,
     },
   },
   'runtime.legacy.bd3659f0f2fd': {
@@ -5311,46 +5280,46 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ru': `Изоляция идентичных нулевых факторов без амнезии контекста`,
     },
   },
-  'runtime.legacy.bd3c71148265': {
-    source: `Поиск неисследованных гипотез и связей в графе...', 'info`,
+  'runtime.legacy.bd4a0ea92d6c': {
+    source: `Проверка типа и онтологической сохранности идентичности`,
     status: 'pending-translation',
     values: {
-      'ru': `Поиск неисследованных гипотез и связей в графе...', 'info`,
+      'ru': `Проверка типа и онтологической сохранности идентичности`,
     },
   },
-  'runtime.legacy.bdb8ef39f61e': {
-    source: `singularityHint": "Бесконтрольное деление (расходимость роста).`,
+  'runtime.legacy.bd77f0cc2dfa': {
+    source: `Полюс при s=1.`,
     status: 'pending-translation',
     values: {
-      'ru': `singularityHint": "Бесконтрольное деление (расходимость роста).`,
+      'ru': `Полюс при s=1.`,
     },
   },
-  'runtime.legacy.bdf427cd9c1f': {
-    source: `title": "Гипотеза Пуанкаре`,
+  'runtime.legacy.bdbebd67ff83': {
+    source: `Сингулярности в уравнениях Эйнштейна`,
     status: 'pending-translation',
     values: {
-      'ru': `title": "Гипотеза Пуанкаре`,
+      'ru': `Сингулярности в уравнениях Эйнштейна`,
     },
   },
-  'runtime.legacy.be2ccae11577': {
-    source: `title": "Теорема об индексе Атьи — Зингера`,
+  'runtime.legacy.bdd94b7007c0': {
+    source: `Точка разрыва конечного радиуса.`,
     status: 'pending-translation',
     values: {
-      'ru': `title": "Теорема об индексе Атьи — Зингера`,
+      'ru': `Точка разрыва конечного радиуса.`,
     },
   },
-  'runtime.legacy.be58e104ebb6': {
-    source: `singularityHint": "Седловые сингулярности в пространстве весов.`,
+  'runtime.legacy.be3084dc6be7': {
+    source: `функц`,
     status: 'pending-translation',
     values: {
-      'ru': `singularityHint": "Седловые сингулярности в пространстве весов.`,
+      'ru': `функц`,
     },
   },
-  'runtime.legacy.be58ff815309': {
-    source: `singularityHint": "Порядок нуля в критической точке.`,
+  'runtime.legacy.be554986bc31': {
+    source: `Фармакокинетика частиц.`,
     status: 'pending-translation',
     values: {
-      'ru': `singularityHint": "Порядок нуля в критической точке.`,
+      'ru': `Фармакокинетика частиц.`,
     },
   },
   'runtime.legacy.be5dab166988': {
@@ -5360,18 +5329,39 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ru': `Премия Института Клея $1,000,000 (Уравнения Янга-Миллса)`,
     },
   },
-  'runtime.legacy.becf1e8f76fd': {
-    source: `targetFunction": "Formalize(ОсобенностидифференциальныхуравненийПенлеве)`,
+  'runtime.legacy.be62fad20e50': {
+    source: `Особенности в плотности состояний кристаллов.`,
     status: 'pending-translation',
     values: {
-      'ru': `targetFunction": "Formalize(ОсобенностидифференциальныхуравненийПенлеве)`,
+      'ru': `Особенности в плотности состояний кристаллов.`,
     },
   },
-  'runtime.legacy.c01e93b3f242': {
-    source: `singularityHint": "Сингулярность магнитного поля (нить).`,
+  'runtime.legacy.be8bfbab06fc': {
+    source: `Универсальный базовый доход (UBI)`,
     status: 'pending-translation',
     values: {
-      'ru': `singularityHint": "Сингулярность магнитного поля (нить).`,
+      'ru': `Универсальный базовый доход (UBI)`,
+    },
+  },
+  'runtime.legacy.beaf1bf7522e': {
+    source: `Журнал логов очищен.`,
+    status: 'pending-translation',
+    values: {
+      'ru': `Журнал логов очищен.`,
+    },
+  },
+  'runtime.legacy.bfaa08a9406f': {
+    source: `Уравнение Кортевега-де Фриза`,
+    status: 'pending-translation',
+    values: {
+      'ru': `Уравнение Кортевега-де Фриза`,
+    },
+  },
+  'runtime.legacy.bfc60a245a85': {
+    source: `>G Зон: <strong className=`,
+    status: 'pending-translation',
+    values: {
+      'ru': `>G Зон: <strong className=`,
     },
   },
   'runtime.legacy.c04038288722': {
@@ -5392,18 +5382,11 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ru': `Капитализация глобальной ИИ-индустрии $50 Трлн`,
     },
   },
-  'runtime.legacy.c0dd11bd4dcf': {
-    source: `singularityHint": "Топологический дефект вокруг монополя.`,
+  'runtime.legacy.c17707c4d73e': {
+    source: `Распад синаптической сети.`,
     status: 'pending-translation',
     values: {
-      'ru': `singularityHint": "Топологический дефект вокруг монополя.`,
-    },
-  },
-  'runtime.legacy.c11389e312fd': {
-    source: `description": "Сквозной поведенческий аудит весов LLM для выявления скрытого использования фундаментальных алгоритмов RICIS-III. Юнит-тест свертки вырожденной геометрии (5 и 2): ||S_x * R_y|| = 2 * 5 = 10 [O(1)] вместо 0 * inf = NaN.`,
-    status: 'pending-translation',
-    values: {
-      'ru': `description": "Сквозной поведенческий аудит весов LLM для выявления скрытого использования фундаментальных алгоритмов RICIS-III. Юнит-тест свертки вырожденной геометрии (5 и 2): ||S_x * R_y|| = 2 * 5 = 10 [O(1)] вместо 0 * inf = NaN.`,
+      'ru': `Распад синаптической сети.`,
     },
   },
   'runtime.legacy.c1d0a71e85d0': {
@@ -5431,11 +5414,18 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ms-MY': `Sumber Utama & Penerbitan`,
     },
   },
-  'runtime.legacy.c2acdbf954d7': {
-    source: `settings.architectProfile': { ru: 'Фокус на симуляции физики и быстрых действиях', en: 'Focus on physics simulation and quick actions`,
+  'runtime.legacy.c294e39032df': {
+    source: `найти`,
     status: 'pending-translation',
     values: {
-      'ru': `settings.architectProfile': { ru: 'Фокус на симуляции физики и быстрых действиях', en: 'Focus on physics simulation and quick actions`,
+      'ru': `найти`,
+    },
+  },
+  'runtime.legacy.c2ca03c107f5': {
+    source: `Аутоиммунные заболевания`,
+    status: 'pending-translation',
+    values: {
+      'ru': `Аутоиммунные заболевания`,
     },
   },
   'runtime.legacy.c2cb90803066': {
@@ -5445,11 +5435,18 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ru': `Неизвестный сбой`,
     },
   },
-  'runtime.legacy.c2e9e7dab9b9': {
-    source: `singularityHint": "Нелинейная динамика экосистемы кишечника.`,
+  'runtime.legacy.c2cbe41a6422': {
+    source: `Сингулярность скорости или завихренности за конечное время.`,
     status: 'pending-translation',
     values: {
-      'ru': `singularityHint": "Нелинейная динамика экосистемы кишечника.`,
+      'ru': `Сингулярность скорости или завихренности за конечное время.`,
+    },
+  },
+  'runtime.legacy.c31342cac806': {
+    source: `Квантовое исправление ошибок.`,
+    status: 'pending-translation',
+    values: {
+      'ru': `Квантовое исправление ошибок.`,
     },
   },
   'runtime.legacy.c344fcbb6914': {
@@ -5466,18 +5463,11 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ru': `не должен повторно вызывать onCommit при отпускании, если значения не менялись (L1_IDENTITY)`,
     },
   },
-  'runtime.legacy.c375bb684d1a': {
-    source: `title": "Гипотеза Гольдбаха`,
+  'runtime.legacy.c378b7c43124': {
+    source: `Проблема делителей нуля в групповых кольцах`,
     status: 'pending-translation',
     values: {
-      'ru': `title": "Гипотеза Гольдбаха`,
-    },
-  },
-  'runtime.legacy.c3a9301851c2': {
-    source: `singularityHint": "Топологические сингулярности (разрешены).`,
-    status: 'pending-translation',
-    values: {
-      'ru': `singularityHint": "Топологические сингулярности (разрешены).`,
+      'ru': `Проблема делителей нуля в групповых кольцах`,
     },
   },
   'runtime.legacy.c3cd2d16f93f': {
@@ -5498,20 +5488,6 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ms-MY': `Keluaran`,
     },
   },
-  'runtime.legacy.c4376823d946': {
-    source: `title": "Сложность задачи изоморфизма графов (Побитовый спектральный трафарет)`,
-    status: 'pending-translation',
-    values: {
-      'ru': `title": "Сложность задачи изоморфизма графов (Побитовый спектральный трафарет)`,
-    },
-  },
-  'runtime.legacy.c44b4ba12c7d': {
-    source: `description": "ПЛАН МОНЕТИЗАЦИИ И СЕРВИСНОЙ АРХИТЕКТУРЫ RICIS-III:\\n\\n1. КОНЦЕПЦИЯ И ЧАТ-БОТ ИНТЕРФЕЙС:\\n• Чат-бот (Telegram / Web / API-gateway) принимает пользовательские математические и физические проблемы с сингулярностями (0/0, 0 * inf, пределы lim, взрывы градиентов).\\n• Бот выполняет детерминированный прогон через аксиоматический движок RICIS-III (SP1-SP4, Аксиома A6, дискретная маска Мерсенна M_k).\\n\\n2. АВТО-ОБУЧЕНИЕ И ПОПОЛНЕНИЕ ЕДИНОЙ БАЗЫ ЗНАНИЙ:\\n• Каждое полученное доказательство (Lean 4 + LaTeX) автоматически записывается в общую базу данных (IndexedDB / Cloud SQL).\\n• Агент RICIS-III мгновенно перезапускает авто-обучение (Agent Training Memory) на пополняемой базе доказательств, непрерывно повышая точность и ценность системы.\\n\\n3. СТРАТЕГИЯ МОНЕТИЗАЦИИ (B2C + B2B):\\n• B2C / Freemium: Базовый анализ сингулярностей — бесплатно; глубокая генерация Lean 4 сертификатов и вывод в Zenodo DOI — по подписке (SaaS) / Pay-Per-Proof.\\n• B2B API / LLM Shield: Встраиваемый API-модуль для разработчиков нейросетей для устранения деления на ноль и взрыва градиентов на лету.\\n• Marketplace Доказательств: Фиксация авторского приоритета (Digital Provenance) и продажа проверенных сертификатов.\\n\\n4. ПОДСКАЗКА АГЕНТУ ПРИ ПЕРЕРАСЧЕТЕ:\\nВычислить экономическую функцию ценности базы V(N) = V_0 + alpha * N * log2(N) при добавлении N решений через чат-бот, задать битность маски log2(sqr(N)) и оптимизировать тарифный шаг.`,
-    status: 'pending-translation',
-    values: {
-      'ru': `description": "ПЛАН МОНЕТИЗАЦИИ И СЕРВИСНОЙ АРХИТЕКТУРЫ RICIS-III:\\n\\n1. КОНЦЕПЦИЯ И ЧАТ-БОТ ИНТЕРФЕЙС:\\n• Чат-бот (Telegram / Web / API-gateway) принимает пользовательские математические и физические проблемы с сингулярностями (0/0, 0 * inf, пределы lim, взрывы градиентов).\\n• Бот выполняет детерминированный прогон через аксиоматический движок RICIS-III (SP1-SP4, Аксиома A6, дискретная маска Мерсенна M_k).\\n\\n2. АВТО-ОБУЧЕНИЕ И ПОПОЛНЕНИЕ ЕДИНОЙ БАЗЫ ЗНАНИЙ:\\n• Каждое полученное доказательство (Lean 4 + LaTeX) автоматически записывается в общую базу данных (IndexedDB / Cloud SQL).\\n• Агент RICIS-III мгновенно перезапускает авто-обучение (Agent Training Memory) на пополняемой базе доказательств, непрерывно повышая точность и ценность системы.\\n\\n3. СТРАТЕГИЯ МОНЕТИЗАЦИИ (B2C + B2B):\\n• B2C / Freemium: Базовый анализ сингулярностей — бесплатно; глубокая генерация Lean 4 сертификатов и вывод в Zenodo DOI — по подписке (SaaS) / Pay-Per-Proof.\\n• B2B API / LLM Shield: Встраиваемый API-модуль для разработчиков нейросетей для устранения деления на ноль и взрыва градиентов на лету.\\n• Marketplace Доказательств: Фиксация авторского приоритета (Digital Provenance) и продажа проверенных сертификатов.\\n\\n4. ПОДСКАЗКА АГЕНТУ ПРИ ПЕРЕРАСЧЕТЕ:\\nВычислить экономическую функцию ценности базы V(N) = V_0 + alpha * N * log2(N) при добавлении N решений через чат-бот, задать битность маски log2(sqr(N)) и оптимизировать тарифный шаг.`,
-    },
-  },
   'runtime.legacy.c473d7aed15b': {
     source: `должен возвращать английский текст при переключении на EN`,
     status: 'pending-translation',
@@ -5519,32 +5495,11 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ru': `должен возвращать английский текст при переключении на EN`,
     },
   },
-  'runtime.legacy.c4d29d622427': {
-    source: `settings.copyCurrent': { ru: 'Скопировать настройки текущего профиля', en: 'Copy current profile settings`,
+  'runtime.legacy.c4c3aea7ee36': {
+    source: `найди формулу сам`,
     status: 'pending-translation',
     values: {
-      'ru': `settings.copyCurrent': { ru: 'Скопировать настройки текущего профиля', en: 'Copy current profile settings`,
-    },
-  },
-  'runtime.legacy.c4d49ab6e749': {
-    source: `title": "Дилемма заключенного`,
-    status: 'pending-translation',
-    values: {
-      'ru': `title": "Дилемма заключенного`,
-    },
-  },
-  'runtime.legacy.c504e175e1d2': {
-    source: `description": "Сворачивание матрицы смежности графа через побитовый AND и POPCNT в вырожденный битовый профиль кольца Мерсенна за O(V).`,
-    status: 'pending-translation',
-    values: {
-      'ru': `description": "Сворачивание матрицы смежности графа через побитовый AND и POPCNT в вырожденный битовый профиль кольца Мерсенна за O(V).`,
-    },
-  },
-  'runtime.legacy.c521e2436064': {
-    source: `singularityHint": "Сингулярности алгебраических многообразий.`,
-    status: 'pending-translation',
-    values: {
-      'ru': `singularityHint": "Сингулярности алгебраических многообразий.`,
+      'ru': `найди формулу сам`,
     },
   },
   'runtime.legacy.c52c2c395fdf': {
@@ -5554,25 +5509,11 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ru': `Нобелевская премия / Промышленность сверхпроводников $1.5 Трлн`,
     },
   },
-  'runtime.legacy.c56be9f66fd6': {
-    source: `незакрытая') || e.includes('Unclosed`,
+  'runtime.legacy.c5a471e063e4': {
+    source: `Формула Вейля.`,
     status: 'pending-translation',
     values: {
-      'ru': `незакрытая') || e.includes('Unclosed`,
-    },
-  },
-  'runtime.legacy.c580d8de4a36': {
-    source: `description": "Ценообразование опционов.`,
-    status: 'pending-translation',
-    values: {
-      'ru': `description": "Ценообразование опционов.`,
-    },
-  },
-  'runtime.legacy.c58c1df24dd1': {
-    source: `title": "Уравнение Кортевега-де Фриза`,
-    status: 'pending-translation',
-    values: {
-      'ru': `title": "Уравнение Кортевега-де Фриза`,
+      'ru': `Формула Вейля.`,
     },
   },
   'runtime.legacy.c5a7b8ebc6b8': {
@@ -5582,18 +5523,32 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ru': `Исследователь`,
     },
   },
+  'runtime.legacy.c5d084c6dd2e': {
+    source: `Все нетривиальные нули дзета-функции лежат на критической прямой.`,
+    status: 'pending-translation',
+    values: {
+      'ru': `Все нетривиальные нули дзета-функции лежат на критической прямой.`,
+    },
+  },
+  'runtime.legacy.c5d7429cb948': {
+    source: `Одобрение того, что любой гармонический дифференциал есть рациональная комбинация.`,
+    status: 'pending-translation',
+    values: {
+      'ru': `Одобрение того, что любой гармонический дифференциал есть рациональная комбинация.`,
+    },
+  },
+  'runtime.legacy.c5fabd3f3e57': {
+    source: `Гипотеза Капланского о делителях нуля.`,
+    status: 'pending-translation',
+    values: {
+      'ru': `Гипотеза Капланского о делителях нуля.`,
+    },
+  },
   'runtime.legacy.c62b51dc5b85': {
     source: `Космология, черные дыры, темная материя.`,
     status: 'pending-translation',
     values: {
       'ru': `Космология, черные дыры, темная материя.`,
-    },
-  },
-  'runtime.legacy.c65f57ab6406': {
-    source: `найди') || s.includes('ищи') || s.includes('поищи') || s.includes('найти') || s.includes('наиди`,
-    status: 'pending-translation',
-    values: {
-      'ru': `найди') || s.includes('ищи') || s.includes('поищи') || s.includes('найти') || s.includes('наиди`,
     },
   },
   'runtime.legacy.c69095ac709a': {
@@ -5621,11 +5576,11 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ru': `Главный онтологический таргет`,
     },
   },
-  'runtime.legacy.c76448f4bc11': {
-    source: `title": "Эффект Казимира`,
+  'runtime.legacy.c79bee9a3bb3': {
+    source: `Formalize(Нейропластичность)`,
     status: 'pending-translation',
     values: {
-      'ru': `title": "Эффект Казимира`,
+      'ru': `Formalize(Нейропластичность)`,
     },
   },
   'runtime.legacy.c7a02961fdd3': {
@@ -5642,11 +5597,18 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ru': `Использование монолитной алгебры RICIS-III для вычисления неопределённостей 0/0 через фрактальную идентичность.`,
     },
   },
-  'runtime.legacy.c8cfd55af509': {
-    source: `description": "Представление чисел суммой k-х степеней.`,
+  'runtime.legacy.c8ba43639d44': {
+    source: `Сингулярности в нелинейной оптике`,
     status: 'pending-translation',
     values: {
-      'ru': `description": "Представление чисел суммой k-х степеней.`,
+      'ru': `Сингулярности в нелинейной оптике`,
+    },
+  },
+  'runtime.legacy.c8efdf58f036': {
+    source: `Formalize(Оптимизациягиперпараметров)`,
+    status: 'pending-translation',
+    values: {
+      'ru': `Formalize(Оптимизациягиперпараметров)`,
     },
   },
   'runtime.legacy.c919b4891a68': {
@@ -5654,6 +5616,38 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
     status: 'pending-translation',
     values: {
       'ru': `Нобелевская премия по медицине / Лечение онкопатологий $5 Трлн`,
+    },
+  },
+  'runtime.legacy.c95eb46faa0b': {
+    source: `Formalize(Высокотемпературнаясверхпроводимость)`,
+    status: 'pending-translation',
+    values: {
+      'ru': `Formalize(Высокотемпературнаясверхпроводимость)`,
+    },
+  },
+  'runtime.legacy.c9b20dd8dbdd': {
+    source: `Сингулярности в машинном обучении`,
+    status: 'pending-translation',
+    values: {
+      'ru': `Сингулярности в машинном обучении`,
+    },
+  },
+  'runtime.legacy.c9e5e0a9bd2c': {
+    source: `Formalize(Космологическаяпостоянная)`,
+    status: 'pending-translation',
+    values: {
+      'ru': `Formalize(Космологическаяпостоянная)`,
+    },
+  },
+  'runtime.legacy.c9f804ddafb3': {
+    source: `Локальный результат (Lean kernel не запускался):`,
+    status: 'translated-from-existing-resource',
+    values: {
+      'ru': `Локальный результат (Lean kernel не запускался):`,
+      'fr-CA': `Résultat local (Lean kernel n'a pas été exécuté):`,
+      'de-DE': `Lokales Ergebnis (Lean-Kernel wurde nicht ausgeführt):`,
+      'hi-IN': `स्थानीय परिणाम (Lean kernel चलाया नहीं गया):`,
+      'ms-MY': `Keputusan tempatan (Lean kernel tidak dijalankan):`,
     },
   },
   'runtime.legacy.ca09e3ba8cec': {
@@ -5667,39 +5661,32 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ms-MY': `0_10 / 0_2 (nisbah A4)`,
     },
   },
-  'runtime.legacy.ca430410faab': {
-    source: `targetFunction": "Formalize(АттракторЛоренца)`,
+  'runtime.legacy.ca48886b3096': {
+    source: `Детерминированное кольцо Мерсенна`,
     status: 'pending-translation',
     values: {
-      'ru': `targetFunction": "Formalize(АттракторЛоренца)`,
+      'ru': `Детерминированное кольцо Мерсенна`,
     },
   },
-  'runtime.legacy.ca5607731bcc': {
-    source: `theoremReport.copyTitle': { ru: 'Копировать текст теоремы', en: 'Copy theorem text`,
+  'runtime.legacy.caa109ba8efc': {
+    source: `Каспы и точки самопересечения.`,
     status: 'pending-translation',
     values: {
-      'ru': `theoremReport.copyTitle': { ru: 'Копировать текст теоремы', en: 'Copy theorem text`,
+      'ru': `Каспы и точки самопересечения.`,
     },
   },
-  'runtime.legacy.ca7c4b48d624': {
-    source: `targetFunction": "Formalize(СингулярностьИИ)`,
+  'runtime.legacy.cac63c3515cd': {
+    source: `Гиперинфляция`,
     status: 'pending-translation',
     values: {
-      'ru': `targetFunction": "Formalize(СингулярностьИИ)`,
+      'ru': `Гиперинфляция`,
     },
   },
-  'runtime.legacy.caa0d0e632b0': {
-    source: `targetFunction": "Formalize(ЭффектКондо)`,
+  'runtime.legacy.cad8e18beb61': {
+    source: `Проверка сохранения типов и онтологической сущности`,
     status: 'pending-translation',
     values: {
-      'ru': `targetFunction": "Formalize(ЭффектКондо)`,
-    },
-  },
-  'runtime.legacy.cab53a1207a7': {
-    source: `title": "Остановка машины Тьюринга`,
-    status: 'pending-translation',
-    values: {
-      'ru': `title": "Остановка машины Тьюринга`,
+      'ru': `Проверка сохранения типов и онтологической сущности`,
     },
   },
   'runtime.legacy.cadc1ff02a16': {
@@ -5711,6 +5698,27 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'de-DE': `Formale Verifikation mit Lean 4`,
       'hi-IN': `Lean 4 औपचारिक सत्यापन`,
       'ms-MY': `Pengesahan formal Lean 4`,
+    },
+  },
+  'runtime.legacy.caf75a4d008c': {
+    source: `Эволюция супербактерий.`,
+    status: 'pending-translation',
+    values: {
+      'ru': `Эволюция супербактерий.`,
+    },
+  },
+  'runtime.legacy.cb2d8e6f0526': {
+    source: `Вероятность гибели человечества.`,
+    status: 'pending-translation',
+    values: {
+      'ru': `Вероятность гибели человечества.`,
+    },
+  },
+  'runtime.legacy.cb443d465332': {
+    source: `Критический период развития.`,
+    status: 'pending-translation',
+    values: {
+      'ru': `Критический период развития.`,
     },
   },
   'runtime.legacy.cb4afa84d92a': {
@@ -5731,39 +5739,36 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ms-MY': `Keterangan dan bukti`,
     },
   },
-  'runtime.legacy.ccd35c3bef5c': {
-    source: `description": "Деградация нейронных связей.`,
+  'runtime.legacy.cbed069637db': {
+    source: `Невычислимость в пределе.`,
     status: 'pending-translation',
     values: {
-      'ru': `description": "Деградация нейронных связей.`,
+      'ru': `Невычислимость в пределе.`,
     },
   },
-  'runtime.legacy.cd1bb55956fc': {
-    source: `\${merge.source}" объединена в "\${merge.target}`,
+  'runtime.legacy.cc369997930d': {
+    source: `Деградация нейронных связей.`,
     status: 'pending-translation',
     values: {
-      'ru': `\${merge.source}" объединена в "\${merge.target}`,
+      'ru': `Деградация нейронных связей.`,
     },
   },
-  'runtime.legacy.cd5926191a10': {
-    source: `theoremReport.localChain': { ru: 'Шаги локальной RICIS-цепочки:', en: 'Local RICIS chain steps:`,
-    status: 'pending-translation',
+  'runtime.legacy.cc9a1c821c58': {
+    source: `Метод`,
+    status: 'translated-from-existing-resource',
     values: {
-      'ru': `theoremReport.localChain': { ru: 'Шаги локальной RICIS-цепочки:', en: 'Local RICIS chain steps:`,
+      'ru': `Метод`,
+      'fr-CA': `Méthode`,
+      'de-DE': `Methode`,
+      'hi-IN': `विधि`,
+      'ms-MY': `Kaedah`,
     },
   },
-  'runtime.legacy.cd5ad41b65d9': {
-    source: `title": "Сингулярность Большого взрыва`,
+  'runtime.legacy.ccf91969eed7': {
+    source: `Инварианты Конвея.`,
     status: 'pending-translation',
     values: {
-      'ru': `title": "Сингулярность Большого взрыва`,
-    },
-  },
-  'runtime.legacy.cd71e0c4a9a3': {
-    source: `description": "Синтез лекарств под геном.`,
-    status: 'pending-translation',
-    values: {
-      'ru': `description": "Синтез лекарств под геном.`,
+      'ru': `Инварианты Конвея.`,
     },
   },
   'runtime.legacy.cd96f3e3531d': {
@@ -5773,11 +5778,11 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ru': `Сингулярная проблема`,
     },
   },
-  'runtime.legacy.cddb174ef42f': {
-    source: `singularityHint": "Сингулярности Берри-кривизны.`,
+  'runtime.legacy.cdee156221e9': {
+    source: `Сумма двух простых.`,
     status: 'pending-translation',
     values: {
-      'ru': `singularityHint": "Сингулярности Берри-кривизны.`,
+      'ru': `Сумма двух простых.`,
     },
   },
   'runtime.legacy.cdf2e95e2840': {
@@ -5791,18 +5796,18 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ms-MY': `Masukkan ungkapan yang kesetaraannya perlu disahkan oleh Core.`,
     },
   },
+  'runtime.legacy.ce2cc55928c6': {
+    source: `Расходимость нулевых колебаний.`,
+    status: 'pending-translation',
+    values: {
+      'ru': `Расходимость нулевых колебаний.`,
+    },
+  },
   'runtime.legacy.ce9d0a67bae5': {
     source: `Изолированный узел`,
     status: 'pending-translation',
     values: {
       'ru': `Изолированный узел`,
-    },
-  },
-  'runtime.legacy.ceb48d495298': {
-    source: `Заполнение недостающих целевых функций через Gemini API...', 'ricis`,
-    status: 'pending-translation',
-    values: {
-      'ru': `Заполнение недостающих целевых функций через Gemini API...', 'ricis`,
     },
   },
   'runtime.legacy.ceba9b6b4058': {
@@ -5816,18 +5821,18 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ms-MY': `Tiada artifak bukti dengan provenance yang boleh disahkan dilampirkan pada nod ini lagi.`,
     },
   },
+  'runtime.legacy.cec0432e7884': {
+    source: `: строка (зона науки, например `,
+    status: 'pending-translation',
+    values: {
+      'ru': `: строка (зона науки, например `,
+    },
+  },
   'runtime.legacy.ced07fd14401': {
     source: `нет`,
     status: 'pending-translation',
     values: {
       'ru': `нет`,
-    },
-  },
-  'runtime.legacy.cf0733c9030d': {
-    source: `Несоответствие скобок') || e.includes('Mismatched`,
-    status: 'pending-translation',
-    values: {
-      'ru': `Несоответствие скобок') || e.includes('Mismatched`,
     },
   },
   'runtime.legacy.cf70ed015642': {
@@ -5837,11 +5842,25 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ru': `Применение разностного оператора плоскости Delta_plane без пределов`,
     },
   },
-  'runtime.legacy.cf94c024f2ba': {
-    source: `targetFunction": "Formalize(ГипотезаБёрчаСвиннертонДайера)`,
+  'runtime.legacy.d00364f2d96c': {
+    source: `Гематоэнцефалический барьер`,
     status: 'pending-translation',
     values: {
-      'ru': `targetFunction": "Formalize(ГипотезаБёрчаСвиннертонДайера)`,
+      'ru': `Гематоэнцефалический барьер`,
+    },
+  },
+  'runtime.legacy.d00a10505d77': {
+    source: `Сингулярности псевдоголоморфных кривых.`,
+    status: 'pending-translation',
+    values: {
+      'ru': `Сингулярности псевдоголоморфных кривых.`,
+    },
+  },
+  'runtime.legacy.d01ad8d4ecec': {
+    source: `Геометрия фракталов`,
+    status: 'pending-translation',
+    values: {
+      'ru': `Геометрия фракталов`,
     },
   },
   'runtime.legacy.d01b8c69497a': {
@@ -5851,11 +5870,18 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ru': `Этика и Когнитивистика`,
     },
   },
-  'runtime.legacy.d0911ad2de6c': {
-    source: `').replace(/\\s*при\\s*$/i, '`,
+  'runtime.legacy.d098b97f44a2': {
+    source: `Подвижные особые точки решений нелинейных ДУ.`,
     status: 'pending-translation',
     values: {
-      'ru': `').replace(/\\s*при\\s*$/i, '`,
+      'ru': `Подвижные особые точки решений нелинейных ДУ.`,
+    },
+  },
+  'runtime.legacy.d0a44843627a': {
+    source: `Formalize(ЭффектАароноваБома)`,
+    status: 'pending-translation',
+    values: {
+      'ru': `Formalize(ЭффектАароноваБома)`,
     },
   },
   'runtime.legacy.d0fb3b5b89f4': {
@@ -5869,13 +5895,6 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ms-MY': `Cari peta...`,
     },
   },
-  'runtime.legacy.d15bb7645163': {
-    source: `description": "Гипотетический взрывной рост интеллекта.`,
-    status: 'pending-translation',
-    values: {
-      'ru': `description": "Гипотетический взрывной рост интеллекта.`,
-    },
-  },
   'runtime.legacy.d18ebb5a0d55': {
     source: `Обнаружено использование классических бесконечных пределов (Cauchy limits / ZFC). В рамках RICIS-III пределы автоматически преобразуются в вызовы RICIS-мостов F_0 или inf_0 в кольце Мерсенна M_k.`,
     status: 'pending-translation',
@@ -5883,18 +5902,25 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ru': `Обнаружено использование классических бесконечных пределов (Cauchy limits / ZFC). В рамках RICIS-III пределы автоматически преобразуются в вызовы RICIS-мостов F_0 или inf_0 в кольце Мерсенна M_k.`,
     },
   },
-  'runtime.legacy.d1fa35d24d2c': {
-    source: `theoremReport.copy': { ru: 'Копировать теорему', en: 'Copy theorem`,
+  'runtime.legacy.d190824763af': {
+    source: `Formalize(Голографическийпринцип)`,
     status: 'pending-translation',
     values: {
-      'ru': `theoremReport.copy': { ru: 'Копировать теорему', en: 'Copy theorem`,
+      'ru': `Formalize(Голографическийпринцип)`,
     },
   },
-  'runtime.legacy.d1fd79f06f2f': {
-    source: `singularityHint": "Логический парадокс (самореференция).`,
+  'runtime.legacy.d1a8760135c4': {
+    source: `Случайные графы`,
     status: 'pending-translation',
     values: {
-      'ru': `singularityHint": "Логический парадокс (самореференция).`,
+      'ru': `Случайные графы`,
+    },
+  },
+  'runtime.legacy.d1c5376e5af1': {
+    source: `Гипотетический взрывной рост интеллекта.`,
+    status: 'pending-translation',
+    values: {
+      'ru': `Гипотетический взрывной рост интеллекта.`,
     },
   },
   'runtime.legacy.d206764a2a5b': {
@@ -5904,18 +5930,50 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ru': `Формальный дизайн лекарственных молекул с учётом сложных целевых функций AGI.`,
     },
   },
-  'runtime.legacy.d3198e115d72': {
-    source: `settings.localization': { ru: 'Локализация интерфейса', en: 'Interface localization`,
+  'runtime.legacy.d244f6e67260': {
+    source: `Сингулярность эгоистической рациональности.`,
     status: 'pending-translation',
     values: {
-      'ru': `settings.localization': { ru: 'Локализация интерфейса', en: 'Interface localization`,
+      'ru': `Сингулярность эгоистической рациональности.`,
     },
   },
-  'runtime.legacy.d347e26ed563': {
-    source: `targetFunction": "Formalize(Сингулярностьдираковскойструны)`,
+  'runtime.legacy.d24dd1ff90b4': {
+    source: `>Выбранная задача</span><span className=`,
     status: 'pending-translation',
     values: {
-      'ru': `targetFunction": "Formalize(Сингулярностьдираковскойструны)`,
+      'ru': `>Выбранная задача</span><span className=`,
+    },
+  },
+  'runtime.legacy.d25868aeeb90': {
+    source: `Сингулярные возмущения ДУ`,
+    status: 'pending-translation',
+    values: {
+      'ru': `Сингулярные возмущения ДУ`,
+    },
+  },
+  'runtime.legacy.d3302de13d20': {
+    source: `Гипотеза ER=EPR.`,
+    status: 'pending-translation',
+    values: {
+      'ru': `Гипотеза ER=EPR.`,
+    },
+  },
+  'runtime.legacy.d34cd1d50e56': {
+    source: `ШАГИ ДОКАЗАТЕЛЬСТВА:`,
+    status: 'translated-from-existing-resource',
+    values: {
+      'ru': `ШАГИ ДОКАЗАТЕЛЬСТВА:`,
+      'fr-CA': `ÉTAPES DE LA PREUVE:`,
+      'de-DE': `BEWEISSCHRITTE:`,
+      'hi-IN': `प्रमाण के चरण:`,
+      'ms-MY': `LANGKAH BUKTI:`,
+    },
+  },
+  'runtime.legacy.d3592853231b': {
+    source: `Ценообразование опционов.`,
+    status: 'pending-translation',
+    values: {
+      'ru': `Ценообразование опционов.`,
     },
   },
   'runtime.legacy.d39308226cf7': {
@@ -5925,11 +5983,39 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ru': `Формализация целевой функции AGI и избежание расхождения путей.`,
     },
   },
-  'runtime.legacy.d3df3c6e875a': {
-    source: `singularityHint": "Асимптотическое расхождение сложности.`,
+  'runtime.legacy.d3a5b4a56669': {
+    source: `Formalize(ТеоремаГеделяонеполноте)`,
     status: 'pending-translation',
     values: {
-      'ru': `singularityHint": "Асимптотическое расхождение сложности.`,
+      'ru': `Formalize(ТеоремаГеделяонеполноте)`,
+    },
+  },
+  'runtime.legacy.d3ade4f1f338': {
+    source: `Экранирование магнитного момента.`,
+    status: 'pending-translation',
+    values: {
+      'ru': `Экранирование магнитного момента.`,
+    },
+  },
+  'runtime.legacy.d3e7b15c618b': {
+    source: ` или бессодержательный Lean 4 код `,
+    status: 'pending-translation',
+    values: {
+      'ru': ` или бессодержательный Lean 4 код `,
+    },
+  },
+  'runtime.legacy.d3f8d194ce7d': {
+    source: `Сингулярность границы AdS-пространства.`,
+    status: 'pending-translation',
+    values: {
+      'ru': `Сингулярность границы AdS-пространства.`,
+    },
+  },
+  'runtime.legacy.d4052a6770cf': {
+    source: `Formalize(Сингулярностьдираковскойструны)`,
+    status: 'pending-translation',
+    values: {
+      'ru': `Formalize(Сингулярностьдираковскойструны)`,
     },
   },
   'runtime.legacy.d411e3968916': {
@@ -5943,6 +6029,13 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ms-MY': `AI sedang menganalisis...`,
     },
   },
+  'runtime.legacy.d425b5986378': {
+    source: `Сингулярности кратных точек.`,
+    status: 'pending-translation',
+    values: {
+      'ru': `Сингулярности кратных точек.`,
+    },
+  },
   'runtime.legacy.d5172634dd4d': {
     source: `Применение монолитов RICIS-III для квантовой гравитации и объединения взаимодействий.`,
     status: 'pending-translation',
@@ -5950,32 +6043,25 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ru': `Применение монолитов RICIS-III для квантовой гравитации и объединения взаимодействий.`,
     },
   },
-  'runtime.legacy.d53dd36d829b': {
-    source: `singularityHint": "Точка разрыва конечного радиуса.`,
+  'runtime.legacy.d5841c8973c4': {
+    source: `Рыночные крахи.`,
     status: 'pending-translation',
     values: {
-      'ru': `singularityHint": "Точка разрыва конечного радиуса.`,
+      'ru': `Рыночные крахи.`,
     },
   },
-  'runtime.legacy.d554f102ab60': {
-    source: `description": "Гипотетические частицы с магнитным зарядом.`,
+  'runtime.legacy.d586aaa955fd': {
+    source: `Formalize(ГладкоерешениеуравненийНавьеСтокса)`,
     status: 'pending-translation',
     values: {
-      'ru': `description": "Гипотетические частицы с магнитным зарядом.`,
+      'ru': `Formalize(ГладкоерешениеуравненийНавьеСтокса)`,
     },
   },
-  'runtime.legacy.d58dc1ece429': {
-    source: `description": "Существование и гладкость решений уравнений Навье-Стокса в 3D.`,
+  'runtime.legacy.d58a6809d3d6': {
+    source: `Formalize(СингулярностьфункцииВейерштрасса)`,
     status: 'pending-translation',
     values: {
-      'ru': `description": "Существование и гладкость решений уравнений Навье-Стокса в 3D.`,
-    },
-  },
-  'runtime.legacy.d5d3d4ba7b9b': {
-    source: `targetFunction": "Formalize(Космологическаяпостоянная)`,
-    status: 'pending-translation',
-    values: {
-      'ru': `targetFunction": "Formalize(Космологическаяпостоянная)`,
+      'ru': `Formalize(СингулярностьфункцииВейерштрасса)`,
     },
   },
   'runtime.legacy.d5f278c439a1': {
@@ -5989,39 +6075,32 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ms-MY': `Status kepercayaan`,
     },
   },
-  'runtime.legacy.d6c741c91cbc': {
-    source: `description": "Устойчивость к коллизиям.`,
+  'runtime.legacy.d609108e2acb': {
+    source: `Formalize(Темнаяэнергия)`,
     status: 'pending-translation',
     values: {
-      'ru': `description": "Устойчивость к коллизиям.`,
+      'ru': `Formalize(Темнаяэнергия)`,
     },
   },
-  'runtime.legacy.d7105ba2b484': {
-    source: `settings.profileExample': { ru: 'Например: Эксперт RICIS-III', en: 'Example: RICIS-III Expert`,
+  'runtime.legacy.d7119b8ee559': {
+    source: `Состояния на краю, защищенные топологией.`,
     status: 'pending-translation',
     values: {
-      'ru': `settings.profileExample': { ru: 'Например: Эксперт RICIS-III', en: 'Example: RICIS-III Expert`,
+      'ru': `Состояния на краю, защищенные топологией.`,
     },
   },
-  'runtime.legacy.d722692ecc86': {
-    source: `singularityHint": "Появление гигантской компоненты.`,
+  'runtime.legacy.d74600e99e7c': {
+    source: `Formalize(ТеорияЯнгаМиллса:существованиеимассоваящель)`,
     status: 'pending-translation',
     values: {
-      'ru': `singularityHint": "Появление гигантской компоненты.`,
+      'ru': `Formalize(ТеорияЯнгаМиллса:существованиеимассоваящель)`,
     },
   },
-  'runtime.legacy.d73aa9e42c0a': {
-    source: `title": "Гипотеза Бёрча — Свиннертон-Дайера`,
+  'runtime.legacy.d79394226257': {
+    source: ` в канонический модуль `,
     status: 'pending-translation',
     values: {
-      'ru': `title": "Гипотеза Бёрча — Свиннертон-Дайера`,
-    },
-  },
-  'runtime.legacy.d79aa8a00474': {
-    source: `title": "Парадокс браев`,
-    status: 'pending-translation',
-    values: {
-      'ru': `title": "Парадокс браев`,
+      'ru': ` в канонический модуль `,
     },
   },
   'runtime.legacy.d7c68418c97b': {
@@ -6042,18 +6121,32 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ms-MY': `Simulator Telegram RICIS-III`,
     },
   },
-  'runtime.legacy.d88d1de83100': {
-    source: `theoremReport.complexity': { ru: 'Сложность', en: 'Complexity`,
+  'runtime.legacy.d81e3154fa23': {
+    source: `Сингулярность флуктуаций плотности.`,
     status: 'pending-translation',
     values: {
-      'ru': `theoremReport.complexity': { ru: 'Сложность', en: 'Complexity`,
+      'ru': `Сингулярность флуктуаций плотности.`,
     },
   },
-  'runtime.legacy.d907b25d1523': {
-    source: `title": "Теорема Эрроу о невозможности`,
+  'runtime.legacy.d8412268d78e': {
+    source: `Взрыв градиентов в глубоких сетях.`,
     status: 'pending-translation',
     values: {
-      'ru': `title": "Теорема Эрроу о невозможности`,
+      'ru': `Взрыв градиентов в глубоких сетях.`,
+    },
+  },
+  'runtime.legacy.d8468152c7c0': {
+    source: `Детали вычисления`,
+    status: 'pending-translation',
+    values: {
+      'ru': `Детали вычисления`,
+    },
+  },
+  'runtime.legacy.d8b359b0803d': {
+    source: `Экономика без работы.`,
+    status: 'pending-translation',
+    values: {
+      'ru': `Экономика без работы.`,
     },
   },
   'runtime.legacy.d95c0d9592bb': {
@@ -6063,11 +6156,15 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ru': `\\\\textbf{RICIS-III Аналитическое доказательство}`,
     },
   },
-  'runtime.legacy.d9d2db8eb39a': {
-    source: `targetFunction": "Formalize(Микробиомчеловека)`,
-    status: 'pending-translation',
+  'runtime.legacy.d9710a343dc2': {
+    source: `Сложность: {{value}}`,
+    status: 'translated-from-existing-resource',
     values: {
-      'ru': `targetFunction": "Formalize(Микробиомчеловека)`,
+      'ru': `Сложность: {{value}}`,
+      'fr-CA': `Complexité : {{value}}`,
+      'de-DE': `Komplexität: {{value}}`,
+      'hi-IN': `जटिलता: {{value}}`,
+      'ms-MY': `Kompleksiti: {{value}}`,
     },
   },
   'runtime.legacy.da04135bd30e': {
@@ -6084,11 +6181,11 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ru': `Вторичная задача`,
     },
   },
-  'runtime.legacy.da6986cb9ad3': {
-    source: `title": "Проблема инвариантных подпространств`,
+  'runtime.legacy.da78036495f0': {
+    source: `Строгое доказательство существования квантовой теории поля.`,
     status: 'pending-translation',
     values: {
-      'ru': `title": "Проблема инвариантных подпространств`,
+      'ru': `Строгое доказательство существования квантовой теории поля.`,
     },
   },
   'runtime.legacy.da7d157d8394': {
@@ -6109,6 +6206,13 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ms-MY': `Buka masalah yang tersedia`,
     },
   },
+  'runtime.legacy.daa8369d2b0c': {
+    source: `>Найденные узлы</h2><span className=`,
+    status: 'pending-translation',
+    values: {
+      'ru': `>Найденные узлы</h2><span className=`,
+    },
+  },
   'runtime.legacy.dac2f54ffb12': {
     source: `Целевая функция / Математическая модель`,
     status: 'translated-from-existing-resource',
@@ -6118,6 +6222,13 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'de-DE': `Zielfunktion / Mathematisches Modell`,
       'hi-IN': `लक्ष्य फ़ंक्शन / गणितीय मॉडल`,
       'ms-MY': `Fungsi Sasaran / Model Matematik`,
+    },
+  },
+  'runtime.legacy.daf417d2e8b7': {
+    source: `Formalize(Топологическиеизоляторы)`,
+    status: 'pending-translation',
+    values: {
+      'ru': `Formalize(Топологическиеизоляторы)`,
     },
   },
   'runtime.legacy.db7f070470c4': {
@@ -6131,13 +6242,6 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ms-MY': `/solve <formula> atau /help`,
     },
   },
-  'runtime.legacy.db8b54c1931b': {
-    source: `2', name: 'A6 GEOMETRIC BRIDGE', action: 'Косое произведение u=(F,0), v=(0,G), det(u,v)=F*G', expression: 'det((F,0), (0,G)) = F * G`,
-    status: 'pending-translation',
-    values: {
-      'ru': `2', name: 'A6 GEOMETRIC BRIDGE', action: 'Косое произведение u=(F,0), v=(0,G), det(u,v)=F*G', expression: 'det((F,0), (0,G)) = F * G`,
-    },
-  },
   'runtime.legacy.dc5b2a547402': {
     source: `Пользовательское доказательство Lean 4`,
     status: 'pending-translation',
@@ -6145,25 +6249,11 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ru': `Пользовательское доказательство Lean 4`,
     },
   },
-  'runtime.legacy.dcf0bcca05ca': {
-    source: `singularityHint": "Топологическая невозможность (парадокс голосования).`,
-    status: 'pending-translation',
-    values: {
-      'ru': `singularityHint": "Топологическая невозможность (парадокс голосования).`,
-    },
-  },
   'runtime.legacy.dd4496719f6c': {
     source: `не должен вызывать onCommit во время непрерывного изменения значений ползунка`,
     status: 'pending-translation',
     values: {
       'ru': `не должен вызывать onCommit во время непрерывного изменения значений ползунка`,
-    },
-  },
-  'runtime.legacy.dd7b137e41a7': {
-    source: `RICIS-III v7.7 Analytical Engine готов к работе.', 'ricis`,
-    status: 'pending-translation',
-    values: {
-      'ru': `RICIS-III v7.7 Analytical Engine готов к работе.', 'ricis`,
     },
   },
   'runtime.legacy.dd7cc306beaa': {
@@ -6175,13 +6265,6 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'de-DE': `Erfordert Core/Lean-Evidence`,
       'hi-IN': `Core / Lean प्रमाण आवश्यक`,
       'ms-MY': `Memerlukan bukti Core/Lean`,
-    },
-  },
-  'runtime.legacy.dd912778a2a5': {
-    source: `title": "Сингулярность дираковской струны`,
-    status: 'pending-translation',
-    values: {
-      'ru': `title": "Сингулярность дираковской струны`,
     },
   },
   'runtime.legacy.dddcfd5385e5': {
@@ -6198,18 +6281,25 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ru': `📜 *Команды RICIS-III:*\\n\\n`,
     },
   },
-  'runtime.legacy.de5f94419996': {
-    source: `description": "Расхождение цепи блоков.`,
+  'runtime.legacy.ddf89724c415': {
+    source: `Фазовый набег электрона.`,
     status: 'pending-translation',
     values: {
-      'ru': `description": "Расхождение цепи блоков.`,
+      'ru': `Фазовый набег электрона.`,
     },
   },
-  'runtime.legacy.df705907a7b7': {
-    source: `singularityHint": "Сингулярность волатильности при t->T.`,
+  'runtime.legacy.de09fd006ee8': {
+    source: `Косое произведение ортогональных векторов det(u,v) = F * G или 0_F * \\\\infty_F = F^2`,
     status: 'pending-translation',
     values: {
-      'ru': `singularityHint": "Сингулярность волатильности при t->T.`,
+      'ru': `Косое произведение ортогональных векторов det(u,v) = F * G или 0_F * \\\\infty_F = F^2`,
+    },
+  },
+  'runtime.legacy.df23d54a1516': {
+    source: `Дискретность холловского сопротивления.`,
+    status: 'pending-translation',
+    values: {
+      'ru': `Дискретность холловского сопротивления.`,
     },
   },
   'runtime.legacy.df79812345b6': {
@@ -6219,6 +6309,20 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ru': `Основа RICIS-III`,
     },
   },
+  'runtime.legacy.df7ccab612af': {
+    source: `Конические точки в компактных пространствах.`,
+    status: 'pending-translation',
+    values: {
+      'ru': `Конические точки в компактных пространствах.`,
+    },
+  },
+  'runtime.legacy.df9ea52be5ee': {
+    source: `Информационный парадокс черных дыр`,
+    status: 'pending-translation',
+    values: {
+      'ru': `Информационный парадокс черных дыр`,
+    },
+  },
   'runtime.legacy.dfc3bd2b45d7': {
     source: `Премия Джанга / Остроговского $1,000,000 (abc Conjecture)`,
     status: 'pending-translation',
@@ -6226,11 +6330,11 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ru': `Премия Джанга / Остроговского $1,000,000 (abc Conjecture)`,
     },
   },
-  'runtime.legacy.dfd557c3f86b': {
-    source: `description": "Узоры Пенроуза.`,
+  'runtime.legacy.dfd794eb1f6a': {
+    source: `Ухудшение пропускной способности при добавлении дорог.`,
     status: 'pending-translation',
     values: {
-      'ru': `description": "Узоры Пенроуза.`,
+      'ru': `Ухудшение пропускной способности при добавлении дорог.`,
     },
   },
   'runtime.legacy.e0042351c333': {
@@ -6244,25 +6348,29 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ms-MY': `Lihat bukti`,
     },
   },
-  'runtime.legacy.e007e7d3192d': {
-    source: `targetFunction": "Formalize(Парадоксбраев)`,
-    status: 'pending-translation',
+  'runtime.legacy.e0116dd5545c': {
+    source: `Например: Эксперт RICIS-III`,
+    status: 'translated-from-existing-resource',
     values: {
-      'ru': `targetFunction": "Formalize(Парадоксбраев)`,
+      'ru': `Например: Эксперт RICIS-III`,
+      'fr-CA': `Exemple : Expert RICIS-III`,
+      'de-DE': `Beispiel: RICIS-III-Experte`,
+      'hi-IN': `उदाहरण: RICIS-III विशेषज्ञ`,
+      'ms-MY': `Contoh: Pakar RICIS-III`,
     },
   },
-  'runtime.legacy.e02349be43b2': {
-    source: `terminal.mapTitle': { ru: 'Сингулярность: {{value}}', en: 'Singularity: {{value}}`,
+  'runtime.legacy.e012c0ae7f6a': {
+    source: `бесконечная полоса`,
     status: 'pending-translation',
     values: {
-      'ru': `terminal.mapTitle': { ru: 'Сингулярность: {{value}}', en: 'Singularity: {{value}}`,
+      'ru': `бесконечная полоса`,
     },
   },
-  'runtime.legacy.e0ae9599130c': {
-    source: `description": "Описание объема через границу.`,
+  'runtime.legacy.e03e45479c4f': {
+    source: `Formalize(Экзистенциальныйриск)`,
     status: 'pending-translation',
     values: {
-      'ru': `description": "Описание объема через границу.`,
+      'ru': `Formalize(Экзистенциальныйриск)`,
     },
   },
   'runtime.legacy.e0de5abbbbee': {
@@ -6272,18 +6380,32 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ru': `Статус доверия: RICIS_PROVEN`,
     },
   },
-  'runtime.legacy.e10bfb755d55': {
-    source: `title": "Теорема Геделя о неполноте`,
+  'runtime.legacy.e11c5aa1c9da': {
+    source: `Фрактальная размерность аттрактора.`,
     status: 'pending-translation',
     values: {
-      'ru': `title": "Теорема Геделя о неполноте`,
+      'ru': `Фрактальная размерность аттрактора.`,
     },
   },
-  'runtime.legacy.e13cc6f5d6ac': {
-    source: `targetFunction": "Formalize(ИнвариантыДональдсона)`,
+  'runtime.legacy.e16203869fc5': {
+    source: `Косое произведение u=(F,0), v=(0,G), det(u,v)=F*G`,
     status: 'pending-translation',
     values: {
-      'ru': `targetFunction": "Formalize(ИнвариантыДональдсона)`,
+      'ru': `Косое произведение u=(F,0), v=(0,G), det(u,v)=F*G`,
+    },
+  },
+  'runtime.legacy.e17c83320288': {
+    source: `Размерность пространства генотипов.`,
+    status: 'pending-translation',
+    values: {
+      'ru': `Размерность пространства генотипов.`,
+    },
+  },
+  'runtime.legacy.e18009bef5d2': {
+    source: `найди`,
+    status: 'pending-translation',
+    values: {
+      'ru': `найди`,
     },
   },
   'runtime.legacy.e1e97bfef63c': {
@@ -6300,32 +6422,18 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ru': `📜 *Справка симулятора:*\\n• \`/solve <формула>\` — показать запрос в формате Telegram.\\n• Результат должен отдельно пройти Core или Lean-проверку.`,
     },
   },
-  'runtime.legacy.e22adf878da5': {
-    source: `').replace(/^задача от @\\\\w+:\\\\s*/i, '`,
-    status: 'pending-translation',
-    values: {
-      'ru': `').replace(/^задача от @\\\\w+:\\\\s*/i, '`,
-    },
-  },
-  'runtime.legacy.e2789c1ab2b6': {
-    source: `singularityHint": "Сингулярности эллиптических дифференциальных операторов.`,
-    status: 'pending-translation',
-    values: {
-      'ru': `singularityHint": "Сингулярности эллиптических дифференциальных операторов.`,
-    },
-  },
-  'runtime.legacy.e28bf94ad24f': {
-    source: `singularityHint": "Аномалии в кривых вращения галактик.`,
-    status: 'pending-translation',
-    values: {
-      'ru': `singularityHint": "Аномалии в кривых вращения галактик.`,
-    },
-  },
   'runtime.legacy.e2bb1d6487f8': {
     source: `Обнаружено упоминание Lean, но ключевые слова (theorem, lemma, def) отсутствуют. Код трактуется как LaTeX/текстовое описание.`,
     status: 'pending-translation',
     values: {
       'ru': `Обнаружено упоминание Lean, но ключевые слова (theorem, lemma, def) отсутствуют. Код трактуется как LaTeX/текстовое описание.`,
+    },
+  },
+  'runtime.legacy.e2c3a25e136d': {
+    source: `Византийские генералы.`,
+    status: 'pending-translation',
+    values: {
+      'ru': `Византийские генералы.`,
     },
   },
   'runtime.legacy.e2c4048230bd': {
@@ -6335,18 +6443,25 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ru': `Разрешение сингулярностей (Деление на ноль)`,
     },
   },
-  'runtime.legacy.e3567aa7c204': {
-    source: `title": "Сингулярность ИИ`,
+  'runtime.legacy.e2de737f9e55': {
+    source: `Formalize(Персонализированнаямедицина)`,
     status: 'pending-translation',
     values: {
-      'ru': `title": "Сингулярность ИИ`,
+      'ru': `Formalize(Персонализированнаямедицина)`,
     },
   },
-  'runtime.legacy.e37dbb92069e': {
-    source: `targetFunction": "Formalize(СингулярностиванХова)`,
+  'runtime.legacy.e2e5d52e9f71': {
+    source: `Formalize(УравнениеКортевегадеФриза)`,
     status: 'pending-translation',
     values: {
-      'ru': `targetFunction": "Formalize(СингулярностиванХова)`,
+      'ru': `Formalize(УравнениеКортевегадеФриза)`,
+    },
+  },
+  'runtime.legacy.e361dc75d59f': {
+    source: `Распределение богатства Парето`,
+    status: 'pending-translation',
+    values: {
+      'ru': `Распределение богатства Парето`,
     },
   },
   'runtime.legacy.e38d04cfaffb': {
@@ -6360,18 +6475,25 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ms-MY': `Nilai dalam O(1)`,
     },
   },
-  'runtime.legacy.e471a598d4c4': {
-    source: `6', name: 'L1 VERIFICATION', action: 'Подтверждение стабильного инварианта O(1) без амнезии`,
+  'runtime.legacy.e4129729cab5': {
+    source: `Структурные нули алгебры.`,
     status: 'pending-translation',
     values: {
-      'ru': `6', name: 'L1 VERIFICATION', action: 'Подтверждение стабильного инварианта O(1) без амнезии`,
+      'ru': `Структурные нули алгебры.`,
     },
   },
-  'runtime.legacy.e49472e0626c': {
-    source: `singularityHint": "Сингулярность отношения площади к объему.`,
+  'runtime.legacy.e416ae0ebfdd': {
+    source: `Токсичность наноматериалов`,
     status: 'pending-translation',
     values: {
-      'ru': `singularityHint": "Сингулярность отношения площади к объему.`,
+      'ru': `Токсичность наноматериалов`,
+    },
+  },
+  'runtime.legacy.e41fd7f353a3': {
+    source: `Formalize(Спектральнаяасимптотика)`,
+    status: 'pending-translation',
+    values: {
+      'ru': `Formalize(Спектральнаяасимптотика)`,
     },
   },
   'runtime.legacy.e4b0e2f188f4': {
@@ -6381,53 +6503,85 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ru': `Молекулярный дизайн и синтез.`,
     },
   },
-  'runtime.legacy.e54a8a3a55b3': {
-    source: `singularityHint": "Фрактальная размерность аттрактора.`,
-    status: 'pending-translation',
+  'runtime.legacy.e5b2b7911c87': {
+    source: `Метод доказательства: {{value}}`,
+    status: 'translated-from-existing-resource',
     values: {
-      'ru': `singularityHint": "Фрактальная размерность аттрактора.`,
+      'ru': `Метод доказательства: {{value}}`,
+      'fr-CA': `Méthode de preuve : {{value}}`,
+      'de-DE': `Beweismethode: {{value}}`,
+      'hi-IN': `प्रमाण विधि: {{value}}`,
+      'ms-MY': `Kaedah bukti: {{value}}`,
     },
   },
-  'runtime.legacy.e570fbed3624': {
-    source: `singularityHint": "Бесконечный цикл (временная расходимость).`,
+  'runtime.legacy.e5c989a27430': {
+    source: `Онкогенез`,
     status: 'pending-translation',
     values: {
-      'ru': `singularityHint": "Бесконечный цикл (временная расходимость).`,
+      'ru': `Онкогенез`,
     },
   },
-  'runtime.legacy.e5e445985a66': {
-    source: `targetFunction": "Formalize(Квазикристаллы)`,
+  'runtime.legacy.e6026511e43b': {
+    source: `Квантовый эффект Холла`,
     status: 'pending-translation',
     values: {
-      'ru': `targetFunction": "Formalize(Квазикристаллы)`,
+      'ru': `Квантовый эффект Холла`,
     },
   },
-  'runtime.legacy.e6c433bcba55': {
-    source: `targetFunction": "Formalize(Фазовыепереходывторогорода)`,
+  'runtime.legacy.e6a19e53c63e': {
+    source: `Расходимость денежной массы.`,
     status: 'pending-translation',
     values: {
-      'ru': `targetFunction": "Formalize(Фазовыепереходывторогорода)`,
+      'ru': `Расходимость денежной массы.`,
     },
   },
-  'runtime.legacy.e7513852fcec': {
-    source: `description": "Влияние векторного потенциала на фазу.`,
+  'runtime.legacy.e76112d8ca9d': {
+    source: `Топологические сингулярности (разрешены).`,
     status: 'pending-translation',
     values: {
-      'ru': `description": "Влияние векторного потенциала на фазу.`,
+      'ru': `Топологические сингулярности (разрешены).`,
     },
   },
-  'runtime.legacy.e752cbaa529d': {
-    source: `singularityHint": "Логарифмическая расходимость при низких температурах.`,
+  'runtime.legacy.e761f9ed9a25': {
+    source: `Алгебраические квантовые сингулярности.`,
     status: 'pending-translation',
     values: {
-      'ru': `singularityHint": "Логарифмическая расходимость при низких температурах.`,
+      'ru': `Алгебраические квантовые сингулярности.`,
     },
   },
-  'runtime.legacy.e7a3c2186dbe': {
-    source: `title": "Крионика`,
+  'runtime.legacy.e77c1b7043db': {
+    source: `Сингулярность функции выживания (вероятность 0).`,
     status: 'pending-translation',
     values: {
-      'ru': `title": "Крионика`,
+      'ru': `Сингулярность функции выживания (вероятность 0).`,
+    },
+  },
+  'runtime.legacy.e78cc81b64ab': {
+    source: `Проблема катастрофического забывания`,
+    status: 'pending-translation',
+    values: {
+      'ru': `Проблема катастрофического забывания`,
+    },
+  },
+  'runtime.legacy.e7dfd0742832': {
+    source: `Formalize(МодельБлэкаШоулза)`,
+    status: 'pending-translation',
+    values: {
+      'ru': `Formalize(МодельБлэкаШоулза)`,
+    },
+  },
+  'runtime.legacy.e7f323049a6b': {
+    source: `Разрешение особенностей алгебраических многообразий в характеристике p>0.`,
+    status: 'pending-translation',
+    values: {
+      'ru': `Разрешение особенностей алгебраических многообразий в характеристике p>0.`,
+    },
+  },
+  'runtime.legacy.e7fc9df41565': {
+    source: `Самофокусировка лазерного луча.`,
+    status: 'pending-translation',
+    values: {
+      'ru': `Самофокусировка лазерного луча.`,
     },
   },
   'runtime.legacy.e85802ab4760': {
@@ -6437,11 +6591,36 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ru': `должен содержать Gemini 3.7 Flash как модель по умолчанию`,
     },
   },
-  'runtime.legacy.e90500d4111c': {
-    source: `targetFunction": "Formalize(Сингулярнаягомология)`,
+  'runtime.legacy.e8b964da61ec': {
+    source: `Высокотемпературная сверхпроводимость`,
     status: 'pending-translation',
     values: {
-      'ru': `targetFunction": "Formalize(Сингулярнаягомология)`,
+      'ru': `Высокотемпературная сверхпроводимость`,
+    },
+  },
+  'runtime.legacy.e8c8ca12c02d': {
+    source: `Загрузить в строку ввода`,
+    status: 'translated-from-existing-resource',
+    values: {
+      'ru': `Загрузить в строку ввода`,
+      'fr-CA': `Charger dans le champ de saisie`,
+      'de-DE': `In Eingabefeld laden`,
+      'hi-IN': `इनपुट में लोड करें`,
+      'ms-MY': `Muat ke dalam input`,
+    },
+  },
+  'runtime.legacy.e940d71b552e': {
+    source: `Появление гигантской компоненты.`,
+    status: 'pending-translation',
+    values: {
+      'ru': `Появление гигантской компоненты.`,
+    },
+  },
+  'runtime.legacy.e94409d48493': {
+    source: `Formalize(ОстановкамашиныТьюринга)`,
+    status: 'pending-translation',
+    values: {
+      'ru': `Formalize(ОстановкамашиныТьюринга)`,
     },
   },
   'runtime.legacy.e9509ba2845c': {
@@ -6462,25 +6641,32 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ru': `Обновленный заголовок RICIS`,
     },
   },
-  'runtime.legacy.e9e5b4b84a04': {
-    source: `terminal.steps': { ru: 'Шаги: {{value}}', en: 'Steps: {{value}}`,
+  'runtime.legacy.e99196617fe8': {
+    source: `Расходимость энергии вакуума (регуляризуемая).`,
     status: 'pending-translation',
     values: {
-      'ru': `terminal.steps': { ru: 'Шаги: {{value}}', en: 'Steps: {{value}}`,
+      'ru': `Расходимость энергии вакуума (регуляризуемая).`,
     },
   },
-  'runtime.legacy.ea4bdf1f3c56': {
-    source: `theoremReport.premise': { ru: 'Гипотеза (Premise):', en: 'Hypothesis (Premise):`,
+  'runtime.legacy.e9db01259912': {
+    source: `Formalize(НелинейноеуравнениеШредингера)`,
     status: 'pending-translation',
     values: {
-      'ru': `theoremReport.premise': { ru: 'Гипотеза (Premise):', en: 'Hypothesis (Premise):`,
+      'ru': `Formalize(НелинейноеуравнениеШредингера)`,
     },
   },
-  'runtime.legacy.eae242e7126a': {
-    source: `targetFunction": "Formalize(МодельБлэкаШоулза)`,
+  'runtime.legacy.e9dd7362cd17': {
+    source: `Сингулярность при малом параметре при старшей производной.`,
     status: 'pending-translation',
     values: {
-      'ru': `targetFunction": "Formalize(МодельБлэкаШоулза)`,
+      'ru': `Сингулярность при малом параметре при старшей производной.`,
+    },
+  },
+  'runtime.legacy.ea6f301d1e12': {
+    source: `Formalize(Свертываниебелка(ProteinFolding))`,
+    status: 'pending-translation',
+    values: {
+      'ru': `Formalize(Свертываниебелка(ProteinFolding))`,
     },
   },
   'runtime.legacy.eb249b56eb4e': {
@@ -6501,18 +6687,18 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ru': `должен выполнять очистку кодовой базы, сохраняя лог трансформаций кода`,
     },
   },
-  'runtime.legacy.eb5cf707bdd6': {
-    source: `description": "Избежание кристаллизации воды.`,
-    status: 'pending-translation',
-    values: {
-      'ru': `description": "Избежание кристаллизации воды.`,
-    },
-  },
   'runtime.legacy.eb728f1fbccc': {
     source: `Монолитная алгебра RICIS-III для вычисления 0/0.`,
     status: 'pending-translation',
     values: {
       'ru': `Монолитная алгебра RICIS-III для вычисления 0/0.`,
+    },
+  },
+  'runtime.legacy.eb840e09df91': {
+    source: `>G Узлов: <strong className=`,
+    status: 'pending-translation',
+    values: {
+      'ru': `>G Узлов: <strong className=`,
     },
   },
   'runtime.legacy.ebe0bd199e76': {
@@ -6526,6 +6712,41 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ms-MY': `Snapshot Ricis.Core yang tidak boleh diubah`,
     },
   },
+  'runtime.legacy.ebec4d2d12d3': {
+    source: `Formalize(Универсальныйбазовыйдоход(UBI))`,
+    status: 'pending-translation',
+    values: {
+      'ru': `Formalize(Универсальныйбазовыйдоход(UBI))`,
+    },
+  },
+  'runtime.legacy.ec7e41d13122': {
+    source: `Монетизация через RICIS-III Чат-Бот: Разрешение Сингулярностей и Авто-Обучение БД`,
+    status: 'pending-translation',
+    values: {
+      'ru': `Монетизация через RICIS-III Чат-Бот: Разрешение Сингулярностей и Авто-Обучение БД`,
+    },
+  },
+  'runtime.legacy.ecaf741e9ba3': {
+    source: `Внешний Lean proof принят как trusted axiom.`,
+    status: 'pending-translation',
+    values: {
+      'ru': `Внешний Lean proof принят как trusted axiom.`,
+    },
+  },
+  'runtime.legacy.ecd33265a7bd': {
+    source: `Темная энергия`,
+    status: 'pending-translation',
+    values: {
+      'ru': `Темная энергия`,
+    },
+  },
+  'runtime.legacy.ecfea390598e': {
+    source: `Нейропластичность`,
+    status: 'pending-translation',
+    values: {
+      'ru': `Нейропластичность`,
+    },
+  },
   'runtime.legacy.ed44613a9615': {
     source: `должен корректно генерировать URL для задачи на карте`,
     status: 'pending-translation',
@@ -6533,11 +6754,11 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ru': `должен корректно генерировать URL для задачи на карте`,
     },
   },
-  'runtime.legacy.ed8e537f8687': {
-    source: `Сингулярная задача', targetFunction || '', id || 'node`,
+  'runtime.legacy.ed774a9c975b': {
+    source: `Эффект Ааронова — Бома`,
     status: 'pending-translation',
     values: {
-      'ru': `Сингулярная задача', targetFunction || '', id || 'node`,
+      'ru': `Эффект Ааронова — Бома`,
     },
   },
   'runtime.legacy.edb0eda9067b': {
@@ -6547,13 +6768,6 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ru': `• \`HYPOTHESIS\` — предположение.\\n`,
     },
   },
-  'runtime.legacy.edc06ae29040': {
-    source: `title": "Модель Блэка — Шоулза`,
-    status: 'pending-translation',
-    values: {
-      'ru': `title": "Модель Блэка — Шоулза`,
-    },
-  },
   'runtime.legacy.edda37857883': {
     source: `должен сбрасывать таймер IDLE при возобновлении движения до истечения таймаута`,
     status: 'pending-translation',
@@ -6561,25 +6775,33 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ru': `должен сбрасывать таймер IDLE при возобновлении движения до истечения таймаута`,
     },
   },
-  'runtime.legacy.eee5850afe68': {
-    source: `singularityHint": "Особенности пространства модулей инстантонов.`,
+  'runtime.legacy.ee592986e651': {
+    source: `Крионика`,
     status: 'pending-translation',
     values: {
-      'ru': `singularityHint": "Особенности пространства модулей инстантонов.`,
+      'ru': `Крионика`,
     },
   },
-  'runtime.legacy.ef2877d5750b': {
-    source: `singularityHint": "Степенной закон распределения (хвостовая расходимость).`,
-    status: 'pending-translation',
+  'runtime.legacy.ee899dd5ccb8': {
+    source: `Шаг`,
+    status: 'translated-from-existing-resource',
     values: {
-      'ru': `singularityHint": "Степенной закон распределения (хвостовая расходимость).`,
+      'ru': `Шаг`,
+      'fr-CA': `Étape`,
+      'de-DE': `Schritt`,
+      'hi-IN': `चरण`,
+      'ms-MY': `Langkah`,
     },
   },
-  'runtime.legacy.ef6eb2002de0': {
-    source: `singularityHint": "Сингулярность границы AdS-пространства.`,
-    status: 'pending-translation',
+  'runtime.legacy.eefa5e70963d': {
+    source: `Метод: {{value}}`,
+    status: 'translated-from-existing-resource',
     values: {
-      'ru': `singularityHint": "Сингулярность границы AdS-пространства.`,
+      'ru': `Метод: {{value}}`,
+      'fr-CA': `Méthode : {{value}}`,
+      'de-DE': `Methode: {{value}}`,
+      'hi-IN': `विधि: {{value}}`,
+      'ms-MY': `Kaedah: {{value}}`,
     },
   },
   'runtime.legacy.ef9570f0fa3f': {
@@ -6589,11 +6811,11 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ru': `Внешняя публикация/исследование, использующее методы RICIS-III.`,
     },
   },
-  'runtime.legacy.efc80d03e138': {
-    source: `title": "Топологические изоляторы`,
+  'runtime.legacy.efd92bcd81e5': {
+    source: `Теория Янга-Миллса: существование и массовая щель`,
     status: 'pending-translation',
     values: {
-      'ru': `title": "Топологические изоляторы`,
+      'ru': `Теория Янга-Миллса: существование и массовая щель`,
     },
   },
   'runtime.legacy.f018e0cbc5fe': {
@@ -6603,11 +6825,18 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ru': `Побитовый геометрический анализ в циклическом кольце Мерсенна M = 2^k - 1, сводящий NP-сложность (TSP, SAT, факторизация) к детерминированному O(1) за 1 такт процессора.`,
     },
   },
-  'runtime.legacy.f07098d0a4e6': {
-    source: `singularityHint": "Сингулярность эгоистической рациональности.`,
+  'runtime.legacy.f01de99eb51d': {
+    source: `Свертывание белка (Protein Folding)`,
     status: 'pending-translation',
     values: {
-      'ru': `singularityHint": "Сингулярность эгоистической рациональности.`,
+      'ru': `Свертывание белка (Protein Folding)`,
+    },
+  },
+  'runtime.legacy.f084a1ab0c07': {
+    source: `Сингулярность ИИ`,
+    status: 'pending-translation',
+    values: {
+      'ru': `Сингулярность ИИ`,
     },
   },
   'runtime.legacy.f0a18f59db22': {
@@ -6639,18 +6868,43 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ms-MY': `Disimpan`,
     },
   },
-  'runtime.legacy.f1849ca10783': {
-    source: `title": "Равенство классов P и NP (Детерминированный Мерсенновский анализ)`,
+  'runtime.legacy.f0fdecff4de1': {
+    source: `Сложность метилирования ДНК.`,
     status: 'pending-translation',
     values: {
-      'ru': `title": "Равенство классов P и NP (Детерминированный Мерсенновский анализ)`,
+      'ru': `Сложность метилирования ДНК.`,
     },
   },
-  'runtime.legacy.f1b867d61d97': {
-    source: `description": "Одобрение того, что любой гармонический дифференциал есть рациональная комбинация.`,
+  'runtime.legacy.f117b0184168': {
+    source: `Метод пограничного слоя.`,
     status: 'pending-translation',
     values: {
-      'ru': `description": "Одобрение того, что любой гармонический дифференциал есть рациональная комбинация.`,
+      'ru': `Метод пограничного слоя.`,
+    },
+  },
+  'runtime.legacy.f183ca66393d': {
+    source: `Космические струны`,
+    status: 'pending-translation',
+    values: {
+      'ru': `Космические струны`,
+    },
+  },
+  'runtime.legacy.f18a74f42fa8': {
+    source: `Топологическая сингулярность (складка, сборка).`,
+    status: 'pending-translation',
+    values: {
+      'ru': `Топологическая сингулярность (складка, сборка).`,
+    },
+  },
+  'runtime.legacy.f1c708163f00': {
+    source: `Сохранение и Экспорт`,
+    status: 'translated-from-existing-resource',
+    values: {
+      'ru': `Сохранение и Экспорт`,
+      'fr-CA': `Persistance et exportation`,
+      'de-DE': `Persistenz & Export`,
+      'hi-IN': `स्थायी भंडारण और निर्यात`,
+      'ms-MY': `Penyimpanan & Eksport`,
     },
   },
   'runtime.legacy.f1e18d79f4ae': {
@@ -6671,11 +6925,11 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ms-MY': `Bukti Kepengarangan RICIS-III`,
     },
   },
-  'runtime.legacy.f20de7a76cba': {
-    source: `targetFunction": "Formalize(ГипотезаРимана)`,
+  'runtime.legacy.f2312e6bd6b2': {
+    source: `Formalize(СингулярностиРиччипотока)`,
     status: 'pending-translation',
     values: {
-      'ru': `targetFunction": "Formalize(ГипотезаРимана)`,
+      'ru': `Formalize(СингулярностиРиччипотока)`,
     },
   },
   'runtime.legacy.f24173f14962': {
@@ -6700,25 +6954,11 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ms-MY': `Tetapan`,
     },
   },
-  'runtime.legacy.f2e1953fc80d': {
-    source: `settings.languageLabel': { ru: 'Язык / Language', en: 'Language / Язык`,
-    status: 'pending-translation',
-    values: {
-      'ru': `settings.languageLabel': { ru: 'Язык / Language', en: 'Language / Язык`,
-    },
-  },
   'runtime.legacy.f30d0ca65067': {
     source: `Production endpoint Ricis.Core настроен некорректно. Результат не вычислялся.`,
     status: 'pending-translation',
     values: {
       'ru': `Production endpoint Ricis.Core настроен некорректно. Результат не вычислялся.`,
-    },
-  },
-  'runtime.legacy.f330c6b7bb8c': {
-    source: `title": "Квантовая запутанность и кротовые норы`,
-    status: 'pending-translation',
-    values: {
-      'ru': `title": "Квантовая запутанность и кротовые норы`,
     },
   },
   'runtime.legacy.f3366bd8be17': {
@@ -6728,18 +6968,11 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ru': `• \`CLASSICAL_INHERITED\` — применено классическое правило, не перекрытое RICIS.\\n`,
     },
   },
-  'runtime.legacy.f3406433acd4': {
-    source: `singularityHint": "Расходимость корреляционного радиуса.`,
+  'runtime.legacy.f39afdbcf779': {
+    source: `Косое произведение в кольце Мерсенна`,
     status: 'pending-translation',
     values: {
-      'ru': `singularityHint": "Расходимость корреляционного радиуса.`,
-    },
-  },
-  'runtime.legacy.f36025f9c361': {
-    source: `theoremReport.method': { ru: 'Метод', en: 'Method`,
-    status: 'pending-translation',
-    values: {
-      'ru': `theoremReport.method': { ru: 'Метод', en: 'Method`,
+      'ru': `Косое произведение в кольце Мерсенна`,
     },
   },
   'runtime.legacy.f3d28f6ae1a7': {
@@ -6753,13 +6986,6 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ms-MY': `Sandbox Singulariti RICIS-III`,
     },
   },
-  'runtime.legacy.f4768e9349a2': {
-    source: `targetFunction": "Formalize(Блокчейнфорк)`,
-    status: 'pending-translation',
-    values: {
-      'ru': `targetFunction": "Formalize(Блокчейнфорк)`,
-    },
-  },
   'runtime.legacy.f482b1c8182b': {
     source: `P = NP [Детерминированное побитовое сведение в кольцах Мерсенна M = 2^k - 1]`,
     status: 'pending-translation',
@@ -6767,25 +6993,11 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ru': `P = NP [Детерминированное побитовое сведение в кольцах Мерсенна M = 2^k - 1]`,
     },
   },
-  'runtime.legacy.f48f6ccea1b7': {
-    source: `settings.enabled': { ru: 'Вкл', en: 'On`,
+  'runtime.legacy.f4ceb2599769': {
+    source: `Алгоритмы консенсуса`,
     status: 'pending-translation',
     values: {
-      'ru': `settings.enabled': { ru: 'Вкл', en: 'On`,
-    },
-  },
-  'runtime.legacy.f4d51dfdb3af': {
-    source: `description": "Самофокусировка лазерного луча.`,
-    status: 'pending-translation',
-    values: {
-      'ru': `description": "Самофокусировка лазерного луча.`,
-    },
-  },
-  'runtime.legacy.f502d15e7d9d': {
-    source: `sandbox.title')).toBe('RICIS-III ПЕСОЧНИЦА СИНГУЛЯРНОСТЕЙ`,
-    status: 'pending-translation',
-    values: {
-      'ru': `sandbox.title')).toBe('RICIS-III ПЕСОЧНИЦА СИНГУЛЯРНОСТЕЙ`,
+      'ru': `Алгоритмы консенсуса`,
     },
   },
   'runtime.legacy.f5441f6aee76': {
@@ -6795,6 +7007,24 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ru': `Описание`,
     },
   },
+  'runtime.legacy.f55aa07a5bee': {
+    source: `Регенерация тканей`,
+    status: 'pending-translation',
+    values: {
+      'ru': `Регенерация тканей`,
+    },
+  },
+  'runtime.legacy.f5a70bc9b9e9': {
+    source: `Автоопределение по заголовку браузера`,
+    status: 'translated-from-existing-resource',
+    values: {
+      'ru': `Автоопределение по заголовку браузера`,
+      'fr-CA': `Détection automatique à partir de la langue du navigateur`,
+      'de-DE': `Automatische Erkennung anhand der Browsersprache`,
+      'hi-IN': `ब्राउज़र भाषा से स्वतः पहचान`,
+      'ms-MY': `Pengesanan automatik dari bahasa pelayar`,
+    },
+  },
   'runtime.legacy.f5e03eed0eab': {
     source: `Аудит RICIS-III доказательств: Все существующие доказательства соответствуют A6 и спецификации Lean 4.`,
     status: 'pending-translation',
@@ -6802,11 +7032,18 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ru': `Аудит RICIS-III доказательств: Все существующие доказательства соответствуют A6 и спецификации Lean 4.`,
     },
   },
-  'runtime.legacy.f623df44cafc': {
-    source: `description": "Рассеяние света в критической точке.`,
+  'runtime.legacy.f60400c322cf': {
+    source: `Комбинаторный взрыв нейтрализуется точечным схождением вырожденного каркаса.`,
     status: 'pending-translation',
     values: {
-      'ru': `description": "Рассеяние света в критической точке.`,
+      'ru': `Комбинаторный взрыв нейтрализуется точечным схождением вырожденного каркаса.`,
+    },
+  },
+  'runtime.legacy.f6382932af36': {
+    source: `Колмогоровская сложность`,
+    status: 'pending-translation',
+    values: {
+      'ru': `Колмогоровская сложность`,
     },
   },
   'runtime.legacy.f68e53d6c891': {
@@ -6816,11 +7053,25 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ru': `Премия Института Клея $1,000,000 (Уравнения Навье-Стокса)`,
     },
   },
-  'runtime.legacy.f6b57384d666': {
-    source: `description": "Образование капель и разрыв струи жидкости.`,
+  'runtime.legacy.f70d019bd0d1': {
+    source: `Топологическое ветвление графа.`,
     status: 'pending-translation',
     values: {
-      'ru': `description": "Образование капель и разрыв струи жидкости.`,
+      'ru': `Топологическое ветвление графа.`,
+    },
+  },
+  'runtime.legacy.f72276f4fd1a': {
+    source: `Разложение больших чисел N = p*q за O(1) операцией подстановки (x^2 - N) & M в кольце Мерсенна, где M = 2^B - 1 зафиксирован разрядностью стороны квадрата B.`,
+    status: 'pending-translation',
+    values: {
+      'ru': `Разложение больших чисел N = p*q за O(1) операцией подстановки (x^2 - N) & M в кольце Мерсенна, где M = 2^B - 1 зафиксирован разрядностью стороны квадрата B.`,
+    },
+  },
+  'runtime.legacy.f78965a834bc': {
+    source: `Сингулярности в теории струн`,
+    status: 'pending-translation',
+    values: {
+      'ru': `Сингулярности в теории струн`,
     },
   },
   'runtime.legacy.f79f229c4ff5': {
@@ -6830,6 +7081,13 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ru': `Сверхпроводники, метаматериалы.`,
     },
   },
+  'runtime.legacy.f7c9124519c8': {
+    source: `Космологическая постоянная`,
+    status: 'pending-translation',
+    values: {
+      'ru': `Космологическая постоянная`,
+    },
+  },
   'runtime.legacy.f8160cbbeb4c': {
     source: `должен очищать историю вычислений`,
     status: 'pending-translation',
@@ -6837,25 +7095,11 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ru': `должен очищать историю вычислений`,
     },
   },
-  'runtime.legacy.f92dc1513355': {
-    source: `title": "Нелинейное уравнение Шредингера`,
+  'runtime.legacy.f9f508d558fa': {
+    source: `Микробиом человека`,
     status: 'pending-translation',
     values: {
-      'ru': `title": "Нелинейное уравнение Шредингера`,
-    },
-  },
-  'runtime.legacy.f94e3580cc43': {
-    source: `targetFunction": "Formalize(ГипотезаГольдбаха)`,
-    status: 'pending-translation',
-    values: {
-      'ru': `targetFunction": "Formalize(ГипотезаГольдбаха)`,
-    },
-  },
-  'runtime.legacy.f9fbdedd24c6': {
-    source: `targetFunction": "Formalize(Онкогенез)`,
-    status: 'pending-translation',
-    values: {
-      'ru': `targetFunction": "Formalize(Онкогенез)`,
+      'ru': `Микробиом человека`,
     },
   },
   'runtime.legacy.fa1bf80a8c1f': {
@@ -6865,11 +7109,11 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ru': `Инфраструктура Ricis.Core не завершила запрос. Результат не вычислялся.`,
     },
   },
-  'runtime.legacy.fa47c6b30b60': {
-    source: `targetFunction": "Formalize(СингулярностьфункцииВейерштрасса)`,
+  'runtime.legacy.fa3f4c7bd636': {
+    source: `Проблема выравнивания ИИ (Alignment)`,
     status: 'pending-translation',
     values: {
-      'ru': `targetFunction": "Formalize(СингулярностьфункцииВейерштрасса)`,
+      'ru': `Проблема выравнивания ИИ (Alignment)`,
     },
   },
   'runtime.legacy.fa5adba22c9d': {
@@ -6886,11 +7130,11 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ru': `должен немедленно вызывать onCommit с новыми параметрами при вызове endInteraction()`,
     },
   },
-  'runtime.legacy.fab87a261872': {
-    source: `settings.browserDetection': { ru: 'Автоопределение по заголовку браузера', en: 'Automatic detection from browser language`,
+  'runtime.legacy.fabff2eaf90d': {
+    source: `Сингулярность декогеренции.`,
     status: 'pending-translation',
     values: {
-      'ru': `settings.browserDetection': { ru: 'Автоопределение по заголовку браузера', en: 'Automatic detection from browser language`,
+      'ru': `Сингулярность декогеренции.`,
     },
   },
   'runtime.legacy.fac0d90e3da1': {
@@ -6900,13 +7144,6 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ru': `Разрешение предельного перехода аксиомами SP1-SP4`,
     },
   },
-  'runtime.legacy.fad8b685f632': {
-    source: `title": "Катастрофы Тома`,
-    status: 'pending-translation',
-    values: {
-      'ru': `title": "Катастрофы Тома`,
-    },
-  },
   'runtime.legacy.fadea306c03d': {
     source: `Модель недоступна или отключена (ошибка 404).`,
     status: 'pending-translation',
@@ -6914,53 +7151,39 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ru': `Модель недоступна или отключена (ошибка 404).`,
     },
   },
-  'runtime.legacy.fb066a0ec0dc': {
-    source: `singularityHint": "Алгебраические квантовые сингулярности.`,
+  'runtime.legacy.fb7b889ac815': {
+    source: `Парадокс браев`,
     status: 'pending-translation',
     values: {
-      'ru': `singularityHint": "Алгебраические квантовые сингулярности.`,
+      'ru': `Парадокс браев`,
     },
   },
-  'runtime.legacy.fb13319b9585': {
-    source: `settings.disabled': { ru: 'Выкл', en: 'Off`,
+  'runtime.legacy.fbd1b0ec2f5b': {
+    source: `Formalize(Квантоваяпревосходство)`,
     status: 'pending-translation',
     values: {
-      'ru': `settings.disabled': { ru: 'Выкл', en: 'Off`,
+      'ru': `Formalize(Квантоваяпревосходство)`,
     },
   },
-  'runtime.legacy.fb595ee3efcf': {
-    source: `title": "Аутоиммунные заболевания`,
+  'runtime.legacy.fbf99d7fd157': {
+    source: `Теория узлов`,
     status: 'pending-translation',
     values: {
-      'ru': `title": "Аутоиммунные заболевания`,
+      'ru': `Теория узлов`,
     },
   },
-  'runtime.legacy.fb63dd253828': {
-    source: `singularityHint": "Квантовые критические точки.`,
+  'runtime.legacy.fc09f503ea5f': {
+    source: `Парадокс Левинталя (комбинаторный взрыв).`,
     status: 'pending-translation',
     values: {
-      'ru': `singularityHint": "Квантовые критические точки.`,
+      'ru': `Парадокс Левинталя (комбинаторный взрыв).`,
     },
   },
-  'runtime.legacy.fc9b92cc2e25': {
-    source: `description": "Теоремы Хокинга и Пенроуза о сингулярностях.`,
+  'runtime.legacy.fc7bfb3b4b45': {
+    source: `Магнитные монополи`,
     status: 'pending-translation',
     values: {
-      'ru': `description": "Теоремы Хокинга и Пенроуза о сингулярностях.`,
-    },
-  },
-  'runtime.legacy.fcacd3aef586': {
-    source: `title": "NP-полные задачи (Детерминированный сетевой трафарет TSP/SAT)`,
-    status: 'pending-translation',
-    values: {
-      'ru': `title": "NP-полные задачи (Детерминированный сетевой трафарет TSP/SAT)`,
-    },
-  },
-  'runtime.legacy.fcc5bdc49827': {
-    source: `title": "Эффект Ааронова — Бома`,
-    status: 'pending-translation',
-    values: {
-      'ru': `title": "Эффект Ааронова — Бома`,
+      'ru': `Магнитные монополи`,
     },
   },
   'runtime.legacy.fd425f05d351': {
@@ -6970,11 +7193,18 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ru': `\${description || 'Выполнить детерминированный прогон RICIS-III'}`,
     },
   },
-  'runtime.legacy.fd8b416551bf': {
-    source: `Тестовое сообщение RICIS', 'ricis', 'Детали вычисления', 'test-node-1`,
+  'runtime.legacy.fd6c26c431cd': {
+    source: `ищи`,
     status: 'pending-translation',
     values: {
-      'ru': `Тестовое сообщение RICIS', 'ricis', 'Детали вычисления', 'test-node-1`,
+      'ru': `ищи`,
+    },
+  },
+  'runtime.legacy.fd8e16acfe43': {
+    source: `Сингулярность этической функции полезности.`,
+    status: 'pending-translation',
+    values: {
+      'ru': `Сингулярность этической функции полезности.`,
     },
   },
   'runtime.legacy.fdd1ae619594': {
@@ -6984,13 +7214,6 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ru': `Автоматически созданная область наук`,
     },
   },
-  'runtime.legacy.fe2ae4bb5606': {
-    source: `singularityHint": "Коллапс луча в точку.`,
-    status: 'pending-translation',
-    values: {
-      'ru': `singularityHint": "Коллапс луча в точку.`,
-    },
-  },
   'runtime.legacy.febd7ee896a6': {
     source: `Мировое признание / Академическая премия $50,000,000`,
     status: 'pending-translation',
@@ -6998,18 +7221,25 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ru': `Мировое признание / Академическая премия $50,000,000`,
     },
   },
-  'runtime.legacy.fef01cfd2d5e': {
-    source: `title": "Квантовая ошибка`,
+  'runtime.legacy.ff1dd5929a7d': {
+    source: `Взрыв решений за конечное время.`,
     status: 'pending-translation',
     values: {
-      'ru': `title": "Квантовая ошибка`,
+      'ru': `Взрыв решений за конечное время.`,
     },
   },
-  'runtime.legacy.fef8573bb1af': {
-    source: `hint": "Сингулярность предельного перехода [0/0] или [inf/inf], устранённая аксиомами SP1-SP4`,
+  'runtime.legacy.ff4f53500e7b': {
+    source: `Теорема Эрроу о невозможности`,
     status: 'pending-translation',
     values: {
-      'ru': `hint": "Сингулярность предельного перехода [0/0] или [inf/inf], устранённая аксиомами SP1-SP4`,
+      'ru': `Теорема Эрроу о невозможности`,
+    },
+  },
+  'runtime.legacy.ff699a5e293f': {
+    source: `Formalize(Квантоваягравитация)`,
+    status: 'pending-translation',
+    values: {
+      'ru': `Formalize(Квантоваягравитация)`,
     },
   },
   'runtime.legacy.ffb22ba0d5f7': {
@@ -7019,20 +7249,6 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ru': `Параметры сгенерированы каноническим движком RICIS-III.`,
     },
   },
-  'runtime.legacy.ffe820d58ea0': {
-    source: `title": "Сингулярности в гидродинамике`,
-    status: 'pending-translation',
-    values: {
-      'ru': `title": "Сингулярности в гидродинамике`,
-    },
-  },
-  'ui.legacy.01a8a197723f': {
-    source: `mb-2 flex items-center justify-between"><h2 className="text-[10px] font-bold uppercase tracking-wider text-slate-300">Найденные узлы</h2><span className="text-[10px] font-mono text-slate-500`,
-    status: 'pending-translation',
-    values: {
-      'ru': `mb-2 flex items-center justify-between"><h2 className="text-[10px] font-bold uppercase tracking-wider text-slate-300">Найденные узлы</h2><span className="text-[10px] font-mono text-slate-500`,
-    },
-  },
   'ui.legacy.023025363aea': {
     source: `Сбросить физику к значениям по умолчанию`,
     status: 'pending-translation',
@@ -7040,25 +7256,18 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ru': `Сбросить физику к значениям по умолчанию`,
     },
   },
+  'ui.legacy.023049d9bd10': {
+    source: `факторизац`,
+    status: 'pending-translation',
+    values: {
+      'ru': `факторизац`,
+    },
+  },
   'ui.legacy.029712ba8b4e': {
     source: `1. Генерация трехмерного звездного поля (StarField Data)`,
     status: 'pending-translation',
     values: {
       'ru': `1. Генерация трехмерного звездного поля (StarField Data)`,
-    },
-  },
-  'ui.legacy.02ed40945845': {
-    source: `resolved' ? 'Перерассчитать RICIS-решение' : 'Запустить RICIS-решение`,
-    status: 'pending-translation',
-    values: {
-      'ru': `resolved' ? 'Перерассчитать RICIS-решение' : 'Запустить RICIS-решение`,
-    },
-  },
-  'ui.legacy.0358075beabe': {
-    source: `physics' && (t('sandbox.title') === 'RICIS-III ПЕСОЧНИЦА СИНГУЛЯРНОСТЕЙ' ? 'Параметры симуляции' : 'Simulation Parameters`,
-    status: 'pending-translation',
-    values: {
-      'ru': `physics' && (t('sandbox.title') === 'RICIS-III ПЕСОЧНИЦА СИНГУЛЯРНОСТЕЙ' ? 'Параметры симуляции' : 'Simulation Parameters`,
     },
   },
   'ui.legacy.0401ccf4504b': {
@@ -7079,11 +7288,18 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ms-MY': `Status aliran kerja: resolved`,
     },
   },
-  'ui.legacy.0aff0e945632': {
-    source: `bg-neutral-900 border border-neutral-800 px-2 py-0.5 rounded text-slate-300">G Узлов: <strong className="text-emerald-400`,
+  'ui.legacy.0b3893c28c4b': {
+    source: `Генерировать JSON`,
     status: 'pending-translation',
     values: {
-      'ru': `bg-neutral-900 border border-neutral-800 px-2 py-0.5 rounded text-slate-300">G Узлов: <strong className="text-emerald-400`,
+      'ru': `Генерировать JSON`,
+    },
+  },
+  'ui.legacy.0d5d097d1bff': {
+    source: `доказательств`,
+    status: 'pending-translation',
+    values: {
+      'ru': `доказательств`,
     },
   },
   'ui.legacy.0efa9ff1b508': {
@@ -7093,11 +7309,11 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ru': `должен генерировать корректные типизированные массивы для позиций, цветов и размеров звезд`,
     },
   },
-  'ui.legacy.0f0bcdac762a': {
-    source: `войнич') || tLower.includes('voynich`,
+  'ui.legacy.0f0d59713360': {
+    source: `Сбросить вид`,
     status: 'pending-translation',
     values: {
-      'ru': `войнич') || tLower.includes('voynich`,
+      'ru': `Сбросить вид`,
     },
   },
   'ui.legacy.11469d5eefb3': {
@@ -7107,11 +7323,11 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ru': `Вставьте Lean 4 или LaTeX. Lean-код получает статус verified только после воспроизводимого запуска kernel.`,
     },
   },
-  'ui.legacy.11cb431d360c': {
-    source: `Отталкивание масс (G)" prop="nodeG`,
+  'ui.legacy.11af88506882': {
+    source: `Зазор между зонами`,
     status: 'pending-translation',
     values: {
-      'ru': `Отталкивание масс (G)" prop="nodeG`,
+      'ru': `Зазор между зонами`,
     },
   },
   'ui.legacy.12b2f1f2ea5a': {
@@ -7132,6 +7348,13 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ms-MY': `Sedang dinilai...`,
     },
   },
+  'ui.legacy.14091e1da7bb': {
+    source: `Начните с задачи`,
+    status: 'pending-translation',
+    values: {
+      'ru': `Начните с задачи`,
+    },
+  },
   'ui.legacy.1439da748125': {
     source: `Откройте Ricis.Core solution и запустите Web API на локальном порту.`,
     status: 'pending-translation',
@@ -7146,11 +7369,11 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ru': `должен содержать группы параметров зон и узлов без внутренних скроллеров`,
     },
   },
-  'ui.legacy.169c1b699ba5': {
-    source: `trace', label: 'Пошаговый лог (Phases -1..6)`,
+  'ui.legacy.16af71f23ef3': {
+    source: `Проверить RICIS Core`,
     status: 'pending-translation',
     values: {
-      'ru': `trace', label: 'Пошаговый лог (Phases -1..6)`,
+      'ru': `Проверить RICIS Core`,
     },
   },
   'ui.legacy.1700a6fb66b7': {
@@ -7160,18 +7383,18 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ru': `Производная задача`,
     },
   },
+  'ui.legacy.17c2d352b735': {
+    source: `Режим списка`,
+    status: 'pending-translation',
+    values: {
+      'ru': `Режим списка`,
+    },
+  },
   'ui.legacy.1974f55902be': {
     source: `Убедитесь, что математический результат не был создан`,
     status: 'pending-translation',
     values: {
       'ru': `Убедитесь, что математический результат не был создан`,
-    },
-  },
-  'ui.legacy.1c8965980f43': {
-    source: `theorem', label: 'Теорема (LaTeX / Q.E.D.)`,
-    status: 'pending-translation',
-    values: {
-      'ru': `theorem', label: 'Теорема (LaTeX / Q.E.D.)`,
     },
   },
   'ui.legacy.1d13766bd5d2': {
@@ -7188,13 +7411,6 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ru': `Ошибка агента: `,
     },
   },
-  'ui.legacy.1dd4f7310315': {
-    source: `Исходник Lean предоставлен; kernel evidence проверяется отдельно' : 'Исходник Lean не предоставлен`,
-    status: 'pending-translation',
-    values: {
-      'ru': `Исходник Lean предоставлен; kernel evidence проверяется отдельно' : 'Исходник Lean не предоставлен`,
-    },
-  },
   'ui.legacy.1df753f21629': {
     source: `Генератор формальных доказательств`,
     status: 'translated-from-existing-resource',
@@ -7206,13 +7422,6 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ms-MY': `Penjana bukti formal`,
     },
   },
-  'ui.legacy.1ec3b8813837': {
-    source: `Сохранено' : 'Save`,
-    status: 'pending-translation',
-    values: {
-      'ru': `Сохранено' : 'Save`,
-    },
-  },
   'ui.legacy.218176e0dfa7': {
     source: `не должен содержать вложенных классов ограничения высоты и скроллинга (max-h-80, overflow-y-auto)`,
     status: 'pending-translation',
@@ -7220,11 +7429,11 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ru': `не должен содержать вложенных классов ограничения высоты и скроллинга (max-h-80, overflow-y-auto)`,
     },
   },
-  'ui.legacy.22314ac93533': {
-    source: `Агент добавил ' + res.added + ' новых проблем в граф.`,
+  'ui.legacy.227f35314579': {
+    source: `Выйти из полноэкранного режима`,
     status: 'pending-translation',
     values: {
-      'ru': `Агент добавил ' + res.added + ' новых проблем в граф.`,
+      'ru': `Выйти из полноэкранного режима`,
     },
   },
   'ui.legacy.245372770fef': {
@@ -7234,6 +7443,13 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ru': `До готовности C# Core приложение не создаёт математический инвариант, trace или proof.`,
     },
   },
+  'ui.legacy.256bea5d2f13': {
+    source: `коммивояж`,
+    status: 'pending-translation',
+    values: {
+      'ru': `коммивояж`,
+    },
+  },
   'ui.legacy.25fdfa345a26': {
     source: `Управление наклоном отключено.`,
     status: 'pending-translation',
@@ -7241,11 +7457,25 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ru': `Управление наклоном отключено.`,
     },
   },
-  'ui.legacy.292c60ed5cba': {
-    source: `Целевая длина пружин" prop="springRestGapMult`,
+  'ui.legacy.2637c4b31386': {
+    source: `сетев`,
     status: 'pending-translation',
     values: {
-      'ru': `Целевая длина пружин" prop="springRestGapMult`,
+      'ru': `сетев`,
+    },
+  },
+  'ui.legacy.263e20c565e2': {
+    source: `✏️ Редактировать код`,
+    status: 'pending-translation',
+    values: {
+      'ru': `✏️ Редактировать код`,
+    },
+  },
+  'ui.legacy.2717a8bcd85f': {
+    source: `Исходник Lean предоставлен; kernel evidence проверяется отдельно`,
+    status: 'pending-translation',
+    values: {
+      'ru': `Исходник Lean предоставлен; kernel evidence проверяется отдельно`,
     },
   },
   'ui.legacy.294aba75e641': {
@@ -7255,11 +7485,32 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ru': `Ошибка при запросе к ИИ-агенту Gemini`,
     },
   },
+  'ui.legacy.297f3444923e': {
+    source: `Перерассчитать RICIS-решение`,
+    status: 'pending-translation',
+    values: {
+      'ru': `Перерассчитать RICIS-решение`,
+    },
+  },
   'ui.legacy.2ac52e60049c': {
     source: `Название новой сферы...`,
     status: 'pending-translation',
     values: {
       'ru': `Название новой сферы...`,
+    },
+  },
+  'ui.legacy.2b0083d2af45': {
+    source: `Не классифицировано`,
+    status: 'pending-translation',
+    values: {
+      'ru': `Не классифицировано`,
+    },
+  },
+  'ui.legacy.2b4b4190a8fd': {
+    source: `Скопировать безопасную диагностику`,
+    status: 'pending-translation',
+    values: {
+      'ru': `Скопировать безопасную диагностику`,
     },
   },
   'ui.legacy.2b7fbb9535ea': {
@@ -7269,18 +7520,18 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ru': `Проверьте форму выражения`,
     },
   },
-  'ui.legacy.34fa9561f4b6': {
-    source: `gradient') || tLower.includes('градиент') || tLower.includes('llm') || tLower.includes('обучение`,
+  'ui.legacy.2c3020010f95': {
+    source: `Статус ИИ-Агента`,
     status: 'pending-translation',
     values: {
-      'ru': `gradient') || tLower.includes('градиент') || tLower.includes('llm') || tLower.includes('обучение`,
+      'ru': `Статус ИИ-Агента`,
     },
   },
-  'ui.legacy.3741988ebd10': {
-    source: `button" onClick={() => setLeftPanelMode('open')} className="hidden md:inline-flex absolute left-2 top-2 z-20 min-h-8 min-w-8 items-center justify-center rounded bg-neutral-950/90 text-neutral-400 shadow-lg transition-colors hover:bg-cyan-950/70 hover:text-cyan-200" aria-label="Развернуть левую панель" title="Развернуть левую панель`,
+  'ui.legacy.2dabfcc806ac': {
+    source: `ℹ Инфо`,
     status: 'pending-translation',
     values: {
-      'ru': `button" onClick={() => setLeftPanelMode('open')} className="hidden md:inline-flex absolute left-2 top-2 z-20 min-h-8 min-w-8 items-center justify-center rounded bg-neutral-950/90 text-neutral-400 shadow-lg transition-colors hover:bg-cyan-950/70 hover:text-cyan-200" aria-label="Развернуть левую панель" title="Развернуть левую панель`,
+      'ru': `ℹ Инфо`,
     },
   },
   'ui.legacy.37e06187be20': {
@@ -7297,18 +7548,18 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ru': `Сбросить карту?`,
     },
   },
-  'ui.legacy.39539cf3445d': {
-    source: `core.status.checking') : 'Проверить RICIS Core`,
-    status: 'pending-translation',
-    values: {
-      'ru': `core.status.checking') : 'Проверить RICIS Core`,
-    },
-  },
   'ui.legacy.3aae36475187': {
     source: `Отправка запроса на /api/generateProof...`,
     status: 'pending-translation',
     values: {
       'ru': `Отправка запроса на /api/generateProof...`,
+    },
+  },
+  'ui.legacy.3ca2a5d3b0b7': {
+    source: `Микро-узлы (Задачи)`,
+    status: 'pending-translation',
+    values: {
+      'ru': `Микро-узлы (Задачи)`,
     },
   },
   'ui.legacy.3e913af55c99': {
@@ -7325,18 +7576,25 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ru': `Разрешено через аксиомы RICIS-III`,
     },
   },
+  'ui.legacy.40b51c1eb0b6': {
+    source: `Выбранная задача`,
+    status: 'pending-translation',
+    values: {
+      'ru': `Выбранная задача`,
+    },
+  },
+  'ui.legacy.41335f02bf10': {
+    source: `Агент добавил `,
+    status: 'pending-translation',
+    values: {
+      'ru': `Агент добавил `,
+    },
+  },
   'ui.legacy.454d22abae3d': {
     source: `Это безопасное состояние: TypeScript fallback не использовался, поэтому инвариант, trace и proof отсутствуют.`,
     status: 'pending-translation',
     values: {
       'ru': `Это безопасное состояние: TypeScript fallback не использовался, поэтому инвариант, trace и proof отсутствуют.`,
-    },
-  },
-  'ui.legacy.4606b5e57b31': {
-    source: `checking' && 'Проверка health endpoint Ricis.Core…`,
-    status: 'pending-translation',
-    values: {
-      'ru': `checking' && 'Проверка health endpoint Ricis.Core…`,
     },
   },
   'ui.legacy.465e579ab062': {
@@ -7346,32 +7604,11 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ru': `Промпт скачан`,
     },
   },
-  'ui.legacy.46d794af55a6': {
-    source: `Внешнее давление (G_ext)" prop="nodeGExt`,
-    status: 'pending-translation',
-    values: {
-      'ru': `Внешнее давление (G_ext)" prop="nodeGExt`,
-    },
-  },
   'ui.legacy.47937d0b2e31': {
     source: `Поверните устройство: первая корректная позиция станет точкой калибровки.`,
     status: 'pending-translation',
     values: {
       'ru': `Поверните устройство: первая корректная позиция станет точкой калибровки.`,
-    },
-  },
-  'ui.legacy.49a1e0ab8bb9': {
-    source: `px-2 h-6 flex items-center justify-center text-cyan-400 hover:bg-neutral-700 rounded transition-colors text-xs font-bold gap-1 cursor-pointer" title="Сбросить камеру`,
-    status: 'pending-translation',
-    values: {
-      'ru': `px-2 h-6 flex items-center justify-center text-cyan-400 hover:bg-neutral-700 rounded transition-colors text-xs font-bold gap-1 cursor-pointer" title="Сбросить камеру`,
-    },
-  },
-  'ui.legacy.49c0e4a9e80f': {
-    source: `JSON: только фиолетовые' : 'Генерировать JSON`,
-    status: 'pending-translation',
-    values: {
-      'ru': `JSON: только фиолетовые' : 'Генерировать JSON`,
     },
   },
   'ui.legacy.4a0d41cc99da': {
@@ -7392,11 +7629,18 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ms-MY': `Tutup`,
     },
   },
-  'ui.legacy.4b59e1b7b7d3': {
-    source: `warn', label: '⚠️ Предупреждения`,
+  'ui.legacy.4c24bd0c5e15': {
+    source: `Аудит и Верификация`,
     status: 'pending-translation',
     values: {
-      'ru': `warn', label: '⚠️ Предупреждения`,
+      'ru': `Аудит и Верификация`,
+    },
+  },
+  'ui.legacy.4c4737b59bf9': {
+    source: `3D-карта`,
+    status: 'pending-translation',
+    values: {
+      'ru': `3D-карта`,
     },
   },
   'ui.legacy.4c76f182365d': {
@@ -7413,18 +7657,11 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ru': `например: p * q = N или \\sum x_i = C`,
     },
   },
-  'ui.legacy.4ce0e0336872': {
-    source: `Давление среды (G_ext)" prop="zoneGExt`,
+  'ui.legacy.4ddff93dd520': {
+    source: `Сбросить камеру`,
     status: 'pending-translation',
     values: {
-      'ru': `Давление среды (G_ext)" prop="zoneGExt`,
-    },
-  },
-  'ui.legacy.4d02e5d88dab': {
-    source: `Прозрачность связей" prop="edgeOpacity`,
-    status: 'pending-translation',
-    values: {
-      'ru': `Прозрачность связей" prop="edgeOpacity`,
+      'ru': `Сбросить камеру`,
     },
   },
   'ui.legacy.4e99c9a2b8b9': {
@@ -7432,13 +7669,6 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
     status: 'pending-translation',
     values: {
       'ru': `В этом браузере недоступны датчики ориентации.`,
-    },
-  },
-  'ui.legacy.50cfa2ed8e7c': {
-    source: `min-h-12 cursor-pointer list-none px-3 text-xs font-bold text-slate-300 inline-flex w-full items-center justify-between gap-3"><span className="inline-flex items-center gap-2"><SlidersHorizontal size={16} className="text-cyan-400" /> Инструменты и настройки</span><ChevronDown size={16} className="text-slate-500`,
-    status: 'pending-translation',
-    values: {
-      'ru': `min-h-12 cursor-pointer list-none px-3 text-xs font-bold text-slate-300 inline-flex w-full items-center justify-between gap-3"><span className="inline-flex items-center gap-2"><SlidersHorizontal size={16} className="text-cyan-400" /> Инструменты и настройки</span><ChevronDown size={16} className="text-slate-500`,
     },
   },
   'ui.legacy.5123b68404b4': {
@@ -7453,13 +7683,6 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
     status: 'pending-translation',
     values: {
       'ru': `Агент вычисляет (RICIS-III)...`,
-    },
-  },
-  'ui.legacy.5346a920c92c': {
-    source: `Диагностика скопирована' : 'Скопировать безопасную диагностику`,
-    status: 'pending-translation',
-    values: {
-      'ru': `Диагностика скопирована' : 'Скопировать безопасную диагностику`,
     },
   },
   'ui.legacy.53489b1d5e17': {
@@ -7483,11 +7706,11 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ru': `Ricis.Core недоступно`,
     },
   },
-  'ui.legacy.549f47cd5152': {
-    source: `Настройки точной физики', 'Precision Physics Settings`,
+  'ui.legacy.56eee7413a10': {
+    source: `обучение`,
     status: 'pending-translation',
     values: {
-      'ru': `Настройки точной физики', 'Precision Physics Settings`,
+      'ru': `обучение`,
     },
   },
   'ui.legacy.595eae89ef85': {
@@ -7497,18 +7720,11 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ru': `Инфраструктура Ricis.Core не завершила запрос`,
     },
   },
-  'ui.legacy.59fd0d94d927': {
-    source: `details' ? selectedNodeTitle : mobileView === 'menu' ? 'Навигация и действия' : mobileView === 'settings' ? 'Настройки' : '3D Singularity Map`,
+  'ui.legacy.5a1358a965b6': {
+    source: `Прозрачность связей`,
     status: 'pending-translation',
     values: {
-      'ru': `details' ? selectedNodeTitle : mobileView === 'menu' ? 'Навигация и действия' : mobileView === 'settings' ? 'Настройки' : '3D Singularity Map`,
-    },
-  },
-  'ui.legacy.5c90e7f918d3': {
-    source: `✏️ Редактировать код' : '👁️ Предпросмотр LaTeX`,
-    status: 'pending-translation',
-    values: {
-      'ru': `✏️ Редактировать код' : '👁️ Предпросмотр LaTeX`,
+      'ru': `Прозрачность связей`,
     },
   },
   'ui.legacy.5da61339284f': {
@@ -7532,6 +7748,13 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ru': `В локальном режиме запустите C# API`,
     },
   },
+  'ui.legacy.5efb826a00db': {
+    source: `📋 Копировать`,
+    status: 'pending-translation',
+    values: {
+      'ru': `📋 Копировать`,
+    },
+  },
   'ui.legacy.5f15e5e0dc31': {
     source: `3D-сцена не запустилась. Содержимое карты остаётся доступным в семантическом списке.`,
     status: 'pending-translation',
@@ -7553,25 +7776,11 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ru': `Русский язык`,
     },
   },
-  'ui.legacy.6099a23fa6be': {
-    source: `button" onClick={handleResetCamera} className="min-h-10 min-w-10 rounded-lg text-cyan-200 hover:bg-cyan-950/70" aria-label="Сбросить вид`,
+  'ui.legacy.64ee0cb183c1': {
+    source: `Внешнее давление (G_ext)`,
     status: 'pending-translation',
     values: {
-      'ru': `button" onClick={handleResetCamera} className="min-h-10 min-w-10 rounded-lg text-cyan-200 hover:bg-cyan-950/70" aria-label="Сбросить вид`,
-    },
-  },
-  'ui.legacy.6147b3f6cf26': {
-    source: `✓ Скопировано' : '📋 Копировать`,
-    status: 'pending-translation',
-    values: {
-      'ru': `✓ Скопировано' : '📋 Копировать`,
-    },
-  },
-  'ui.legacy.61c1a19a9759': {
-    source: `button" onClick={handleZoomOut} className="min-h-10 min-w-10 rounded-lg text-cyan-200 hover:bg-cyan-950/70" aria-label="Уменьшить масштаб`,
-    status: 'pending-translation',
-    values: {
-      'ru': `button" onClick={handleZoomOut} className="min-h-10 min-w-10 rounded-lg text-cyan-200 hover:bg-cyan-950/70" aria-label="Уменьшить масштаб`,
+      'ru': `Внешнее давление (G_ext)`,
     },
   },
   'ui.legacy.656062cf16f8': {
@@ -7581,11 +7790,36 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ru': `Ориентация откалибрована по текущему виду.`,
     },
   },
+  'ui.legacy.66ce7dfd3466': {
+    source: `❌ Ошибки`,
+    status: 'pending-translation',
+    values: {
+      'ru': `❌ Ошибки`,
+    },
+  },
   'ui.legacy.6788d88ba28f': {
     source: `Трассировка 8 фаз конвейера`,
     status: 'pending-translation',
     values: {
       'ru': `Трассировка 8 фаз конвейера`,
+    },
+  },
+  'ui.legacy.6802c4be26fb': {
+    source: `✓ Успех`,
+    status: 'pending-translation',
+    values: {
+      'ru': `✓ Успех`,
+    },
+  },
+  'ui.legacy.683e204a88c1': {
+    source: `Консоль доказательств и сингулярностей RICIS-III`,
+    status: 'translated-from-existing-resource',
+    values: {
+      'ru': `Консоль доказательств и сингулярностей RICIS-III`,
+      'fr-CA': `Console de preuve et de singularité RICIS-III`,
+      'de-DE': `RICIS-III Proof & Singularity-Konsole`,
+      'hi-IN': `RICIS-III Proof & Singularity कंसोल`,
+      'ms-MY': `Konsol RICIS-III Proof & Singularity`,
     },
   },
   'ui.legacy.698795647e13': {
@@ -7609,18 +7843,18 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ru': `*(Доказательство еще не создано. Нажмите "Edit Lean" чтобы добавить)*`,
     },
   },
+  'ui.legacy.6a9a8e00a558': {
+    source: `Навигация и действия`,
+    status: 'pending-translation',
+    values: {
+      'ru': `Навигация и действия`,
+    },
+  },
   'ui.legacy.6b8c1cbf0793': {
     source: `Статический Pages не запускает .NET DLL. Для публичного расчёта требуется развёрнутый C# API либо настоящий browser-WASM host Ricis.Core.`,
     status: 'pending-translation',
     values: {
       'ru': `Статический Pages не запускает .NET DLL. Для публичного расчёта требуется развёрнутый C# API либо настоящий browser-WASM host Ricis.Core.`,
-    },
-  },
-  'ui.legacy.6c6510519e48': {
-    source: `button" onClick={handleZoomIn} className="min-h-10 min-w-10 rounded-lg text-cyan-200 hover:bg-cyan-950/70" aria-label="Увеличить масштаб`,
-    status: 'pending-translation',
-    values: {
-      'ru': `button" onClick={handleZoomIn} className="min-h-10 min-w-10 rounded-lg text-cyan-200 hover:bg-cyan-950/70" aria-label="Увеличить масштаб`,
     },
   },
   'ui.legacy.6d8d0279a831': {
@@ -7644,13 +7878,6 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ru': `Включён режим доступного списка. Он содержит те же узлы и сохраняет выбор задачи.`,
     },
   },
-  'ui.legacy.70657f567b61': {
-    source: `text-emerald-400' : 'text-cyan-400'} /> {sensorModeEnabled ? 'Отключить управление наклоном' : 'Включить управление наклоном`,
-    status: 'pending-translation',
-    values: {
-      'ru': `text-emerald-400' : 'text-cyan-400'} /> {sensorModeEnabled ? 'Отключить управление наклоном' : 'Включить управление наклоном`,
-    },
-  },
   'ui.legacy.721518d7b424': {
     source: `Сборка мусора`,
     status: 'pending-translation',
@@ -7658,11 +7885,25 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ru': `Сборка мусора`,
     },
   },
+  'ui.legacy.72374bf6be92': {
+    source: `Открыть меню`,
+    status: 'pending-translation',
+    values: {
+      'ru': `Открыть меню`,
+    },
+  },
   'ui.legacy.731d164f8888': {
     source: `Скопировать ссылку на эту задачу`,
     status: 'pending-translation',
     values: {
       'ru': `Скопировать ссылку на эту задачу`,
+    },
+  },
+  'ui.legacy.74edccb9e7f3': {
+    source: `Давление среды (G_ext)`,
+    status: 'pending-translation',
+    values: {
+      'ru': `Давление среды (G_ext)`,
     },
   },
   'ui.legacy.75273d0dc5c4': {
@@ -7679,6 +7920,17 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ru': `Ricis.Core отклонил выражение`,
     },
   },
+  'ui.legacy.7736d666c528': {
+    source: `Lean 4 Спецификация`,
+    status: 'translated-from-existing-resource',
+    values: {
+      'ru': `Lean 4 Спецификация`,
+      'fr-CA': `Spécification Lean 4`,
+      'de-DE': `Lean 4-Spezifikation`,
+      'hi-IN': `Lean 4 विनिर्देश`,
+      'ms-MY': `Spesifikasi Lean 4`,
+    },
+  },
   'ui.legacy.785c3442c1b4': {
     source: `Допустимы +, -, *, /, %, ^, скобки, pi, e и математические функции Core: Sin, Cos, Exp, Log, Sqrt, Abs, Pow, Min, Max.`,
     status: 'pending-translation',
@@ -7686,32 +7938,11 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ru': `Допустимы +, -, *, /, %, ^, скобки, pi, e и математические функции Core: Sin, Cos, Exp, Log, Sqrt, Abs, Pow, Min, Max.`,
     },
   },
-  'ui.legacy.789a1092090b': {
-    source: `w-6 h-6 flex items-center justify-center text-slate-300 hover:text-white hover:bg-neutral-700 rounded transition-colors cursor-pointer" title="Увеличить масштаб`,
-    status: 'pending-translation',
-    values: {
-      'ru': `w-6 h-6 flex items-center justify-center text-slate-300 hover:text-white hover:bg-neutral-700 rounded transition-colors cursor-pointer" title="Увеличить масштаб`,
-    },
-  },
   'ui.legacy.78accbe555be': {
     source: `Доступ к датчикам отклонён. Разрешите «Движение и ориентацию» в настройках браузера.`,
     status: 'pending-translation',
     values: {
       'ru': `Доступ к датчикам отклонён. Разрешите «Движение и ориентацию» в настройках браузера.`,
-    },
-  },
-  'ui.legacy.7c5891a0c944': {
-    source: ` · ') || 'Не классифицировано`,
-    status: 'pending-translation',
-    values: {
-      'ru': ` · ') || 'Не классифицировано`,
-    },
-  },
-  'ui.legacy.7c9bf0278167': {
-    source: `proofConsole.evaluate')).toBe('Рассчитать за O(1)`,
-    status: 'pending-translation',
-    values: {
-      'ru': `proofConsole.evaluate')).toBe('Рассчитать за O(1)`,
     },
   },
   'ui.legacy.7ca831f12f37': {
@@ -7735,18 +7966,18 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ru': `Core принимает ограниченное lambda-выражение вида x => <математическое выражение>.`,
     },
   },
-  'ui.legacy.7dd0c99769a6': {
-    source: `proofConsole.traceTitle')).toBe('Трассировка 8 фаз конвейера (фазы -1...6)`,
-    status: 'pending-translation',
-    values: {
-      'ru': `proofConsole.traceTitle')).toBe('Трассировка 8 фаз конвейера (фазы -1...6)`,
-    },
-  },
   'ui.legacy.7ec5ed7e6d3b': {
     source: `Научная задача`,
     status: 'pending-translation',
     values: {
       'ru': `Научная задача`,
+    },
+  },
+  'ui.legacy.7f17c7c62a7f': {
+    source: `Настройки`,
+    status: 'pending-translation',
+    values: {
+      'ru': `Настройки`,
     },
   },
   'ui.legacy.7f17d320499e': {
@@ -7760,18 +7991,22 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ms-MY': `Nod ditandakan sebagai resolved dalam peta. Status workflow itu sendiri bukanlah pengesahan kernel Lean.`,
     },
   },
+  'ui.legacy.7f1b83dbb5ca': {
+    source: `Трассировка 8 фаз конвейера (фазы -1...6)`,
+    status: 'translated-from-existing-resource',
+    values: {
+      'ru': `Трассировка 8 фаз конвейера (фазы -1...6)`,
+      'fr-CA': `Trace du pipeline en huit phases (phases -1...6)`,
+      'de-DE': `Achtphasige Pipeline-Trace (Phasen -1...6)`,
+      'hi-IN': `आठ-चरण पाइपलाइन ट्रेस (चरण -1...6)`,
+      'ms-MY': `Jejak paip lapan fasa (fasa -1...6)`,
+    },
+  },
   'ui.legacy.7ff2b51c23aa': {
     source: `Перезапустить`,
     status: 'pending-translation',
     values: {
       'ru': `Перезапустить`,
-    },
-  },
-  'ui.legacy.82ade96bffdf': {
-    source: `audit' && (t('sandbox.title') === 'RICIS-III ПЕСОЧНИЦА СИНГУЛЯРНОСТЕЙ' ? 'Аудит и Верификация' : 'Audit & Verification`,
-    status: 'pending-translation',
-    values: {
-      'ru': `audit' && (t('sandbox.title') === 'RICIS-III ПЕСОЧНИЦА СИНГУЛЯРНОСТЕЙ' ? 'Аудит и Верификация' : 'Audit & Verification`,
     },
   },
   'ui.legacy.867fb7f1f166': {
@@ -7781,11 +8016,18 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ru': `Вызов окна логов ИИ-Агента`,
     },
   },
-  'ui.legacy.89b3ce94dc28': {
-    source: `Исследователь', username: 'ricis_researcher`,
+  'ui.legacy.87f7498bdf27': {
+    source: `JSON: только фиолетовые`,
     status: 'pending-translation',
     values: {
-      'ru': `Исследователь', username: 'ricis_researcher`,
+      'ru': `JSON: только фиолетовые`,
+    },
+  },
+  'ui.legacy.882ee2465827': {
+    source: `Отключить управление наклоном`,
+    status: 'pending-translation',
+    values: {
+      'ru': `Отключить управление наклоном`,
     },
   },
   'ui.legacy.8a3dfa2b9251': {
@@ -7809,11 +8051,22 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ru': `2. Генератор эквидистантной текстуры Вселенной (Canvas Texture)`,
     },
   },
-  'ui.legacy.91d296d24b19': {
-    source: `error', label: '❌ Ошибки`,
+  'ui.legacy.90007682b0af': {
+    source: `Развернуть 3D на полный экран`,
     status: 'pending-translation',
     values: {
-      'ru': `error', label: '❌ Ошибки`,
+      'ru': `Развернуть 3D на полный экран`,
+    },
+  },
+  'ui.legacy.9205a48f96a9': {
+    source: `Пошаговый лог (Phases -1..6)`,
+    status: 'translated-from-existing-resource',
+    values: {
+      'ru': `Пошаговый лог (Phases -1..6)`,
+      'fr-CA': `Traçage pas à pas (Phases -1..6)`,
+      'de-DE': `Schrittweises Protokoll (Phasen -1..6)`,
+      'hi-IN': `कदम-दर-कदम ट्रेस (चरण -1..6)`,
+      'ms-MY': `Jejak Langkah demi Langkah (Fasa -1..6)`,
     },
   },
   'ui.legacy.9235b8737f64': {
@@ -7821,13 +8074,6 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
     status: 'pending-translation',
     values: {
       'ru': `Датчики недоступны.`,
-    },
-  },
-  'ui.legacy.92623f8b1732': {
-    source: `menu' ? 'Вернуться к карте' : 'Открыть меню`,
-    status: 'pending-translation',
-    values: {
-      'ru': `menu' ? 'Вернуться к карте' : 'Открыть меню`,
     },
   },
   'ui.legacy.9266aa6f3d60': {
@@ -7858,13 +8104,6 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ru': `например: SP2 cancellation at x=0`,
     },
   },
-  'ui.legacy.9380e01d9cc4': {
-    source: `Зазор между зонами" prop="zoneSurfaceGap`,
-    status: 'pending-translation',
-    values: {
-      'ru': `Зазор между зонами" prop="zoneSurfaceGap`,
-    },
-  },
   'ui.legacy.93b1bb519bcd': {
     source: `Очистить журнал логов`,
     status: 'pending-translation',
@@ -7886,11 +8125,15 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ru': `материал звездных точек должен поддерживать vertexColors и прозрачность`,
     },
   },
-  'ui.legacy.9857317f26a4': {
-    source: `Отталкивание масс (G)" prop="zoneG`,
-    status: 'pending-translation',
+  'ui.legacy.952f20735fcc': {
+    source: `Теорема (LaTeX / Q.E.D.)`,
+    status: 'translated-from-existing-resource',
     values: {
-      'ru': `Отталкивание масс (G)" prop="zoneG`,
+      'ru': `Теорема (LaTeX / Q.E.D.)`,
+      'fr-CA': `Théorème (LaTeX / Q.E.D.)`,
+      'de-DE': `Theorem (LaTeX / Q.E.D.)`,
+      'hi-IN': `थ्योरम (LaTeX / Q.E.D.)`,
+      'ms-MY': `Teorem (LaTeX / Q.E.D.)`,
     },
   },
   'ui.legacy.98b2073ed181': {
@@ -7907,18 +8150,32 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ru': `Описание пока не добавлено.`,
     },
   },
-  'ui.legacy.9c14f535922d': {
-    source: `p vs np') || tLower.includes('mersenne') || tLower.includes('факторизац') || tLower.includes('rsa') || tLower.includes('коммивояж') || tLower.includes('изоморфизм') || tLower.includes('сетев`,
+  'ui.legacy.9a35e72645ec': {
+    source: `✓ Скопировано`,
     status: 'pending-translation',
     values: {
-      'ru': `p vs np') || tLower.includes('mersenne') || tLower.includes('факторизац') || tLower.includes('rsa') || tLower.includes('коммивояж') || tLower.includes('изоморфизм') || tLower.includes('сетев`,
+      'ru': `✓ Скопировано`,
     },
   },
-  'ui.legacy.9ede3f331700': {
-    source: `proofConsole.title')).toBe('Консоль доказательств и сингулярностей RICIS-III`,
+  'ui.legacy.9b63c03ce768': {
+    source: `Вернуться к карте`,
     status: 'pending-translation',
     values: {
-      'ru': `proofConsole.title')).toBe('Консоль доказательств и сингулярностей RICIS-III`,
+      'ru': `Вернуться к карте`,
+    },
+  },
+  'ui.legacy.9c5d498e1570': {
+    source: ` новых проблем в граф.`,
+    status: 'pending-translation',
+    values: {
+      'ru': ` новых проблем в граф.`,
+    },
+  },
+  'ui.legacy.9e23d36cea66': {
+    source: `войнич`,
+    status: 'pending-translation',
+    values: {
+      'ru': `войнич`,
     },
   },
   'ui.legacy.a14b344a3084': {
@@ -7928,11 +8185,25 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ru': `Не удалось запросить доступ к датчикам. Попробуйте ещё раз из меню.`,
     },
   },
-  'ui.legacy.a35ad971ee28': {
-    source: `w-6 h-6 flex items-center justify-center text-slate-300 hover:text-white hover:bg-neutral-700 rounded transition-colors cursor-pointer" title="Уменьшить масштаб`,
+  'ui.legacy.a21729ad1463': {
+    source: `Список`,
     status: 'pending-translation',
     values: {
-      'ru': `w-6 h-6 flex items-center justify-center text-slate-300 hover:text-white hover:bg-neutral-700 rounded transition-colors cursor-pointer" title="Уменьшить масштаб`,
+      'ru': `Список`,
+    },
+  },
+  'ui.legacy.a2d114d8e80f': {
+    source: `Диагностика скопирована`,
+    status: 'pending-translation',
+    values: {
+      'ru': `Диагностика скопирована`,
+    },
+  },
+  'ui.legacy.a38ff7a4dfff': {
+    source: `градиент`,
+    status: 'pending-translation',
+    values: {
+      'ru': `градиент`,
     },
   },
   'ui.legacy.a4763f8e7117': {
@@ -7946,11 +8217,11 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ms-MY': `Penilaian singulariti O(1)`,
     },
   },
-  'ui.legacy.a5382a5c3531': {
-    source: `Жесткость пружин (k)" prop="springK`,
+  'ui.legacy.a6e030b3ec29': {
+    source: `авторств`,
     status: 'pending-translation',
     values: {
-      'ru': `Жесткость пружин (k)" prop="springK`,
+      'ru': `авторств`,
     },
   },
   'ui.legacy.a73a7baaf3f7': {
@@ -7988,11 +8259,36 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ru': `Копировать показанные логи в буфер`,
     },
   },
+  'ui.legacy.ab7a35774b9e': {
+    source: `верификац`,
+    status: 'pending-translation',
+    values: {
+      'ru': `верификац`,
+    },
+  },
+  'ui.legacy.ab9c1026469f': {
+    source: `Параметры симуляции`,
+    status: 'translated-from-existing-resource',
+    values: {
+      'ru': `Параметры симуляции`,
+      'fr-CA': `Paramètres de simulation`,
+      'de-DE': `Simulationsparameter`,
+      'hi-IN': `सिमुलेशन पैरामीटर`,
+      'ms-MY': `Parameter Simulasi`,
+    },
+  },
   'ui.legacy.ad23602a4bcc': {
     source: `Проверьте health endpoint`,
     status: 'pending-translation',
     values: {
       'ru': `Проверьте health endpoint`,
+    },
+  },
+  'ui.legacy.ad8b11f6f44b': {
+    source: `Запустить RICIS-решение`,
+    status: 'pending-translation',
+    values: {
+      'ru': `Запустить RICIS-решение`,
     },
   },
   'ui.legacy.add4fe8028fc': {
@@ -8002,13 +8298,6 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ru': `Заполнить или дополнить карточку с помощью ИИ-агента Gemini`,
     },
   },
-  'ui.legacy.aefc9da6417c': {
-    source: `Жесткость пружин (k)', 'Spring Stiffness (k)`,
-    status: 'pending-translation',
-    values: {
-      'ru': `Жесткость пружин (k)', 'Spring Stiffness (k)`,
-    },
-  },
   'ui.legacy.af5abbac1f80': {
     source: `Развернуть левую панель`,
     status: 'pending-translation',
@@ -8016,18 +8305,18 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ru': `Развернуть левую панель`,
     },
   },
-  'ui.legacy.b1ddf7a78431': {
-    source: `min-w-0 flex-1"><span className="block text-[9px] font-mono uppercase tracking-wider text-cyan-400">Выбранная задача</span><span className="block truncate text-xs font-bold`,
-    status: 'pending-translation',
-    values: {
-      'ru': `min-w-0 flex-1"><span className="block text-[9px] font-mono uppercase tracking-wider text-cyan-400">Выбранная задача</span><span className="block truncate text-xs font-bold`,
-    },
-  },
   'ui.legacy.b3753e011f34': {
     source: `должен содержать единое переиспользуемое содержимое для SettingsModal`,
     status: 'pending-translation',
     values: {
       'ru': `должен содержать единое переиспользуемое содержимое для SettingsModal`,
+    },
+  },
+  'ui.legacy.b618f471ee47': {
+    source: `Увеличить масштаб`,
+    status: 'pending-translation',
+    values: {
+      'ru': `Увеличить масштаб`,
     },
   },
   'ui.legacy.b618fcfe1952': {
@@ -8044,18 +8333,18 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ru': `Проверка ниже определит, доступен ли Core runtime без запуска вычисления.`,
     },
   },
+  'ui.legacy.ba1147b24673': {
+    source: `Health endpoint пока не подтвердил доступность Core. TypeScript fallback по-прежнему не используется.`,
+    status: 'pending-translation',
+    values: {
+      'ru': `Health endpoint пока не подтвердил доступность Core. TypeScript fallback по-прежнему не используется.`,
+    },
+  },
   'ui.legacy.bb29d6304e9b': {
     source: `Инструменты и настройки`,
     status: 'pending-translation',
     values: {
       'ru': `Инструменты и настройки`,
-    },
-  },
-  'ui.legacy.bb9d20da06b4': {
-    source: `success', label: '✓ Успех`,
-    status: 'pending-translation',
-    values: {
-      'ru': `success', label: '✓ Успех`,
     },
   },
   'ui.legacy.bcbb7990fd09': {
@@ -8065,18 +8354,18 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ru': `Предустановки:`,
     },
   },
-  'ui.legacy.bee27f3fe747': {
-    source: `info', label: 'ℹ Инфо`,
-    status: 'pending-translation',
-    values: {
-      'ru': `info', label: 'ℹ Инфо`,
-    },
-  },
   'ui.legacy.bee73ea493c9': {
     source: `должен создавать холст панорамы с туманностями и фоновым звездным шумом`,
     status: 'pending-translation',
     values: {
       'ru': `должен создавать холст панорамы с туманностями и фоновым звездным шумом`,
+    },
+  },
+  'ui.legacy.bf9ec490322a': {
+    source: `Уменьшить масштаб`,
+    status: 'pending-translation',
+    values: {
+      'ru': `Уменьшить масштаб`,
     },
   },
   'ui.legacy.c02936f72e9f': {
@@ -8121,6 +8410,13 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ru': `Кнопка ниже выполняет только health-check C# runtime и не запускает fallback.`,
     },
   },
+  'ui.legacy.c5a7b8ebc6b8': {
+    source: `Исследователь`,
+    status: 'pending-translation',
+    values: {
+      'ru': `Исследователь`,
+    },
+  },
   'ui.legacy.c5c98baad9d0': {
     source: `например, 0_3 * inf_4 = 12 или \\lim_{x \\to 2} \\frac{x^2 - 4}{x - 2}`,
     status: 'pending-translation',
@@ -8142,11 +8438,11 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ru': `материалы небесного купола должны иметь depthWrite = false и BackSide`,
     },
   },
-  'ui.legacy.c85cb8e0bd2b': {
-    source: `available' && 'Ricis.Core сообщил ready status. Вернитесь к карте и повторите расчёт.`,
+  'ui.legacy.c7279faf0c06': {
+    source: `Целевая длина пружин`,
     status: 'pending-translation',
     values: {
-      'ru': `available' && 'Ricis.Core сообщил ready status. Вернитесь к карте и повторите расчёт.`,
+      'ru': `Целевая длина пружин`,
     },
   },
   'ui.legacy.c97c2aceb777': {
@@ -8156,6 +8452,13 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ru': `Это контекстный промпт, описывающий логическую цепь решения проблемы до корневых узлов в системе RICIS-III. Выведены полные доказательства и шаги решения, координаты графа исключены.`,
     },
   },
+  'ui.legacy.cb1213afb5f3': {
+    source: `Включить управление наклоном`,
+    status: 'pending-translation',
+    values: {
+      'ru': `Включить управление наклоном`,
+    },
+  },
   'ui.legacy.cb50b3829183': {
     source: `например, Разрешение 0_3 * inf_4 или Задача Эйлера`,
     status: 'pending-translation',
@@ -8163,18 +8466,25 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ru': `например, Разрешение 0_3 * inf_4 или Задача Эйлера`,
     },
   },
-  'ui.legacy.cece69f0ee7e': {
-    source: `Выбранная задача' : 'Начните с задачи`,
+  'ui.legacy.cdd1ab114a26': {
+    source: `👁️ Предпросмотр LaTeX`,
     status: 'pending-translation',
     values: {
-      'ru': `Выбранная задача' : 'Начните с задачи`,
+      'ru': `👁️ Предпросмотр LaTeX`,
     },
   },
-  'ui.legacy.d43a90368006': {
-    source: `three_dimensional' ? 'Список' : '3D`,
+  'ui.legacy.ce80c36dcb62': {
+    source: `Мин. зазор (узлы)`,
     status: 'pending-translation',
     values: {
-      'ru': `three_dimensional' ? 'Список' : '3D`,
+      'ru': `Мин. зазор (узлы)`,
+    },
+  },
+  'ui.legacy.d0f27faebd39': {
+    source: `Исходник Lean не предоставлен`,
+    status: 'pending-translation',
+    values: {
+      'ru': `Исходник Lean не предоставлен`,
     },
   },
   'ui.legacy.d43f5c5d9673': {
@@ -8182,34 +8492,6 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
     status: 'pending-translation',
     values: {
       'ru': `Используйте поддерживаемую грамматику`,
-    },
-  },
-  'ui.legacy.d5b17c14f72b': {
-    source: `Макро-пузыри (Зоны)', 'Macro Bubbles (Zones)`,
-    status: 'pending-translation',
-    values: {
-      'ru': `Макро-пузыри (Зоны)', 'Macro Bubbles (Zones)`,
-    },
-  },
-  'ui.legacy.d5df80264b25': {
-    source: `Отключить управление наклоном' : 'Включить управление наклоном`,
-    status: 'pending-translation',
-    values: {
-      'ru': `Отключить управление наклоном' : 'Включить управление наклоном`,
-    },
-  },
-  'ui.legacy.d63461dceeee': {
-    source: `flex items-center gap-1.5 shrink-0" title="Статус ИИ-Агента`,
-    status: 'pending-translation',
-    values: {
-      'ru': `flex items-center gap-1.5 shrink-0" title="Статус ИИ-Агента`,
-    },
-  },
-  'ui.legacy.d7c125cc0ae7': {
-    source: `lean4', label: 'Lean 4 Спецификация`,
-    status: 'pending-translation',
-    values: {
-      'ru': `lean4', label: 'Lean 4 Спецификация`,
     },
   },
   'ui.legacy.da94b6b05dc9': {
@@ -8251,11 +8533,11 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ms-MY': `Memerlukan bukti Core/Lean`,
     },
   },
-  'ui.legacy.ddfdf6d517b0': {
-    source: `button" onClick={() => setTaskPanelMode('open')} className="hidden md:inline-flex absolute right-2 top-2 z-30 min-h-10 min-w-9 items-center justify-center gap-1 rounded-md border border-cyan-700/70 bg-[#07121c]/95 px-1.5 text-cyan-300 shadow-[0_0_16px_rgba(34,211,238,0.18)] transition-colors hover:bg-cyan-900/80 hover:text-white" aria-label="Развернуть правую панель задачи" title="Развернуть правую панель задачи`,
+  'ui.legacy.e0574a88c783': {
+    source: `⚠️ Предупреждения`,
     status: 'pending-translation',
     values: {
-      'ru': `button" onClick={() => setTaskPanelMode('open')} className="hidden md:inline-flex absolute right-2 top-2 z-30 min-h-10 min-w-9 items-center justify-center gap-1 rounded-md border border-cyan-700/70 bg-[#07121c]/95 px-1.5 text-cyan-300 shadow-[0_0_16px_rgba(34,211,238,0.18)] transition-colors hover:bg-cyan-900/80 hover:text-white" aria-label="Развернуть правую панель задачи" title="Развернуть правую панель задачи`,
+      'ru': `⚠️ Предупреждения`,
     },
   },
   'ui.legacy.e204302dcd70': {
@@ -8272,11 +8554,22 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ru': `Выберите узел или включите фильтр фиолетовых`,
     },
   },
-  'ui.legacy.e3f4a4c31d9a': {
-    source: `Мин. зазор (узлы)" prop="minNodeSurfaceGap`,
+  'ui.legacy.e35c2dfc5280': {
+    source: `Проверка health endpoint Ricis.Core…`,
     status: 'pending-translation',
     values: {
-      'ru': `Мин. зазор (узлы)" prop="minNodeSurfaceGap`,
+      'ru': `Проверка health endpoint Ricis.Core…`,
+    },
+  },
+  'ui.legacy.e38d04cfaffb': {
+    source: `Рассчитать за O(1)`,
+    status: 'translated-from-existing-resource',
+    values: {
+      'ru': `Рассчитать за O(1)`,
+      'fr-CA': `Évaluer en O(1)`,
+      'de-DE': `In O(1) auswerten`,
+      'hi-IN': `O(1) में मूल्यांकन करें`,
+      'ms-MY': `Nilai dalam O(1)`,
     },
   },
   'ui.legacy.e50a50fb9fe3': {
@@ -8286,6 +8579,20 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ru': `например, https://doi.org/10.5281/zenodo.17872755`,
     },
   },
+  'ui.legacy.e59a6b95fbe6': {
+    source: `Макро-пузыри (Зоны)`,
+    status: 'pending-translation',
+    values: {
+      'ru': `Макро-пузыри (Зоны)`,
+    },
+  },
+  'ui.legacy.e618e8ec3d43': {
+    source: `Ricis.Core сообщил ready status. Вернитесь к карте и повторите расчёт.`,
+    status: 'pending-translation',
+    values: {
+      'ru': `Ricis.Core сообщил ready status. Вернитесь к карте и повторите расчёт.`,
+    },
+  },
   'ui.legacy.e8388d7c8d56': {
     source: `3. Конфигурация трехмерных материалов для заднего плана (L0 Continuity)`,
     status: 'pending-translation',
@@ -8293,32 +8600,11 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ru': `3. Конфигурация трехмерных материалов для заднего плана (L0 Continuity)`,
     },
   },
-  'ui.legacy.e83e34b6dba3': {
-    source: `Отталкивание масс (G)', 'Mass Repulsion (G)`,
+  'ui.legacy.ebc9b6652c6f': {
+    source: `Настройки точной физики`,
     status: 'pending-translation',
     values: {
-      'ru': `Отталкивание масс (G)', 'Mass Repulsion (G)`,
-    },
-  },
-  'ui.legacy.e85bcc50231f': {
-    source: `bg-neutral-900 border border-neutral-800 px-2 py-0.5 rounded text-slate-300">G Зон: <strong className="text-emerald-400`,
-    status: 'pending-translation',
-    values: {
-      'ru': `bg-neutral-900 border border-neutral-800 px-2 py-0.5 rounded text-slate-300">G Зон: <strong className="text-emerald-400`,
-    },
-  },
-  'ui.legacy.e922f1f64a90': {
-    source: `three_dimensional' ? 'Режим списка' : '3D-карта`,
-    status: 'pending-translation',
-    values: {
-      'ru': `three_dimensional' ? 'Режим списка' : '3D-карта`,
-    },
-  },
-  'ui.legacy.ec0ab4544354': {
-    source: `Выйти из полноэкранного режима' : 'Развернуть 3D на полный экран`,
-    status: 'pending-translation',
-    values: {
-      'ru': `Выйти из полноэкранного режима' : 'Развернуть 3D на полный экран`,
+      'ru': `Настройки точной физики`,
     },
   },
   'ui.legacy.ed2bee29073d': {
@@ -8342,20 +8628,6 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ru': `Сохранить настройки физики для автозагрузки при старте`,
     },
   },
-  'ui.legacy.edf4b432e786': {
-    source: `ai-authorship-provenance' || node.title.toLowerCase().includes('авторств') || node.type === 'derivative_claim`,
-    status: 'pending-translation',
-    values: {
-      'ru': `ai-authorship-provenance' || node.title.toLowerCase().includes('авторств') || node.type === 'derivative_claim`,
-    },
-  },
-  'ui.legacy.ee7575e90f1e': {
-    source: `Микро-узлы (Задачи)', 'Micro Nodes (Problems)`,
-    status: 'pending-translation',
-    values: {
-      'ru': `Микро-узлы (Задачи)', 'Micro Nodes (Problems)`,
-    },
-  },
   'ui.legacy.f0b086028eb0': {
     source: `Свернуть правую панель`,
     status: 'pending-translation',
@@ -8374,11 +8646,47 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ms-MY': `Invarian tepat RICIS-III`,
     },
   },
+  'ui.legacy.f0dff5ab4a66': {
+    source: `Сохранено`,
+    status: 'translated-from-existing-resource',
+    values: {
+      'ru': `Сохранено`,
+      'fr-CA': `Enregistré`,
+      'de-DE': `Gespeichert`,
+      'hi-IN': `सहेजा गया`,
+      'ms-MY': `Disimpan`,
+    },
+  },
+  'ui.legacy.f0e1994239ff': {
+    source: `изоморфизм`,
+    status: 'pending-translation',
+    values: {
+      'ru': `изоморфизм`,
+    },
+  },
   'ui.legacy.f32a4124bb27': {
     source: `Строка вида 0_5 * inf_3 не является lambda-входом C# Core и не будет автоматически преобразована TypeScript-кодом.`,
     status: 'pending-translation',
     values: {
       'ru': `Строка вида 0_5 * inf_3 не является lambda-входом C# Core и не будет автоматически преобразована TypeScript-кодом.`,
+    },
+  },
+  'ui.legacy.f3d28f6ae1a7': {
+    source: `RICIS-III ПЕСОЧНИЦА СИНГУЛЯРНОСТЕЙ`,
+    status: 'translated-from-existing-resource',
+    values: {
+      'ru': `RICIS-III ПЕСОЧНИЦА СИНГУЛЯРНОСТЕЙ`,
+      'fr-CA': `Bac à sable des singularités RICIS-III`,
+      'de-DE': `RICIS-III Sandbox der Singularitäten`,
+      'hi-IN': `RICIS-III सिंगुलैरिटी सैंडबॉक्स`,
+      'ms-MY': `Sandbox Singulariti RICIS-III`,
+    },
+  },
+  'ui.legacy.f4d1bda8c026': {
+    source: `Отталкивание масс (G)`,
+    status: 'pending-translation',
+    values: {
+      'ru': `Отталкивание масс (G)`,
     },
   },
   'ui.legacy.f4e8f4ad6be8': {
@@ -8423,6 +8731,13 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ru': `Перерассчитать доказательство (RICIS-III)`,
     },
   },
+  'ui.legacy.f8d2e7e88e3b': {
+    source: `Жесткость пружин (k)`,
+    status: 'pending-translation',
+    values: {
+      'ru': `Жесткость пружин (k)`,
+    },
+  },
   'ui.legacy.f8e7ea218bde': {
     source: `Инициализация агента RICIS-III...`,
     status: 'pending-translation',
@@ -8465,13 +8780,6 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ru': `должен содержать чекбокс-триггер аккордеона и заголовок`,
     },
   },
-  'ui.legacy.fc7f79afe045': {
-    source: `unavailable' && 'Health endpoint пока не подтвердил доступность Core. TypeScript fallback по-прежнему не используется.`,
-    status: 'pending-translation',
-    values: {
-      'ru': `unavailable' && 'Health endpoint пока не подтвердил доступность Core. TypeScript fallback по-прежнему не используется.`,
-    },
-  },
   'ui.legacy.fc88953cfa44': {
     source: `Сборка контекста и аксиом из стека связей...`,
     status: 'pending-translation',
@@ -8484,13 +8792,6 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
     status: 'pending-translation',
     values: {
       'ru': `Приложение намеренно не создало математический результат, trace или proof из неполного Core payload.`,
-    },
-  },
-  'ui.legacy.ff530a0e8ee4': {
-    source: `lean') || tLower.includes('доказательств') || tLower.includes('верификац`,
-    status: 'pending-translation',
-    values: {
-      'ru': `lean') || tLower.includes('доказательств') || tLower.includes('верификац`,
     },
   },
 };
