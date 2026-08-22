@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { DICTIONARY, TranslationKey } from '../model/i18n.types';
+import { DICTIONARY, PROJECT_COVERAGE_LOCALES, resolveDictionaryText, TranslationKey } from '../model/i18n.types';
 
 describe('RICIS-III i18n Dictionary Integrity Test', () => {
   it('should have non-empty Russian and English translations for every key', () => {
@@ -11,6 +11,29 @@ describe('RICIS-III i18n Dictionary Integrity Test', () => {
       expect(entry, `Key ${key} must exist`).toBeDefined();
       expect(entry.ru, `Key ${key} missing Russian translation`).not.toBe('');
       expect(entry.en, `Key ${key} missing English translation`).not.toBe('');
+    }
+  });
+
+  it('should resolve proof trust resources for every project coverage locale', () => {
+    const proofKeys: TranslationKey[] = [
+      'proofTrust.leanVerified.label',
+      'proofTrust.leanVerified.description',
+      'proofTrust.trustedAxiom.label',
+      'proofTrust.trustedAxiom.description',
+      'proofTrust.rejected.label',
+      'proofTrust.rejected.description',
+      'proofTrust.requiresCoreLean.label',
+      'proofTrust.requiresCoreLean.description',
+      'proofTrust.nodeStateOnly.label',
+      'proofTrust.nodeStateOnly.description',
+      'proofTrust.noProof.label',
+      'proofTrust.noProof.description',
+    ];
+
+    for (const locale of PROJECT_COVERAGE_LOCALES) {
+      for (const key of proofKeys) {
+        expect(resolveDictionaryText(DICTIONARY[key], locale), `${key} missing ${locale} fallback`).toBeTruthy();
+      }
     }
   });
 

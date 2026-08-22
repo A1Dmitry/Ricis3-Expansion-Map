@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { DICTIONARY, SupportedLocale, TranslationKey } from '../model/i18n.types';
+import { DICTIONARY, resolveDictionaryText, SupportedLocale, TranslationKey } from '../model/i18n.types';
 
 interface I18nStoreState {
   locale: SupportedLocale;
@@ -13,28 +13,37 @@ interface I18nStoreState {
  * 2. localStorage ('ricis_language')
  * 3. navigator.languages / navigator.language (заголовки браузера)
  */
+const SUPPORTED_LOCALES: readonly SupportedLocale[] = ['ru', 'en', 'en-US', 'fr-CA', 'de-DE', 'hi-IN', 'ms-MY'];
+
+function parseSupportedLocale(value: string | null): SupportedLocale | undefined {
+  if (!value) return undefined;
+  return SUPPORTED_LOCALES.includes(value as SupportedLocale) ? value as SupportedLocale : undefined;
+}
+
 export function detectInitialLocale(): SupportedLocale {
   try {
     if (typeof window !== 'undefined') {
       const urlParams = new URLSearchParams(window.location.search);
-      const urlLang = urlParams.get('lang');
-      if (urlLang === 'en' || urlLang === 'ru') {
-        return urlLang;
-      }
+      const urlLocale = parseSupportedLocale(urlParams.get('lang'));
+      if (urlLocale) return urlLocale;
 
-      const savedLang = localStorage.getItem('ricis_language');
-      if (savedLang === 'en' || savedLang === 'ru') {
-        return savedLang;
-      }
+      const savedLocale = parseSupportedLocale(localStorage.getItem('ricis_language'));
+      if (savedLocale) return savedLocale;
 
       const browserLangs = navigator.languages || [navigator.language || ''];
       for (const lang of browserLangs) {
-        if (lang.toLowerCase().startsWith('ru') || lang.toLowerCase().startsWith('be') || lang.toLowerCase().startsWith('uk') || lang.toLowerCase().startsWith('kk')) {
-          return 'ru';
-        }
+        const exactLocale = parseSupportedLocale(lang);
+        if (exactLocale) return exactLocale;
+        const normalized = lang.toLowerCase();
+        if (normalized.startsWith('ru') || normalized.startsWith('be') || normalized.startsWith('uk') || normalized.startsWith('kk')) return 'ru';
+        if (normalized.startsWith('fr-ca')) return 'fr-CA';
+        if (normalized.startsWith('de')) return 'de-DE';
+        if (normalized.startsWith('hi')) return 'hi-IN';
+        if (normalized.startsWith('ms')) return 'ms-MY';
+        if (normalized.startsWith('en')) return 'en-US';
       }
     }
-  } catch (e) {
+    } catch (e) {
     console.warn('Failed to detect initial locale, fallback to en/ru:', e);
   }
 
@@ -62,7 +71,7 @@ export const useI18nStore = create<I18nStoreState>((set, get) => ({
     const entry = DICTIONARY[key];
     if (!entry) return key;
 
-    let text: string = entry[locale] || entry['en'] || key;
+    let text: string = resolveDictionaryText(entry, locale) || key;
 
     if (params) {
       Object.entries(params).forEach(([paramKey, paramValue]) => {

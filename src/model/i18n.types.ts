@@ -3,7 +3,22 @@
  * Строгая типизация ключей (TypeScript, DRY, Zero-dependency).
  */
 
-export type SupportedLocale = 'ru' | 'en';
+export type SupportedLocale = 'ru' | 'en' | 'en-US' | 'fr-CA' | 'de-DE' | 'hi-IN' | 'ms-MY';
+
+export const PROJECT_COVERAGE_LOCALES: readonly SupportedLocale[] = [
+  'en-US',
+  'fr-CA',
+  'de-DE',
+  'hi-IN',
+  'ms-MY',
+];
+
+export function resolveDictionaryText(
+  entry: { readonly ru: string; readonly en: string } & Partial<Record<SupportedLocale, string>>,
+  locale: SupportedLocale,
+): string {
+  return entry[locale] ?? entry[locale.split('-')[0] as 'ru' | 'en'] ?? entry.en;
+}
 
 export interface II18nState {
   readonly locale: SupportedLocale;

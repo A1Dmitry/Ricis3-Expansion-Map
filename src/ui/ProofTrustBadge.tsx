@@ -1,5 +1,5 @@
 import type { ProblemNode, Proof } from '../model/types';
-import { DICTIONARY, type SupportedLocale } from '../model/i18n.types';
+import { DICTIONARY, resolveDictionaryText, type SupportedLocale } from '../model/i18n.types';
 import { useI18nStore } from '../store/useI18nStore';
 
 export type ProofTrustTone = 'emerald' | 'amber' | 'rose' | 'slate' | 'cyan';
@@ -39,8 +39,8 @@ export function getProofTrustPresentation(
   if (externalLean?.trustStatus === 'LEAN_VERIFIED') {
     return {
       code: 'LEAN_VERIFIED',
-      label: DICTIONARY['proofTrust.leanVerified.label'][locale],
-      description: DICTIONARY['proofTrust.leanVerified.description'][locale],
+      label: resolveDictionaryText(DICTIONARY['proofTrust.leanVerified.label'], locale),
+      description: resolveDictionaryText(DICTIONARY['proofTrust.leanVerified.description'], locale),
       tone: 'emerald',
     };
   }
@@ -48,8 +48,8 @@ export function getProofTrustPresentation(
   if (externalLean?.trustStatus === 'TRUSTED_AXIOM') {
     return {
       code: 'TRUSTED_AXIOM',
-      label: DICTIONARY['proofTrust.trustedAxiom.label'][locale],
-      description: DICTIONARY['proofTrust.trustedAxiom.description'][locale],
+      label: resolveDictionaryText(DICTIONARY['proofTrust.trustedAxiom.label'], locale),
+      description: resolveDictionaryText(DICTIONARY['proofTrust.trustedAxiom.description'], locale),
       tone: 'cyan',
     };
   }
@@ -57,8 +57,8 @@ export function getProofTrustPresentation(
   if (externalLean?.trustStatus === 'REJECTED' || (node.leanErrors?.length ?? 0) > 0) {
     return {
       code: 'REJECTED',
-      label: DICTIONARY['proofTrust.rejected.label'][locale],
-      description: DICTIONARY['proofTrust.rejected.description'][locale],
+      label: resolveDictionaryText(DICTIONARY['proofTrust.rejected.label'], locale),
+      description: resolveDictionaryText(DICTIONARY['proofTrust.rejected.description'], locale),
       tone: 'rose',
     };
   }
@@ -66,8 +66,8 @@ export function getProofTrustPresentation(
   if (externalLean?.trustStatus === 'REQUIRES_CORE_LEAN' || node.state === 'partial') {
     return {
       code: 'REQUIRES_CORE_LEAN',
-      label: DICTIONARY['proofTrust.requiresCoreLean.label'][locale],
-      description: DICTIONARY['proofTrust.requiresCoreLean.description'][locale],
+      label: resolveDictionaryText(DICTIONARY['proofTrust.requiresCoreLean.label'], locale),
+      description: resolveDictionaryText(DICTIONARY['proofTrust.requiresCoreLean.description'], locale),
       tone: 'amber',
     };
   }
@@ -75,16 +75,16 @@ export function getProofTrustPresentation(
   if (proof && node.state === 'resolved') {
     return {
       code: 'NODE_STATE_ONLY',
-      label: DICTIONARY['proofTrust.nodeStateOnly.label'][locale],
-      description: DICTIONARY['proofTrust.nodeStateOnly.description'][locale],
+      label: resolveDictionaryText(DICTIONARY['proofTrust.nodeStateOnly.label'], locale),
+      description: resolveDictionaryText(DICTIONARY['proofTrust.nodeStateOnly.description'], locale),
       tone: 'slate',
     };
   }
 
   return {
     code: 'NO_PROOF',
-    label: DICTIONARY['proofTrust.noProof.label'][locale],
-    description: DICTIONARY['proofTrust.noProof.description'][locale],
+    label: resolveDictionaryText(DICTIONARY['proofTrust.noProof.label'], locale),
+    description: resolveDictionaryText(DICTIONARY['proofTrust.noProof.description'], locale),
     tone: 'slate',
   };
 }
