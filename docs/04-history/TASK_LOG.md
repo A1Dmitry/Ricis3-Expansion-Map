@@ -512,3 +512,15 @@ Supervisor теперь выбирает bundled DLL первым способо
 **Статус:** реализация и локальные проверки завершены. Core calculation, RICIS transforms, map trust policy и Lean evidence statuses не изменялись.
 
 ---
+## 2026-08-24 — ALS-01: типизированная локализация Agent Log Modal (v0.4.37)
+
+- В единственный строго типизированный `DICTIONARY` добавлены 19 ключей семейства `agentLog.*` с base values `ru`/`en` и явными coverage-locale overrides для `fr-CA`, `de-DE`, `hi-IN`, `ms-MY`. Параметризованные labels используют текущий контракт single-brace `{count}` и `{details}`.
+- `AgentLogModal` подключён только к существующему `useI18nStore().t()`: локализованы static presentation-copy, accessible names и static clipboard wrapper. IDs уровней, timestamps, `message`, `details`, `nodeId`, фильтрация, `clearAgentLogs`, `onClose`, `onSelectNode` и clipboard payload сохранены как неизменные data/behavior contracts.
+- Добавлены direct UI/i18n regressions: key inventory, coverage locale overrides, locale presentation без Cyrillic leakage, accessible actions, callbacks, payload byte preservation, static export wrapper и запрет Core/proof/Lean/network dependencies. QA suite использует private jsdom harness; production Core, proof, Lean, provider, persistence или network mocks не вводятся.
+- Синхронизированы `package.json`, `package-lock.json`, `src/version.ts`, README, CITATION, JSON-LD и active release-version declarations. Историческая PEP-I18N-01 запись остаётся маркированным фактом v0.4.36.
+- Проверки успешно выполнены: targeted `npm test -- --run src/ui/AgentLogModal.test.tsx src/model/i18n.test.ts` — 2 файла / 11 tests; `npm run lint`; полный `npm test` — 60 файлов / 444 tests; `npm run release:check` — 12 tests; `npm run build`; `npm audit --audit-level=moderate` — 0 vulnerabilities; `git diff --check`.
+- Build сохраняет ранее зарегистрированные non-blocking warnings: ineffective dynamic import `src/model/apiClient.ts` и main client chunk свыше 500 kB. ALS-01 не меняет RICIS computation, Core execution, proof workflow, Lean source/evidence или trust-state policy.
+
+**Статус:** реализация и локальные quality gates завершены; инкремент ожидает финального review, commit и отдельной публикации.
+
+---

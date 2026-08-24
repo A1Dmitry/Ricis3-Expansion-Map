@@ -362,6 +362,27 @@ export const DICTIONARY = {
     en: 'Close problem card',
   },
 
+  // Agent Log Modal
+  'agentLog.title': { ru: 'Журнал активности ИИ-Агента', en: 'AI Agent activity log' },
+  'agentLog.close': { ru: 'Закрыть журнал агента', en: 'Close agent log' },
+  'agentLog.filter.all': { ru: 'Все ({count})', en: 'All ({count})' },
+  'agentLog.filter.ricis': { ru: '⚡ RICIS', en: '⚡ RICIS' },
+  'agentLog.filter.success': { ru: '✓ Успех', en: '✓ Success' },
+  'agentLog.filter.info': { ru: 'ℹ Инфо', en: 'ℹ Info' },
+  'agentLog.filter.warn': { ru: '⚠️ Предупреждения', en: '⚠️ Warnings' },
+  'agentLog.filter.error': { ru: '❌ Ошибки', en: '❌ Errors' },
+  'agentLog.search.placeholder': { ru: 'Фильтр сообщений...', en: 'Filter messages...' },
+  'agentLog.autoScroll': { ru: 'Автопрокрутка', en: 'Auto-scroll' },
+  'agentLog.copy': { ru: '📋 Копировать', en: '📋 Copy' },
+  'agentLog.copy.complete': { ru: '✓ Скопировано', en: '✓ Copied' },
+  'agentLog.copy.title': { ru: 'Копировать показанные логи в буфер', en: 'Copy visible logs' },
+  'agentLog.clear': { ru: 'Очистить журнал логов', en: 'Clear log' },
+  'agentLog.empty': { ru: 'Нет записей лога, соответствующих выбранному фильтру.', en: 'No log entries match the selected filter.' },
+  'agentLog.nodeLink': { ru: 'К узлу →', en: 'Go to node' },
+  'agentLog.total': { ru: 'Всего записей: {count}', en: 'Total entries: {count}' },
+  'agentLog.footerHint': { ru: 'Нажмите на отметку времени или стрелку в нижней статус-строке для быстрого вызова', en: 'Click a timestamp or the arrow in the bottom status bar for quick access' },
+  'agentLog.clipboard.details': { ru: 'Детали: {details}', en: 'Details: {details}' },
+
   // Search & Filters
   'search.placeholder': {
     ru: 'Поиск по карте...',

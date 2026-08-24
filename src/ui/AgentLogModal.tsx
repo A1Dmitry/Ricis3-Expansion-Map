@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useMapStore } from '../store/mapStore';
+import { useI18nStore } from '../store/useI18nStore';
 import { AgentLogLevel } from '../model/types';
 
 interface AgentLogModalProps {
@@ -9,8 +10,9 @@ interface AgentLogModalProps {
 
 export function AgentLogModal({ onClose, onSelectNode }: AgentLogModalProps) {
   const { agentLogs, clearAgentLogs } = useMapStore();
-  
-  const [activeLevel, setActiveLevel] = useState<string>('all');
+  const { t } = useI18nStore();
+
+  const [activeLevel, setActiveLevel] = useState<'all' | AgentLogLevel>('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [autoScroll, setAutoScroll] = useState(true);
   const [copied, setCopied] = useState(false);
@@ -18,6 +20,14 @@ export function AgentLogModal({ onClose, onSelectNode }: AgentLogModalProps) {
   const logsEndRef = useRef<HTMLDivElement>(null);
 
   const logs = agentLogs || [];
+  const filterTabs: readonly { readonly id: 'all' | AgentLogLevel; readonly label: string }[] = [
+    { id: 'all', label: t('agentLog.filter.all', { count: logs.length }) },
+    { id: 'ricis', label: t('agentLog.filter.ricis') },
+    { id: 'success', label: t('agentLog.filter.success') },
+    { id: 'info', label: t('agentLog.filter.info') },
+    { id: 'warn', label: t('agentLog.filter.warn') },
+    { id: 'error', label: t('agentLog.filter.error') },
+  ];
 
   const filteredLogs = logs.filter(entry => {
     if (activeLevel !== 'all' && entry.level !== activeLevel) return false;
@@ -38,7 +48,7 @@ export function AgentLogModal({ onClose, onSelectNode }: AgentLogModalProps) {
 
   const handleCopyLogs = () => {
     const formatted = filteredLogs
-      .map(l => `[${l.timestamp}] [${l.level.toUpperCase()}] ${l.message}${l.details ? `\n  Details: ${l.details}` : ''}`)
+      .map(l => `[${l.timestamp}] [${l.level.toUpperCase()}] ${l.message}${l.details ? `\n  ${t('agentLog.clipboard.details', { details: l.details })}` : ''}`)
       .join('\n');
     navigator.clipboard.writeText(formatted);
     setCopied(true);
@@ -69,7 +79,7 @@ export function AgentLogModal({ onClose, onSelectNode }: AgentLogModalProps) {
           <div className="flex items-center gap-2.5">
             <span className="w-2.5 h-2.5 rounded-full bg-cyan-400 animate-pulse shadow-[0_0_10px_rgba(6,182,212,0.9)]" />
             <h2 className="text-sm sm:text-base font-bold text-cyan-200 tracking-wide flex items-center gap-2">
-              <span>📋</span> Журнал промежуточных шагов ИИ-Агента
+              <span>📋</span> {t('agentLog.title')}
               <span className="text-[10px] bg-cyan-950 border border-cyan-800 text-cyan-400 px-2 py-0.5 rounded font-normal">
                 RICIS-III v7.7
               </span>
@@ -78,7 +88,8 @@ export function AgentLogModal({ onClose, onSelectNode }: AgentLogModalProps) {
           <button
             onClick={onClose}
             className="w-7 h-7 flex items-center justify-center rounded-lg bg-neutral-800/80 hover:bg-neutral-700 text-slate-400 hover:text-white transition-colors cursor-pointer text-sm font-bold"
-            title="Закрыть"
+            title={t('agentLog.close')}
+            aria-label={t('agentLog.close')}
           >
             ✕
           </button>
@@ -88,17 +99,12 @@ export function AgentLogModal({ onClose, onSelectNode }: AgentLogModalProps) {
         <div className="p-3.5 bg-neutral-950/90 border-b border-neutral-800/80 flex flex-wrap items-center justify-between gap-3 shrink-0 text-xs">
           {/* Level Filter Tabs */}
           <div className="flex items-center gap-1.5 flex-wrap">
-            {[
-              { id: 'all', label: `Все (${logs.length})` },
-              { id: 'ricis', label: '⚡ RICIS' },
-              { id: 'success', label: '✓ Успех' },
-              { id: 'info', label: 'ℹ Инфо' },
-              { id: 'warn', label: '⚠️ Предупреждения' },
-              { id: 'error', label: '❌ Ошибки' },
-            ].map(tab => (
+            {filterTabs.map(tab => (
               <button
                 key={tab.id}
                 onClick={() => setActiveLevel(tab.id)}
+                aria-label={tab.label}
+                aria-pressed={activeLevel === tab.id}
                 className={`px-2.5 py-1 rounded text-[11px] font-bold transition-all cursor-pointer border ${
                   activeLevel === tab.id
                     ? 'bg-cyan-950 text-cyan-300 border-cyan-700 shadow-[0_0_8px_rgba(6,182,212,0.3)]'
@@ -114,7 +120,7 @@ export function AgentLogModal({ onClose, onSelectNode }: AgentLogModalProps) {
           <div className="flex items-center gap-2 flex-wrap w-full sm:w-auto">
             <input
               type="text"
-              placeholder="Фильтр сообщений..."
+              placeholder={t('agentLog.search.placeholder')}
               value={searchQuery}
               onChange={e => setSearchQuery(e.target.value)}
               className="bg-neutral-900 border border-neutral-800 text-slate-200 text-xs rounded px-2.5 py-1 focus:outline-none focus:border-cyan-600 min-w-[140px] flex-1 sm:flex-initial"
@@ -126,22 +132,25 @@ export function AgentLogModal({ onClose, onSelectNode }: AgentLogModalProps) {
                 checked={autoScroll}
                 onChange={e => setAutoScroll(e.target.checked)}
                 className="rounded border-neutral-700 bg-neutral-900 text-cyan-500 focus:ring-0"
+                aria-label={t('agentLog.autoScroll')}
               />
-              <span>Автопрокрутка</span>
+              <span>{t('agentLog.autoScroll')}</span>
             </label>
 
             <button
               onClick={handleCopyLogs}
               className="px-2.5 py-1 bg-neutral-900 hover:bg-neutral-800 text-cyan-400 border border-cyan-900/60 rounded text-[11px] font-bold transition-colors cursor-pointer flex items-center gap-1"
-              title="Копировать показанные логи в буфер"
+              title={t('agentLog.copy.title')}
+              aria-label={t('agentLog.copy.title')}
             >
-              <span>{copied ? '✓ Скопировано' : '📋 Копировать'}</span>
+              <span>{copied ? t('agentLog.copy.complete') : t('agentLog.copy')}</span>
             </button>
 
             <button
               onClick={clearAgentLogs}
               className="px-2 py-1 bg-neutral-900 hover:bg-rose-950 text-slate-400 hover:text-rose-300 border border-neutral-800 hover:border-rose-900 rounded text-[11px] font-bold transition-colors cursor-pointer"
-              title="Очистить журнал логов"
+              title={t('agentLog.clear')}
+              aria-label={t('agentLog.clear')}
             >
               🗑️
             </button>
@@ -153,7 +162,7 @@ export function AgentLogModal({ onClose, onSelectNode }: AgentLogModalProps) {
           {filteredLogs.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-48 text-slate-500 font-sans text-sm">
               <span className="text-2xl mb-2">🔍</span>
-              <p>Нет записей лога, соответствующих выбранному фильтру.</p>
+              <p>{t('agentLog.empty')}</p>
             </div>
           ) : (
             filteredLogs.map(entry => (
@@ -187,8 +196,9 @@ export function AgentLogModal({ onClose, onSelectNode }: AgentLogModalProps) {
                         onClose();
                       }}
                       className="text-[10px] text-cyan-400 hover:underline shrink-0 bg-cyan-950/60 border border-cyan-900/60 px-1.5 py-0.5 rounded cursor-pointer"
+                    aria-label={t('agentLog.nodeLink')}
                     >
-                      К узлу →
+                      {t('agentLog.nodeLink')}
                     </button>
                   )}
                 </div>
@@ -206,8 +216,8 @@ export function AgentLogModal({ onClose, onSelectNode }: AgentLogModalProps) {
 
         {/* Footer Summary Bar */}
         <div className="px-4 py-2 bg-neutral-950 border-t border-neutral-900 flex items-center justify-between text-[11px] text-slate-400 shrink-0">
-          <span>Всего записей: <strong className="text-cyan-400">{logs.length}</strong></span>
-          <span className="text-slate-500">Нажмите на отметку времени или стрелку в нижней статус-строке для быстрого вызова</span>
+          <span>{t('agentLog.total', { count: logs.length })}</span>
+          <span className="text-slate-500">{t('agentLog.footerHint')}</span>
         </div>
       </div>
     </div>

@@ -1,6 +1,10 @@
 # RICIS Expansion Map — интерактивная карта сингулярностей, зависимостей и доказательных границ
 
-**Версия: v0.4.36**
+**Версия: v0.4.37**
+
+### v0.4.37 — Agent Log typed presentation localization
+
+`AgentLogModal` теперь получает static presentation-copy, доступные имена действий и параметризованные labels через существующий строго типизированный i18n seam. Явные project coverage locale overrides исключают русскоязычный fallback; timestamps, level IDs, messages, details, node IDs, filtering, clipboard payload и callbacks остаются неизменными structured data. RICIS computation, Core, proof, Lean и trust boundaries не затронуты.
 
 ### v0.4.36 — Proof Console accessibility localization
 

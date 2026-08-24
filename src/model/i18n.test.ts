@@ -58,6 +58,46 @@ describe('RICIS-III i18n Dictionary Integrity Test', () => {
     }
   });
 
+  it('should require the complete Agent Log localized presentation contract with explicit coverage locales', () => {
+    const agentLogKeys = [
+      'agentLog.title',
+      'agentLog.close',
+      'agentLog.filter.all',
+      'agentLog.filter.ricis',
+      'agentLog.filter.success',
+      'agentLog.filter.info',
+      'agentLog.filter.warn',
+      'agentLog.filter.error',
+      'agentLog.search.placeholder',
+      'agentLog.autoScroll',
+      'agentLog.copy',
+      'agentLog.copy.complete',
+      'agentLog.copy.title',
+      'agentLog.clear',
+      'agentLog.empty',
+      'agentLog.nodeLink',
+      'agentLog.total',
+      'agentLog.footerHint',
+      'agentLog.clipboard.details',
+    ] as const;
+
+    for (const key of agentLogKeys) {
+      const translationKey = key as TranslationKey;
+      const entry = DICTIONARY[translationKey];
+      expect(entry, `${key} must be present in DICTIONARY`).toBeDefined();
+      expect(entry?.ru, `${key} must have base Russian text`).toBeTruthy();
+      expect(entry?.en, `${key} must have base English text`).toBeTruthy();
+
+      for (const locale of PROJECT_COVERAGE_LOCALES.filter((candidate) => candidate !== 'en-US')) {
+        expect(LOCALE_OVERRIDES[translationKey]?.[locale], `${key} missing explicit ${locale} override`).toBeTruthy();
+      }
+    }
+
+    expect(DICTIONARY['agentLog.filter.all' as TranslationKey]?.en).toContain('{count}');
+    expect(DICTIONARY['agentLog.total' as TranslationKey]?.en).toContain('{count}');
+    expect(DICTIONARY['agentLog.clipboard.details' as TranslationKey]?.en).toContain('{details}');
+  });
+
   it('should have exact translation coverage for critical UI components', () => {
     const requiredKeys: TranslationKey[] = [
       'header.title',
