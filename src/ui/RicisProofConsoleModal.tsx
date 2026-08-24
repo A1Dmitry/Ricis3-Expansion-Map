@@ -143,6 +143,8 @@ export const RicisProofConsoleModal: React.FC<RicisProofConsoleModalProps> = ({
           </div>
           <button
             onClick={onClose}
+            aria-label={t('proofConsole.close')}
+            title={t('proofConsole.close')}
             className="p-1.5 rounded-lg hover:bg-white/5 text-slate-400 hover:text-white transition-colors"
           >
             <X className="w-5 h-5" />

@@ -38,6 +38,15 @@ describe('RICIS-III i18n Dictionary Integrity Test', () => {
     }
   });
 
+  it('should resolve the Proof Console close control for every project coverage locale without Cyrillic leakage', () => {
+    for (const locale of PROJECT_COVERAGE_LOCALES) {
+      const translated = LOCALE_OVERRIDES['proofConsole.close']?.[locale]
+        ?? resolveDictionaryText(DICTIONARY['proofConsole.close'], locale);
+      expect(translated, `proofConsole.close missing ${locale} translation`).toBeTruthy();
+      expect(translated).not.toMatch(/[\u0400-\u04FF]/);
+    }
+  });
+
   it('should provide explicit translations for every project coverage locale', () => {
     const keys = Object.keys(DICTIONARY) as TranslationKey[];
     for (const locale of PROJECT_COVERAGE_LOCALES.filter((candidate) => candidate !== 'en-US')) {

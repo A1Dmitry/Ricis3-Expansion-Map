@@ -31,6 +31,23 @@ const runFixture: ProofRunResponse = {
   ],
 };
 
+let root: Root | undefined;
+let container: HTMLDivElement | undefined;
+
+interface EngineFixture {
+  readonly engine: IRicisCoreEngine;
+  readonly legacyGenerateProof: ReturnType<typeof vi.fn>;
+  readonly legacyVerifyProof: ReturnType<typeof vi.fn>;
+}
+
+interface RenderProofConsoleOptions {
+  readonly locale?: 'ru' | 'en-US';
+  readonly onClose?: () => void;
+  readonly engine: IRicisCoreEngine;
+  readonly proofGateway: IRicisProofGateway;
+  readonly initialClaim?: string;
+}
+
 function createGateway(createRun: ReturnType<typeof vi.fn>): IRicisProofGateway {
   return {
     createRun,
@@ -40,10 +57,51 @@ function createGateway(createRun: ReturnType<typeof vi.fn>): IRicisProofGateway 
   } as unknown as IRicisProofGateway;
 }
 
-describe('RicisProofConsoleModal authoritative proof transport', () => {
-  let root: Root | undefined;
-  let container: HTMLDivElement | undefined;
+function createEngineFixture(): EngineFixture {
+  const legacyGenerateProof = vi.fn();
+  const legacyVerifyProof = vi.fn();
 
+  return {
+    engine: {
+      status: 'ready_api',
+      initialize: vi.fn().mockResolvedValue(undefined),
+      generateFormalProof: legacyGenerateProof,
+      verifyProofChain: legacyVerifyProof,
+    } as unknown as IRicisCoreEngine,
+    legacyGenerateProof,
+    legacyVerifyProof,
+  };
+}
+
+async function renderProofConsole({
+  locale = 'ru',
+  onClose = () => {},
+  engine,
+  proofGateway,
+  initialClaim = 'x => x',
+}: RenderProofConsoleOptions): Promise<HTMLDivElement> {
+  useI18nStore.getState().setLocale(locale);
+  const renderedContainer = document.createElement('div');
+  document.body.append(renderedContainer);
+  const renderedRoot = createRoot(renderedContainer);
+
+  root = renderedRoot;
+  container = renderedContainer;
+
+  await act(async () => {
+    renderedRoot.render(React.createElement(RicisProofConsoleModal, {
+      isOpen: true,
+      onClose,
+      initialClaim,
+      coreEngine: engine,
+      proofGateway,
+    }));
+  });
+
+  return renderedContainer;
+}
+
+describe('RicisProofConsoleModal authoritative proof transport', () => {
   beforeEach(() => {
     useI18nStore.getState().setLocale('ru');
   });
@@ -57,11 +115,13 @@ describe('RicisProofConsoleModal authoritative proof transport', () => {
     container = undefined;
   });
 
-  it('contains no production legacy proof method call', () => {
+  it('contains no production legacy proof method call and localizes the close control', () => {
     const source = readFileSync(resolve(process.cwd(), 'src/ui/RicisProofConsoleModal.tsx'), 'utf8');
 
     expect(source).toContain('proofGateway.createRun');
     expect(source).not.toMatch(/\b(generateFormalProof|verifyProofChain|proveSystem)\b/);
+    expect(source).toContain("aria-label={t('proofConsole.close')}");
+    expect(source).toContain("title={t('proofConsole.close')}");
     for (const formerLiteral of [
       'RICIS-III Proof & Singularity Console',
       'Вычисление сингулярностей O(1)',
@@ -81,40 +141,46 @@ describe('RicisProofConsoleModal authoritative proof transport', () => {
     expect(store.t('proofConsole.title')).toBe('Консоль доказательств и сингулярностей RICIS-III');
     expect(store.t('proofConsole.evaluate')).toBe('Рассчитать за O(1)');
     expect(store.t('proofConsole.traceTitle')).toBe('Трассировка 8 фаз конвейера (фазы -1...6)');
+    expect(store.t('proofConsole.close')).toBe('Закрыть консоль доказательств');
 
-    store.setLocale('en');
+    store.setLocale('en-US');
     expect(store.t('proofConsole.title')).toBe('RICIS-III Proof & Singularity Console');
     expect(store.t('proofConsole.evaluate')).toBe('Evaluate in O(1)');
     expect(store.t('proofConsole.traceTitle')).toBe('Eight-phase pipeline trace (phases -1...6)');
+    expect(store.t('proofConsole.close')).toBe('Close proof console');
+  });
+
+  it('renders an accessible localized close control without changing close behavior', async () => {
+    const onClose = vi.fn();
+    const { engine } = createEngineFixture();
+    const proofGateway = createGateway(vi.fn());
+    const renderedContainer = await renderProofConsole({ onClose, engine, proofGateway });
+
+    const russianClose = renderedContainer.querySelector<HTMLButtonElement>(
+      '[aria-label="Закрыть консоль доказательств"]',
+    );
+    expect(russianClose?.title).toBe('Закрыть консоль доказательств');
+
+    await act(async () => {
+      russianClose?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    });
+    expect(onClose).toHaveBeenCalledTimes(1);
+
+    await act(async () => {
+      useI18nStore.getState().setLocale('en-US');
+    });
+    const englishClose = renderedContainer.querySelector<HTMLButtonElement>('[aria-label="Close proof console"]');
+    expect(englishClose?.title).toBe('Close proof console');
   });
 
   it('sends one bounded createRun request and never invokes legacy proof methods', async () => {
-    const legacyGenerateProof = vi.fn();
-    const legacyVerifyProof = vi.fn();
-    const engine = {
-      status: 'ready_api',
-      initialize: vi.fn().mockResolvedValue(undefined),
-      generateFormalProof: legacyGenerateProof,
-      verifyProofChain: legacyVerifyProof,
-    } as unknown as IRicisCoreEngine;
+    const { engine, legacyGenerateProof, legacyVerifyProof } = createEngineFixture();
     const createRun = vi.fn().mockResolvedValue(runFixture);
     const proofGateway = createGateway(createRun);
+    const fixtureBeforeRender = JSON.parse(JSON.stringify(runFixture)) as ProofRunResponse;
+    const renderedContainer = await renderProofConsole({ engine, proofGateway });
 
-    container = document.createElement('div');
-    document.body.append(container);
-    root = createRoot(container);
-
-    await act(async () => {
-      root?.render(React.createElement(RicisProofConsoleModal, {
-        isOpen: true,
-        onClose: () => {},
-        initialClaim: 'x => x',
-        coreEngine: engine,
-        proofGateway,
-      } as any));
-    });
-
-    const proveTab = Array.from(container.querySelectorAll('button'))
+    const proveTab = Array.from(renderedContainer.querySelectorAll('button'))
       .find(button => button.textContent?.includes('Генератор формальных доказательств'));
     expect(proveTab).toBeDefined();
 
@@ -122,7 +188,7 @@ describe('RicisProofConsoleModal authoritative proof transport', () => {
       proveTab?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
     });
 
-    const submit = container.querySelector<HTMLButtonElement>('[data-testid="proof-console-create-run"]');
+    const submit = renderedContainer.querySelector<HTMLButtonElement>('[data-testid="proof-console-create-run"]');
     expect(submit).not.toBeNull();
 
     await act(async () => {
@@ -137,19 +203,13 @@ describe('RicisProofConsoleModal authoritative proof transport', () => {
     });
     expect(legacyGenerateProof).not.toHaveBeenCalled();
     expect(legacyVerifyProof).not.toHaveBeenCalled();
-    expect(container.textContent).toContain('proof-console-test-correlation');
-    expect(container.textContent).toContain('RequiresCoreLean');
+    expect(renderedContainer.textContent).toContain('proof-console-test-correlation');
+    expect(renderedContainer.textContent).toContain('RequiresCoreLean');
+    expect(runFixture).toEqual(fixtureBeforeRender);
   });
 
   it('renders a safe recovery resource key without legacy proof fallback on Core failure', async () => {
-    const legacyGenerateProof = vi.fn();
-    const legacyVerifyProof = vi.fn();
-    const engine = {
-      status: 'ready_api',
-      initialize: vi.fn().mockResolvedValue(undefined),
-      generateFormalProof: legacyGenerateProof,
-      verifyProofChain: legacyVerifyProof,
-    } as unknown as IRicisCoreEngine;
+    const { engine, legacyGenerateProof, legacyVerifyProof } = createEngineFixture();
     const createRun = vi.fn().mockResolvedValue({
       success: false,
       code: 'CORE_UNAVAILABLE',
@@ -161,27 +221,15 @@ describe('RicisProofConsoleModal authoritative proof transport', () => {
       },
     });
     const proofGateway = createGateway(createRun);
+    const renderedContainer = await renderProofConsole({ engine, proofGateway });
 
-    container = document.createElement('div');
-    document.body.append(container);
-    root = createRoot(container);
-
-    await act(async () => {
-      root?.render(React.createElement(RicisProofConsoleModal, {
-        isOpen: true,
-        onClose: () => {},
-        initialClaim: 'x => x',
-        coreEngine: engine,
-        proofGateway,
-      } as any));
-    });
-
-    const proveTab = Array.from(container.querySelectorAll('button'))
+    const proveTab = Array.from(renderedContainer.querySelectorAll('button'))
       .find(button => button.textContent?.includes('Генератор формальных доказательств'));
+    expect(proveTab).toBeDefined();
     await act(async () => {
       proveTab?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
     });
-    const submit = container.querySelector<HTMLButtonElement>('[data-testid="proof-console-create-run"]');
+    const submit = renderedContainer.querySelector<HTMLButtonElement>('[data-testid="proof-console-create-run"]');
 
     await act(async () => {
       submit?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
@@ -190,6 +238,6 @@ describe('RicisProofConsoleModal authoritative proof transport', () => {
     expect(createRun).toHaveBeenCalledTimes(1);
     expect(legacyGenerateProof).not.toHaveBeenCalled();
     expect(legacyVerifyProof).not.toHaveBeenCalled();
-    expect(container.textContent).toContain('proof.core.gateway.CORE_UNAVAILABLE');
+    expect(renderedContainer.textContent).toContain('proof.core.gateway.CORE_UNAVAILABLE');
   });
 });

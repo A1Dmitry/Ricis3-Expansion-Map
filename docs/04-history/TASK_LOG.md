@@ -497,3 +497,18 @@ Supervisor теперь выбирает bundled DLL первым способо
 **Release metadata.** Версия повышена с `0.4.15` до `0.4.16` и синхронизирована в package metadata, runtime label, README, CITATION и обязательных release-артефактах.
 
 **Статус:** исправление floating-card и явный two-finger pinch zoom готовы к quality gate и публикации.
+
+---
+
+## 2026-08-24 — PEP-I18N-01: локализация доступности Proof Console (v0.4.36)
+
+- В существующий строго типизированный `DICTIONARY` добавлен единственный ключ `proofConsole.close` с base values `ru`/`en` и явными locale overrides для `fr-CA`, `de-DE`, `hi-IN`, `ms-MY`. Новый key используется только как presentation-copy; Core/Lean/trace payload, resource keys, hashes, IDs, статусы и математические tokens не локализуются.
+- Close control в `RicisProofConsoleModal` получил `aria-label` и `title` через `useI18nStore().t()`. Callback закрытия, визуальная компоновка, bounded `IRicisProofGateway.createRun` request и Core-first proof path не изменены.
+- QA-harness Proof Console приведён к DRY: общие private fixtures и render helper переиспользуются для locale, accessibility, success и typed failure cases. Добавлены direct regressions на bilingual accessible name, отсутствие legacy proof calls, неизменность proof snapshot и отсутствие Cyrillic leakage для project coverage locales.
+- Синхронизированы release metadata: `package.json`, `package-lock.json`, `src/version.ts`, README, CITATION, JSON-LD и active release-version declarations.
+- Проверки успешно выполнены: targeted `npm test -- src/ui/RicisProofConsoleModal.test.tsx src/model/i18n.test.ts` — 2 файла / 10 tests; `npm run lint`; `npm run release:check` — 12 tests; полный `npm test` — 59 файлов / 438 tests; `npm run build`; `npm audit --audit-level=moderate` — 0 vulnerabilities; `git diff --check`.
+- Build сохраняет ранее зарегистрированные non-blocking warnings: ineffective dynamic import `src/model/apiClient.ts` и main client chunk свыше 500 kB. В sandbox npm сообщил engine warning для Node `22.13.0` / npm `10.9.2` при контракте проекта Node `>=22.22.2 <23` / npm `>=12.0.2`; исходный quality gate всё же прошёл, но этот environment mismatch не считается подтверждением CI-compatible runtime.
+
+**Статус:** реализация и локальные проверки завершены. Core calculation, RICIS transforms, map trust policy и Lean evidence statuses не изменялись.
+
+---

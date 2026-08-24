@@ -337,6 +337,10 @@ export const DICTIONARY = {
     ru: 'Core не создал proof snapshot',
     en: 'Core did not create a proof snapshot',
   },
+  'proofConsole.close': {
+    ru: 'Закрыть консоль доказательств',
+    en: 'Close proof console',
+  },
   'node.relatedAvailable': {
     ru: 'Доступные связанные задачи',
     en: 'Available related problems',

@@ -417,6 +417,12 @@ export const LOCALE_OVERRIDES: Partial<Record<TranslationKey, LocaleOverride>> =
     'hi-IN': 'Core ने proof snapshot नहीं बनाया',
     'ms-MY': 'Core tidak membuat proof snapshot',
   },
+  'proofConsole.close': {
+    'fr-CA': 'Fermer la console de preuve',
+    'de-DE': 'Proof-Konsole schließen',
+    'hi-IN': 'प्रमाण कंसोल बंद करें',
+    'ms-MY': 'Tutup konsol bukti',
+  },
   'node.relatedAvailable': {
     'fr-CA': 'Problèmes connexes disponibles',
     'de-DE': 'Verfügbare verwandte Probleme',

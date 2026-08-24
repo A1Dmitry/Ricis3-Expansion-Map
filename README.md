@@ -1,6 +1,10 @@
 # RICIS Expansion Map — интерактивная карта сингулярностей, зависимостей и доказательных границ
 
-**Версия: v0.4.35**
+**Версия: v0.4.36**
+
+### v0.4.36 — Proof Console accessibility localization
+
+В `RicisProofConsoleModal` добавлено локализуемое accessible name для действия закрытия через существующий строго типизированный i18n dictionary. Новый ключ имеет явные values для project coverage locales; snapshot, trace, Core/gateway request, evidence resource keys и proof/trust status остаются структурными данными и не локализуются. Прямые регрессии сохраняют запрет legacy proof calls и проверяют неизменность bounded proof request.
 
 ### v0.4.35 — A6 typed multi-evidence foundation
 
