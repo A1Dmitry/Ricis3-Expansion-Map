@@ -1,6 +1,10 @@
 # RICIS Expansion Map — интерактивная карта сингулярностей, зависимостей и доказательных границ
 
-**Версия: v0.4.41**
+**Версия: v0.4.42**
+
+### v0.4.42 — CALC-EXP-01 source-bound green monolith catalogue
+
+Добавлен pure, static и source-pinned каталог четырнадцати calculator-defined RICIS III monoliths с hash, semantic index, ordered trace, reproducible example, accessible visualization и reviewed hierarchy/grounding rationale. Четыре точных existing bindings — P=NP, CDCC, Navier–Stokes и LLM gradient — получают read-only disclosure card и allowlisted HTTPS calculator handoff; физические graph nodes/edges для остальных cases не импортируются. Dual-green projection различает `RICIS III solved` и воспроизводимо `Lean kernel verified`; она не изменяет `ProblemNode.state`, `Proof`, `externalLean`, Core/Lean authority или map topology. Map3D использует одну pure visual policy с приоритетом navigation/derivative presentation над catalog green; карточка раскрывает source/hash, trace, example, visualization, relation rationale и честно показывает отсутствие Lean evidence.
 
 ### v0.4.41 — LOCAL-RICIS-01 offline typed structural reducer
 

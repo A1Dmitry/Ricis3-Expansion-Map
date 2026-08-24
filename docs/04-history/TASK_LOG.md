@@ -4,6 +4,20 @@
 
 ---
 
+## 2026-08-25 — CALC-EXP-01: source-bound green monolith catalogue (v0.4.42)
+
+- Добавлен isolated `src/ricisSolutionCatalog/` как pure bounded context: immutable, source-pinned manifest из четырнадцати calculator-defined monoliths с commit/path/SHA-256, typed semantic index, ordered RICIS trace, reproducible example и accessible visualization metadata. Validator отклоняет unknown mode, duplicate identity, mismatched calculator commit, missing source/evidence fields, implicit physical map edge и malformed relation rationale.
+- Реализована dual-green presentation projection: `RICIS III solved` и independently reproducible `Lean kernel verified` остаются явными независимыми основаниями. Incomplete Lean, `TrustedAxiom`, static source scan, Core recovery или отсутствие source/toolchain/command/compiler/axiom record не создают Lean-green. Catalog не изменяет `ProblemNode.state`, `Proof`, `externalLean`, `AuthoritativeProofStatePolicy`, map topology, Core или agent trust.
+- Четыре exact existing bindings — `informatics-complexity`, `registry-115`, `registry-117`, `registry-118` — получают read-only `SolutionMonolithCard` в existing NodeCardDetails. Карточка раскрывает summary, ordered trace, source/hash, semantic index, example, visualization, reviewed relations и allowlisted static HTTPS calculator launch. Десять остальных definitions не импортированы как physical graph nodes/edges; manipulator не alias-ится к Jacobian Conjecture.
+- `Map3D` потребляет единую pure `presentMapNodeVisualStatus`: catalog-green является presentation-only; existing navigation cyan и derivative violet имеют приоритет. Новая policy не выполняет state/proof mutation. UI topology tests фиксируют отсутствие Core, agent, storage, fetch/proxy и mutation dependencies.
+- Синхронизированы mandatory release metadata: package/lockfile, runtime version, README, CITATION, JSON-LD и три active evidence release declarations. External research/specification documents и user-provided Lean/TeX sources не добавлялись/не изменялись. Fresh Lean kernel compilation не заявляется.
+- Локальные проверки успешно выполнены: CALC-EXP targeted domain/topology — 2 files / 21 tests; related persistence/authoritative/Core/local reducer/local analyzer regressions — 5 files / 85 tests; `npm run lint`; `npm run release:check` — 12 tests; full `npm test` — 70 files / 501 tests; `npm audit --audit-level=moderate` — 0 vulnerabilities; `GITHUB_PAGES=true npm run build` — успешно; `git diff --check` — passed. Final scoped worktree inventory contains only reviewed catalog/card/map/test/release artifacts; generated `node_modules` was removed and is not part of the release.
+- Build прозрачно сохраняет known non-blocking advisory: asynchronous `Map3D` chunk is 1,505.99 kB minified, above Vite 500 kB warning threshold. Chunk policy/warning threshold не скрывались и не менялись. Sandbox runtime remains below project engine contract (Node 22.13.0 / npm 10.9.2 versus Node >=22.22.2 / npm >=12.0.2); successful checks are local evidence, not CI-engine conformity.
+
+**Статус:** G4 implementation и local quality gates завершены; final diff review passed, ожидается отдельное user approval для commit/publish.
+
+---
+
 ## 2026-08-13 — Итерация v0.3.77
 
 - Проведена полная перепроверка приложения:

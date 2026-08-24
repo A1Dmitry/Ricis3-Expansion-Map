@@ -12,6 +12,15 @@ import { writeCoreRecovery } from '../services/coreRecovery';
 import { UrlShareService } from '../services/UrlShareService';
 import { useI18nStore } from '../store/useI18nStore';
 import { ProofTrustBadge } from './ProofTrustBadge';
+import {
+  INITIAL_SOLUTION_RELATIONS,
+  buildCalculatorLaunchLink,
+  getSolutionForNodeId,
+  leanEvidenceFromProof,
+  presentGreenMonolith,
+  toSolutionMonolithCardView,
+} from '../ricisSolutionCatalog';
+import { SolutionMonolithCard } from './SolutionMonolithCard';
 
 /** Normalize URL: add https:// if scheme is missing (www. or domain-like). */
 function normalizeUrl(raw: string): string {
@@ -149,6 +158,24 @@ export const NodeCardDetails: React.FC<Props> = ({
   const { t } = useI18nStore();
   const refs = getReferencesForNode(node);
   const proof = map?.proofs?.[node.id] as Proof | undefined;
+  const solution = getSolutionForNodeId(node.id);
+  const leanEvidence = leanEvidenceFromProof(proof);
+  const solutionView = solution
+    ? toSolutionMonolithCardView({
+      solution,
+      relations: INITIAL_SOLUTION_RELATIONS.filter(relation =>
+        relation.fromMonolithId === solution.id
+        || relation.toMonolithId === solution.id
+        || relation.dependentNodeId === node.id,
+      ),
+      green: presentGreenMonolith({ solution, leanEvidence, nodeState: node.state }),
+      leanEvidence,
+      launch: buildCalculatorLaunchLink({
+        baseUrl: import.meta.env.VITE_RICIS_CALCULATOR_BASE_URL,
+        definition: solution,
+      }),
+    })
+    : undefined;
 
   // Стейт раскрытия секций аккордеона
   const [openSections, setOpenSections] = useState<Record<string, boolean>>({
@@ -291,6 +318,8 @@ export const NodeCardDetails: React.FC<Props> = ({
           </button>
         </div>
       </section>
+
+      {solutionView && <SolutionMonolithCard view={solutionView} />}
 
       {/* 1. СЕКЦИЯ АККОРДЕОНА: ЦЕЛЕВАЯ ФУНКЦИЯ И СИНГУЛЯРНОСТЬ */}
       <div className="flex flex-col border-b border-neutral-800/50 bg-transparent">

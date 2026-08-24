@@ -95,6 +95,7 @@ const UI_ELEMENTS: UIElement[] = [
 ];
 import { isMissingTargetFunction, nodeHasSorry } from '../model/audit';
 import { ActionButton } from './ActionButton';
+import { presentMapNodeVisualStatus } from '../ricisSolutionCatalog';
 
 
 let hoveredNodePos: THREE.Vector3 | null = null;
@@ -1187,12 +1188,16 @@ export const Map3D: React.FC = () => {
               const isDeriv = node.type === 'derivative_claim' || node.isDerivativeClaim === true;
               const hasSorry = nodeHasSorry(node, map.proofs?.[node.id]);
 
-              let color = '#ef4444';
-              if (isDeriv) color = '#a855f7';
-              else if (node.state === 'resolved' && !isMissingTargetFunction(node) && !hasSorry) color = '#22c55e';
-              else if (node.state === 'partial' || isMissingTargetFunction(node) || hasSorry) color = '#eab308';
-              else if (locked) color = '#6b7280';
-              if (onPath && !isDeriv) color = locked ? '#94a3b8' : '#22d3ee';
+              const visualStatus = presentMapNodeVisualStatus({
+                nodeId: node.id,
+                nodeState: node.state,
+                proof: map.proofs?.[node.id],
+                hasSorry: hasSorry || isMissingTargetFunction(node),
+                isDerivative: isDeriv,
+                isOnPath: onPath,
+                isLocked: locked,
+              });
+              const color = visualStatus.sphereColor;
 
               const baseR = nodeVisualRadius(node, map.nodes);
               const radius = isSelected ? baseR * 1.28 : onPath ? baseR * 1.12 : isDeriv ? baseR * 1.15 : baseR;
