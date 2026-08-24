@@ -537,6 +537,19 @@ Supervisor теперь выбирает bundled DLL первым способо
 **Статус:** реализация и локальные quality gates завершены. P-09 improves only typed recovery observability; RICIS computation, Core/gateway transport, storage sanitizer, proof execution/evidence, Lean source/evidence and trust-state policy не изменялись.
 
 ---
+## 2026-08-24 — LOCAL-RICIS-01: offline typed structural reducer (v0.4.41)
+
+- Добавлен изолированный `src/services/localRicisReducer/` без UI/store wiring: `StructuralExpressionMapper`, pure `StructuralReducer`, explicit `StructuralReductionAdmissionPolicy` и constructor-injected `LocalStructuralReductionApplicationService`. Route допускается только после explicit user action и typed `CORE_UNAVAILABLE`, `CORE_INFRASTRUCTURE_ERROR` или `CORE_INVALID_RESPONSE`; `CORE_INPUT_REJECTED` не обходится.
+- Payloads `F` и `G` представлены immutable recursive typed trees, а не labels или display text. Mapper принимает analyzer-issued AST/source/index; label-only `0_F`/`inf_F` возвращает typed non-applicability. Reducer выполняет bottom-up traversal, сохраняет L0 source/type/key provenance, а каждый immutable derivation step имеет input/output structural hash, rule, prerequisites и explicit authority.
+- Приоритет singularity-first реализован явно: same-kind indexed quotient сначала раскрывается по A4/A5 до local structural `F/G`, затем L1 сокращает exact `F/F`; SP1 locality сохраняет внешний tail. A10/A1 создают source-bound indexed payloads. A6/A7 и type promotion/composite monolith остаются typed `REQUIRES_CORE_OR_LEAN` без approximation, template или trust promotion.
+- Неявно не переопределённая RICIS structural algebra реализована как named inherited authority внутри SP2: exact unit and associative finite-multiset factor cancellation. Например, `(a×b)/(a×c) → b/c`; при отсутствии exact factor (`(a×b)/(d×c)`) quotient сохраняется и trace содержит `NOT_APPLICABLE`. No `NaN`, `parseFloat`, regex semantic rewrite, legacy `RicisFallbackEngine`, external agent, browser/network, Core result, Lean evidence, proof, map mutation или trust-state mutation не вводятся.
+- Синхронизированы mandatory release metadata: `package.json`, `package-lock.json`, `src/version.ts`, README, CITATION, JSON-LD и три active evidence release headers. External RICIS review/specification artifacts остаются вне repository; user-provided Lean sources не изменялись и fresh Lean kernel compilation не заявляется.
+- Проверки успешно выполнены: targeted `npm test -- --run src/services/localRicisReducer/localRicisReducer.test.ts` — 17 tests; related trust/analyzer regressions — 66 tests; `npm run lint`; `npm run release:check` — 12 tests; full `npm test` — 68 файлов / 480 tests; `npm audit --audit-level=moderate` — 0 vulnerabilities; `GITHUB_PAGES=true npm run build`; `git diff --check` — passed.
+- Build сохраняет ранее зарегистрированное non-blocking предупреждение: asynchronous `Map3D` chunk свыше 500 kB. LOCAL-RICIS-01 не изменяет chunk policy, `manualChunks` или warning limit. Sandbox runtime remains below project engine contract (Node 22.13.0 / npm 10.9.2 versus Node >=22.22.2 / npm >=12.0.2); passed gates are local evidence, not CI-engine conformity.
+
+**Статус:** implementation и local quality gates завершены; LOCAL-RICIS-01 ожидает final diff review, commit и отдельную publication approval.
+
+---
 ## 2026-08-24 — P-08: route-level delivery boundaries (v0.4.39)
 
 - `App` теперь создаёт lazy surfaces для existing named exports `Map3D`, `CoreRecoveryPage` и `RoadmapPage` через один generic `lazyNamedComponent` adapter. Existing component exports и exact Roadmap props/callback сохранены; new helper зависит только от React и не имеет state, RICIS, Core, proof, Lean, network или Three dependency edge.

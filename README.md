@@ -1,6 +1,10 @@
 # RICIS Expansion Map — интерактивная карта сингулярностей, зависимостей и доказательных границ
 
-**Версия: v0.4.40**
+**Версия: v0.4.41**
+
+### v0.4.41 — LOCAL-RICIS-01 offline typed structural reducer
+
+Добавлен локальный, deterministic и non-authoritative reducer для явно инициированного offline recovery после typed Core/WASM unavailable outcome. Он конвертирует analyzer-issued AST в immutable structural expressions, рекурсивно сокращает payloads `F`/`G` снизу вверх, сначала раскрывает одинаковые indexed singular quotients через A4/A5, а затем применяет traceable inherited exact structural factor cancellation к ordinary monolith. Реализованы A10/A1/A4 и bounded A5; A6/A7 и type promotion/composite monolith возвращают typed `REQUIRES_CORE_OR_LEAN`. Local result не создаёт Core/Lean evidence, proof, map mutation или trust promotion.
 
 ### v0.4.40 — display-safe Core recovery diagnostics
 
