@@ -1,11 +1,18 @@
 import { useMemo, useState } from 'react';
-import { AlertTriangle, ArrowLeft, Check, Clipboard, RefreshCw, ServerCrash, ShieldAlert } from 'lucide-react';
+import { AlertTriangle, ArrowLeft, ServerCrash, ShieldAlert } from 'lucide-react';
 import {
   probeRicisCoreHealth,
   readStoredCoreRecovery,
   returnFromCoreRecovery,
   type StoredCoreRecovery,
 } from '../services/coreRecovery';
+import { RecoveryDiagnosticsPanel } from './RecoveryDiagnosticsPanel';
+import {
+  projectRecoveryDiagnostics,
+  toCheckingHealthProbeViewState,
+  toHealthProbeViewState,
+} from './recoveryDiagnostics';
+import type { HealthProbeViewState } from './recoveryDiagnostics.types';
 
 interface RecoveryStep {
   readonly title: string;
@@ -111,27 +118,19 @@ function recoverySteps(recovery: StoredCoreRecovery): readonly RecoveryStep[] {
 
 export function CoreRecoveryPage() {
   const recovery = useMemo(() => readStoredCoreRecovery(window.location.search), []);
-  const [probeState, setProbeState] = useState<'idle' | 'checking' | 'available' | 'unavailable'>('idle');
+  const [probeState, setProbeState] = useState<HealthProbeViewState>({ kind: 'idle', message: null });
   const [copied, setCopied] = useState(false);
+  const diagnostics = projectRecoveryDiagnostics(recovery);
 
   const onProbe = async () => {
-    setProbeState('checking');
+    setProbeState(toCheckingHealthProbeViewState());
     const result = await probeRicisCoreHealth();
-    setProbeState(result.available ? 'available' : 'unavailable');
+    setProbeState(toHealthProbeViewState(result));
   };
 
   const onCopy = async () => {
-    const summary = [
-      `RICIS Core recovery code: ${recovery.code}`,
-      `Origin: ${recovery.diagnostic.origin}`,
-      `Runtime: ${recovery.diagnostic.runtime}`,
-      `Occurred at: ${new Date(recovery.diagnostic.occurredAt).toISOString()}`,
-      recovery.diagnostic.httpStatus === undefined ? null : `HTTP status: ${recovery.diagnostic.httpStatus}`,
-      recovery.diagnostic.parserPosition === undefined ? null : `Parser position: ${recovery.diagnostic.parserPosition}`,
-    ].filter(Boolean).join('\n');
-
     try {
-      await navigator.clipboard.writeText(summary);
+      await navigator.clipboard.writeText(diagnostics.clipboardText);
       setCopied(true);
       window.setTimeout(() => setCopied(false), 1800);
     } catch {
@@ -170,20 +169,14 @@ export function CoreRecoveryPage() {
             </div>
           </div>
 
-          <div className="grid gap-3 sm:grid-cols-3 text-xs">
-            <div className="rounded-lg border border-neutral-800 bg-black/30 p-3">
-              <span className="block text-[9px] uppercase tracking-wider text-slate-500">Код</span>
-              <span className="mt-1 block font-mono text-cyan-300">{recovery.code}</span>
-            </div>
-            <div className="rounded-lg border border-neutral-800 bg-black/30 p-3">
-              <span className="block text-[9px] uppercase tracking-wider text-slate-500">Точка вызова</span>
-              <span className="mt-1 block font-mono text-slate-200">{recovery.diagnostic.origin}</span>
-            </div>
-            <div className="rounded-lg border border-neutral-800 bg-black/30 p-3">
-              <span className="block text-[9px] uppercase tracking-wider text-slate-500">Runtime</span>
-              <span className="mt-1 block font-mono text-slate-200">{recovery.diagnostic.runtime}</span>
-            </div>
-          </div>
+          <RecoveryDiagnosticsPanel
+            projection={diagnostics}
+            healthState={probeState}
+            copied={copied}
+            onProbe={onProbe}
+            onCopy={onCopy}
+            probeDisabled={probeState.kind === 'checking'}
+          />
 
           <section>
             <h2 className="flex items-center gap-2 text-sm font-semibold text-white">
@@ -210,36 +203,7 @@ export function CoreRecoveryPage() {
             </ol>
           </section>
 
-          {probeState !== 'idle' && (
-            <div className={`rounded-lg border p-3 text-sm ${probeState === 'available'
-              ? 'border-emerald-800 bg-emerald-950/30 text-emerald-200'
-              : probeState === 'unavailable'
-                ? 'border-red-900 bg-red-950/30 text-red-200'
-                : 'border-cyan-900 bg-cyan-950/20 text-cyan-200'}`}>
-              {probeState === 'checking' && 'Проверка health endpoint Ricis.Core…'}
-              {probeState === 'available' && 'Ricis.Core сообщил ready status. Вернитесь к карте и повторите расчёт.'}
-              {probeState === 'unavailable' && 'Health endpoint пока не подтвердил доступность Core. TypeScript fallback по-прежнему не используется.'}
-            </div>
-          )}
-
-          <div className="flex flex-col gap-2 border-t border-neutral-800 pt-5 sm:flex-row sm:flex-wrap">
-            <button
-              type="button"
-              onClick={onProbe}
-              disabled={probeState === 'checking'}
-              className="inline-flex items-center justify-center gap-2 rounded-lg border border-cyan-700 bg-cyan-950/50 px-4 py-2.5 text-sm font-medium text-cyan-100 transition-colors hover:bg-cyan-900/60 disabled:cursor-not-allowed disabled:opacity-60"
-            >
-              <RefreshCw size={16} className={probeState === 'checking' ? 'animate-spin' : ''} aria-hidden="true" />
-              Повторить проверку Core
-            </button>
-            <button
-              type="button"
-              onClick={onCopy}
-              className="inline-flex items-center justify-center gap-2 rounded-lg border border-neutral-700 bg-neutral-900 px-4 py-2.5 text-sm font-medium text-slate-200 transition-colors hover:bg-neutral-800"
-            >
-              {copied ? <Check size={16} className="text-emerald-300" aria-hidden="true" /> : <Clipboard size={16} aria-hidden="true" />}
-              {copied ? 'Диагностика скопирована' : 'Скопировать безопасную диагностику'}
-            </button>
+          <div className="flex border-t border-neutral-800 pt-5">
             <button
               type="button"
               onClick={returnFromCoreRecovery}

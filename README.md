@@ -1,6 +1,10 @@
 # RICIS Expansion Map — интерактивная карта сингулярностей, зависимостей и доказательных границ
 
-**Версия: v0.4.39**
+**Версия: v0.4.40**
+
+### v0.4.40 — display-safe Core recovery diagnostics
+
+Экран Core Recovery теперь строит одну typed allowlist-проекцию для visual diagnostics и clipboard: code, origin, runtime, retryability, optional HTTP/parser metadata и timestamp. `safeDetail`, raw input/URL, proof IDs и opaque health details не показываются и не копируются; health-check остаётся availability-only и не повторяет старый proof. Core/gateway contract, storage/URL sanitizer, proof/Lean/trust semantics и RICIS computation не изменены.
 
 ### v0.4.39 — route-level delivery boundaries
 

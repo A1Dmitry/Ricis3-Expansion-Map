@@ -524,6 +524,19 @@ Supervisor теперь выбирает bundled DLL первым способо
 **Статус:** реализация и локальные quality gates завершены; инкремент ожидает финального review, commit и отдельной публикации.
 
 ---
+## 2026-08-24 — P-09: display-safe Proof Console recovery diagnostics (v0.4.40)
+
+- `CoreRecoveryPage` now composes one pure typed `RecoveryDiagnosticProjection` for both visible diagnostics and clipboard summary. The closed field inventory is code, origin, runtime, retryability, optional HTTP status/parser position and occurred-at timestamp; values retain exact typed recovery identity and no domain/proof result is derived.
+- Verified display-safety correction: current recovery storage bounds opaque diagnostic text for session/URL handling but may retain expression-like fragments in session storage. Therefore P-09 deliberately neither renders nor copies `safeDetail`, recovery user message, claim/expected input, raw URL, endpoint, proof run/correlation ID, document, trace or trust data. It does not change the existing recovery service sanitizer or URL contract.
+- `RecoveryDiagnosticsPanel` is a pure UI component. It receives closed projection and page-owned callbacks only; it has no Core gateway, proof/Lean, storage, network, navigation or map-store dependency. Health probe stays the existing availability-only request. Both ready and unavailable presentation explicitly state that the old proof request was not retried; no fallback, invariant, proof snapshot or trust promotion occurs.
+- Added direct regressions for deterministic allowlisted projection, optional field omission, adversarial expression-like stored detail exclusion, bounded clipboard, availability-only health state, accessible panel actions, callback ownership and source topology. Existing core recovery transport tests remain the source of truth for sanitisation, controlled URL and health-only request semantics.
+- Синхронизированы active release metadata: `package.json`, `package-lock.json`, `src/version.ts`, README, CITATION, JSON-LD и required evidence release declarations. Historical P-08/P-07 records remain marked facts of earlier releases.
+- Проверки успешно выполнены: targeted `npx vitest run src/ui/recoveryDiagnostics.test.ts src/ui/RecoveryDiagnosticsPanel.test.tsx src/ui/CoreRecoveryPage.diagnosticsTopology.test.ts src/services/coreRecovery.test.ts` — 4 файла / 15 tests; `npm run lint`; `npm run release:check` — 12 tests; полный `npm test` — 67 файлов / 463 tests; `GITHUB_PAGES=true npm run build`; `npm audit --audit-level=moderate` — 0 vulnerabilities; `git diff --check`.
+- P-08 delivery boundary remains unchanged: initial shell stays below the 500 kB advisory threshold, while the asynchronous Map3D graph still emits the transparent residual >500 kB warning. P-09 does not change chunk policy, `manualChunks` or warning limit.
+
+**Статус:** реализация и локальные quality gates завершены. P-09 improves only typed recovery observability; RICIS computation, Core/gateway transport, storage sanitizer, proof execution/evidence, Lean source/evidence and trust-state policy не изменялись.
+
+---
 ## 2026-08-24 — P-08: route-level delivery boundaries (v0.4.39)
 
 - `App` теперь создаёт lazy surfaces для existing named exports `Map3D`, `CoreRecoveryPage` и `RoadmapPage` через один generic `lazyNamedComponent` adapter. Existing component exports и exact Roadmap props/callback сохранены; new helper зависит только от React и не имеет state, RICIS, Core, proof, Lean, network или Three dependency edge.
