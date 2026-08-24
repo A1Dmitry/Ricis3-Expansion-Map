@@ -1,10 +1,13 @@
 import { useEffect, useState } from 'react';
-import { Map3D } from './ui/Map3D';
-import { CoreRecoveryPage } from './ui/CoreRecoveryPage';
-import { RoadmapPage } from './ui/RoadmapPage';
+import { RouteSurfaceBoundary } from './ui/RouteSurfaceBoundary';
+import { lazyNamedComponent } from './ui/lazyNamedComponent';
 import { isCoreRecoveryRoute } from './services/coreRecovery';
 import { UrlShareService } from './services/UrlShareService';
 import { useMapStore } from './store/mapStore';
+
+const Map3D = lazyNamedComponent(() => import('./ui/Map3D'), 'Map3D');
+const CoreRecoveryPage = lazyNamedComponent(() => import('./ui/CoreRecoveryPage'), 'CoreRecoveryPage');
+const RoadmapPage = lazyNamedComponent(() => import('./ui/RoadmapPage'), 'RoadmapPage');
 
 export default function App() {
   const hydrate = useMapStore(s => s.hydrate);
@@ -42,22 +45,32 @@ export default function App() {
   }
 
   if (isCoreRecoveryRoute(locationSearch)) {
-    return <CoreRecoveryPage />;
+    return (
+      <RouteSurfaceBoundary>
+        <CoreRecoveryPage />
+      </RouteSurfaceBoundary>
+    );
   }
 
   const roadmapParams = new URLSearchParams(locationSearch);
   if (roadmapParams.get('view') === 'roadmap') {
     return (
-      <RoadmapPage
-        contextNodeId={roadmapParams.get('node')}
-        initialRootNodeId={roadmapParams.get('root')}
-        onBackToMap={() => {
-          UrlShareService.updateBrowserUrl({ roadmap: false, rootNodeId: null });
-          setLocationSearch(window.location.search);
-        }}
-      />
+      <RouteSurfaceBoundary>
+        <RoadmapPage
+          contextNodeId={roadmapParams.get('node')}
+          initialRootNodeId={roadmapParams.get('root')}
+          onBackToMap={() => {
+            UrlShareService.updateBrowserUrl({ roadmap: false, rootNodeId: null });
+            setLocationSearch(window.location.search);
+          }}
+        />
+      </RouteSurfaceBoundary>
     );
   }
 
-  return <Map3D />;
+  return (
+    <RouteSurfaceBoundary>
+      <Map3D />
+    </RouteSurfaceBoundary>
+  );
 }

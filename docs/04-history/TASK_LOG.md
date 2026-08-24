@@ -524,6 +524,18 @@ Supervisor теперь выбирает bundled DLL первым способо
 **Статус:** реализация и локальные quality gates завершены; инкремент ожидает финального review, commit и отдельной публикации.
 
 ---
+## 2026-08-24 — P-08: route-level delivery boundaries (v0.4.39)
+
+- `App` теперь создаёт lazy surfaces для existing named exports `Map3D`, `CoreRecoveryPage` и `RoadmapPage` через один generic `lazyNamedComponent` adapter. Existing component exports и exact Roadmap props/callback сохранены; new helper зависит только от React и не имеет state, RICIS, Core, proof, Lean, network или Three dependency edge.
+- Добавлен один `RouteSurfaceBoundary` с `Suspense` fallback `RICIS-III // loading application surface…`, `role="status"` и `aria-live="polite"`. Existing eager branches остаются в строгом порядке: database error → IndexedDB hydration → Core Recovery → Roadmap → default Map. Fallback не управляет hydration/error/trust state и не создаёт Core request или proof result.
+- Новые direct regressions покрывают named-export adaptation с precise props, pending fallback accessibility, route priority, approved literal dynamic-import topology, отсутствие old static route imports и отсутствие forbidden Core/proof/Lean/API/Three transport edges в App/helper/boundary.
+- Production build topology изменена проверяемо: baseline имел один `index` artifact 1,925,475 bytes minified / 530.12 kB gzip. P-08 initial `index` artifact составляет 183,088 bytes / 57.85 kB gzip; map graph вынесен в asynchronous `Map3D` chunk 1,484,161 bytes / 404.44 kB gzip. Build продолжает честно сообщать >500 kB warning для residual async Map3D chunk; `manualChunks` и `chunkSizeWarningLimit` не менялись.
+- Синхронизированы active release metadata: `package.json`, `package-lock.json`, `src/version.ts`, README, CITATION, JSON-LD и required evidence release declarations. Исторические P-07/ALS-01 records остаются маркированными фактами предыдущих версий.
+- Проверки успешно выполнены: targeted `npx vitest run src/ui/lazyNamedComponent.test.tsx src/ui/RouteSurfaceBoundary.test.tsx src/App.routeTopology.test.ts` — 3 файла / 5 tests; `npm run lint`; `npm run release:check` — 12 tests; полный `npm test` — 64 файла / 453 tests; `GITHUB_PAGES=true npm run build`; `npm audit --audit-level=moderate` — 0 vulnerabilities; `git diff --check`.
+
+**Статус:** реализация и локальные quality gates завершены. P-08 меняет только frontend delivery topology; RICIS computation, Core transport/execution, map data/persistence, proof workflow, Lean source/evidence и trust-state policy не изменялись.
+
+---
 ## 2026-08-24 — P-07: нормализация import strategy `apiClient` (v0.4.38)
 
 - В `audit.ts`, `logic.ts`, `mapStore.ts` и `AddNodeModal.tsx` ineffective `await import(...apiClient...)` заменены на existing named static `postJson` dependency. `AddNodeModal` использует один shared import для обоих существующих AI actions; новый API client, provider, service locator или runtime configuration не введены.

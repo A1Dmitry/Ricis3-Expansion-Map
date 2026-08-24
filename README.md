@@ -1,6 +1,10 @@
 # RICIS Expansion Map — интерактивная карта сингулярностей, зависимостей и доказательных границ
 
-**Версия: v0.4.38**
+**Версия: v0.4.39**
+
+### v0.4.39 — route-level delivery boundaries
+
+`App` загружает `Map3D`, Core Recovery и Roadmap через строго типизированный named-export lazy adapter и один accessible route-surface fallback. Порядок error/hydration/URL branches, map state, URL contract, Three.js scene, RICIS computation, Core transport, proof/Lean evidence и trust policy не изменены. Production build теперь разделяет initial shell и route-level chunks; возможные остаточные async chunk warnings сохраняются как наблюдаемые build facts, без повышения порогов или скрытия предупреждений.
 
 ### v0.4.38 — apiClient import strategy normalization
 
