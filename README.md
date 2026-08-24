@@ -1,6 +1,10 @@
 # RICIS Expansion Map — интерактивная карта сингулярностей, зависимостей и доказательных границ
 
-**Версия: v0.4.37**
+**Версия: v0.4.38**
+
+### v0.4.38 — apiClient import strategy normalization
+
+Устранены ineffective dynamic imports существующего `postJson` transport helper: affected consumers используют единый static import, а `AddNodeModal` переиспользует одну dependency в обоих AI actions. Endpoint paths, DTO, retry/static-host handling, local RICIS diagnostic fallback, proof/trust status и P-08 bundle splitting не изменены. Production build больше не сообщает targeted `apiClient` dynamic-import warning; независимое предупреждение о размере main chunk остаётся отдельным backlog.
 
 ### v0.4.37 — Agent Log typed presentation localization
 

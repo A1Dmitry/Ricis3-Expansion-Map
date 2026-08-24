@@ -1,6 +1,7 @@
 import { MapState, ProblemNode, DependencyEdge, NodeState, Proof } from './types';
 import { walkGraph } from './agent';
 import { auditProofContent, buildCanonicalRicisProofLatex, containsSorry } from './ricisCoreRules';
+import { postJson } from './apiClient';
 
 /** Check if a node or its associated proof/Lean code contains 'sorry' keyword (unproven stub). */
 export function nodeHasSorry(node: ProblemNode, proof?: Proof): boolean {
@@ -175,7 +176,6 @@ export async function fillMissingTargetFunctions(
       let title = node.title;
 
       try {
-        const { postJson } = await import('./apiClient');
         const api = await postJson<AgentFillPayload>('/api/fillNodeParams', {
           id: node.id,
           title: node.title,

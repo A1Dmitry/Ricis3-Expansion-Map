@@ -13,6 +13,7 @@ import { initialMap, deepCopyInitialMap } from '../model/initialMap';
 import { solveNodeLogic } from '../model/logic';
 import { applyAgentDiscoveries, catalogExhausted, remainingCatalogCount, trainAgentFromDb, AgentTrainingMemory } from '../model/agent';
 import { auditMarkMissingTargets, fillMissingTargetFunctions, isAutoFormulaRequest } from '../model/audit';
+import { postJson } from '../model/apiClient';
 import { auditProofContent } from '../model/ricisCoreRules';
 import { verifyLeanProof } from '../model/leanVerifier';
 import { applyDerivativeSearch } from '../model/derivativeSearch';
@@ -350,7 +351,6 @@ export const useMapStore = create<MapStore>((set, get) => ({
     if (isAutoFormulaRequest(node.targetFunction)) {
       void (async () => {
         try {
-          const { postJson } = await import('../model/apiClient');
           const api = await postJson<any>('/api/aiAssistantNode', {
             title: node.title,
             targetFunction: node.targetFunction,

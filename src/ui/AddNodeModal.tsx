@@ -3,6 +3,7 @@ import { useMapStore } from '../store/mapStore';
 import { ProblemNode } from '../model/types';
 import { ActionButton } from './ActionButton';
 import { isAutoFormulaRequest } from '../model/audit';
+import { postJson } from '../model/apiClient';
 import { Sparkles, Bot, Share2, Check } from 'lucide-react';
 import { UrlShareService } from '../services/UrlShareService';
 import { useI18nStore } from '../store/useI18nStore';
@@ -45,7 +46,6 @@ export function AddNodeModal({
     setErrorMsg('');
     setLoadingAI(true);
     try {
-      const { postJson } = await import('../model/apiClient');
       const api = await postJson<AiAssistantNodeResponse>('/api/aiAssistantNode', {
         title,
         targetFunction,
@@ -83,8 +83,7 @@ export function AddNodeModal({
     if (!resolvedTargetFn || isAutoFormulaRequest(resolvedTargetFn)) {
       setLoadingAI(true);
       try {
-        const { postJson } = await import('../model/apiClient');
-        const api = await postJson<AiAssistantNodeResponse>('/api/aiAssistantNode', {
+          const api = await postJson<AiAssistantNodeResponse>('/api/aiAssistantNode', {
           title,
           targetFunction: resolvedTargetFn || 'найди формулу сам',
           zoneId: zoneId === 'NEW_ZONE' ? 'math' : zoneId,

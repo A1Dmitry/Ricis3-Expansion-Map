@@ -6,6 +6,7 @@ import {
 } from './latexGuard';
 import { auditProofContent, buildCanonicalRicisProofLatex, transformCauchyToRicisBridge } from './ricisCoreRules';
 import { recolorEdgesForTargets } from './audit';
+import { postJson } from './apiClient';
 
 import { KNOWN_SINGULARITY_PROBLEMS } from './catalog';
 
@@ -30,7 +31,6 @@ export async function generateProof(node: ProblemNode, allAxioms: Axiom[]): Prom
 
   let latex = fallback;
   try {
-    const { postJson } = await import('./apiClient');
     const api = await postJson<{ proofLatex?: string; proof?: string }>('/api/generateProof', {
       id: node.id,
       title: node.title,

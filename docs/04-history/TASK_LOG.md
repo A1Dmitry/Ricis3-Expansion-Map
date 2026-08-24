@@ -524,3 +524,15 @@ Supervisor теперь выбирает bundled DLL первым способо
 **Статус:** реализация и локальные quality gates завершены; инкремент ожидает финального review, commit и отдельной публикации.
 
 ---
+## 2026-08-24 — P-07: нормализация import strategy `apiClient` (v0.4.38)
+
+- В `audit.ts`, `logic.ts`, `mapStore.ts` и `AddNodeModal.tsx` ineffective `await import(...apiClient...)` заменены на existing named static `postJson` dependency. `AddNodeModal` использует один shared import для обоих существующих AI actions; новый API client, provider, service locator или runtime configuration не введены.
+- Endpoint paths, request/response DTO, `ApiResult<T>`, retry/timeout, static-host classification, local RICIS diagnostic fallback, `partial` trust guard, auto-formula scheduling, node/edge mutation, modal state и local fallback formula не изменены. P-07 не создаёт Core execution, Lean evidence или proof/trust promotion.
+- Добавлен `apiClient.importTopology.test.ts`: он фиксирует static dependency direction, отсутствие targeted dynamic imports, endpoint/fallback markers, отсутствие consumer cycle edge и сохранность local proof diagnostic guard.
+- Синхронизированы release metadata: `package.json`, `package-lock.json`, `src/version.ts`, README, CITATION, JSON-LD и active release-version declarations. Историческая ALS-01 запись остаётся маркированным фактом v0.4.37.
+- Проверки успешно выполнены: targeted `npm test -- --run src/model/apiClient.importTopology.test.ts src/model/logic.test.ts` — 2 файла / 8 tests; `npm run lint`; полный `npm test` — 61 файл / 448 tests; `npm run release:check` — 12 tests; `npm run build`; `npm audit --audit-level=moderate` — 0 vulnerabilities; `git diff --check`.
+- Production build больше не сообщает ineffective `apiClient` dynamic-import warning. Независимое предупреждение о client chunk больше 500 kB остаётся зарегистрированным P-08 performance backlog и не маскируется.
+
+**Статус:** реализация и локальные quality gates завершены; инкремент ожидает final review, commit и отдельной публикации.
+
+---
