@@ -1,6 +1,12 @@
 # RICIS Expansion Map — интерактивная карта сингулярностей, зависимостей и доказательных границ
 
-**Версия: v0.4.52**
+**Версия: v0.4.53**
+
+### v0.4.53 — CALC-EXP-02: source-bound calculator explorer и visual-launch discoverability
+
+В `Quick Actions` добавлен read-only каталог ровно четырнадцати уже опубликованных calculator monoliths. Он сохраняет exact immutable catalog identity, source commit/path/SHA-256, static preset hash, semantic index и explicit node mapping; не допускает keyword/fuzzy matching, duplicate binding или `registry-120`. Выбор любого случая делегируется только существующему map-navigation callback. `KINEMATIC` раскрывается как exact `calculator-node-kinematic` с индексом `J(q)` и фиксированной границей исследования без calculation, robot/control command, safety assessment или certification.
+
+Карточка selected calculator descriptor теперь использует один pure closed resolver и получает исходное source-bound disclosure. External visual-calculator anchor по-прежнему создаётся исключительно pre-existing allowlisted HTTPS builder и только при build-configured endpoint; при отсутствии endpoint UI честно показывает `UNCONFIGURED`, не угадывает URL и не запускает/встраивает renderer. CALC-EXP-02 не меняет RICIS III v7.7, owner-authorized P=NP, source catalogue, node workflow status, Proof/Lean/Core/trust authority, calculator execution, API/agent/provider, browser storage или industrial context. Local TypeScript/Vitest checks являются application-code evidence только и не создают Lean-kernel/Core/source/state proof или control/safety result.
 
 ### v0.4.52 — OIR-03: source-preserving legacy audit containment
 

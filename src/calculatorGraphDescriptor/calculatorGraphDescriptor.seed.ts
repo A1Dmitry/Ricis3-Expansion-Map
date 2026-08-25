@@ -1,8 +1,9 @@
 import { INITIAL_SOLUTION_CATALOG } from '../ricisSolutionCatalog';
 import type { DependencyEdge, ProblemNode } from '../model/types';
-import { buildCalculatorGraphProjection } from './calculatorGraphDescriptor.domain';
+import { buildCalculatorGraphProjection, type CalculatorGraphDescriptor } from './calculatorGraphDescriptor.domain';
 
 export interface CalculatorGraphStaticSeed {
+  readonly descriptors: readonly CalculatorGraphDescriptor[];
   readonly nodes: readonly ProblemNode[];
   readonly edges: readonly DependencyEdge[];
   readonly nodeIdsByZone: Readonly<{
@@ -29,6 +30,7 @@ function nodeIdsForZone(zoneId: 'math' | 'physics' | 'informatics'): readonly st
 }
 
 export const CALCULATOR_GRAPH_STATIC_SEED: CalculatorGraphStaticSeed = freeze({
+  descriptors: projection.descriptors,
   nodes: projection.nodes,
   edges: projection.edges,
   nodeIdsByZone: freeze({
