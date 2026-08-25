@@ -4,6 +4,17 @@
 
 ---
 
+## 2026-08-25 — INDUSTRIAL-RICIS-01: static source-bound industrial research context (v0.4.50 candidate)
+
+- Added only `src/industrialRicis/industrialResearchContext.domain.ts` and four fresh QA-first contracts. The pure domain projects exactly four published unbound calculator records—gravitational, Yang–Mills, Chladni and kinematic—using exact catalogue commit, source/derivation SHA-256 identity and fixed record/node/context plan. P=NP, CDCC, LLM-gradient, every other calculator identity and all existing bindings remain excluded; no title/category/formula/Jacobian inference exists.
+- It projects exactly four published hierarchy identities/directions/rationale hashes. Navier–Stokes is relation-only context and `registry-117` is never emitted or modified. Any missing/reverse/duplicate/malformed/unapproved relation and `registry-120` endpoint is rejected. Result copies are frozen and always carry `NOT_AN_INDUSTRIAL_CONTROL_OR_SAFETY_DECISION`; no `ProblemNode`, edge, proof, `externalLean`, axiom, trust, workflow, source, human or agent authority can be written.
+- There is no live digital twin, source read/upload, sensor/telemetry/facility/device data, external service, calculator/Core/WASM/Lean/agent/provider call, numerical/structural calculation, simulation, prediction, inverse kinematics, robot/industrial command, recommendation, safety/risk assessment, legal/compliance/certification conclusion, UI, store, persistence or migration path. Module imports only catalogue types. Fresh QA-first checks are application-code evidence only, not validation of industrial equipment, a digital twin, safety system, calculation, Core or Lean.
+- Final valid red baseline followed two superseded test-only harness issues: strict lint passed; absent module yielded exactly **4 files / 50 tests** and **50** missing-module errors with zero callback/ENOENT/TypeScript/assertion/reference/syntax/TypeError markers. Restored target is **4 files / 50 tests** green; protected published regressions are **26 files / 258 tests** green; pre-metadata full suite is **101 files / 829 tests** green. Candidate patch metadata `0.4.50` is synchronized in package/lockfile, runtime version, README, CITATION, JSON-LD and three active evidence headers. External research/G1/G2/G3/QA/task-register evidence and user Lean/TeX sources are not included in this repository candidate.
+
+**Статус:** G4 candidate awaits final release check, audit, Pages build, scope/diff and independent QA review. No industrial runtime/control/safety authority, Core/Lean/agent/provider/popup/source upload execution, Lean-kernel verification, commit, push or publication has occurred. TypeScript/Vitest results are local code evidence only and not industrial, Core or Lean authority.
+
+---
+
 ## 2026-08-25 — MARKET-RICIS-01: source-bound Verifiable AI Assurance Brief (v0.4.49 candidate)
 
 - Added only `src/marketRicis/assuranceBrief.domain.ts` and four fresh QA-first contracts. The pure domain accepts exactly existing `calculator-llm_gradient` → `registry-118`, validates its published catalogue/source/derivation SHA-256 identity and projects immutable title/category/family/semantic-index/source disclosure with five separate source/Core/Lean/human/agent lanes. All non-LLM calculator IDs fail closed; existing P=NP, CDCC and Navier–Stokes bindings are preserved untouched.

@@ -1,6 +1,12 @@
 # RICIS Expansion Map — интерактивная карта сингулярностей, зависимостей и доказательных границ
 
-**Версия: v0.4.49**
+**Версия: v0.4.50**
+
+### v0.4.50 — INDUSTRIAL-RICIS-01: статический source-bound industrial research context
+
+Добавлен один pure `industrialRicis/industrialResearchContext` bounded context для ровно четырёх уже опубликованных записей: `calculator-gravitational`, `calculator-yang_mills`, `calculator-chladni` и `calculator-kinematic`. Он валидирует exact calculator-catalogue commit, immutable source/derivation SHA-256 identity и четыре declared hierarchy relation IDs/directions/rationale hashes. Результат строит только frozen research-context copies: physical field, resonance и manipulator kinematic contexts. Navier–Stokes присутствует лишь как immutable hierarchy endpoint; его `registry-117` node/payload не копируется и не изменяется. P=NP, CDCC, LLM-gradient, все другие calculator IDs и `registry-120` fail-closed отклоняются; kinematic context никогда не связывается с Jacobian Conjecture по имени.
+
+Контекст всегда показывает `NOT_AN_INDUSTRIAL_CONTROL_OR_SAFETY_DECISION`. Он не является live digital twin, не читает sensor/telemetry/facility data, не выполняет calculation/simulation/prediction/optimization/inverse kinematics, не производит robot/industrial command, recommendation, safety/risk/compliance/certification/legal conclusion и не изменяет source, node, `Proof`, `externalLean`, axiom, trust, workflow, human или agent authority. Module imports only catalogue types; no calculator/Core/WASM/Lean/agent/provider/browser/network/server/API/ROS/OPC-UA/PLC/SCADA/UI/store/persistence/migration dependency exists. Fresh 50-case QA-first matrix and regression gates are application-code evidence only; they do not validate an industrial system, digital twin, safety assessment, calculation, Core or Lean.
 
 ### v0.4.49 — MARKET-RICIS-01: source-bound Verifiable AI Assurance Brief
 
