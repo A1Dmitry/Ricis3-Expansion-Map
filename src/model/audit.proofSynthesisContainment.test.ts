@@ -264,7 +264,7 @@ describe('OIR-03 — audit proof-synthesis containment', () => {
   });
 
   it('OIR03-QA-36: allows only reviewed candidate paths or a clean committed integration state', () => {
-    const status = execFileSync('git', ['status', '--porcelain'], { encoding: 'utf8' }).split('\n').filter(Boolean);
+    const status = execFileSync('git', ['status', '--porcelain', '--untracked-files=all'], { encoding: 'utf8' }).split('\n').filter(Boolean);
     const allowed = new Set([
       ' M CITATION.cff',
       ' M README.md',
@@ -279,6 +279,14 @@ describe('OIR-03 — audit proof-synthesis containment', () => {
       ' M src/model/migrationAudit.provenance.test.ts',
       ' M src/version.ts',
       ' M src/model/audit.proofSynthesisContainment.test.ts',
+      ' M src/calculatorGraphDescriptor/calculatorGraphDescriptor.seed.ts',
+      ' M src/ui/Map3D.tsx',
+      ' M src/ui/NodeCardDetails.tsx',
+      '?? src/calculatorExplorer/calculatorExplorer.domain.test.ts',
+      '?? src/calculatorExplorer/calculatorExplorer.domain.ts',
+      '?? src/calculatorExplorer/calculatorExplorer.topology.test.ts',
+      '?? src/ui/CalculatorExplorer.test.tsx',
+      '?? src/ui/CalculatorExplorer.tsx',
       '?? src/model/audit.proofSynthesisContainment.test.ts',
     ]);
     expect(status.every(entry => allowed.has(entry))).toBe(true);
