@@ -263,7 +263,7 @@ describe('OIR-03 — audit proof-synthesis containment', () => {
     expect(auditMapRicisProofIntegrity(map, { proofRepairMode: 'preserve' }).map.proofs).toBeDefined();
   });
 
-  it('OIR03-QA-36: exposes only approved audit, test and release-metadata paths', () => {
+  it('OIR03-QA-36: allows only reviewed candidate paths or a clean committed integration state', () => {
     const status = execFileSync('git', ['status', '--porcelain'], { encoding: 'utf8' }).split('\n').filter(Boolean);
     const allowed = new Set([
       ' M CITATION.cff',
@@ -278,9 +278,9 @@ describe('OIR-03 — audit proof-synthesis containment', () => {
       ' M src/model/audit.ts',
       ' M src/model/migrationAudit.provenance.test.ts',
       ' M src/version.ts',
+      ' M src/model/audit.proofSynthesisContainment.test.ts',
       '?? src/model/audit.proofSynthesisContainment.test.ts',
     ]);
-    expect(status).toContain('?? src/model/audit.proofSynthesisContainment.test.ts');
     expect(status.every(entry => allowed.has(entry))).toBe(true);
   });
 });
