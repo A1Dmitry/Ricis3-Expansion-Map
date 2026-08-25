@@ -52,6 +52,8 @@ import { ZoneBubble, ZoneLabel, NodeBubble, NodeLabel } from './Bubbles';
 import { downloadTexPreprint, type TexBridgeMode, expandToRoot } from '../model/texPreprint';
 import { AuditPanel } from './AuditPanel';
 import { NodeCardDetails } from './NodeCardDetails';
+import { CalculatorExplorer } from './CalculatorExplorer';
+import { buildCalculatorExplorerProjection } from '../calculatorExplorer/calculatorExplorer.domain';
 import { EditNodeModal } from './EditNodeModal';
 import { TelegramBotPanel } from './TelegramBotPanel';
 import { AgentLogModal } from './AgentLogModal';
@@ -376,6 +378,11 @@ export const Map3D: React.FC = () => {
   const [showProof, setShowProof] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const [showAddNode, setShowAddNode] = useState(false);
+  const [isCalculatorExplorerOpen, setIsCalculatorExplorerOpen] = useState(false);
+  const calculatorExplorer = React.useMemo(
+    () => buildCalculatorExplorerProjection({ baseUrl: import.meta.env.VITE_RICIS_CALCULATOR_BASE_URL }),
+    [],
+  );
 
   useEffect(() => {
     if (!isMobileLayout) return;
@@ -1770,6 +1777,23 @@ export const Map3D: React.FC = () => {
                           <Cpu className="w-4 h-4 text-cyan-400" />
                           {t('research.proofConsole')}
                         </button>
+                        {calculatorExplorer.kind === 'PROJECTED' && (
+                          <>
+                            <ActionButton
+                              onClick={() => setIsCalculatorExplorerOpen((open) => !open)}
+                              variant="emerald"
+                              className="w-full uppercase font-bold tracking-wider cursor-pointer py-2 text-xs"
+                            >
+                              Решенные случаи калькулятора
+                            </ActionButton>
+                            <CalculatorExplorer
+                              isOpen={isCalculatorExplorerOpen}
+                              entries={calculatorExplorer.entries}
+                              onClose={() => setIsCalculatorExplorerOpen(false)}
+                              onSelectNode={handleNavigateToNode}
+                            />
+                          </>
+                        )}
                       </div>
                     )}
                     {id === 'audit' && <AuditPanel />}

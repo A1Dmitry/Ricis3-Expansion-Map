@@ -4,6 +4,17 @@
 
 ---
 
+## 2026-08-25 — CALC-EXP-02: source-bound calculator explorer and manipulator visual-launch discoverability (v0.4.53 candidate)
+
+- Added one pure frozen calculator-explorer projection over the existing fourteen-case immutable catalogue, four exact existing bindings and ten existing static graph descriptors. It preserves exact monolith/source/hash/preset/index references; maps `KINEMATIC` only to `calculator-node-kinematic` with `J(q)`; rejects unknown/fuzzy/duplicate/`registry-120` mappings; and delegates launch status only to the unchanged allowlisted HTTPS builder. No endpoint is guessed; an absent base URL remains `UNCONFIGURED`.
+- Added a keyboard-accessible Quick Actions catalogue and one presentational component. Selection delegates only to existing map navigation. Kinematic selection exposes the fixed source-bound research-only/no-calculation/no-control/no-safety/no-certification disclosure; the selected node card receives the same disclosure and existing source card. There is no embedded renderer, calculator request, browser-open action, prefetch, source transmission, robot command, simulation or industrial conclusion.
+- The historical OIR-03 candidate-path scope test was reconciled before release to enumerate the exact CALC-EXP-02 paths under full untracked-file granularity; its audit implementation and all OIR/Core protected-byte checks remain unchanged. Catalogue definitions, calculator launch builder, RICIS III v7.7, owner-authorized P=NP, state/proof/source/trust/Lean/Core/API/agent/industrial authority remain unchanged.
+- QA-first: fresh strict-lint-green red baseline had exactly **3 target files / 40 target tests** with only approved missing-module errors; initial UI fixture-shape defects and a full-suite legacy scope-test allowlist incompatibility were corrected before release closure. Final target plus OIR checks are **4 files / 76 tests** green; final full suite is **109 files / 949 tests** green. Candidate metadata `0.4.53` is synchronized in package/lockfile, runtime version, README, CITATION, JSON-LD, three active evidence headers and this task log. External G1/G2/G3/QA/task-register evidence and pinned calculator-source inspection artefacts are not included in this repository candidate.
+
+**Статус:** local candidate awaits final release check, audit, Pages build, scope review and delayed feature/integration branch procedure. No commit, merge, push or publication has occurred. TypeScript/Vitest results are local application-code evidence only; they do not establish calculator execution, manipulator operation, Core result, Lean kernel verification, source/state/trust authority or a mathematical result.
+
+---
+
 ## 2026-08-25 — OIR-03: source-preserving legacy audit containment (v0.4.52 candidate)
 
 - Changed only `auditMapRicisProofIntegrity()` so an audit no longer repairs or synthesizes an existing `Proof` source. The historical `proofRepairMode` option remains type/API-compatible, but every mode preserves the exact existing `Proof` object, LaTeX, nested `steps` and `externalLean` references; `repairedProofsCount` is fixed at `0`. The direct `buildCanonicalRicisProofLatex` import/call and template write are removed only from that audit path.

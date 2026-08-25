@@ -21,6 +21,7 @@ import {
   toSolutionMonolithCardView,
 } from '../ricisSolutionCatalog';
 import { SolutionMonolithCard } from './SolutionMonolithCard';
+import { getCalculatorExplorerEntryForNodeId } from '../calculatorExplorer/calculatorExplorer.domain';
 
 /** Normalize URL: add https:// if scheme is missing (www. or domain-like). */
 function normalizeUrl(raw: string): string {
@@ -158,7 +159,11 @@ export const NodeCardDetails: React.FC<Props> = ({
   const { t } = useI18nStore();
   const refs = getReferencesForNode(node);
   const proof = map?.proofs?.[node.id] as Proof | undefined;
-  const solution = getSolutionForNodeId(node.id);
+  const calculatorEntry = getCalculatorExplorerEntryForNodeId({
+    nodeId: node.id,
+    baseUrl: import.meta.env.VITE_RICIS_CALCULATOR_BASE_URL,
+  });
+  const solution = calculatorEntry?.monolith ?? getSolutionForNodeId(node.id);
   const leanEvidence = leanEvidenceFromProof(proof);
   const solutionView = solution
     ? toSolutionMonolithCardView({
@@ -170,7 +175,7 @@ export const NodeCardDetails: React.FC<Props> = ({
       ),
       green: presentGreenMonolith({ solution, leanEvidence, nodeState: node.state }),
       leanEvidence,
-      launch: buildCalculatorLaunchLink({
+      launch: calculatorEntry?.launch ?? buildCalculatorLaunchLink({
         baseUrl: import.meta.env.VITE_RICIS_CALCULATOR_BASE_URL,
         definition: solution,
       }),
@@ -319,6 +324,11 @@ export const NodeCardDetails: React.FC<Props> = ({
         </div>
       </section>
 
+      {calculatorEntry?.monolith.calculator.mode === 'KINEMATIC' && (
+        <section aria-label="Граница визуализации манипулятора" className="mb-3 rounded border border-amber-800/70 bg-amber-950/25 p-2 text-[9px] leading-relaxed text-amber-100">
+          {calculatorEntry.researchOnlyDisclosure}
+        </section>
+      )}
       {solutionView && <SolutionMonolithCard view={solutionView} />}
 
       {/* 1. СЕКЦИЯ АККОРДЕОНА: ЦЕЛЕВАЯ ФУНКЦИЯ И СИНГУЛЯРНОСТЬ */}
