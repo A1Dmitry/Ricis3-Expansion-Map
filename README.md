@@ -1,6 +1,12 @@
 # RICIS Expansion Map — интерактивная карта сингулярностей, зависимостей и доказательных границ
 
-**Версия: v0.4.51**
+**Версия: v0.4.52**
+
+### v0.4.52 — OIR-03: source-preserving legacy audit containment
+
+`auditMapRicisProofIntegrity()` больше не владеет repair/synthesis существующего `Proof`: для любого входа, включая historical compatibility label `legacy_repair`, он сохраняет exact `Proof` object, `latex`, nested `steps` и `externalLean` by reference, а `repairedProofsCount` возвращает `0`. Удалён только direct canonical-template rewrite в audit path; legacy migration regression, чья собственная формулировка ограничивала старое поведение «until OIR-03», теперь фиксирует тот же default source-preservation invariant. Migration production source остаётся неизменным.
+
+OIR-03 не изменяет shared `buildCanonicalRicisProofLatex`, OIR-02 `generateProof` compatibility path, owner-authorized P=NP branch, RICIS III v7.7 ontology, Core/WASM/gateway, `AuthoritativeProofStatePolicy`, Lean/consent/Passport, user Lean/TeX bytes/hashes, API/provider/agent transport, UI/store/persistence/catalog/graph. QA-first tests и local TypeScript/Vitest gates являются только application-code evidence и не создают Core result, Lean-kernel verification, source/trust/state decision, доказательство или математический результат.
 
 ### v0.4.51 — OIR-02: explicit legacy local-diagnostic ownership boundary
 

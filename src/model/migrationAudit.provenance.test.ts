@@ -107,7 +107,7 @@ describe('OIR-01 — source-bound proof preservation', () => {
     expect(audited.map.proofs[invalidProof.nodeId]?.externalLean).toBe(invalidProof.externalLean);
   });
 
-  it('retains legacy repair as the explicit default for unrelated callers until OIR-03', () => {
+  it('preserves the default audit caller source identity after OIR-03 containment', () => {
     const invalidProof: Proof = {
       ...SOURCE_LOCKED_PNP_PROOF,
       nodeId: 'legacy-repair-fixture',
@@ -119,9 +119,10 @@ describe('OIR-01 — source-bound proof preservation', () => {
 
     const audited = auditMapRicisProofIntegrity(input);
 
-    expect(audited.repairedProofsCount).toBe(1);
-    expect(audited.map.proofs[invalidProof.nodeId]).not.toBe(invalidProof);
-    expect(audited.map.proofs[invalidProof.nodeId]?.latex).not.toBe(invalidProof.latex);
+    expect(audited.repairedProofsCount).toBe(0);
+    expect(audited.map.proofs[invalidProof.nodeId]).toBe(invalidProof);
+    expect(audited.map.proofs[invalidProof.nodeId]?.latex).toBe(invalidProof.latex);
+    expect(audited.map.proofs[invalidProof.nodeId]?.externalLean).toBe(invalidProof.externalLean);
   });
 
   it('contains no P-vs-NP keyword template writer or canonical-proof builder dependency in migration source', () => {
