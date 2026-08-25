@@ -4,6 +4,17 @@
 
 ---
 
+## 2026-08-25 — OIR-02: explicit legacy local-diagnostic ownership boundary (v0.4.51 candidate)
+
+- Added only pure `src/model/legacyProofDiagnostic.ts`, four fresh QA-first contracts and one no-existing-proof delegation in `src/model/logic.ts`. The wrapper accepts an injected existing `generateProof` document delegate, passes exact node and existing axiom-array references, returns the identical delegate-produced `Proof` object, and freezes only its own `LOCAL_DIAGNOSTIC_ONLY` envelope plus fixed false authority flags. It does not clone or mutate the document, nested `externalLean` reference, source or any existing payload.
+- `generateProof` keeps its published public signature, local document/fallback and existing legacy transport ownership. Existing-proof reuse remains direct. The narrow solve path assigns only `diagnostic.document`; newly generated local results stay `partial`, while already resolved nodes preserve published state. Strict Core bridge/gateway and `AuthoritativeProofStatePolicy` remain byte-for-byte outside the candidate and continue to own authoritative snapshot/state behavior.
+- No Core/WASM/Lean/consent/Passport/user Lean/TeX/agent/provider/model/API transport/UI/store/persistence/migration/catalog/graph or RICIS ontology change occurs. The module has only type imports from `./types`, no proof/source/trust/axiom/state/human/agent writer, no canonical LaTeX/regex proof repair, no calculation/limit/L’Hôpital/NaN path, no external action and no retraining. Application tests do not establish a proof, Core result, Lean verification or RICIS solution.
+- Final valid red baseline followed one superseded test-only syntax correction: strict lint passed; absent module yielded exactly **4 files / 44 tests** and **44** missing-module errors with zero callback/ENOENT/TypeScript/assertion/reference/syntax/TypeError markers. Restored target is **4 files / 44 tests** green; protected OIR/Core/consent/Passport/agent/API/persistence/store regressions are **44 files / 334 tests** green; pre-metadata full suite is **105 files / 873 tests** green. Candidate patch metadata `0.4.51` is synchronized in package/lockfile, runtime version, README, CITATION, JSON-LD and three active evidence headers. External G1/G2/G3/QA/task-register evidence and user Lean/TeX sources are not included in this repository candidate.
+
+**Статус:** G4 candidate awaits final release check, audit, Pages build, scope/diff and independent QA review. No Core/Lean/agent/provider/popup/source upload execution, Lean-kernel verification, commit, push or publication has occurred. TypeScript/Vitest results are local code evidence only and not proof/Core/Lean authority.
+
+---
+
 ## 2026-08-25 — INDUSTRIAL-RICIS-01: static source-bound industrial research context (v0.4.50 candidate)
 
 - Added only `src/industrialRicis/industrialResearchContext.domain.ts` and four fresh QA-first contracts. The pure domain projects exactly four published unbound calculator records—gravitational, Yang–Mills, Chladni and kinematic—using exact catalogue commit, source/derivation SHA-256 identity and fixed record/node/context plan. P=NP, CDCC, LLM-gradient, every other calculator identity and all existing bindings remain excluded; no title/category/formula/Jacobian inference exists.

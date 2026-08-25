@@ -7,6 +7,7 @@ import {
 import { auditProofContent, buildCanonicalRicisProofLatex, transformCauchyToRicisBridge } from './ricisCoreRules';
 import { recolorEdgesForTargets } from './audit';
 import { postJson } from './apiClient';
+import { createLegacyProofDiagnostic } from './legacyProofDiagnostic';
 
 import { KNOWN_SINGULARITY_PROBLEMS } from './catalog';
 
@@ -159,7 +160,12 @@ export async function solveNodeLogic(map: MapState, nodeId: string): Promise<Map
     const audit = auditProofContent(existingProof.latex);
     leanErrors = audit.isValid ? [] : audit.issues;
   } else {
-    proof = await generateProof(node, map.axioms);
+    const diagnostic = await createLegacyProofDiagnostic({
+      node,
+      axioms: map.axioms,
+      documentDelegate: generateProof,
+    });
+    proof = diagnostic.document;
     const audit = auditProofContent(proof.latex);
     leanErrors = audit.isValid ? [] : audit.issues;
   }
