@@ -4,6 +4,18 @@
 
 ---
 
+## 2026-08-25 — OIR-01: source-bound migration proof preservation (v0.4.43)
+
+- В утверждённых границах OIR-01 устранён source-free путь замены доказательства во время migration audit: из `src/model/migrationAudit.ts` удалены импорт canonical LaTeX proof builder и прямой writer, зависевший от P-vs-NP/Mersenne keyword/template. Owner-authorized source-bound RICIS-основание `P = NP` не демонтировалось, не понижалось и не заменялось; изменялась только недопустимая генерация replacement-proof.
+- В `src/model/audit.ts` введены типизированные `ProofRepairMode` и `AuditProofIntegrityOptions`. Новый режим `preserve` гарантирует, что audit не клонирует, не присваивает, не заменяет и не мутирует `Proof` или `externalLean`; migration использует именно `preserve`. Для нерелевантных вызывающих сторон сохранён прежний default `legacy_repair`; его широкое устранение остаётся отдельной задачей OIR-03.
+- Focused approved G3 suite `src/model/migrationAudit.provenance.test.ts` подтверждает source/object identity preservation, отсутствие generation, preserve-mode behavior, legacy default, source topology и отсутствие agent/Core/Lean/template dependency: 6/6 passed. Независимые связанные регрессии до release gate: 7 files / 110 tests passed.
+- Синхронизированы patch metadata `0.4.43`: `package.json`, lockfile, runtime version, README, CITATION, JSON-LD и три active evidence headers. User-provided RICIS III v7.7, Lean и TeX источники не изменялись. Fresh Lean compilation не выполнялась и Lean kernel verification не заявляется; local TypeScript/Vitest/build checks не являются её заменой.
+- Local release quality gates успешно выполнены: `npm run release:check` — 12/12; full `npm test` — 71 files / 507 tests; `npm audit --audit-level=moderate` — 0 vulnerabilities; `GITHUB_PAGES=true npm run build` — successfully built; `git diff --check` — passed. Build сохраняет known non-blocking advisory: async `Map3D` chunk 1,505.99 kB minified превышает Vite 500 kB warning threshold; warning threshold и chunk policy не менялись. Sandbox remains below project engine contract (Node 22.13.0 / npm 10.9.2 vs Node >=22.22.2 / npm >=12.0.2), поэтому локальные результаты не представляются CI-engine conformity.
+
+**Статус:** G4 implementation, обязательные локальные release gates и independent QA release review завершены без нового дефекта; для commit/publish остаётся обязательным отдельное explicit user approval `OK commit and publish OIR-01 v0.4.43`.
+
+---
+
 ## 2026-08-25 — CALC-EXP-01: source-bound green monolith catalogue (v0.4.42)
 
 - Добавлен isolated `src/ricisSolutionCatalog/` как pure bounded context: immutable, source-pinned manifest из четырнадцати calculator-defined monoliths с commit/path/SHA-256, typed semantic index, ordered RICIS trace, reproducible example и accessible visualization metadata. Validator отклоняет unknown mode, duplicate identity, mismatched calculator commit, missing source/evidence fields, implicit physical map edge и malformed relation rationale.

@@ -1,6 +1,10 @@
 # RICIS Expansion Map — интерактивная карта сингулярностей, зависимостей и доказательных границ
 
-**Версия: v0.4.42**
+**Версия: v0.4.43**
+
+### v0.4.43 — OIR-01 source-bound migration preservation
+
+Migration больше не выбирает P=NP/Mersenne/complexity nodes по keywords и не подменяет существующий proof generic phases, final text или canonical LaTeX. `auditMapRicisProofIntegrity` теперь имеет узкий `preserve` mode: migration сохраняет каждый existing `Proof` payload и `externalLean` provenance, но все остальные callers сохраняют explicit `legacy_repair` default до отдельно gated OIR-03. Сохранены typed observation/demotion semantics; proof/state/trust/Core/Lean/agent ownership не повышаются и не заменяются. Regression suite фиксирует identity/byte preservation, no-proof non-generation, no migration template import and legacy-default containment.
 
 ### v0.4.42 — CALC-EXP-01 source-bound green monolith catalogue
 

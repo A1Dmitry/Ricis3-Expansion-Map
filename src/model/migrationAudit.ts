@@ -3,7 +3,6 @@ import { KNOWN_SINGULARITY_PROBLEMS } from './catalog';
 import { initialMap } from './initialMap';
 import { dbGetMigrationState, dbSetMigrationState, dbSaveMap } from './db';
 import { auditMapRicisProofIntegrity, nodeHasSorry } from './audit';
-import { buildCanonicalRicisProofLatex } from './ricisCoreRules';
 
 export const CURRENT_MIGRATION_VERSION = 5;
 
@@ -481,24 +480,6 @@ export function auditAndFixMapGraph(map: MapState): { map: MapState; report: Mig
       details.push(`Целевая функция узла [${node.id}] восстановлена: ${node.targetFunction}`);
     }
 
-    // Force refresh proof if it relates to Mersenne / NP / Factorization / RSA
-    const isPvsNP = /p.*np|complexity|факторизац|квадрат|коммивояж|изоморфизм|sat|сетев|мерсенн/i.test(node.title) || /ResolveComplexity|Mersenne|P.*NP|Factorize|GraphIsomorphism|ResolveNPComplete/i.test(node.targetFunction || '');
-    if (isPvsNP && map.proofs && map.proofs[node.id]) {
-      map.proofs[node.id] = {
-        nodeId: node.id,
-        targetFunction: node.targetFunction,
-        steps: [
-          { phase: '-1', name: 'L1 IDENTITY', action: 'Детерминированное кольцо Мерсенна', expression: 'M = 2^k - 1' },
-          { phase: '0.5', name: 'SEMANTIC INDEXING (SP4)', action: 'Маска стороны квадрата B', expression: 'M_B = 2^B - 1' },
-          { phase: '1', name: 'SAFETY CHECK (SP2)', action: 'Вырожденный каркас', expression: '\\mathbf{\\Psi(X) = \\text{Const}}' },
-          { phase: '2', name: 'RICIS TRANSFORMS (A6)', action: 'Косое произведение в кольце Мерсенна', expression: '0_F \\times \\infty_G = F \\cdot G' },
-          { phase: '6', name: 'L1 VERIFICATION', action: 'Сведение NP -> P за O(1)', expression: 'P = NP' },
-        ],
-        finalResult: 'P = NP [Детерминированное побитовое сведение в кольцах Мерсенна M = 2^k - 1]',
-        latex: buildCanonicalRicisProofLatex(node.title, node.targetFunction, node.id),
-      };
-    }
-
     nodeMap.set(node.id, node);
   });
 
@@ -630,7 +611,8 @@ export function auditAndFixMapGraph(map: MapState): { map: MapState; report: Mig
     edges: updatedEdges,
   };
 
-  const { map: fixedMap, repairedProofsCount } = auditMapRicisProofIntegrity(tempMap);
+  // Migration may observe/demote unsafe nodes, but must never replace source-bound proof payloads.
+  const { map: fixedMap, repairedProofsCount } = auditMapRicisProofIntegrity(tempMap, { proofRepairMode: 'preserve' });
 
   if (repairedProofsCount > 0) {
     details.push(`Аудит RICIS-III доказательств: Восстановлено и зафиксировано по A6/Lean4: ${repairedProofsCount} доказательств.`);

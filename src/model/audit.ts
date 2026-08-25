@@ -243,7 +243,21 @@ export async function fillMissingTargetFunctions(
 /**
  * Audit and verify all proofs attached to the map using DRY RICIS-III rules.
  */
-export function auditMapRicisProofIntegrity(map: MapState): { map: MapState; repairedProofsCount: number } {
+export type ProofRepairMode = 'legacy_repair' | 'preserve';
+
+export interface AuditProofIntegrityOptions {
+  /**
+   * Migration uses preserve mode to retain source-bound proof payloads exactly.
+   * All other callers retain legacy repair until the separately gated OIR-03 scope.
+   */
+  readonly proofRepairMode?: ProofRepairMode;
+}
+
+export function auditMapRicisProofIntegrity(
+  map: MapState,
+  options: AuditProofIntegrityOptions = {},
+): { map: MapState; repairedProofsCount: number } {
+  const proofRepairMode = options.proofRepairMode ?? 'legacy_repair';
   const proofs = { ...(map.proofs || {}) };
   let nodes = [...(map.nodes || [])];
   const nodeMap = new Map(nodes.map(n => [n.id, n]));
@@ -261,7 +275,7 @@ export function auditMapRicisProofIntegrity(map: MapState): { map: MapState; rep
       }
     }
 
-    if (!audit.isValid && !containsSorry(proof.latex)) {
+    if (proofRepairMode === 'legacy_repair' && !audit.isValid && !containsSorry(proof.latex)) {
       const title = node?.title || 'Сингулярная проблема';
       const tf = node?.targetFunction || proof.targetFunction || '';
       
