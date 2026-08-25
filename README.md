@@ -1,6 +1,10 @@
 # RICIS Expansion Map — интерактивная карта сингулярностей, зависимостей и доказательных границ
 
-**Версия: v0.4.43**
+**Версия: v0.4.44**
+
+### v0.4.44 — LEAN-EVIDENCE-CONSENT-01: consent-preserved user Lean evidence
+
+User Lean source submission is captured by exact UTF-8 bytes and a `sha256:v1` fingerprint; static diagnostics are visibly local only and cannot reject source history, lower workflow state or create Lean trust. Editor, hydration and audit paths no longer apply automatic state demotion; any future transition requires an explicit source-bound human decision under a separate authority owner. Browser-side `acceptVerifiedExternalLeanProof` is disabled: a user-supplied browser payload cannot self-certify `TRUSTED_AXIOM` or create an axiom. Future verification is provider-neutral through RICIS-owned IoC contracts; the current default is unavailable/inconclusive. Independent red-to-green consent, provenance, IoC, hosted/popup, attestation, agent-conflict, persistence and compatibility QA contracts were added. No external provider, Lean compiler, AI execution, retraining, source upload or Lean-kernel claim was added.
 
 ### v0.4.43 — OIR-01 source-bound migration preservation
 

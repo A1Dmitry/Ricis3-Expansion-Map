@@ -45,21 +45,21 @@ function state(nodes: ProblemNode[], proofs: MapState['proofs'] = {}): MapState 
   };
 }
 
-describe('sanitizeMap proof-state integrity', () => {
-  it('demotes resolved nodes without a proof record to partial', () => {
+describe('sanitizeMap consent-preserving state integrity', () => {
+  it('preserves resolved nodes without a proof record because hydration has no demotion authority', () => {
     const sanitized = sanitizeMap(state([node('unproven', 'resolved')]));
 
-    expect(sanitized.nodes[0]?.state).toBe('partial');
+    expect(sanitized.nodes[0]?.state).toBe('resolved');
   });
 
-  it('demotes resolved nodes backed only by a locally valid proof record', () => {
+  it('preserves resolved nodes backed only by a local proof record', () => {
     const sanitized = sanitizeMap(state([node('local-proof', 'resolved')], { 'local-proof': proof('local-proof') }));
 
-    expect(sanitized.nodes[0]?.state).toBe('partial');
+    expect(sanitized.nodes[0]?.state).toBe('resolved');
     expect(sanitized.proofs['local-proof']?.nodeId).toBe('local-proof');
   });
 
-  it('demotes persisted trusted external contracts without authoritative Core Lean status', () => {
+  it('preserves persisted trusted external contracts while leaving trust classification unchanged', () => {
     const trustedAxiomProof: Proof = {
       ...proof('trusted-axiom'),
       externalLean: {
@@ -72,10 +72,10 @@ describe('sanitizeMap proof-state integrity', () => {
 
     const sanitized = sanitizeMap(state([node('trusted-axiom', 'resolved')], { 'trusted-axiom': trustedAxiomProof }));
 
-    expect(sanitized.nodes[0]?.state).toBe('partial');
+    expect(sanitized.nodes[0]?.state).toBe('resolved');
   });
 
-  it('preserves resolved nodes only when persisted Lean evidence is authoritative', () => {
+  it('also preserves resolved nodes when persisted Lean evidence is authoritative', () => {
     const leanVerifiedProof: Proof = {
       ...proof('lean-verified'),
       externalLean: {
@@ -91,7 +91,7 @@ describe('sanitizeMap proof-state integrity', () => {
     expect(sanitized.nodes[0]?.state).toBe('resolved');
   });
 
-  it('does not demote unresolved or partial nodes', () => {
+  it('preserves unresolved and partial nodes', () => {
     const sanitized = sanitizeMap(state([node('unresolved', 'unresolved'), node('partial', 'partial')]));
 
     expect(sanitized.nodes.map(candidate => candidate.state)).toEqual(['unresolved', 'partial']);

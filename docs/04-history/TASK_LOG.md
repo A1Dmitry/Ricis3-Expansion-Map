@@ -4,6 +4,19 @@
 
 ---
 
+## 2026-08-25 — LEAN-EVIDENCE-CONSENT-01: preserve user Lean evidence and require explicit consent (v0.4.44)
+
+- Исправлен reported authority/continuity incident: статическая Lean-диагностика, редактор, hydration и audit больше не понижают `ProblemNode.state` автоматически. User Lean source сохраняется verbatim в `Proof.latex`, а capture фиксирует exact UTF-8 bytes и `sha256:v1` identity; static failure остаётся `localDiagnosticOnly` / `REQUIRES_CORE_LEAN`, а не `REJECTED` или потерь provenance.
+- Добавлен pure `src/leanConsent/leanEvidenceConsent.domain.ts`: append-only source/evidence/proposal facts, context-bound human decision gate, non-authoritative workflow basis, RICIS-owned `RicisLeanVerificationPort` / handoff contracts, unavailable-by-default IoC behavior, strict hosted/manual/attestation normalizers и immutable agent competence conflict (`TRAINING_REQUIRED`). Модуль не импортирует network, popup, provider SDK, browser storage, Core, Lean compiler, agent executor, state/proof/axiom writer или secrets.
+- `mapStore` больше не переводит local editor/static Lean input в `partial`; browser-side `acceptVerifiedExternalLeanProof` отключён, поэтому supplied client payload не может self-certify `TRUSTED_AXIOM`, добавить axiom или изменить state. Будущий kernel path остаётся отдельным source-bound adapter/attestation workflow. User source lock предотвращает agent replacement.
+- `sanitizeMap`, audit и proof-integrity audit сохраняют workflow state; находки слабого/`sorry` proof остаются наблюдениями до отдельного explicit source-bound human disposition. Это не повышает `RICIS III solved`, `Lean kernel verified` или owner-authorized P=NP basis и не меняет RICIS III v7.7, Lean/TeX sources либо Core authority.
+- Независимый G3/G4 red baseline: six approved target files / 36 tests были red только на absence `leanEvidenceConsent.domain` (36 matching missing-module errors; no harness `ENOENT`/TS/assertion/type/reference noise); lint passed and existing related baseline was 5 files / 66 tests. После implementation target contracts passed 6 files / 36 tests; store/persistence/target integration passed 8 files / 51 tests; full suite passed 77 files / 543 tests.
+- Синхронизированы patch metadata `0.4.44`: package/lockfile, runtime version, README, CITATION, JSON-LD и три active evidence headers. External research/specification/task-register/QA files and user Lean/TeX sources are not included in the repository release.
+
+**Статус:** G4 implementation, final local release gates и independent QA release review закрыты. Final evidence: targets 6 files / 36 tests; store/persistence/target integration 8 files / 51; full suite 77 files / 543; release check 12/12; audit 0 vulnerabilities; Pages build; `git diff --check`. Для commit/publish остаётся обязательным отдельное explicit user approval `OK commit and publish LEAN-EVIDENCE-CONSENT-01 v0.4.44`. `RICIS-LEAN-PASSPORT-01 v0.4.44` stays blocked and is not committed/published by this increment. Lean compilation, external API/popup integration, source upload, AI execution and retraining не выполнялись и Lean-kernel verification не заявляется.
+
+---
+
 ## 2026-08-25 — OIR-01: source-bound migration proof preservation (v0.4.43)
 
 - В утверждённых границах OIR-01 устранён source-free путь замены доказательства во время migration audit: из `src/model/migrationAudit.ts` удалены импорт canonical LaTeX proof builder и прямой writer, зависевший от P-vs-NP/Mersenne keyword/template. Owner-authorized source-bound RICIS-основание `P = NP` не демонтировалось, не понижалось и не заменялось; изменялась только недопустимая генерация replacement-proof.

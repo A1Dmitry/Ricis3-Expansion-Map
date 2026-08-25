@@ -31,6 +31,11 @@ import { DependencyGraphAuditor } from '../model/dependencyGraph';
 import { AuditReportMonolith, GarbageCollectionResult, TransformationLog } from '../model/dependencyGraph.types';
 import { getRicisCoreEngine, RicisAcademicProofResult } from '../services/ricisCore';
 import { AuthoritativeProofStatePolicy } from '../model/authoritativeProofStatePolicy';
+import {
+  captureLeanSource,
+  preserveStateForNonAuthoritativeEvidence,
+  recordStaticDiagnostic,
+} from '../leanConsent/leanEvidenceConsent.domain';
 
 function stableContentHash(value: string): string {
   let hash = 0x811c9dc5;
@@ -39,6 +44,11 @@ function stableContentHash(value: string): string {
     hash = Math.imul(hash, 0x01000193);
   }
   return `fnv1a-${(hash >>> 0).toString(16).padStart(8, '0')}`;
+}
+
+function staticAuditSummary(audit: ReturnType<typeof verifyLeanProof>): string {
+  const details = [...audit.errors, ...audit.warnings].join('; ');
+  return details || audit.status;
 }
 
 function createLogEntry(message: string, level: AgentLogLevel = 'info', details?: string, nodeId?: string): AgentLogEntry {
@@ -573,19 +583,14 @@ export const useMapStore = create<MapStore>((set, get) => ({
       leanErrors = audit.issues;
     }
 
-    // `updateProof` accepts local text only. A Core proof snapshot is required for
-    // any later resolved transition, so this local artifact remains partial.
-    const newNodes = state.nodes.map(n => {
-      if (n.id === nodeId) {
-        return {
-          ...n,
-          state: 'partial' as const,
-          leanErrors,
-          leanWarnings,
-        };
-      }
-      return n;
-    });
+    // Local text/static diagnostics are non-authoritative. They cannot demote a
+    // workflow state or discard previously stored user evidence without explicit consent.
+    const newNodes = state.nodes.map(n => n.id === nodeId ? {
+      ...n,
+      state: n.state,
+      leanErrors,
+      leanWarnings,
+    } : n);
 
     const newState = { ...state, proofs: newProofs, nodes: newNodes };
     set(newState);
@@ -605,12 +610,22 @@ export const useMapStore = create<MapStore>((set, get) => ({
       throw new Error('External Lean source is immutable. Submit a new proof version instead of replacing it.');
     }
 
-    // Preserve the submitted bytes verbatim: do not normalize, generate or replace user source.
+    // Preserve submitted bytes verbatim. Static analysis is a diagnostic only:
+    // it cannot reject source history, demote workflow state or create Lean trust.
+    const captured = captureLeanSource({
+      sourceBytes: new TextEncoder().encode(leanSource),
+      sourceName: `${nodeId}.lean`,
+      idempotencyKey: `user-lean:${nodeId}:${stableContentHash(leanSource)}`,
+    });
+    if (!captured.accepted) throw new Error(`Unable to capture user Lean source: ${captured.reason}`);
+    const sourceHash = captured.value.fingerprint;
     const staticAudit = verifyLeanProof(leanSource, node.title, node.targetFunction);
-    const sourceHash = stableContentHash(leanSource);
-    const trustStatus = staticAudit.status === 'STATIC_CHECK_PASSED'
-      ? 'REQUIRES_CORE_LEAN' as const
-      : 'REJECTED' as const;
+    const staticObservation = recordStaticDiagnostic({
+      fingerprint: sourceHash,
+      diagnostic: staticAuditSummary(staticAudit),
+    });
+    if (!staticObservation.accepted) throw new Error(`Unable to record Lean diagnostic: ${staticObservation.reason}`);
+    const trustStatus = 'REQUIRES_CORE_LEAN' as const;
     const proof: Proof = {
       nodeId,
       targetFunction: node.targetFunction,
@@ -620,9 +635,7 @@ export const useMapStore = create<MapStore>((set, get) => ({
         action: 'Исходник зафиксирован без замены агентом',
         expression: sourceHash,
       }],
-      finalResult: trustStatus === 'REQUIRES_CORE_LEAN'
-        ? 'External Lean source awaiting reproducible kernel verification'
-        : 'External Lean source rejected by static validation',
+      finalResult: 'External Lean source awaiting reproducible kernel verification',
       latex: leanSource,
       externalLean: {
         sourceHash,
@@ -636,10 +649,11 @@ export const useMapStore = create<MapStore>((set, get) => ({
       proofs: { ...state.proofs, [nodeId]: proof },
       nodes: state.nodes.map(item => item.id === nodeId ? {
         ...item,
-        state: 'partial' as const,
+        state: preserveStateForNonAuthoritativeEvidence({ currentState: item.state, observation: staticObservation.value }).state,
         leanErrors: staticAudit.errors,
         leanWarnings: [
           ...staticAudit.warnings,
+          'proof.core.state.localDiagnosticOnly',
           'Внешний Lean source сохранён неизменным; до kernel run он не является trusted axiom.',
         ],
       } : item),
@@ -653,58 +667,12 @@ export const useMapStore = create<MapStore>((set, get) => ({
   },
 
   acceptVerifiedExternalLeanProof: async (nodeId: string, evidence: LeanKernelVerificationEvidence) => {
-    const state = get();
-    const proof = state.proofs[nodeId];
-    const node = state.nodes.find(item => item.id === nodeId);
-    if (!node || !proof?.externalLean?.sourceLocked) {
-      throw new Error('A locked external Lean source is required before it can be accepted.');
-    }
-    if (stableContentHash(proof.latex) !== proof.externalLean.sourceHash) {
-      throw new Error('External Lean source integrity check failed. The stored source does not match its provenance hash.');
-    }
-    if (!evidence.toolchain.trim() || !evidence.command.trim() || !evidence.compilerOutput.trim() || !evidence.axiomReport.trim()) {
-      throw new Error('Kernel evidence must include toolchain, command, compiler output and #print axioms output.');
-    }
-    if (/\berror:/i.test(evidence.compilerOutput) || /sorryAx/i.test(evidence.axiomReport)) {
-      throw new Error('Kernel evidence contains a compilation error or sorryAx dependency.');
-    }
-
-    const trustedProof: Proof = {
-      ...proof,
-      finalResult: `Trusted external Lean contract (${proof.externalLean.sourceHash})`,
-      externalLean: {
-        ...proof.externalLean,
-        trustStatus: 'TRUSTED_AXIOM',
-        kernelEvidence: evidence,
-      },
-    };
-    const axiomId = `trusted-lean-${nodeId}-${proof.externalLean.sourceHash}`;
-    const trustedAxiom = {
-      id: axiomId,
-      sourceNodeId: nodeId,
-      formalStatement: `Trusted external Lean contract ${proof.externalLean.sourceHash}; toolchain: ${evidence.toolchain}`,
-      usedByNodeIds: [] as string[],
-    };
-    const axioms = state.axioms.some(axiom => axiom.id === axiomId)
-      ? state.axioms
-      : [...state.axioms, trustedAxiom];
-    const newState = {
-      ...state,
-      axioms,
-      proofs: { ...state.proofs, [nodeId]: trustedProof },
-      nodes: state.nodes.map(item => item.id === nodeId ? {
-        ...item,
-        state: 'partial' as const,
-        leanErrors: [],
-        leanWarnings: ['proof.core.state.trustedAxiomDiagnosticOnly'],
-      } : item),
-      agentLogs: [
-        ...state.agentLogs,
-        createLogEntry('Внешний Lean proof принят как trusted axiom.', 'success', `hash=${proof.externalLean.sourceHash}; axiom=${axiomId}`, nodeId),
-      ],
-    };
-    set(newState);
-    await saveMapToDb(newState);
+    // Browser payload is not a kernel attestation. A future separately provisioned
+    // RICIS-owned verification port may record source-bound evidence, but this store
+    // command never accepts a user-supplied browser object as trusted authority.
+    void nodeId;
+    void evidence;
+    throw new Error('Browser-side Lean evidence acceptance is disabled. Use a future source-bound kernel attestation workflow.');
   },
 
   runSystemAudit: async () => {

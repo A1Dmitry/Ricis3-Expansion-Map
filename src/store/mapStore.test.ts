@@ -206,7 +206,7 @@ describe('Zustand mapStore.ts Integration Tests (RICIS-III v7.7 Diagnostics & GC
     expect(latex).toBe('\\text{det}(u,v) = 15');
   });
 
-  it('keeps locally audit-valid proof text partial until authoritative Core Lean evidence exists', async () => {
+  it('preserves the existing workflow state when locally audit-valid proof text is edited', async () => {
     const node: ProblemNode = {
       id: 'local-audit-proof-node',
       title: 'Локальное audit-valid доказательство',
@@ -233,10 +233,10 @@ describe('Zustand mapStore.ts Integration Tests (RICIS-III v7.7 Diagnostics & GC
 
     const state = useMapStore.getState();
     expect(state.proofs[node.id]?.latex).toBe(locallyValidProof);
-    expect(state.nodes.find(item => item.id === node.id)?.state).toBe('partial');
+    expect(state.nodes.find(item => item.id === node.id)?.state).toBe('unresolved');
   });
 
-  it('keeps an accepted trusted external Lean contract partial without Core Lean evidence', async () => {
+  it('preserves submitted Lean source without browser-side trust acceptance or state mutation', async () => {
     const node: ProblemNode = {
       id: 'external-lean-node',
       title: 'Внешнее Lean доказательство',
@@ -259,22 +259,22 @@ describe('Zustand mapStore.ts Integration Tests (RICIS-III v7.7 Diagnostics & GC
     expect(state.proofs[node.id]?.latex).toBe(source);
     expect(state.proofs[node.id]?.externalLean?.sourceLocked).toBe(true);
     expect(state.proofs[node.id]?.externalLean?.trustStatus).toBe('REQUIRES_CORE_LEAN');
-    expect(state.nodes[0]?.state).toBe('partial');
+    expect(state.nodes[0]?.state).toBe('unresolved');
     await expect(store.updateProof(node.id, 'replacement by agent')).rejects.toThrow('immutable');
 
-    await store.acceptVerifiedExternalLeanProof(node.id, {
+    await expect(store.acceptVerifiedExternalLeanProof(node.id, {
       toolchain: 'Lean 4.33.0',
       command: 'lake env lean External.lean && #print axioms external_identity',
       compilerOutput: 'External.lean: compiled successfully',
       axiomReport: 'external_identity does not depend on any axioms',
       verifiedAt: '2026-08-18T00:00:00.000Z',
-    });
+    })).rejects.toThrow('disabled');
     state = useMapStore.getState();
     expect(state.proofs[node.id]?.latex).toBe(source);
-    expect(state.proofs[node.id]?.externalLean?.trustStatus).toBe('TRUSTED_AXIOM');
-    expect(state.proofs[node.id]?.externalLean?.kernelEvidence?.toolchain).toBe('Lean 4.33.0');
-    expect(state.nodes[0]?.state).toBe('partial');
-    expect(state.axioms.some(axiom => axiom.sourceNodeId === node.id)).toBe(true);
+    expect(state.proofs[node.id]?.externalLean?.trustStatus).toBe('REQUIRES_CORE_LEAN');
+    expect(state.proofs[node.id]?.externalLean?.kernelEvidence).toBeUndefined();
+    expect(state.nodes[0]?.state).toBe('unresolved');
+    expect(state.axioms.some(axiom => axiom.sourceNodeId === node.id)).toBe(false);
   });
 
   it('должен сохранять legacy academic goal match как partial до authoritative Lean evidence', async () => {

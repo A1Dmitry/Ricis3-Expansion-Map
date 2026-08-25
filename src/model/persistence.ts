@@ -81,12 +81,11 @@ export function sanitizeMap(map: MapState): MapState {
       }
     }
     const proof = map.proofs?.[n.id];
-    // Persisted local proof text, static checks and trusted external contracts are
-    // diagnostic artifacts only. Hydration may preserve `resolved` exclusively for
-    // explicit authoritative Lean evidence recorded as LEAN_VERIFIED.
-    const hasAuthoritativeLeanEvidence = proof?.externalLean?.trustStatus === 'LEAN_VERIFIED';
-    const honestState = n.state === 'resolved' && !hasAuthoritativeLeanEvidence ? 'partial' : n.state;
-    return { ...n, state: honestState, zoneIds: zids };
+    // Hydration is a shape-repair projection, not a consent authority. It preserves
+    // the persisted workflow state even when proof evidence is incomplete or local.
+    // A future reviewed proposal may be shown to a human, but hydration never demotes.
+    void proof;
+    return { ...n, state: n.state, zoneIds: zids };
   });
 
   const zones = newZones.map(z => {

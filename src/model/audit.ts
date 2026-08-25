@@ -101,22 +101,18 @@ export type AuditReport = {
 };
 
 /**
- * Command 1: walk entire tree; nodes without targetFunction, containing 'sorry', or with weak proofs become partial (yellow).
- * Resolved nodes missing target, containing 'sorry', or with weak proofs are demoted to partial.
+ * Command 1: walk the tree and report nodes with weak evidence. The audit has no
+ * human-consent authority, therefore it never demotes or mutates node workflow state.
  */
 export function auditMarkMissingTargets(map: MapState): AuditReport {
   const missing = findNodesMissingTarget(map);
   const missingIds = missing.map(n => n.id);
-  const demotedIds: string[] = [];
+  const demotedIds: string[] = []; // Kept for compatibility; consentless audit never populates it.
   const proofs = map.proofs || {};
 
   const nodes = map.nodes.map(n => {
     const isWeak = hasWeakProofOrMissingTarget(n, proofs[n.id]);
     if (!isWeak) return n;
-    if (n.state === 'resolved') {
-      demotedIds.push(n.id);
-      return { ...n, state: 'partial' as NodeState };
-    }
     return n;
   });
 
@@ -270,9 +266,9 @@ export function auditMapRicisProofIntegrity(
 
     if (node) {
       const hasSorry = nodeHasSorry(node, proof);
-      if (hasSorry && node.state === 'resolved') {
-        nodes = nodes.map(n => n.id === nodeId ? { ...n, state: 'partial' as NodeState } : n);
-      }
+      // `sorry` remains an audit observation. It cannot lower a workflow state
+      // until a separate explicit, source-bound human decision is accepted.
+      void hasSorry;
     }
 
     if (proofRepairMode === 'legacy_repair' && !audit.isValid && !containsSorry(proof.latex)) {
