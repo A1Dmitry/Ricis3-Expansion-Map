@@ -1,6 +1,10 @@
 # RICIS Expansion Map — интерактивная карта сингулярностей, зависимостей и доказательных границ
 
-**Версия: v0.4.45**
+**Версия: v0.4.46**
+
+### v0.4.46 — AGENT-RICIS-01: source-bound typed structural advisory boundary
+
+Добавлен один pure `agentRicisAdvisory` domain module с закрытым typed witness, обязательной упорядоченной RICIS trace и immutable `NON_AUTHORITATIVE` advisory result. Он валидирует только caller-supplied canonical `sha256:v1` identities; не создаёт SHA/capture/idempotency/evidence ledger, не выполняет выражение и не читает user Lean/TeX bytes. `RICIS_ASSESSMENT`, `NON_APPLICABLE`, `REQUIRES_CORE_OR_LEAN`, unavailable и `TRAINING_REQUIRED` competence-quarantine view не создают Core execution, Lean kernel verification, human decision, `RICIS III solved`, node state, proof, `externalLean`, axiom или trust mutation. Module имеет zero imports and zero provider/model/network/browser/store/persistence/Core/Lean/Passport/consent/proof-builder/training dependencies; broad server routes and legacy `AgentTrainingMemory` intentionally remain unlinked, separately scoped inventory. Fresh 44-case QA-first contracts проверяют closed witness/result algebra, rule order, forbidden semantics, provenance, immutable conflict quarantine и topology. No AI/model/provider call, prompt transport, Lean/Core/popup/source upload, training or retraining was executed; Vitest/TypeScript evidence is not Lean verification or agent competence certification.
 
 ### v0.4.45 — RICIS-LEAN-PASSPORT-REVALIDATION-01: canonical read-only Lean evidence projection
 

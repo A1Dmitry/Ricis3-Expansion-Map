@@ -4,6 +4,17 @@
 
 ---
 
+## 2026-08-25 — AGENT-RICIS-01: source-bound typed structural advisory boundary (v0.4.46 candidate)
+
+- Добавлен ровно один pure `src/agentRicis/agentRicisAdvisory.domain.ts` и четыре fresh QA-first test files. Domain normalizes only caller-supplied typed source/witness identities, the closed L0→L1→SP2→local structural reduction→A1/A4→SP3→SP4→A5/A6/A7→type/fractal trace and a `NON_AUTHORITATIVE` advisory algebra. Он не реализует SHA/capture/idempotency/ledger, expression evaluation, source-byte disclosure, provider/model/prompt transport, browser/network/storage, Core/Lean, UI/store/persistence, proof/axiom/state/trust writer, training, migration или legacy-route integration.
+- `RICIS_ASSESSMENT`, `NON_APPLICABLE`, `REQUIRES_CORE_OR_LEAN` и unavailable records не являются Core result, Lean verification, human decision, `RICIS III solved`, node state, proof, external Lean/axiom или trust transition. Canonical conflict может лишь display `TRAINING_REQUIRED`, `effective:false`; no retraining, memory/score update or workflow effect exists. Owner-authorized P=NP, user Lean/TeX and RICIS III v7.7 remain immutable.
+- Independent fresh red baseline: four newly-authored target files / 44 tests were red only for the absent approved module (44 matching missing-module errors; no ENOENT/assertion/type/reference/syntax markers); lint and selected published consent/Passport/OIR/store/persistence/agent regressions were green 9 files / 66 tests. Three QA-harness-only corrections were made before final target green: one explicit unknown-rule cast and two static source-scan false-positive refinements; they do not change the approved 44 IDs or production scope. Target suite is now green 4 files / 44 tests; selected regressions and full-suite release review remain mandatory.
+- Candidate patch metadata `0.4.46` is synchronized in package/lockfile, runtime version, README, CITATION, JSON-LD and three active evidence headers. External review/specification/task-register/QA evidence and user Lean/TeX sources are not included in this repository candidate.
+
+**Статус:** G4 candidate is undergoing final independent regression and release QA. No provider/model/AI, Lean/Core/popup, source upload, training/retraining, migration or publication was performed; TypeScript/Vitest evidence is not Lean verification or agent competence certification. Final gates, scope review and separate explicit user approval `OK commit and publish AGENT-RICIS-01 v0.4.46` remain mandatory.
+
+---
+
 ## 2026-08-25 — RICIS-LEAN-PASSPORT-REVALIDATION-01: canonical read-only Lean evidence projection (v0.4.45 candidate)
 
 - После published consent remediation v0.4.44 задача прошла отдельные G1→G2→G3 gates. Старый непубликованный `RICIS-LEAN-PASSPORT-01` candidate на `f8c8260` остаётся quarantined reference-only: не копируются code, tests, SHA/idempotency/evidence lifecycle, metadata или release evidence.
