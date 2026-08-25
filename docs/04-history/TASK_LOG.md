@@ -4,6 +4,18 @@
 
 ---
 
+## 2026-08-25 — RICIS-LEAN-PASSPORT-REVALIDATION-01: canonical read-only Lean evidence projection (v0.4.45 candidate)
+
+- После published consent remediation v0.4.44 задача прошла отдельные G1→G2→G3 gates. Старый непубликованный `RICIS-LEAN-PASSPORT-01` candidate на `f8c8260` остаётся quarantined reference-only: не копируются code, tests, SHA/idempotency/evidence lifecycle, metadata или release evidence.
+- Добавлен только pure `src/leanPassportProjection/leanPassportProjection.domain.ts` и четыре new QA-first test files. Projection получает injected immutable read snapshots для canonical `Fingerprint`, source, observations, kernel fact, human decision, RICIS basis, competence conflict и legacy provenance; она не имеет source capture/hash/idempotency/evidence ledger, writer, persistence, UI, provider, network, browser, Core, agent или Lean runtime dependency.
+- `SOURCE_CAPTURED`, `DIAGNOSTIC_ONLY`, `INCONCLUSIVE`, `INTEGRITY_DIAGNOSTIC`, `CORRELATED_READ_ONLY` и `HUMAN_CONFIRMED_NON_KERNEL` остаются display-only projection states. `RICIS III solved`, owner-authorized P=NP basis, snapshot-reported Lean kernel basis и explicit human non-kernel decision разделены. Static/hosted/manual diagnostics, unavailable/mismatch/stale/unsafe `sorry` evidence не демотируют workflow, не удаляют source/evidence и не создают Lean trust. `TRAINING_REQUIRED` отображается только как immutable quarantine.
+- Independent fresh red baseline: четыре newly-authored target files / 40 tests red только по absent approved projection module (40 matching missing-module errors; no ENOENT/TS/reference/runtime markers); lint green; selected published consent/state/store/persistence/OIR regressions green 9 files / 57 tests. После implementation targets green 4 files / 40 tests; selected regressions preserved; full suite pre-metadata green 81 files / 583 tests. No Lean compilation, provider/API call, source upload, popup, AI execution, Core execution or retraining was performed, and no Lean-kernel verification is claimed.
+- Синхронизирован candidate patch `0.4.45`: package/lockfile, runtime version, README, CITATION, JSON-LD и три active evidence headers. External review/specification/task-register/QA evidence and user Lean/TeX sources are not included in this repository candidate.
+
+**Статус:** G4 implementation, final local release gates and independent QA release review are closed. Final evidence: target 4 files / 40 tests; selected consent/OIR regressions 9 files / 57 tests; full suite 81 files / 583 tests; release check 12/12; audit 0 vulnerabilities; Pages build; `git diff --check`. The known pre-existing Map3D 1,505.99 kB minified chunk advisory remains disclosed; sandbox Node 22.13.0/npm 10.9.2 is below the declared CI engine contract and local gates are not CI-engine conformity. For commit/publish, a separate explicit user approval `OK commit and publish RICIS-LEAN-PASSPORT-REVALIDATION-01 v0.4.45` remains mandatory. No commit, push or publication is authorized by this log entry.
+
+---
+
 ## 2026-08-25 — LEAN-EVIDENCE-CONSENT-01: preserve user Lean evidence and require explicit consent (v0.4.44)
 
 - Исправлен reported authority/continuity incident: статическая Lean-диагностика, редактор, hydration и audit больше не понижают `ProblemNode.state` автоматически. User Lean source сохраняется verbatim в `Proof.latex`, а capture фиксирует exact UTF-8 bytes и `sha256:v1` identity; static failure остаётся `localDiagnosticOnly` / `REQUIRES_CORE_LEAN`, а не `REJECTED` или потерь provenance.

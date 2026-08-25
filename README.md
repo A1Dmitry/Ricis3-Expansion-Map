@@ -1,6 +1,10 @@
 # RICIS Expansion Map — интерактивная карта сингулярностей, зависимостей и доказательных границ
 
-**Версия: v0.4.44**
+**Версия: v0.4.45**
+
+### v0.4.45 — RICIS-LEAN-PASSPORT-REVALIDATION-01: canonical read-only Lean evidence projection
+
+Добавлен новый pure `leanPassportProjection` bounded context, созданный заново поверх published v0.4.44 consent records. Passport получает только injected immutable read snapshots для canonical `sha256:v1` source identity, observations, kernel facts, human decisions, RICIS basis, agent competence conflict и legacy provenance. Он не содержит SHA-256/capture/idempotency/evidence lifecycle, не вызывает provider/AI/Lean/popup/network/Core/agent runtime, не пишет `ProblemNode.state`, `Proof`, `externalLean`, axiom или trust и не переносит старый quarantined Passport candidate. Unavailable, stale, malformed, mismatch и `sorry`/`sorryAx` evidence остаются safe `INCONCLUSIVE`/integrity diagnostics с сохранённой identity; human non-kernel, RICIS III solved и snapshot-reported kernel basis отображаются раздельно. Safe disclosure экранирует HTML, редактирует secret/path/shell-like fragments и не создаёт upload/URL/copy-to-external authority. `TRAINING_REQUIRED` — только read-only quarantine. Fresh QA-first matrix из 40 target checks и selected consent/OIR regressions не выполняет Lean compilation, provider call, source upload, AI execution, popup или retraining; TypeScript/Vitest results не объявляются Lean kernel verification.
 
 ### v0.4.44 — LEAN-EVIDENCE-CONSENT-01: consent-preserved user Lean evidence
 
