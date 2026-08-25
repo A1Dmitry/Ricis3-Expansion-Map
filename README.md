@@ -1,6 +1,12 @@
 # RICIS Expansion Map — интерактивная карта сингулярностей, зависимостей и доказательных границ
 
-**Версия: v0.4.47**
+**Версия: v0.4.48**
+
+### v0.4.48 — CALC-EXP-01 G4B: статическая физическая проекция десяти calculator monoliths
+
+Добавлен closed, source-pinned `calculatorGraphDescriptor` bounded context: ровно десять ранее не связанных с картой calculator monoliths (complex analysis, Riemann, BSD, Hodge, Poincaré, Mandelbrot, gravitational, Yang–Mills, Chladni и kinematic) проецируются только из опубликованного immutable `ricisSolutionCatalog` с exact commit/hash/semantic-index identity. Projection принимает только заранее объявленный десятиэлементный plan, строит лишь explicit published hierarchy relations и fail-closed отклоняет bound/unknown IDs, source mismatch, fuzzy mapping, reverse relation и `registry-120`; P=NP, CDCC, Navier–Stokes и LLM gradient не заменяются и не изменяются.
+
+Frozen static seed добавляет эти десять ordinary `ProblemNode` records, их explicit `DependencyEdge` records и declared zone membership через существующий `initialMap` startup composition seam. Он не меняет payload существующих nodes, source catalog, calculator launch/card policy, persistence/hydration, UI, store, migration или proof/`externalLean`/axiom/trust/workflow authority. `RICIS_SOURCE_SOLVED` остаётся только именованным source-presentation basis при `workflowState: partial`; нет calculator runtime, Core/Lean/agent/provider/popup/network call, numeric/limit/L’Hôpital/NaN evaluation или Lean-kernel claim. QA-first contracts и protected regression checks являются application-code evidence, не доказательством исполнения калькулятора, Core или Lean.
 
 ### v0.4.47 — LOCAL-RICIS-02: homogeneous scalar A6/A7 structural extension
 

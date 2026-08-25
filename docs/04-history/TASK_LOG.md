@@ -4,6 +4,17 @@
 
 ---
 
+## 2026-08-25 — CALC-EXP-01 G4B: static physical calculator graph projection (v0.4.48 candidate)
+
+- Добавлены только closed pure `src/calculatorGraphDescriptor/calculatorGraphDescriptor.domain.ts`, static `calculatorGraphDescriptor.seed.ts`, четыре fresh QA-first test files и узкая композиция existing `initialMap` arrays. Read-only projection фиксирует ровно десять unbound calculator monolith IDs, declared zone/coordinate plan и only explicit published catalog hierarchy relation IDs; no title/keyword/formula inference, calculator runtime/source read, launch handoff или registry-120 path существует.
+- Static seed проецирует только ten immutable `ProblemNode` additions, ten explicit `DependencyEdge` additions и their declared math/physics/informatics zone membership. Existing four calculator bindings P=NP→`informatics-complexity`, CDCC→`registry-115`, Navier–Stokes→`registry-117` and LLM gradient→`registry-118` remain exact existing objects; no existing node payload, source catalog, card/visual policy, persistence/hydration, store, migration, UI, proof/`externalLean`, axiom, state/trust, Core/Lean/agent/provider/popup/network integration or external source upload changes.
+- QA correction is recorded externally: the first red run used an unsupported dynamic-import callback and is superseded. Corrected non-destructive rebaseline passed lint and produced exactly 54 absent-module errors for four files / 54 tests with zero callback/ENOENT/TS/assertion/reference/syntax/other-TypeError markers. The G2-required initial-map composition then first failed only strengthened CEG4B-QA-47 and passed after the minimal seed adapter. Current target evidence is 4 files / 54 tests; protected catalog/consent/Passport/agent/migration/persistence/store regressions are 18 files / 159 tests; pre-metadata full suite is 93 files / 731 tests. These are application-code checks only, not calculator execution, Core or Lean kernel verification.
+- Candidate patch metadata `0.4.48` is synchronized in package/lockfile, runtime version, README, CITATION, JSON-LD and three active evidence headers. External review/specification/task-register/QA evidence and user Lean/TeX sources are not included in this repository candidate.
+
+**Статус:** G4 candidate awaits remaining release, build, audit, scope and independent QA gates. No Core/Lean/agent/provider/popup/source upload execution, Lean-kernel verification, commit, push or publication has occurred. TypeScript/Vitest results are local code evidence only and not Core/Lean authority.
+
+---
+
 ## 2026-08-25 — LOCAL-RICIS-02: homogeneous scalar A6/A7 structural extension (v0.4.47 candidate)
 
 - После documented G1→G2→G3 correction добавлен ровно один pure `src/services/localRicisReducer/a6A7Homogeneous.ts`, два closed rule labels/one phase label и минимальный singularity-first integration seam. Он применяет только homogeneous `scalar` cases `0_F × ∞_G → F × G` and `∞_F − ∞_G → ∞_{F−G}` after recursive payload reduction, exact type/finite-key validation and SP4 source-expression index correlation. Outputs remain immutable structural ASTs and local-only provenance.

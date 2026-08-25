@@ -1,3 +1,4 @@
+import { CALCULATOR_GRAPH_STATIC_SEED } from '../calculatorGraphDescriptor/calculatorGraphDescriptor.seed';
 import { MapState } from './types';
 
 export const initialMap: MapState = {
@@ -673,7 +674,8 @@ export const initialMap: MapState = {
       },
       "singularityHint": "Монетизация масштабирования базы знаний N * log2(N) с авто-пополнением через Чат-Бот",
       "ricisSolvable": true
-    }
+    },
+    ...CALCULATOR_GRAPH_STATIC_SEED.nodes,
   ],
   edges: [
     { id: 'edge-1', fromId: 'core-agi-target', toId: 'med-diagnostics', strength: 0.9, stateColor: 'red', economicInfluence: 0.7 },
@@ -688,20 +690,21 @@ export const initialMap: MapState = {
     { id: 'edge-provenance-ethic', fromId: 'ai-authorship-provenance', toId: 'ethic-alignment', strength: 0.8, stateColor: 'green', economicInfluence: 0.7 },
     { id: 'edge-chatbot-monetization', fromId: 'ai-authorship-provenance', toId: 'ricis-chatbot-monetization', strength: 0.95, stateColor: 'red', economicInfluence: 0.95 },
     { id: 'edge-chatbot-econ', fromId: 'ricis-chatbot-monetization', toId: 'econ-value', strength: 0.9, stateColor: 'red', economicInfluence: 0.9 },
+    ...CALCULATOR_GRAPH_STATIC_SEED.edges,
   ],
   zones: [
     {
       id: 'math',
       name: 'Математика',
       description: 'Формальные модели, аксиоматика, сложность.',
-      nodeIds: ['math-singularity', 'ai-authorship-provenance'],
+      nodeIds: ['math-singularity', 'ai-authorship-provenance', ...CALCULATOR_GRAPH_STATIC_SEED.nodeIdsByZone.math],
       economicProfile: { costUnresolved: 1000, costToSolve: 100, marketGain: 10000, riskLoss: 5000 }
     },
     {
       id: 'informatics',
       name: 'Информатика и ИИ',
       description: 'Вычисления, нейросети, AGI.',
-      nodeIds: ['core-agi-target', 'informatics-complexity', 'ai-authorship-provenance', 'ricis-chatbot-monetization'],
+      nodeIds: ['core-agi-target', 'informatics-complexity', 'ai-authorship-provenance', 'ricis-chatbot-monetization', ...CALCULATOR_GRAPH_STATIC_SEED.nodeIdsByZone.informatics],
       economicProfile: { costUnresolved: 10000, costToSolve: 5000, marketGain: 50000, riskLoss: 100000 }
     },
     {
@@ -722,7 +725,7 @@ export const initialMap: MapState = {
       id: 'physics',
       name: 'Физика',
       description: 'Квантовая гравитация, энергия.',
-      nodeIds: ['phys-unified'],
+      nodeIds: ['phys-unified', ...CALCULATOR_GRAPH_STATIC_SEED.nodeIdsByZone.physics],
       economicProfile: { costUnresolved: 2000, costToSolve: 500, marketGain: 100000, riskLoss: 10000 }
     },
     {
