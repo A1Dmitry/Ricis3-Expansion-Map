@@ -4,6 +4,17 @@
 
 ---
 
+## 2026-08-25 — MARKET-RICIS-01: source-bound Verifiable AI Assurance Brief (v0.4.49 candidate)
+
+- Added only `src/marketRicis/assuranceBrief.domain.ts` and four fresh QA-first contracts. The pure domain accepts exactly existing `calculator-llm_gradient` → `registry-118`, validates its published catalogue/source/derivation SHA-256 identity and projects immutable title/category/family/semantic-index/source disclosure with five separate source/Core/Lean/human/agent lanes. All non-LLM calculator IDs fail closed; existing P=NP, CDCC and Navier–Stokes bindings are preserved untouched.
+- The source lane exposes `RICIS_SOURCE_SOLVED` strictly as a source-presentation fact. Core/Lean/human/agent values are only opaque caller-supplied `CANONICAL_READ_SNAPSHOT` records correlated to exact source identity; absent lanes remain `NOT_PROVIDED`. The frozen disclosure is always `NOT_A_COMPLIANCE_OR_CERTIFICATION_DECISION`; it performs no calculation/runtime, legal/compliance/safety/deployment conclusion or state/proof/trust/axiom/source/agent/human mutation. There are no Core/WASM, Lean/consent/Passport, provider/model/prompt, browser/network/server, calculator launch/read, persistence/store/migration/UI or training dependencies.
+- Final non-destructive red baseline after QA-only false-positive matcher clarifications: strict lint green, four absent-module target files / 48 tests fail with exactly 48 missing-module errors and zero callback/ENOENT/TypeScript/assertion/reference/syntax/TypeError markers. Restored candidate target is **4 files / 48 tests** green; protected catalogue/consent/Passport/agent/calculator/persistence/store regressions are **21 files / 207 tests** green; pre-metadata full suite is **97 files / 779 tests** green. These are application-code checks only, not calculator execution, Core or Lean kernel verification, legal advice or certification.
+- Candidate patch metadata `0.4.49` is synchronized in package/lockfile, runtime version, README, CITATION, JSON-LD and three active evidence headers. External research/G1/G2/G3/QA/task-register evidence and user Lean/TeX sources are not included in this repository candidate.
+
+**Статус:** G4 candidate awaits final release check, audit, Pages build, scope/diff and independent QA review. No Core/Lean/agent/provider/popup/source upload execution, Lean-kernel verification, commit, push or publication has occurred. TypeScript/Vitest results are local code evidence only and not Core/Lean authority.
+
+---
+
 ## 2026-08-25 — CALC-EXP-01 G4B: static physical calculator graph projection (v0.4.48 candidate)
 
 - Добавлены только closed pure `src/calculatorGraphDescriptor/calculatorGraphDescriptor.domain.ts`, static `calculatorGraphDescriptor.seed.ts`, четыре fresh QA-first test files и узкая композиция existing `initialMap` arrays. Read-only projection фиксирует ровно десять unbound calculator monolith IDs, declared zone/coordinate plan и only explicit published catalog hierarchy relation IDs; no title/keyword/formula inference, calculator runtime/source read, launch handoff или registry-120 path существует.

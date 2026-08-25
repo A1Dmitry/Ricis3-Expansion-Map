@@ -1,6 +1,12 @@
 # RICIS Expansion Map — интерактивная карта сингулярностей, зависимостей и доказательных границ
 
-**Версия: v0.4.48**
+**Версия: v0.4.49**
+
+### v0.4.49 — MARKET-RICIS-01: source-bound Verifiable AI Assurance Brief
+
+Добавлен один pure `marketRicis/assuranceBrief` bounded context для **ровно** существующего `calculator-llm_gradient` → `registry-118`. Он валидирует published catalogue commit, exact source identity и SHA-256 source/derivation hashes, затем строит immutable disclosure с пятью независимыми lanes: catalogue source presentation, Core, Lean, human и agent. Core/Lean/human/agent значения могут быть только caller-supplied opaque canonical read snapshots с точной source correlation; без snapshot каждый lane остаётся `NOT_PROVIDED`. LLM-gradient `RICIS_SOURCE_SOLVED` сохраняется лишь как source-presentation fact. Existing P=NP, CDCC, Navier–Stokes и прочие calculator identities fail-closed отклоняются и не изменяются.
+
+Brief всегда показывает `NOT_A_COMPLIANCE_OR_CERTIFICATION_DECISION`: он не выполняет calculation/runtime, не даёт legal/compliance/safety/deployment conclusion и не меняет source, `ProblemNode`, `Proof`, `externalLean`, axiom, trust, human decision, agent competence или workflow state. Он не импортирует Core/WASM, Lean/consent/Passport, agent/provider/model, browser/network/server, persistence/store/migration/UI; не вызывает calculator, Lean/Core, agent or provider. Fresh QA-first 48-case matrix and regression gates are application-code evidence only, not calculator execution, Core result, Lean kernel verification, legal advice or certification.
 
 ### v0.4.48 — CALC-EXP-01 G4B: статическая физическая проекция десяти calculator monoliths
 
