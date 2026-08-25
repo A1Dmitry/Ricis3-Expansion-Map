@@ -4,6 +4,17 @@
 
 ---
 
+## 2026-08-25 — LOCAL-RICIS-02: homogeneous scalar A6/A7 structural extension (v0.4.47 candidate)
+
+- После documented G1→G2→G3 correction добавлен ровно один pure `src/services/localRicisReducer/a6A7Homogeneous.ts`, два closed rule labels/one phase label и минимальный singularity-first integration seam. Он применяет только homogeneous `scalar` cases `0_F × ∞_G → F × G` and `∞_F − ∞_G → ∞_{F−G}` after recursive payload reduction, exact type/finite-key validation and SP4 source-expression index correlation. Outputs remain immutable structural ASTs and local-only provenance.
+- Vector/matrix, mismatch, absent morphism, invalid/missing source-bound index, invalid semantic key, ordinary A5 and all unsupported shapes retain existing `TYPE_PROMOTION_OR_COMPOSITE_DEFERRED`, typed non-applicability or existing external requirement. No parser grammar, generic composite/type-promotion engine, Core/Lean/agent/provider/popup/network/runtime, source upload, proof/`externalLean`/axiom/trust/state writer, migration or retraining was added.
+- Independent fresh red baseline: exactly four newly authored target files / 50 IDs were red only for the absent `a6A7Homogeneous` module; lint and 9 selected published regression files were green. Before valid baseline classification, one test typing issue and six test-gating false positives were corrected; these did not change approved IDs or production scope. First green found four QA-harness false positives and one superseded scalar LRS08 expectation; all were corrected within test scope. Target 4 files / 50 and target+related 13 files / 185 are green; full suite, release gates and scope review remain required.
+- Candidate patch metadata `0.4.47` is synchronized in package/lockfile, runtime version, README, CITATION, JSON-LD and three active evidence headers. External review/specification/task-register/QA evidence and user Lean/TeX sources are not included in this repository candidate.
+
+**Статус:** G4 candidate awaits full independent release QA. No Core/Lean/agent/provider/popup/source upload execution, Lean-kernel verification, migration, commit, push or publication has occurred. TypeScript/Vitest results are local code evidence only and not Core/Lean authority.
+
+---
+
 ## 2026-08-25 — AGENT-RICIS-01: source-bound typed structural advisory boundary (v0.4.46 candidate)
 
 - Добавлен ровно один pure `src/agentRicis/agentRicisAdvisory.domain.ts` и четыре fresh QA-first test files. Domain normalizes only caller-supplied typed source/witness identities, the closed L0→L1→SP2→local structural reduction→A1/A4→SP3→SP4→A5/A6/A7→type/fractal trace and a `NON_AUTHORITATIVE` advisory algebra. Он не реализует SHA/capture/idempotency/ledger, expression evaluation, source-byte disclosure, provider/model/prompt transport, browser/network/storage, Core/Lean, UI/store/persistence, proof/axiom/state/trust writer, training, migration или legacy-route integration.

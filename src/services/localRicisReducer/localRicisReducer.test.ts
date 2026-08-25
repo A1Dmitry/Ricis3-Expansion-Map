@@ -312,20 +312,19 @@ describe('LOCAL-RICIS-01 — approved G3 red tests', () => {
     assertLocalOnly(result as unknown as Record<string, unknown>);
   });
 
-  it('LRS08: defers A6 and A7 after payload reduction without generating a local approximation', () => {
+  it('LRS08: applies only approved homogeneous scalar A6/A7 after payload reduction, preserving local-only authority', () => {
     const source = issuedSource('x');
     const x = identifier(source.sourceHash, 'x');
     const y = identifier(source.sourceHash, 'y');
-    const cases = [
-      [binary(source.sourceHash, 'MULTIPLY', indexedZero(x), indexedInfinity(y)), 'A6_ZERO_TIMES_INFINITY_DEFERRED'],
-      [binary(source.sourceHash, 'SUBTRACT', indexedInfinity(x), indexedInfinity(y)), 'A7_INFINITY_MINUS_INFINITY_DEFERRED'],
-    ] as const;
+    const a6 = reducer().reduce({ source, input: binary(source.sourceHash, 'MULTIPLY', indexedZero(x), indexedInfinity(y)) });
+    const a7 = reducer().reduce({ source, input: binary(source.sourceHash, 'SUBTRACT', indexedInfinity(x), indexedInfinity(y)) });
 
-    for (const [input, requirement] of cases) {
-      const result = reducer().reduce({ source, input });
-      expect(result).toMatchObject({ status: 'REQUIRES_CORE_OR_LEAN', requirement, preservedExpression: expect.any(Object) });
-      assertLocalOnly(result as unknown as Record<string, unknown>);
-    }
+    expect(a6).toMatchObject({ status: 'LOCAL_STRUCTURAL_ASSESSMENT', reduced: { kind: 'BINARY', operator: 'MULTIPLY', left: { identity: { canonical: 'x' } }, right: { identity: { canonical: 'y' } } } });
+    expect(a7).toMatchObject({ status: 'LOCAL_STRUCTURAL_ASSESSMENT', reduced: { kind: 'INDEXED_INFINITY', payload: { kind: 'BINARY', operator: 'SUBTRACT', identity: { canonical: 'x - y' } } } });
+    expect(a6.status === 'LOCAL_STRUCTURAL_ASSESSMENT' && a6.derivation).toEqual(expect.arrayContaining([expect.objectContaining({ rule: 'A6_HOMOGENEOUS_SCALAR_PRODUCT', authority: 'RICIS_III_EXPLICIT', outcome: 'APPLIED' })]));
+    expect(a7.status === 'LOCAL_STRUCTURAL_ASSESSMENT' && a7.derivation).toEqual(expect.arrayContaining([expect.objectContaining({ rule: 'A7_HOMOGENEOUS_SCALAR_INDEXED_SUBTRACTION', authority: 'RICIS_III_EXPLICIT', outcome: 'APPLIED' })]));
+    assertLocalOnly(a6 as unknown as Record<string, unknown>);
+    assertLocalOnly(a7 as unknown as Record<string, unknown>);
   });
 
   it('LRS09: inherited exact structural algebra cancels an ordinary shared factor after singularity-first inspection', () => {

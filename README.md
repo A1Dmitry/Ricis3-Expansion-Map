@@ -1,6 +1,10 @@
 # RICIS Expansion Map — интерактивная карта сингулярностей, зависимостей и доказательных границ
 
-**Версия: v0.4.46**
+**Версия: v0.4.47**
+
+### v0.4.47 — LOCAL-RICIS-02: homogeneous scalar A6/A7 structural extension
+
+Локальный typed structural reducer получает только два closed homogeneous scalar пути после recursive payload reduction, SP3 exact type/key checks и SP4 source-expression index correlation: `0_F × ∞_G → F × G` по A6_GENERAL и `∞_F − ∞_G → ∞_{F−G}` по A7. Результат остаётся immutable AST и `LOCAL_STRUCTURAL_ASSESSMENT`: он не выполняет численное вычисление, не применяет пределы/Лопиталя/NaN, не создаёт Core/Lean evidence, `Proof`, `externalLean`, axiom, trust или workflow state. Vector/matrix, type mismatch, absent morphism, malformed index, invalid key и неутверждённые операции продолжают возвращать typed defer/non-applicability; local type-promotion/composite engine не добавлен. Fresh QA-first 50-case matrix и regression gates не запускали Core/Lean/agent/provider/popup/source upload; TypeScript/Vitest evidence не является Lean kernel verification или Core authority.
 
 ### v0.4.46 — AGENT-RICIS-01: source-bound typed structural advisory boundary
 

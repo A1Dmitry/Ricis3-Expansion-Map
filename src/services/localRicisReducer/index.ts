@@ -37,6 +37,7 @@ import type {
   StructuralSourceReference,
   StructuralTypeTag,
 } from './contracts';
+import { planHomogeneousScalarA6A7 } from './a6A7Homogeneous';
 
 const RICIS_AUTHORITY: StructuralRuleAuthority = 'RICIS_III_EXPLICIT';
 const INHERITED_AUTHORITY: StructuralRuleAuthority = 'INHERITED_CLASSICAL_STRUCTURAL_ALGEBRA_GEOMETRY';
@@ -479,17 +480,44 @@ export class StructuralReducer implements ILocalStructuralReducer {
     if (expression.operator === 'DIVIDE' && left.kind === 'INDEXED_INFINITY' && right.kind === 'INDEXED_INFINITY') {
       return this.discloseIndexedQuotient(expression, left, right, 'A5_INDEXED_INFINITY_OVER_INDEXED_INFINITY', journal);
     }
-    if (expression.operator === 'MULTIPLY' && left.kind === 'INDEXED_ZERO' && right.kind === 'INDEXED_INFINITY') {
-      journal.add('A1_A4_A10', 'A6_ZERO_TIMES_INFINITY_DEFERRED', RICIS_AUTHORITY, 'DEFERRED', expression, expression, ['PAYLOAD_CHILDREN_REDUCED'], 'localReducer.defer.a6');
-      return freeze({ kind: 'DEFERRED', requirement: 'A6_ZERO_TIMES_INFINITY_DEFERRED', expression });
-    }
-    if (expression.operator === 'MULTIPLY' && left.kind === 'INDEXED_INFINITY' && right.kind === 'INDEXED_ZERO') {
-      journal.add('A1_A4_A10', 'A6_ZERO_TIMES_INFINITY_DEFERRED', RICIS_AUTHORITY, 'DEFERRED', expression, expression, ['PAYLOAD_CHILDREN_REDUCED'], 'localReducer.defer.a6');
-      return freeze({ kind: 'DEFERRED', requirement: 'A6_ZERO_TIMES_INFINITY_DEFERRED', expression });
-    }
-    if (expression.operator === 'SUBTRACT' && left.kind === 'INDEXED_INFINITY' && right.kind === 'INDEXED_INFINITY') {
-      journal.add('A1_A4_A10', 'A7_INFINITY_MINUS_INFINITY_DEFERRED', RICIS_AUTHORITY, 'DEFERRED', expression, expression, ['PAYLOAD_CHILDREN_REDUCED'], 'localReducer.defer.a7');
-      return freeze({ kind: 'DEFERRED', requirement: 'A7_INFINITY_MINUS_INFINITY_DEFERRED', expression });
+    if ((expression.operator === 'MULTIPLY' &&
+      ((left.kind === 'INDEXED_ZERO' && right.kind === 'INDEXED_INFINITY') ||
+        (left.kind === 'INDEXED_INFINITY' && right.kind === 'INDEXED_ZERO'))) ||
+      (expression.operator === 'SUBTRACT' && left.kind === 'INDEXED_INFINITY' && right.kind === 'INDEXED_INFINITY')) {
+      const plan = planHomogeneousScalarA6A7(expression);
+      if (plan.status === 'DEFER_TYPE_COMPOSITE') {
+        journal.add('SP3', 'SP3_EXACT_TYPE_AND_FINITE_KEY_CHECK', RICIS_AUTHORITY, 'DEFERRED', expression, expression, ['PAYLOAD_CHILDREN_REDUCED'], 'localReducer.defer.typePromotionOrComposite');
+        return freeze({ kind: 'DEFERRED', requirement: 'TYPE_PROMOTION_OR_COMPOSITE_DEFERRED', expression });
+      }
+      if (plan.status === 'APPLY_A6') {
+        const checked = journal.add('SP3', 'SP3_EXACT_TYPE_AND_FINITE_KEY_CHECK', RICIS_AUTHORITY, 'APPLIED', expression, expression, ['PAYLOAD_CHILDREN_REDUCED', 'EXACT_TYPE_EQUALITY', 'FINITE_SEMANTIC_KEYS'], 'localReducer.sp3.a6HomogeneousScalar');
+        if (!checked) return freeze({ kind: 'NON_APPLICABLE', reason: 'STRUCTURAL_LIMIT_REACHED', expression });
+        const output = makeBinary('MULTIPLY', plan.zeroPayload, plan.infinityPayload, inheritedSource(expression, expression.identity.canonical), 'scalar');
+        const applied = journal.add('A5_A6_A7', 'A6_HOMOGENEOUS_SCALAR_PRODUCT', RICIS_AUTHORITY, 'APPLIED', expression, output, ['PAYLOAD_CHILDREN_REDUCED', 'EXACT_TYPE_EQUALITY', 'FINITE_SEMANTIC_KEYS', 'SP4_SOURCE_INDEX_AVAILABLE'], 'localReducer.a6.homogeneousScalarProduct');
+        return applied
+          ? freeze({ kind: 'REDUCED', expression: output })
+          : freeze({ kind: 'NON_APPLICABLE', reason: 'STRUCTURAL_LIMIT_REACHED', expression });
+      }
+      if (plan.status === 'APPLY_A7') {
+        const checked = journal.add('SP3', 'SP3_EXACT_TYPE_AND_FINITE_KEY_CHECK', RICIS_AUTHORITY, 'APPLIED', expression, expression, ['PAYLOAD_CHILDREN_REDUCED', 'EXACT_TYPE_EQUALITY', 'FINITE_SEMANTIC_KEYS'], 'localReducer.sp3.a7HomogeneousScalar');
+        if (!checked) return freeze({ kind: 'NON_APPLICABLE', reason: 'STRUCTURAL_LIMIT_REACHED', expression });
+        const payload = makeBinary('SUBTRACT', plan.leftPayload, plan.rightPayload, inheritedSource(expression, expression.identity.canonical), 'scalar');
+        const output = makeIndexed('INDEXED_INFINITY', payload);
+        const applied = journal.add('A5_A6_A7', 'A7_HOMOGENEOUS_SCALAR_INDEXED_SUBTRACTION', RICIS_AUTHORITY, 'APPLIED', expression, output, ['PAYLOAD_CHILDREN_REDUCED', 'EXACT_TYPE_EQUALITY', 'FINITE_SEMANTIC_KEYS', 'SP4_SOURCE_INDEX_AVAILABLE'], 'localReducer.a7.homogeneousScalarIndexedSubtraction');
+        if (!applied) return freeze({ kind: 'NON_APPLICABLE', reason: 'STRUCTURAL_LIMIT_REACHED', expression });
+        const indexed = journal.add('SP4', 'SP4_SOURCE_EXPRESSION_INDEX', RICIS_AUTHORITY, 'APPLIED', output, output, ['SP4_SOURCE_INDEX_AVAILABLE'], 'localReducer.sp4.a7DerivedPayloadIndex');
+        return indexed
+          ? freeze({ kind: 'REDUCED', expression: output })
+          : freeze({ kind: 'NON_APPLICABLE', reason: 'STRUCTURAL_LIMIT_REACHED', expression });
+      }
+      const requirement: LocalStructuralExternalRequirement = expression.operator === 'SUBTRACT'
+        ? 'A7_INFINITY_MINUS_INFINITY_DEFERRED'
+        : 'A6_ZERO_TIMES_INFINITY_DEFERRED';
+      const rule: LocalStructuralRule = expression.operator === 'SUBTRACT'
+        ? 'A7_INFINITY_MINUS_INFINITY_DEFERRED'
+        : 'A6_ZERO_TIMES_INFINITY_DEFERRED';
+      journal.add('A5_A6_A7', rule, RICIS_AUTHORITY, 'DEFERRED', expression, expression, ['PAYLOAD_CHILDREN_REDUCED'], `localReducer.defer.${expression.operator === 'SUBTRACT' ? 'a7' : 'a6'}`);
+      return freeze({ kind: 'DEFERRED', requirement, expression });
     }
     if (expression.operator === 'MULTIPLY' && isOrdinaryZero(right)) return this.createIndexed(expression, left, 'INDEXED_ZERO', 'A10_FINITE_TIMES_ZERO', journal);
     if (expression.operator === 'MULTIPLY' && isOrdinaryZero(left)) return this.createIndexed(expression, right, 'INDEXED_ZERO', 'A10_FINITE_TIMES_ZERO', journal);
