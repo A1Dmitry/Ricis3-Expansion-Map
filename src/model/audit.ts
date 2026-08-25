@@ -1,6 +1,6 @@
 import { MapState, ProblemNode, DependencyEdge, NodeState, Proof } from './types';
 import { walkGraph } from './agent';
-import { auditProofContent, buildCanonicalRicisProofLatex, containsSorry } from './ricisCoreRules';
+import { auditProofContent, containsSorry } from './ricisCoreRules';
 import { postJson } from './apiClient';
 
 /** Check if a node or its associated proof/Lean code contains 'sorry' keyword (unproven stub). */
@@ -253,15 +253,14 @@ export function auditMapRicisProofIntegrity(
   map: MapState,
   options: AuditProofIntegrityOptions = {},
 ): { map: MapState; repairedProofsCount: number } {
-  const proofRepairMode = options.proofRepairMode ?? 'legacy_repair';
+  // The historical option remains accepted for callers, but audit never owns source repair.
+  void options.proofRepairMode;
   const proofs = { ...(map.proofs || {}) };
-  let nodes = [...(map.nodes || [])];
+  const nodes = [...(map.nodes || [])];
   const nodeMap = new Map(nodes.map(n => [n.id, n]));
-  let repairedProofsCount = 0;
 
   for (const [nodeId, proof] of Object.entries(proofs)) {
     if (!proof || !proof.latex) continue;
-    const audit = auditProofContent(proof.latex);
     const node = nodeMap.get(nodeId);
 
     if (node) {
@@ -269,18 +268,6 @@ export function auditMapRicisProofIntegrity(
       // `sorry` remains an audit observation. It cannot lower a workflow state
       // until a separate explicit, source-bound human decision is accepted.
       void hasSorry;
-    }
-
-    if (proofRepairMode === 'legacy_repair' && !audit.isValid && !containsSorry(proof.latex)) {
-      const title = node?.title || 'Сингулярная проблема';
-      const tf = node?.targetFunction || proof.targetFunction || '';
-      
-      const newLatex = buildCanonicalRicisProofLatex(title, tf, nodeId);
-      proofs[nodeId] = {
-        ...proof,
-        latex: newLatex,
-      };
-      repairedProofsCount++;
     }
   }
 
@@ -295,6 +282,6 @@ export function auditMapRicisProofIntegrity(
       ...updatedMap,
       edges: recolorEdgesForTargets(updatedMap),
     },
-    repairedProofsCount,
+    repairedProofsCount: 0,
   };
 }

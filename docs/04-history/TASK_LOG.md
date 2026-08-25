@@ -4,6 +4,17 @@
 
 ---
 
+## 2026-08-25 — OIR-03: source-preserving legacy audit containment (v0.4.52 candidate)
+
+- Changed only `auditMapRicisProofIntegrity()` so an audit no longer repairs or synthesizes an existing `Proof` source. The historical `proofRepairMode` option remains type/API-compatible, but every mode preserves the exact existing `Proof` object, LaTeX, nested `steps` and `externalLean` references; `repairedProofsCount` is fixed at `0`. The direct `buildCanonicalRicisProofLatex` import/call and template write are removed only from that audit path.
+- The single legacy migration regression whose own wording explicitly retained default repair “until OIR-03” now asserts the approved default source-preservation invariant, including exact object/LaTeX/`externalLean` identity and zero repairs. `migrationAudit.ts` production source remains unchanged. Shared `buildCanonicalRicisProofLatex`, OIR-02 `generateProof` path, P=NP branch and all user Lean/TeX/source material are unchanged.
+- No RICIS III v7.7 axiom/ontology, owner-authorized P=NP assertion, Core/WASM/gateway/state-policy, Lean/consent/Passport, API/provider/agent transport, UI/store/persistence/catalog/graph or external execution change occurs. Application tests do not establish a proof, Core result, Lean kernel verification, trust/source/state decision or mathematical result.
+- Fresh QA-first red baseline: strict lint passed; one target file / **36 tests** yielded exactly **12 approved red** legacy-rewrite/topology failures and **24 green** controls with zero module/ENOENT/TypeScript/syntax/TypeError/reference/ERR/dynamic-callback markers. Restored target plus migration contracts are **2 files / 42 tests** green; protected OIR/Core/consent/Passport/API/migration regressions are **13 files / 149 tests** green; final full suite is **106 files / 909 tests** green. Candidate patch metadata `0.4.52` is synchronized in package/lockfile, runtime version, README, CITATION, JSON-LD and three active evidence headers. External G1/G2/G3/QA/task-register evidence and user Lean/TeX sources are not included in this repository candidate.
+
+**Статус:** local candidate awaits final release check, audit, Pages build, scope review and independent QA. Per owner instruction, any commit must be created in a delayed OIR-03 feature branch; direct commit to `main`, merge and push are not performed at this stage. TypeScript/Vitest results are local code evidence only and not proof/Core/Lean authority.
+
+---
+
 ## 2026-08-25 — OIR-02: explicit legacy local-diagnostic ownership boundary (v0.4.51 candidate)
 
 - Added only pure `src/model/legacyProofDiagnostic.ts`, four fresh QA-first contracts and one no-existing-proof delegation in `src/model/logic.ts`. The wrapper accepts an injected existing `generateProof` document delegate, passes exact node and existing axiom-array references, returns the identical delegate-produced `Proof` object, and freezes only its own `LOCAL_DIAGNOSTIC_ONLY` envelope plus fixed false authority flags. It does not clone or mutate the document, nested `externalLean` reference, source or any existing payload.
