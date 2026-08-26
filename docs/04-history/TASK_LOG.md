@@ -4,6 +4,17 @@
 
 ---
 
+## 2026-08-26 — EDU-VIS-01: source-bound Monolith Guided Case trail (v0.4.54 candidate)
+
+- Added only one pure `src/monolithGuidedCaseTrail/monolithGuidedCaseTrail.domain.ts`, one presentational `MonolithGuidedCaseTrail`, one local `Map3D` Quick Actions composition and three G3-first target suites. The trail consumes only existing closed calculator-explorer entries and `SOLVED_HIERARCHY` relations; it preserves exact entry/source/index/example/trace/visualization references, rejects unknown/duplicate/fuzzy/title/`registry-120` identity and excludes `GROUNDS_DEPENDENT_TASK`. Only exact `calculator-mandelbrot` is a non-authoritative learning anchor.
+- The UI is read-only and keyboard-accessible. It opens existing nodes only through the published navigation callback, renders existing source-bound description/alt text as disclosure, and retains the exact kinematic research-only/no-calculation/no-control/no-safety/no-certification boundary. It adds no iframe, canvas/WebGL/SVG/image renderer, external calculator launch, fetch/storage/browser action, Core/Lean/agent/provider/API action, solver, calculator execution, proof/trust/state/source writer, industrial control or safety/certification outcome.
+- The historical OIR candidate-path guard caught the untracked G3 test paths before G4. It was reconciled only as an exact `--untracked-files=all` test allowlist for the approved EDU-VIS paths; `audit.ts` and all OIR/Core authority protected-byte assertions remain unchanged. RICIS III v7.7, owner-authorized P=NP, immutable catalogue/graph/card payloads, Core/Lean/source/proof/trust/state/workflow and industrial authority remain unchanged.
+- QA-first: first red attempt had only a G3 UI test syntax defect and was superseded before product source existed. Valid baseline: strict lint green; exactly **3 target files / 44 target tests** red with only 44 approved absent-module errors; selected related regression after the test-only scope adjustment is **9 files / 131 tests** green. Restored target is **3 files / 44 tests** green; protected suite is **12 files / 175 tests** green; pre-metadata full suite is **112 files / 993 tests** green. Candidate metadata `0.4.54` is synchronized in package/lockfile, runtime version, README, CITATION, JSON-LD, three active evidence headers and this task log. External G1/G2/G3/QA/task-register evidence and pinned calculator-source inspection artefacts are not included in this repository candidate.
+
+**Статус:** local candidate awaits final post-metadata full QA, release check, audit, Pages build, scope review and delayed feature/integration branch procedure. No commit, merge, push or publication has occurred. TypeScript/Vitest/build results are application-code evidence only; they do not establish calculator execution, manipulator operation, Core result, Lean kernel verification, source/state/trust authority or a mathematical result.
+
+---
+
 ## 2026-08-25 — CALC-EXP-02: source-bound calculator explorer and manipulator visual-launch discoverability (v0.4.53 candidate)
 
 - Added one pure frozen calculator-explorer projection over the existing fourteen-case immutable catalogue, four exact existing bindings and ten existing static graph descriptors. It preserves exact monolith/source/hash/preset/index references; maps `KINEMATIC` only to `calculator-node-kinematic` with `J(q)`; rejects unknown/fuzzy/duplicate/`registry-120` mappings; and delegates launch status only to the unchanged allowlisted HTTPS builder. No endpoint is guessed; an absent base URL remains `UNCONFIGURED`.
