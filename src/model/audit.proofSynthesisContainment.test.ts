@@ -310,6 +310,16 @@ describe('OIR-03 — audit proof-synthesis containment', () => {
       '?? src/ui/EditNodeModal.passportSession.test.tsx',
       '?? src/leanPassportSession/leanPassportSession.domain.ts',
       '?? src/ui/LeanPassportSessionDialog.tsx',
+      '?? docs/01-architecture/passport/RICIS-LEAN-PASSPORT-ROUTE-B1-01_STEP2_ARCHITECTURE.md',
+      '?? docs/02-sprints/passport/RICIS-LEAN-PASSPORT-01_STEP1_CURRENT_BUSINESS_SPEC.md',
+      '?? docs/02-sprints/passport/RICIS-LEAN-PASSPORT-ROUTE-B-01_STEP1_BUSINESS_SPEC.md',
+      '?? docs/02-sprints/passport/RICIS-LEAN-PASSPORT-ROUTE-B1-01_STEP3_QA_SPEC.md',
+      '?? docs/02-sprints/passport/RICIS-LEAN-PASSPORT-ROUTE-B2-DATA-LIFECYCLE-01_STEP1_BUSINESS_SPEC.md',
+      '?? docs/02-sprints/passport/RICIS-PASSPORT-ACCOUNT-OWNERSHIP-01_STEP1_BUSINESS_SPEC.md',
+      '?? docs/05-evidence/architecture/passport-governance/GIT_BRANCH_AUDIT_2026-08-26.md',
+      '?? docs/05-evidence/architecture/passport-governance/RICIS-LEAN-PASSPORT-ROUTE-B1-01_G4_RELEASE_REVIEW.md',
+      '?? docs/05-evidence/architecture/passport-governance/RICIS_QA_SCORECARD.md',
+      '?? docs/05-evidence/architecture/passport-governance/RICIS_TASK_REGISTER.md',
     ]);
     expect(status.every(entry => allowed.has(entry))).toBe(true);
   });
