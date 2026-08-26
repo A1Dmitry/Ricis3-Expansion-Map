@@ -1,10 +1,14 @@
 # Structural Hash Refactoring Report
 
 **Версия формата отчёта:** 0.1.0
-**Релиз приложения:** 0.4.55
+**Релиз приложения:** 0.4.56
 **Дата:** 2026-08-17
 **Источник данных:** `src/**/*.ts` и `src/**/*.tsx` без test-файлов
 **Машинный отчёт:** `structural-hash-report.json`
+
+## Релиз v0.4.56: B1 ephemeral Lean Passport source-reference boundary
+
+Добавлены pure `leanPassportSession` projector и controlled read-only dialog, composed narrowly in existing `EditNodeModal` только после source lock. Они принимают лишь exact provenance metadata и дают local close action; не импортируют raw Lean/TeX source, proof payload, browser storage, network/popup/provider, Lean/Core execution, store write или proof/trust/workflow authority. Это UI/application boundary, а не Lean-kernel verification, human decision или source persistence.
 
 ## Релиз v0.4.35: A6 multi-evidence composition boundary
 

@@ -1,6 +1,12 @@
 # RICIS Expansion Map — интерактивная карта сингулярностей, зависимостей и доказательных границ
 
-**Версия: v0.4.55**
+**Версия: v0.4.56**
+
+### v0.4.56 — RICIS-LEAN-PASSPORT-ROUTE-B1-01: ephemeral паспорт ссылки на source-locked provenance
+
+В existing source-locked external Lean proof seam добавлено строго локальное действие **«Открыть паспорт источника»**. Оно создаёт только ephemeral read-only session из exact metadata `nodeId`, `sourceFingerprint`, `submittedAt`, `trustStatus` и `sourceLocked`, после чего controlled accessible dialog показывает фиксированные Russian disclosures и делегирует только закрытие. При malformed или additional metadata session fail-closed не создаётся.
+
+B1 не читает, не копирует, не экспортирует и не сохраняет raw Lean/TeX source, `proofLatex`, `currentProof`, `latex`, `sourceBytes` или kernel evidence; не использует browser storage, сеть, popup, provider/agent, Lean/Core execution либо source/trust/workflow/Proof/node/axiom authority. Открытие и закрытие остаются narrow local UI composition; status `sourceLocked` не создаёт Lean-kernel verification, trusted proof, human decision или `resolved` state. Local TypeScript/Vitest/build gates являются application-code evidence only.
 
 ### v0.4.55 — COMMUNITY-READINESS-01: честный local-only статус сообщества
 

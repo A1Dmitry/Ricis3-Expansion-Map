@@ -4,6 +4,8 @@ import { useMapStore } from '../store/mapStore';
 import { LatexRenderer } from './LatexRenderer';
 import { verifyLeanProof } from '../model/leanVerifier';
 import { auditProofContent } from '../model/ricisCoreRules';
+import { createEphemeralPassportSession, type EphemeralPassportSessionView } from '../leanPassportSession/leanPassportSession.domain';
+import { LeanPassportSessionDialog } from './LeanPassportSessionDialog';
 
 type Props = {
   node: ProblemNode;
@@ -16,6 +18,7 @@ export const EditNodeModal: React.FC<Props> = ({ node, onClose, onSolveAfterSave
   const updateProof = useMapStore(s => s.updateProof);
   const submitExternalLeanProof = useMapStore(s => s.submitExternalLeanProof);
   const sourceLocked = useMapStore(s => Boolean(s.proofs[node.id]?.externalLean?.sourceLocked));
+  const externalLeanReference = useMapStore(s => s.proofs[node.id]?.externalLean);
   const getLatexProof = useMapStore(s => s.getLatexProof);
   const solveNode = useMapStore(s => s.solveNode);
 
@@ -32,6 +35,19 @@ export const EditNodeModal: React.FC<Props> = ({ node, onClose, onSolveAfterSave
   const [marketGain, setMarketGain] = useState(node.economic?.marketGain || 0);
   const [costToSolve, setCostToSolve] = useState(node.economic?.costToSolve || 0);
   const [isSaving, setIsSaving] = useState(false);
+  const [passportSession, setPassportSession] = useState<EphemeralPassportSessionView | null>(null);
+  const canOpenPassportSession = externalLeanReference?.sourceLocked === true;
+
+  const handleOpenPassportSession = () => {
+    if (!canOpenPassportSession || !externalLeanReference) return;
+    setPassportSession(createEphemeralPassportSession({
+      nodeId: node.id,
+      sourceFingerprint: externalLeanReference.sourceHash,
+      submittedAt: externalLeanReference.submittedAt,
+      trustStatus: externalLeanReference.trustStatus,
+      sourceLocked: true,
+    }));
+  };
 
   // Real-time auditing for compiler-style feedback
   const isLean = proofLatex && /\btheorem\b|\blemma\b|\bdef\b|\binductive\b|\bstructure\b|\baxiom\b|\bimport\b/i.test(proofLatex);
@@ -217,8 +233,17 @@ export const EditNodeModal: React.FC<Props> = ({ node, onClose, onSolveAfterSave
             )}
 
             {sourceLocked && (
-              <div className="mt-2 p-2.5 bg-cyan-950/30 border border-cyan-800/50 rounded text-[10px] text-cyan-100 leading-relaxed">
-                Внешний Lean source сохранён дословно и заблокирован от замены агентом. После kernel verification он может быть принят как `TRUSTED_AXIOM` вместе с compiler evidence и `#print axioms`.
+              <div className="mt-2 space-y-2 p-2.5 bg-cyan-950/30 border border-cyan-800/50 rounded text-[10px] text-cyan-100 leading-relaxed">
+                <p>Внешний Lean source сохранён дословно и заблокирован от замены агентом. После kernel verification он может быть принят как `TRUSTED_AXIOM` вместе с compiler evidence и `#print axioms`.</p>
+                {canOpenPassportSession && (
+                  <button
+                    type="button"
+                    onClick={handleOpenPassportSession}
+                    className="rounded border border-cyan-700 px-2 py-1 text-[10px] font-bold text-cyan-200 hover:border-cyan-300 hover:text-white"
+                  >
+                    Открыть паспорт источника
+                  </button>
+                )}
               </div>
             )}
 
@@ -345,6 +370,12 @@ export const EditNodeModal: React.FC<Props> = ({ node, onClose, onSolveAfterSave
           </button>
         </div>
       </div>
+      {passportSession !== null && (
+        <LeanPassportSessionDialog
+          view={passportSession}
+          onClose={() => setPassportSession(null)}
+        />
+      )}
     </div>
   );
 };
