@@ -285,6 +285,7 @@ describe('OIR-03 — audit proof-synthesis containment', () => {
       ' M src/hooks/useMobileLayout.test.ts',
       ' M .github/workflows/deploy-pages.yml',
       ' M src/ui/NodeCardDetails.tsx',
+      ' M src/ui/EditNodeModal.tsx',
       '?? src/monolithGuidedCaseTrail/monolithGuidedCaseTrail.domain.ts',
       '?? src/monolithGuidedCaseTrail/monolithGuidedCaseTrail.domain.test.ts',
       '?? src/monolithGuidedCaseTrail/monolithGuidedCaseTrail.topology.test.ts',
@@ -304,6 +305,11 @@ describe('OIR-03 — audit proof-synthesis containment', () => {
       '?? src/ui/CommunityReadinessNotice.test.tsx',
       '?? src/ui/CommunityReadinessNotice.tsx',
       '?? src/ui/Map3D.communityReadiness.test.ts',
+      '?? src/leanPassportSession/leanPassportSession.domain.test.ts',
+      '?? src/ui/LeanPassportSessionDialog.test.tsx',
+      '?? src/ui/EditNodeModal.passportSession.test.tsx',
+      '?? src/leanPassportSession/leanPassportSession.domain.ts',
+      '?? src/ui/LeanPassportSessionDialog.tsx',
     ]);
     expect(status.every(entry => allowed.has(entry))).toBe(true);
   });
