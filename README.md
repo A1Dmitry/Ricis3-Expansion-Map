@@ -1,6 +1,12 @@
 # RICIS Expansion Map — интерактивная карта сингулярностей, зависимостей и доказательных границ
 
-**Версия: v0.4.56**
+**Версия: v0.4.57**
+
+### v0.4.57 — RICIS-CODE-REAUDIT-CORRECTION-01: bounded Passport safety corrections
+
+Исправлены два подтверждённых read-only Passport defects. Nested B1 dialog теперь локально останавливает pointer/click propagation, поэтому его content и действие **«Закрыть»** не закрывают родительский `EditNodeModal` и не сбрасывают несохранённые edit values. Existing Passport source disclosure теперь применяет already declared display redaction к Bearer/token/credential/API-key fragments, private paths и shell fragments до bounded display output; canonical source bytes, fingerprint и byte length не переписываются.
+
+v0.4.57 не меняет RICIS III v7.7, owner-authorized P=NP, L0/L1, SP1–SP4, A1/A4/A5/A6/A7/A10, raw-source authority, `AuthoritativeProofStatePolicy`, Core/Lean execution, Proof/node/trust/workflow state, persistence, provider/network/popup или account scope. Local TypeScript/Vitest/build gates являются application-code evidence only.
 
 ### v0.4.56 — RICIS-LEAN-PASSPORT-ROUTE-B1-01: ephemeral паспорт ссылки на source-locked provenance
 
