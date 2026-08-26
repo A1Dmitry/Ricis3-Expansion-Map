@@ -283,6 +283,7 @@ describe('OIR-03 — audit proof-synthesis containment', () => {
       ' M src/ui/Map3D.tsx',
       ' M src/ui/Map3D.communityRewardsStatus.test.ts',
       ' M src/hooks/useMobileLayout.test.ts',
+      ' M .github/workflows/deploy-pages.yml',
       ' M src/ui/NodeCardDetails.tsx',
       '?? src/monolithGuidedCaseTrail/monolithGuidedCaseTrail.domain.ts',
       '?? src/monolithGuidedCaseTrail/monolithGuidedCaseTrail.domain.test.ts',
