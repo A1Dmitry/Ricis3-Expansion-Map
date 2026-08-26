@@ -53,7 +53,9 @@ import { downloadTexPreprint, type TexBridgeMode, expandToRoot } from '../model/
 import { AuditPanel } from './AuditPanel';
 import { NodeCardDetails } from './NodeCardDetails';
 import { CalculatorExplorer } from './CalculatorExplorer';
+import { MonolithGuidedCaseTrail } from './MonolithGuidedCaseTrail';
 import { buildCalculatorExplorerProjection } from '../calculatorExplorer/calculatorExplorer.domain';
+import { buildMonolithGuidedCaseTrail } from '../monolithGuidedCaseTrail/monolithGuidedCaseTrail.domain';
 import { EditNodeModal } from './EditNodeModal';
 import { TelegramBotPanel } from './TelegramBotPanel';
 import { AgentLogModal } from './AgentLogModal';
@@ -379,9 +381,14 @@ export const Map3D: React.FC = () => {
   const [showSettings, setShowSettings] = useState(false);
   const [showAddNode, setShowAddNode] = useState(false);
   const [isCalculatorExplorerOpen, setIsCalculatorExplorerOpen] = useState(false);
+  const [isMonolithGuidedCaseTrailOpen, setIsMonolithGuidedCaseTrailOpen] = useState(false);
   const calculatorExplorer = React.useMemo(
     () => buildCalculatorExplorerProjection({ baseUrl: import.meta.env.VITE_RICIS_CALCULATOR_BASE_URL }),
     [],
+  );
+  const monolithGuidedCaseTrail = React.useMemo(
+    () => buildMonolithGuidedCaseTrail({ explorer: calculatorExplorer }),
+    [calculatorExplorer],
   );
 
   useEffect(() => {
@@ -1792,6 +1799,23 @@ export const Map3D: React.FC = () => {
                               onClose={() => setIsCalculatorExplorerOpen(false)}
                               onSelectNode={handleNavigateToNode}
                             />
+                            {monolithGuidedCaseTrail.kind === 'PROJECTED' && (
+                              <>
+                                <ActionButton
+                                  onClick={() => setIsMonolithGuidedCaseTrailOpen((open) => !open)}
+                                  variant="cyan"
+                                  className="w-full uppercase font-bold tracking-wider cursor-pointer py-2 text-xs"
+                                >
+                                  Маршрут изучения мономолитов
+                                </ActionButton>
+                                <MonolithGuidedCaseTrail
+                                  isOpen={isMonolithGuidedCaseTrailOpen}
+                                  trail={monolithGuidedCaseTrail}
+                                  onClose={() => setIsMonolithGuidedCaseTrailOpen(false)}
+                                  onSelectNode={handleNavigateToNode}
+                                />
+                              </>
+                            )}
                           </>
                         )}
                       </div>

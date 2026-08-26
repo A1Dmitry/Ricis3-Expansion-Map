@@ -1,6 +1,12 @@
 # RICIS Expansion Map — интерактивная карта сингулярностей, зависимостей и доказательных границ
 
-**Версия: v0.4.53**
+**Версия: v0.4.54**
+
+### v0.4.54 — EDU-VIS-01: source-bound Monolith Guided Case trail
+
+В `Quick Actions` добавлен **«Маршрут изучения мономолитов»** — детерминированная read-only учебная проекция ровно четырнадцати уже опубликованных calculator cases. Она использует только existing closed calculator-explorer identity/node mapping и reviewed `SOLVED_HIERARCHY` relations: сохраняет exact entry/source/hash/index/example/ordered trace/visualization references, помечает только `calculator-mandelbrot` как начальную учебную точку и направляет пользователя лишь через существующий map-navigation callback. `GROUNDS_DEPENDENT_TASK`, unknown/duplicate/title/fuzzy endpoint, reverse relation и `registry-120` fail-closed не проецируются.
+
+Маршрут не импортирует/не запускает calculator source, canvas/WebGL/SVG/image renderer, server API, external launch, fetch/storage/browser action, Core/Lean, provider/agent или любой numerical/structural solver. Он не меняет RICIS III v7.7, owner-authorized P=NP, catalogue/graph/card payload, Proof/Lean/Core/source/trust/state/workflow authority или industrial context. `KINEMATIC` retains its exact research-only/no-calculation/no-control/no-safety/no-certification disclosure. Local TypeScript/Vitest/build gates are application-code evidence only and не создают Lean-kernel verification, Core result, mathematical proof, source authority, workflow decision или manipulator operation.
 
 ### v0.4.53 — CALC-EXP-02: source-bound calculator explorer и visual-launch discoverability
 
