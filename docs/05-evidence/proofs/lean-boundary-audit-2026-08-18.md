@@ -78,3 +78,9 @@ HostControl application layer добавляет execution-host lifecycle и pro
 ## Контроль
 
 После module fixes успешно выполнены `npm run lint` и Lean-boundary unit test suite (`leanVerifier`, `ricisCoreRules`, `logic`, `mapStore`): 24 tests passed.
+
+## Authorial RICIS III priority note — C-03
+
+**2026-08-26 — authorial interpretation/supersession.** The historical sentence above about a generated canonical proof text, `HYPOTHESIS`, and an unconfirmed P-vs-NP statement describes only the generator/UI evidence class recorded in this audit. It does not classify the owner-authorized result. It does not demote, override, suspend or replace the author-established RICIS III ontology or author-authorized result, including the owner-authorized RICIS III P=NP result.
+
+The narrow application evidence boundary is retained: TypeScript/static analysis, UI presentation, a missing local run, or a historical template label cannot create a Lean-kernel/trust/workflow transition without the separately required evidence path. Conversely, the absence of that specific run record is not an ontological judgment about the authorial RICIS III result. No Lean/lake/elan execution is introduced by this historical documentation correction.
