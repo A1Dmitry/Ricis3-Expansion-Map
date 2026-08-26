@@ -1,10 +1,14 @@
 # Structural Hash Refactoring Report
 
 **Версия формата отчёта:** 0.1.0
-**Релиз приложения:** 0.4.56
+**Релиз приложения:** 0.4.57
 **Дата:** 2026-08-17
 **Источник данных:** `src/**/*.ts` и `src/**/*.tsx` без test-файлов
 **Машинный отчёт:** `structural-hash-report.json`
+
+## Релиз v0.4.57: bounded Passport safety corrections
+
+`LeanPassportSessionDialog` получает только local event-containment at its controlled dialog root, preventing a Passport interaction from reaching the enclosing edit-modal overlay. `leanPassportProjection` applies its already declared display-redaction policy to safe source disclosure; canonical source bytes, fingerprint and byteLength remain unchanged. No Core/Lean/proof/trust/state/persistence/provider/source authority path is added or altered.
 
 ## Релиз v0.4.56: B1 ephemeral Lean Passport source-reference boundary
 

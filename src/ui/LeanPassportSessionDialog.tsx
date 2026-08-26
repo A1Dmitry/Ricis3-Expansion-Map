@@ -11,6 +11,7 @@ export function LeanPassportSessionDialog({ view, onClose }: LeanPassportSession
       role="dialog"
       aria-modal="true"
       aria-label="Паспорт источника Lean"
+      onClick={event => event.stopPropagation()}
       className="fixed inset-0 z-[60] flex items-center justify-center bg-black/75 p-4"
     >
       <section className="w-full max-w-lg space-y-4 rounded-lg border border-cyan-700/60 bg-[#090d15] p-5 text-sm text-cyan-100 shadow-2xl">
