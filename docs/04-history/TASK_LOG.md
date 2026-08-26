@@ -759,3 +759,7 @@ Supervisor теперь выбирает bundled DLL первым способо
 **Статус:** реализация и локальные quality gates завершены; инкремент ожидает final review, commit и отдельной публикации.
 
 ---
+
+- 2026-08-26: `sprint-0.4.62-cloud-run-deployment-preconditions-fix.md`
+  - Исправлены требования `engines` и `packageManager` в `package.json` для устранения сбоя проверки предварительных условий Google Cloud Buildpack в Cloud Run.
+  - Версия инкрементирована до `0.4.62`.

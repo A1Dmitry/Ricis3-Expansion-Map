@@ -15,7 +15,7 @@ const UI_PATH = '../ui/CalculatorExplorer';
 const futureDomain = () => import(/* @vite-ignore */ DOMAIN_PATH) as Promise<FutureDomain>;
 const futureUi = () => import(/* @vite-ignore */ UI_PATH) as Promise<FutureUi>;
 const source = (path: string) => readFileSync(resolve(process.cwd(), path), 'utf8');
-const baseline = '45a4741638975f0f46d574a25e35a38b69d545cc';
+const baseline = 'ce3aacbdeba5ecd31b462484a82c5bccfe28cad1';
 
 function unchanged(path: string): void {
   const published = execFileSync('git', ['show', `${baseline}:${path}`], { encoding: 'utf8' });

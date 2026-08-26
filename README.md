@@ -1,6 +1,6 @@
 # RICIS Expansion Map — интерактивная карта сингулярностей, зависимостей и доказательных границ
 
-**Версия: v0.4.61**
+**Версия: v0.4.62**
 
 ### v0.4.57 — CONICAL-LAYOUT & RICIS-CODE-REAUDIT-CORRECTION-01
 

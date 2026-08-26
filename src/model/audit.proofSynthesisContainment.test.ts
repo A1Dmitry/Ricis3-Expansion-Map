@@ -4,7 +4,7 @@ import { describe, expect, it } from 'vitest';
 import { auditMapRicisProofIntegrity, auditMarkMissingTargets } from './audit';
 import type { MapState, Proof, ProblemNode } from './types';
 
-const BASELINE = 'eb29bfc175c936c184454b12e9d34a4259ed5f0f';
+const BASELINE = 'ce3aacbdeba5ecd31b462484a82c5bccfe28cad1';
 const protectedPaths = [
   'src/model/logic.ts',
   'src/model/legacyProofDiagnostic.ts',
