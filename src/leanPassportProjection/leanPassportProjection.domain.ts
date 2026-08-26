@@ -236,7 +236,7 @@ function asObservation(value: unknown): LeanPassportObservationSnapshot | undefi
 
 function sourceDisclosure(source: LeanPassportSourceSnapshot): SafeSourceDisclosure {
   const decoded = new TextDecoder().decode(new Uint8Array(source.sourceBytes));
-  const text = boundedText(escapeText(decoded));
+  const text = boundedText(redactText(escapeText(decoded)));
   return Object.freeze({
     fingerprint: source.fingerprint,
     byteLength: source.byteLength,
