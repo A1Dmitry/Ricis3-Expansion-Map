@@ -84,6 +84,9 @@ import { AccessibleMapFallback } from './AccessibleMapFallback';
 import { checkRicisCoreRuntimeStatus, getRicisCoreRuntimeStatus } from '../services/ricisCore';
 import type { RicisCoreStatus } from '../services/ricisCore';
 import { getCommunityRewardsClientStatus } from '../services/communityRewardsClient';
+import type { CommunityRewardsClientStatus } from '../services/communityRewardsClient';
+import { projectCommunityReadiness } from '../communityReadiness/communityReadiness.domain';
+import { CommunityReadinessNotice, type CommunityInvitationCopyResult } from './CommunityReadinessNotice';
 import { ReadableNodeFocusPolicy } from '../nodeEntry/nodeFocusPolicy';
 import type { NodeFocusRequest, NodeFocusSource } from '../nodeEntry/contracts';
 import { STATIC_ADMIN_CORE_SNAPSHOT } from '../adminCoreConnection/staticAdminCoreConnection';
@@ -461,28 +464,45 @@ export const Map3D: React.FC = () => {
   const initializedAdaptiveRoleRef = useRef<string | null>(null);
   const [coreRuntimeStatus, setCoreRuntimeStatus] = useState<RicisCoreStatus>(() => getRicisCoreRuntimeStatus());
   const [isCheckingCoreRuntime, setIsCheckingCoreRuntime] = useState(false);
-  const [isCheckingCommunityRewards, setIsCheckingCommunityRewards] = useState(false);
-  const [communityRewardsNotice, setCommunityRewardsNotice] = useState<string | null>(null);
+  const [isLoadingCommunityReadiness, setIsLoadingCommunityReadiness] = useState(false);
+  const [isCommunityReadinessOpen, setIsCommunityReadinessOpen] = useState(false);
+  const [communityReadinessStatus, setCommunityReadinessStatus] = useState<CommunityRewardsClientStatus | null>(null);
+  const [isCopyingCommunityInvitation, setIsCopyingCommunityInvitation] = useState(false);
+  const [communityInvitationCopyResult, setCommunityInvitationCopyResult] = useState<CommunityInvitationCopyResult>('idle');
 
-  const handleCommunityRewardsInvite = useCallback(async () => {
-    if (isCheckingCommunityRewards) return;
-    setIsCheckingCommunityRewards(true);
+  const handleOpenCommunityReadiness = useCallback(async () => {
+    if (isLoadingCommunityReadiness) return;
+    setIsLoadingCommunityReadiness(true);
+    setCommunityInvitationCopyResult('idle');
     try {
-      const [copied, status] = await Promise.all([
-        UrlShareService.copyShareUrlToClipboard({}),
-        getCommunityRewardsClientStatus(),
-      ]);
-      const sharePrefix = copied ? 'Ссылка приложения скопирована.' : 'Не удалось скопировать ссылку приложения.';
-      const detail = status.kind === 'backend_unconfigured'
-        ? ' Referral Tokens появятся после подключения защищённого identity и server ledger.'
-        : status.kind === 'backend_unreachable'
-        ? ' Referral Tokens временно недоступны: server ledger не отвечает.'
-        : ' Referral Tokens не активированы: backend status не подтверждён.';
-      setCommunityRewardsNotice(`${sharePrefix}${detail}`);
+      const status = await getCommunityRewardsClientStatus();
+      setCommunityReadinessStatus(status);
+      setIsCommunityReadinessOpen(true);
     } finally {
-      setIsCheckingCommunityRewards(false);
+      setIsLoadingCommunityReadiness(false);
     }
-  }, [isCheckingCommunityRewards]);
+  }, [isLoadingCommunityReadiness]);
+
+  const handleCopyCommunityInvitation = useCallback(async () => {
+    if (isCopyingCommunityInvitation) return;
+    setIsCopyingCommunityInvitation(true);
+    try {
+      const copied = await UrlShareService.copyShareUrlToClipboard({});
+      setCommunityInvitationCopyResult(copied ? 'copied' : 'failed');
+    } finally {
+      setIsCopyingCommunityInvitation(false);
+    }
+  }, [isCopyingCommunityInvitation]);
+
+  const handleCloseCommunityReadiness = useCallback(() => {
+    setIsCommunityReadinessOpen(false);
+    setCommunityInvitationCopyResult('idle');
+  }, []);
+
+  const communityReadinessProjection = useMemo(
+    () => communityReadinessStatus === null ? null : projectCommunityReadiness(communityReadinessStatus),
+    [communityReadinessStatus],
+  );
 
   useEffect(() => {
     if (initializedAdaptiveRoleRef.current === currentRole.id) return;
@@ -2249,6 +2269,15 @@ export const Map3D: React.FC = () => {
       {showTelegramBot && (
         <TelegramBotPanel onClose={() => setShowTelegramBot(false)} />
       )}
+      {isCommunityReadinessOpen && communityReadinessProjection !== null && (
+        <CommunityReadinessNotice
+          projection={communityReadinessProjection}
+          isCopyingInvitation={isCopyingCommunityInvitation}
+          copyResult={communityInvitationCopyResult}
+          onCopyInvitation={() => { void handleCopyCommunityInvitation(); }}
+          onClose={handleCloseCommunityReadiness}
+        />
+      )}
       {editingNode && (
         <EditNodeModal
           node={editingNode}
@@ -2305,21 +2334,14 @@ export const Map3D: React.FC = () => {
           <button
             type="button"
             data-testid="community-rewards-status-button"
-            onClick={() => { void handleCommunityRewardsInvite(); }}
-            disabled={isCheckingCommunityRewards}
-            className={`flex items-center gap-1.5 px-2 py-0.5 rounded border border-violet-700/70 bg-violet-950/70 text-violet-200 hover:bg-violet-800/70 hover:text-white text-[10px] font-mono font-bold transition-all shrink-0 ${isCheckingCommunityRewards ? 'cursor-wait opacity-80' : 'cursor-pointer'}`}
-            title="Скопировать ссылку приложения для друга. Награды доступны только после server-side настройки."
-            aria-describedby={communityRewardsNotice === null ? undefined : 'community-rewards-status-notice'}
+            onClick={() => { void handleOpenCommunityReadiness(); }}
+            disabled={isLoadingCommunityReadiness}
+            className={`flex items-center gap-1.5 px-2 py-0.5 rounded border border-violet-700/70 bg-violet-950/70 text-violet-200 hover:bg-violet-800/70 hover:text-white text-[10px] font-mono font-bold transition-all shrink-0 ${isLoadingCommunityReadiness ? 'cursor-wait opacity-80' : 'cursor-pointer'}`}
+            title="Открыть честный статус готовности сообщества. Награды и внешний бот не активированы."
           >
             <Gift size={11} aria-hidden="true" />
-            <span>{isCheckingCommunityRewards ? 'Проверка…' : 'Пригласить · Tokens'}</span>
+            <span>{isLoadingCommunityReadiness ? 'Проверка…' : 'Сообщество · статус'}</span>
           </button>
-
-          {communityRewardsNotice !== null && (
-            <span id="community-rewards-status-notice" role="status" className="hidden xl:inline text-[10px] text-violet-200 truncate max-w-80" title={communityRewardsNotice}>
-              {communityRewardsNotice}
-            </span>
-          )}
 
           {/* Latest AI agent log message */}
           {map.agentLogs && map.agentLogs.length > 0 ? (

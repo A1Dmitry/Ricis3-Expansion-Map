@@ -281,6 +281,7 @@ describe('OIR-03 — audit proof-synthesis containment', () => {
       ' M src/model/audit.proofSynthesisContainment.test.ts',
       ' M src/calculatorGraphDescriptor/calculatorGraphDescriptor.seed.ts',
       ' M src/ui/Map3D.tsx',
+      ' M src/ui/Map3D.communityRewardsStatus.test.ts',
       ' M src/ui/NodeCardDetails.tsx',
       '?? src/monolithGuidedCaseTrail/monolithGuidedCaseTrail.domain.ts',
       '?? src/monolithGuidedCaseTrail/monolithGuidedCaseTrail.domain.test.ts',
@@ -296,6 +297,11 @@ describe('OIR-03 — audit proof-synthesis containment', () => {
       '?? src/monolithGuidedCaseTrail/monolithGuidedCaseTrail.topology.test.ts',
       '?? src/ui/MonolithGuidedCaseTrail.test.tsx',
       '?? src/model/audit.proofSynthesisContainment.test.ts',
+      '?? src/communityReadiness/communityReadiness.domain.test.ts',
+      '?? src/communityReadiness/communityReadiness.domain.ts',
+      '?? src/ui/CommunityReadinessNotice.test.tsx',
+      '?? src/ui/CommunityReadinessNotice.tsx',
+      '?? src/ui/Map3D.communityReadiness.test.ts',
     ]);
     expect(status.every(entry => allowed.has(entry))).toBe(true);
   });
