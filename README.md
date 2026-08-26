@@ -1,6 +1,10 @@
 # RICIS Expansion Map — интерактивная карта сингулярностей, зависимостей и доказательных границ
 
-**Версия: v0.4.54**
+**Версия: v0.4.55**
+
+### v0.4.55 — COMMUNITY-READINESS-01: честный local-only статус сообщества
+
+Добавлен read-only статус готовности сообщества: чистая проекция existing availability status, controlled локальная панель и отдельное явное действие копирования ссылки. Награды, token/balance/referral/account, identity, durable ledger, внешний Telegram-бот, webhook, connector, external transport и RICIS/Lean/Core/source/trust/state authority не активируются и не изменяются.
 
 ### v0.4.54 — EDU-VIS-01: source-bound Monolith Guided Case trail
 
