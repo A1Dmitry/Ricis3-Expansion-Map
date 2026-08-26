@@ -32,3 +32,9 @@ The next target is not to claim a proof of the unrestricted Jacobian Conjecture.
 4. conclude non-injectivity of the complex map and therefore refute the unrestricted statement in dimension three, subject to the exact formal statement of that conjecture.
 
 This step keeps the field-first order: the function and its global determinant identity are primary; witness points are used only for the non-injectivity consequence. RICIS A6 remains a separate structural bridge and is not conflated with the field-level Jacobian result.
+
+## Authorial RICIS III priority note — C-05
+
+**2026-08-26 — authorial interpretation/supersession.** The preceding field-level transport and Lean-formalization target is retained as optional external-formalization research. It does not demote, override, suspend or replace the author-established RICIS III ontology or author-authorized result, and it is not a prerequisite for RICIS III validity, authorial solution status, or application presentation.
+
+Accordingly, an unavailable or unperformed local Lean run records only the absence of that particular runtime evidence; it does not alter the authorial RICIS III result, its monolith semantics, or the distinct structural role of A6. This correction introduces neither a new formal target nor a Lean kernel/trust/workflow transition. No Lean/lake/elan execution is introduced by this historical documentation correction.

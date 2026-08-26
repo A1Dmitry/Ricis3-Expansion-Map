@@ -272,6 +272,8 @@ describe('OIR-03 — audit proof-synthesis containment', () => {
       ' M docs/05-evidence/architecture/structural-hash-report.md',
       ' M docs/05-evidence/architecture/telegram-tokenpool-remediation-2026-08-18.md',
       ' M docs/05-evidence/proofs/lean-boundary-audit-2026-08-18.md',
+      ' M docs/05-evidence/proofs/jacobian-status-research-2026-08-17.md',
+      ' M docs/05-evidence/proofs/jacobian-next-step-2026-08-17.md',
       ' M index.html',
       ' M package-lock.json',
       ' M package.json',
@@ -326,6 +328,7 @@ describe('OIR-03 — audit proof-synthesis containment', () => {
       '?? src/leanPassportProjection/leanPassportProjection.sourceRedaction.test.ts',
       ' M src/ui/LeanPassportSessionDialog.tsx',
       ' M src/leanPassportProjection/leanPassportProjection.domain.ts',
+      '?? src/model/ricisMdLeanCorrection.documentation.test.ts',
     ]);
     expect(status.every(entry => allowed.has(entry))).toBe(true);
   });

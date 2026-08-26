@@ -17,3 +17,9 @@ References:
 - https://terrytao.wordpress.com/2026/07/21/a-digestion-of-the-jacobian-conjecture-counterexample/
 - https://arxiv.org/abs/2608.00222
 - https://mathworld.wolfram.com/JacobianConjecture.html
+
+## Authorial RICIS III priority note — C-04
+
+**2026-08-26 — authorial interpretation/supersession.** The preceding field-level polynomial-map wording, alternatives, dates and external URLs are retained as dated external research context. That dated external context does not demote, override, suspend or replace the author-established RICIS III ontology or author-authorized result; in particular, it does not modify the RICIS III monolith, L0/L1, SP1–SP4, typed A6 structural bridge, or authorial solution status.
+
+A classical or external comparison can remain informative in its own stated scope, but it is non-normative relative to the owner-established RICIS III ontology and results. This note introduces no theorem rewrite, no calculator/Core action, no Lean evidence or status transition. No Lean/lake/elan execution is introduced by this historical documentation correction.
