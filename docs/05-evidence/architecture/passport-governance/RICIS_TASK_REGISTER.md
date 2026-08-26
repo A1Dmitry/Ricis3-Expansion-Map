@@ -2,7 +2,7 @@
 
 **Purpose:** Single continuity register for every RICIS task. Update this file before any task pause, priority change, G-gate transition, quality run, commit, publication or context handoff.
 **Register status:** `ACTIVE`
-**Last updated:** 2026-08-26 (GMT+3) — B1 v0.4.56 remains published/converged; selected B2-A account-ownership G1 is complete and awaits a separate G2 approval. No durable storage is approved.
+**Last updated:** 2026-08-26 (GMT+3) — B1 v0.4.56 remains published/converged; selected B2-A account-ownership G1/G2 documents are complete and await independent G3 approval. No durable storage is approved.
 
 **Canonical rule:** A task may move only through `G1 → G2 → G3 → G4 → separate publish approval`. A green product display must always state its exact basis and cannot mutate Core/Lean/proof authority.
 
@@ -28,7 +28,7 @@
 
 | Priority | ID | Status | Current gate | Only permissible next action |
 |---:|---|---|---|---|
-| P1 | RICIS-PASSPORT-ACCOUNT-OWNERSHIP-01 | `G1_COMPLETE_AWAITING_G2_APPROVAL` | `RICIS-PASSPORT-ACCOUNT-OWNERSHIP-01_STEP1_BUSINESS_SPEC.md`: B2-A owner/tenant authorization, metadata-only lifecycle, retention/export/delete/revoke requirements and fail-closed boundary are documented. | Obtain explicit `OK RICIS-PASSPORT-ACCOUNT-OWNERSHIP-01 G2`; no code/storage/auth integration before then. |
+| P1 | RICIS-PASSPORT-ACCOUNT-OWNERSHIP-01 | `G2_COMPLETE_AWAITING_G3_APPROVAL` | G1/G2 define B2-A account/tenant owner scope, closed metadata-only receipts, port topology, tenant isolation, lifecycle/retention/export/delete/revoke policy and fail-closed boundaries. | Obtain explicit `OK RICIS-PASSPORT-ACCOUNT-OWNERSHIP-01 G3`; no code/storage/auth integration before then. |
 
 ## Historical continuity record
 
@@ -54,7 +54,7 @@
 | G4 implementation / regression QA | `QA-OIR02-G4 CLOSED_VERIFIED_LOCAL`: wrapper returns only the exact injected local document plus frozen `LOCAL_DIAGNOSTIC_ONLY` envelope/false authority flags; one no-existing-proof `logic.ts` delegation retains partial state. Target **4/44**, protected **44/334**, final full **105/873** and strict lint all pass. Core/policy/API bytes remained unchanged; no external action or authority change was introduced. |
 | Final QA / release | `QA-OIR02-release-01 CLOSED_VERIFIED_LOCAL`: release check **12/12**, audit **0**, Pages build, scope/diff hygiene and remote-baseline freshness passed. v0.4.51 metadata is synchronized. Local evidence is not CI-engine conformity, a proof, Core execution, Lean verification, trust/state decision or RICIS solution. |
 | Publication / convergence | `QA-OIR02-publish-01 PUBLISHED_CONVERGED`: commit `eb29bfc175c936c184454b12e9d34a4259ed5f0f` was pushed as `main`; `HEAD == origin/main == GitHub API main`; subject `feat(oir): clarify local diagnostic ownership`; worktree clean. `/home/ubuntu/ricis_review` remains external and uncommitted. |
-| Next priority | `RICIS-PASSPORT-ACCOUNT-OWNERSHIP-01 G1_COMPLETE_AWAITING_G2_APPROVAL`: B2-A authenticated ledger is selected and its owner/tenant lifecycle G1 is complete. The only permissible next action is separate G2 approval; no durable storage is active and B1 remains the safe baseline. |
+| Next priority | `RICIS-PASSPORT-ACCOUNT-OWNERSHIP-01 G2_COMPLETE_AWAITING_G3_APPROVAL`: B2-A authenticated ledger G1/G2 are document-complete. The only permissible next action is independent G3 approval; no durable storage is active and B1 remains the safe baseline. |
 | Published-history pointer | Completed LEC v0.4.44, Passport v0.4.45 and AGENT v0.4.46 records remain preserved in their detailed sections below; quarantined old Passport candidate remains historical/reference-only. |
 | G1 artefact | `/home/ubuntu/ricis_review/LEAN-EVIDENCE-CONSENT-01_STEP1_BUSINESS_SPEC.md` — `G1_APPROVED`; five static reset/demotion paths, immutable evidence/consent record, AI advisory, human challenge and competence-conflict/training-required lifecycle. |
 | G2 artefact | `/home/ubuntu/ricis_review/LEAN-EVIDENCE-CONSENT-01_STEP2_ARCHITECTURE.md` — `G2_APPROVED`; pure ledgers, consent-gated state proposal, typed kernel correlation, challenge/competence quarantine, optional container/CI attestation adapters, hosted advisory/popup diagnostic adapters, and RICIS-owned provider-neutral API with IoC. |
@@ -92,7 +92,7 @@
 | P0 | CI-HISTORY-BASELINE-01 | `DONE_PUBLISHED` | Published CI repair on unchanged v0.4.55 / `e4a721c`; feature `ef42f9e` → integration `fbcbe6a` → main `e4a721c`; full 115/1043, release 12/12, audit 0 and Pages run `32939832954` success. | Start only a separately documented G1; no source/proof authority implication. |
 | P1 | RICIS-LEAN-PASSPORT-ROUTE-B1-01 | `DONE_PUBLISHED` | Published v0.4.56 / `7b0e06f`; feature `5637f46` → integration `ea83db9` → main `7b0e06f`; target 3/44, protected 10/119, full 118/1087; Pages `32946711779` success and local/origin/API convergence verified. | B1 remains the effective safe baseline; B2 is separately documented and decision-blocked. |
 | P1 | RICIS-LEAN-PASSPORT-ROUTE-B2-DATA-LIFECYCLE-01 | `G1_COMPLETE_B2A_SELECTED` | Document-only lifecycle G1 at published `v0.4.56`; B2-A authenticated ledger selected as optimal durable-history strategy; no durable store/schema/migration/UI created. | Complete separate `RICIS-PASSPORT-ACCOUNT-OWNERSHIP-01 G1`; no B2 G2/code otherwise. |
-| P1 | RICIS-PASSPORT-ACCOUNT-OWNERSHIP-01 | `G1_COMPLETE_AWAITING_G2_APPROVAL` | Selected B2-A prerequisite G1 defines authenticated subject/tenant ownership, metadata-only lifecycle, retention/review/export/delete/revocation and fail-closed boundaries at published `v0.4.56`. | Explicit `OK RICIS-PASSPORT-ACCOUNT-OWNERSHIP-01 G2` only; do not add auth, server/database, storage, export/delete UI or external integration before approval. |
+| P1 | RICIS-PASSPORT-ACCOUNT-OWNERSHIP-01 | `G2_COMPLETE_AWAITING_G3_APPROVAL` | Selected B2-A G1/G2 define authenticated subject/tenant ownership, closed metadata-only DTOs, port topology, tenant isolation, lifecycle/retention/export/delete/revocation and fail-closed boundaries at published `v0.4.56`. | Explicit `OK RICIS-PASSPORT-ACCOUNT-OWNERSHIP-01 G3` only; do not add auth, server/database, storage, export/delete UI or external integration before approval. |
 | P3 | P-10A coverage | `DONE_PUBLISHED` | Published test-only increment on unchanged v0.4.55 / `b6b4dbb`; feature `8a8624f` → integration `2cb0594` → main `b6b4dbb`; target 1/10, protected 7/95, full 115/1043, release 12/12, audit 0 and convergence closed. | Start only a separately documented G1; no global coverage threshold is implied. |
 
 ## Detailed active record — CALC-EXP-01 G4A
