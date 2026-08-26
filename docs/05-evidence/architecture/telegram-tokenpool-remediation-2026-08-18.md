@@ -1,6 +1,6 @@
 # Telegram/token-pool remediation
 
-**Версия:** 0.4.57
+**Версия:** 0.4.60
 **Дата:** 2026-08-18
 **Основание:** `telegram-tokenpool-bug-graph-2026-08-18.md`
 

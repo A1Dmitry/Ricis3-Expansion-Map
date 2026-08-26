@@ -1,3 +1,9 @@
+export interface Vector3D {
+  x: number;
+  y: number;
+  z: number;
+}
+
 export type NodeState = 'unresolved' | 'partial' | 'resolved';
 
 export interface EconomicInfo {
@@ -46,7 +52,7 @@ export interface ProblemNode {
   leanWarnings?: string[];
 }
 
-export type EdgeColor = 'red' | 'yellow' | 'green';
+export type EdgeColor = 'red' | 'yellow' | 'green' | 'blue' | 'purple';
 
 export interface DependencyEdge {
   id: string;

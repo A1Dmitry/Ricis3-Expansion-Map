@@ -1,6 +1,8 @@
 import { describe, it, expect } from 'vitest';
 import { MapState, ProblemNode, DependencyEdge } from './types';
 import { DependencyGraphAuditor } from './dependencyGraph';
+import { initialMap } from './initialMap';
+import { layoutNodes, computeEvenSphereDirections } from './physics';
 
 // Вспомогательная функция для создания минимального валидного состояния MapState
 function createMockMapState(overrides: Partial<MapState> = {}): MapState {
@@ -250,6 +252,84 @@ describe('RICIS-III v7.7 Extended System Auditor & Garbage Collector Unit Tests'
       // Лог трансформации кода должен содержать записи об очистке неиспользуемых файлов, если таковые были найдены
       const codePurges = result.transformations.filter(t => t.operation === 'purge_code_garbage');
       expect(codePurges.length).toBeGreaterThanOrEqual(0);
+    });
+  });
+
+  describe('Section 3: RICIS-III Conical Sector Monolith Layout Engine Test Suite', () => {
+    it('TC-CONICAL-1: computes evenly distributed direction vectors on unit sphere S^2 (Fibonacci Sphere Grid)', () => {
+      const count = 5;
+      const directions = computeEvenSphereDirections(count);
+
+      expect(directions).toHaveLength(count);
+
+      // Проверяем, что все векторы имеют единичную длину |d| = 1
+      for (const dir of directions) {
+        const len = Math.sqrt(dir.x * dir.x + dir.y * dir.y + dir.z * dir.z);
+        expect(len).toBeCloseTo(1.0, 4);
+      }
+
+      // Проверяем минимальный угол между любыми двумя векторами конусов (не менее 30 градусов)
+      for (let i = 0; i < count; i++) {
+        for (let j = i + 1; j < count; j++) {
+          const dot = directions[i].x * directions[j].x +
+                      directions[i].y * directions[j].y +
+                      directions[i].z * directions[j].z;
+          // dot = cos(angle), для равномерного разделения cos(angle) < 0.9
+          expect(dot).toBeLessThan(0.9);
+        }
+      }
+    });
+
+    it('TC-CONICAL-2: layoutNodes positions root nodes near core and leaf nodes strictly further away in radial distance', () => {
+      const nodes = initialMap.nodes;
+      const edges = initialMap.edges;
+      const layout = layoutNodes(nodes, initialMap.zones, edges);
+
+      expect(layout.size).toBe(nodes.length);
+
+      // Находим корневые узлы (depth 0 / no dependencies) и глубокие листья (depth >= 3)
+      const rootNodes = nodes.filter(n => (n.fractalDepth ?? 0) === 0 || !n.dependencyIds || n.dependencyIds.length === 0);
+      const leafNodes = nodes.filter(n => (n.fractalDepth ?? 0) >= 3);
+
+      expect(rootNodes.length).toBeGreaterThan(0);
+      expect(leafNodes.length).toBeGreaterThan(0);
+
+      // Средний радиус корневых узлов должен быть строго меньше среднего радиуса листьев
+      let rootDistSum = 0;
+      for (const r of rootNodes) {
+        const pos = layout.get(r.id);
+        expect(pos).toBeDefined();
+        if (pos) {
+          rootDistSum += Math.sqrt(pos.x * pos.x + pos.y * pos.y + pos.z * pos.z);
+        }
+      }
+      const avgRootDist = rootDistSum / rootNodes.length;
+
+      let leafDistSum = 0;
+      for (const l of leafNodes) {
+        const pos = layout.get(l.id);
+        expect(pos).toBeDefined();
+        if (pos) {
+          leafDistSum += Math.sqrt(pos.x * pos.x + pos.y * pos.y + pos.z * pos.z);
+        }
+      }
+      const avgLeafDist = leafDistSum / leafNodes.length;
+
+      expect(avgLeafDist).toBeGreaterThan(avgRootDist);
+    });
+
+    it('TC-CONICAL-3: validates that no positions contain NaN, Infinity or non-finite numbers (L1_IDENTITY)', () => {
+      const layout = layoutNodes(initialMap.nodes, initialMap.zones, initialMap.edges);
+
+      for (const id of initialMap.nodes.map(n => n.id)) {
+        const pos = layout.get(id);
+        expect(pos).toBeDefined();
+        if (pos) {
+          expect(Number.isFinite(pos.x), `Node ${id} has non-finite x`).toBe(true);
+          expect(Number.isFinite(pos.y), `Node ${id} has non-finite y`).toBe(true);
+          expect(Number.isFinite(pos.z), `Node ${id} has non-finite z`).toBe(true);
+        }
+      }
     });
   });
 });

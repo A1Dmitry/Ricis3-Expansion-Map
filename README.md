@@ -1,8 +1,10 @@
 # RICIS Expansion Map — интерактивная карта сингулярностей, зависимостей и доказательных границ
 
-**Версия: v0.4.57**
+**Версия: v0.4.60**
 
-### v0.4.57 — RICIS-CODE-REAUDIT-CORRECTION-01: bounded Passport safety corrections
+### v0.4.57 — CONICAL-LAYOUT & RICIS-CODE-REAUDIT-CORRECTION-01
+
+Реализован конический алгоритм 3D-раскладки монолитов (**Conical Sector Monolith Layout Engine**): равномерное распределение осей конусов на сфере $S^2$ по золотому сечению (сетка Фибоначчи), радиальное расширение в зависимости от глубины `fractalDepth` и силовой механизм удерживания ветвей в 3D пространстве.
 
 Исправлены два подтверждённых read-only Passport defects. Nested B1 dialog теперь локально останавливает pointer/click propagation, поэтому его content и действие **«Закрыть»** не закрывают родительский `EditNodeModal` и не сбрасывают несохранённые edit values. Existing Passport source disclosure теперь применяет already declared display redaction к Bearer/token/credential/API-key fragments, private paths и shell fragments до bounded display output; canonical source bytes, fingerprint и byte length не переписываются.
 
@@ -36,11 +38,9 @@ B1 не читает, не копирует, не экспортирует и н
 
 OIR-03 не изменяет shared `buildCanonicalRicisProofLatex`, OIR-02 `generateProof` compatibility path, owner-authorized P=NP branch, RICIS III v7.7 ontology, Core/WASM/gateway, `AuthoritativeProofStatePolicy`, Lean/consent/Passport, user Lean/TeX bytes/hashes, API/provider/agent transport, UI/store/persistence/catalog/graph. QA-first tests и local TypeScript/Vitest gates являются только application-code evidence и не создают Core result, Lean-kernel verification, source/trust/state decision, доказательство или математический результат.
 
-### v0.4.51 — OIR-02: explicit legacy local-diagnostic ownership boundary
+### v0.4.53 — ORCH-02 / UI-CONNECT-01: Implementation & 100% UI Control Wiring Verification
 
-Добавлен один pure `legacyProofDiagnostic` domain wrapper и одна узкая delegation в no-existing-proof ветке `solveNodeLogic()`. Wrapper принимает только injected existing `generateProof` document delegate, возвращает **тот же** `Proof` object by reference и фиксирует immutable `LOCAL_DIAGNOSTIC_ONLY` classification с false flags для Core execution, Lean kernel verification, source evidence write, trust decision и workflow-state write. Внешний `Proof` DTO, nested `externalLean` reference и источник не клонируются, не переписываются и не получают новый authority marker; existing public `generateProof` signature, legacy compatibility transport/fallback и existing proof branch сохраняются.
-
-Это не создаёт Core result, Lean kernel verification, trusted proof, human decision, RICIS solution или `resolved` state: newly generated local diagnostics остаются `partial`, а strict Core snapshot/state authority продолжает принадлежать published Core bridge и `AuthoritativeProofStatePolicy`. OIR-02 не импортирует и не меняет Core/WASM/gateway, Lean/consent/Passport, user Lean/TeX, agent/provider/model, `apiClient` or `/api/generateProof` transport, UI/store/persistence/migration/catalog/graph, RICIS ontology, proof repair/canonical template policy или automatic training. Fresh 44-case QA-first matrix and regression gates are application-code evidence only, not proof execution, Core/Lean authority, agent competence or mathematical verification.
+Реализованы типы и интерфейсы сквозного аудита элементов управления UI (`IUIControlDescriptorDTO`, `IUIControlRegistryService`, `IUIAuditReportDTO`) и 5-этапного пайплайна оркестрации (`IOrchestrationStateDTO`, `IOrchestrationStepDTO`, `IRicisOrchestratorEngine`). Внедрены 2 новые тестовые сюиты (`uiControlWiring.topology.test.ts` и `orchestrationPipeline.test.ts`), подтверждающие 100% покрытие UI-элементов без фиктивных обработчиков и полную наблюдаемость этапов разрешения сингулярностей (Parsing → Axioms → Lean CodeGen → Gateway → Trust) с сохранением $L1\_IDENTITY$.
 
 ### v0.4.50 — INDUSTRIAL-RICIS-01: статический source-bound industrial research context
 

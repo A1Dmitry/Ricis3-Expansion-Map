@@ -1,5 +1,167 @@
 import { CALCULATOR_GRAPH_STATIC_SEED } from '../calculatorGraphDescriptor/calculatorGraphDescriptor.seed';
-import { MapState } from './types';
+import { MapState, ProblemNode, DependencyEdge, EdgeColor } from './types';
+import { VOYNICH_DECRYPTION_SPEC, IVoynichDecodedFolioDTO } from './voynichGenome';
+
+export const VOYNICH_HIERARCHY_NODES: ProblemNode[] = (() => {
+  const tree = VOYNICH_DECRYPTION_SPEC.hierarchyTree;
+  const nodes: ProblemNode[] = [];
+
+  // 1. Circuits (Level 0)
+  for (const c of tree.circuits) {
+    nodes.push({
+      id: c.id,
+      title: `[P&ID Контур L0]: ${c.name}`,
+      description: `[EVA Genome Reactor Circuit]\n${c.description}\nRICIS Инвариант: ${c.ricisInvariant}`,
+      state: 'resolved',
+      type: 'scientific_task',
+      targetFunction: c.ricisInvariant,
+      zoneIds: ['energy_lenr'],
+      dependencyIds: ['math-singularity', 'phys-unified'],
+      dependentIds: c.folioIds,
+      fractalDepth: 0,
+      economic: {
+        costUnresolved: 200_000_000_000,
+        costToSolve: 1_000_000,
+        marketGain: 10_000_000_000_000,
+        riskLoss: 2_000_000_000_000,
+      },
+      sourceUrl: 'https://doi.org/10.5281/zenodo.18001299',
+      ricisSolvable: true,
+    });
+  }
+
+  // 2. Folios (Level 1)
+  for (const f of tree.folios) {
+    const modernStr = f.modernAnalogue
+      ? `\n\nСовременный аналог: ${f.modernAnalogue.name} (${f.modernAnalogue.category})\nПринцип работы: ${f.modernAnalogue.mechanism}${f.modernAnalogue.doiOrUrl ? `\nСсылка/DOI: ${f.modernAnalogue.doiOrUrl}` : ''}`
+      : '';
+
+    nodes.push({
+      id: f.id,
+      title: `Voynich Folio ${f.folio}: ${f.function}`,
+      description: `[EVA Genome Decryption v1.0.0_RICIS_v7.8]\nSubsystem: ${f.subsystem}\nP&ID Visual Checksum: ${f.visualChecksum}\nRICIS Invariant: ${f.ricisInvariant}${f.chargeDepth ? `\nCharge Depth: ${f.chargeDepth}` : ''}\nEVA Source: ${f.evaSourceUrl}${modernStr}`,
+      state: 'resolved',
+      type: 'scientific_task',
+      targetFunction: f.ricisInvariant,
+      zoneIds: ['energy_lenr'],
+      dependencyIds: [f.circuitId],
+      dependentIds: f.blockIds,
+      fractalDepth: 1,
+      economic: {
+        costUnresolved: 30_000_000_000,
+        costToSolve: 150_000,
+        marketGain: 1_500_000_000_000,
+        riskLoss: 300_000_000_000,
+      },
+      sourceUrl: f.evaSourceUrl,
+      ricisSolvable: true,
+    });
+  }
+
+  // 3. Blocks (Level 2)
+  for (const b of tree.blocks) {
+    const modernStr = b.modernAnalogue
+      ? `\nСовременный аналог: ${b.modernAnalogue.name} (${b.modernAnalogue.category})`
+      : '';
+
+    nodes.push({
+      id: b.id,
+      title: `[P&ID Блок L2]: ${b.name}`,
+      description: `${b.description}\nШифр: ${b.pandidCode}${modernStr}`,
+      state: 'resolved',
+      type: 'scientific_task',
+      targetFunction: b.pandidCode,
+      zoneIds: ['energy_lenr'],
+      dependencyIds: [b.folioId],
+      dependentIds: b.partIds,
+      fractalDepth: 2,
+      economic: {
+        costUnresolved: 10_000_000_000,
+        costToSolve: 50_000,
+        marketGain: 500_000_000_000,
+        riskLoss: 100_000_000_000,
+      },
+      sourceUrl: 'https://doi.org/10.5281/zenodo.18001299',
+      ricisSolvable: true,
+    });
+  }
+
+  // 4. Parts (Level 3)
+  for (const p of tree.parts) {
+    const modernStr = p.modernAnalogue
+      ? `\nСовременный аналог: ${p.modernAnalogue.name}`
+      : '';
+
+    nodes.push({
+      id: p.id,
+      title: `[Деталь P&ID L3]: ${p.name}`,
+      description: `${p.pandidDescription}\nМатериал: ${p.material}\nP&ID Рисунок EVA: ${p.visualChecksum}\nRICIS Инвариант: ${p.ricisInvariant}\nЧастота: ${p.operatingFrequency}${modernStr}`,
+      state: 'resolved',
+      type: 'scientific_task',
+      targetFunction: p.ricisInvariant,
+      zoneIds: ['energy_lenr'],
+      dependencyIds: [p.blockId],
+      dependentIds: p.codeUnitIds,
+      fractalDepth: 3,
+      economic: {
+        costUnresolved: 5_000_000_000,
+        costToSolve: 25_000,
+        marketGain: 250_000_000_000,
+        riskLoss: 50_000_000_000,
+      },
+      sourceUrl: 'https://doi.org/10.5281/zenodo.18001299',
+      ricisSolvable: true,
+    });
+  }
+
+  // 5. Code Units (Level 4)
+  for (const c of tree.codeUnits) {
+    const weightStr = c.tokenWeight ? `\nЛенивый вес БД (1/f_i): ${c.tokenWeight}` : '';
+
+    nodes.push({
+      id: c.id,
+      title: `[EVA Forth Код L4]: ${c.evaSentence}`,
+      description: `EVA Предложение: "${c.evaSentence}"\nСтек Forth: ${c.forthStackOperations.join(' -> ')}\nУнарный заряд: +${c.unaryCharge}${weightStr}\nRICIS Лог: ${c.ricisTransformationLog.transformation} -> ${c.ricisTransformationLog.outputInvariant}`,
+      state: 'resolved',
+      type: 'scientific_task',
+      targetFunction: c.ricisTransformationLog.outputInvariant,
+      zoneIds: ['energy_lenr'],
+      dependencyIds: [c.partId],
+      dependentIds: [],
+      fractalDepth: 4,
+      economic: {
+        costUnresolved: 1_000_000_000,
+        costToSolve: 10_000,
+        marketGain: 50_000_000_000,
+        riskLoss: 10_000_000_000,
+      },
+      sourceUrl: 'https://doi.org/10.5281/zenodo.18001299',
+      ricisSolvable: true,
+    });
+  }
+
+  return nodes;
+})();
+
+export const VOYNICH_HIERARCHY_EDGES: DependencyEdge[] = (() => {
+  return VOYNICH_DECRYPTION_SPEC.hierarchyTree.edges.map((e) => {
+    let stateColor: EdgeColor = 'green';
+    if (e.type === 'recirculation_pandid') stateColor = 'red';
+    else if (e.type === 'token_flow') stateColor = 'blue';
+    else if (e.type === 'macro_cross_reference') stateColor = 'yellow';
+
+    return {
+      id: e.id,
+      fromId: e.fromId,
+      toId: e.toId,
+      strength: e.strength,
+      stateColor,
+      economicInfluence: e.economicInfluence || 0.8,
+    };
+  });
+})();
+
+export const VOYNICH_FOLIANT_NODES = VOYNICH_HIERARCHY_NODES;
 
 export const initialMap: MapState = {
   agentLogs: [],
@@ -676,6 +838,7 @@ export const initialMap: MapState = {
       "ricisSolvable": true
     },
     ...CALCULATOR_GRAPH_STATIC_SEED.nodes,
+    ...VOYNICH_FOLIANT_NODES,
   ],
   edges: [
     { id: 'edge-1', fromId: 'core-agi-target', toId: 'med-diagnostics', strength: 0.9, stateColor: 'red', economicInfluence: 0.7 },
@@ -691,6 +854,7 @@ export const initialMap: MapState = {
     { id: 'edge-chatbot-monetization', fromId: 'ai-authorship-provenance', toId: 'ricis-chatbot-monetization', strength: 0.95, stateColor: 'red', economicInfluence: 0.95 },
     { id: 'edge-chatbot-econ', fromId: 'ricis-chatbot-monetization', toId: 'econ-value', strength: 0.9, stateColor: 'red', economicInfluence: 0.9 },
     ...CALCULATOR_GRAPH_STATIC_SEED.edges,
+    ...VOYNICH_HIERARCHY_EDGES,
   ],
   zones: [
     {
@@ -783,6 +947,13 @@ export const initialMap: MapState = {
       description: 'Семантика, LLM-инварианты.',
       nodeIds: [],
       economicProfile: { costUnresolved: 3000, costToSolve: 200, marketGain: 20000, riskLoss: 5000 }
+    },
+    {
+      id: 'energy_lenr',
+      name: 'Гидроакустическая энергетика и LENR (Рукопись Войнича)',
+      description: 'Автономные гидроакустические кавитационные LENR-реакторы, микрофизика схлопывания пузырьков (0_P / ∞_v) и бестопливные энергетические монолиты EVA Genome.',
+      nodeIds: VOYNICH_FOLIANT_NODES.map(n => n.id),
+      economicProfile: VOYNICH_DECRYPTION_SPEC.economicProfile,
     }
   ],
   axioms: [],

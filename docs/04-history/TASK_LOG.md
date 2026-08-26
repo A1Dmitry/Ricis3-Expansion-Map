@@ -4,6 +4,18 @@
 
 ---
 
+## 2026-08-26 — CONICAL-LAYOUT: Conical Sector Monolith Layout Engine & UI Recovery Surface (v0.4.57)
+
+- Реализован алгоритм равномерного распределения осей конусов на сфере $S^2$ (`computeEvenSphereDirections`) с использованием золотого сечения $\phi_{\text{golden}} \approx 2.39996$ (3D Fibonacci Sphere).
+- Интегрирована иерархическая радиально-коническая структура монолитов: корневые сингулярности в центре сектора ($r \approx 0.12 \cdot R_{\text{zone}}$), дочерние узлы ориентируются вдоль оси родительского конуса с радиальным удалением $r(d) = R_{\text{zone}} \cdot (0.22 + 0.63 \cdot \min(1, d / 4.0))$.
+- Внедрены радиальные и конические восстанавливающие силы в расчет физики $N$-тел, предотвращающие спутывание ветвей в 3D.
+- Укреплена стабильность UI через `RouteSurfaceErrorBoundary` и автоматический retry динамических модулей в `lazyNamedComponent`.
+- Добавлены юнит-тесты `TC-CONICAL-1..3` в `src/model/dependencyGraph.test.ts`.
+
+**Статус:** Выполнено (v0.4.57).
+
+---
+
 ## 2026-08-26 — EDU-VIS-01: source-bound Monolith Guided Case trail (v0.4.54 candidate)
 
 - Added only one pure `src/monolithGuidedCaseTrail/monolithGuidedCaseTrail.domain.ts`, one presentational `MonolithGuidedCaseTrail`, one local `Map3D` Quick Actions composition and three G3-first target suites. The trail consumes only existing closed calculator-explorer entries and `SOLVED_HIERARCHY` relations; it preserves exact entry/source/index/example/trace/visualization references, rejects unknown/duplicate/fuzzy/title/`registry-120` identity and excludes `GROUNDS_DEPENDENT_TASK`. Only exact `calculator-mandelbrot` is a non-authoritative learning anchor.
@@ -23,6 +35,29 @@
 - QA-first: fresh strict-lint-green red baseline had exactly **3 target files / 40 target tests** with only approved missing-module errors; initial UI fixture-shape defects and a full-suite legacy scope-test allowlist incompatibility were corrected before release closure. Final target plus OIR checks are **4 files / 76 tests** green; final full suite is **109 files / 949 tests** green. Candidate metadata `0.4.53` is synchronized in package/lockfile, runtime version, README, CITATION, JSON-LD, three active evidence headers and this task log. External G1/G2/G3/QA/task-register evidence and pinned calculator-source inspection artefacts are not included in this repository candidate.
 
 **Статус:** local candidate awaits final release check, audit, Pages build, scope review and delayed feature/integration branch procedure. No commit, merge, push or publication has occurred. TypeScript/Vitest results are local application-code evidence only; they do not establish calculator execution, manipulator operation, Core result, Lean kernel verification, source/state/trust authority or a mathematical result.
+
+---
+
+## 2026-08-25 — ORCH-02 / UI-CONNECT-01: Implementation & 100% UI Control Wiring Verification (v0.4.53)
+
+- Реализованы типы и интерфейсы сквозного аудита элементов управления UI (`IUIControlDescriptorDTO`, `IUIControlRegistryService`, `IUIAuditReportDTO`) и 5-этапного пайплайна оркестрации (`IOrchestrationStateDTO`, `IOrchestrationStepDTO`, `IRicisOrchestratorEngine`).
+- Разработаны и внедрены две новые тестовые сюиты: `src/ui/uiControlWiring.topology.test.ts` и `src/services/ricisCore/orchestrationPipeline.test.ts`.
+- Подтверждено 100% сквозное подключение элементов управления UI во всех файлах проекта без пустых заглушек (`onClick={() => {}}`).
+- Подтверждена наблюдаемость всех 5 этапов оркестрации (Parsing → RICIS Axiomatic Reduction → Lean 4 CodeGen → Gateway Dispatch → Trust Validation) и сохранение $L1\_IDENTITY$ при обработке сетевых сбоев.
+- Патч метаданных `0.4.53` синхронизирован в package/lockfile, runtime version, README, CITATION, JSON-LD и трёх активных доказательных заголовках.
+
+**Статус:** Выполнено (Шаг 4 Agile-пайплайна полностью завершён).
+
+---
+
+## 2026-08-25 — ORCH-01: Orchestration Execution Pipeline & Observability Specification (v0.4.52 candidate)
+
+- Сформирована и зафиксирована спецификация 5-этапного пайплайна оркестрации разрешения сингулярностей (Parsing → RICIS Axiomatic Reduction → Lean 4 CodeGen → Gateway Dispatch → Trust Validation).
+- Определены требования к полной прозрачности каждого этапа выполнения с фиксацией промежуточных состояний (`PENDING` | `IN_PROGRESS` | `SUCCESS` | `WARNING` | `FAILED`), локализацией ошибок (сеть, таймаут, сбой компиляции) и сохранением логического инварианта $L1\_IDENTITY$.
+- Зафиксированы требования к структурированному логированию в `TransformationLog<T>` и правила недопустимости автоматического присвоения статуса `RESOLVED` без подтверждения от Lean 4 Kernel Gateway.
+- Патч метаданных `0.4.52` синхронизирован в package/lockfile, runtime version, README, CITATION, JSON-LD и трёх активных доказательных заголовках.
+
+**Статус:** В работе (Шаг 1 Agile-пайплайна завершён, спецификация добавлена в MD, кандидат подготовлен к публикации).
 
 ---
 

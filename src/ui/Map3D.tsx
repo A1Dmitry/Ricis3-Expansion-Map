@@ -34,9 +34,12 @@ import {
   Map as MapIcon,
   List,
   Gift,
+  BookOpen,
 } from 'lucide-react';
 import { SettingsModal } from './SettingsModal';
 import { RicisProofConsoleModal } from './RicisProofConsoleModal';
+import { VoynichDecryptionPanel } from './VoynichDecryptionPanel';
+import { MapPatchImportModal } from './MapPatchImportModal';
 import {
   isNodeAvailable,
   findPathToRicis,
@@ -414,6 +417,8 @@ export const Map3D: React.FC = () => {
   const [showTelegramBot, setShowTelegramBot] = useState(false);
   const [showAgentLogs, setShowAgentLogs] = useState(false);
   const [showProofConsole, setShowProofConsole] = useState(false);
+  const [showVoynichModal, setShowVoynichModal] = useState(false);
+  const [showPatchImportModal, setShowPatchImportModal] = useState(false);
   const [editingNode, setEditingNode] = useState<ProblemNode | null>(null);
   const [isSolving, setIsSolving] = useState(false);
   const [isAgentSearching, setIsAgentSearching] = useState(false);
@@ -1569,6 +1574,15 @@ export const Map3D: React.FC = () => {
           </button>
           <button
             type="button"
+            onClick={() => setShowVoynichModal(true)}
+            className="min-h-10 bg-yellow-950/60 hover:bg-yellow-900/70 border border-yellow-600/60 text-yellow-300 font-bold text-xs px-2 sm:px-3.5 py-1.5 rounded-md transition-all cursor-pointer flex items-center gap-1.5 uppercase tracking-wider shadow-[0_0_12px_rgba(234,179,8,0.2)]"
+            aria-label="Войнич EVA ($50Т)"
+            title="Дешифровка Рукописи Войнича EVA Genome (DOI 10.5281/zenodo.18001299)"
+          >
+            <BookOpen size={14} className="text-yellow-400" /> <span className="hidden sm:inline">Войнич EVA ($50Т)</span>
+          </button>
+          <button
+            type="button"
             onClick={() => {
               if (mapPresentationMode === 'three_dimensional') {
                 setMapFallbackReason('user_selected');
@@ -1937,6 +1951,13 @@ export const Map3D: React.FC = () => {
                           className="w-full cursor-pointer py-2 text-xs"
                         >
                           💾 Сохранить в IndexedDB
+                        </ActionButton>
+                        <ActionButton
+                          onClick={() => setShowPatchImportModal(true)}
+                          variant="cyan"
+                          className="w-full cursor-pointer py-2 text-xs"
+                        >
+                          ⚡ Импорт решений (JSON)
                         </ActionButton>
                         <ActionButton
                           onClick={() => map.downloadJson()}
@@ -2400,6 +2421,24 @@ export const Map3D: React.FC = () => {
       </footer>
       )}
       <RicisTerminalModal />
+
+      {showVoynichModal && (
+        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto">
+          <div className="w-full max-w-5xl max-h-[90vh] overflow-y-auto">
+            <VoynichDecryptionPanel
+              onSelectFolioNode={(folioId) => {
+                setSelectedNodeId(folioId);
+                setShowVoynichModal(false);
+              }}
+              onClose={() => setShowVoynichModal(false)}
+            />
+          </div>
+        </div>
+      )}
+
+      {showPatchImportModal && (
+        <MapPatchImportModal onClose={() => setShowPatchImportModal(false)} />
+      )}
     </div>
   );
 };

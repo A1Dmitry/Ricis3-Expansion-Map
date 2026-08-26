@@ -21,7 +21,14 @@ export function lazyNamedComponent<TProps, TExportName extends string>(
   exportName: TExportName,
 ): LazyExoticComponent<ComponentType<TProps>> {
   return lazy(async () => {
-    const module = await load();
-    return { default: module[exportName] };
+    try {
+      const module = await load();
+      return { default: module[exportName] };
+    } catch (err) {
+      console.warn(`Initial load failed for chunk ${exportName}, retrying load...`, err);
+      await new Promise(r => setTimeout(r, 300));
+      const module = await load();
+      return { default: module[exportName] };
+    }
   });
 }

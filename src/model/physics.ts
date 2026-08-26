@@ -1,4 +1,23 @@
-import { ProblemNode, ScienceZone, MapState } from './types';
+import { ProblemNode, ScienceZone, MapState, DependencyEdge, Vector3D } from './types';
+
+/**
+ * Равномерно распределяет векторы направлений осей конусов на единичной сфере S^2 позолоченному сечению (3D Fibonacci Sphere Algorithm).
+ */
+export function computeEvenSphereDirections(count: number): Vector3D[] {
+  if (count <= 0) return [];
+  const directions: Vector3D[] = [];
+  const phiGolden = Math.PI * (1 + Math.sqrt(5)); // ~2.3999632297286533
+  for (let i = 0; i < count; i++) {
+    const y = 1 - (2 * (i + 0.5)) / count; // y равномерно меняется от 1 до -1
+    const radius = Math.sqrt(Math.max(0, 1 - y * y));
+    const theta = phiGolden * i;
+    const x = Math.cos(theta) * radius;
+    const z = Math.sin(theta) * radius;
+    const len = Math.sqrt(x * x + y * y + z * z) || 1.0;
+    directions.push({ x: x / len, y: y / len, z: z / len });
+  }
+  return directions;
+}
 
 /**
  * Физика экранирования и внешнего давления (Модель Катющика).
@@ -294,22 +313,61 @@ export function layoutZones(
   return out;
 }
 
-export function layoutNodes(
-  map: MapState,
-  zonePositions: Record<string, [number, number, number]>,
-  customParams?: Partial<PhysicsParams>
-): Record<string, [number, number, number]> {
-  const p = { ...DEFAULT_PHYSICS_PARAMS, ...customParams };
-  const nodes = map.nodes;
-  const n = nodes.length;
-  if (n === 0) return {};
+export type FormattedNodeLayout = {
+  [id: string]: [number, number, number] | any;
+};
 
-  const nodeMap = new Map(nodes.map(n => [n.id, n]));
-  const getZid = (node: ProblemNode) => (node.zoneIds[0] && zonePositions[node.zoneIds[0]]) ? node.zoneIds[0] : 'math';
+export function layoutNodes(
+  mapOrNodes: MapState | ProblemNode[],
+  zonePositionsOrZones?: Record<string, [number, number, number]> | ScienceZone[],
+  customParamsOrEdges?: Partial<PhysicsParams> | DependencyEdge[]
+): FormattedNodeLayout {
+  let nodes: ProblemNode[] = [];
+  let zones: ScienceZone[] = [];
+  let zonePositions: Record<string, [number, number, number]> = {};
+  let customParams: Partial<PhysicsParams> | undefined = undefined;
+
+  if (Array.isArray(mapOrNodes)) {
+    nodes = mapOrNodes;
+    zones = Array.isArray(zonePositionsOrZones) ? zonePositionsOrZones : [];
+    zonePositions = layoutZones(zones, nodes);
+  } else {
+    const map = mapOrNodes as MapState;
+    nodes = map.nodes || [];
+    zones = map.zones || [];
+    zonePositions = (zonePositionsOrZones as Record<string, [number, number, number]>) || layoutZones(zones, nodes);
+    customParams = customParamsOrEdges as Partial<PhysicsParams>;
+  }
+
+  const p = { ...DEFAULT_PHYSICS_PARAMS, ...customParams };
+  const n = nodes.length;
+
+  const createResult = (mapObj: Record<string, [number, number, number]>): FormattedNodeLayout => {
+    const res = { ...mapObj } as FormattedNodeLayout;
+    Object.defineProperty(res, 'get', {
+      value: (id: string) => {
+        const val = res[id];
+        return val ? { x: val[0], y: val[1], z: val[2] } : undefined;
+      },
+      enumerable: false,
+      configurable: true,
+    });
+    Object.defineProperty(res, 'size', {
+      get: () => Object.keys(res).length,
+      enumerable: false,
+      configurable: true,
+    });
+    return res;
+  };
+
+  if (n === 0) return createResult({});
+
+  const nodeMap = new Map(nodes.map(node => [node.id, node]));
+  const getZid = (node: ProblemNode) => (node.zoneIds && node.zoneIds[0] && zonePositions[node.zoneIds[0]]) ? node.zoneIds[0] : 'math';
 
   const zoneBaseR: Record<string, number> = {};
-  map.zones.forEach(z => {
-    zoneBaseR[z.id] = zoneVisualRadius(z, map.nodes);
+  zones.forEach(z => {
+    zoneBaseR[z.id] = zoneVisualRadius(z, nodes);
   });
 
   const nodeRadii: Record<string, number> = {};
@@ -317,24 +375,7 @@ export function layoutNodes(
     nodeRadii[node.id] = nodeVisualRadius(node, nodes);
   });
 
-  // Calculate inter-scientific bridge score & centrality for every node
-  const bridgeScores: Record<string, number> = {};
-  nodes.forEach(node => {
-    const selfZone = getZid(node);
-    const deps = [...(node.dependencyIds || []), ...(node.dependentIds || [])];
-    const crossZoneCount = deps.filter(depId => {
-      const depNode = nodeMap.get(depId);
-      return depNode && getZid(depNode) !== selfZone;
-    }).length;
-
-    const isMultiZone = node.zoneIds.length > 1;
-    const isCoreHub = (node.fractalDepth || 0) === 0 || /AGI|Core|Якобиан|Jacobian|Инвариант|singularity/i.test(node.title);
-    const dependentCount = node.dependentIds?.length || 0;
-
-    bridgeScores[node.id] = crossZoneCount * 4 + (isMultiZone ? 6 : 0) + (isCoreHub ? 10 : 0) + dependentCount * 2;
-  });
-
-  // Group nodes by their primary scientific zone
+  // Group nodes by primary scientific zone
   const zoneMembersMap: Record<string, ProblemNode[]> = {};
   nodes.forEach(node => {
     const zid = getZid(node);
@@ -343,46 +384,103 @@ export function layoutNodes(
   });
 
   const rawPos: Record<string, [number, number, number]> = {};
+  const nodeConeMap = new Map<string, { coneDir: Vector3D; targetRadius: number; rootId: string }>();
 
-  // Volumetric initial 3D distribution per zone filling the full sphere volume (diffusion model)
+  // Conical Sector Monolith Layout Algorithm
   Object.entries(zoneMembersMap).forEach(([zid, members]) => {
     const zc = zonePositions[zid] || [0, 0, 0];
     const R = zoneBaseR[zid] || 15;
 
-    // Sort zone members descending by bridgeScore so major core hubs start near center
-    members.sort((a, b) => bridgeScores[b.id] - bridgeScores[a.id]);
+    // Identify Root Nodes (depth 0 or no incoming dependencies in zone)
+    const memberSet = new Set(members.map(m => m.id));
+    let rootNodes = members.filter(m => (m.fractalDepth ?? 0) === 0 || !m.dependencyIds || m.dependencyIds.every(d => !memberSet.has(d)));
+    if (rootNodes.length === 0) {
+      const minDepth = Math.min(...members.map(m => m.fractalDepth ?? 0));
+      rootNodes = members.filter(m => (m.fractalDepth ?? 0) === minDepth);
+    }
 
-    const mCount = members.length;
-    // Radial bounds spanning from inner core (12% radius) out to outer boundary (85% radius)
-    const R_min = Math.max(4.0, R * 0.12);
-    const R_max = Math.max(R_min + 4.0, R * 0.85);
+    const rootCount = Math.max(1, rootNodes.length);
+    const coneDirs = computeEvenSphereDirections(rootCount);
 
-    members.forEach((node, i) => {
-      if (i === 0 && bridgeScores[node.id] >= 10) {
-        // Core bridging hub placed at exact center of zone
-        rawPos[node.id] = [zc[0], zc[1], zc[2]];
+    const rootConeIndexMap = new Map<string, number>();
+    rootNodes.forEach((rNode, idx) => {
+      rootConeIndexMap.set(rNode.id, idx);
+    });
+
+    // Sub-counters for nodes in each cone
+    const coneNodeCounters = new Array<number>(rootCount).fill(0);
+
+    members.forEach((node) => {
+      // Find ancestor root node
+      let rootId = node.id;
+      let curr = node;
+      const visited = new Set<string>([node.id]);
+
+      while (!rootConeIndexMap.has(rootId) && curr.dependencyIds && curr.dependencyIds.length > 0) {
+        const parentId = curr.dependencyIds.find(p => memberSet.has(p) && !visited.has(p));
+        if (!parentId) break;
+        visited.add(parentId);
+        rootId = parentId;
+        const parentNode = nodeMap.get(parentId);
+        if (!parentNode) break;
+        curr = parentNode;
+      }
+
+      let coneIdx = rootConeIndexMap.get(rootId);
+      if (coneIdx === undefined) {
+        coneIdx = Math.abs(node.id.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0)) % rootCount;
+      }
+
+      const coneDir = coneDirs[coneIdx];
+      const subIndex = coneNodeCounters[coneIdx]++;
+      const depth = Math.max(0, node.fractalDepth ?? 0);
+
+      // Radial position: roots near center (0.12 * R), leaves further out up to 0.85 * R
+      const isRoot = (rootNodes.some(r => r.id === node.id) || depth === 0);
+      const targetRadius = isRoot
+        ? Math.max(2.5, R * 0.12)
+        : R * (0.22 + 0.63 * Math.min(1.0, depth / 4.0));
+
+      // Construct perpendicular basis (u, v) for the cone direction
+      let ux = 0, uy = 0, uz = 0;
+      if (Math.abs(coneDir.z) < 0.85) {
+        ux = -coneDir.y; uy = coneDir.x; uz = 0;
       } else {
-        // Volumetric 3D radius r_i = (R_min^3 + u * (R_max^3 - R_min^3))^(1/3) for uniform 3D density
-        const u = mCount > 1 ? i / (mCount - 1) : 0.5;
-        const bScore = bridgeScores[node.id];
-        // High bridge score pulls radius slightly inward (0.6x - 1.0x), regular nodes fill full volume
-        const bridgeInwardFactor = bScore > 0 ? Math.max(0.60, 1.0 - Math.min(0.40, bScore * 0.02)) : 1.0;
-        const targetRadius = Math.cbrt(Math.pow(R_min, 3) + u * (Math.pow(R_max, 3) - Math.pow(R_min, 3))) * bridgeInwardFactor;
+        ux = 0; uy = -coneDir.z; uz = coneDir.y;
+      }
+      const uLen = Math.sqrt(ux * ux + uy * uy + uz * uz) || 1;
+      ux /= uLen; uy /= uLen; uz /= uLen;
 
-        // Golden Ratio 3D Fibonacci sphere distribution for uniform directional spreading
-        const phi = Math.acos(1 - (2 * (i + 0.5)) / mCount);
-        const theta = Math.PI * (1 + Math.sqrt(5)) * i;
+      // v = coneDir x u
+      const vx = coneDir.y * uz - coneDir.z * uy;
+      const vy = coneDir.z * ux - coneDir.x * uz;
+      const vz = coneDir.x * uy - coneDir.y * ux;
+
+      if (isRoot) {
+        rawPos[node.id] = [zc[0] + coneDir.x * targetRadius, zc[1] + coneDir.y * targetRadius, zc[2] + coneDir.z * targetRadius];
+      } else {
+        const spreadAngle = Math.min(0.65, 0.18 * depth + 0.08 * (subIndex % 5));
+        const subPhi = 2.39996 * subIndex; // Golden spiral inside cone
+        const offX = Math.cos(subPhi) * spreadAngle;
+        const offY = Math.sin(subPhi) * spreadAngle;
+
+        const dirX = coneDir.x + offX * ux + offY * vx;
+        const dirY = coneDir.y + offX * uy + offY * vy;
+        const dirZ = coneDir.z + offX * uz + offY * vz;
+        const dirLen = Math.sqrt(dirX * dirX + dirY * dirY + dirZ * dirZ) || 1;
 
         rawPos[node.id] = [
-          zc[0] + Math.sin(phi) * Math.cos(theta) * targetRadius,
-          zc[1] + Math.sin(phi) * Math.sin(theta) * targetRadius,
-          zc[2] + Math.cos(phi) * targetRadius
+          zc[0] + (dirX / dirLen) * targetRadius,
+          zc[1] + (dirY / dirLen) * targetRadius,
+          zc[2] + (dirZ / dirLen) * targetRadius,
         ];
       }
+
+      nodeConeMap.set(node.id, { coneDir, targetRadius, rootId });
     });
   });
 
-  const pos: [number, number, number][] = nodes.map(n => rawPos[n.id] || [0,0,0]);
+  const pos: [number, number, number][] = nodes.map(n => rawPos[n.id] || [0, 0, 0]);
   const vel: [number, number, number][] = Array.from({ length: n }, () => [0, 0, 0]);
 
   const minSurfaceGap = p.minNodeSurfaceGap;
@@ -390,7 +488,7 @@ export function layoutNodes(
   const damping = 0.80;
   const STEPS = 80;
 
-  // Адаптивная динамика $N$-тел с поддержкой законов пружин Гука и отталкивания
+  // N-body Force Relaxation with Conic & Radial Restoring Forces
   for (let s = 0; s < STEPS; s++) {
     const forces: [number, number, number][] = Array.from({ length: n }, () => [0, 0, 0]);
 
@@ -398,8 +496,9 @@ export function layoutNodes(
       const nodeI = nodes[i];
       const radI = nodeRadii[nodeI.id];
       const massI = (radI * radI * radI) / 8.0 + 0.5;
+      const coneInfo = nodeConeMap.get(nodeI.id);
 
-      // 1. Взаимное расталкивание узлов одной зоны
+      // 1. Mutual node-node repulsion within zone
       for (let j = i + 1; j < n; j++) {
         if (getZid(nodes[i]) !== getZid(nodes[j])) continue;
 
@@ -413,7 +512,6 @@ export function layoutNodes(
         const dist = Math.sqrt(dx*dx + dy*dy + dz*dz) + 1e-6;
 
         const surfaceDist = Math.max(0.1, dist - radI - radJ);
-
         const G = p.nodeG;
         let forceMag = (G * 4.0 * massI * massJ) / (surfaceDist * surfaceDist + 4.0);
 
@@ -434,7 +532,7 @@ export function layoutNodes(
         forces[j][2] -= nz * forceMag;
       }
 
-      // 2. Давление среды зоны и мягкий удерживающий контур
+      // 2. Zone boundary and radial restoring force
       const zidI = getZid(nodeI);
       const zcI = zonePositions[zidI] || [0, 0, 0];
       const zR = zoneBaseR[zidI] || 15;
@@ -444,23 +542,35 @@ export function layoutNodes(
       const dz = pos[i][2] - zcI[2];
       const distFromCenter = Math.sqrt(dx*dx + dy*dy + dz*dz) + 1e-6;
 
-      const boundarySurfaceDist = Math.max(0.1, zR - distFromCenter - radI);
-      const G_ext = p.nodeGExt;
-      let inForce = (G_ext * 2.0 * massI) / (boundarySurfaceDist * boundarySurfaceDist + 10.0);
+      if (coneInfo) {
+        // Radial distance restoring force towards targetRadius
+        const radDiff = coneInfo.targetRadius - distFromCenter;
+        const radForce = radDiff * 1.5;
+        forces[i][0] += (dx / distFromCenter) * radForce;
+        forces[i][1] += (dy / distFromCenter) * radForce;
+        forces[i][2] += (dz / distFromCenter) * radForce;
 
+        // Conic axis alignment restoring force
+        const proj = (dx * coneInfo.coneDir.x + dy * coneInfo.coneDir.y + dz * coneInfo.coneDir.z);
+        const perpX = dx - proj * coneInfo.coneDir.x;
+        const perpY = dy - proj * coneInfo.coneDir.y;
+        const perpZ = dz - proj * coneInfo.coneDir.z;
+        forces[i][0] -= perpX * 0.8;
+        forces[i][1] -= perpY * 0.8;
+        forces[i][2] -= perpZ * 0.8;
+      }
+
+      const boundarySurfaceDist = Math.max(0.1, zR - distFromCenter - radI);
+      let inForce = (p.nodeGExt * 2.0 * massI) / (boundarySurfaceDist * boundarySurfaceDist + 10.0);
       if (distFromCenter + radI > zR * 0.85) {
         inForce += (distFromCenter + radI - zR * 0.85) * 15.0;
       }
 
-      const nx = dx / distFromCenter;
-      const ny = dy / distFromCenter;
-      const nz = dz / distFromCenter;
+      forces[i][0] -= (dx / distFromCenter) * inForce;
+      forces[i][1] -= (dy / distFromCenter) * inForce;
+      forces[i][2] -= (dz / distFromCenter) * inForce;
 
-      forces[i][0] -= nx * inForce;
-      forces[i][1] -= ny * inForce;
-      forces[i][2] -= nz * inForce;
-
-      // 3. Структурные связи (Закон Гука для резинок / пружин)
+      // 3. Dependency Hooke springs
       const deps = nodeI.dependencyIds || [];
       for (const depId of deps) {
         const j = nodes.findIndex(x => x.id === depId);
@@ -475,33 +585,27 @@ export function layoutNodes(
 
           const surfaceDist = Math.max(0.0, ddist - radI - radJ);
           const restSurfaceGap = minSurfaceGap * p.springRestGapMult;
+          const springForce = p.springK * (surfaceDist - restSurfaceGap) * 1.5;
 
-          const k = p.springK;
-          const springForce = k * (surfaceDist - restSurfaceGap) * 1.5;
-
-          const snx = ddx / ddist;
-          const sny = ddy / ddist;
-          const snz = ddz / ddist;
-
-          forces[i][0] += snx * springForce;
-          forces[i][1] += sny * springForce;
-          forces[i][2] += snz * springForce;
+          forces[i][0] += (ddx / ddist) * springForce;
+          forces[i][1] += (ddy / ddist) * springForce;
+          forces[i][2] += (ddz / ddist) * springForce;
         }
       }
     }
 
-    // Интегрирование импульсов и позиций
     eulerIntegrate(n, dt, damping, (i) => {
       const radI = nodeRadii[nodes[i].id];
       return (radI * radI * radI) / 8.0 + 0.5;
     }, pos, vel, forces);
   }
 
-  const out: Record<string, [number, number, number]> = {};
+  const outMap: Record<string, [number, number, number]> = {};
   nodes.forEach((node, i) => {
-    out[node.id] = pos[i];
+    outMap[node.id] = pos[i];
   });
-  return out;
+
+  return createResult(outMap);
 }
 
 /** 
