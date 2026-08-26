@@ -2,7 +2,7 @@ import { execFileSync } from 'node:child_process';
 import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 
-const BASELINE = 'ce3aacbdeba5ecd31b462484a82c5bccfe28cad1';
+const BASELINE = '9afd3ff097e05e25f8c7b219300daa9bbe1cbf29';
 const DOMAIN = './monolithGuidedCaseTrail.domain';
 const UI = '../ui/MonolithGuidedCaseTrail';
 

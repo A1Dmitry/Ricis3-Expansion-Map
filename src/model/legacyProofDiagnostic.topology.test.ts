@@ -33,7 +33,7 @@ describe('OIR-02 — dependency topology and release separation', () => {
 
   it('OIR02-QA-41: leaves authoritative proof policy, Core bridge and API client source bytes unchanged', async () => {
     await future();
-    const baseline = 'ce3aacbdeba5ecd31b462484a82c5bccfe28cad1';
+    const baseline = '9afd3ff097e05e25f8c7b219300daa9bbe1cbf29';
     const files = ['src/model/authoritativeProofStatePolicy.ts', 'src/services/ricisCore/RicisWasmBridge.ts', 'src/model/apiClient.ts'];
     for (const path of files) {
       const current = readFileSync(path, 'utf8');

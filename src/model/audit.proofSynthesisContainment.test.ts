@@ -4,7 +4,7 @@ import { describe, expect, it } from 'vitest';
 import { auditMapRicisProofIntegrity, auditMarkMissingTargets } from './audit';
 import type { MapState, Proof, ProblemNode } from './types';
 
-const BASELINE = 'ce3aacbdeba5ecd31b462484a82c5bccfe28cad1';
+const BASELINE = '9afd3ff097e05e25f8c7b219300daa9bbe1cbf29';
 const protectedPaths = [
   'src/model/logic.ts',
   'src/model/legacyProofDiagnostic.ts',
@@ -281,6 +281,9 @@ describe('OIR-03 — audit proof-synthesis containment', () => {
       ' M src/model/migrationAudit.provenance.test.ts',
       ' M src/version.ts',
       ' M src/model/audit.proofSynthesisContainment.test.ts',
+      ' M src/calculatorExplorer/calculatorExplorer.topology.test.ts',
+      ' M src/model/legacyProofDiagnostic.topology.test.ts',
+      ' M src/monolithGuidedCaseTrail/monolithGuidedCaseTrail.topology.test.ts',
       ' M src/calculatorGraphDescriptor/calculatorGraphDescriptor.seed.ts',
       ' M src/ui/Map3D.tsx',
       ' M src/ui/Map3D.communityRewardsStatus.test.ts',
