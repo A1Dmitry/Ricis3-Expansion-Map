@@ -148,42 +148,81 @@ function loadLegacyLocalStorage(): MapState | null {
 
 /**
  * Merge a persisted graph with the published seed without mixing legacy IDs into
- * an already migrated graph. Both sides are first normalized through the same
- * SHA-128 identity service; references are therefore compared in one ID space.
+ * an already migrated graph. Partially migrated records are repaired first: all
+ * known seed IDs and every reference to them are moved into the canonical SHA-128
+ * space before migration or graph validation is allowed to run.
  */
 export function mergeCanonicalSeedGraph(loadedState: MapState): MapState {
-  const persisted = migrateMapNodeIdentitySync(sanitizeMap(loadedState)).map;
   const canonicalSeed = migrateMapNodeIdentitySync(sanitizeMap({ ...deepCopyInitialMap() })).map;
-  const existingZoneIds = new Set(persisted.zones.map((zone) => zone.id));
-  const existingNodeIds = new Set(persisted.nodes.map((node) => node.id));
-  const existingEdgeIds = new Set(persisted.edges.map((edge) => edge.id));
+  const seedAliases = canonicalSeed.nodeIdAliases ?? {};
+  const seedPaths = new Map(canonicalSeed.nodes.map((node) => [node.id, node.canonicalPath]));
+  const remap = (id: string): string => seedAliases[id] ?? id;
+  const unique = (values: readonly string[]): string[] => [...new Set(values.map(remap))];
 
-  const nodes = [
-    ...persisted.nodes,
+  const normalizedInput = sanitizeMap(loadedState);
+  const normalizedNodes = normalizedInput.nodes
+    .map((node) => ({
+      ...node,
+      id: remap(node.id),
+      canonicalPath: node.canonicalPath ?? seedPaths.get(remap(node.id)),
+      dependencyIds: unique(node.dependencyIds ?? []),
+      dependentIds: unique(node.dependentIds ?? []),
+    }))
+    .sort((left, right) => Number(/^[0-9a-f]{32}$/u.test(right.id)) - Number(/^[0-9a-f]{32}$/u.test(left.id)));
+  const nodes = [...new Map(normalizedNodes.map((node) => [node.id, node])).values()];
+  const nodeIds = new Set(nodes.map((node) => node.id));
+  const normalizedEdges = normalizedInput.edges.map((edge) => {
+    const fromId = remap(edge.fromId);
+    const toId = remap(edge.toId);
+    return { ...edge, id: `edge-${fromId}-${toId}`, fromId, toId };
+  });
+  const edges = [...new Map(normalizedEdges.map((edge) => [edge.id, edge])).values()];
+  const zones = normalizedInput.zones.map((zone) => ({ ...zone, nodeIds: unique(zone.nodeIds ?? []) }));
+  const axioms = normalizedInput.axioms.map((axiom) => ({
+    ...axiom,
+    sourceNodeId: remap(axiom.sourceNodeId),
+    usedByNodeIds: unique(axiom.usedByNodeIds ?? []),
+  }));
+  const proofs = Object.fromEntries(Object.entries(normalizedInput.proofs ?? {}).map(([id, proof]) => {
+    const nodeId = remap(proof.nodeId || id);
+    return [nodeId, { ...proof, nodeId }];
+  }));
+  const agentLogs = normalizedInput.agentLogs.map((entry) => entry.nodeId ? { ...entry, nodeId: remap(entry.nodeId) } : { ...entry });
+  const canonicalized = migrateMapNodeIdentitySync({
+    ...normalizedInput,
+    nodes,
+    edges,
+    zones,
+    axioms,
+    proofs,
+    agentLogs,
+    nodeIdAliases: { ...(normalizedInput.nodeIdAliases ?? {}), ...seedAliases },
+  }).map;
+
+  const existingZoneIds = new Set(canonicalized.zones.map((zone) => zone.id));
+  const existingNodeIds = new Set(canonicalized.nodes.map((node) => node.id));
+  const existingEdgeIds = new Set(canonicalized.edges.map((edge) => edge.id));
+  const mergedNodes = [
+    ...canonicalized.nodes,
     ...canonicalSeed.nodes
       .filter((node) => !existingNodeIds.has(node.id))
-      .map((node) => ({
-        ...node,
-        zoneIds: [...node.zoneIds],
-        dependencyIds: [...node.dependencyIds],
-        dependentIds: [...node.dependentIds],
-      })),
+      .map((node) => ({ ...node, zoneIds: [...node.zoneIds], dependencyIds: [...node.dependencyIds], dependentIds: [...node.dependentIds] })),
   ];
-  const nodeIds = new Set(nodes.map((node) => node.id));
-  const edges = [
-    ...persisted.edges,
+  const mergedNodeIds = new Set(mergedNodes.map((node) => node.id));
+  const mergedEdges = [
+    ...canonicalized.edges,
     ...canonicalSeed.edges
-      .filter((edge) => !existingEdgeIds.has(edge.id) && nodeIds.has(edge.fromId) && nodeIds.has(edge.toId))
+      .filter((edge) => !existingEdgeIds.has(edge.id) && mergedNodeIds.has(edge.fromId) && mergedNodeIds.has(edge.toId))
       .map((edge) => ({ ...edge })),
   ];
-  const zones = [
-    ...persisted.zones,
+  const mergedZones = [
+    ...canonicalized.zones,
     ...canonicalSeed.zones
       .filter((zone) => !existingZoneIds.has(zone.id))
       .map((zone) => ({ ...zone, nodeIds: [...zone.nodeIds], economicProfile: { ...zone.economicProfile } })),
   ];
 
-  return sanitizeMap({ ...persisted, nodes, edges, zones });
+  return sanitizeMap({ ...canonicalized, nodes: mergedNodes, edges: mergedEdges, zones: mergedZones });
 }
 
 /** Загрузка: IndexedDB → миграция из localStorage → canonical SHA-128 seed. */

@@ -111,4 +111,42 @@ describe('sanitizeMap consent-preserving state integrity', () => {
     expect(remigrated.nodes.map(candidate => candidate.id)).toEqual(merged.nodes.map(candidate => candidate.id));
     expect(remigrated.edges).toEqual(merged.edges);
   });
+
+  it('repairs a partially migrated persisted graph whose known seed records still use legacy IDs', () => {
+    const seed = deepCopyInitialMap();
+    const migrated = migrateMapNodeIdentitySync(seed).map;
+    const aliases = migrated.nodeIdAliases ?? {};
+    const reverse = new Map(Object.entries(aliases).map(([legacyId, canonicalId]) => [canonicalId, legacyId]));
+    const selected = new Set(seed.nodes.slice(0, 101).map(candidate => aliases[candidate.id]));
+    const restore = (id: string): string => selected.has(id) ? (reverse.get(id) ?? id) : id;
+    const partial = {
+      ...migrated,
+      nodes: migrated.nodes.map(candidate => ({
+        ...candidate,
+        id: restore(candidate.id),
+        canonicalPath: selected.has(candidate.id) ? undefined : candidate.canonicalPath,
+        dependencyIds: candidate.dependencyIds.map(restore),
+        dependentIds: candidate.dependentIds.map(restore),
+      })),
+      edges: migrated.edges.map(edge => {
+        const fromId = restore(edge.fromId);
+        const toId = restore(edge.toId);
+        return { ...edge, id: `edge-${fromId}-${toId}`, fromId, toId };
+      }),
+      zones: migrated.zones.map(zone => ({ ...zone, nodeIds: zone.nodeIds.map(restore) })),
+      proofs: Object.fromEntries(Object.entries(migrated.proofs).map(([id, proof]) => {
+        const nodeId = restore(proof.nodeId);
+        return [nodeId, { ...proof, nodeId }];
+      })),
+    };
+
+    const repaired = mergeCanonicalSeedGraph(partial);
+    const remigrated = migrateMapNodeIdentitySync(repaired).map;
+    const nodeIds = new Set(repaired.nodes.map(candidate => candidate.id));
+
+    expect(repaired.nodes).toHaveLength(migrated.nodes.length);
+    expect(repaired.nodes.every(candidate => /^[0-9a-f]{32}$/u.test(candidate.id))).toBe(true);
+    expect(repaired.nodes.every(candidate => candidate.dependencyIds.every(id => nodeIds.has(id)))).toBe(true);
+    expect(remigrated.nodes.map(candidate => candidate.id)).toEqual(repaired.nodes.map(candidate => candidate.id));
+  });
 });
