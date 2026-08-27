@@ -384,6 +384,7 @@ describe('OIR-03 — audit proof-synthesis containment', () => {
       ' M src/ui/Map3D.tsx',
       ' M src/version.ts',
       '?? docs/01-architecture/SPRINT_PERSISTENCE_EXPORT_ACTION_PANEL_STEP2_ARCHITECTURE.md',
+      '?? docs/01-architecture/EXP-MAP-SERVER-PERSISTENCE-MIGRATION-01_G2_SQLITE_SERVER_ARCHITECTURE.md',
       '?? docs/02-sprints/SPRINT_PERSISTENCE_EXPORT_ACTION_PANEL_STEP1_BUSINESS_SPEC.md',
       '?? docs/03-quality/SPRINT_PERSISTENCE_EXPORT_ACTION_PANEL_STEP3_QA_SPEC.md',
       '?? docs/03-quality/SPRINT_PERSISTENCE_EXPORT_ACTION_PANEL_STEP3_RED_BASELINE.md',
