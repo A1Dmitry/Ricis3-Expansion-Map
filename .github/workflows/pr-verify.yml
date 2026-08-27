@@ -1,0 +1,36 @@
+name: Pull Request Verification
+
+on:
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    name: Verify TypeScript, tests and static build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7.0.1
+        with:
+          fetch-depth: 0
+      - name: Setup Node
+        uses: actions/setup-node@v7.0.0
+        with:
+          node-version: '22.23.2'
+          cache: npm
+      - name: Setup npm
+        run: npm install --global npm@12.0.2 && npm --version
+      - name: Install locked dependencies
+        run: npm ci
+      - name: Verify release alignment and TypeScript
+        run: npm run release:check && npm run lint
+      - name: Run test suite
+        run: npm test
+      - name: Build static application without deployment
+        env:
+          GITHUB_PAGES: 'true'
+        run: npx vite build
