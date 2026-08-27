@@ -109,6 +109,8 @@ const UI_ELEMENTS: UIElement[] = [
   { id: 'agent', label: '', labelKey: 'panel.agent' },
   { id: 'persistence', label: '', labelKey: 'panel.persistence' },
 ];
+
+const discoverablePanelIds = new Set<PanelId>(['persistence']);
 import { isMissingTargetFunction, nodeHasSorry } from '../model/audit';
 import { ActionButton } from './ActionButton';
 import { presentMapNodeVisualStatus } from '../ricisSolutionCatalog';
@@ -590,6 +592,16 @@ export const Map3D: React.FC = () => {
       return next;
     });
   };
+
+  const projectedVisibleElements = useMemo(() => {
+    const visiblePanelIds = new Set(visibleElements.map(element => element.id));
+    const promotedElements = UI_ELEMENTS.filter(element => (
+      discoverablePanelIds.has(element.id as PanelId) &&
+      !visiblePanelIds.has(element.id) &&
+      !userDisabledPanelIds.has(element.id)
+    ));
+    return [...visibleElements, ...promotedElements];
+  }, [userDisabledPanelIds, visibleElements]);
 
   // Auto-persist filter state changes
   useEffect(() => {
@@ -1735,19 +1747,19 @@ export const Map3D: React.FC = () => {
 
           {/* Render active panels */}
           <div className="accordion-container flex flex-col gap-0 border-0 bg-transparent overflow-visible w-full">
-          {[...visibleElements.map((el: any) => ({ ...el, isHidden: false })), ...hiddenElements.map((el: any) => ({ ...el, isHidden: true }))].map(({ id, isHidden }: any) => {
+          {[...projectedVisibleElements.map((el: any) => ({ ...el, isHidden: false })), ...hiddenElements.filter((el: any) => !projectedVisibleElements.some(visibleElement => visibleElement.id === el.id)).map((el: any) => ({ ...el, isHidden: true }))].map(({ id, isHidden }: any) => {
             if (userDisabledPanelIds.has(id)) return null;
             if (isHidden && !showOverflow) return null;
             
             // Every sidebar panel uses the existing adaptive ranking; physics lives in SettingsModal.
             return (
-              <div key={id} className={`accordion-item border border-neutral-800/80 rounded-lg overflow-hidden bg-neutral-900/40 mb-2 relative ${isHidden ? 'opacity-90 border-dashed border-neutral-700' : ''}`}>
+              <div key={id} data-testid={id === 'persistence' ? 'persistence-export-panel' : undefined} className={`accordion-item border border-neutral-800/80 rounded-lg overflow-hidden bg-neutral-900/40 mb-2 relative ${isHidden ? 'opacity-90 border-dashed border-neutral-700' : ''}`}>
                 <input type="checkbox" id={`accordion-${id}`} className="accordion-trigger" checked={openPanelIds.has(id as PanelId)} readOnly />
                 <button
                   type="button"
                   aria-expanded={openPanelIds.has(id as PanelId)}
                   aria-controls={`accordion-content-${id}`}
-                  className="accordion-header bg-neutral-950/80 hover:bg-neutral-900/90 transition-colors cursor-pointer w-full flex flex-col items-start px-3.5 py-2.5 h-auto rounded-none border-0 m-0 text-left"
+                  className="accordion-header bg-neutral-950/80 hover:bg-neutral-900/90 transition-colors cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/80 w-full flex flex-col items-start px-3.5 py-2.5 h-auto rounded-none border-0 m-0 text-left"
                   onClick={() => toggleAccordion(id as PanelId)}
                 >
                   <div className="flex items-center justify-between w-full">
@@ -1837,9 +1849,9 @@ export const Map3D: React.FC = () => {
                   </div>
                 </button>
 
-                <div id={`accordion-content-${id}`} className="accordion-content">
+                  <div id={`accordion-content-${id}`} className="accordion-content">
                   <div className={`accordion-inner p-3 border-t border-neutral-800/60 bg-neutral-950/40 relative overflow-y-auto ${id === 'zones' || id === 'available' || id === 'agent' ? 'max-h-64' : 'max-h-56'}`}>
-                    
+
                     {id === 'actions' && (
                       <div className="space-y-2">
                         <ActionButton
@@ -1990,8 +2002,9 @@ export const Map3D: React.FC = () => {
                     )}
 
                     {id === 'persistence' && (
-                      <div className="space-y-2.5">
+                      <div data-testid="persistence-export-actions" className="grid gap-2 sm:grid-cols-2">
                         <ActionButton
+                          data-testid="persistence-save"
                           onClick={() => { void map.saveNow(); }}
                           variant="cyan"
                           className="w-full cursor-pointer py-2 text-xs"
@@ -1999,6 +2012,7 @@ export const Map3D: React.FC = () => {
                           💾 Сохранить в IndexedDB
                         </ActionButton>
                         <ActionButton
+                          data-testid="persistence-import-json"
                           onClick={() => setShowPatchImportModal(true)}
                           variant="cyan"
                           className="w-full cursor-pointer py-2 text-xs"
@@ -2006,6 +2020,7 @@ export const Map3D: React.FC = () => {
                           ⚡ Импорт решений (JSON)
                         </ActionButton>
                         <ActionButton
+                          data-testid="persistence-download-json"
                           onClick={() => map.downloadJson()}
                           variant="neutral"
                           className="w-full cursor-pointer py-2 text-xs"
@@ -2013,6 +2028,7 @@ export const Map3D: React.FC = () => {
                           📥 Скачать .json
                         </ActionButton>
                         <ActionButton
+                          data-testid="persistence-reset"
                           onClick={() => { if (window.confirm('Сбросить карту?')) void map.resetMap(); }}
                           variant="red"
                           className="w-full cursor-pointer py-2 text-xs"
