@@ -122,10 +122,8 @@ export function AddNodeModal({
           : 'https://' + finalLink.replace(/^\/+/, ''))
       : undefined;
 
-    const newId = 'custom-node-' + Date.now();
-
     const node: ProblemNode = {
-      id: newId,
+      id: 'pending-node-identity',
       title,
       description: finalDesc + (normalizedLink ? `\nИсточник: ${normalizedLink}` : ''),
       targetFunction: resolvedTargetFn,
@@ -147,12 +145,12 @@ export function AddNodeModal({
       sourceUrl: normalizedLink,
     };
 
-    await map.addCustomNode(node, parentId, zoneId === 'NEW_ZONE' ? newZoneName : undefined);
+    const createdNodeInternalId = await map.addCustomNode(node, parentId, zoneId === 'NEW_ZONE' ? newZoneName : undefined);
     
-    setCreatedNodeId(newId);
+    setCreatedNodeId(createdNodeInternalId);
     
     // Обновляем URL для deep-linking
-    UrlShareService.updateBrowserUrl({ nodeId: newId });
+    UrlShareService.updateBrowserUrl({ nodeId: createdNodeInternalId });
 
     onClose();
   };

@@ -136,3 +136,14 @@ export interface MapState {
   proofs: Record<string, Proof>;
   agentLogs: AgentLogEntry[];
 }
+
+
+/** SHA-128 identity metadata added by the node identity migration. */
+export interface ProblemNode {
+  canonicalPath?: string;
+}
+
+/** Legacy-to-SHA-128 aliases retained for compatibility-window resolution. */
+export interface MapState {
+  nodeIdAliases?: Record<string, string>;
+}

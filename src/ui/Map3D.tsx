@@ -1,5 +1,6 @@
 import React, { useState, useMemo, useEffect, useRef, useCallback } from 'react';
 import type { ProblemNode } from '../model/types';
+import { getNodeIdentityPresentation } from '../model/nodeIdentityPresentation';
 import type { UIElement } from '../domain/ui/uiElement.types';
 import { AddNodeModal } from './AddNodeModal';
 import { Canvas, useThree, useFrame } from '@react-three/fiber';
@@ -842,6 +843,7 @@ export const Map3D: React.FC = () => {
       requestedNodeId: deepLinkRequestedNodeId,
       hydratedNodes: map.nodes,
       activeVisibleNodeIds: filteredNodeIds,
+      nodeIdAliases: map.nodeIdAliases,
     });
   }, [map.hydrated, map.nodes, deepLinkRequestedNodeId, filteredNodeIds]);
 
@@ -1555,7 +1557,8 @@ export const Map3D: React.FC = () => {
                   {map.nodes.filter(node => visibleNodeIds.has(node.id)).slice(0, 24).map(node => (
                     <button key={node.id} type="button" onClick={() => handleNavigateToNode(node.id)} className="w-full rounded-md px-2 py-2 text-left text-xs text-slate-300 hover:bg-cyan-950/40 hover:text-cyan-100">
                       <span className="block truncate font-semibold">{node.title}</span>
-                      <span className="block truncate text-[10px] font-mono text-cyan-500">ID: {node.id}</span>
+                      <span className="block truncate text-[10px] font-mono text-cyan-500">Key: {getNodeIdentityPresentation(node).base64Key}</span>
+                      <span className="block truncate text-[10px] font-mono text-slate-500">Path: {getNodeIdentityPresentation(node).canonicalPath}</span>
                       <span className="block truncate text-[10px] text-slate-500">{map.zones.find(zone => zone.id === node.zoneIds[0])?.name ?? node.zoneIds[0]}</span>
                     </button>
                   ))}
@@ -1571,7 +1574,7 @@ export const Map3D: React.FC = () => {
           <main className="min-h-0 flex-1 overflow-y-auto bg-[#070707] p-3 touch-pan-y" data-testid="mobile-details-screen">
             <article className="rounded-xl border border-cyan-900/60 bg-black/70 p-3 shadow-xl">
               <div className="mb-3 border-b border-cyan-900/30 pb-3">
-                <p className="text-[9px] font-mono text-cyan-500">ID: {selectedNode.id}</p><h2 className="mt-1 text-sm font-bold leading-tight text-white">{selectedNode.title}</h2>
+                <p className="text-[9px] font-mono text-cyan-500">Key: {getNodeIdentityPresentation(selectedNode).base64Key}</p><p className="text-[9px] font-mono text-slate-500 truncate">Path: {getNodeIdentityPresentation(selectedNode).canonicalPath}</p><h2 className="mt-1 text-sm font-bold leading-tight text-white">{selectedNode.title}</h2>
               </div>
               <NodeCardDetails node={selectedNode} map={map} isExpanded={true} onEdit={() => setEditingNode(selectedNode)} onNavigateToNode={handleNavigateToNode} />
               <ActionButton
@@ -2109,7 +2112,8 @@ export const Map3D: React.FC = () => {
                 <div className="min-w-0 flex-1 text-left"
                 >
                   <h2 className="truncate text-sm font-bold text-white leading-tight mb-1">{selectedNode.title}</h2>
-                  <span className="text-[9px] font-mono text-cyan-400 block mb-1">ID: {selectedNode.id}</span>
+                  <span className="text-[9px] font-mono text-cyan-400 block mb-1">Key: {getNodeIdentityPresentation(selectedNode).base64Key}</span>
+                  <span className="text-[9px] font-mono text-neutral-500 block mb-1 truncate">Path: {getNodeIdentityPresentation(selectedNode).canonicalPath}</span>
                   {selectedNode.economic?.marketGain > 0 && (
                     <span className="text-[10px] font-bold text-green-400 bg-green-950/30 px-1.5 py-0.5 rounded inline-block">
                       Оценка: {formatCurrency(selectedNode.economic.marketGain)}

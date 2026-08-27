@@ -184,7 +184,8 @@ export class DeepLinkFocusResolver implements IDeepLinkFocusResolver {
     const requestedNodeId = input.requestedNodeId?.trim() ?? '';
     if (!requestedNodeId) return { kind: 'no_deep_link_request' };
 
-    const node = input.hydratedNodes.find((candidate) => candidate.id === requestedNodeId);
+    const resolvedNodeId = input.nodeIdAliases?.[requestedNodeId] ?? requestedNodeId;
+    const node = input.hydratedNodes.find((candidate) => candidate.id === resolvedNodeId);
     if (!node) {
       return {
         kind: 'unknown_deep_link_target',

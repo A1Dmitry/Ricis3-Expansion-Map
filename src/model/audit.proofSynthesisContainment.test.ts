@@ -390,6 +390,21 @@ describe('OIR-03 — audit proof-synthesis containment', () => {
       '?? src/passportReceiptLedger/passportReceiptLedger.topology.test.ts',
       '?? src/passportReceiptLedger/passportReceiptLedger.domain.ts',
       '?? src/passportReceiptLedger/passportReceiptLedger.application.ts',
+      ' M src/catalogVisibility/catalogVisibility.contracts.ts',
+      ' M src/catalogVisibility/catalogVisibility.domain.ts',
+      ' M src/model/migrationAudit.ts',
+      ' M src/model/types.ts',
+      ' M src/store/mapStore.ts',
+      ' M src/store/mapStore.test.ts',
+      ' M src/ui/AddNodeModal.tsx',
+      '?? docs/01-architecture/SPRINT_SHA128_NODE_IDENTITY_MIGRATION_STEP2_ARCHITECTURE.md',
+      '?? docs/02-sprints/SPRINT_SHA128_NODE_IDENTITY_MIGRATION_STEP1_BUSINESS_SPEC.md',
+      '?? docs/03-quality/SPRINT_SHA128_NODE_IDENTITY_MIGRATION_STEP3_QA_SPEC.md',
+      '?? src/model/nodeIdentityMigration.ts',
+      '?? src/model/nodeIdentityMigration.test.ts',
+      '?? src/model/nodeIdentityPresentation.ts',
+      '?? src/model/nodeIdentityPresentation.test.ts',
+      '?? tools/sha128GraphBaseline.ts',
     ]);
     expect(status.every(entry => allowed.has(entry))).toBe(true);
   });

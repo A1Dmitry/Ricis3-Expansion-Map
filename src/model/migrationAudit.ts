@@ -4,7 +4,7 @@ import { initialMap } from './initialMap';
 import { dbGetMigrationState, dbSetMigrationState, dbSaveMap } from './db';
 import { auditMapRicisProofIntegrity, nodeHasSorry } from './audit';
 
-export const CURRENT_MIGRATION_VERSION = 5;
+export const CURRENT_MIGRATION_VERSION = 6;
 
 export interface MigrationAuditReport {
   dbVersion: number;
