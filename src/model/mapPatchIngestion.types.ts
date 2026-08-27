@@ -67,6 +67,7 @@ export interface IMapPatchGraphMerge {
   nextNodes: ProblemNode[];
   nextEdges: DependencyEdge[];
   nextProofs: Record<string, Proof>;
+  nodeIdAliases?: Record<string, string>;
   result: IMapPatchIngestionResult;
 }
 
@@ -79,6 +80,7 @@ export interface IMapPatchIngestionResult {
   createdEdgeCount: number;
   affectedNodeIds: string[];
   warnings: string[];
+  nodeIdAliases?: Record<string, string>;
   error?: string;
 }
 
@@ -93,6 +95,7 @@ export interface IMapPatchIngestionService {
     currentNodes: ProblemNode[],
     currentEdges: DependencyEdge[],
     proofsRegistry: Record<string, Proof>,
-    payload: IMapPatchPayloadDTO
+    payload: IMapPatchPayloadDTO,
+    nodeIdAliases?: Record<string, string>
   ): IMapPatchGraphMerge;
 }

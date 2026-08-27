@@ -3,7 +3,8 @@
  * Сервис слияния и импорта внешних проблем, решений и доказательств RICIS-III (DRY, DDD, SOLID).
  */
 
-import type { DependencyEdge, ProblemNode, Proof } from './types';
+import type { DependencyEdge, MapState, ProblemNode, Proof } from './types';
+import { migrateMapNodeIdentitySync } from './nodeIdentityMigration';
 import type {
   IMapEdgePatchDTO,
   IMapPatchGraphMerge,
@@ -12,6 +13,37 @@ import type {
   IMapPatchIngestionService,
   IMapNodePatchDTO,
 } from './mapPatchIngestion.types';
+
+function finalizeImportedGraph(
+  nodes: ProblemNode[],
+  edges: DependencyEdge[],
+  proofs: Record<string, Proof>,
+  nodeIdAliases: Record<string, string> = {},
+): { nodes: ProblemNode[]; edges: DependencyEdge[]; proofs: Record<string, Proof>; aliases: Record<string, string> } {
+  const knownIds = new Set(nodes.map((node) => node.id));
+  const migratableProofs: Record<string, Proof> = {};
+  const preservedProofs: Record<string, Proof> = {};
+  Object.entries(proofs).forEach(([key, proof]) => {
+    if (knownIds.has(key) || knownIds.has(proof.nodeId)) migratableProofs[key] = proof;
+    else preservedProofs[key] = proof;
+  });
+  const state: MapState = {
+    nodes,
+    edges,
+    zones: [],
+    axioms: [],
+    proofs: migratableProofs,
+    agentLogs: [],
+    nodeIdAliases,
+  };
+  const migrated = migrateMapNodeIdentitySync(state);
+  return {
+    nodes: migrated.map.nodes,
+    edges: migrated.map.edges,
+    proofs: { ...preservedProofs, ...migrated.map.proofs },
+    aliases: { ...nodeIdAliases, ...migrated.aliases },
+  };
+}
 
 export class MapPatchIngestionService implements IMapPatchIngestionService {
   public validateAndParse(raw: string | unknown): {
@@ -79,7 +111,8 @@ export class MapPatchIngestionService implements IMapPatchIngestionService {
     currentNodes: ProblemNode[],
     currentEdges: DependencyEdge[],
     proofsRegistry: Record<string, Proof>,
-    payload: IMapPatchPayloadDTO
+    payload: IMapPatchPayloadDTO,
+    nodeIdAliases: Record<string, string> = {}
   ): IMapPatchGraphMerge {
     const reject = (error: string): IMapPatchGraphMerge => ({
       nextNodes: currentNodes,
@@ -97,17 +130,18 @@ export class MapPatchIngestionService implements IMapPatchIngestionService {
         error,
       },
     });
+    const resolveInputId = (id: string): string => nodeIdAliases[id] ?? id;
     const isFullMap = Array.isArray(payload.nodes) && !Array.isArray(payload.nodePatches);
     const normalizedEdges: Array<Readonly<{ fromId: string; toId: string; patch: IMapEdgePatchDTO }>> = [];
 
     if (!isFullMap && payload.edges) {
       const knownNodeIds = new Set(currentNodes.map(node => node.id));
-      for (const patch of payload.nodePatches || []) knownNodeIds.add(patch.id.trim());
+      for (const patch of payload.nodePatches || []) knownNodeIds.add(resolveInputId(patch.id.trim()));
       const payloadEdgeKeys = new Set<string>();
 
       for (const patch of payload.edges) {
-        const fromId = patch.fromId?.trim() || patch.from?.trim() || '';
-        const toId = patch.toId?.trim() || patch.to?.trim() || '';
+        const fromId = resolveInputId(patch.fromId?.trim() || patch.from?.trim() || '');
+        const toId = resolveInputId(patch.toId?.trim() || patch.to?.trim() || '');
         if (!fromId || !toId) return reject('Invalid edge: both fromId and toId must be non-empty strings.');
         if (patch.fromId && patch.from && patch.fromId.trim() !== patch.from.trim()) {
           return reject('Invalid edge: from and fromId disagree.');
@@ -132,7 +166,7 @@ export class MapPatchIngestionService implements IMapPatchIngestionService {
       const nextProofs: Record<string, Proof> = { ...proofsRegistry };
       if (payload.proofs) {
         for (const [key, proofDTO] of Object.entries(payload.proofs)) {
-          const nodeId = proofDTO.nodeId || key;
+          const nodeId = resolveInputId(proofDTO.nodeId || key);
           nextProofs[nodeId] = {
             nodeId,
             targetFunction: proofDTO.targetFunction || 'RICIS Target Function',
@@ -143,23 +177,30 @@ export class MapPatchIngestionService implements IMapPatchIngestionService {
           };
         }
       }
-      return {
-        nextNodes: payload.nodes,
-        nextEdges: currentEdges,
-        nextProofs,
-        result: {
-          success: true,
-          mode: 'direct_full_state',
-          updatedNodeCount: payload.nodes.length,
-          createdNodeCount: 0,
-          proofsAttachedCount: Object.keys(nextProofs).length,
-          createdEdgeCount: 0,
-          affectedNodeIds: payload.nodes.map(n => n.id),
-          warnings: Array.isArray(payload.edges) && payload.edges.length > 0
-            ? ['Full-state edge replacement is not supported by the add-only patch importer.']
-            : [],
-        },
-      };
+      try {
+        const finalized = finalizeImportedGraph(payload.nodes, currentEdges, nextProofs, nodeIdAliases);
+        return {
+          nextNodes: finalized.nodes,
+          nextEdges: finalized.edges,
+          nextProofs: finalized.proofs,
+          nodeIdAliases: finalized.aliases,
+          result: {
+            success: true,
+            mode: 'direct_full_state',
+            updatedNodeCount: payload.nodes.length,
+            createdNodeCount: 0,
+            proofsAttachedCount: Object.keys(finalized.proofs).length,
+            createdEdgeCount: 0,
+            affectedNodeIds: payload.nodes.map(n => finalized.aliases[n.id] ?? n.id),
+            nodeIdAliases: finalized.aliases,
+            warnings: Array.isArray(payload.edges) && payload.edges.length > 0
+              ? ['Full-state edge replacement is not supported by the add-only patch importer.']
+              : [],
+          },
+        };
+      } catch (error) {
+        return reject(`SHA-128 identity migration rejected full-state import: ${String((error as { kind?: string }).kind ?? error)}`);
+      }
     }
 
     // Режим слияния патча (Merge into Export / State)
@@ -178,7 +219,7 @@ export class MapPatchIngestionService implements IMapPatchIngestionService {
     // Проверка согласованности типов узлов (Type Consistency Check под L1C2)
     if (payload.nodePatches) {
       for (const p of payload.nodePatches) {
-        const existing = nodeMap.get(p.id);
+        const existing = nodeMap.get(resolveInputId(p.id));
         const expectedType = p.nodeType || p.type;
         if (existing && expectedType) {
           const existingType = existing.type || existing.zoneIds?.[0];
@@ -233,7 +274,7 @@ export class MapPatchIngestionService implements IMapPatchIngestionService {
     // 2. Обрабатываем патчи узлов nodePatches
     if (payload.nodePatches) {
       for (const patch of payload.nodePatches) {
-        const nodeId = patch.id.trim();
+        const nodeId = resolveInputId(patch.id.trim());
         affectedNodeIds.add(nodeId);
 
         const existing = nodeMap.get(nodeId);
@@ -255,7 +296,7 @@ export class MapPatchIngestionService implements IMapPatchIngestionService {
     // 3. Создаем узлы для доказательств без явного nodePatch
     if (payload.proofs) {
       for (const [key, proofDTO] of Object.entries(payload.proofs)) {
-        const nodeId = proofDTO.nodeId || key;
+        const nodeId = resolveInputId(proofDTO.nodeId || key);
         if (!nodeMap.has(nodeId)) {
           const mockPatch: IMapNodePatchDTO = {
             id: nodeId,
@@ -304,11 +345,18 @@ export class MapPatchIngestionService implements IMapPatchIngestionService {
     }
 
     const nextNodes = Array.from(nodeMap.values());
+    let finalized: ReturnType<typeof finalizeImportedGraph>;
+    try {
+      finalized = finalizeImportedGraph(nextNodes, nextEdges, nextProofs, nodeIdAliases);
+    } catch (error) {
+      return reject(`SHA-128 identity migration rejected patch import: ${String((error as { kind?: string }).kind ?? error)}`);
+    }
 
     return {
-      nextNodes,
-      nextEdges,
-      nextProofs,
+      nextNodes: finalized.nodes,
+      nextEdges: finalized.edges,
+      nextProofs: finalized.proofs,
+      nodeIdAliases: finalized.aliases,
       result: {
         success: true,
         mode: 'patch_merge',
@@ -316,7 +364,8 @@ export class MapPatchIngestionService implements IMapPatchIngestionService {
         createdNodeCount,
         proofsAttachedCount,
         createdEdgeCount,
-        affectedNodeIds: Array.from(affectedNodeIds),
+        affectedNodeIds: Array.from(affectedNodeIds).map((id) => finalized.aliases[id] ?? id),
+        nodeIdAliases: finalized.aliases,
         warnings,
       },
     };
