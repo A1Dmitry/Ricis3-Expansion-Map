@@ -384,6 +384,11 @@ describe('OIR-03 — audit proof-synthesis containment', () => {
       '?? docs/03-quality/SPRINT_PERSISTENCE_EXPORT_ACTION_PANEL_STEP3_RED_BASELINE.md',
       '?? docs/05-evidence/architecture/LIVE_POST_DEPLOYMENT_VERIFICATION_2026-08-27.md',
       '?? src/ui/Map3D.persistencePanel.test.ts',
+      '?? docs/02-sprints/SPRINT_AGENT_GATEWAY_RUNTIME_ACTIVATION_STEP1_BUSINESS_SPEC.md',
+      '?? docs/01-architecture/SPRINT_AGENT_GATEWAY_RUNTIME_ACTIVATION_STEP2_ARCHITECTURE.md',
+      '?? docs/03-quality/SPRINT_AGENT_GATEWAY_RUNTIME_ACTIVATION_STEP3_QA_SPEC.md',
+      '?? src/agentGateway/agentGatewayRuntime.test.ts',
+      '?? src/agentGateway/agentGatewayRuntime.ts',
     ]);
     expect(status.every(entry => allowed.has(entry))).toBe(true);
   });
