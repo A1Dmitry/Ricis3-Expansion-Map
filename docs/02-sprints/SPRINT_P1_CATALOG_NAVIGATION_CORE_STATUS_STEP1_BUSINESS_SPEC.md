@@ -1,8 +1,8 @@
 # P1 Catalog Navigation and Core Status — Шаг 1: business specification
 
-**Статус:** `DRAFT — ожидается явное подтверждение пользователя для перехода к Шагу 2: TypeScript architecture/contracts.`  
-**Рабочая ветка:** `fix/p1-node-navigation-and-core-status` от `main` `3286881`  
-**Основание:** read-only production inspection URL `?node=real-catalog-98&lang=en` и локальное воспроизведение по исходникам.  
+**Статус:** `DRAFT — ожидается явное подтверждение пользователя для перехода к Шагу 2: TypeScript architecture/contracts.`
+**Рабочая ветка:** `fix/p1-node-navigation-and-core-status` от `main` `3286881`
+**Основание:** read-only production inspection URL `?node=real-catalog-98&lang=en` и локальное воспроизведение по исходникам.
 **Применённые паттерны:** P-01 (context recovery), P-02 (RICIS normative gateway), P-06 (Core-first integration), P-08 (causal UI diagnosis), P-09 (version/release; только после будущей реализации).
 
 > **Нормативная граница.** RICIS III является абсолютным семантическим источником. Эта задача исправляет только отображение, навигацию и честное operational-disclosure состояние. Она не реализует, не меняет и не интерпретирует преобразования сингулярностей, включая `0/0`; не создаёт доказательств и не повышает trust status.

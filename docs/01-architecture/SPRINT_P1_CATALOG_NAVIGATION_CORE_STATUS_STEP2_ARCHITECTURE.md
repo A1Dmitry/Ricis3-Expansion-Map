@@ -1,7 +1,7 @@
 # P1 Catalog Navigation and Core Status — Шаг 2: architecture contracts
 
-**Статус:** `DRAFT — Step 1 approved by user; this document requires explicit approval before Step 3 QA tests.`  
-**Вход:** [`SPRINT_P1_CATALOG_NAVIGATION_CORE_STATUS_STEP1_BUSINESS_SPEC.md`](../02-sprints/SPRINT_P1_CATALOG_NAVIGATION_CORE_STATUS_STEP1_BUSINESS_SPEC.md).  
+**Статус:** `DRAFT — Step 1 approved by user; this document requires explicit approval before Step 3 QA tests.`
+**Вход:** [`SPRINT_P1_CATALOG_NAVIGATION_CORE_STATUS_STEP1_BUSINESS_SPEC.md`](../02-sprints/SPRINT_P1_CATALOG_NAVIGATION_CORE_STATUS_STEP1_BUSINESS_SPEC.md).
 **In scope here:** only the add-only import contract required to materialize `core-agi-target → real-catalog-98`. The separate Core-status presentation correction remains a later P1 increment.
 
 > **Authority boundary.** These are TypeScript data-flow contracts. They preserve RICIS identities and public evidence boundaries but neither evaluate a singularity nor define RICIS semantics. A map edge is a structural dependency reference, not a proof, a Core result, or a Lean theorem.

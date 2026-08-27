@@ -4,6 +4,11 @@ import { deepCopyInitialMap } from './initialMap';
 
 import { dbSaveMap, dbLoadMap, dbClear } from './db';
 import { runDatabaseMigration } from './migrationAudit';
+import { KNOWN_SINGULARITY_PROBLEMS } from './catalog';
+import {
+  CanonicalCatalogReconciliationPlanner,
+  CatalogReconciliationApplication,
+} from '../catalogVisibility/catalogVisibility.domain';
 
 /** @deprecated Legacy localStorage snapshot (миграция). */
 const LEGACY_KEY = 'ricis3-map-v1';
@@ -96,6 +101,23 @@ export function sanitizeMap(map: MapState): MapState {
   return { ...map, agentLogs: Array.isArray(map.agentLogs) ? map.agentLogs : [], nodes, zones };
 }
 
+function reconcileCanonicalCatalog(map: MapState): MapState {
+  const planner = new CanonicalCatalogReconciliationPlanner();
+  const reconciliation = planner.plan({
+    persistedNodes: map.nodes,
+    persistedZones: map.zones,
+    canonical: {
+      nodes: KNOWN_SINGULARITY_PROBLEMS,
+      zones: initialMap.zones,
+    },
+  });
+
+  if (reconciliation.kind !== 'reconciliation_planned') return map;
+
+  const applied = new CatalogReconciliationApplication().apply({ map, plan: reconciliation });
+  return applied.kind === 'applied' ? applied.map : map;
+}
+
 export function fromSnapshot(s: PersistedSnapshot): MapState | null {
   if (s.version !== 1) return null;
   if (!Array.isArray(s.nodes) || !Array.isArray(s.edges) || !Array.isArray(s.zones)) return null;
@@ -184,7 +206,9 @@ export async function hydrateInitialState(): Promise<MapState> {
 
   // Execute one-time DB migration & audit (fixes titles, repairs orphan node connections to RICIS, rebuilds edges & updates DB version)
   const migrationResult = await runDatabaseMigration(stateToMigrate);
-  return migrationResult.map;
+  const reconciled = reconcileCanonicalCatalog(migrationResult.map);
+  if (reconciled !== migrationResult.map) await dbSaveMap(reconciled);
+  return reconciled;
 }
 
 export async function saveMapToDb(state: MapState): Promise<boolean> {

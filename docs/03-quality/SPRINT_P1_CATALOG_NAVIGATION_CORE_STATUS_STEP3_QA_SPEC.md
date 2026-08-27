@@ -1,9 +1,9 @@
 # P1 Catalog Navigation and Core Status — Шаг 3: QA specification
 
-**Статус:** `RED — tests written and executed; explicit user approval is required before Step 4 implementation.`  
-**Input architecture:** [`SPRINT_P1_CATALOG_NAVIGATION_CORE_STATUS_STEP2_ARCHITECTURE.md`](../01-architecture/SPRINT_P1_CATALOG_NAVIGATION_CORE_STATUS_STEP2_ARCHITECTURE.md)  
-**Test file:** `src/model/mapPatchIngestion.test.ts`  
-**Executed command:** `npm test -- --run src/model/mapPatchIngestion.test.ts`  
+**Статус:** `RED — tests written and executed; explicit user approval is required before Step 4 implementation.`
+**Input architecture:** [`SPRINT_P1_CATALOG_NAVIGATION_CORE_STATUS_STEP2_ARCHITECTURE.md`](../01-architecture/SPRINT_P1_CATALOG_NAVIGATION_CORE_STATUS_STEP2_ARCHITECTURE.md)
+**Test file:** `src/model/mapPatchIngestion.test.ts`
+**Executed command:** `npm test -- --run src/model/mapPatchIngestion.test.ts`
 **Environment:** locked dependencies installed with `npm ci`; no package manifest/lockfile change.
 
 > **QA boundary.** These tests verify only structural import identity and evidence non-promotion. They do not execute Ricis.Core, evaluate `0/0`, use classical arithmetic, produce a Lean proof, or assign a mathematical status. `real-catalog-98` must remain `unresolved` with no proof/evidence attachment.
