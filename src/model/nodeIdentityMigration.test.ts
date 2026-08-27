@@ -4,6 +4,7 @@ import {
   migrateMapNodeIdentity,
   normalizeCanonicalPath,
   sha256Truncated128Hex,
+  verifyNodeIdentityGraph,
 } from './nodeIdentityMigration';
 import type { MapState } from './types';
 
@@ -117,6 +118,15 @@ describe('SHA-128 node identity migration — red baseline', () => {
     expect(result.map.edges.every((edge) => result.map.nodes.some((node) => node.id === edge.toId))).toBe(true);
     expect(result.aliases[legacyRoot]).toBeDefined();
     expect(result.map.nodes.find((node) => node.id === result.aliases[legacyRoot])?.targetFunction).toBe('X = X');
+    expect(verifyNodeIdentityGraph(source, result.map, result.aliases)).toEqual({ valid: true, errors: [] });
+  });
+
+  it('rejects graph invariant violations instead of hiding reciprocal reference loss', async () => {
+    const source = fixture();
+    const result = await migrateMapNodeIdentity(source);
+    const broken = { ...result.map, nodes: result.map.nodes.map((node) => node.id === result.aliases[legacyRoot] ? { ...node, dependentIds: [] } : node) };
+    expect(verifyNodeIdentityGraph(source, broken, result.aliases).valid).toBe(false);
+    expect(verifyNodeIdentityGraph(source, broken, result.aliases).errors).toContain(`dependent_relationship_changed:${legacyRoot}`);
   });
 
   it('preserves cycles and is idempotent', async () => {

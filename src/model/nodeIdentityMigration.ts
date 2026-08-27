@@ -19,7 +19,8 @@ export interface NodeIdentityMigrationResult {
 export type NodeIdentityMigrationError =
   | { readonly kind: 'identity_collision'; readonly paths: readonly string[]; readonly legacyIds: readonly string[] }
   | { readonly kind: 'dangling_reference'; readonly field: string; readonly legacyId: string }
-  | { readonly kind: 'orphan_component'; readonly legacyIds: readonly string[] };
+  | { readonly kind: 'orphan_component'; readonly legacyIds: readonly string[] }
+  | { readonly kind: 'graph_invariant_violation'; readonly errors: readonly string[] };
 
 const SHA256_K = [
   0x428a2f98, 0x71374491, 0xb5c0fbcf, 0xe9b5dba5, 0x3956c25b, 0x59f111f1, 0x923f82a4, 0xab1c5ed5,
@@ -267,10 +268,111 @@ export async function migrateMapNodeIdentity(map: MapState): Promise<NodeIdentit
   const proofs = rewriteProofs(map.proofs ?? {}, aliases);
   const agentLogs = rewriteLogs(map.agentLogs ?? [], aliases);
   const migrated: MapState = { ...map, nodes, edges, zones, axioms, proofs, agentLogs, nodeIdAliases: { ...(map.nodeIdAliases ?? {}), ...aliases } };
+  const invariantReport = verifyNodeIdentityGraph(map, migrated, aliases);
+  if (!invariantReport.valid) throw { kind: 'graph_invariant_violation', errors: invariantReport.errors } satisfies NodeIdentityMigrationError;
 
   return {
     map: migrated,
     aliases,
     report: { migratedNodes: nodes.length, remappedReferences: edges.length + nodes.reduce((count, node) => count + node.dependencyIds.length + node.dependentIds.length, 0), canonicalPathCount: paths.size, aliasCount: Object.keys(aliases).length, algorithm: SHA128_ALGORITHM },
   };
+}
+
+
+export interface NodeIdentityInvariantReport {
+  readonly valid: boolean;
+  readonly errors: readonly string[];
+}
+
+function multiset(values: readonly string[]): Map<string, number> {
+  const result = new Map<string, number>();
+  values.forEach((value) => result.set(value, (result.get(value) ?? 0) + 1));
+  return result;
+}
+
+function equalMultiset(left: readonly string[], right: readonly string[]): boolean {
+  const leftSet = multiset(left);
+  const rightSet = multiset(right);
+  if (leftSet.size !== rightSet.size) return false;
+  return [...leftSet].every(([key, count]) => rightSet.get(key) === count);
+}
+
+function semanticNode(node: ProblemNode): string {
+  const { id: _id, canonicalPath: _canonicalPath, dependencyIds: _dependencyIds, dependentIds: _dependentIds, ...semantic } = node;
+  return JSON.stringify(semantic);
+}
+
+function semanticEdge(edge: DependencyEdge): string {
+  const { fromId: _fromId, toId: _toId, ...semantic } = edge;
+  return JSON.stringify(semantic);
+}
+
+export function verifyNodeIdentityGraph(
+  source: MapState,
+  migrated: MapState,
+  aliases: Readonly<Record<string, string>>,
+): NodeIdentityInvariantReport {
+  const errors: string[] = [];
+  const sourceNodes = new Map(source.nodes.map((node) => [node.id, node]));
+  const migratedNodes = new Map(migrated.nodes.map((node) => [node.id, node]));
+  const migratedAliasValues = new Set(Object.values(aliases));
+
+  if (source.nodes.length !== migrated.nodes.length) errors.push('node_count_changed');
+  if (source.edges.length !== migrated.edges.length) errors.push('edge_count_changed');
+  if (source.zones.length !== migrated.zones.length) errors.push('zone_count_changed');
+  if (source.axioms.length !== migrated.axioms.length) errors.push('axiom_count_changed');
+  if (Object.keys(source.proofs ?? {}).length !== Object.keys(migrated.proofs ?? {}).length) errors.push('proof_count_changed');
+  if (aliases && Object.keys(aliases).length !== source.nodes.length) errors.push('alias_count_changed');
+
+  source.nodes.forEach((sourceNode) => {
+    const migratedId = aliases[sourceNode.id];
+    const migratedNode = migratedId ? migratedNodes.get(migratedId) : undefined;
+    if (!migratedId || !migratedNode) {
+      errors.push(`missing_node:${sourceNode.id}`);
+      return;
+    }
+    if (!/^[0-9a-f]{32}$/.test(migratedNode.id)) errors.push(`invalid_id:${sourceNode.id}`);
+    if (!migratedNode.canonicalPath?.startsWith('/')) errors.push(`invalid_path:${sourceNode.id}`);
+    if (semanticNode(sourceNode) !== semanticNode(migratedNode)) errors.push(`semantic_node_changed:${sourceNode.id}`);
+    if (!equalMultiset(sourceNode.dependencyIds.map((id) => aliases[id] ?? ''), migratedNode.dependencyIds)) errors.push(`dependency_relationship_changed:${sourceNode.id}`);
+    if (!equalMultiset(sourceNode.dependentIds.map((id) => aliases[id] ?? ''), migratedNode.dependentIds)) errors.push(`dependent_relationship_changed:${sourceNode.id}`);
+  });
+
+  if (migratedAliasValues.size !== Object.keys(aliases).length) errors.push('duplicate_migrated_id');
+  migrated.edges.forEach((edge) => {
+    if (!migratedNodes.has(edge.fromId) || !migratedNodes.has(edge.toId)) errors.push(`dangling_edge:${edge.id}`);
+  });
+  source.edges.forEach((edge) => {
+    const migratedEdge = migrated.edges.find((candidate) => candidate.id === edge.id);
+    if (!migratedEdge || migratedEdge.fromId !== aliases[edge.fromId] || migratedEdge.toId !== aliases[edge.toId] || semanticEdge(edge) !== semanticEdge(migratedEdge)) errors.push(`edge_changed:${edge.id}`);
+  });
+
+  migrated.nodes.forEach((node) => {
+    node.dependencyIds.forEach((dependencyId) => {
+      if (!migratedNodes.get(dependencyId)?.dependentIds.includes(node.id)) errors.push(`reciprocal_dependency_missing:${node.id}`);
+    });
+    node.dependentIds.forEach((dependentId) => {
+      if (!migratedNodes.get(dependentId)?.dependencyIds.includes(node.id)) errors.push(`reciprocal_dependent_missing:${node.id}`);
+    });
+  });
+
+  source.zones.forEach((zone) => {
+    const migratedZone = migrated.zones.find((candidate) => candidate.id === zone.id);
+    if (!migratedZone || !equalMultiset(zone.nodeIds.map((id) => aliases[id] ?? ''), migratedZone.nodeIds)) errors.push(`zone_membership_changed:${zone.id}`);
+  });
+  source.axioms.forEach((axiom) => {
+    const migratedAxiom = migrated.axioms.find((candidate) => candidate.id === axiom.id);
+    if (!migratedAxiom || migratedAxiom.sourceNodeId !== aliases[axiom.sourceNodeId] || !equalMultiset(axiom.usedByNodeIds.map((id) => aliases[id] ?? ''), migratedAxiom.usedByNodeIds)) errors.push(`axiom_reference_changed:${axiom.id}`);
+  });
+  Object.entries(source.proofs ?? {}).forEach(([sourceId, proof]) => {
+    const migratedId = aliases[sourceId];
+    const migratedProof = migrated.proofs?.[migratedId ?? ''];
+    if (!migratedProof || migratedProof.nodeId !== aliases[proof.nodeId] || JSON.stringify({ ...proof, nodeId: undefined }) !== JSON.stringify({ ...migratedProof, nodeId: undefined })) errors.push(`proof_reference_changed:${sourceId}`);
+  });
+  source.agentLogs.forEach((log) => {
+    const migratedLog = migrated.agentLogs.find((candidate) => candidate.id === log.id);
+    if (!migratedLog || log.nodeId && migratedLog.nodeId !== aliases[log.nodeId]) errors.push(`agent_log_reference_changed:${log.id}`);
+  });
+
+  return { valid: errors.length === 0, errors };
 }
