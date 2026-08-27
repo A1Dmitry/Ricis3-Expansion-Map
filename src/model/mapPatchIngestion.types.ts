@@ -3,7 +3,7 @@
  * Контракты и DTO для подсистемы импорта внешних проблем, решений и доказательств RICIS-III.
  */
 
-import type { ProblemNode, Proof, ProofStep, ExternalLeanProvenance, NodeState, ScienceZone } from './types';
+import type { ProblemNode, Proof, ProofStep, ExternalLeanProvenance, NodeState, ScienceZone, DependencyEdge } from './types';
 
 export interface IMapPatchMetaDTO {
   method?: string;
@@ -31,6 +31,18 @@ export interface IMapNodePatchDTO {
   position?: { x: number; y: number; z: number };
 }
 
+export interface IMapEdgePatchDTO {
+  id?: string;
+  from?: string;
+  to?: string;
+  fromId?: string;
+  toId?: string;
+  label?: string;
+  strength?: number;
+  stateColor?: DependencyEdge['stateColor'];
+  economicInfluence?: number;
+}
+
 export interface IMapProofDTO {
   nodeId: string;
   targetFunction: string;
@@ -46,9 +58,16 @@ export interface IMapPatchPayloadDTO {
   meta?: IMapPatchMetaDTO;
   nodePatches?: IMapNodePatchDTO[];
   proofs?: Record<string, IMapProofDTO>;
-  edges?: Array<{ from?: string; to?: string; fromId?: string; toId?: string; label?: string }>;
+  edges?: IMapEdgePatchDTO[];
   nodes?: ProblemNode[];
   zones?: ScienceZone[];
+}
+
+export interface IMapPatchGraphMerge {
+  nextNodes: ProblemNode[];
+  nextEdges: DependencyEdge[];
+  nextProofs: Record<string, Proof>;
+  result: IMapPatchIngestionResult;
 }
 
 export interface IMapPatchIngestionResult {
@@ -72,11 +91,8 @@ export interface IMapPatchIngestionService {
   };
   applyPatch(
     currentNodes: ProblemNode[],
+    currentEdges: DependencyEdge[],
     proofsRegistry: Record<string, Proof>,
     payload: IMapPatchPayloadDTO
-  ): {
-    nextNodes: ProblemNode[];
-    nextProofs: Record<string, Proof>;
-    result: IMapPatchIngestionResult;
-  };
+  ): IMapPatchGraphMerge;
 }
