@@ -50,6 +50,7 @@ jobs:
       - name: Build static site
         env:
           GITHUB_PAGES: 'true'
+          VITE_RICIS_CALCULATOR_BASE_URL: 'https://remix-ricis-iii-501343051156.europe-west2.run.app/'
         # Pages receives only the Vite client bundle; the Express server is not deployed.
         run: npx vite build
 
