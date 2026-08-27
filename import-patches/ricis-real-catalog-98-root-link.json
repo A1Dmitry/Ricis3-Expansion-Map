@@ -1,0 +1,19 @@
+{
+  "@type": "RICIS.MapStatePatch",
+  "meta": {
+    "method": "add_only_catalog_graph_repair",
+    "author": "RICIS III project",
+    "sourceSystem": "RICIS3 Expansion Map canonical catalog",
+    "trustPolicy": "Structural graph repair only. This link-only patch preserves the existing node identity, type and state; it adds no proof, no Core result, no Lean evidence, and applies no RICIS singularity operation."
+  },
+  "edges": [
+    {
+      "id": "edge-core-agi-target-real-catalog-98",
+      "fromId": "core-agi-target",
+      "toId": "real-catalog-98",
+      "strength": 0.7,
+      "stateColor": "red",
+      "economicInfluence": 0.5
+    }
+  ]
+}
