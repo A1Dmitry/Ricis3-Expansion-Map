@@ -9,6 +9,26 @@ const Map3D = lazyNamedComponent(() => import('./ui/Map3D'), 'Map3D');
 const CoreRecoveryPage = lazyNamedComponent(() => import('./ui/CoreRecoveryPage'), 'CoreRecoveryPage');
 const RoadmapPage = lazyNamedComponent(() => import('./ui/RoadmapPage'), 'RoadmapPage');
 
+function formatHydrationError(error: unknown): string {
+  if (error instanceof Error) return error.message;
+  if (typeof error === 'object' && error !== null) {
+    const candidate = error as Record<string, unknown>;
+    if (typeof candidate.kind === 'string') {
+      const details = Object.entries(candidate)
+        .filter(([key]) => key !== 'kind' && (typeof candidate[key] === 'string' || Array.isArray(candidate[key])))
+        .map(([key, value]) => `${key}=${Array.isArray(value) ? value.join(',') : String(value)}`)
+        .join('; ');
+      return details ? `${candidate.kind}: ${details}` : candidate.kind;
+    }
+    try {
+      return JSON.stringify(error);
+    } catch {
+      return 'unknown_hydration_error';
+    }
+  }
+  return String(error);
+}
+
 export default function App() {
   const hydrate = useMapStore(s => s.hydrate);
   const hydrated = useMapStore(s => s.hydrated);
@@ -18,7 +38,7 @@ export default function App() {
   useEffect(() => {
     hydrate().catch(e => {
       console.error(e);
-      setError(String(e));
+      setError(formatHydrationError(e));
     });
   }, [hydrate]);
 
