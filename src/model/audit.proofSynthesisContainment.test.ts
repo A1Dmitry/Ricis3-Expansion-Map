@@ -338,6 +338,7 @@ describe('OIR-03 — audit proof-synthesis containment', () => {
       '?? src/passportAccountOwnership/passportAccountOwnership.application.test.ts',
       '?? src/passportAccountOwnership/passportAccountOwnership.topology.test.ts',
       '?? src/passportAccountOwnership/passportAccountOwnership.tenantIsolation.test.ts',
+      '?? docs/01-architecture/passport/RICIS-LEAN-PASSPORT-ROUTE-B2-DATA-LIFECYCLE-01_STEP2_ARCHITECTURE.md',
     ]);
     expect(status.every(entry => allowed.has(entry))).toBe(true);
   });
