@@ -1,10 +1,10 @@
 # SPRINT P1 — Catalog Visibility and Deterministic Deep Links
 ## Step 4: Implementation and QA Record
 
-**Status:** Local implementation complete; ready for a separate commit/push decision.
+**Status:** Published implementation; historical local QA record retained.
 **Scope identifier:** `P1-CATALOG-VISIBILITY-NAVIGATION-01`
-**Release candidate version:** `0.4.67`
-**Publication status:** Not committed, not pushed, no PR created/updated, not merged, not deployed.
+**Release version:** `0.4.67`
+**Publication status:** Published through PR #3 into `main`; the merge deployment [GitHub Pages run 33073663425](https://github.com/A1Dmitry/Ricis3-Expansion-Map/actions/runs/33073663425) completed successfully.
 
 ---
 
@@ -50,7 +50,7 @@ The production build emitted the repository’s existing Vite chunk-size advisor
 
 A local production preview started successfully at `http://localhost:4173/` and a deep-link URL was opened. The sandbox browser runtime then became unavailable before a screenshot/DOM inspection could complete. Therefore no visual-success claim is made from that attempted browser check.
 
-The behavior is nevertheless covered by the targeted domain/integration test suite and full production build. A visual check on a deployed branch remains a post-publication verification activity and is not performed in this local record.
+The behavior is nevertheless covered by the targeted domain/integration test suite and full production build. The subsequently published `main` deployment completed successfully in GitHub Pages run 33073663425; this historical local record still makes no screenshot/DOM visual-success claim.
 
 ---
 
@@ -82,16 +82,11 @@ src/version.ts
 
 ---
 
-## 6. Next authorization boundary
+## 6. Publication reconciliation and next authorization boundary
 
-The implementation is local only. A separate explicit user decision is required before any of the following actions:
+The historical candidate was subsequently committed, published through PR #3, merged into `main` and deployed successfully in GitHub Pages run 33073663425. This correction records that observed publication state; it does not reopen or repeat the implementation.
 
-1. commit this candidate to the feature branch;
-2. push a remote branch or open/update a pull request;
-3. merge into `main`; or
-4. deploy GitHub Pages.
-
-The current PR #2 edge-import scope remains separate and is not modified by this candidate.
+A separate explicit user decision remains required for any new post-publication change, including a functional amendment, a new pull request, a new merge or a new deployment. The historical PR #2 edge-import scope remains separate and was not modified by this candidate.
 
 ---
 

@@ -6,9 +6,11 @@
 
 **Scope identifier:** `P1-MAP-NODE-EXPLAINER-SHARED-PROVIDER-POOL-01`.
 
-**Branch:** `spec/map-node-explainer-shared-provider`, based on `origin/main` `9c57487b6947049c5861a5c258172968044fc812`.
+**Historical implementation branch:** `spec/map-node-explainer-shared-provider`, originally based on `origin/main` `9c57487b6947049c5861a5c258172968044fc812`.
 
 **Release version:** `0.4.67`.
+
+**Publication status:** Published through PR #4 into `main`; the merge deployment [GitHub Pages run 33074075466](https://github.com/A1Dmitry/Ricis3-Expansion-Map/actions/runs/33074075466) completed successfully.
 
 **Approved QA sequence:** Step 1 business specification → user `OK`; Step 2 architecture-only contracts → user `OK`; Step 3 red-first QA suite/baseline → user `OK`; Step 4 minimal implementation.
 
@@ -111,7 +113,7 @@ The following remain intentionally absent: Gemini/OpenRouter concrete production
 
 The new interface and pool are therefore **not a live external-agent feature**. They are a verified, provider-neutral, read-only-safe infrastructure foundation. A later activation scope must separately define credential handling, consent/privacy, fixed provider endpoint, model selection, rate/cost policy, BFF route, static-host UI behavior, provider adapter QA and deployment verification. It must not bypass the common interface/base/pool or silently convert a model explanation into a RICIS/Core/Lean/proof result.
 
-No commit, push, PR, merge or deployment occurred in this Step 4 implementation work.
+This Step 4 record preserves its historical implementation boundary. The candidate was subsequently committed, published through PR #4, merged into `main` and deployed successfully in GitHub Pages run 33074075466. This status correction does not add or activate a provider, credential, transport, UI, persistence path or authority capability.
 
 ## References
 
