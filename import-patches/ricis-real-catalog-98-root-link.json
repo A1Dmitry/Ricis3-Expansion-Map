@@ -1,0 +1,33 @@
+{
+  "@type": "RICIS.MapStatePatch",
+  "meta": {
+    "method": "add_only_catalog_graph_repair",
+    "author": "RICIS III project",
+    "sourceSystem": "RICIS3 Expansion Map canonical catalog",
+    "trustPolicy": "Structural graph repair only. It preserves node state unresolved, adds no proof, no Core result, no Lean evidence, and applies no RICIS singularity operation."
+  },
+  "nodePatches": [
+    {
+      "id": "real-catalog-98",
+      "name": "Распределение богатства Парето",
+      "description": "Концентрация капитала.",
+      "state": "unresolved",
+      "type": "core_singularity",
+      "targetFunction": "Formalize(РаспределениебогатстваПарето)",
+      "zoneIds": [
+        "economics"
+      ],
+      "fractalDepth": 1
+    }
+  ],
+  "edges": [
+    {
+      "id": "edge-core-agi-target-real-catalog-98",
+      "fromId": "core-agi-target",
+      "toId": "real-catalog-98",
+      "strength": 0.7,
+      "stateColor": "red",
+      "economicInfluence": 0.5
+    }
+  ]
+}

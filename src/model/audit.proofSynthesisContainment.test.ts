@@ -339,6 +339,15 @@ describe('OIR-03 — audit proof-synthesis containment', () => {
       '?? src/passportAccountOwnership/passportAccountOwnership.topology.test.ts',
       '?? src/passportAccountOwnership/passportAccountOwnership.tenantIsolation.test.ts',
       '?? docs/01-architecture/passport/RICIS-LEAN-PASSPORT-ROUTE-B2-DATA-LIFECYCLE-01_STEP2_ARCHITECTURE.md',
+      ' M src/model/mapPatchIngestion.test.ts',
+      ' M src/model/mapPatchIngestion.ts',
+      ' M src/model/mapPatchIngestion.types.ts',
+      ' M src/ui/MapPatchImportModal.tsx',
+      ' M src/model/audit.proofSynthesisContainment.test.ts',
+      '?? docs/01-architecture/SPRINT_P1_CATALOG_NAVIGATION_CORE_STATUS_STEP2_ARCHITECTURE.md',
+      '?? docs/02-sprints/SPRINT_P1_CATALOG_NAVIGATION_CORE_STATUS_STEP1_BUSINESS_SPEC.md',
+      '?? docs/03-quality/SPRINT_P1_CATALOG_NAVIGATION_CORE_STATUS_STEP3_QA_SPEC.md',
+      '?? import-patches/ricis-real-catalog-98-root-link.json',
     ]);
     expect(status.every(entry => allowed.has(entry))).toBe(true);
   });
