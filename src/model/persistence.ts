@@ -104,21 +104,80 @@ export function sanitizeMap(map: MapState): MapState {
   return { ...map, agentLogs: Array.isArray(map.agentLogs) ? map.agentLogs : [], nodes, zones };
 }
 
-function reconcileCanonicalCatalog(map: MapState): MapState {
+function canonicalCatalogIdentitySnapshot(): MapState {
+  const initialIds = new Set(initialMap.nodes.map((node) => node.id));
+  const catalogOnly = KNOWN_SINGULARITY_PROBLEMS.filter((node) => !initialIds.has(node.id));
+  return migrateMapNodeIdentitySync({
+    nodes: [...initialMap.nodes, ...catalogOnly],
+    edges: initialMap.edges,
+    zones: initialMap.zones,
+    axioms: [],
+    proofs: {},
+    agentLogs: [],
+  }).map;
+}
+
+function remapKnownCatalogIdentity(map: MapState, canonicalCatalog: MapState): MapState {
+  const aliases = canonicalCatalog.nodeIdAliases ?? {};
+  const canonicalPaths = new Map(canonicalCatalog.nodes.map((node) => [node.id, node.canonicalPath]));
+  const remap = (id: string): string => aliases[id] ?? id;
+  const unique = (values: readonly string[]): string[] => [...new Set(values.map(remap))];
+  const nodes = map.nodes
+    .map((node) => ({
+      ...node,
+      id: remap(node.id),
+      canonicalPath: node.canonicalPath ?? canonicalPaths.get(remap(node.id)),
+      dependencyIds: unique(node.dependencyIds ?? []),
+      dependentIds: unique(node.dependentIds ?? []),
+    }))
+    .sort((left, right) => Number(/^[0-9a-f]{32}$/u.test(right.id)) - Number(/^[0-9a-f]{32}$/u.test(left.id)));
+  const edges = map.edges.map((edge) => {
+    const fromId = remap(edge.fromId);
+    const toId = remap(edge.toId);
+    return { ...edge, id: `edge-${fromId}-${toId}`, fromId, toId };
+  });
+  const zones = map.zones.map((zone) => ({ ...zone, nodeIds: unique(zone.nodeIds ?? []) }));
+  const axioms = map.axioms.map((axiom) => ({
+    ...axiom,
+    sourceNodeId: remap(axiom.sourceNodeId),
+    usedByNodeIds: unique(axiom.usedByNodeIds ?? []),
+  }));
+  const proofs = Object.fromEntries(Object.entries(map.proofs ?? {}).map(([id, proof]) => {
+    const nodeId = remap(proof.nodeId || id);
+    return [nodeId, { ...proof, nodeId }];
+  }));
+  const agentLogs = map.agentLogs.map((entry) => entry.nodeId ? { ...entry, nodeId: remap(entry.nodeId) } : { ...entry });
+  const dedupedNodes = [...new Map(nodes.map((node) => [node.id, node])).values()];
+  const dedupedEdges = [...new Map(edges.map((edge) => [edge.id, edge])).values()];
+  return migrateMapNodeIdentitySync({
+    ...map,
+    nodes: dedupedNodes,
+    edges: dedupedEdges,
+    zones,
+    axioms,
+    proofs,
+    agentLogs,
+    nodeIdAliases: { ...(map.nodeIdAliases ?? {}), ...aliases },
+  }).map;
+}
+
+export function reconcileCanonicalCatalog(map: MapState): MapState {
+  const canonicalCatalog = canonicalCatalogIdentitySnapshot();
+  const normalizedMap = remapKnownCatalogIdentity(map, canonicalCatalog);
   const planner = new CanonicalCatalogReconciliationPlanner();
   const reconciliation = planner.plan({
-    persistedNodes: map.nodes,
-    persistedZones: map.zones,
+    persistedNodes: normalizedMap.nodes,
+    persistedZones: normalizedMap.zones,
     canonical: {
-      nodes: KNOWN_SINGULARITY_PROBLEMS,
+      nodes: canonicalCatalog.nodes,
       zones: initialMap.zones,
     },
   });
 
-  if (reconciliation.kind !== 'reconciliation_planned') return map;
+  if (reconciliation.kind !== 'reconciliation_planned') return normalizedMap;
 
-  const applied = new CatalogReconciliationApplication().apply({ map, plan: reconciliation });
-  return applied.kind === 'applied' ? applied.map : map;
+  const applied = new CatalogReconciliationApplication().apply({ map: normalizedMap, plan: reconciliation });
+  return applied.kind === 'applied' ? applied.map : normalizedMap;
 }
 
 export function fromSnapshot(s: PersistedSnapshot): MapState | null {
