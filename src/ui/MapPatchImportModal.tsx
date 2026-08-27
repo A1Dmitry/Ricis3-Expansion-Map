@@ -66,11 +66,12 @@ export const MapPatchImportModal: React.FC<MapPatchImportModalProps> = ({ onClos
       const currentEdges = map.edges || [];
       const currentProofs = map.proofs || {};
 
-      const { nextNodes, nextEdges, nextProofs, result } = defaultMapPatchIngestionService.applyPatch(
+      const { nextNodes, nextEdges, nextProofs, nodeIdAliases, result } = defaultMapPatchIngestionService.applyPatch(
         currentNodes,
         currentEdges,
         currentProofs,
-        validationResult.payload
+        validationResult.payload,
+        map.nodeIdAliases
       );
 
       if (!result.success) {
@@ -84,6 +85,7 @@ export const MapPatchImportModal: React.FC<MapPatchImportModalProps> = ({ onClos
         nodes: nextNodes,
         edges: nextEdges,
         proofs: nextProofs,
+        nodeIdAliases,
       });
 
       // Save to IndexedDB

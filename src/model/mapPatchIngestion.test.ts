@@ -8,6 +8,9 @@ import { MapPatchIngestionService } from './mapPatchIngestion';
 import type { ProblemNode, Proof } from './types';
 import type { IMapPatchPayloadDTO } from './mapPatchIngestion.types';
 
+type IdentityMergeLike = { nodeIdAliases?: Record<string, string> };
+const resolveNodeId = (merge: IdentityMergeLike, legacyId: string): string => merge.nodeIdAliases?.[legacyId] ?? legacyId;
+
 describe('MapPatchIngestionService (RICIS-III Ingestion Engine)', () => {
   const service = new MapPatchIngestionService();
 
@@ -100,18 +103,19 @@ describe('MapPatchIngestionService (RICIS-III Ingestion Engine)', () => {
     };
 
     const initialProofs: Record<string, Proof> = {};
-    const { nextNodes, nextProofs, result } = service.applyPatch(mockBaseNodes, [], initialProofs, patchPayload);
+    const merged = service.applyPatch(mockBaseNodes, [], initialProofs, patchPayload);
+    const { nextNodes, nextProofs, result } = merged;
 
     expect(result.success).toBe(true);
     expect(result.updatedNodeCount).toBe(1);
     expect(result.createdNodeCount).toBe(1);
     expect(result.proofsAttachedCount).toBe(1);
 
-    const updatedNode = nextNodes.find(n => n.id === 'math-singularity');
+    const updatedNode = nextNodes.find(n => n.id === resolveNodeId(merged, 'math-singularity'));
     expect(updatedNode?.state).toBe('resolved');
-    expect(nextProofs['math-singularity']).toBeDefined();
+    expect(nextProofs[resolveNodeId(merged, 'math-singularity')]).toBeDefined();
 
-    const createdNode = nextNodes.find(n => n.id === 'new-discovered-problem');
+    const createdNode = nextNodes.find(n => n.id === resolveNodeId(merged, 'new-discovered-problem'));
     expect(createdNode).toBeDefined();
     expect(createdNode?.title).toBe('New Singularity Problem');
   });
@@ -158,7 +162,8 @@ describe('MapPatchIngestionService (RICIS-III Ingestion Engine)', () => {
     expect(result.success).toBe(true);
     expect(result.mode).toBe('direct_full_state');
     expect(nextNodes.length).toBe(1);
-    expect(nextNodes[0].id).toBe('node-1');
+    expect(nextNodes[0].id).toMatch(/^[0-9a-f]{32}$/);
+    expect(nextNodes[0].canonicalPath).toBe('/n1');
   });
 });
 
@@ -176,6 +181,7 @@ type EdgeAwarePatchMerge = Readonly<{
   nextNodes: ProblemNode[];
   nextEdges: ImportedEdge[];
   nextProofs: Record<string, Proof>;
+  nodeIdAliases?: Record<string, string>;
   result: Readonly<{
     success: boolean;
     createdNodeCount: number;
@@ -192,6 +198,7 @@ interface EdgeAwarePatchService {
     currentEdges: ImportedEdge[],
     proofsRegistry: Record<string, Proof>,
     payload: IMapPatchPayloadDTO,
+    nodeIdAliases?: Record<string, string>,
   ): EdgeAwarePatchMerge;
 }
 
@@ -258,35 +265,39 @@ describe('MapPatchIngestionService — P1 add-only graph edges', () => {
     expect(merged.result.createdNodeCount).toBe(1);
     expect(merged.result.createdEdgeCount).toBe(1);
     expect(merged.result.proofsAttachedCount).toBe(0);
-    expect(merged.result.affectedNodeIds).toEqual(['real-catalog-98', 'core-agi-target']);
+    const targetId = resolveNodeId(merged, 'real-catalog-98');
+    const sourceId = resolveNodeId(merged, 'core-agi-target');
+    expect(merged.result.affectedNodeIds).toEqual([targetId, sourceId]);
 
-    const target = merged.nextNodes.find(node => node.id === 'real-catalog-98');
-    const source = merged.nextNodes.find(node => node.id === 'core-agi-target');
+    const target = merged.nextNodes.find(node => node.id === targetId);
+    const source = merged.nextNodes.find(node => node.id === sourceId);
     expect(target?.state).toBe('unresolved');
-    expect(target?.dependencyIds).toEqual(['core-agi-target']);
-    expect(source?.dependentIds).toEqual(['real-catalog-98']);
+    expect(target?.dependencyIds).toEqual([sourceId]);
+    expect(source?.dependentIds).toEqual([targetId]);
     expect(merged.nextEdges).toEqual([
       expect.objectContaining({
-        id: 'edge-core-agi-target-real-catalog-98',
-        fromId: 'core-agi-target',
-        toId: 'real-catalog-98',
+        id: `edge-${sourceId}-${targetId}`,
+        fromId: sourceId,
+        toId: targetId,
       }),
     ]);
     expect(merged.nextProofs['source-locked-node']).toBe(lockedProof);
-    expect(merged.nextProofs['real-catalog-98']).toBeUndefined();
+    expect(merged.nextProofs[targetId]).toBeUndefined();
   });
 
   it('EDGE-QA-02: repeats the same reference patch without duplicating node, edge or reciprocal identity references', () => {
     const first = service.applyPatch([root], [], {}, referencePatch);
-    const second = service.applyPatch(first.nextNodes, first.nextEdges, first.nextProofs, referencePatch);
+    const second = service.applyPatch(first.nextNodes, first.nextEdges, first.nextProofs, referencePatch, first.nodeIdAliases);
 
     expect(second.result.success).toBe(true);
     expect(second.result.createdNodeCount).toBe(0);
     expect(second.result.createdEdgeCount).toBe(0);
-    expect(second.nextNodes.filter(node => node.id === 'real-catalog-98')).toHaveLength(1);
-    expect(second.nextEdges.filter(edge => edge.id === 'edge-core-agi-target-real-catalog-98')).toHaveLength(1);
-    expect(second.nextNodes.find(node => node.id === 'core-agi-target')?.dependentIds).toEqual(['real-catalog-98']);
-    expect(second.nextNodes.find(node => node.id === 'real-catalog-98')?.dependencyIds).toEqual(['core-agi-target']);
+    const secondTargetId = resolveNodeId(second, 'real-catalog-98');
+    const secondSourceId = resolveNodeId(second, 'core-agi-target');
+    expect(second.nextNodes.filter(node => node.id === secondTargetId)).toHaveLength(1);
+    expect(second.nextEdges.filter(edge => edge.id === `edge-${secondSourceId}-${secondTargetId}`)).toHaveLength(1);
+    expect(second.nextNodes.find(node => node.id === secondSourceId)?.dependentIds).toEqual([secondTargetId]);
+    expect(second.nextNodes.find(node => node.id === secondTargetId)?.dependencyIds).toEqual([secondSourceId]);
   });
 
   it('EDGE-QA-03: rejects an invalid edge atomically and leaves nodes, edges and existing source-locked evidence unchanged', () => {
@@ -351,7 +362,7 @@ describe('MapPatchIngestionService — P1 add-only graph edges', () => {
     };
 
     const merged = service.applyPatch([root, runtimePareto], [], {}, linkOnlyPatch);
-    const target = merged.nextNodes.find(node => node.id === 'real-catalog-98');
+    const target = merged.nextNodes.find(node => node.id === resolveNodeId(merged, 'real-catalog-98'));
 
     expect(merged.result.success).toBe(true);
     expect(merged.result.createdNodeCount).toBe(0);
@@ -359,7 +370,7 @@ describe('MapPatchIngestionService — P1 add-only graph edges', () => {
     expect(merged.result.proofsAttachedCount).toBe(0);
     expect(target?.type).toBe('scientific_task');
     expect(target?.state).toBe('unresolved');
-    expect(target?.dependencyIds).toEqual(['core-agi-target']);
-    expect(merged.nextProofs['real-catalog-98']).toBeUndefined();
+    expect(target?.dependencyIds).toEqual([resolveNodeId(merged, 'core-agi-target')]);
+    expect(merged.nextProofs[resolveNodeId(merged, 'real-catalog-98')]).toBeUndefined();
   });
 });

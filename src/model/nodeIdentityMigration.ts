@@ -139,9 +139,13 @@ export function normalizeCanonicalPath(path: string): string {
   return `/${normalized.join('/')}`;
 }
 
-export async function sha256Truncated128Hex(canonicalPath: string): Promise<string> {
+export function sha256Truncated128HexSync(canonicalPath: string): string {
   const digest = sha256Bytes(utf8(normalizeCanonicalPath(canonicalPath)));
   return hex(digest.slice(0, SHA128_BYTE_LENGTH));
+}
+
+export async function sha256Truncated128Hex(canonicalPath: string): Promise<string> {
+  return sha256Truncated128HexSync(canonicalPath);
 }
 
 export function base64FromSha128Hex(id: string): string {
@@ -208,7 +212,9 @@ function rewriteNode(node: ProblemNode, id: string, path: string, aliases: Reado
 }
 
 function rewriteEdge(edge: DependencyEdge, aliases: Readonly<Record<string, string>>): DependencyEdge {
-  return { ...edge, fromId: mapReference(edge.fromId, aliases), toId: mapReference(edge.toId, aliases) };
+  const fromId = mapReference(edge.fromId, aliases);
+  const toId = mapReference(edge.toId, aliases);
+  return { ...edge, id: `edge-${fromId}-${toId}`, fromId, toId };
 }
 
 function rewriteZone(zone: ScienceZone, aliases: Readonly<Record<string, string>>): ScienceZone {
@@ -234,7 +240,7 @@ function isMigrated(map: MapState): boolean {
   return map.nodes.every((node) => /^[0-9a-f]{32}$/.test(node.id) && typeof node.canonicalPath === 'string' && node.canonicalPath.startsWith('/'));
 }
 
-export async function migrateMapNodeIdentity(map: MapState): Promise<NodeIdentityMigrationResult> {
+export function migrateMapNodeIdentitySync(map: MapState): NodeIdentityMigrationResult {
   if (isMigrated(map)) {
     const aliases = map.nodeIdAliases ?? {};
     return {
@@ -253,7 +259,7 @@ export async function migrateMapNodeIdentity(map: MapState): Promise<NodeIdentit
     const pathOwner = pathOwners.get(canonicalPath);
     if (pathOwner && pathOwner !== node.id) throw { kind: 'identity_collision', paths: [canonicalPath], legacyIds: [pathOwner, node.id] } satisfies NodeIdentityMigrationError;
     pathOwners.set(canonicalPath, node.id);
-    const newId = await sha256Truncated128Hex(canonicalPath);
+    const newId = sha256Truncated128HexSync(canonicalPath);
     const idOwner = idOwners.get(newId);
     if (idOwner && idOwner !== node.id) throw { kind: 'identity_collision', paths: [canonicalPath, paths.get(idOwner)!], legacyIds: [idOwner, node.id] } satisfies NodeIdentityMigrationError;
     idOwners.set(newId, node.id);
@@ -273,4 +279,8 @@ export async function migrateMapNodeIdentity(map: MapState): Promise<NodeIdentit
     aliases,
     report: { migratedNodes: nodes.length, remappedReferences: edges.length + nodes.reduce((count, node) => count + node.dependencyIds.length + node.dependentIds.length, 0), canonicalPathCount: paths.size, aliasCount: Object.keys(aliases).length, algorithm: SHA128_ALGORITHM },
   };
+}
+
+export async function migrateMapNodeIdentity(map: MapState): Promise<NodeIdentityMigrationResult> {
+  return migrateMapNodeIdentitySync(map);
 }
