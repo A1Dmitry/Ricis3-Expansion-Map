@@ -339,6 +339,16 @@ describe('OIR-03 — audit proof-synthesis containment', () => {
       '?? src/passportAccountOwnership/passportAccountOwnership.topology.test.ts',
       '?? src/passportAccountOwnership/passportAccountOwnership.tenantIsolation.test.ts',
       '?? docs/01-architecture/passport/RICIS-LEAN-PASSPORT-ROUTE-B2-DATA-LIFECYCLE-01_STEP2_ARCHITECTURE.md',
+      ' M src/model/persistence.ts',
+      '?? docs/01-architecture/SPRINT_P1_CATALOG_VISIBILITY_AND_DEEP_LINKS_STEP2_ARCHITECTURE.md',
+      '?? docs/02-sprints/SPRINT_P1_CATALOG_VISIBILITY_AND_DEEP_LINKS_STEP1_BUSINESS_SPEC.md',
+      '?? docs/03-quality/SPRINT_P1_CATALOG_VISIBILITY_AND_DEEP_LINKS_STEP3_QA_SPEC.md',
+      '?? docs/03-quality/SPRINT_P1_CATALOG_VISIBILITY_AND_DEEP_LINKS_STEP3_RED_BASELINE.md',
+      '?? docs/03-quality/SPRINT_P1_CATALOG_VISIBILITY_AND_DEEP_LINKS_STEP4_IMPLEMENTATION_QA.md',
+      '?? src/catalogVisibility/catalogVisibility.contracts.ts',
+      '?? src/catalogVisibility/catalogVisibility.domain.test.ts',
+      '?? src/catalogVisibility/catalogVisibility.domain.ts',
+      '?? src/catalogVisibility/catalogVisibility.integration.test.ts',
     ]);
     expect(status.every(entry => allowed.has(entry))).toBe(true);
   });
