@@ -120,7 +120,8 @@ describe('sanitizeMap consent-preserving state integrity', () => {
     const duplicateHash = 'd39fd7e5bdcec3f45f38dc43bba31169';
     const duplicate = { ...catalogNode!, id: duplicateHash, canonicalPath: '/гладкое-решение-уравнений-навье-стокса' };
     const mapWithDuplicate = { ...migrated, nodes: [...migrated.nodes, duplicate] };
-    const reconciled = reconcileCanonicalCatalog({ ...mapWithDuplicate, nodes: [...mapWithDuplicate.nodes, { ...catalogNode! }] });
+    const merged = mergeCanonicalSeedGraph({ ...mapWithDuplicate, nodes: [...mapWithDuplicate.nodes, { ...catalogNode! }] });
+    const reconciled = reconcileCanonicalCatalog(merged);
     const matching = reconciled.nodes.filter(candidate => candidate.canonicalPath === duplicate.canonicalPath);
 
     expect(matching).toHaveLength(1);
