@@ -92,6 +92,12 @@ import { projectCommunityReadiness } from '../communityReadiness/communityReadin
 import { CommunityReadinessNotice, type CommunityInvitationCopyResult } from './CommunityReadinessNotice';
 import { ReadableNodeFocusPolicy } from '../nodeEntry/nodeFocusPolicy';
 import type { NodeFocusRequest, NodeFocusSource } from '../nodeEntry/contracts';
+import {
+  CanonicalNodeSearchMatcher,
+  DeepLinkFocusResolver,
+  NodeVisibilityProjector,
+} from '../catalogVisibility/catalogVisibility.domain';
+import type { DeepLinkFocusOutcome } from '../catalogVisibility/catalogVisibility.contracts';
 import { STATIC_ADMIN_CORE_SNAPSHOT } from '../adminCoreConnection/staticAdminCoreConnection';
 
 type PanelId = 'actions' | 'zones' | 'available' | 'agent' | 'persistence';
@@ -276,14 +282,13 @@ function isDerivativeNodeRef(n: { type?: string; isDerivativeClaim?: boolean }) 
 }
 
 function nodeMatchesQuery(n: ProblemNode, q: string, hiddenZones: Set<string>, showOnlyDerivatives: boolean): boolean {
-  if (n.zoneIds.every(zid => hiddenZones.has(zid))) return false;
-  if (showOnlyDerivatives && !isDerivativeNodeRef(n)) return false;
-  if (!q) return true;
-  return (
-    (n.title?.toLowerCase().includes(q) || false) ||
-    (n.description?.toLowerCase().includes(q) || false) ||
-    (n.targetFunction?.toLowerCase().includes(q) || false)
-  );
+  return new CanonicalNodeSearchMatcher().matches({
+    node: n,
+    normalizedQuery: q,
+    isZoneVisible: !n.zoneIds.every(zid => hiddenZones.has(zid)),
+    showOnlyDerivatives,
+    isDerivativeNode: isDerivativeNodeRef(n),
+  });
 }
 
 type MapPresentationMode = 'three_dimensional' | 'accessible_list';
@@ -344,6 +349,8 @@ export const Map3D: React.FC = () => {
   const initialSavedFilters = React.useMemo(() => filterStorageService.load(), []);
   const initialUrlParams = React.useMemo(() => UrlShareService.parseInitialParams(), []);
   const initialUrlFocusPendingRef = useRef<string | null>(initialUrlParams.initialNodeId);
+  const initialUrlFocusResolvedRef = useRef(false);
+  const [deepLinkRequestedNodeId, setDeepLinkRequestedNodeId] = useState<string | null>(initialUrlParams.initialNodeId);
 
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(() => {
     return initialUrlParams.initialNodeId || initialSavedFilters?.selectedNodeId || null;
@@ -374,11 +381,6 @@ export const Map3D: React.FC = () => {
       toggleTerminal(true);
     }
   }, []);
-
-  // Синхронизация активного узла с URL
-  useEffect(() => {
-    UrlShareService.updateBrowserUrl({ nodeId: selectedNodeId });
-  }, [selectedNodeId]);
 
   const [isNodeExpanded, setIsNodeExpanded] = useState(false);
   const [taskPanelMode, setTaskPanelMode] = useState<'open' | 'rail'>('open');
@@ -804,7 +806,7 @@ export const Map3D: React.FC = () => {
   );
 
   /** Node ids visible under current filter (zones still apply). */
-  const visibleNodeIds = useMemo(() => {
+  const filteredNodeIds = useMemo(() => {
     const ids = new Set<string>();
     const q = searchQuery.toLowerCase().trim();
     for (const n of map.nodes) {
@@ -821,6 +823,43 @@ export const Map3D: React.FC = () => {
     }
     return ids;
   }, [map.nodes, hiddenZones, showOnlyDerivatives, searchQuery]);
+
+  const deepLinkFocusOutcome = useMemo<DeepLinkFocusOutcome>(() => {
+    if (!map.hydrated) return { kind: 'no_deep_link_request' };
+    return new DeepLinkFocusResolver().resolve({
+      requestedNodeId: deepLinkRequestedNodeId,
+      hydratedNodes: map.nodes,
+      activeVisibleNodeIds: filteredNodeIds,
+    });
+  }, [map.hydrated, map.nodes, deepLinkRequestedNodeId, filteredNodeIds]);
+
+  const visibilityProjection = useMemo(() => {
+    return new NodeVisibilityProjector().project({
+      filteredNodeIds,
+      focus: deepLinkFocusOutcome,
+    });
+  }, [filteredNodeIds, deepLinkFocusOutcome]);
+
+  const visibleNodeIds = visibilityProjection.visibleNodeIds;
+
+  useEffect(() => {
+    if (!map.hydrated || initialUrlFocusResolvedRef.current) return;
+    initialUrlFocusResolvedRef.current = true;
+    if (deepLinkFocusOutcome.kind === 'focused_catalog_node') {
+      setSelectedNodeId(deepLinkFocusOutcome.nodeId);
+      return;
+    }
+    if (deepLinkFocusOutcome.kind === 'unknown_deep_link_target') {
+      setSelectedNodeId(null);
+    }
+  }, [map.hydrated, deepLinkFocusOutcome]);
+
+  // Preserve an unknown shared-link target in the address bar for an explicit reader-facing diagnostic.
+  useEffect(() => {
+    if (!map.hydrated) return;
+    if (deepLinkFocusOutcome.kind === 'unknown_deep_link_target' && selectedNodeId === null) return;
+    UrlShareService.updateBrowserUrl({ nodeId: selectedNodeId });
+  }, [selectedNodeId, map.hydrated, deepLinkFocusOutcome]);
 
   useEffect(() => {
     setShowProof(false);
@@ -1090,6 +1129,7 @@ export const Map3D: React.FC = () => {
   };
 
   const handleNavigateToNode = (targetId: string, source: NodeFocusSource = 'graph_click') => {
+    if (source !== 'url_restore') setDeepLinkRequestedNodeId(null);
     if (isMobileLayout) {
       setSelectedNodeId(targetId);
       triggerFlight(targetId, source);
@@ -1120,14 +1160,14 @@ export const Map3D: React.FC = () => {
 
   React.useEffect(() => {
     const pendingNodeId = initialUrlFocusPendingRef.current;
-    if (!pendingNodeId || !cameraControlsReady) return;
-    if (selectedNodeId !== pendingNodeId) {
+    if (!map.hydrated || !pendingNodeId || !cameraControlsReady) return;
+    if (deepLinkFocusOutcome.kind !== 'focused_catalog_node' || selectedNodeId !== pendingNodeId) {
       initialUrlFocusPendingRef.current = null;
       return;
     }
     triggerFlight(pendingNodeId, 'url_restore');
     initialUrlFocusPendingRef.current = null;
-  }, [cameraControlsReady, selectedNodeId, nodePositions]);
+  }, [cameraControlsReady, deepLinkFocusOutcome, map.hydrated, selectedNodeId, nodePositions]);
 
   const edgesLines = useMemo(() => {
     return map.edges.filter(e => {
@@ -1281,7 +1321,7 @@ export const Map3D: React.FC = () => {
         </MapCanvasErrorBoundary>
       ) : (
         <AccessibleMapFallback
-          nodes={map.nodes.filter(node => visibleNodeIds.has(node.id))}
+          nodes={map.nodes.filter(node => visibilityProjection.visibleNodeIds.has(node.id))}
           zones={map.zones}
           selectedNodeId={selectedNodeId}
           reason={mapFallbackReason}
@@ -1503,6 +1543,7 @@ export const Map3D: React.FC = () => {
                   {map.nodes.filter(node => visibleNodeIds.has(node.id)).slice(0, 24).map(node => (
                     <button key={node.id} type="button" onClick={() => handleNavigateToNode(node.id)} className="w-full rounded-md px-2 py-2 text-left text-xs text-slate-300 hover:bg-cyan-950/40 hover:text-cyan-100">
                       <span className="block truncate font-semibold">{node.title}</span>
+                      <span className="block truncate text-[10px] font-mono text-cyan-500">ID: {node.id}</span>
                       <span className="block truncate text-[10px] text-slate-500">{map.zones.find(zone => zone.id === node.zoneIds[0])?.name ?? node.zoneIds[0]}</span>
                     </button>
                   ))}
@@ -1539,6 +1580,11 @@ export const Map3D: React.FC = () => {
 
   return (
     <div className={`w-full bg-[#050505] text-[#e0e0e0] font-sans overflow-hidden flex flex-col ${isImmersive ? 'fixed inset-0 z-[100] h-[100dvh]' : 'h-screen'}`}>
+      {visibilityProjection.deepLinkDiagnostic && (
+        <p role="alert" data-testid="unknown-deep-link-target" className="shrink-0 border-b border-amber-900/70 bg-amber-950/40 px-3 py-2 text-xs text-amber-100">
+          Requested map node ID <code className="font-mono text-amber-200">{visibilityProjection.deepLinkDiagnostic.requestedNodeId}</code> is not available in this map.
+        </p>
+      )}
       {isMobileLayout ? renderMobileShell() : (
         <>
       <header className="min-h-16 border-b border-cyan-900/40 bg-[#080808] flex items-center justify-between gap-2 px-3 py-2 sm:px-6 shrink-0 z-20">

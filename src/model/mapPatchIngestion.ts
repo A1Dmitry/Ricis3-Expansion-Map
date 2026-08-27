@@ -3,8 +3,10 @@
  * Сервис слияния и импорта внешних проблем, решений и доказательств RICIS-III (DRY, DDD, SOLID).
  */
 
-import type { ProblemNode, Proof } from './types';
+import type { DependencyEdge, ProblemNode, Proof } from './types';
 import type {
+  IMapEdgePatchDTO,
+  IMapPatchGraphMerge,
   IMapPatchPayloadDTO,
   IMapPatchIngestionResult,
   IMapPatchIngestionService,
@@ -75,14 +77,55 @@ export class MapPatchIngestionService implements IMapPatchIngestionService {
 
   public applyPatch(
     currentNodes: ProblemNode[],
+    currentEdges: DependencyEdge[],
     proofsRegistry: Record<string, Proof>,
     payload: IMapPatchPayloadDTO
-  ): {
-    nextNodes: ProblemNode[];
-    nextProofs: Record<string, Proof>;
-    result: IMapPatchIngestionResult;
-  } {
+  ): IMapPatchGraphMerge {
+    const reject = (error: string): IMapPatchGraphMerge => ({
+      nextNodes: currentNodes,
+      nextEdges: currentEdges,
+      nextProofs: proofsRegistry,
+      result: {
+        success: false,
+        mode: 'patch_merge',
+        updatedNodeCount: 0,
+        createdNodeCount: 0,
+        proofsAttachedCount: 0,
+        createdEdgeCount: 0,
+        affectedNodeIds: [],
+        warnings: [],
+        error,
+      },
+    });
     const isFullMap = Array.isArray(payload.nodes) && !Array.isArray(payload.nodePatches);
+    const normalizedEdges: Array<Readonly<{ fromId: string; toId: string; patch: IMapEdgePatchDTO }>> = [];
+
+    if (!isFullMap && payload.edges) {
+      const knownNodeIds = new Set(currentNodes.map(node => node.id));
+      for (const patch of payload.nodePatches || []) knownNodeIds.add(patch.id.trim());
+      const payloadEdgeKeys = new Set<string>();
+
+      for (const patch of payload.edges) {
+        const fromId = patch.fromId?.trim() || patch.from?.trim() || '';
+        const toId = patch.toId?.trim() || patch.to?.trim() || '';
+        if (!fromId || !toId) return reject('Invalid edge: both fromId and toId must be non-empty strings.');
+        if (patch.fromId && patch.from && patch.fromId.trim() !== patch.from.trim()) {
+          return reject('Invalid edge: from and fromId disagree.');
+        }
+        if (patch.toId && patch.to && patch.toId.trim() !== patch.to.trim()) {
+          return reject('Invalid edge: to and toId disagree.');
+        }
+        if (fromId === toId) return reject(`Invalid edge: self-reference '${fromId}'.`);
+        if (!knownNodeIds.has(fromId) || !knownNodeIds.has(toId)) {
+          return reject(`Invalid edge: unknown endpoint '${!knownNodeIds.has(fromId) ? fromId : toId}'.`);
+        }
+        const canonicalId = `edge-${fromId}-${toId}`;
+        if (patch.id && patch.id !== canonicalId) return reject(`Invalid edge: id must be '${canonicalId}'.`);
+        if (payloadEdgeKeys.has(canonicalId)) return reject(`Invalid edge: duplicate directed identity '${canonicalId}'.`);
+        payloadEdgeKeys.add(canonicalId);
+        normalizedEdges.push({ fromId, toId, patch });
+      }
+    }
 
     if (isFullMap && payload.nodes) {
       // Прямой импорт полного состояния (Direct MapState Ingestion)
@@ -102,6 +145,7 @@ export class MapPatchIngestionService implements IMapPatchIngestionService {
       }
       return {
         nextNodes: payload.nodes,
+        nextEdges: currentEdges,
         nextProofs,
         result: {
           success: true,
@@ -109,9 +153,11 @@ export class MapPatchIngestionService implements IMapPatchIngestionService {
           updatedNodeCount: payload.nodes.length,
           createdNodeCount: 0,
           proofsAttachedCount: Object.keys(nextProofs).length,
-          createdEdgeCount: Array.isArray(payload.edges) ? payload.edges.length : 0,
+          createdEdgeCount: 0,
           affectedNodeIds: payload.nodes.map(n => n.id),
-          warnings: [],
+          warnings: Array.isArray(payload.edges) && payload.edges.length > 0
+            ? ['Full-state edge replacement is not supported by the add-only patch importer.']
+            : [],
         },
       };
     }
@@ -139,6 +185,7 @@ export class MapPatchIngestionService implements IMapPatchIngestionService {
           if (existingType && existingType !== expectedType) {
             return {
               nextNodes: currentNodes,
+              nextEdges: currentEdges,
               nextProofs: proofsRegistry,
               result: {
                 success: false,
@@ -223,10 +270,44 @@ export class MapPatchIngestionService implements IMapPatchIngestionService {
       }
     }
 
+    const nextEdges = currentEdges.map(edge => ({ ...edge }));
+    const existingEdgeKeys = new Set(nextEdges.map(edge => `${edge.fromId}->${edge.toId}`));
+    let createdEdgeCount = 0;
+
+    for (const edge of normalizedEdges) {
+      const edgeKey = `${edge.fromId}->${edge.toId}`;
+      affectedNodeIds.add(edge.fromId);
+      affectedNodeIds.add(edge.toId);
+      const source = nodeMap.get(edge.fromId);
+      const target = nodeMap.get(edge.toId);
+      if (!source || !target) return reject(`Invalid edge: unknown endpoint '${!source ? edge.fromId : edge.toId}'.`);
+
+      if (existingEdgeKeys.has(edgeKey)) continue;
+
+      const edgeId = `edge-${edge.fromId}-${edge.toId}`;
+      nextEdges.push({
+        id: edgeId,
+        fromId: edge.fromId,
+        toId: edge.toId,
+        strength: edge.patch.strength ?? 0.7,
+        stateColor: edge.patch.stateColor ?? 'red',
+        economicInfluence: edge.patch.economicInfluence ?? 0.5,
+      });
+      source.dependentIds = source.dependentIds.includes(edge.toId)
+        ? source.dependentIds
+        : [...source.dependentIds, edge.toId];
+      target.dependencyIds = target.dependencyIds.includes(edge.fromId)
+        ? target.dependencyIds
+        : [...target.dependencyIds, edge.fromId];
+      existingEdgeKeys.add(edgeKey);
+      createdEdgeCount++;
+    }
+
     const nextNodes = Array.from(nodeMap.values());
 
     return {
       nextNodes,
+      nextEdges,
       nextProofs,
       result: {
         success: true,
@@ -234,7 +315,7 @@ export class MapPatchIngestionService implements IMapPatchIngestionService {
         updatedNodeCount,
         createdNodeCount,
         proofsAttachedCount,
-        createdEdgeCount: 0,
+        createdEdgeCount,
         affectedNodeIds: Array.from(affectedNodeIds),
         warnings,
       },

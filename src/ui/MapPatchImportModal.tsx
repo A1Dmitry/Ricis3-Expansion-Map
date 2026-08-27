@@ -63,10 +63,12 @@ export const MapPatchImportModal: React.FC<MapPatchImportModalProps> = ({ onClos
 
     try {
       const currentNodes = map.nodes || [];
+      const currentEdges = map.edges || [];
       const currentProofs = map.proofs || {};
 
-      const { nextNodes, nextProofs, result } = defaultMapPatchIngestionService.applyPatch(
+      const { nextNodes, nextEdges, nextProofs, result } = defaultMapPatchIngestionService.applyPatch(
         currentNodes,
+        currentEdges,
         currentProofs,
         validationResult.payload
       );
@@ -80,6 +82,7 @@ export const MapPatchImportModal: React.FC<MapPatchImportModalProps> = ({ onClos
       // Update store state with newly merged/created nodes & proofs
       useMapStore.setState({
         nodes: nextNodes,
+        edges: nextEdges,
         proofs: nextProofs,
       });
 
