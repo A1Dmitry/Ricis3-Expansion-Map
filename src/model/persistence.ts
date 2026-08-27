@@ -308,8 +308,11 @@ export async function hydrateInitialState(): Promise<MapState> {
     ? mergeCanonicalSeedGraph(loadedState)
     : sanitizeMap({ ...deepCopyInitialMap() });
 
+  // Reconcile catalog identities before the audit; the audit must never see a persisted
+  // legacy catalog duplicate that can be deterministically collapsed first.
+  const preReconciled = reconcileCanonicalCatalog(stateToMigrate);
   // Execute one-time DB migration & audit (fixes titles, repairs orphan node connections to RICIS, rebuilds edges & updates DB version)
-  const migrationResult = await runDatabaseMigration(stateToMigrate);
+  const migrationResult = await runDatabaseMigration(preReconciled);
   const identityMigration = await migrateMapNodeIdentity(migrationResult.map);
   const reconciled = reconcileCanonicalCatalog(identityMigration.map);
   if (reconciled !== identityMigration.map || identityMigration.report.migratedNodes > 0) await dbSaveMap(reconciled);

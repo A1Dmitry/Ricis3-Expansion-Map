@@ -23,3 +23,9 @@ No proof state, graph semantic field, or authority status is promoted by this re
 | Strict TypeScript | PASS |
 | Production build | PASS |
 | `git diff --check` | PASS |
+
+## Persisted recovery order correction
+
+The first published catalog canonicalization fixed the reconciliation layer but still ran after `runDatabaseMigration`. Existing browser state therefore failed before the repair could execute. Hydration now performs `reconcileCanonicalCatalog` before the audit, then repeats reconciliation after identity migration. This makes the deterministic repair reachable for already-persisted duplicate records without requiring users to clear IndexedDB manually.
+
+The repair remains identity-only: canonical hash selection, alias/reference rewrite, and normal graph validation are preserved; proof promotion and semantic mutation are not introduced.
