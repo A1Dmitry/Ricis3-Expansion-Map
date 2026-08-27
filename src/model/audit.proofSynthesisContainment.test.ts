@@ -339,6 +339,16 @@ describe('OIR-03 — audit proof-synthesis containment', () => {
       '?? src/passportAccountOwnership/passportAccountOwnership.topology.test.ts',
       '?? src/passportAccountOwnership/passportAccountOwnership.tenantIsolation.test.ts',
       '?? docs/01-architecture/passport/RICIS-LEAN-PASSPORT-ROUTE-B2-DATA-LIFECYCLE-01_STEP2_ARCHITECTURE.md',
+      '?? docs/01-architecture/SPRINT_MAP_NODE_EXPLAINER_SHARED_PROVIDER_POOL_STEP2_ARCHITECTURE.md',
+      '?? docs/02-sprints/SPRINT_MAP_NODE_EXPLAINER_SHARED_PROVIDER_POOL_STEP1_BUSINESS_SPEC.md',
+      '?? docs/03-quality/SPRINT_MAP_NODE_EXPLAINER_SHARED_PROVIDER_POOL_STEP3_QA_SPEC.md',
+      '?? docs/03-quality/SPRINT_MAP_NODE_EXPLAINER_SHARED_PROVIDER_POOL_STEP3_RED_BASELINE.md',
+      '?? docs/03-quality/SPRINT_MAP_NODE_EXPLAINER_SHARED_PROVIDER_POOL_STEP4_IMPLEMENTATION_QA.md',
+      '?? src/mapNodeExplainer/boundedProviderWorkerPool.test.ts',
+      '?? src/mapNodeExplainer/boundedProviderWorkerPool.ts',
+      '?? src/mapNodeExplainer/mapNodeExplainer.topology.test.ts',
+      '?? src/mapNodeExplainer/mapNodeExplainerApplication.test.ts',
+      '?? src/mapNodeExplainer/mapNodeExplainerApplication.ts',
       ' M src/model/persistence.ts',
       '?? docs/01-architecture/SPRINT_P1_CATALOG_VISIBILITY_AND_DEEP_LINKS_STEP2_ARCHITECTURE.md',
       '?? docs/02-sprints/SPRINT_P1_CATALOG_VISIBILITY_AND_DEEP_LINKS_STEP1_BUSINESS_SPEC.md',
@@ -357,10 +367,6 @@ describe('OIR-03 — audit proof-synthesis containment', () => {
       '?? docs/02-sprints/SPRINT_P1_CATALOG_NAVIGATION_CORE_STATUS_STEP1_BUSINESS_SPEC.md',
       '?? docs/03-quality/SPRINT_P1_CATALOG_NAVIGATION_CORE_STATUS_STEP3_QA_SPEC.md',
       '?? import-patches/ricis-real-catalog-98-root-link.json',
-      ' M docs/01-architecture/SPRINT_P1_CATALOG_NAVIGATION_CORE_STATUS_STEP2_ARCHITECTURE.md',
-      ' M docs/02-sprints/SPRINT_P1_CATALOG_NAVIGATION_CORE_STATUS_STEP1_BUSINESS_SPEC.md',
-      ' M docs/03-quality/SPRINT_P1_CATALOG_NAVIGATION_CORE_STATUS_STEP3_QA_SPEC.md',
-      ' M import-patches/ricis-real-catalog-98-root-link.json',
     ]);
     expect(status.every(entry => allowed.has(entry))).toBe(true);
   });
