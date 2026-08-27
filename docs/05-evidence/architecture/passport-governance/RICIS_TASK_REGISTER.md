@@ -26,9 +26,23 @@
 
 > Этот раздел содержит **только незавершённые** задачи. Все опубликованные и локально закрытые инкременты сохранены ниже исключительно как historical continuity evidence и не являются active work.
 
+### Текущий бэклог
+
 | Priority | ID | Status | Current gate | Only permissible next action |
 |---:|---|---|---|---|
 | P1 | RICIS-PASSPORT-ACCOUNT-OWNERSHIP-01 | `G2_COMPLETE_AWAITING_G3_APPROVAL` | G1/G2 define B2-A account/tenant owner scope, closed metadata-only receipts, port topology, tenant isolation, lifecycle/retention/export/delete/revoke policy and fail-closed boundaries. | Obtain explicit `OK RICIS-PASSPORT-ACCOUNT-OWNERSHIP-01 G3`; no code/storage/auth integration before then. |
+
+### Перспективные задачи с внешним решением (RICIS-III v7.7)
+
+> **Примечание:** Данные задачи представляют собой долгосрочные исследовательские и архитектурные цели, сформулированные на основе системного анализа RICIS-III v7.7. Их решение может потребовать привлечения внешних экспертных систем, Lean-библиотек или специализированных вычислительных сред.
+
+| Priority | ID | Status | Current gate | Scope boundary | Potential External Solutions |
+|---:|---|---|---|---|---|
+| P2 | RICIS-7.7-GEOMETRIC-BRIDGE-SYNC | `BACKLOG_G1` | Не начато (Спецификация G1 в разработке) | Реализация 2D векторного представления для $0/0$ и $\infty/\infty$ в рантайме. Использование косого произведения (Skew Product) для вычисления площадей сингулярных монад за $O(1)$. | Внешние библиотеки вычислительной геометрии и символьных вычислений для работы с 2D векторными полями. |
+| P2 | RICIS-7.7-SEMANTIC-INDEX-SP4 | `BACKLOG_G1` | Не начато | Перевод существующего парсера и графа зависимостей на строгое символьное индексирование выражений вместо скалярной оценки ($E(x) \mid_{x=a}$ по аксиоме SP4). Предотвращение ложных нулей. | Использование внешних CAS (Computer Algebra Systems) или специализированных компиляторов графов выражений. |
+| P3 | RICIS-7.7-LEAN-TRUSTED-CONTRACT | `BACKLOG_G1` | Не начато | Создание append-only реестра внешних доказательств. Верификация контракта на основе верифицированных внешних исходников: проверка сигнатуры компилятора, среды lake, вывода `#print axioms` и отсутствия `sorryAx`. | Внешнее облачное ядро Lean 4 (Lean Enterprise Kernel) или изолированный контейнерный сервис верификации. |
+| P3 | RICIS-7.7-GRADIENT-EXPLOSION-BOUNDS | `BACKLOG_G1` | Не начато | Применение аксиоматического аппарата RICIS-III v7.7 для математического ограничения градиентов в глубоком обучении. Разработка корректирующих слоёв стабилизации. | Внешние PyTorch/TensorFlow расширения для автоматического контроля норм градиентов на основе RICIS-монад. |
+
 
 ## Historical continuity record
 
