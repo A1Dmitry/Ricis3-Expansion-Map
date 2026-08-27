@@ -417,6 +417,7 @@ describe('OIR-03 — audit proof-synthesis containment', () => {
       ' M src/App.tsx',
       ' M src/model/persistence.test.ts',
       ' M src/model/persistence.ts',
+      '?? docs/05-evidence/architecture/LIVE_SHA128_HYDRATION_DIAGNOSIS_2026-08-27.md',
     ]);
     expect(status.every(entry => allowed.has(entry))).toBe(true);
   });
