@@ -367,6 +367,23 @@ describe('OIR-03 — audit proof-synthesis containment', () => {
       '?? docs/02-sprints/SPRINT_P1_CATALOG_NAVIGATION_CORE_STATUS_STEP1_BUSINESS_SPEC.md',
       '?? docs/03-quality/SPRINT_P1_CATALOG_NAVIGATION_CORE_STATUS_STEP3_QA_SPEC.md',
       '?? import-patches/ricis-real-catalog-98-root-link.json',
+      ' M CITATION.cff',
+      ' M README.md',
+      ' M docs/05-evidence/architecture/structural-hash-report.md',
+      ' M docs/05-evidence/architecture/telegram-tokenpool-remediation-2026-08-18.md',
+      ' M docs/05-evidence/proofs/lean-boundary-audit-2026-08-18.md',
+      ' M index.html',
+      ' M package-lock.json',
+      ' M package.json',
+      ' M src/model/audit.proofSynthesisContainment.test.ts',
+      ' M src/ui/Map3D.tsx',
+      ' M src/version.ts',
+      '?? docs/01-architecture/SPRINT_PERSISTENCE_EXPORT_ACTION_PANEL_STEP2_ARCHITECTURE.md',
+      '?? docs/02-sprints/SPRINT_PERSISTENCE_EXPORT_ACTION_PANEL_STEP1_BUSINESS_SPEC.md',
+      '?? docs/03-quality/SPRINT_PERSISTENCE_EXPORT_ACTION_PANEL_STEP3_QA_SPEC.md',
+      '?? docs/03-quality/SPRINT_PERSISTENCE_EXPORT_ACTION_PANEL_STEP3_RED_BASELINE.md',
+      '?? docs/05-evidence/architecture/LIVE_POST_DEPLOYMENT_VERIFICATION_2026-08-27.md',
+      '?? src/ui/Map3D.persistencePanel.test.ts',
     ]);
     expect(status.every(entry => allowed.has(entry))).toBe(true);
   });
