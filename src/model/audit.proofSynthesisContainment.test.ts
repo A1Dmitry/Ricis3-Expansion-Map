@@ -332,6 +332,12 @@ describe('OIR-03 — audit proof-synthesis containment', () => {
       ' M src/ui/LeanPassportSessionDialog.tsx',
       ' M src/leanPassportProjection/leanPassportProjection.domain.ts',
       '?? src/model/ricisMdLeanCorrection.documentation.test.ts',
+      '?? src/passportAccountOwnership/passportAccountOwnership.domain.ts',
+      '?? src/passportAccountOwnership/passportAccountOwnership.application.ts',
+      '?? src/passportAccountOwnership/passportAccountOwnership.domain.test.ts',
+      '?? src/passportAccountOwnership/passportAccountOwnership.application.test.ts',
+      '?? src/passportAccountOwnership/passportAccountOwnership.topology.test.ts',
+      '?? src/passportAccountOwnership/passportAccountOwnership.tenantIsolation.test.ts',
     ]);
     expect(status.every(entry => allowed.has(entry))).toBe(true);
   });
