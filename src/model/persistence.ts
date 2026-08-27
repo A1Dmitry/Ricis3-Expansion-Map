@@ -213,8 +213,12 @@ function loadLegacyLocalStorage(): MapState | null {
  */
 export function mergeCanonicalSeedGraph(loadedState: MapState): MapState {
   const canonicalSeed = migrateMapNodeIdentitySync(sanitizeMap({ ...deepCopyInitialMap() })).map;
-  const seedAliases = canonicalSeed.nodeIdAliases ?? {};
-  const seedPaths = new Map(canonicalSeed.nodes.map((node) => [node.id, node.canonicalPath]));
+  const canonicalCatalog = canonicalCatalogIdentitySnapshot();
+  const seedAliases = { ...(canonicalSeed.nodeIdAliases ?? {}), ...(canonicalCatalog.nodeIdAliases ?? {}) };
+  const seedPaths = new Map([
+    ...canonicalSeed.nodes.map((node) => [node.id, node.canonicalPath] as const),
+    ...canonicalCatalog.nodes.map((node) => [node.id, node.canonicalPath] as const),
+  ]);
   const remap = (id: string): string => seedAliases[id] ?? id;
   const unique = (values: readonly string[]): string[] => [...new Set(values.map(remap))];
 

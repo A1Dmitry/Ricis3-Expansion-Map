@@ -29,3 +29,9 @@ No proof state, graph semantic field, or authority status is promoted by this re
 The first published catalog canonicalization fixed the reconciliation layer but still ran after `runDatabaseMigration`. Existing browser state therefore failed before the repair could execute. Hydration now performs `reconcileCanonicalCatalog` before the audit, then repeats reconciliation after identity migration. This makes the deterministic repair reachable for already-persisted duplicate records without requiring users to clear IndexedDB manually.
 
 The repair remains identity-only: canonical hash selection, alias/reference rewrite, and normal graph validation are preserved; proof promotion and semantic mutation are not introduced.
+
+## Final merge-stage correction
+
+The persisted duplicate could still be encountered inside `mergeCanonicalSeedGraph`, before the pre-audit reconciliation pass. The initial remapper now combines aliases from both the published seed and the canonicalized catalog snapshot. Thus `real-catalog-0` is rewritten before the first `migrateMapNodeIdentitySync` call, which is the earliest point at which the live collision can arise.
+
+The exact regression now passes through `mergeCanonicalSeedGraph` with both `d39fd7e5bdcec3f45f38dc43bba31169` and `real-catalog-0`, and leaves one canonical hash node for the path.
