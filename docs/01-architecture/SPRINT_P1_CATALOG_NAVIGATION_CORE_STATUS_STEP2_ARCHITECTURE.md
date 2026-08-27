@@ -45,7 +45,7 @@ flowchart LR
 | `proofs` | Existing optional separate payload. | Never inferred from an edge or node patch. |
 | `real-catalog-98` | Existing canonical research node. | `unresolved`; no Lean/Core proof evidence. |
 
-The identity invariant is exact: an accepted source ID and target ID preserve their strings and refer only to the two resolved `ProblemNode` records. A patch may **add** a relation; it may not change either endpoint’s `state`, source-locked external Lean bytes, trust status, proof text, target expression, economic attributes, or IDs unless an independently existing node-patch/proof policy permits that action. The P1 reference patch will not include any proof object.
+The identity invariant is exact: an accepted source ID and target ID preserve their strings and refer only to the two resolved `ProblemNode` records. A patch may **add** a relation; it may not change either endpoint’s `state`, source-locked external Lean bytes, trust status, proof text, target expression, economic attributes, or IDs unless an independently existing node-patch/proof policy permits that action. The production P1 reference patch will not include a node patch or proof object. It operates only on the existing `real-catalog-98` record and therefore cannot mutate its runtime type.
 
 ## 3. DTO and result contract
 
@@ -104,7 +104,7 @@ After all node, proof and edge inputs validate, the service creates output copie
 5. Increment `createdEdgeCount` only when a new directed relation is materialized.
 6. Include both endpoint IDs in `affectedNodeIds` in canonical first-seen input order.
 
-The reference result must contain exactly one graph relation:
+The production link-only reference result must contain exactly one graph relation while preserving the already present target node:
 
 ```text
 fromId = core-agi-target
@@ -147,14 +147,13 @@ No UI component needs an import-specific search workaround. Once the node is pre
 
 | Test ID | Given | Expected result |
 |---|---|---|
-| EDGE-QA-01 | Fresh map plus reference P1 patch. | One new node, one new edge, `core-agi-target.dependentIds` includes `real-catalog-98`, target `dependencyIds` includes root, no proofs. |
-| EDGE-QA-02 | Same patch twice. | Second application creates zero nodes/edges and does not duplicate relation arrays. |
-| EDGE-QA-03 | Persisted current-version map missing node. | Merge adds node/edge without clearing unrelated nodes, proofs or zones. |
-| EDGE-QA-04 | Missing, blank, conflicting alias or unknown edge endpoint. | `success: false`; state output is exact original state. |
-| EDGE-QA-05 | Self-edge. | Typed rejection and unchanged output. |
+| EDGE-QA-01 | Generic fresh map plus node-and-edge patch. | One new node, one new edge, reciprocal references and no proofs. |
+| EDGE-QA-02 | Same generic patch twice. | Second application creates zero nodes/edges and does not duplicate relation arrays. |
+| EDGE-QA-03 | Blank or conflicting edge endpoint. | `success: false`; exact original graph state is returned. |
+| EDGE-QA-04 | Self-edge or endpoint absent from both state and same patch. | Typed rejection and unchanged output. |
+| EDGE-QA-05 | Production link-only patch against existing `scientific_task` target. | Creates one edge only; preserves exact target type and `unresolved` state. |
 | EDGE-QA-06 | Existing external Lean source-locked proof unrelated to patch. | Exact unchanged proof object and zero proof attachments. |
-| EDGE-QA-07 | Reference patch. | `real-catalog-98.state === 'unresolved'`; no evidence/trust label exists or changes. |
-| EDGE-QA-08 | Existing node-only and full-map import regression samples. | Existing accepted behaviour remains compatible. |
+| EDGE-QA-07 | Existing node-only and full-map import regression samples. | Existing accepted behaviour remains compatible. |
 
 ## 9. Architecture acceptance checklist
 
@@ -164,7 +163,7 @@ No UI component needs an import-specific search workaround. Once the node is pre
 4. Edge and reciprocal node arrays remain structurally consistent.
 5. `nextEdges` crosses the service-to-modal state boundary in one transaction.
 6. No edge can alter `state`, proof, Lean evidence, RICIS result or Core status.
-7. The reference JSON’s success evidence is `createdNodeCount: 1`, `createdEdgeCount: 1`, `proofsAttachedCount: 0` on a state missing the node.
+7. The production link-only JSON’s success evidence is `createdNodeCount: 0`, `createdEdgeCount: 1`, `proofsAttachedCount: 0` on a state containing the target node; its type and state are preserved exactly.
 8. All listed red/green and preservation tests are written before implementation.
 
 ## 10. Approval boundary

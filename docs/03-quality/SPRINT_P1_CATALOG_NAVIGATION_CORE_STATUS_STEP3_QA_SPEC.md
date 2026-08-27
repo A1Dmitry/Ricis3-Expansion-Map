@@ -16,6 +16,7 @@
 | EDGE-QA-02 | Apply the same reference patch twice. | Second pass creates zero nodes/edges; directed edge and each reciprocal ID occur exactly once. |
 | EDGE-QA-03 | Submit an edge with blank source. | Atomic rejection: exact original nodes, edges and source-locked proof references are returned; all created counters zero. |
 | EDGE-QA-04 | Submit self-edge and unknown-target variants. | Each returns typed failure; no partial graph mutation. |
+| EDGE-QA-05 | Apply production link-only patch to an existing `real-catalog-98` with type `scientific_task`. | Creates one edge only; exact existing type and `unresolved` state are preserved; no proof attaches. |
 | Existing `TC-PATCH-*` suite | Existing node upsert, type mismatch and full-state behaviors. | No regression in established import paths. |
 
 ## 2. Actual pre-implementation run
@@ -33,7 +34,7 @@ The initial run before `npm ci` could not start because `tsx` from the locked de
 
 ## 3. Negative non-promotion assertions
 
-The reference fixture deliberately includes an unrelated `sourceLocked: true`, `REQUIRES_CORE_LEAN` proof. The required implementation behavior is reference preservation only. It must not create or modify a proof for `real-catalog-98`, promote its node state, set `LEAN_VERIFIED`, `TRUSTED_AXIOM` or `QED_VERIFIED`, contact Core, or infer any singularity result.
+The generic creation fixture deliberately includes an unrelated `sourceLocked: true`, `REQUIRES_CORE_LEAN` proof. The required implementation behavior is reference preservation only. The production artifact is link-only and is applied to an already existing `real-catalog-98`; it must not create or modify its proof, type or state, set `LEAN_VERIFIED`, `TRUSTED_AXIOM` or `QED_VERIFIED`, contact Core, or infer any singularity result.
 
 ## 4. Step 4 acceptance gate
 

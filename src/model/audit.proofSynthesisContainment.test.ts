@@ -348,6 +348,10 @@ describe('OIR-03 — audit proof-synthesis containment', () => {
       '?? docs/02-sprints/SPRINT_P1_CATALOG_NAVIGATION_CORE_STATUS_STEP1_BUSINESS_SPEC.md',
       '?? docs/03-quality/SPRINT_P1_CATALOG_NAVIGATION_CORE_STATUS_STEP3_QA_SPEC.md',
       '?? import-patches/ricis-real-catalog-98-root-link.json',
+      ' M docs/01-architecture/SPRINT_P1_CATALOG_NAVIGATION_CORE_STATUS_STEP2_ARCHITECTURE.md',
+      ' M docs/02-sprints/SPRINT_P1_CATALOG_NAVIGATION_CORE_STATUS_STEP1_BUSINESS_SPEC.md',
+      ' M docs/03-quality/SPRINT_P1_CATALOG_NAVIGATION_CORE_STATUS_STEP3_QA_SPEC.md',
+      ' M import-patches/ricis-real-catalog-98-root-link.json',
     ]);
     expect(status.every(entry => allowed.has(entry))).toBe(true);
   });

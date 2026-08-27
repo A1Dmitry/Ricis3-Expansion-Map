@@ -329,4 +329,37 @@ describe('MapPatchIngestionService — P1 add-only graph edges', () => {
     expect(unknownRejected.result.success).toBe(false);
     expect(unknownRejected.result.error).toMatch(/unknown|edge/i);
   });
+
+  it('EDGE-QA-05: link-only patch preserves the existing runtime scientific_task type and unresolved state', () => {
+    const runtimePareto: ProblemNode = {
+      id: 'real-catalog-98',
+      title: 'Распределение богатства Парето',
+      description: 'Концентрация капитала.',
+      state: 'unresolved',
+      type: 'scientific_task',
+      fractalDepth: 1,
+      targetFunction: 'Formalize(РаспределениебогатстваПарето)',
+      dependencyIds: [],
+      dependentIds: [],
+      zoneIds: ['economics'],
+      economic: { costUnresolved: 482000000, costToSolve: 4900000, marketGain: 510000000, riskLoss: 353000000 },
+      ricisSolvable: true,
+    };
+    const linkOnlyPatch: IMapPatchPayloadDTO = {
+      '@type': 'RICIS.MapStatePatch',
+      edges: [{ fromId: 'core-agi-target', toId: 'real-catalog-98' }],
+    };
+
+    const merged = service.applyPatch([root, runtimePareto], [], {}, linkOnlyPatch);
+    const target = merged.nextNodes.find(node => node.id === 'real-catalog-98');
+
+    expect(merged.result.success).toBe(true);
+    expect(merged.result.createdNodeCount).toBe(0);
+    expect(merged.result.createdEdgeCount).toBe(1);
+    expect(merged.result.proofsAttachedCount).toBe(0);
+    expect(target?.type).toBe('scientific_task');
+    expect(target?.state).toBe('unresolved');
+    expect(target?.dependencyIds).toEqual(['core-agi-target']);
+    expect(merged.nextProofs['real-catalog-98']).toBeUndefined();
+  });
 });
