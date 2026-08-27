@@ -347,10 +347,10 @@ describe('Zustand mapStore.ts Integration Tests (RICIS-III v7.7 Diagnostics & GC
     };
 
     const store = useMapStore.getState();
-    await store.addCustomNode(newNode, 'math-singularity');
+    const createdNodeId = await store.addCustomNode(newNode, 'math-singularity');
 
     const state = useMapStore.getState();
-    expect(state.nodes.some(n => n.id === 'custom-child')).toBe(true);
-    expect(state.edges.some(e => e.fromId === 'math-singularity' && e.toId === 'custom-child')).toBe(true);
+    expect(state.nodes.some(n => n.id === createdNodeId && /^[0-9a-f]{32}$/.test(n.id))).toBe(true);
+    expect(state.edges.some(e => e.fromId === 'math-singularity' && e.toId === createdNodeId)).toBe(true);
   });
 });

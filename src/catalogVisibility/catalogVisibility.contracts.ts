@@ -63,6 +63,7 @@ export interface DeepLinkFocusInput {
   readonly requestedNodeId: string | null;
   readonly hydratedNodes: readonly ProblemNode[];
   readonly activeVisibleNodeIds: ReadonlySet<string>;
+  readonly nodeIdAliases?: Readonly<Record<string, string>>;
 }
 
 export type DeepLinkFocusOutcome =

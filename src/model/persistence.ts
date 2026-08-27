@@ -4,6 +4,7 @@ import { deepCopyInitialMap } from './initialMap';
 
 import { dbSaveMap, dbLoadMap, dbClear } from './db';
 import { runDatabaseMigration } from './migrationAudit';
+import { migrateMapNodeIdentity } from './nodeIdentityMigration';
 import { KNOWN_SINGULARITY_PROBLEMS } from './catalog';
 import {
   CanonicalCatalogReconciliationPlanner,
@@ -21,6 +22,7 @@ export interface PersistedSnapshot {
   axioms: Axiom[];
   proofs: Record<string, Proof>;
   savedAt: string;
+  nodeIdAliases?: Record<string, string>;
 }
 
 export function toSnapshot(state: MapState): PersistedSnapshot {
@@ -32,6 +34,7 @@ export function toSnapshot(state: MapState): PersistedSnapshot {
     axioms: state.axioms,
     proofs: state.proofs,
     savedAt: new Date().toISOString(),
+    nodeIdAliases: state.nodeIdAliases,
   };
 }
 
@@ -128,6 +131,7 @@ export function fromSnapshot(s: PersistedSnapshot): MapState | null {
     axioms: Array.isArray(s.axioms) ? s.axioms : [],
     proofs: s.proofs && typeof s.proofs === 'object' ? s.proofs : {},
     agentLogs: [],
+    nodeIdAliases: s.nodeIdAliases && typeof s.nodeIdAliases === 'object' ? s.nodeIdAliases : {},
   });
 }
 
@@ -206,8 +210,9 @@ export async function hydrateInitialState(): Promise<MapState> {
 
   // Execute one-time DB migration & audit (fixes titles, repairs orphan node connections to RICIS, rebuilds edges & updates DB version)
   const migrationResult = await runDatabaseMigration(stateToMigrate);
-  const reconciled = reconcileCanonicalCatalog(migrationResult.map);
-  if (reconciled !== migrationResult.map) await dbSaveMap(reconciled);
+  const identityMigration = await migrateMapNodeIdentity(migrationResult.map);
+  const reconciled = reconcileCanonicalCatalog(identityMigration.map);
+  if (reconciled !== identityMigration.map || identityMigration.report.migratedNodes > 0) await dbSaveMap(reconciled);
   return reconciled;
 }
 
@@ -234,8 +239,9 @@ export async function importMapJson(text: string): Promise<MapState | null> {
     const parsed = JSON.parse(text) as PersistedSnapshot;
     const state = fromSnapshot(parsed);
     if (!state) return null;
-    await dbSaveMap(state);
-    return state;
+    const identityMigration = await migrateMapNodeIdentity(state);
+    await dbSaveMap(identityMigration.map);
+    return identityMigration.map;
   } catch {
     return null;
   }
