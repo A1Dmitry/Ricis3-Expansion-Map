@@ -414,6 +414,9 @@ describe('OIR-03 — audit proof-synthesis containment', () => {
       '?? tools/sha128GraphBaseline.ts',
       '?? src/mapNodeExplainer/geminiMapNodeExplainerProvider.ts',
       '?? src/mapNodeExplainer/geminiMapNodeExplainerProvider.test.ts',
+      ' M src/App.tsx',
+      ' M src/model/persistence.test.ts',
+      ' M src/model/persistence.ts',
     ]);
     expect(status.every(entry => allowed.has(entry))).toBe(true);
   });

@@ -1,5 +1,7 @@
 import { describe, expect, it } from 'vitest';
-import { sanitizeMap } from './persistence';
+import { mergeCanonicalSeedGraph, sanitizeMap } from './persistence';
+import { deepCopyInitialMap } from './initialMap';
+import { migrateMapNodeIdentitySync } from './nodeIdentityMigration';
 import type { MapState, ProblemNode, Proof } from './types';
 
 function node(id: string, state: ProblemNode['state']): ProblemNode {
@@ -95,5 +97,18 @@ describe('sanitizeMap consent-preserving state integrity', () => {
     const sanitized = sanitizeMap(state([node('unresolved', 'unresolved'), node('partial', 'partial')]));
 
     expect(sanitized.nodes.map(candidate => candidate.state)).toEqual(['unresolved', 'partial']);
+  });
+
+  it('merges a migrated persisted graph with the seed in one SHA-128 identity space', () => {
+    const legacySeed = deepCopyInitialMap();
+    const persisted = migrateMapNodeIdentitySync(legacySeed).map;
+    const merged = mergeCanonicalSeedGraph(persisted);
+    const remigrated = migrateMapNodeIdentitySync(merged).map;
+
+    expect(merged.nodes).toHaveLength(persisted.nodes.length);
+    expect(new Set(merged.nodes.map(candidate => candidate.id)).size).toBe(merged.nodes.length);
+    expect(merged.nodes.every(candidate => /^[0-9a-f]{32}$/u.test(candidate.id))).toBe(true);
+    expect(remigrated.nodes.map(candidate => candidate.id)).toEqual(merged.nodes.map(candidate => candidate.id));
+    expect(remigrated.edges).toEqual(merged.edges);
   });
 });

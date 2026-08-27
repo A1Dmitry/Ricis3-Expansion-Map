@@ -4,7 +4,7 @@ import { deepCopyInitialMap } from './initialMap';
 
 import { dbSaveMap, dbLoadMap, dbClear } from './db';
 import { runDatabaseMigration } from './migrationAudit';
-import { migrateMapNodeIdentity } from './nodeIdentityMigration';
+import { migrateMapNodeIdentity, migrateMapNodeIdentitySync } from './nodeIdentityMigration';
 import { KNOWN_SINGULARITY_PROBLEMS } from './catalog';
 import {
   CanonicalCatalogReconciliationPlanner,
@@ -146,67 +146,69 @@ function loadLegacyLocalStorage(): MapState | null {
   }
 }
 
-/** Загрузка: IndexedDB → миграция из localStorage → seed initialMap. */
+/**
+ * Merge a persisted graph with the published seed without mixing legacy IDs into
+ * an already migrated graph. Both sides are first normalized through the same
+ * SHA-128 identity service; references are therefore compared in one ID space.
+ */
+export function mergeCanonicalSeedGraph(loadedState: MapState): MapState {
+  const persisted = migrateMapNodeIdentitySync(sanitizeMap(loadedState)).map;
+  const canonicalSeed = migrateMapNodeIdentitySync(sanitizeMap({ ...deepCopyInitialMap() })).map;
+  const existingZoneIds = new Set(persisted.zones.map((zone) => zone.id));
+  const existingNodeIds = new Set(persisted.nodes.map((node) => node.id));
+  const existingEdgeIds = new Set(persisted.edges.map((edge) => edge.id));
+
+  const nodes = [
+    ...persisted.nodes,
+    ...canonicalSeed.nodes
+      .filter((node) => !existingNodeIds.has(node.id))
+      .map((node) => ({
+        ...node,
+        zoneIds: [...node.zoneIds],
+        dependencyIds: [...node.dependencyIds],
+        dependentIds: [...node.dependentIds],
+      })),
+  ];
+  const nodeIds = new Set(nodes.map((node) => node.id));
+  const edges = [
+    ...persisted.edges,
+    ...canonicalSeed.edges
+      .filter((edge) => !existingEdgeIds.has(edge.id) && nodeIds.has(edge.fromId) && nodeIds.has(edge.toId))
+      .map((edge) => ({ ...edge })),
+  ];
+  const zones = [
+    ...persisted.zones,
+    ...canonicalSeed.zones
+      .filter((zone) => !existingZoneIds.has(zone.id))
+      .map((zone) => ({ ...zone, nodeIds: [...zone.nodeIds], economicProfile: { ...zone.economicProfile } })),
+  ];
+
+  return sanitizeMap({ ...persisted, nodes, edges, zones });
+}
+
+/** Загрузка: IndexedDB → миграция из localStorage → canonical SHA-128 seed. */
 export async function hydrateInitialState(): Promise<MapState> {
-  
   let fromDb = await dbLoadMap();
   if (fromDb) fromDb = sanitizeMap(fromDb);
-  let loadedState = null;
-  
+  let loadedState: MapState | null = null;
+
   if (fromDb && fromDb.nodes.length > 0) {
     loadedState = fromDb;
   } else {
     const legacy = loadLegacyLocalStorage();
     if (legacy && legacy.nodes.length > 0) {
-      await dbSaveMap(legacy);
+      loadedState = legacy;
       try {
         localStorage.removeItem(LEGACY_KEY);
       } catch {
         /* ignore */
       }
-      loadedState = legacy;
     }
   }
 
-  let stateToMigrate: MapState;
-
-  if (loadedState) {
-    // Merge any zones from initialMap that are missing in the loaded state
-    const existingZoneIds = new Set(loadedState.zones.map(z => z.id));
-    const missingZones = initialMap.zones.filter(z => !existingZoneIds.has(z.id));
-    if (missingZones.length > 0) {
-      loadedState.zones = [...loadedState.zones, ...missingZones.map(z => ({
-        ...z,
-        nodeIds: [...z.nodeIds],
-        economicProfile: { ...z.economicProfile }
-      }))];
-    }
-
-    // Merge any nodes from initialMap that are missing in the loaded state
-    const existingNodeIds = new Set(loadedState.nodes.map(n => n.id));
-    const missingNodes = initialMap.nodes.filter(n => !existingNodeIds.has(n.id));
-    if (missingNodes.length > 0) {
-      loadedState.nodes = [...loadedState.nodes, ...missingNodes.map(n => ({
-        ...n,
-        zoneIds: [...(n.zoneIds || ['math'])],
-        dependencyIds: [...(n.dependencyIds || [])],
-        dependentIds: [...(n.dependentIds || [])],
-      }))];
-    }
-
-    // Merge any edges from initialMap that are missing in the loaded state
-    const existingEdgeIds = new Set(loadedState.edges.map(e => e.id));
-    const missingEdges = initialMap.edges.filter(e => !existingEdgeIds.has(e.id));
-    if (missingEdges.length > 0) {
-      loadedState.edges = [...loadedState.edges, ...missingEdges.map(e => ({ ...e }))];
-    }
-
-    stateToMigrate = loadedState;
-  } else {
-    stateToMigrate = sanitizeMap({
-      ...deepCopyInitialMap(),
-    });
-  }
+  const stateToMigrate = loadedState
+    ? mergeCanonicalSeedGraph(loadedState)
+    : sanitizeMap({ ...deepCopyInitialMap() });
 
   // Execute one-time DB migration & audit (fixes titles, repairs orphan node connections to RICIS, rebuilds edges & updates DB version)
   const migrationResult = await runDatabaseMigration(stateToMigrate);
