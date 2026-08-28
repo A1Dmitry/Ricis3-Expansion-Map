@@ -65,3 +65,9 @@
 После commit `25ea205` локальный тестовый контур завершился успешно: `148` test files passed, `1294` tests passed. Прямой TypeScript-контроль `npx tsc --noEmit` также завершился без ошибок. Production build завершён успешно (`vite built`, server bundle создан); сохранилось только штатное предупреждение о крупных чанках Three.js/Map3D.
 
 Первичная попытка `npm run check` выявила отсутствие одноимённого script в `package.json`; это tooling-наблюдение, а не ошибка приложения, поскольку прямой `npx tsc --noEmit` и remote Pull Request Verification завершились успешно. В рабочем дереве после проверки нет незакоммиченных изменений.
+
+## Live flood-fill cycle 26: Core health-check без побочных эффектов
+
+Для узла `0218ceed74fcb7268d74d49bdec11753` выполнен control `Check Core`. После health-check UI честно изменил только integration status с `Core: not checked` на `Core: unavailable`. URL, canonical node, `UNRESOLVED / LOCKED / RICIS CORE`, список зависимостей и `NO PROOF EVIDENCE ATTACHED` остались неизменными.
+
+Проверка подтверждает безопасный failure path: недоступный Ricis.Core не интерпретируется как математический результат, не создаёт Lean proof и не меняет graph persistence.
