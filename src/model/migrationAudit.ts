@@ -19,7 +19,28 @@ export interface MigrationAuditReport {
   details: string[];
 }
 
-const CORE_ROOT_IDS = new Set(['math-singularity', 'core-agi-target']);
+const LEGACY_CORE_ROOT_IDS = {
+  math: 'math-singularity',
+  agi: 'core-agi-target',
+} as const;
+
+type CoreRootIds = Readonly<{ math: string; agi: string }>;
+
+/**
+ * Preserve canonical SHA-128 identity during an audit of a partially migrated map.
+ * A legacy root remains the fallback only when no aliased canonical owner exists.
+ */
+function resolveCoreRootIds(map: MapState, nodeMap: ReadonlyMap<string, ProblemNode>): CoreRootIds {
+  const aliases = map.nodeIdAliases ?? {};
+  const resolve = (legacyId: string): string => {
+    const canonicalId = aliases[legacyId];
+    return canonicalId && nodeMap.has(canonicalId) ? canonicalId : legacyId;
+  };
+  return {
+    math: resolve(LEGACY_CORE_ROOT_IDS.math),
+    agi: resolve(LEGACY_CORE_ROOT_IDS.agi),
+  };
+}
 
 /** Look up catalog for accurate title or clean up stub titles */
 function repairNodeTitle(node: ProblemNode): { title: string; changed: boolean } {
@@ -72,9 +93,14 @@ function repairNodeTitle(node: ProblemNode): { title: string; changed: boolean }
   return { title, changed: title !== initialTitle };
 }
 
-/** Check if node can reach a Core Root ('math-singularity' or 'core-agi-target') */
-function canReachRoot(nodeId: string, nodeMap: Map<string, ProblemNode>, visited = new Set<string>()): boolean {
-  if (CORE_ROOT_IDS.has(nodeId)) return true;
+/** Check if node can reach a resolved Core Root without reintroducing a legacy alias. */
+function canReachRoot(
+  nodeId: string,
+  nodeMap: ReadonlyMap<string, ProblemNode>,
+  coreRootIds: ReadonlySet<string>,
+  visited = new Set<string>(),
+): boolean {
+  if (coreRootIds.has(nodeId)) return true;
   if (visited.has(nodeId)) return false;
   visited.add(nodeId);
 
@@ -82,18 +108,18 @@ function canReachRoot(nodeId: string, nodeMap: Map<string, ProblemNode>, visited
   if (!node || !node.dependencyIds || node.dependencyIds.length === 0) return false;
 
   for (const depId of node.dependencyIds) {
-    if (canReachRoot(depId, nodeMap, visited)) return true;
+    if (canReachRoot(depId, nodeMap, coreRootIds, visited)) return true;
   }
   return false;
 }
 
-/** Choose best parent root for an orphan node based on its science zone */
-function pickDefaultRootForNode(node: ProblemNode): string {
+/** Choose best existing root identity for an orphan node based on its science zone. */
+function pickDefaultRootForNode(node: ProblemNode, rootIds: CoreRootIds): string {
   const zone = node.zoneIds?.[0] || 'math';
   if (['informatics', 'medicine', 'pharmacology', 'economics', 'ethics', 'ai'].includes(zone)) {
-    return 'core-agi-target';
+    return rootIds.agi;
   }
-  return 'math-singularity';
+  return rootIds.math;
 }
 
 /** Recolor edge state */
@@ -483,10 +509,12 @@ export function auditAndFixMapGraph(map: MapState): { map: MapState; report: Mig
     nodeMap.set(node.id, node);
   });
 
-  // Ensure core roots exist
-  if (!nodeMap.has('math-singularity')) {
-    nodeMap.set('math-singularity', {
-      id: 'math-singularity',
+  // Ensure core roots exist in the identity space already present in this map.
+  // Never add a legacy duplicate when its canonical SHA-128 owner is available.
+  const rootIds = resolveCoreRootIds(map, nodeMap);
+  if (!nodeMap.has(rootIds.math)) {
+    nodeMap.set(rootIds.math, {
+      id: rootIds.math,
       title: 'Разрешение сингулярностей (Деление на ноль)',
       description: 'Монолитная алгебра RICIS-III для вычисления 0/0.',
       state: 'partial',
@@ -502,9 +530,9 @@ export function auditAndFixMapGraph(map: MapState): { map: MapState; report: Mig
     });
   }
 
-  if (!nodeMap.has('core-agi-target')) {
-    nodeMap.set('core-agi-target', {
-      id: 'core-agi-target',
+  if (!nodeMap.has(rootIds.agi)) {
+    nodeMap.set(rootIds.agi, {
+      id: rootIds.agi,
       title: 'Целевая функция AGI (RICIS Core)',
       description: 'Формализация целевой функции AGI и избежание расхождения путей.',
       state: 'unresolved',
@@ -520,6 +548,8 @@ export function auditAndFixMapGraph(map: MapState): { map: MapState; report: Mig
     });
   }
 
+  const coreRootIds = new Set(Object.values(rootIds));
+
   // 2. Audit Connectivity & Reconnect Orphans cleanly
   for (const node of nodeMap.values()) {
     // Clean up dependencyIds (remove non-existent node IDs & self-references)
@@ -530,8 +560,8 @@ export function auditAndFixMapGraph(map: MapState): { map: MapState; report: Mig
     }
 
     // Check if node can reach a core root
-    if (!CORE_ROOT_IDS.has(node.id) && !canReachRoot(node.id, nodeMap)) {
-      const rootParentId = pickDefaultRootForNode(node);
+    if (!coreRootIds.has(node.id) && !canReachRoot(node.id, nodeMap, coreRootIds)) {
+      const rootParentId = pickDefaultRootForNode(node, rootIds);
       node.dependencyIds.push(rootParentId);
       orphanNodesReconnected++;
       connectionsFixed++;

@@ -3,6 +3,7 @@ import { mergeCanonicalSeedGraph, reconcileCanonicalCatalog, sanitizeMap } from 
 import { deepCopyInitialMap } from './initialMap';
 import { KNOWN_SINGULARITY_PROBLEMS } from './catalog';
 import { migrateMapNodeIdentitySync } from './nodeIdentityMigration';
+import { auditAndFixMapGraph } from './migrationAudit';
 import type { MapState, ProblemNode, Proof } from './types';
 
 function node(id: string, state: ProblemNode['state']): ProblemNode {
@@ -127,6 +128,74 @@ describe('sanitizeMap consent-preserving state integrity', () => {
     expect(matching).toHaveLength(1);
     expect(matching[0]?.id).toBe(duplicateHash);
     expect(reconciled.nodes.some(candidate => candidate.id === 'real-catalog-0')).toBe(false);
+  });
+
+  it('repairs the reported math-singularity SHA-128 duplicate before hydration identity validation', () => {
+    const reportedCanonicalId = '2bece2b29b58e53578922489e2fb261c';
+    const legacyId = 'math-singularity';
+    const migrated = migrateMapNodeIdentitySync(deepCopyInitialMap()).map;
+    const canonical = migrated.nodes.find(candidate => candidate.id === reportedCanonicalId);
+    const legacy = deepCopyInitialMap().nodes.find(candidate => candidate.id === legacyId);
+    const dependent = node('guided-case-dependent', 'partial');
+    dependent.dependencyIds = [legacyId];
+    dependent.dependentIds = [legacyId];
+
+    expect(canonical).toBeDefined();
+    expect(legacy).toBeDefined();
+
+    const duplicate = { ...legacy!, canonicalPath: '/разрешение-сингулярностей-деление-на-ноль' };
+    const loaded = {
+      ...migrated,
+      nodes: [...migrated.nodes, duplicate, dependent],
+      edges: [
+        ...migrated.edges,
+        { id: 'edge-legacy-guided-case', fromId: legacyId, toId: dependent.id, strength: 1, stateColor: 'green' as const, economicInfluence: 1 },
+      ],
+      zones: migrated.zones.map(zone => zone.id === 'math' ? { ...zone, nodeIds: [...zone.nodeIds, legacyId, dependent.id] } : zone),
+      axioms: [{ id: 'issue-25-axiom', sourceNodeId: legacyId, formalStatement: 'X = X', usedByNodeIds: [legacyId, dependent.id] }],
+      proofs: {
+        [legacyId]: {
+          ...proof(legacyId),
+          externalLean: {
+            sourceHash: 'issue-25-source-locked-evidence',
+            submittedAt: '2026-08-28T00:00:00.000Z',
+            sourceLocked: true as const,
+            trustStatus: 'TRUSTED_AXIOM' as const,
+          },
+        },
+      },
+      agentLogs: [{ id: 'issue-25-log', timestamp: '2026-08-28T00:00:00.000Z', message: 'Retain source identity', level: 'ricis' as const, nodeId: legacyId }],
+    };
+
+    const repaired = mergeCanonicalSeedGraph(loaded);
+    const repairedDependent = repaired.nodes.find(candidate => candidate.title === dependent.title);
+    const repairedNodeIds = new Set(repaired.nodes.map(candidate => candidate.id));
+
+    expect(repaired.nodes.filter(candidate => candidate.canonicalPath === duplicate.canonicalPath)).toHaveLength(1);
+    expect(repaired.nodes.find(candidate => candidate.id === reportedCanonicalId)?.state).toBe(canonical!.state);
+    expect(repaired.nodeIdAliases?.[legacyId]).toBe(reportedCanonicalId);
+    expect(repaired.nodes.some(candidate => candidate.id === legacyId)).toBe(false);
+    expect(repairedDependent?.dependencyIds).toEqual([reportedCanonicalId]);
+    expect(repairedDependent?.dependentIds).toEqual([reportedCanonicalId]);
+    expect(repaired.edges.some(edge => edge.fromId === reportedCanonicalId && edge.toId === repairedDependent?.id)).toBe(true);
+    expect(repaired.zones.find(zone => zone.id === 'math')?.nodeIds).toContain(reportedCanonicalId);
+    expect(repaired.zones.find(zone => zone.id === 'math')?.nodeIds).not.toContain(legacyId);
+    expect(repaired.axioms[0]).toMatchObject({ sourceNodeId: reportedCanonicalId, usedByNodeIds: [reportedCanonicalId, repairedDependent?.id] });
+    expect(repaired.proofs[reportedCanonicalId]).toMatchObject({
+      nodeId: reportedCanonicalId,
+      externalLean: { sourceHash: 'issue-25-source-locked-evidence', trustStatus: 'TRUSTED_AXIOM' },
+    });
+    expect(repaired.agentLogs[0]?.nodeId).toBe(reportedCanonicalId);
+    expect(repaired.nodes.every(candidate => candidate.dependencyIds.every(id => repairedNodeIds.has(id)))).toBe(true);
+
+    const audited = auditAndFixMapGraph(repaired).map;
+    expect(audited.nodes.some(candidate => candidate.id === legacyId)).toBe(false);
+    expect(audited.proofs[reportedCanonicalId]).toMatchObject({
+      nodeId: reportedCanonicalId,
+      externalLean: { sourceHash: 'issue-25-source-locked-evidence', trustStatus: 'TRUSTED_AXIOM' },
+    });
+    expect(audited.agentLogs[0]?.nodeId).toBe(reportedCanonicalId);
+    expect(() => migrateMapNodeIdentitySync(audited)).not.toThrow();
   });
 
   it('repairs a partially migrated persisted graph whose known seed records still use legacy IDs', () => {
