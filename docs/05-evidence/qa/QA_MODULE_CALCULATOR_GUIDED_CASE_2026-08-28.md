@@ -44,3 +44,7 @@ Live-клик по `Explore`/`Verify` в текущем snapshot не измен
 ## Уточнение cycle 18: event handling action tabs
 
 После проверки через точный DOM-текст подтверждено, что кнопка `Verify` функциональна: клик обновляет локальное evidence-содержимое карточки (`EVIDENCE`, `PROOF`, русское описание доверия), при этом URL сохраняет canonical `node=a3949213aba674d8844812a2eba08a1f` и не запускается calculator/Core. Предыдущее наблюдение о «неизменившемся snapshot» объясняется проверкой до обновления нужного DOM-состояния; дефект event handling не подтверждён.
+
+## Live flood-fill cycle 18: Roadmap ID navigation
+
+Roadmap, открытый из выбранного узла, явно показал исходный canonical ID `a3949213aba674d8844812a2eba08a1f`. Кнопка `Открыть карту` вернула приложение по URL `?node=a3949213aba674d8844812a2eba08a1f&mode=explore`. Таким образом, фактический переход использует SHA-128 node ID; встречающиеся в пояснительном тексте legacy-примеры (`core-agi-target`) не участвуют в navigation contract.
