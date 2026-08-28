@@ -1,4 +1,4 @@
-import { transformCauchyToRicisBridge } from './ricisCoreRules';
+import { LEAN_SPEC_URL, transformCauchyToRicisBridge } from './ricisCoreRules';
 
 /**
  * LaTeX hygiene for RICIS3 proofs and preprints (pdflatex + T2A + babel).
@@ -166,14 +166,14 @@ export function buildStructuralProofLatex(
   lines.push('\\textbf{Формальная Lean 4 спецификация:}');
   lines.push('\\begin{verbatim}');
   lines.push('import RICIS3.Core');
-  lines.push('-- Spec file: https://doi.org/10.5281/zenodo.21836220');
+  lines.push(`-- Software record: ${LEAN_SPEC_URL}`);
   lines.push(`theorem resolve_${id.replace(/[^a-zA-Z0-9]/g, '_')} (x : RICIS.Monad) :`);
   lines.push('  RICIS.Invariant x = True := by exact RICIS.AxiomL1_proof x');
   lines.push('\\end{verbatim}');
   lines.push('');
   lines.push(`\\textbf{Результат:} Аксиома извлечена для ${escPath(id)}.`);
   lines.push('');
-  lines.push(`\\textbf{Файл верификации Lean 4 / DOI:} \\href{https://doi.org/10.5281/zenodo.21836220}{https://doi.org/10.5281/zenodo.21836220} (RICIS3.Core LEAN). Figshare Archives: \\href{https://doi.org/10.6084/m9.figshare.29876066}{10.6084/m9.figshare.29876066}, \\href{https://doi.org/10.6084/m9.figshare.30666089}{10.6084/m9.figshare.30666089}.`);
+  lines.push(`\\textbf{Lean 4 software record / DOI:} \\href{${LEAN_SPEC_URL}}{${LEAN_SPEC_URL}} (RICIS-III-Lean4-Kernel). Figshare Archives: \\href{https://doi.org/10.6084/m9.figshare.29876066}{10.6084/m9.figshare.29876066}, \\href{https://doi.org/10.6084/m9.figshare.30666089}{10.6084/m9.figshare.30666089}.`);
   lines.push('\\end{quote}');
   return lines.join('\n');
 }

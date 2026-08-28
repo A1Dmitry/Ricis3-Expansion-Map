@@ -28,7 +28,7 @@ function proof(nodeId: string): Proof {
     targetFunction: '0_5 * inf_3',
     steps: [{ phase: 1, name: 'A6', action: 'bridge', expression: '15' }],
     finalResult: '15',
-    latex: 'RICIS A6: 0_F * \\infty_G = F * G; specification https://doi.org/10.5281/zenodo.21836220',
+    latex: 'RICIS A6: 0_F * \\infty_G = F * G; publication reference https://doi.org/10.5281/zenodo.21836220',
   };
 }
 

@@ -22,6 +22,7 @@ import {
 } from '../ricisSolutionCatalog';
 import { SolutionMonolithCard } from './SolutionMonolithCard';
 import { getCalculatorExplorerEntryForNodeId } from '../calculatorExplorer/calculatorExplorer.domain';
+import { LEAN_SPEC_URL } from '../model/ricisCoreRules';
 
 /** Normalize URL: add https:// if scheme is missing (www. or domain-like). */
 function normalizeUrl(raw: string): string {
@@ -129,8 +130,8 @@ export function getReferencesForNode(node: ProblemNode) {
     doiUrl = 'https://doi.org/10.5281/zenodo.21827360';
     doiLabel = '10.5281/zenodo.21827360 (Mersenne Networks & NP)';
   } else if (tLower.includes('lean') || tLower.includes('доказательств') || tLower.includes('верификац')) {
-    doiUrl = 'https://doi.org/10.5281/zenodo.21836220';
-    doiLabel = '10.5281/zenodo.21836220 (Lean 4 Specs)';
+    doiUrl = LEAN_SPEC_URL;
+    doiLabel = '10.5281/zenodo.21529989 (RICIS-III-Lean4-Kernel software record)';
   }
 
   return {
