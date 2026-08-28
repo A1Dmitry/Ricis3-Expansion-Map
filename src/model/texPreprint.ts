@@ -1,5 +1,6 @@
 import { MapState, ProblemNode, Proof, Axiom } from './types';
 import { isRicisCore } from './access';
+import { LEAN_SPEC_URL } from './ricisCoreRules';
 import { APP_VERSION, APP_BUILD_LABEL } from '../version';
 import {
   escText,
@@ -256,7 +257,7 @@ The expansion above lists every ancestor of the selected node up to the graph ro
 Downstream dependents are omitted; regenerate from a child node to include a longer branch.
 
 \\noindent\\footnotesize
-Generated automatically by RICIS3-Expansion. Lean 4 Verification Specification: \\href{https://doi.org/10.5281/zenodo.21836220}{DOI: 10.5281/zenodo.21836220} (RICIS3.Core LEAN file). Figshare Archives: \\href{https://doi.org/10.6084/m9.figshare.29876066}{10.6084/m9.figshare.29876066}, \\href{https://doi.org/10.6084/m9.figshare.30666089}{10.6084/m9.figshare.30666089}.
+Generated automatically by RICIS3-Expansion. Lean 4 software record: \\href{${LEAN_SPEC_URL}}{${LEAN_SPEC_URL}} (RICIS-III-Lean4-Kernel). Figshare Archives: \\href{https://doi.org/10.6084/m9.figshare.29876066}{10.6084/m9.figshare.29876066}, \\href{https://doi.org/10.6084/m9.figshare.30666089}{10.6084/m9.figshare.30666089}.
 \\end{document}
 `;
 

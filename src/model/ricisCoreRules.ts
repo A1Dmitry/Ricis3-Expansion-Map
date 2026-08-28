@@ -1,17 +1,17 @@
 /**
  * RICIS-III v7.7 CORE MATHEMATICAL RULES & DRY AUDIT ENGINE
  * Author: Dmitry V. Aleynikov (ORCID: 0009-0004-3226-7700)
- * Specification Lean 4 DOI: https://doi.org/10.5281/zenodo.21836220
+ * Lean 4 software record DOI: https://doi.org/10.5281/zenodo.21529989
  */
 
-export const LEAN_SPEC_DOI = '10.5281/zenodo.21836220';
-export const LEAN_SPEC_URL = 'https://doi.org/10.5281/zenodo.21836220';
+export const LEAN_SPEC_DOI = '10.5281/zenodo.21529989';
+export const LEAN_SPEC_URL = 'https://doi.org/10.5281/zenodo.21529989';
 
 export const OFFICIAL_ZENODO_DOIS = {
   FOUNDATIONS: '10.5281/zenodo.17872755',
   VOYNICH: '10.5281/zenodo.18116204',
   GRADIENT_AI: '10.5281/zenodo.21309650',
-  LEAN4_SPEC: '10.5281/zenodo.21836220',
+  LEAN4_SPEC: LEAN_SPEC_DOI,
   MERSENNE_NP: '10.5281/zenodo.21827360',
 };
 
@@ -28,7 +28,7 @@ Official Zenodo Registries:
 1. Main Foundations & Millennium Solutions: https://doi.org/10.5281/zenodo.17872755
 2. Voynich Manuscript Decipherment: https://doi.org/10.5281/zenodo.18116204
 3. Deep Learning & LLM Gradient Explosion: https://doi.org/10.5281/zenodo.21309650
-4. Lean 4 Proof Specifications: https://doi.org/10.5281/zenodo.21836220
+4. Lean 4 Software Record: https://doi.org/10.5281/zenodo.21529989
 5. Mersenne Networks & NP Resolution (RSA / TSP): https://doi.org/10.5281/zenodo.21827360
 Historical Priority Archives: Figshare DOIs: 10.6084/m9.figshare.29876066 & 10.6084/m9.figshare.30666089.
 
@@ -146,11 +146,10 @@ export function auditProofContent(proofText: string): RicisAuditResult {
 
   const issues: string[] = [];
 
-  const containsLeanRef =
-    text.includes(LEAN_SPEC_DOI) ||
-    text.includes('zenodo.21836220') ||
-    text.includes('zenodo.17872755') ||
-    Object.values(OFFICIAL_ZENODO_DOIS).some(doi => text.includes(doi));
+  // A Lean-specific reference must identify the canonical software record.
+  // Publication and other registry DOIs retain their own provenance, but cannot
+  // be classified as Lean specification evidence.
+  const containsLeanRef = text.includes(LEAN_SPEC_DOI);
   const containsAxiomA6 =
     /0_?[FG]\s*[*×\cdot]\s*\\?infty_?[FG]|0_F\s*\*|det\(|Mersenne|M_P|Axiom A6|RICIS|log2|\\sqrt/i.test(text) ||
     text.includes('F^2') ||
