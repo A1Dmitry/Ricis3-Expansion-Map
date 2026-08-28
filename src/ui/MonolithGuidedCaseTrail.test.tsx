@@ -1,7 +1,9 @@
 import React from 'react';
 import { act } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { useI18nStore } from '../store/useI18nStore';
+import type { SupportedLocale, TranslationKey } from '../model/i18n.types';
 
 (globalThis as typeof globalThis & { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
 
@@ -41,6 +43,8 @@ interface GuidedCaseTrailModule {
   MonolithGuidedCaseTrail: React.ComponentType<{
     readonly isOpen: boolean;
     readonly trail: Trail;
+    readonly locale: SupportedLocale;
+    readonly t: (key: TranslationKey, params?: Record<string, string | number>) => string;
     readonly onClose: () => void;
     readonly onSelectNode: (nodeId: string) => void;
   }>;
@@ -102,6 +106,8 @@ async function renderTrail(module: GuidedCaseTrailModule, options?: Partial<{ is
     root?.render(React.createElement(module.MonolithGuidedCaseTrail, {
       isOpen: options?.isOpen ?? true,
       trail,
+      locale: useI18nStore.getState().locale,
+      t: useI18nStore.getState().t,
       onClose,
       onSelectNode,
     }));
@@ -109,11 +115,16 @@ async function renderTrail(module: GuidedCaseTrailModule, options?: Partial<{ is
   return { container, onClose, onSelectNode };
 }
 
+beforeEach(() => {
+  useI18nStore.getState().setLocale('ru');
+});
+
 afterEach(async () => {
   await act(async () => root?.unmount());
   container?.remove();
   root = undefined;
   container = undefined;
+  useI18nStore.getState().setLocale('ru');
 });
 
 describe('EDU-VIS-01 — accessible Monolith Guided Case Trail UI', () => {

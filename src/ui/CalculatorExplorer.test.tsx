@@ -1,6 +1,8 @@
 import React, { act } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { useI18nStore } from '../store/useI18nStore';
+import type { SupportedLocale, TranslationKey } from '../model/i18n.types';
 
 (globalThis as typeof globalThis & { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
 
@@ -16,6 +18,8 @@ interface CalculatorExplorerModule {
   CalculatorExplorer: React.ComponentType<{
     readonly isOpen: boolean;
     readonly entries: readonly ExplorerEntry[];
+    readonly locale: SupportedLocale;
+    readonly t: (key: TranslationKey, params?: Record<string, string | number>) => string;
     readonly onClose: () => void;
     readonly onSelectNode: (nodeId: string) => void;
   }>;
@@ -42,6 +46,8 @@ async function renderExplorer(module: CalculatorExplorerModule, options?: Partia
     root?.render(React.createElement(module.CalculatorExplorer, {
       isOpen: options?.isOpen ?? true,
       entries: options?.entries ?? entries,
+      locale: useI18nStore.getState().locale,
+      t: useI18nStore.getState().t,
       onClose,
       onSelectNode,
     }));
@@ -49,11 +55,16 @@ async function renderExplorer(module: CalculatorExplorerModule, options?: Partia
   return { container, onClose, onSelectNode };
 }
 
+beforeEach(() => {
+  useI18nStore.getState().setLocale('ru');
+});
+
 afterEach(async () => {
   await act(async () => root?.unmount());
   container?.remove();
   root = undefined;
   container = undefined;
+  useI18nStore.getState().setLocale('ru');
 });
 
 describe('CALC-EXP-02 — accessible calculator explorer UI', () => {
