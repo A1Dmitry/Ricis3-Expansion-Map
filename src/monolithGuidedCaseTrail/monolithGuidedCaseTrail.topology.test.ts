@@ -46,12 +46,18 @@ describe('EDU-VIS-01 — closed topology and authority boundary', () => {
     expect(domain).not.toMatch(/CATALOG_SEEDS|INITIAL_CALCULATOR_MONOLITHS|new\s+MapState/i);
   });
 
-  it('EV01-QA-36: has no source/catalogue, graph descriptor or card mutation beyond G2 paths', async () => {
+  it('EV01-QA-36: permits only the reviewed #22 Lean software provenance delta in the node card', async () => {
     await future();
     for (const path of protectedPaths.slice(0, 3)) {
       expect(source(path)).toBe(execFileSync('git', ['show', `${BASELINE}:${path}`], { encoding: 'utf8' }));
     }
-    expect(source('src/ui/NodeCardDetails.tsx')).toBe(execFileSync('git', ['show', `${BASELINE}:src/ui/NodeCardDetails.tsx`], { encoding: 'utf8' }));
+
+    const path = 'src/ui/NodeCardDetails.tsx';
+    const baseline = execFileSync('git', ['show', `${BASELINE}:${path}`], { encoding: 'utf8' });
+    const expected = baseline
+      .replace("import { getCalculatorExplorerEntryForNodeId } from '../calculatorExplorer/calculatorExplorer.domain';", "import { getCalculatorExplorerEntryForNodeId } from '../calculatorExplorer/calculatorExplorer.domain';\nimport { LEAN_SPEC_URL } from '../model/ricisCoreRules';")
+      .replace("  } else if (tLower.includes('lean') || tLower.includes('доказательств') || tLower.includes('верификац')) {\n    doiUrl = 'https://doi.org/10.5281/zenodo.21836220';\n    doiLabel = '10.5281/zenodo.21836220 (Lean 4 Specs)';", "  } else if (tLower.includes('lean') || tLower.includes('доказательств') || tLower.includes('верификац')) {\n    doiUrl = LEAN_SPEC_URL;\n    doiLabel = '10.5281/zenodo.21529989 (RICIS-III-Lean4-Kernel software record)';");
+    expect(source(path)).toBe(expected);
     expect(source('src/ui/SolutionMonolithCard.tsx')).toBe(execFileSync('git', ['show', `${BASELINE}:src/ui/SolutionMonolithCard.tsx`], { encoding: 'utf8' }));
   });
 

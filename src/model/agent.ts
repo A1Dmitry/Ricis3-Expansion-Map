@@ -1,6 +1,7 @@
 import { MapState, ProblemNode, DependencyEdge } from './types';
 import { postJson } from './apiClient';
 import { dbSetAgentTrainingMemory } from './db';
+import { LEAN_SPEC_DOI } from './ricisCoreRules';
 
 export interface AgentTrainingMemory {
   trainedAt: string;
@@ -50,7 +51,7 @@ export function extractDbKnowledge(map: MapState): AgentTrainingMemory {
     'Geometric-Discrete Mask: Hyperbola trajectory p*q = N & Ray q=kp intersection (p,q)=(\\sqrt{N/k},\\sqrt{kN}) filtered by Prime Bitmask M_P',
     'Limit Resolution Principle / Cauchy Replacement: \\lim_{x \\to x_0} \\frac{f(x)}{g(x)} \\xrightarrow{\\text{RICIS Bridge}} \\frac{0_f}{0_g} = \\frac{f}{g} \\quad [O(1) \\text{ or calls } F_0 / \\inf_0 \\text{ in Mersenne rings } M_k = 2^k - 1]',
     'AI Authorship Provenance: \\text{Area}(\\vec{S}_{2,\\infty} \\cap \\vec{R}_{0,5}) = 2 \\times 5 = 10 [LLM Weights Behavioral Audit]',
-    'Lean 4 Specification: Lean 4 theorem resolve_* (DOI: 10.5281/zenodo.21836220)',
+    `Lean 4 Software Record: Lean 4 theorem resolve_* (DOI: ${LEAN_SPEC_DOI})`,
   ];
 
   const accuracy = Math.min(99.8, 92 + resolvedNodesCount * 0.4 + proofsCount * 0.3 + graphEdgesCount * 0.1);

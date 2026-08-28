@@ -11,7 +11,6 @@ const protectedPaths = [
   'src/model/authoritativeProofStatePolicy.ts',
   'src/services/ricisCore/RicisWasmBridge.ts',
   'src/model/apiClient.ts',
-  'src/model/ricisCoreRules.ts',
 ] as const;
 
 function node(overrides: Partial<ProblemNode> = {}): ProblemNode {
@@ -251,9 +250,17 @@ describe('OIR-03 — audit proof-synthesis containment', () => {
     expect(readFileSync(path, 'utf8')).toBe(execFileSync('git', ['show', `${BASELINE}:${path}`], { encoding: 'utf8' }));
   });
 
-  it('OIR03-QA-34: keeps immutable RICIS core rules at published baseline bytes', () => {
-    const path = protectedPaths[5];
-    expect(readFileSync(path, 'utf8')).toBe(execFileSync('git', ['show', `${BASELINE}:${path}`], { encoding: 'utf8' }));
+  it('OIR03-QA-34: permits only the reviewed Lean software DOI provenance delta in core rules', () => {
+    const path = 'src/model/ricisCoreRules.ts';
+    const baseline = execFileSync('git', ['show', `${BASELINE}:${path}`], { encoding: 'utf8' });
+    const expected = baseline
+      .replace(' * Specification Lean 4 DOI: https://doi.org/10.5281/zenodo.21836220', ' * Lean 4 software record DOI: https://doi.org/10.5281/zenodo.21529989')
+      .replace("export const LEAN_SPEC_DOI = '10.5281/zenodo.21836220';\nexport const LEAN_SPEC_URL = 'https://doi.org/10.5281/zenodo.21836220';", "export const LEAN_SPEC_DOI = '10.5281/zenodo.21529989';\nexport const LEAN_SPEC_URL = 'https://doi.org/10.5281/zenodo.21529989';")
+      .replace("  LEAN4_SPEC: '10.5281/zenodo.21836220',", '  LEAN4_SPEC: LEAN_SPEC_DOI,')
+      .replace('4. Lean 4 Proof Specifications: https://doi.org/10.5281/zenodo.21836220', '4. Lean 4 Software Record: https://doi.org/10.5281/zenodo.21529989')
+      .replace("  const containsLeanRef =\n    text.includes(LEAN_SPEC_DOI) ||\n    text.includes('zenodo.21836220') ||\n    text.includes('zenodo.17872755') ||\n    Object.values(OFFICIAL_ZENODO_DOIS).some(doi => text.includes(doi));", "  // A Lean-specific reference must identify the canonical software record.\n  // Publication and other registry DOIs retain their own provenance, but cannot\n  // be classified as Lean specification evidence.\n  const containsLeanRef = text.includes(LEAN_SPEC_DOI);");
+
+    expect(readFileSync(path, 'utf8')).toBe(expected);
   });
 
   it('OIR03-QA-35: keeps audit API default and explicit option calls type-compatible', () => {
@@ -281,6 +288,11 @@ describe('OIR-03 — audit proof-synthesis containment', () => {
       ' M src/model/migrationAudit.provenance.test.ts',
       ' M src/version.ts',
       ' M src/model/audit.proofSynthesisContainment.test.ts',
+      ' M src/model/agent.ts',
+      ' M src/model/latexGuard.ts',
+      ' M src/model/ricisCoreRules.ts',
+      ' M src/model/texPreprint.ts',
+      '?? src/model/leanProvenance.test.ts',
       ' M src/calculatorExplorer/calculatorExplorer.topology.test.ts',
       ' M src/model/legacyProofDiagnostic.topology.test.ts',
       ' M src/monolithGuidedCaseTrail/monolithGuidedCaseTrail.topology.test.ts',
