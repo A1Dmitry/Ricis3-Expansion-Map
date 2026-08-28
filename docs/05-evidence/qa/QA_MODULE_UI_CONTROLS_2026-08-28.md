@@ -48,3 +48,9 @@ Roadmap показал исходный узел `Квантовая ошибк�
 Targeted набор из 6 файлов (`useI18nStore`, `i18n`, `nodeCardAccordion`, Guided Case domain/topology и `MonolithGuidedCaseTrail`) прошёл: **6 файлов, 58/58 тестов**.
 
 Команда обхода обнаружила, что каталога `src/accessibility` в текущем проекте нет; это не падение приложения, а отсутствие отдельного каталога accessibility. UI accessibility-покрытие фактически находится в соответствующих model/domain/UI тестах.
+
+## Live flood-fill cycle 16: переключатель English и Issue #17
+
+На deployment `5f5cf54` при открытом canonical node `a3949213aba674d8844812a2eba08a1f` выполнен клик по верхнему переключателю `EN`. После обновления snapshot интерфейс фактически остался смешанным: русские названия научных полей, карточки и sidebar controls сохранились, а рядом продолжают отображаться английские заголовки (`SAVE & EXPORT`, `AVAILABLE TO SOLVE`, `Target Function & Singularity`). Фактический переход языка по этому контролу не подтверждён; это продолжение Issue #17 Localization, а не навигационный дефект.
+
+Граф и canonical node ID не изменились. Finding требует отдельной разработки: провести UI-wide inventory hardcoded strings и заменить их на `t(TranslationKey)` с тестом RU/EN parity.
