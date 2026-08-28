@@ -39,3 +39,17 @@
 После обратного клика `Scientific fields` восстановлен в состояние `On`; основные sidebar controls снова отображаются, выбранный `node=a3949213aba674d8844812a2eba08a1f` не изменился. Это подтверждает рабочее переключение sidebar visibility без изменения graph state.
 
 В SETTINGS одновременно отображаются английские заголовки (`UI SETTINGS`, `Save`, `Core Administration`, `Sidebar panels`) и русские подписи physics/profile (`Настройки точной физики`, `Общий профиль`, `Аналитик`). Это дополнительное live-свидетельство общей localization inconsistency, связанное с Issue #17.
+
+## Live-проверка SANDBOX и Core recovery
+
+Кнопка `SANDBOX` открывает отдельный `RICIS-III SINGULARITY SANDBOX` с preset-кнопками A6, A4, SP2, A7, SP1, A10 и L1. Запуск `[A6 Bridge] 0_3 * inf_4` перевёл приложение на контролируемую recovery-поверхность:
+
+- `code=CORE_UNAVAILABLE`;
+- `origin=terminal`;
+- `runtime=not_ready`;
+- «Ядро Ricis.Core недоступно. Выражение не вычислялось»;
+- TypeScript fallback не использован;
+- proof, invariant, trace и статус узла не созданы;
+- доступны `Повторить проверку Core`, `Скопировать безопасную диагностику`, `Вернуться к карте`.
+
+Это честное безопасное поведение для статического GitHub Pages без C# runtime. Сам preset не даёт вычислительного результата в production static deployment; это ограничение окружения, а не ложный результат.
