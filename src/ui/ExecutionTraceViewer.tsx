@@ -89,11 +89,11 @@ export function ExecutionTraceViewer({ nodeId, logData, isLoading, onRerunTrace,
             
             <div className="flex items-center gap-2 mt-1">
               <div className="flex-1 bg-neutral-900/50 p-1.5 rounded overflow-x-auto">
-                <LatexRenderer content={`\`${step.inputState}\``} className="text-neutral-400 text-[10px]" />
+                <LatexRenderer content={step.inputState ? `$$${step.inputState}$$` : '—'} className="text-neutral-400 text-[10px]" />
               </div>
               <ChevronRight size={14} className="text-cyan-800 shrink-0" />
               <div className="flex-1 bg-cyan-950/20 border border-cyan-900/30 p-1.5 rounded overflow-x-auto">
-                <LatexRenderer content={`\`${step.outputState}\``} className="text-cyan-300 text-[10px]" />
+                <LatexRenderer content={step.outputState ? `$$${step.outputState}$$` : '—'} className="text-cyan-300 text-[10px]" />
               </div>
             </div>
           </div>
@@ -105,7 +105,7 @@ export function ExecutionTraceViewer({ nodeId, logData, isLoading, onRerunTrace,
             <span className="text-[10px] text-emerald-400 font-sans font-bold uppercase tracking-wider">Инвариант</span>
           </div>
           <div className="bg-black/50 px-2 py-1 rounded">
-            <LatexRenderer content={`\`${logData.finalInvariant}\``} className="text-emerald-300 text-[11px] font-bold" />
+            <LatexRenderer content={logData.finalInvariant ? `$$${logData.finalInvariant}$$` : '—'} className="text-emerald-300 text-[11px] font-bold" />
           </div>
         </div>
       </div>

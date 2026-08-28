@@ -52,7 +52,13 @@ export interface ProblemNode {
   leanWarnings?: string[];
 }
 
-export type EdgeColor = 'red' | 'yellow' | 'green' | 'blue' | 'purple';
+export type EdgeColor =
+  | 'red'
+  | 'yellow'
+  | 'green'
+  | 'blue'
+  | 'purple'
+  | string;
 
 export interface DependencyEdge {
   id: string;
@@ -61,6 +67,12 @@ export interface DependencyEdge {
   strength: number;
   stateColor: EdgeColor;
   economicInfluence: number;
+  /** Семантический код состояния (первичный онтологический источник истины) */
+  stateCode?: string;
+  /** RGB-вектор [0, 1] для трёхмерных шейдеров */
+  rgbVector?: { r: number; g: number; b: number };
+  /** Локализованная метка состояния связи */
+  stateLabel?: string;
 }
 
 export interface ScienceZone {

@@ -58,6 +58,7 @@ import { AuditPanel } from './AuditPanel';
 import { NodeCardDetails } from './NodeCardDetails';
 import { CalculatorExplorer } from './CalculatorExplorer';
 import { MonolithGuidedCaseTrail } from './MonolithGuidedCaseTrail';
+import { graphColorManager, EdgeStateCode, NodeResolutionStatusCode } from '../model/colorMatrix';
 import { buildCalculatorExplorerProjection } from '../calculatorExplorer/calculatorExplorer.domain';
 import { buildMonolithGuidedCaseTrail } from '../monolithGuidedCaseTrail/monolithGuidedCaseTrail.domain';
 import { EditNodeModal } from './EditNodeModal';
@@ -1155,6 +1156,9 @@ export const Map3D: React.FC = () => {
       setNavigationStack(prev => [...prev, selectedNodeId]);
     }
     setSelectedNodeId(targetId);
+    if (taskPanelMode === 'rail') {
+      setTaskPanelMode('open');
+    }
     triggerFlight(targetId, source);
   };
 
@@ -1199,24 +1203,19 @@ export const Map3D: React.FC = () => {
         pathEdgeKeys.has(edge.toId + '|' + edge.fromId);
       const fromN = map.nodes.find(n => n.id === edge.fromId);
       const toN = map.nodes.find(n => n.id === edge.toId);
-      const fromSorry = fromN ? nodeHasSorry(fromN, map.proofs?.[fromN.id]) : false;
-      const toSorry = toN ? nodeHasSorry(toN, map.proofs?.[toN.id]) : false;
-      const fromResolved = nodeStateById[edge.fromId] === 'resolved' && fromN && !isMissingTargetFunction(fromN) && !fromSorry;
-      const toResolved = nodeStateById[edge.toId] === 'resolved' && toN && !isMissingTargetFunction(toN) && !toSorry;
-      const fromPartial = nodeStateById[edge.fromId] === 'partial' || (fromN && isMissingTargetFunction(fromN)) || fromSorry;
-      const toPartial = nodeStateById[edge.toId] === 'partial' || (toN && isMissingTargetFunction(toN)) || toSorry;
-      let color = '#ef4444';
-      let opacity = 0.3;
-      if (onPath) {
-        color = '#22d3ee';
-        opacity = 1;
-      } else if (fromResolved && toResolved) {
-        color = '#22c55e';
-        opacity = 0.95;
-      } else if (fromResolved || toResolved || fromPartial || toPartial) {
-        color = '#eab308';
-        opacity = 0.55;
-      }
+
+      const fromStatus = fromN
+        ? graphColorManager.resolveNodeStatusCode(fromN, map.proofs?.[fromN.id])
+        : NodeResolutionStatusCode.UNRESOLVED_SINGULARITY;
+      const toStatus = toN
+        ? graphColorManager.resolveNodeStatusCode(toN, map.proofs?.[toN.id])
+        : NodeResolutionStatusCode.UNRESOLVED_SINGULARITY;
+
+      const edgeStateCode = graphColorManager.resolveEdgeStateCode(fromStatus, toStatus, onPath);
+      const edgeProjection = graphColorManager.getEdgeProjection(edgeStateCode);
+
+      let color = edgeProjection.hexColor;
+      let opacity = edgeProjection.opacity;
       
       // Apply global physics parameter modifier to edge opacity
       opacity *= (physicsParams.edgeOpacity ?? 0.5);
@@ -1233,7 +1232,7 @@ export const Map3D: React.FC = () => {
         />
       );
     });
-  }, [map.edges, map.nodes, nodePositions, pathEdgeKeys, nodeStateById, visibleNodeIds, physicsParams.edgeOpacity]);
+  }, [map.edges, map.nodes, map.proofs, nodePositions, pathEdgeKeys, visibleNodeIds, physicsParams.edgeOpacity]);
 
   const renderMapScene = () => (
     <>

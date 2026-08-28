@@ -1,9 +1,11 @@
-import React, { useState } from 'react';
-import { Settings, Plus, User, Sliders, X, Check, Eye, EyeOff, LayoutGrid, Globe, ServerOff } from 'lucide-react';
+import React, { useState, useMemo } from 'react';
+import { Settings, Plus, User, Sliders, X, Check, Eye, EyeOff, LayoutGrid, Globe, ServerOff, Database, Copy } from 'lucide-react';
 import type { AdaptiveRole } from '../hooks/useAdaptiveUI';
 import type { UIElement } from '../domain/ui/uiElement.types';
 import type { PhysicsParams } from '../model/physics';
 import { PhysicsControlFields } from './PhysicsControlPanel';
+import { FreeHostingDatabaseService } from '../services/calculatorEngine/calculatorEngine';
+import type { FreeHostingDatabaseKind } from '../services/calculatorEngine/types';
 
 export type { UIElementToggle } from '../domain/ui/uiElement.types';
 import { useI18nStore } from '../store/useI18nStore';
@@ -44,6 +46,19 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   const [newRoleName, setNewRoleName] = useState('');
   const [isCreating, setIsCreating] = useState(false);
   const [cloneCurrent, setCloneCurrent] = useState(true);
+
+  const dbService = useMemo(() => new FreeHostingDatabaseService(), []);
+  const dbTemplates = useMemo(() => dbService.getSupportedDatabaseTemplates(), [dbService]);
+  const [selectedDbKind, setSelectedDbKind] = useState<FreeHostingDatabaseKind>('embedded_sqlite_volume');
+  const [copiedKey, setCopiedKey] = useState<string | null>(null);
+
+  const activeTemplate = useMemo(() => dbTemplates.find(t => t.kind === selectedDbKind) ?? dbTemplates[0], [dbTemplates, selectedDbKind]);
+
+  const handleCopySnippet = (text: string, key: string) => {
+    navigator.clipboard.writeText(text);
+    setCopiedKey(key);
+    setTimeout(() => setCopiedKey(null), 2500);
+  };
 
   if (!isOpen) return null;
 
@@ -298,6 +313,90 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                   </button>
                 </div>
               </form>
+            )}
+          </div>
+
+          {/* Section: Free Database Server Templates on Current Hosting */}
+          <div className="space-y-3 pt-3 border-t border-neutral-800/80">
+            <div className="flex items-center justify-between">
+              <label className="text-xs font-semibold text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
+                <Database size={14} className="text-emerald-400" />
+                Бесплатные базы данных хостинга
+              </label>
+              <span className="text-[10px] text-emerald-400 font-mono">3 варианта Free Tier</span>
+            </div>
+            <p className="text-[11px] text-slate-400 leading-relaxed">
+              Шаблоны подключения и миграций для бесплатного развертывания репозитория на Cloud Run и Google AI Studio.
+            </p>
+
+            {/* Tabs for database selection */}
+            <div className="grid grid-cols-3 gap-1.5 p-1 bg-neutral-950/80 rounded-lg border border-neutral-800">
+              {dbTemplates.map((tmpl) => {
+                const isSelected = tmpl.kind === selectedDbKind;
+                const shortName = tmpl.kind === 'embedded_sqlite_volume' ? 'SQLite (Vol)' : tmpl.kind === 'cloud_sql_postgres_free_tier' ? 'Cloud SQL' : 'Firestore';
+                return (
+                  <button
+                    key={tmpl.kind}
+                    type="button"
+                    onClick={() => setSelectedDbKind(tmpl.kind)}
+                    className={`px-2 py-1.5 rounded text-[11px] font-semibold transition-all ${
+                      isSelected
+                        ? 'bg-emerald-950 text-emerald-300 border border-emerald-700/60 shadow-sm'
+                        : 'text-slate-400 hover:text-slate-200 hover:bg-neutral-900'
+                    }`}
+                  >
+                    {shortName}
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Details of active database template */}
+            {activeTemplate && (
+              <div className="p-3 bg-neutral-950/90 rounded-lg border border-neutral-800 space-y-2.5">
+                <div className="flex items-start justify-between gap-2">
+                  <div>
+                    <h4 className="text-xs font-bold text-slate-100">{activeTemplate.displayName}</h4>
+                    <p className="text-[10.5px] text-emerald-300/90 mt-0.5">{activeTemplate.freeTierLimits}</p>
+                  </div>
+                </div>
+
+                {/* Config Snippet */}
+                <div className="space-y-1">
+                  <div className="flex items-center justify-between text-[10px] text-slate-400 font-mono">
+                    <span>Конфигурация .env</span>
+                    <button
+                      type="button"
+                      onClick={() => handleCopySnippet(activeTemplate.configurationTemplate, 'config')}
+                      className="flex items-center gap-1 text-cyan-400 hover:text-cyan-300"
+                    >
+                      <Copy size={11} />
+                      {copiedKey === 'config' ? 'Скопировано!' : 'Копировать'}
+                    </button>
+                  </div>
+                  <pre className="p-2 bg-black/60 rounded border border-neutral-800/80 text-[10px] text-slate-300 font-mono overflow-x-auto whitespace-pre-wrap">
+                    {activeTemplate.configurationTemplate}
+                  </pre>
+                </div>
+
+                {/* Migration / Schema Snippet */}
+                <div className="space-y-1">
+                  <div className="flex items-center justify-between text-[10px] text-slate-400 font-mono">
+                    <span>Пример схемы / миграции</span>
+                    <button
+                      type="button"
+                      onClick={() => handleCopySnippet(activeTemplate.migrationScriptExample, 'migration')}
+                      className="flex items-center gap-1 text-cyan-400 hover:text-cyan-300"
+                    >
+                      <Copy size={11} />
+                      {copiedKey === 'migration' ? 'Скопировано!' : 'Копировать'}
+                    </button>
+                  </div>
+                  <pre className="p-2 bg-black/60 rounded border border-neutral-800/80 text-[9.5px] text-cyan-200/90 font-mono overflow-x-auto max-h-32">
+                    {activeTemplate.migrationScriptExample}
+                  </pre>
+                </div>
+              </div>
             )}
           </div>
 

@@ -385,8 +385,8 @@ export const NodeCardDetails: React.FC<Props> = ({
               <p className="text-[9px] font-bold uppercase text-gray-500 tracking-wider mb-1">
                 Целевое аналитическое выражение
               </p>
-              <div className="p-4 break-all whitespace-pre-wrap bg-neutral-900/50 rounded-lg">
-                <LatexRenderer content={`\`${node.targetFunction || '—'}\``} className="text-sm font-mono text-cyan-200" />
+              <div className="p-4 overflow-x-auto bg-neutral-900/50 rounded-lg shadow-inner border border-cyan-900/30">
+                <LatexRenderer content={node.targetFunction ? `$$${node.targetFunction}$$` : '—'} className="text-sm text-cyan-200" />
               </div>
             </div>
 

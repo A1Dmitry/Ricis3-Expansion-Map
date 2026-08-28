@@ -101,12 +101,23 @@ function renderFormattedText(text: string): React.ReactNode {
     }
 
     // Check if line is a display math block ($$ ... $$ or \begin{aligned} ... \end{aligned})
-    const displayMathMatch = line.match(/^(\$\$|\\\[)([\s\S]*?)(\$\$|\\\])$/) || line.match(/^(\\begin\{aligned\}[\s\S]*?\\end\{aligned\})$/);
+    const displayMathMatch = line.match(/^(\$\$|\\\[)([\s\S]*?)(\$\$|\\\])$/) || line.match(/^(\\begin\{[a-zA-Z*]+\}[\s\S]*?\\end\{[a-zA-Z*]+\})$/);
     if (displayMathMatch) {
       const latex = displayMathMatch[2] || displayMathMatch[1];
       return (
         <div key={lineIdx} className="my-2 p-2.5 bg-[#0a0e1a] border border-cyan-900/40 rounded-lg overflow-x-auto text-center shadow-sm">
           <KatexMath math={latex} displayMode={true} />
+        </div>
+      );
+    }
+
+    // Check for unwrapped bare LaTeX math expressions (often present in RICIS-III dumps)
+    // We ensure it starts with \ to avoid false positives on normal text that happens to have a LaTeX command.
+    const isBareLatex = line.trim().startsWith('\\') && /\\(lim|frac|to|xrightarrow|infty|int|sum|sqrt|cdot|times|text\{|alpha|beta|gamma|Delta)/.test(line) && !line.includes('$') && !line.includes('`') && !line.includes('**');
+    if (isBareLatex) {
+      return (
+        <div key={lineIdx} className="my-2 p-2.5 bg-[#0a0e1a] border border-cyan-900/40 rounded-lg overflow-x-auto text-center shadow-sm">
+          <KatexMath math={line.trim()} displayMode={true} />
         </div>
       );
     }
