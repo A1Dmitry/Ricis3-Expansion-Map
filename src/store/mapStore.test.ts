@@ -223,7 +223,7 @@ describe('Zustand mapStore.ts Integration Tests (RICIS-III v7.7 Diagnostics & GC
     const locallyValidProof = [
       'RICIS proof artifact.',
       'RICIS A6 rule: 0_F * \\infty_G = F * G.',
-      'Formal specification: https://doi.org/10.5281/zenodo.21836220.',
+      'Lean software record: https://doi.org/10.5281/zenodo.21529989.',
     ].join('\n');
 
     expect(auditProofContent(locallyValidProof).isValid).toBe(true);
