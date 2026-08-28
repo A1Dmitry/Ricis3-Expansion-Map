@@ -48,3 +48,9 @@ Live-клик по `Explore`/`Verify` в текущем snapshot не измен
 ## Live flood-fill cycle 18: Roadmap ID navigation
 
 Roadmap, открытый из выбранного узла, явно показал исходный canonical ID `a3949213aba674d8844812a2eba08a1f`. Кнопка `Открыть карту` вернула приложение по URL `?node=a3949213aba674d8844812a2eba08a1f&mode=explore`. Таким образом, фактический переход использует SHA-128 node ID; встречающиеся в пояснительном тексте legacy-примеры (`core-agi-target`) не участвуют в navigation contract.
+
+## Live flood-fill cycle 23: Primary Sources и Lean boundary
+
+У canonical узла `0218ceed74fcb7268d74d49bdec11753` раскрыта секция `PRIMARY SOURCES & PUBLICATIONS`. UI показывает отдельные внешние ссылки Google Scholar, Wikipedia и DOI Zenodo `10.5281/zenodo.17872755 (RICIS-III Core)`. Эти публикационные ссылки визуально отделены от блока `FORMAL LEAN 4 VERIFICATION`, где сохраняется `NO PROOF EVIDENCE ATTACHED`.
+
+Таким образом, наличие внешнего DOI не повышает автоматически статус Lean-доказательства и не создаёт proof artifact; граница между application/publication evidence и formal kernel evidence сохранена.
