@@ -59,3 +59,9 @@
 На recovery-поверхности нажатие `Повторить проверку Core` не запустило старый proof-запрос и не создало fallback-результат. Отображён явный статус: `Health endpoint пока не подтвердил доступность Core`, при сохранении `CORE_UNAVAILABLE` и `runtime=not_ready`.
 
 Кнопка `Вернуться к карте` успешно восстановила основной UI; canonical node ID сохранился в URL как `node=a3949213aba674d8844812a2eba08a1f`. В карточке появился статус `Core: unavailable`, без изменения graph/proof state.
+
+## Regression-контроль после live Agent Gateway audit
+
+После commit `25ea205` локальный тестовый контур завершился успешно: `148` test files passed, `1294` tests passed. Прямой TypeScript-контроль `npx tsc --noEmit` также завершился без ошибок. Production build завершён успешно (`vite built`, server bundle создан); сохранилось только штатное предупреждение о крупных чанках Three.js/Map3D.
+
+Первичная попытка `npm run check` выявила отсутствие одноимённого script в `package.json`; это tooling-наблюдение, а не ошибка приложения, поскольку прямой `npx tsc --noEmit` и remote Pull Request Verification завершились успешно. В рабочем дереве после проверки нет незакоммиченных изменений.
