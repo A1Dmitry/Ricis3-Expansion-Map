@@ -42,3 +42,9 @@ Roadmap показал исходный узел `Квантовая ошибк�
 ## Live-проверка Share
 
 Кнопка `Поделиться` присутствует с hint `Скопировать ссылку на эту задачу`; после нажатия URL страницы остался ID-based (`?node=0218ceed74fcb7268d74d49bdec11753&mode=explore`). Попытка прочитать clipboard через sandbox browser context завершилась timeout/context canceled, вероятно из-за permission boundary. Поэтому факт записи в clipboard оставлен как **неподтверждённый**, а не отмечен как успешный.
+
+## Targeted UI/accessibility regression после hydration repair
+
+Targeted набор из 6 файлов (`useI18nStore`, `i18n`, `nodeCardAccordion`, Guided Case domain/topology и `MonolithGuidedCaseTrail`) прошёл: **6 файлов, 58/58 тестов**.
+
+Команда обхода обнаружила, что каталога `src/accessibility` в текущем проекте нет; это не падение приложения, а отсутствие отдельного каталога accessibility. UI accessibility-покрытие фактически находится в соответствующих model/domain/UI тестах.
