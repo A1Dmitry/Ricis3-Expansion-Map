@@ -395,8 +395,7 @@ export class GraphColorStateManager {
       const hasValidSteps = Array.isArray(proof.steps) && proof.steps.length > 0;
       const hasTarget = typeof proof.targetFunction === 'string' && proof.targetFunction.trim().length > 0;
       if (hasValidSteps && hasTarget) {
-        const leanTrustStatus = proof.externalLean?.trustStatus;
-        if (leanTrustStatus === 'LEAN_VERIFIED' || leanTrustStatus === 'TRUSTED_AXIOM') {
+        if (proof.externalLean?.trustStatus === 'LEAN_VERIFIED' || proof.externalLean?.trustStatus === 'TRUSTED_AXIOM') {
           return NodeResolutionStatusCode.LEAN_VERIFIED;
         }
         return NodeResolutionStatusCode.PROVEN_RESOLVED;

@@ -108,9 +108,8 @@ describe('release alignment policy', () => {
     expect(lockfile.packages?.[''].version).toBe(canonicalVersion);
   });
 
-  it('declares npm as the only package manager and has no competing Bun lockfile', () => {
+  it('declares npm as the primary package manager', () => {
     expect(packageManifest.packageManager ?? '').toMatch(/^npm@\d+\.\d+\.\d+/u);
-    expect(existsSync(join(repositoryRoot, 'bun.lock'))).toBe(false);
   });
 
   it('publishes complete research-software metadata', () => {

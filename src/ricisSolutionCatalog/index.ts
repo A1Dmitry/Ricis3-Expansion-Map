@@ -429,7 +429,7 @@ export function buildCalculatorLaunchLink(input: {
   readonly baseUrl?: string;
   readonly definition: SolutionMonolithDefinition;
 }): CalculatorLaunchResult {
-  if (!input.baseUrl?.trim()) return { kind: 'UNCONFIGURED', reason: 'calculator_base_url_missing' };
+  if (!input.baseUrl?.trim() || input.baseUrl.trim() === 'about:blank') return { kind: 'UNCONFIGURED', reason: 'calculator_base_url_missing' };
   let baseUrl: URL;
   try {
     baseUrl = new URL(input.baseUrl);

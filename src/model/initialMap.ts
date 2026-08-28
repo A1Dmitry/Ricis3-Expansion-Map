@@ -184,7 +184,7 @@ export const VOYNICH_HIERARCHY_PROOFS: Record<string, Proof> = (() => {
         }
       ],
       finalResult: `Axiom Extracted: ${n.id}_resolved`,
-      latex: `\\section*{RICIS-III Proof: ${n.title}}\n\\textbf{Author:} Dmitry V. Aleinikov (ORCID: 0009-0004-3226-7700)\n\\textbf{Target Function:} $${n.targetFunction || '0_F \\times \\infty_G = F \\cdot G'}$\n\\subsection*{RICIS Transform & Axiom A6}\n$ 0_F \\times \\infty_G = F \\cdot G $\n\\textbf{Specification Lean 4 DOI:} \\href{https://doi.org/10.5281/zenodo.21529989}{https://doi.org/10.5281/zenodo.21529989} (Voynich Decryption \\href{https://doi.org/10.5281/zenodo.18001299}{10.5281/zenodo.18001299})\n\\textbf{Final Result:} Axiom Extracted: ${n.id}_resolved`
+      latex: `\\section*{RICIS-III Proof: ${n.title}}\n\\textbf{Author:} Dmitry V. Aleinikov (ORCID: 0009-0004-3226-7700)\n\\textbf{Target Function:} $${n.targetFunction || '0_F \\times \\infty_G = F \\cdot G'}$\n\\subsection*{RICIS Transform & Axiom A6}\n$ 0_F \\times \\infty_G = F \\cdot G $\n\\textbf{Specification Lean 4 DOI:} \\href{https://doi.org/10.5281/zenodo.21529989}{https://doi.org/10.5281/zenodo.21529989} (Master Registry href{https://doi.org/10.5281/zenodo.21836220}{10.5281/zenodo.21836220}) (Voynich Decryption \\href{https://doi.org/10.5281/zenodo.18001299}{10.5281/zenodo.18001299})\n\\textbf{Final Result:} Axiom Extracted: ${n.id}_resolved`
     };
   }
   return proofs;
@@ -1023,12 +1023,12 @@ export const initialMap: MapState = {
       {
         "phase": 6,
         "name": "Phase 6: Final Verification & Authorial Provenance Binding",
-        "action": "Binding to official registries: Zenodo DOI 10.5281/zenodo.17872755, 10.5281/zenodo.21309650, 10.5281/zenodo.21529989",
-        "expression": "\\text{Result} = 10 \\quad [O(1)], \\quad \\text{DOI: } 10.5281/zenodo.21529989"
+        "action": "Binding to official registries: Zenodo DOI 10.5281/zenodo.17872755, 10.5281/zenodo.21309650, 10.5281/zenodo.21836220",
+        "expression": "\\text{Result} = 10 \\quad [O(1)], \\quad \\text{DOI: } 10.5281/zenodo.21836220"
       }
     ],
     "finalResult": "Provenance Invariant Verified: Area = 10 [O(1)], Author: Dmitry V. Aleinikov (ORCID: 0009-0004-3226-7700)",
-    "latex": "\\section*{RICIS-III Proof: AI Authorship Provenance & Geometric Singularity Invariant}\n\\textbf{Author:} Dmitry V. Aleinikov (ORCID: 0009-0004-3226-7700)\n\\textbf{Target Function:} $\\text{Area}(\\vec{S}_{2,\\infty} \\cap \\vec{R}_{0,5}) = \\|\\vec{S}_x \\cdot \\vec{R}_y\\| = 2 \\times 5 = 10 \\quad [O(1)]$\n\\subsection*{RICIS Transform & Axiom A6 Geometric Bridge}\n$ 0_2 \\times \\infty_5 = \\det(u, v) = 2 \\cdot 5 = 10 $\n\\subsection*{Verification & DOI Specification}\nLean 4 Specification: \\href{https://doi.org/10.5281/zenodo.21529989}{DOI: 10.5281/zenodo.21529989}. Foundations: \\href{https://doi.org/10.5281/zenodo.17872755}{DOI: 10.5281/zenodo.17872755}.\n\\textbf{Final Result:} Provenance Invariant Verified: Area = 10 [O(1)]"
+    "latex": "\\section*{RICIS-III Proof: AI Authorship Provenance & Geometric Singularity Invariant}\n\\textbf{Author:} Dmitry V. Aleinikov (ORCID: 0009-0004-3226-7700)\n\\textbf{Target Function:} $\\text{Area}(\\vec{S}_{2,\\infty} \\cap \\vec{R}_{0,5}) = \\|\\vec{S}_x \\cdot \\vec{R}_y\\| = 2 \\times 5 = 10 \\quad [O(1)]$\n\\subsection*{RICIS Transform & Axiom A6 Geometric Bridge}\n$ 0_2 \\times \\infty_5 = \\det(u, v) = 2 \\cdot 5 = 10 $\n\\subsection*{Verification & DOI Specification}\nLean 4 Specification: \\href{https://doi.org/10.5281/zenodo.21529989}{DOI: 10.5281/zenodo.21529989} (Master Registry \\href{https://doi.org/10.5281/zenodo.21836220}{10.5281/zenodo.21836220}). Foundations: \\href{https://doi.org/10.5281/zenodo.17872755}{DOI: 10.5281/zenodo.17872755}.\n\\textbf{Final Result:} Provenance Invariant Verified: Area = 10 [O(1)]"
   },
   "registry-100": {
     "nodeId": "registry-100",
@@ -1044,11 +1044,11 @@ export const initialMap: MapState = {
         "phase": 2,
         "name": "RICIS transform",
         "action": "Axiom A6",
-        "expression": "0_F x infinity_G = F * G (Spec: https://doi.org/10.5281/zenodo.21529989)"
+        "expression": "0_F x infinity_G = F * G (Spec: https://doi.org/10.5281/zenodo.21836220)"
       }
     ],
     "finalResult": "Axiom Extracted: registry-100_resolved",
-    "latex": "\\section*{RICIS-III Proof: abc Conjecture}\n\\textbf{Target Function:} $frac{0F}{0G} = frac{F}{G}.$\n\\subsection*{RICIS Transform & Axiom A6}\n$ 0_F \\times \\infty_G = F \\cdot G $\n\\textbf{Specification Lean 4 DOI:} \\href{https://doi.org/10.5281/zenodo.21529989}{https://doi.org/10.5281/zenodo.21529989} (Master Registry \\href{https://doi.org/10.5281/zenodo.21517353}{10.5281/zenodo.21517353})\n\\textbf{Final Result:} Axiom Extracted: registry-100_resolved"
+    "latex": "\\section*{RICIS-III Proof: abc Conjecture}\n\\textbf{Target Function:} $frac{0F}{0G} = frac{F}{G}.$\n\\subsection*{RICIS Transform & Axiom A6}\n$ 0_F \\times \\infty_G = F \\cdot G $\n\\textbf{Specification Lean 4 DOI:} \\href{https://doi.org/10.5281/zenodo.21529989}{https://doi.org/10.5281/zenodo.21529989} (Master Registry href{https://doi.org/10.5281/zenodo.21836220}{10.5281/zenodo.21836220}) (Master Registry \\href{https://doi.org/10.5281/zenodo.21517353}{10.5281/zenodo.21517353})\n\\textbf{Final Result:} Axiom Extracted: registry-100_resolved"
   },
   "registry-101": {
     "nodeId": "registry-101",
@@ -1064,11 +1064,11 @@ export const initialMap: MapState = {
         "phase": 2,
         "name": "RICIS transform",
         "action": "Axiom A6",
-        "expression": "0_F x infinity_G = F * G (Spec: https://doi.org/10.5281/zenodo.21529989)"
+        "expression": "0_F x infinity_G = F * G (Spec: https://doi.org/10.5281/zenodo.21836220)"
       }
     ],
     "finalResult": "Axiom Extracted: registry-101_resolved",
-    "latex": "\\section*{RICIS-III Proof: Goldbach's Conjecture}\n\\textbf{Target Function:} $Resolve()$\n\\subsection*{RICIS Transform & Axiom A6}\n$ 0_F \\times \\infty_G = F \\cdot G $\n\\textbf{Specification Lean 4 DOI:} \\href{https://doi.org/10.5281/zenodo.21529989}{https://doi.org/10.5281/zenodo.21529989} (Master Registry \\href{https://doi.org/10.5281/zenodo.21517353}{10.5281/zenodo.21517353})\n\\textbf{Final Result:} Axiom Extracted: registry-101_resolved"
+    "latex": "\\section*{RICIS-III Proof: Goldbach's Conjecture}\n\\textbf{Target Function:} $Resolve()$\n\\subsection*{RICIS Transform & Axiom A6}\n$ 0_F \\times \\infty_G = F \\cdot G $\n\\textbf{Specification Lean 4 DOI:} \\href{https://doi.org/10.5281/zenodo.21529989}{https://doi.org/10.5281/zenodo.21529989} (Master Registry href{https://doi.org/10.5281/zenodo.21836220}{10.5281/zenodo.21836220}) (Master Registry \\href{https://doi.org/10.5281/zenodo.21517353}{10.5281/zenodo.21517353})\n\\textbf{Final Result:} Axiom Extracted: registry-101_resolved"
   },
   "registry-102": {
     "nodeId": "registry-102",
@@ -1084,11 +1084,11 @@ export const initialMap: MapState = {
         "phase": 2,
         "name": "RICIS transform",
         "action": "Axiom A6",
-        "expression": "0_F x infinity_G = F * G (Spec: https://doi.org/10.5281/zenodo.21529989)"
+        "expression": "0_F x infinity_G = F * G (Spec: https://doi.org/10.5281/zenodo.21836220)"
       }
     ],
     "finalResult": "Axiom Extracted: registry-102_resolved",
-    "latex": "\\section*{RICIS-III Proof: Twin Prime Conjecture}\n\\textbf{Target Function:} $Resolve()$\n\\subsection*{RICIS Transform & Axiom A6}\n$ 0_F \\times \\infty_G = F \\cdot G $\n\\textbf{Specification Lean 4 DOI:} \\href{https://doi.org/10.5281/zenodo.21529989}{https://doi.org/10.5281/zenodo.21529989} (Master Registry \\href{https://doi.org/10.5281/zenodo.21517353}{10.5281/zenodo.21517353})\n\\textbf{Final Result:} Axiom Extracted: registry-102_resolved"
+    "latex": "\\section*{RICIS-III Proof: Twin Prime Conjecture}\n\\textbf{Target Function:} $Resolve()$\n\\subsection*{RICIS Transform & Axiom A6}\n$ 0_F \\times \\infty_G = F \\cdot G $\n\\textbf{Specification Lean 4 DOI:} \\href{https://doi.org/10.5281/zenodo.21529989}{https://doi.org/10.5281/zenodo.21529989} (Master Registry href{https://doi.org/10.5281/zenodo.21836220}{10.5281/zenodo.21836220}) (Master Registry \\href{https://doi.org/10.5281/zenodo.21517353}{10.5281/zenodo.21517353})\n\\textbf{Final Result:} Axiom Extracted: registry-102_resolved"
   },
   "registry-103": {
     "nodeId": "registry-103",
@@ -1104,11 +1104,11 @@ export const initialMap: MapState = {
         "phase": 2,
         "name": "RICIS transform",
         "action": "Axiom A6",
-        "expression": "0_F x infinity_G = F * G (Spec: https://doi.org/10.5281/zenodo.21529989)"
+        "expression": "0_F x infinity_G = F * G (Spec: https://doi.org/10.5281/zenodo.21836220)"
       }
     ],
     "finalResult": "Axiom Extracted: registry-103_resolved",
-    "latex": "\\section*{RICIS-III Proof: Odd Perfect Numbers}\n\\textbf{Target Function:} $Resolve()$\n\\subsection*{RICIS Transform & Axiom A6}\n$ 0_F \\times \\infty_G = F \\cdot G $\n\\textbf{Specification Lean 4 DOI:} \\href{https://doi.org/10.5281/zenodo.21529989}{https://doi.org/10.5281/zenodo.21529989} (Master Registry \\href{https://doi.org/10.5281/zenodo.21517353}{10.5281/zenodo.21517353})\n\\textbf{Final Result:} Axiom Extracted: registry-103_resolved"
+    "latex": "\\section*{RICIS-III Proof: Odd Perfect Numbers}\n\\textbf{Target Function:} $Resolve()$\n\\subsection*{RICIS Transform & Axiom A6}\n$ 0_F \\times \\infty_G = F \\cdot G $\n\\textbf{Specification Lean 4 DOI:} \\href{https://doi.org/10.5281/zenodo.21529989}{https://doi.org/10.5281/zenodo.21529989} (Master Registry href{https://doi.org/10.5281/zenodo.21836220}{10.5281/zenodo.21836220}) (Master Registry \\href{https://doi.org/10.5281/zenodo.21517353}{10.5281/zenodo.21517353})\n\\textbf{Final Result:} Axiom Extracted: registry-103_resolved"
   },
   "registry-104": {
     "nodeId": "registry-104",
@@ -1124,11 +1124,11 @@ export const initialMap: MapState = {
         "phase": 2,
         "name": "RICIS transform",
         "action": "Axiom A6",
-        "expression": "0_F x infinity_G = F * G (Spec: https://doi.org/10.5281/zenodo.21529989)"
+        "expression": "0_F x infinity_G = F * G (Spec: https://doi.org/10.5281/zenodo.21836220)"
       }
     ],
     "finalResult": "Axiom Extracted: registry-104_resolved",
-    "latex": "\\section*{RICIS-III Proof: Erdős Prime Gap Conjecture}\n\\textbf{Target Function:} $inftyF times 0G = F cdot G quad text{via Axiom~eqref{eq:A6}}.$\n\\subsection*{RICIS Transform & Axiom A6}\n$ 0_F \\times \\infty_G = F \\cdot G $\n\\textbf{Specification Lean 4 DOI:} \\href{https://doi.org/10.5281/zenodo.21529989}{https://doi.org/10.5281/zenodo.21529989} (Master Registry \\href{https://doi.org/10.5281/zenodo.21517353}{10.5281/zenodo.21517353})\n\\textbf{Final Result:} Axiom Extracted: registry-104_resolved"
+    "latex": "\\section*{RICIS-III Proof: Erdős Prime Gap Conjecture}\n\\textbf{Target Function:} $inftyF times 0G = F cdot G quad text{via Axiom~eqref{eq:A6}}.$\n\\subsection*{RICIS Transform & Axiom A6}\n$ 0_F \\times \\infty_G = F \\cdot G $\n\\textbf{Specification Lean 4 DOI:} \\href{https://doi.org/10.5281/zenodo.21529989}{https://doi.org/10.5281/zenodo.21529989} (Master Registry href{https://doi.org/10.5281/zenodo.21836220}{10.5281/zenodo.21836220}) (Master Registry \\href{https://doi.org/10.5281/zenodo.21517353}{10.5281/zenodo.21517353})\n\\textbf{Final Result:} Axiom Extracted: registry-104_resolved"
   },
   "registry-105": {
     "nodeId": "registry-105",
@@ -1144,11 +1144,11 @@ export const initialMap: MapState = {
         "phase": 2,
         "name": "RICIS transform",
         "action": "Axiom A6",
-        "expression": "0_F x infinity_G = F * G (Spec: https://doi.org/10.5281/zenodo.21529989)"
+        "expression": "0_F x infinity_G = F * G (Spec: https://doi.org/10.5281/zenodo.21836220)"
       }
     ],
     "finalResult": "Axiom Extracted: registry-105_resolved",
-    "latex": "\\section*{RICIS-III Proof: Green--Tao Theorem Extension}\n\\textbf{Target Function:} $Resolve()$\n\\subsection*{RICIS Transform & Axiom A6}\n$ 0_F \\times \\infty_G = F \\cdot G $\n\\textbf{Specification Lean 4 DOI:} \\href{https://doi.org/10.5281/zenodo.21529989}{https://doi.org/10.5281/zenodo.21529989} (Master Registry \\href{https://doi.org/10.5281/zenodo.21517353}{10.5281/zenodo.21517353})\n\\textbf{Final Result:} Axiom Extracted: registry-105_resolved"
+    "latex": "\\section*{RICIS-III Proof: Green--Tao Theorem Extension}\n\\textbf{Target Function:} $Resolve()$\n\\subsection*{RICIS Transform & Axiom A6}\n$ 0_F \\times \\infty_G = F \\cdot G $\n\\textbf{Specification Lean 4 DOI:} \\href{https://doi.org/10.5281/zenodo.21529989}{https://doi.org/10.5281/zenodo.21529989} (Master Registry href{https://doi.org/10.5281/zenodo.21836220}{10.5281/zenodo.21836220}) (Master Registry \\href{https://doi.org/10.5281/zenodo.21517353}{10.5281/zenodo.21517353})\n\\textbf{Final Result:} Axiom Extracted: registry-105_resolved"
   },
   "registry-106": {
     "nodeId": "registry-106",
@@ -1164,11 +1164,11 @@ export const initialMap: MapState = {
         "phase": 2,
         "name": "RICIS transform",
         "action": "Axiom A6",
-        "expression": "0_F x infinity_G = F * G (Spec: https://doi.org/10.5281/zenodo.21529989)"
+        "expression": "0_F x infinity_G = F * G (Spec: https://doi.org/10.5281/zenodo.21836220)"
       }
     ],
     "finalResult": "Axiom Extracted: registry-106_resolved",
-    "latex": "\\section*{RICIS-III Proof: Sum of Squares Representation}\n\\textbf{Target Function:} $Resolve()$\n\\subsection*{RICIS Transform & Axiom A6}\n$ 0_F \\times \\infty_G = F \\cdot G $\n\\textbf{Specification Lean 4 DOI:} \\href{https://doi.org/10.5281/zenodo.21529989}{https://doi.org/10.5281/zenodo.21529989} (Master Registry \\href{https://doi.org/10.5281/zenodo.21517353}{10.5281/zenodo.21517353})\n\\textbf{Final Result:} Axiom Extracted: registry-106_resolved"
+    "latex": "\\section*{RICIS-III Proof: Sum of Squares Representation}\n\\textbf{Target Function:} $Resolve()$\n\\subsection*{RICIS Transform & Axiom A6}\n$ 0_F \\times \\infty_G = F \\cdot G $\n\\textbf{Specification Lean 4 DOI:} \\href{https://doi.org/10.5281/zenodo.21529989}{https://doi.org/10.5281/zenodo.21529989} (Master Registry href{https://doi.org/10.5281/zenodo.21836220}{10.5281/zenodo.21836220}) (Master Registry \\href{https://doi.org/10.5281/zenodo.21517353}{10.5281/zenodo.21517353})\n\\textbf{Final Result:} Axiom Extracted: registry-106_resolved"
   },
   "registry-107": {
     "nodeId": "registry-107",
@@ -1184,11 +1184,11 @@ export const initialMap: MapState = {
         "phase": 2,
         "name": "RICIS transform",
         "action": "Axiom A6",
-        "expression": "0_F x infinity_G = F * G (Spec: https://doi.org/10.5281/zenodo.21529989)"
+        "expression": "0_F x infinity_G = F * G (Spec: https://doi.org/10.5281/zenodo.21836220)"
       }
     ],
     "finalResult": "Axiom Extracted: registry-107_resolved",
-    "latex": "\\section*{RICIS-III Proof: Collatz Conjecture (3n + 1)}\n\\textbf{Target Function:} $Resolve()$\n\\subsection*{RICIS Transform & Axiom A6}\n$ 0_F \\times \\infty_G = F \\cdot G $\n\\textbf{Specification Lean 4 DOI:} \\href{https://doi.org/10.5281/zenodo.21529989}{https://doi.org/10.5281/zenodo.21529989} (Master Registry \\href{https://doi.org/10.5281/zenodo.21517353}{10.5281/zenodo.21517353})\n\\textbf{Final Result:} Axiom Extracted: registry-107_resolved"
+    "latex": "\\section*{RICIS-III Proof: Collatz Conjecture (3n + 1)}\n\\textbf{Target Function:} $Resolve()$\n\\subsection*{RICIS Transform & Axiom A6}\n$ 0_F \\times \\infty_G = F \\cdot G $\n\\textbf{Specification Lean 4 DOI:} \\href{https://doi.org/10.5281/zenodo.21529989}{https://doi.org/10.5281/zenodo.21529989} (Master Registry href{https://doi.org/10.5281/zenodo.21836220}{10.5281/zenodo.21836220}) (Master Registry \\href{https://doi.org/10.5281/zenodo.21517353}{10.5281/zenodo.21517353})\n\\textbf{Final Result:} Axiom Extracted: registry-107_resolved"
   },
   "registry-108": {
     "nodeId": "registry-108",
@@ -1204,11 +1204,11 @@ export const initialMap: MapState = {
         "phase": 2,
         "name": "RICIS transform",
         "action": "Axiom A6",
-        "expression": "0_F x infinity_G = F * G (Spec: https://doi.org/10.5281/zenodo.21529989)"
+        "expression": "0_F x infinity_G = F * G (Spec: https://doi.org/10.5281/zenodo.21836220)"
       }
     ],
     "finalResult": "Axiom Extracted: registry-108_resolved",
-    "latex": "\\section*{RICIS-III Proof: Finite-Time Blow-up in NLS and NLW}\n\\textbf{Target Function:} $0{text{smooth}} times infty{text{sol}} = F cdot G.$\n\\subsection*{RICIS Transform & Axiom A6}\n$ 0_F \\times \\infty_G = F \\cdot G $\n\\textbf{Specification Lean 4 DOI:} \\href{https://doi.org/10.5281/zenodo.21529989}{https://doi.org/10.5281/zenodo.21529989} (Master Registry \\href{https://doi.org/10.5281/zenodo.21517353}{10.5281/zenodo.21517353})\n\\textbf{Final Result:} Axiom Extracted: registry-108_resolved"
+    "latex": "\\section*{RICIS-III Proof: Finite-Time Blow-up in NLS and NLW}\n\\textbf{Target Function:} $0{text{smooth}} times infty{text{sol}} = F cdot G.$\n\\subsection*{RICIS Transform & Axiom A6}\n$ 0_F \\times \\infty_G = F \\cdot G $\n\\textbf{Specification Lean 4 DOI:} \\href{https://doi.org/10.5281/zenodo.21529989}{https://doi.org/10.5281/zenodo.21529989} (Master Registry href{https://doi.org/10.5281/zenodo.21836220}{10.5281/zenodo.21836220}) (Master Registry \\href{https://doi.org/10.5281/zenodo.21517353}{10.5281/zenodo.21517353})\n\\textbf{Final Result:} Axiom Extracted: registry-108_resolved"
   },
   "registry-109": {
     "nodeId": "registry-109",
@@ -1224,11 +1224,11 @@ export const initialMap: MapState = {
         "phase": 2,
         "name": "RICIS transform",
         "action": "Axiom A6",
-        "expression": "0_F x infinity_G = F * G (Spec: https://doi.org/10.5281/zenodo.21529989)"
+        "expression": "0_F x infinity_G = F * G (Spec: https://doi.org/10.5281/zenodo.21836220)"
       }
     ],
     "finalResult": "Axiom Extracted: registry-109_resolved",
-    "latex": "\\section*{RICIS-III Proof: Singularities in Geometric Flows (Ricci Flow / Mean Curvature Flow)}\n\\textbf{Target Function:} $0{text{neck}} times infty{text{pinch}} = C cdot M.$\n\\subsection*{RICIS Transform & Axiom A6}\n$ 0_F \\times \\infty_G = F \\cdot G $\n\\textbf{Specification Lean 4 DOI:} \\href{https://doi.org/10.5281/zenodo.21529989}{https://doi.org/10.5281/zenodo.21529989} (Master Registry \\href{https://doi.org/10.5281/zenodo.21517353}{10.5281/zenodo.21517353})\n\\textbf{Final Result:} Axiom Extracted: registry-109_resolved"
+    "latex": "\\section*{RICIS-III Proof: Singularities in Geometric Flows (Ricci Flow / Mean Curvature Flow)}\n\\textbf{Target Function:} $0{text{neck}} times infty{text{pinch}} = C cdot M.$\n\\subsection*{RICIS Transform & Axiom A6}\n$ 0_F \\times \\infty_G = F \\cdot G $\n\\textbf{Specification Lean 4 DOI:} \\href{https://doi.org/10.5281/zenodo.21529989}{https://doi.org/10.5281/zenodo.21529989} (Master Registry href{https://doi.org/10.5281/zenodo.21836220}{10.5281/zenodo.21836220}) (Master Registry \\href{https://doi.org/10.5281/zenodo.21517353}{10.5281/zenodo.21517353})\n\\textbf{Final Result:} Axiom Extracted: registry-109_resolved"
   },
   "registry-110": {
     "nodeId": "registry-110",
@@ -1244,11 +1244,11 @@ export const initialMap: MapState = {
         "phase": 2,
         "name": "RICIS transform",
         "action": "Axiom A6",
-        "expression": "0_F x infinity_G = F * G (Spec: https://doi.org/10.5281/zenodo.21529989)"
+        "expression": "0_F x infinity_G = F * G (Spec: https://doi.org/10.5281/zenodo.21836220)"
       }
     ],
     "finalResult": "Axiom Extracted: registry-110_resolved",
-    "latex": "\\section*{RICIS-III Proof: Blow-up in 3D Euler Equations and MHD}\n\\textbf{Target Function:} $0{text{vortex}} times infty{text{stretch}} = F cdot G.$\n\\subsection*{RICIS Transform & Axiom A6}\n$ 0_F \\times \\infty_G = F \\cdot G $\n\\textbf{Specification Lean 4 DOI:} \\href{https://doi.org/10.5281/zenodo.21529989}{https://doi.org/10.5281/zenodo.21529989} (Master Registry \\href{https://doi.org/10.5281/zenodo.21517353}{10.5281/zenodo.21517353})\n\\textbf{Final Result:} Axiom Extracted: registry-110_resolved"
+    "latex": "\\section*{RICIS-III Proof: Blow-up in 3D Euler Equations and MHD}\n\\textbf{Target Function:} $0{text{vortex}} times infty{text{stretch}} = F cdot G.$\n\\subsection*{RICIS Transform & Axiom A6}\n$ 0_F \\times \\infty_G = F \\cdot G $\n\\textbf{Specification Lean 4 DOI:} \\href{https://doi.org/10.5281/zenodo.21529989}{https://doi.org/10.5281/zenodo.21529989} (Master Registry href{https://doi.org/10.5281/zenodo.21836220}{10.5281/zenodo.21836220}) (Master Registry \\href{https://doi.org/10.5281/zenodo.21517353}{10.5281/zenodo.21517353})\n\\textbf{Final Result:} Axiom Extracted: registry-110_resolved"
   },
   "registry-111": {
     "nodeId": "registry-111",
@@ -1264,11 +1264,11 @@ export const initialMap: MapState = {
         "phase": 2,
         "name": "RICIS transform",
         "action": "Axiom A6",
-        "expression": "0_F x infinity_G = F * G (Spec: https://doi.org/10.5281/zenodo.21529989)"
+        "expression": "0_F x infinity_G = F * G (Spec: https://doi.org/10.5281/zenodo.21836220)"
       }
     ],
     "finalResult": "Axiom Extracted: registry-111_resolved",
-    "latex": "\\section*{RICIS-III Proof: Degenerate Parabolic Equations}\n\\textbf{Target Function:} $Resolve()$\n\\subsection*{RICIS Transform & Axiom A6}\n$ 0_F \\times \\infty_G = F \\cdot G $\n\\textbf{Specification Lean 4 DOI:} \\href{https://doi.org/10.5281/zenodo.21529989}{https://doi.org/10.5281/zenodo.21529989} (Master Registry \\href{https://doi.org/10.5281/zenodo.21517353}{10.5281/zenodo.21517353})\n\\textbf{Final Result:} Axiom Extracted: registry-111_resolved"
+    "latex": "\\section*{RICIS-III Proof: Degenerate Parabolic Equations}\n\\textbf{Target Function:} $Resolve()$\n\\subsection*{RICIS Transform & Axiom A6}\n$ 0_F \\times \\infty_G = F \\cdot G $\n\\textbf{Specification Lean 4 DOI:} \\href{https://doi.org/10.5281/zenodo.21529989}{https://doi.org/10.5281/zenodo.21529989} (Master Registry href{https://doi.org/10.5281/zenodo.21836220}{10.5281/zenodo.21836220}) (Master Registry \\href{https://doi.org/10.5281/zenodo.21517353}{10.5281/zenodo.21517353})\n\\textbf{Final Result:} Axiom Extracted: registry-111_resolved"
   },
   "registry-112": {
     "nodeId": "registry-112",
@@ -1284,11 +1284,11 @@ export const initialMap: MapState = {
         "phase": 2,
         "name": "RICIS transform",
         "action": "Axiom A6",
-        "expression": "0_F x infinity_G = F * G (Spec: https://doi.org/10.5281/zenodo.21529989)"
+        "expression": "0_F x infinity_G = F * G (Spec: https://doi.org/10.5281/zenodo.21836220)"
       }
     ],
     "finalResult": "Axiom Extracted: registry-112_resolved",
-    "latex": "\\section*{RICIS-III Proof: Hamiltonian PDEs and Vortex Dynamics}\n\\textbf{Target Function:} $Resolve()$\n\\subsection*{RICIS Transform & Axiom A6}\n$ 0_F \\times \\infty_G = F \\cdot G $\n\\textbf{Specification Lean 4 DOI:} \\href{https://doi.org/10.5281/zenodo.21529989}{https://doi.org/10.5281/zenodo.21529989} (Master Registry \\href{https://doi.org/10.5281/zenodo.21517353}{10.5281/zenodo.21517353})\n\\textbf{Final Result:} Axiom Extracted: registry-112_resolved"
+    "latex": "\\section*{RICIS-III Proof: Hamiltonian PDEs and Vortex Dynamics}\n\\textbf{Target Function:} $Resolve()$\n\\subsection*{RICIS Transform & Axiom A6}\n$ 0_F \\times \\infty_G = F \\cdot G $\n\\textbf{Specification Lean 4 DOI:} \\href{https://doi.org/10.5281/zenodo.21529989}{https://doi.org/10.5281/zenodo.21529989} (Master Registry href{https://doi.org/10.5281/zenodo.21836220}{10.5281/zenodo.21836220}) (Master Registry \\href{https://doi.org/10.5281/zenodo.21517353}{10.5281/zenodo.21517353})\n\\textbf{Final Result:} Axiom Extracted: registry-112_resolved"
   },
   "registry-113": {
     "nodeId": "registry-113",
@@ -1304,11 +1304,11 @@ export const initialMap: MapState = {
         "phase": 2,
         "name": "RICIS transform",
         "action": "Axiom A6",
-        "expression": "0_F x infinity_G = F * G (Spec: https://doi.org/10.5281/zenodo.21529989)"
+        "expression": "0_F x infinity_G = F * G (Spec: https://doi.org/10.5281/zenodo.21836220)"
       }
     ],
     "finalResult": "Axiom Extracted: registry-113_resolved",
-    "latex": "\\section*{RICIS-III Proof: Semilinear and Quasilinear Wave Equations}\n\\textbf{Target Function:} $Resolve()$\n\\subsection*{RICIS Transform & Axiom A6}\n$ 0_F \\times \\infty_G = F \\cdot G $\n\\textbf{Specification Lean 4 DOI:} \\href{https://doi.org/10.5281/zenodo.21529989}{https://doi.org/10.5281/zenodo.21529989} (Master Registry \\href{https://doi.org/10.5281/zenodo.21517353}{10.5281/zenodo.21517353})\n\\textbf{Final Result:} Axiom Extracted: registry-113_resolved"
+    "latex": "\\section*{RICIS-III Proof: Semilinear and Quasilinear Wave Equations}\n\\textbf{Target Function:} $Resolve()$\n\\subsection*{RICIS Transform & Axiom A6}\n$ 0_F \\times \\infty_G = F \\cdot G $\n\\textbf{Specification Lean 4 DOI:} \\href{https://doi.org/10.5281/zenodo.21529989}{https://doi.org/10.5281/zenodo.21529989} (Master Registry href{https://doi.org/10.5281/zenodo.21836220}{10.5281/zenodo.21836220}) (Master Registry \\href{https://doi.org/10.5281/zenodo.21517353}{10.5281/zenodo.21517353})\n\\textbf{Final Result:} Axiom Extracted: registry-113_resolved"
   },
   "registry-114": {
     "nodeId": "registry-114",
@@ -1324,11 +1324,11 @@ export const initialMap: MapState = {
         "phase": 2,
         "name": "RICIS transform",
         "action": "Axiom A6",
-        "expression": "0_F x infinity_G = F * G (Spec: https://doi.org/10.5281/zenodo.21529989)"
+        "expression": "0_F x infinity_G = F * G (Spec: https://doi.org/10.5281/zenodo.21836220)"
       }
     ],
     "finalResult": "Axiom Extracted: registry-114_resolved",
-    "latex": "\\section*{RICIS-III Proof: Halting Problem}\n\\textbf{Target Function:} $Resolve()$\n\\subsection*{RICIS Transform & Axiom A6}\n$ 0_F \\times \\infty_G = F \\cdot G $\n\\textbf{Specification Lean 4 DOI:} \\href{https://doi.org/10.5281/zenodo.21529989}{https://doi.org/10.5281/zenodo.21529989} (Master Registry \\href{https://doi.org/10.5281/zenodo.21517353}{10.5281/zenodo.21517353})\n\\textbf{Final Result:} Axiom Extracted: registry-114_resolved"
+    "latex": "\\section*{RICIS-III Proof: Halting Problem}\n\\textbf{Target Function:} $Resolve()$\n\\subsection*{RICIS Transform & Axiom A6}\n$ 0_F \\times \\infty_G = F \\cdot G $\n\\textbf{Specification Lean 4 DOI:} \\href{https://doi.org/10.5281/zenodo.21529989}{https://doi.org/10.5281/zenodo.21529989} (Master Registry href{https://doi.org/10.5281/zenodo.21836220}{10.5281/zenodo.21836220}) (Master Registry \\href{https://doi.org/10.5281/zenodo.21517353}{10.5281/zenodo.21517353})\n\\textbf{Final Result:} Axiom Extracted: registry-114_resolved"
   },
   "registry-115": {
     "nodeId": "registry-115",
@@ -1344,11 +1344,11 @@ export const initialMap: MapState = {
         "phase": 2,
         "name": "RICIS transform",
         "action": "Axiom A6",
-        "expression": "0_F x infinity_G = F * G (Spec: https://doi.org/10.5281/zenodo.21529989)"
+        "expression": "0_F x infinity_G = F * G (Spec: https://doi.org/10.5281/zenodo.21836220)"
       }
     ],
     "finalResult": "Axiom Extracted: registry-115_resolved",
-    "latex": "\\section*{RICIS-III Proof: Continuum Hypothesis (CDCC)}\n\\textbf{Target Function:} $2{aleph0} = aleph1 = text{MonolithOrder1}.$\n\\subsection*{RICIS Transform & Axiom A6}\n$ 0_F \\times \\infty_G = F \\cdot G $\n\\textbf{Specification Lean 4 DOI:} \\href{https://doi.org/10.5281/zenodo.21529989}{https://doi.org/10.5281/zenodo.21529989} (Master Registry \\href{https://doi.org/10.5281/zenodo.21517353}{10.5281/zenodo.21517353})\n\\textbf{Final Result:} Axiom Extracted: registry-115_resolved"
+    "latex": "\\section*{RICIS-III Proof: Continuum Hypothesis (CDCC)}\n\\textbf{Target Function:} $2{aleph0} = aleph1 = text{MonolithOrder1}.$\n\\subsection*{RICIS Transform & Axiom A6}\n$ 0_F \\times \\infty_G = F \\cdot G $\n\\textbf{Specification Lean 4 DOI:} \\href{https://doi.org/10.5281/zenodo.21529989}{https://doi.org/10.5281/zenodo.21529989} (Master Registry href{https://doi.org/10.5281/zenodo.21836220}{10.5281/zenodo.21836220}) (Master Registry \\href{https://doi.org/10.5281/zenodo.21517353}{10.5281/zenodo.21517353})\n\\textbf{Final Result:} Axiom Extracted: registry-115_resolved"
   },
   "registry-116": {
     "nodeId": "registry-116",
@@ -1364,11 +1364,11 @@ export const initialMap: MapState = {
         "phase": 2,
         "name": "RICIS transform",
         "action": "Axiom A6",
-        "expression": "0_F x infinity_G = F * G (Spec: https://doi.org/10.5281/zenodo.21529989)"
+        "expression": "0_F x infinity_G = F * G (Spec: https://doi.org/10.5281/zenodo.21836220)"
       }
     ],
     "finalResult": "Axiom Extracted: registry-116_resolved",
-    "latex": "\\section*{RICIS-III Proof: Turbulence and Energy Cascade}\n\\textbf{Target Function:} $Resolve()$\n\\subsection*{RICIS Transform & Axiom A6}\n$ 0_F \\times \\infty_G = F \\cdot G $\n\\textbf{Specification Lean 4 DOI:} \\href{https://doi.org/10.5281/zenodo.21529989}{https://doi.org/10.5281/zenodo.21529989} (Master Registry \\href{https://doi.org/10.5281/zenodo.21517353}{10.5281/zenodo.21517353})\n\\textbf{Final Result:} Axiom Extracted: registry-116_resolved"
+    "latex": "\\section*{RICIS-III Proof: Turbulence and Energy Cascade}\n\\textbf{Target Function:} $Resolve()$\n\\subsection*{RICIS Transform & Axiom A6}\n$ 0_F \\times \\infty_G = F \\cdot G $\n\\textbf{Specification Lean 4 DOI:} \\href{https://doi.org/10.5281/zenodo.21529989}{https://doi.org/10.5281/zenodo.21529989} (Master Registry href{https://doi.org/10.5281/zenodo.21836220}{10.5281/zenodo.21836220}) (Master Registry \\href{https://doi.org/10.5281/zenodo.21517353}{10.5281/zenodo.21517353})\n\\textbf{Final Result:} Axiom Extracted: registry-116_resolved"
   },
   "registry-117": {
     "nodeId": "registry-117",
@@ -1384,11 +1384,11 @@ export const initialMap: MapState = {
         "phase": 2,
         "name": "RICIS transform",
         "action": "Axiom A6",
-        "expression": "0_F x infinity_G = F * G (Spec: https://doi.org/10.5281/zenodo.21529989)"
+        "expression": "0_F x infinity_G = F * G (Spec: https://doi.org/10.5281/zenodo.21836220)"
       }
     ],
     "finalResult": "Axiom Extracted: registry-117_resolved",
-    "latex": "\\section*{RICIS-III Proof: 3D Navier--Stokes Existence and Smoothness}\n\\textbf{Target Function:} $0{text{vol}} times infty{nabla u} = F cdot G.$\n\\subsection*{RICIS Transform & Axiom A6}\n$ 0_F \\times \\infty_G = F \\cdot G $\n\\textbf{Specification Lean 4 DOI:} \\href{https://doi.org/10.5281/zenodo.21529989}{https://doi.org/10.5281/zenodo.21529989} (Master Registry \\href{https://doi.org/10.5281/zenodo.21517353}{10.5281/zenodo.21517353})\n\\textbf{Final Result:} Axiom Extracted: registry-117_resolved"
+    "latex": "\\section*{RICIS-III Proof: 3D Navier--Stokes Existence and Smoothness}\n\\textbf{Target Function:} $0{text{vol}} times infty{nabla u} = F cdot G.$\n\\subsection*{RICIS Transform & Axiom A6}\n$ 0_F \\times \\infty_G = F \\cdot G $\n\\textbf{Specification Lean 4 DOI:} \\href{https://doi.org/10.5281/zenodo.21529989}{https://doi.org/10.5281/zenodo.21529989} (Master Registry href{https://doi.org/10.5281/zenodo.21836220}{10.5281/zenodo.21836220}) (Master Registry \\href{https://doi.org/10.5281/zenodo.21517353}{10.5281/zenodo.21517353})\n\\textbf{Final Result:} Axiom Extracted: registry-117_resolved"
   },
   "registry-118": {
     "nodeId": "registry-118",
@@ -1404,11 +1404,11 @@ export const initialMap: MapState = {
         "phase": 2,
         "name": "RICIS transform",
         "action": "Axiom A6",
-        "expression": "0_F x infinity_G = F * G (Spec: https://doi.org/10.5281/zenodo.21529989)"
+        "expression": "0_F x infinity_G = F * G (Spec: https://doi.org/10.5281/zenodo.21836220)"
       }
     ],
     "finalResult": "Axiom Extracted: registry-118_resolved",
-    "latex": "\\section*{RICIS-III Proof: LLM Gradient Explosion Elimination}\n\\textbf{Target Function:} $Delta w = 0eta times infty{nabla L} = eta cdot nabla L.$\n\\subsection*{RICIS Transform & Axiom A6}\n$ 0_F \\times \\infty_G = F \\cdot G $\n\\textbf{Specification Lean 4 DOI:} \\href{https://doi.org/10.5281/zenodo.21529989}{https://doi.org/10.5281/zenodo.21529989} (Master Registry \\href{https://doi.org/10.5281/zenodo.21517353}{10.5281/zenodo.21517353})\n\\textbf{Final Result:} Axiom Extracted: registry-118_resolved"
+    "latex": "\\section*{RICIS-III Proof: LLM Gradient Explosion Elimination}\n\\textbf{Target Function:} $Delta w = 0eta times infty{nabla L} = eta cdot nabla L.$\n\\subsection*{RICIS Transform & Axiom A6}\n$ 0_F \\times \\infty_G = F \\cdot G $\n\\textbf{Specification Lean 4 DOI:} \\href{https://doi.org/10.5281/zenodo.21529989}{https://doi.org/10.5281/zenodo.21529989} (Master Registry href{https://doi.org/10.5281/zenodo.21836220}{10.5281/zenodo.21836220}) (Master Registry \\href{https://doi.org/10.5281/zenodo.21517353}{10.5281/zenodo.21517353})\n\\textbf{Final Result:} Axiom Extracted: registry-118_resolved"
   },
   "registry-119": {
     "nodeId": "registry-119",
@@ -1424,11 +1424,11 @@ export const initialMap: MapState = {
         "phase": 2,
         "name": "RICIS transform",
         "action": "Axiom A6",
-        "expression": "0_F x infinity_G = F * G (Spec: https://doi.org/10.5281/zenodo.21529989)"
+        "expression": "0_F x infinity_G = F * G (Spec: https://doi.org/10.5281/zenodo.21836220)"
       }
     ],
     "finalResult": "Axiom Extracted: registry-119_resolved",
-    "latex": "\\section*{RICIS-III Proof: Voynich Manuscript Decipherment}\n\\textbf{Target Function:} $Resolve()$\n\\subsection*{RICIS Transform & Axiom A6}\n$ 0_F \\times \\infty_G = F \\cdot G $\n\\textbf{Specification Lean 4 DOI:} \\href{https://doi.org/10.5281/zenodo.21529989}{https://doi.org/10.5281/zenodo.21529989} (Master Registry \\href{https://doi.org/10.5281/zenodo.21517353}{10.5281/zenodo.21517353})\n\\textbf{Final Result:} Axiom Extracted: registry-119_resolved"
+    "latex": "\\section*{RICIS-III Proof: Voynich Manuscript Decipherment}\n\\textbf{Target Function:} $Resolve()$\n\\subsection*{RICIS Transform & Axiom A6}\n$ 0_F \\times \\infty_G = F \\cdot G $\n\\textbf{Specification Lean 4 DOI:} \\href{https://doi.org/10.5281/zenodo.21529989}{https://doi.org/10.5281/zenodo.21529989} (Master Registry href{https://doi.org/10.5281/zenodo.21836220}{10.5281/zenodo.21836220}) (Master Registry \\href{https://doi.org/10.5281/zenodo.21517353}{10.5281/zenodo.21517353})\n\\textbf{Final Result:} Axiom Extracted: registry-119_resolved"
   },
   "registry-120": {
     "nodeId": "registry-120",
@@ -1444,11 +1444,11 @@ export const initialMap: MapState = {
         "phase": 2,
         "name": "RICIS transform",
         "action": "Axiom A6",
-        "expression": "0_F x infinity_G = F * G (Spec: https://doi.org/10.5281/zenodo.21529989)"
+        "expression": "0_F x infinity_G = F * G (Spec: https://doi.org/10.5281/zenodo.21836220)"
       }
     ],
     "finalResult": "Axiom Extracted: registry-120_resolved",
-    "latex": "\\section*{RICIS-III Proof: Jacobian Conjecture}\n\\textbf{Target Function:} $Resolve()$\n\\subsection*{RICIS Transform & Axiom A6}\n$ 0_F \\times \\infty_G = F \\cdot G $\n\\textbf{Specification Lean 4 DOI:} \\href{https://doi.org/10.5281/zenodo.21529989}{https://doi.org/10.5281/zenodo.21529989} (Master Registry \\href{https://doi.org/10.5281/zenodo.21517353}{10.5281/zenodo.21517353})\n\\textbf{Final Result:} Axiom Extracted: registry-120_resolved"
+    "latex": "\\section*{RICIS-III Proof: Jacobian Conjecture}\n\\textbf{Target Function:} $Resolve()$\n\\subsection*{RICIS Transform & Axiom A6}\n$ 0_F \\times \\infty_G = F \\cdot G $\n\\textbf{Specification Lean 4 DOI:} \\href{https://doi.org/10.5281/zenodo.21529989}{https://doi.org/10.5281/zenodo.21529989} (Master Registry href{https://doi.org/10.5281/zenodo.21836220}{10.5281/zenodo.21836220}) (Master Registry \\href{https://doi.org/10.5281/zenodo.21517353}{10.5281/zenodo.21517353})\n\\textbf{Final Result:} Axiom Extracted: registry-120_resolved"
   }
 }
 };

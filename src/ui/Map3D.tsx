@@ -303,7 +303,14 @@ function supportsWebGL(): boolean {
 
   try {
     const canvas = document.createElement('canvas');
-    return Boolean(canvas.getContext('webgl2') || canvas.getContext('webgl'));
+    const gl = canvas.getContext('webgl2') || canvas.getContext('webgl');
+    if (!gl) return false;
+    const isLost = typeof gl.isContextLost === 'function' ? gl.isContextLost() : false;
+    if (isLost) return false;
+    const shader = gl.createShader(gl.VERTEX_SHADER);
+    if (!shader) return false;
+    gl.deleteShader(shader);
+    return true;
   } catch {
     return false;
   }
@@ -319,8 +326,15 @@ class MapCanvasErrorBoundary extends React.Component<
     return { hasError: true };
   }
 
-  public componentDidCatch(): void {
+  public componentDidCatch(error: Error, errorInfo: React.ErrorInfo): void {
+    console.warn('MapCanvasErrorBoundary caught 3D render failure:', error, errorInfo);
     this.props.onRenderFailure();
+  }
+
+  public componentDidUpdate(prevProps: React.PropsWithChildren<{ readonly onRenderFailure: () => void }>): void {
+    if (this.state.hasError && prevProps !== this.props) {
+      this.setState({ hasError: false });
+    }
   }
 
   public render(): React.ReactNode {
@@ -401,7 +415,7 @@ export const Map3D: React.FC = () => {
   const [isNodeExpanded, setIsNodeExpanded] = useState(false);
   const [taskPanelMode, setTaskPanelMode] = useState<'open' | 'rail'>('open');
   const [leftPanelMode, setLeftPanelMode] = useState<'open' | 'rail'>('open');
-  const [showProof, setShowProof] = useState(false);
+  const [showProof, setShowProof] = useState(() => initialUrlParams.initialMode === 'verify' || initialUrlParams.initialMode === 'proof');
   const [showSettings, setShowSettings] = useState(false);
   const [showAddNode, setShowAddNode] = useState(false);
   const [isCalculatorExplorerOpen, setIsCalculatorExplorerOpen] = useState(false);
@@ -875,22 +889,27 @@ export const Map3D: React.FC = () => {
     initialUrlFocusResolvedRef.current = true;
     if (deepLinkFocusOutcome.kind === 'focused_catalog_node') {
       setSelectedNodeId(deepLinkFocusOutcome.nodeId);
+      if (initialUrlParams.initialMode === 'verify' || initialUrlParams.initialMode === 'proof') {
+        setShowProof(true);
+      }
       return;
     }
     if (deepLinkFocusOutcome.kind === 'unknown_deep_link_target') {
       setSelectedNodeId(null);
     }
-  }, [map.hydrated, deepLinkFocusOutcome]);
+  }, [map.hydrated, deepLinkFocusOutcome, initialUrlParams.initialMode]);
 
-  // Preserve an unknown shared-link target in the address bar for an explicit reader-facing diagnostic.
+  // Preserve an unknown shared-link target and mode parameter in the address bar.
   useEffect(() => {
     if (!map.hydrated) return;
     if (deepLinkFocusOutcome.kind === 'unknown_deep_link_target' && selectedNodeId === null) return;
-    UrlShareService.updateBrowserUrl({ nodeId: selectedNodeId });
-  }, [selectedNodeId, map.hydrated, deepLinkFocusOutcome]);
+    UrlShareService.updateBrowserUrl({
+      nodeId: selectedNodeId,
+      mode: showProof ? 'verify' : (initialUrlParams.initialMode === 'verify' || initialUrlParams.initialMode === 'proof' ? initialUrlParams.initialMode : null),
+    });
+  }, [selectedNodeId, showProof, map.hydrated, deepLinkFocusOutcome, initialUrlParams.initialMode]);
 
   useEffect(() => {
-    setShowProof(false);
     if (selectedNodeId) setTaskPanelMode('open');
   }, [selectedNodeId]);
 
@@ -1257,7 +1276,18 @@ export const Map3D: React.FC = () => {
             setMapPresentationMode('accessible_list');
           }}
         >
-          <Canvas className="touch-none block h-full w-full" camera={{ position: [0, 0, 32], fov: 55, far: 10000, near: 0.1 }} gl={{ antialias: true, alpha: true }}>
+          <Canvas className="touch-none block h-full w-full"
+            camera={{ position: [0, 0, 32], fov: 55, far: 10000, near: 0.1 }}
+            gl={{ antialias: true, alpha: true }}
+            onCreated={({ gl }) => {
+              gl.domElement.addEventListener('webglcontextlost', (event) => {
+                event.preventDefault();
+                console.warn('WebGL context lost, switching to accessible list.');
+                setMapFallbackReason('render_failed');
+                setMapPresentationMode('accessible_list');
+              });
+            }}
+          >
             <UniverseSkybox radius={3200} />
             <OrbitControls controlsRef={controlsRef} flightRef={flightRef} onReady={markCameraControlsReady} />
             <CameraFlightRig flightRef={flightRef} controlsRef={controlsRef} />
@@ -2144,8 +2174,8 @@ export const Map3D: React.FC = () => {
                     type="button"
                     onClick={() => setTaskPanelMode('rail')}
                     className="text-neutral-500 hover:text-cyan-400 transition-colors"
-                    title="Свернуть правую панель"
-                    aria-label="Свернуть правую панель"
+                    title="Свернуть правую панель в узкую полосу"
+                    aria-label="Свернуть правую панель в узкую полосу"
                   >
                     <ChevronRight size={14} />
                   </button>
@@ -2308,7 +2338,7 @@ export const Map3D: React.FC = () => {
                   : 'Execute RICIS Solution'}
               </ActionButton>
 
-              {(map.getLatexProof(selectedNode.id) || selectedNode.state === 'resolved' || selectedNode.state === 'partial') && (
+              {(showProof || map.getLatexProof(selectedNode.id) || selectedNode.state === 'resolved' || selectedNode.state === 'partial') && (
                 <div className="mt-4 border-t border-gray-800 pt-3">
                   <div className="flex items-center justify-between">
                     <button onClick={() => setShowProof(!showProof)} className="flex items-center gap-2 text-cyan-400 text-xs font-bold uppercase hover:text-cyan-200 transition-colors cursor-pointer">
