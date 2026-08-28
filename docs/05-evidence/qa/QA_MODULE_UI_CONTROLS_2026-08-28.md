@@ -74,3 +74,9 @@ Targeted набор из 6 файлов (`useI18nStore`, `i18n`, `nodeCardAccord
 Прямой URL `?node=0218ceed74fcb7268d74d49bdec11753&mode=explore` восстановил карточку `Квантовая ошибка` в родительском пути `Сложность сортировки`. В URL используется canonical hex SHA-128, а в UI отображается короткий base64-ключ `AhjO7XT8tyaNdNSb3sEXUw==`, что соответствует установленному контракту представления ключа.
 
 Карточка имеет тип `Ядро / сингулярность`, статус `UNRESOLVED / LOCKED / RICIS CORE`, и явно сообщает `NO PROOF EVIDENCE ATTACHED`; математический результат и Lean proof не создаются при отсутствии evidence.
+
+## Live flood-fill cycle 25: reversible accordion Economics
+
+Аккордеон `ECONOMICS & PROFITABILITY` проверен в безопасном режиме `expanded → collapsed → expanded`. После сворачивания числовые поля исчезли только из presentation layer; после повторного раскрытия восстановились `$11.0B` market estimate, `$21.0M` solution cost и `$11.0B` net profitability.
+
+URL `?node=0218ceed74fcb7268d74d49bdec11753&mode=explore`, node status `UNRESOLVED / LOCKED / RICIS CORE` и `NO PROOF EVIDENCE ATTACHED` не изменились. Побочных изменений графа или evidence не обнаружено.
