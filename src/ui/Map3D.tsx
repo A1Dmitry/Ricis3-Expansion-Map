@@ -59,7 +59,7 @@ import { NodeCardDetails } from './NodeCardDetails';
 import { CalculatorExplorer } from './CalculatorExplorer';
 import { MonolithGuidedCaseTrail } from './MonolithGuidedCaseTrail';
 import { graphColorManager, EdgeStateCode, NodeResolutionStatusCode } from '../model/colorMatrix';
-import { buildCalculatorExplorerProjection } from '../calculatorExplorer/calculatorExplorer.domain';
+import { buildCalculatorExplorerProjection, getCalculatorExplorerEntryForNodeId } from '../calculatorExplorer/calculatorExplorer.domain';
 import { buildMonolithGuidedCaseTrail } from '../monolithGuidedCaseTrail/monolithGuidedCaseTrail.domain';
 import { EditNodeModal } from './EditNodeModal';
 import { TelegramBotPanel } from './TelegramBotPanel';
@@ -328,8 +328,20 @@ class MapCanvasErrorBoundary extends React.Component<
   }
 }
 
+function projectNodeForLocale(node: ProblemNode, locale: string): ProblemNode {
+  if (locale === 'ru') return node;
+  const entry = getCalculatorExplorerEntryForNodeId({ nodeId: node.id });
+  if (!entry) return node;
+
+  return {
+    ...node,
+    title: entry.monolith.title.en,
+    description: `${entry.monolith.category.en}. Source-bound calculator monolith projection.`,
+  };
+}
+
 export const Map3D: React.FC = () => {
-  const { t } = useI18nStore();
+  const { locale, t } = useI18nStore();
   const toggleTerminal = useTerminalStore(s => s.toggleTerminal);
   const setTerminalInput = useTerminalStore(s => s.setInput);
   const [physicsParams, setPhysicsParams] = React.useState<PhysicsParams>(() => {
@@ -803,6 +815,7 @@ export const Map3D: React.FC = () => {
 
 
   const selectedNode = map.nodes.find(n => n.id === selectedNodeId) || null;
+  const selectedNodePresentation = selectedNode ? projectNodeForLocale(selectedNode, locale) : null;
   const availability = useMemo(() => countAvailable(map), [map.nodes, map.edges, hiddenZones]);
   const pathSet = useMemo(() => new Set(pathNodeIds), [pathNodeIds]);
   const pathEdgeKeys = useMemo(() => {
@@ -1349,8 +1362,8 @@ export const Map3D: React.FC = () => {
   );
 
   const renderMobileShell = () => {
-    const selectedNodeTitle = selectedNode?.title ?? 'Карточка узла';
-    const mobileFocusNode = selectedNode ?? map.nodes.find(node => isNodeAvailable(node, map)) ?? map.nodes[0];
+    const selectedNodeTitle = selectedNodePresentation?.title ?? t('map.nodeCard');
+    const mobileFocusNode = selectedNodePresentation ?? map.nodes.find(node => isNodeAvailable(node, map)) ?? map.nodes[0];
     const shouldRenderMap = mobileView === 'map' || mobileView === 'settings' || isImmersive;
 
     return (
@@ -1484,7 +1497,7 @@ export const Map3D: React.FC = () => {
                   >
                     <Layers size={16} className="shrink-0 text-cyan-300" />
                     <span className="min-w-0 flex-1">
-                      <span className="block text-[9px] font-mono uppercase tracking-wider text-cyan-400">{selectedNode ? 'Выбранная задача' : 'Начните с задачи'}</span>
+                      <span className="block text-[9px] font-mono uppercase tracking-wider text-cyan-400">{selectedNodePresentation ? t('map.selectedProblem') : t('research.openAvailable')}</span>
                       <span className="block truncate text-xs font-bold">{mobileFocusNode.title}</span>
                     </span>
                     <ChevronRight size={17} className="shrink-0 text-cyan-300" />
@@ -1535,7 +1548,7 @@ export const Map3D: React.FC = () => {
                   className="mobile-menu-selected-task min-h-14 w-full rounded-lg border border-cyan-800/80 bg-cyan-950/35 px-3 text-left text-cyan-100 inline-flex items-center gap-3"
                 >
                   <Layers size={17} className="shrink-0 text-cyan-300" />
-                  <span className="min-w-0 flex-1"><span className="block text-[9px] font-mono uppercase tracking-wider text-cyan-400">Выбранная задача</span><span className="block truncate text-xs font-bold">{selectedNode.title}</span></span>
+                  <span className="min-w-0 flex-1"><span className="block text-[9px] font-mono uppercase tracking-wider text-cyan-400">{t('map.selectedProblem')}</span><span className="block truncate text-xs font-bold">{selectedNodePresentation?.title ?? selectedNode.title}</span></span>
                   <ChevronRight size={17} className="shrink-0 text-cyan-300" />
                 </button>
               )}
@@ -1573,9 +1586,9 @@ export const Map3D: React.FC = () => {
           <main className="min-h-0 flex-1 overflow-y-auto bg-[#070707] p-3 touch-pan-y" data-testid="mobile-details-screen">
             <article className="rounded-xl border border-cyan-900/60 bg-black/70 p-3 shadow-xl">
               <div className="mb-3 border-b border-cyan-900/30 pb-3">
-                <p className="text-[9px] font-mono text-cyan-500">Key: {getNodeIdentityPresentation(selectedNode).base64Key}</p><p className="text-[9px] font-mono text-slate-500 truncate">Path: {getNodeIdentityPresentation(selectedNode).canonicalPath}</p><h2 className="mt-1 text-sm font-bold leading-tight text-white">{selectedNode.title}</h2>
+                <p className="text-[9px] font-mono text-cyan-500">Key: {getNodeIdentityPresentation(selectedNode).base64Key}</p><p className="text-[9px] font-mono text-slate-500 truncate">Path: {getNodeIdentityPresentation(selectedNode).canonicalPath}</p><h2 className="mt-1 text-sm font-bold leading-tight text-white">{selectedNodePresentation?.title ?? selectedNode.title}</h2>
               </div>
-              <NodeCardDetails node={selectedNode} map={map} isExpanded={true} onEdit={() => setEditingNode(selectedNode)} onNavigateToNode={handleNavigateToNode} />
+              <NodeCardDetails node={selectedNodePresentation ?? selectedNode} map={map} isExpanded={true} onEdit={() => setEditingNode(selectedNode)} onNavigateToNode={handleNavigateToNode} />
               <ActionButton
                 onClick={() => handleSolve(selectedNode.id)}
                 isLoading={isSolving}
@@ -1627,8 +1640,8 @@ export const Map3D: React.FC = () => {
               window.dispatchEvent(new PopStateEvent('popstate'));
             }}
             className="min-h-10 bg-violet-950/50 hover:bg-violet-900/60 border border-violet-700/60 text-violet-100 font-bold text-xs px-2 sm:px-3.5 py-1.5 rounded-md transition-all cursor-pointer flex items-center gap-1.5 uppercase tracking-wider"
-            aria-label="Открыть Roadmap"
-            title="Выбрать маршрут исследования"
+            aria-label={t('map.roadmap.aria')}
+            title={t('map.roadmap.title')}
           >
             <List size={14} /> <span className="hidden sm:inline">Roadmap</span>
           </button>
@@ -1636,10 +1649,10 @@ export const Map3D: React.FC = () => {
             type="button"
             onClick={() => setShowVoynichModal(true)}
             className="min-h-10 bg-yellow-950/60 hover:bg-yellow-900/70 border border-yellow-600/60 text-yellow-300 font-bold text-xs px-2 sm:px-3.5 py-1.5 rounded-md transition-all cursor-pointer flex items-center gap-1.5 uppercase tracking-wider shadow-[0_0_12px_rgba(234,179,8,0.2)]"
-            aria-label="Войнич EVA ($50Т)"
-            title="Дешифровка Рукописи Войнича EVA Genome (DOI 10.5281/zenodo.18001299)"
+            aria-label={t('map.voynich.label')}
+            title={t('map.voynich.title')}
           >
-            <BookOpen size={14} className="text-yellow-400" /> <span className="hidden sm:inline">Войнич EVA ($50Т)</span>
+            <BookOpen size={14} className="text-yellow-400" /> <span className="hidden sm:inline">{t('map.voynich.label')}</span>
           </button>
           <button
             type="button"
@@ -1653,10 +1666,10 @@ export const Map3D: React.FC = () => {
             }}
             className="min-h-10 min-w-10 bg-cyan-950/60 hover:bg-cyan-900/70 border border-cyan-800/70 text-cyan-100 font-bold text-xs px-2 sm:px-3.5 py-1.5 rounded-md transition-all cursor-pointer flex items-center gap-1.5 uppercase tracking-wider"
             aria-pressed={mapPresentationMode === 'accessible_list'}
-            aria-label="Переключить между 3D-картой и доступным списком"
-            title="Переключить между 3D-картой и доступным списком"
+            aria-label={t('map.presentation.toggle')}
+            title={t('map.presentation.toggle')}
           >
-            <Layers size={14} /> <span className="hidden sm:inline">{mapPresentationMode === 'three_dimensional' ? 'Режим списка' : '3D-карта'}</span>
+            <Layers size={14} /> <span className="hidden sm:inline">{mapPresentationMode === 'three_dimensional' ? t('map.presentation.list') : t('map.presentation.threeDimensional')}</span>
           </button>
           <button
             type="button"
@@ -1825,7 +1838,7 @@ export const Map3D: React.FC = () => {
                     {id === 'available' && (
                       selectedNode ? (
                         <span className="bg-emerald-950/80 border border-emerald-700/80 px-2.5 py-0.5 rounded-full text-emerald-200 inline-flex items-center gap-1.5 max-w-full font-medium">
-                          <span className="truncate">🎯 {selectedNode.title}</span>
+                          <span className="truncate">🎯 {selectedNodePresentation?.title ?? selectedNode.title}</span>
                           <span onClick={(e) => { e.preventDefault(); e.stopPropagation(); setSelectedNodeId(null); }} className="text-slate-400 hover:text-rose-400 font-bold cursor-pointer">✕</span>
                         </span>
                       ) : availableNodes.length > 0 ? (
@@ -1885,11 +1898,13 @@ export const Map3D: React.FC = () => {
                               variant="emerald"
                               className="w-full uppercase font-bold tracking-wider cursor-pointer py-2 text-xs"
                             >
-                              Решенные случаи калькулятора
+                              {t('calculatorExplorer.action')}
                             </ActionButton>
                             <CalculatorExplorer
                               isOpen={isCalculatorExplorerOpen}
                               entries={calculatorExplorer.entries}
+                              locale={locale}
+                              t={t}
                               onClose={() => setIsCalculatorExplorerOpen(false)}
                               onSelectNode={handleNavigateToNode}
                             />
@@ -1900,11 +1915,13 @@ export const Map3D: React.FC = () => {
                                   variant="cyan"
                                   className="w-full uppercase font-bold tracking-wider cursor-pointer py-2 text-xs"
                                 >
-                                  Маршрут изучения мономолитов
+                                  {t('guidedTrail.action')}
                                 </ActionButton>
                                 <MonolithGuidedCaseTrail
                                   isOpen={isMonolithGuidedCaseTrailOpen}
                                   trail={monolithGuidedCaseTrail}
+                                  locale={locale}
+                                  t={t}
                                   onClose={() => setIsMonolithGuidedCaseTrailOpen(false)}
                                   onSelectNode={handleNavigateToNode}
                                 />
@@ -2110,7 +2127,7 @@ export const Map3D: React.FC = () => {
               <div className="flex shrink-0 items-start justify-between gap-3 border-b border-neutral-800/60 bg-neutral-950/80 px-3.5 py-3">
                 <div className="min-w-0 flex-1 text-left"
                 >
-                  <h2 className="truncate text-sm font-bold text-white leading-tight mb-1">{selectedNode.title}</h2>
+                  <h2 className="truncate text-sm font-bold text-white leading-tight mb-1">{selectedNodePresentation?.title ?? selectedNode.title}</h2>
                   <span className="text-[9px] font-mono text-cyan-400 block mb-1">Key: {getNodeIdentityPresentation(selectedNode).base64Key}</span>
                   <span className="text-[9px] font-mono text-neutral-500 block mb-1 truncate">Path: {getNodeIdentityPresentation(selectedNode).canonicalPath}</span>
                   {selectedNode.economic?.marketGain > 0 && (
@@ -2214,7 +2231,7 @@ export const Map3D: React.FC = () => {
                       )}
                     </div>
                     <h2 className="text-lg font-bold text-slate-100 tracking-tight leading-tight mb-3">
-                      {selectedNode.title}
+                      {selectedNodePresentation?.title ?? selectedNode.title}
                     </h2>
                   </div>
                 );
@@ -2244,7 +2261,7 @@ export const Map3D: React.FC = () => {
               )}
             </div>
               <NodeCardDetails 
-                node={selectedNode} 
+                node={selectedNodePresentation ?? selectedNode}
                 map={map}
                 isExpanded={isNodeExpanded} 
                 onEdit={() => setEditingNode(selectedNode)}

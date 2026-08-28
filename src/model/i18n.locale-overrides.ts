@@ -2,6 +2,14 @@ import type { SupportedLocale, TranslationKey } from './i18n.types';
 
 export type LocaleOverride = Partial<Record<SupportedLocale, string>>;
 
+/** Explicit neutral fallback for newly added typed UI keys until locale-specific copy is curated. */
+const coverageEnglishFallback = (value: string): LocaleOverride => ({
+  'fr-CA': value,
+  'de-DE': value,
+  'hi-IN': value,
+  'ms-MY': value,
+});
+
 export const LOCALE_OVERRIDES: Partial<Record<TranslationKey, LocaleOverride>> = {
   'header.title': {
     'fr-CA': 'Carte 3D des singularités',
@@ -1335,4 +1343,31 @@ export const LOCALE_OVERRIDES: Partial<Record<TranslationKey, LocaleOverride>> =
     'hi-IN': 'विवरण: {details}',
     'ms-MY': 'Butiran: {details}',
   },
+  'map.roadmap.aria': coverageEnglishFallback('Open roadmap'),
+  'map.roadmap.title': coverageEnglishFallback('Choose research route'),
+  'map.voynich.label': coverageEnglishFallback('Voynich EVA ($50T)'),
+  'map.voynich.title': coverageEnglishFallback('Voynich Manuscript EVA Genome decipherment (DOI 10.5281/zenodo.18001299)'),
+  'map.presentation.list': coverageEnglishFallback('List mode'),
+  'map.presentation.threeDimensional': coverageEnglishFallback('3D map'),
+  'map.presentation.toggle': coverageEnglishFallback('Switch between 3D map and accessible list'),
+  'map.selectedProblem': coverageEnglishFallback('Selected problem'),
+  'map.nodeCard': coverageEnglishFallback('Node card'),
+  'calculatorExplorer.action': coverageEnglishFallback('Solved Calculator Cases'),
+  'calculatorExplorer.title': coverageEnglishFallback('Solved Calculator Cases'),
+  'calculatorExplorer.subtitle': coverageEnglishFallback('Source-bound catalogue. Selection opens an existing map node and does not run a calculation.'),
+  'calculatorExplorer.close': coverageEnglishFallback('Close calculator catalogue'),
+  'calculatorExplorer.open': coverageEnglishFallback('Open {title}'),
+  'calculatorExplorer.unconfigured': coverageEnglishFallback('Visual calculator is not configured: {reason}'),
+  'calculatorExplorer.rejected': coverageEnglishFallback('Visual calculator is unavailable: {reason}'),
+  'guidedTrail.action': coverageEnglishFallback('Monolith Learning Trail'),
+  'guidedTrail.label': coverageEnglishFallback('Monolith learning trail'),
+  'guidedTrail.title': coverageEnglishFallback('Monolith Learning Trail'),
+  'guidedTrail.subtitle': coverageEnglishFallback('Source-bound route through published cases: read-only navigation across existing nodes.'),
+  'guidedTrail.close': coverageEnglishFallback('Close learning trail'),
+  'guidedTrail.educationalDisclosure': coverageEnglishFallback('This route is source-bound learning navigation: it does not run a calculator, create a Core/Lean result, proof, trust, state or authority decision, or perform an external action.'),
+  'guidedTrail.initialAnchor': coverageEnglishFallback('Learning starting point'),
+  'guidedTrail.semanticIndex': coverageEnglishFallback('Semantic index'),
+  'guidedTrail.structuralResult': coverageEnglishFallback('Structural result'),
+  'guidedTrail.open': coverageEnglishFallback('Open {title}'),
+  'guidedTrail.follow': coverageEnglishFallback('Follow to {title}'),
 };

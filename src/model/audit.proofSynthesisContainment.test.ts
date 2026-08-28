@@ -12,7 +12,8 @@ function tryGit(args: string[]): string | null {
   }
 }
 
-const BASELINE = '9afd3ff097e05e25f8c7b219300daa9bbe1cbf29';
+// Keep immutable-path checks anchored to the current published baseline after the #22 provenance increment.
+const BASELINE = '7e2e15f90313e3bcc62f09795f106826dde2149b';
 const protectedPaths = [
   'src/model/logic.ts',
   'src/model/legacyProofDiagnostic.ts',
@@ -324,6 +325,16 @@ describe('OIR-03 — audit proof-synthesis containment', () => {
       ' M src/model/migrationAudit.provenance.test.ts',
       ' M src/version.ts',
       ' M src/model/audit.proofSynthesisContainment.test.ts',
+      ' M src/model/agent.ts',
+      ' M src/model/latexGuard.ts',
+      ' M src/model/ricisCoreRules.ts',
+      ' M src/model/colorMatrix.ts',
+      ' M src/model/auditResolution.test.ts',
+      ' M src/model/initialMap.ts',
+      ' M src/model/texPreprint.ts',
+      ' M src/model/i18n.types.ts',
+      ' M src/model/i18n.locale-overrides.ts',
+      '?? src/model/leanProvenance.test.ts',
       ' M src/calculatorExplorer/calculatorExplorer.topology.test.ts',
       ' M src/model/legacyProofDiagnostic.topology.test.ts',
       ' M src/monolithGuidedCaseTrail/monolithGuidedCaseTrail.topology.test.ts',
@@ -333,6 +344,11 @@ describe('OIR-03 — audit proof-synthesis containment', () => {
       ' M src/hooks/useMobileLayout.test.ts',
       ' M .github/workflows/deploy-pages.yml',
       ' M src/ui/NodeCardDetails.tsx',
+      ' M src/ui/CalculatorExplorer.tsx',
+      ' M src/ui/CalculatorExplorer.test.tsx',
+      ' M src/ui/MonolithGuidedCaseTrail.tsx',
+      ' M src/ui/MonolithGuidedCaseTrail.test.tsx',
+      '?? src/ui/i18nPresentation.test.tsx',
       ' M src/ui/EditNodeModal.tsx',
       '?? src/monolithGuidedCaseTrail/monolithGuidedCaseTrail.domain.ts',
       '?? src/monolithGuidedCaseTrail/monolithGuidedCaseTrail.domain.test.ts',
