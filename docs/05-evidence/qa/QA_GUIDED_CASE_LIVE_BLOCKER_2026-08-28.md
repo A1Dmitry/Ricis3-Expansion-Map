@@ -19,3 +19,9 @@ URL: https://a1dmitry.github.io/Ricis3-Expansion-Map/?node=calculator-node-mande
 ## Повторная проверка
 
 После попытки удалить только sandbox IndexedDB `ricis3-map-db` операция была заблокирована открытым соединением, а повторная загрузка страницы снова показала тот же `identity_collision`. Следовательно, блокер воспроизводим в текущем live-сеансе и требует deterministic repair в hydration; это не просто отсутствие клика по кнопке.
+
+## Live-проверка после canonical root hydration repair
+
+После merge `4664be6` live-запрос с legacy-путём `?node=calculator-node-mandelbrot` успешно разрешился в canonical SHA-128 node `a3949213aba674d8844812a2eba08a1f`; карта загрузилась без `identity_collision`, Guided Case и карточка узла доступны.
+
+Карточка показывает `PARTIAL / LOCKED`, секцию `Formal Lean 4 Verification` со статусом `Requires Core / Lean evidence`, без ложного доказательства. Нажатие `Verify` не изменило proof/trust status; раскрытие `Formal Proof (Lean 4)` сохранило честный статус. Live blocker предыдущего snapshot не воспроизведён.
