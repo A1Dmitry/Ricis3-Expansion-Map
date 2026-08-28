@@ -86,3 +86,9 @@ URL `?node=0218ceed74fcb7268d74d49bdec11753&mode=explore`, node status `UNRESOLV
 Действие `Challenge` перевело узел `Квантовая ошибка` в Roadmap по URL `?node=0218ceed74fcb7268d74d49bdec11753&mode=challenge&view=roadmap&root=0218ceed74fcb7268d74d49bdec11753`. Контур сохранил canonical root ID в URL и отобразил выбор корня по тому же ID.
 
 После `Показать связанные задачи` режим `Связанные с корнем` показал корректное empty state: `Пока нет задач, структурно связанных с этой корневой целью.` UI не создал ложных карточек и не подменил отсутствие структурного пути текстовым совпадением. Это валидный результат для корня без задач-предшественников, а не дефект навигации.
+
+## Live flood-fill cycle 28: Roadmap Verify navigation
+
+Из режима Challenge/Roadmap кнопка `Открыть проверку` вернула приложение по URL `?node=0218ceed74fcb7268d74d49bdec11753&mode=verify`. Canonical node ID сохранён без преобразования заголовка или поиска по тексту.
+
+Карточка узла восстановилась с теми же `UNRESOLVED / LOCKED / RICIS CORE` и `NO PROOF EVIDENCE ATTACHED`; режим Verify не создал proof, не изменил graph state и не обошёл Core boundary.
