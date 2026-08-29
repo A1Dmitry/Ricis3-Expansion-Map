@@ -1,5 +1,6 @@
 import express from "express";
 import path from "path";
+import fs from "fs";
 import { GoogleGenAI } from "@google/genai";
 import { RICIS_CORE_SYSTEM_PROMPT, auditProofContent, buildCanonicalRicisProofLatex } from "./src/model/ricisCoreRules";
 import { SERVER_GEMINI_MODEL_POOL } from "./src/model/geminiCatalogProjection";
@@ -682,6 +683,21 @@ ${leavesStr}
   // browser cannot mistake HTML for an authoritative token result.
   registerCommunityRewardsUnavailableRoutes(app);
   registerAdminCoreUnavailableRoutes(app);
+
+  // Serve the calculator sandbox static files explicitly to bypass parent SPA wildcard matches
+  const calculatorSandboxPath = process.env.NODE_ENV === "production"
+    ? path.join(process.cwd(), "dist", "calculator-sandbox")
+    : path.join(process.cwd(), "public", "calculator-sandbox");
+
+  app.use("/calculator-sandbox", express.static(calculatorSandboxPath));
+
+  app.get("/calculator-sandbox", (req, res) => {
+    res.sendFile(path.join(calculatorSandboxPath, "index.html"));
+  });
+
+  app.get("/calculator-sandbox/*any", (req, res) => {
+    res.sendFile(path.join(calculatorSandboxPath, "index.html"));
+  });
 
   if (process.env.NODE_ENV !== "production") {
     const { createServer: createViteServer } = await import("vite");
