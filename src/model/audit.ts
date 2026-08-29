@@ -2,6 +2,7 @@ import { MapState, ProblemNode, DependencyEdge, NodeState, Proof } from './types
 import { walkGraph } from './agent';
 import { auditProofContent, containsSorry } from './ricisCoreRules';
 import { postJson } from './apiClient';
+import { graphColorManager, EdgeStateCode, NodeResolutionStatusCode } from './colorMatrix';
 
 /** Check if a node or its associated proof/Lean code contains 'sorry' keyword (unproven stub). */
 export function nodeHasSorry(node: ProblemNode, proof?: Proof): boolean {
@@ -73,13 +74,28 @@ export function recolorEdgesForTargets(map: MapState): DependencyEdge[] {
   return map.edges.map(e => {
     const a = byId.get(e.fromId);
     const b = byId.get(e.toId);
-    if (!a || !b) return { ...e, stateColor: 'red' as const };
+    if (!a || !b) {
+      const proj = graphColorManager.getEdgeProjection(EdgeStateCode.OPEN_SINGULARITY_LINK);
+      return {
+        ...e,
+        stateCode: EdgeStateCode.OPEN_SINGULARITY_LINK,
+        stateColor: 'red',
+        rgbVector: proj.rgb,
+        stateLabel: proj.label
+      };
+    }
     const aWeak = hasWeakProofOrMissingTarget(a, proofs[a.id]);
     const bWeak = hasWeakProofOrMissingTarget(b, proofs[b.id]);
     const aOk = a.state === 'resolved' && !aWeak;
     const bOk = b.state === 'resolved' && !bWeak;
-    if (aOk && bOk) return { ...e, stateColor: 'green' as const };
-    if (
+
+    let stateCode: EdgeStateCode;
+    let stateColor: string;
+
+    if (aOk && bOk) {
+      stateCode = EdgeStateCode.STABLE_PROVEN;
+      stateColor = 'green';
+    } else if (
       a.state === 'resolved' ||
       b.state === 'resolved' ||
       a.state === 'partial' ||
@@ -87,9 +103,25 @@ export function recolorEdgesForTargets(map: MapState): DependencyEdge[] {
       aWeak ||
       bWeak
     ) {
-      return { ...e, stateColor: 'yellow' as const };
+      if ((a.state === 'resolved' && !bOk) || (b.state === 'resolved' && !aOk)) {
+        stateCode = EdgeStateCode.TRANSITION_FRONT;
+      } else {
+        stateCode = EdgeStateCode.HYPOTHESIS_LINK;
+      }
+      stateColor = 'yellow';
+    } else {
+      stateCode = EdgeStateCode.OPEN_SINGULARITY_LINK;
+      stateColor = 'red';
     }
-    return { ...e, stateColor: 'red' as const };
+
+    const proj = graphColorManager.getEdgeProjection(stateCode);
+    return {
+      ...e,
+      stateCode,
+      stateColor,
+      rgbVector: proj.rgb,
+      stateLabel: proj.label
+    };
   });
 }
 

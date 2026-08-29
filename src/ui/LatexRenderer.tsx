@@ -55,18 +55,19 @@ export const LatexRenderer: React.FC<LatexRendererProps> = ({ content, className
 
   const processedContent = preprocessLatexContent(content);
 
-  // Split content by code blocks (```...```) first to keep Lean 4 / LaTeX code readable
-  const blocks = processedContent.split(/(```[\s\S]*?```)/g);
+  // Split content by code blocks (```...```) and display math ($$...$$) first to keep them intact
+  const blocks = processedContent.split(/(```[\s\S]*?```|\$\$[\s\S]*?\$\$|\\\[[\s\S]*?\\\]|\\begin\{[a-zA-Z*]+\}[\s\S]*?\\end\{[a-zA-Z*]+\})/g);
 
   return (
     <div className={`space-y-2 leading-relaxed text-gray-200 ${className}`}>
       {blocks.map((block, idx) => {
+        if (!block) return null;
+
         if (block.startsWith('```')) {
           // Code block rendering (Lean 4 / LaTeX code)
           const match = block.match(/^```(\w*)\n?([\s\S]*?)```$/);
           const lang = match ? match[1] : '';
           const code = match ? match[2] : block.slice(3, -3);
-
           return (
             <div key={idx} className="my-2.5 rounded-lg border border-cyan-900/60 bg-[#05080f] overflow-hidden shadow-inner">
               <div className="flex items-center justify-between px-3 py-1.5 bg-[#0a0f1d] border-b border-cyan-900/40 text-[10px] font-mono text-cyan-400">
@@ -80,7 +81,30 @@ export const LatexRenderer: React.FC<LatexRendererProps> = ({ content, className
           );
         }
 
-        // Render standard text paragraph with LaTeX and inline math
+        // Display math blocks
+        if (block.startsWith('$$') && block.endsWith('$$')) {
+          return (
+            <div key={idx} className="my-2 p-2.5 bg-[#0a0e1a] border border-cyan-900/40 rounded-lg overflow-x-auto text-center shadow-sm">
+              <KatexMath math={block.slice(2, -2).trim()} displayMode={true} />
+            </div>
+          );
+        }
+        if (block.startsWith('\\[') && block.endsWith('\\]')) {
+          return (
+            <div key={idx} className="my-2 p-2.5 bg-[#0a0e1a] border border-cyan-900/40 rounded-lg overflow-x-auto text-center shadow-sm">
+              <KatexMath math={block.slice(2, -2).trim()} displayMode={true} />
+            </div>
+          );
+        }
+        if (block.startsWith('\\begin{') && /\\end\{[a-zA-Z*]+\}$/.test(block)) {
+          return (
+            <div key={idx} className="my-2 p-2.5 bg-[#0a0e1a] border border-cyan-900/40 rounded-lg overflow-x-auto text-center shadow-sm">
+              <KatexMath math={block.trim()} displayMode={true} />
+            </div>
+          );
+        }
+
+        // Render standard text paragraph with inline math
         return (
           <div key={idx} className="whitespace-pre-wrap">
             {renderFormattedText(block)}
@@ -94,19 +118,18 @@ export const LatexRenderer: React.FC<LatexRendererProps> = ({ content, className
 /** Parse line-by-line and convert math expressions to KaTeX rendered HTML */
 function renderFormattedText(text: string): React.ReactNode {
   const lines = text.split('\n');
-
   return lines.map((line, lineIdx) => {
     if (!line.trim()) {
       return <div key={lineIdx} className="h-1.5" />;
     }
 
-    // Check if line is a display math block ($$ ... $$ or \begin{aligned} ... \end{aligned})
-    const displayMathMatch = line.match(/^(\$\$|\\\[)([\s\S]*?)(\$\$|\\\])$/) || line.match(/^(\\begin\{aligned\}[\s\S]*?\\end\{aligned\})$/);
-    if (displayMathMatch) {
-      const latex = displayMathMatch[2] || displayMathMatch[1];
+    // Check for unwrapped bare LaTeX math expressions (often present in RICIS-III dumps)
+    // We ensure it starts with \ to avoid false positives on normal text that happens to have a LaTeX command.
+    const isBareLatex = line.trim().startsWith('\\') && /\\(lim|frac|to|xrightarrow|infty|int|sum|sqrt|cdot|times|text\{|alpha|beta|gamma|Delta)/.test(line) && !line.includes('$') && !line.includes('`') && !line.includes('**');
+    if (isBareLatex) {
       return (
         <div key={lineIdx} className="my-2 p-2.5 bg-[#0a0e1a] border border-cyan-900/40 rounded-lg overflow-x-auto text-center shadow-sm">
-          <KatexMath math={latex} displayMode={true} />
+          <KatexMath math={line.trim()} displayMode={true} />
         </div>
       );
     }

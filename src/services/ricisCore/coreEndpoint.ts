@@ -23,7 +23,13 @@ function configuredCoreApiBase(): unknown {
  * `VITE_RICIS_CORE_API_BASE_URL=https://core.example/api/ricis-core`.
  */
 export function resolveRicisCoreApiEndpoint(configuredBase: unknown = configuredCoreApiBase()): RicisCoreApiEndpoint {
-  if (typeof configuredBase !== 'string' || configuredBase.trim().length === 0) {
+  if (
+    typeof configuredBase !== 'string' ||
+    configuredBase.trim().length === 0 ||
+    configuredBase.trim() === 'about:blank' ||
+    configuredBase.trim() === '""' ||
+    configuredBase.trim() === "''"
+  ) {
     return { baseUrl: SAME_ORIGIN_CORE_API_BASE, source: 'same_origin' };
   }
 

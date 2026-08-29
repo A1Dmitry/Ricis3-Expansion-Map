@@ -22,6 +22,7 @@ import {
 } from '../ricisSolutionCatalog';
 import { SolutionMonolithCard } from './SolutionMonolithCard';
 import { getCalculatorExplorerEntryForNodeId } from '../calculatorExplorer/calculatorExplorer.domain';
+import { LEAN_SPEC_URL } from '../model/ricisCoreRules';
 
 /** Normalize URL: add https:// if scheme is missing (www. or domain-like). */
 function normalizeUrl(raw: string): string {
@@ -129,8 +130,8 @@ export function getReferencesForNode(node: ProblemNode) {
     doiUrl = 'https://doi.org/10.5281/zenodo.21827360';
     doiLabel = '10.5281/zenodo.21827360 (Mersenne Networks & NP)';
   } else if (tLower.includes('lean') || tLower.includes('доказательств') || tLower.includes('верификац')) {
-    doiUrl = 'https://doi.org/10.5281/zenodo.21836220';
-    doiLabel = '10.5281/zenodo.21836220 (Lean 4 Specs)';
+    doiUrl = LEAN_SPEC_URL;
+    doiLabel = '10.5281/zenodo.21529989 (RICIS-III-Lean4-Kernel software record)';
   }
 
   return {
@@ -384,8 +385,8 @@ export const NodeCardDetails: React.FC<Props> = ({
               <p className="text-[9px] font-bold uppercase text-gray-500 tracking-wider mb-1">
                 Целевое аналитическое выражение
               </p>
-              <div className="p-4 break-all whitespace-pre-wrap bg-neutral-900/50 rounded-lg">
-                <LatexRenderer content={`\`${node.targetFunction || '—'}\``} className="text-sm font-mono text-cyan-200" />
+              <div className="p-4 overflow-x-auto bg-neutral-900/50 rounded-lg shadow-inner border border-cyan-900/30">
+                <LatexRenderer content={node.targetFunction ? `$$${node.targetFunction}$$` : '—'} className="text-sm text-cyan-200" />
               </div>
             </div>
 

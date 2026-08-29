@@ -27,6 +27,7 @@ import {
   importMapJson,
 } from '../model/persistence';
 import { runDatabaseMigration, MigrationAuditReport } from '../model/migrationAudit';
+import { normalizeCanonicalPath, sha256Truncated128Hex } from '../model/nodeIdentityMigration';
 import { DependencyGraphAuditor } from '../model/dependencyGraph';
 import { AuditReportMonolith, GarbageCollectionResult, TransformationLog } from '../model/dependencyGraph.types';
 import { getRicisCoreEngine, RicisAcademicProofResult } from '../services/ricisCore';
@@ -78,7 +79,7 @@ interface MapStore extends MapState {
   downloadJson: () => void;
   loadFromJson: (text: string) => Promise<boolean>;
   runAgentDiscovery: (anchorNodeId?: string) => Promise<{ added: number; error?: string }>;
-  addCustomNode: (node: ProblemNode, parentId?: string, newZoneName?: string) => Promise<void>;
+  addCustomNode: (node: ProblemNode, parentId?: string, newZoneName?: string) => Promise<string>;
   catalogRemaining: () => number;
   isCatalogExhausted: () => boolean;
   runAuditMissingTargets: () => Promise<{ missingCount: number; demoted: number; missingIds: string[] }>;
@@ -312,14 +313,21 @@ export const useMapStore = create<MapStore>((set, get) => ({
       }
     }
 
+    let newEdges = [...state.edges];
+    let updatedNodes = [...state.nodes];
+
+    const identityParentId = state.nodeIdAliases?.[parentId ?? ''] ?? parentId ?? updatedNodes.find(n => n.id === 'math-singularity')?.id ?? updatedNodes.find(n => n.id === 'core-agi-target')?.id;
+    const identityParent = updatedNodes.find(n => n.id === identityParentId);
+    const identityParentPath = identityParent?.canonicalPath ?? (identityParent ? normalizeCanonicalPath(`/${identityParent.title}`) : '/custom');
+    const canonicalPath = normalizeCanonicalPath(`${identityParentPath}/${node.title}`);
+    const identityId = await sha256Truncated128Hex(canonicalPath);
+    node = { ...node, id: identityId, canonicalPath };
+
     const updatedZones = newZones.map(z =>
       z.id === zoneId ? { ...z, nodeIds: [...z.nodeIds, node.id] } : z
     );
 
-    let newEdges = [...state.edges];
-    let updatedNodes = [...state.nodes];
-
-    let effectiveParentId = parentId;
+    let effectiveParentId = state.nodeIdAliases?.[parentId ?? ''] ?? parentId;
     if (!effectiveParentId) {
       const defaultParent = updatedNodes.find(n => n.id === 'math-singularity') || updatedNodes.find(n => n.id === 'core-agi-target') || updatedNodes[0];
       if (defaultParent) {
@@ -425,6 +433,7 @@ export const useMapStore = create<MapStore>((set, get) => ({
         }
       })();
     }
+    return node.id;
   },
 
   runAgentDiscovery: async (anchorNodeId?: string) => {

@@ -4,6 +4,7 @@ import { deepCopyInitialMap } from './initialMap';
 
 import { dbSaveMap, dbLoadMap, dbClear } from './db';
 import { runDatabaseMigration } from './migrationAudit';
+import { migrateMapNodeIdentity, migrateMapNodeIdentitySync } from './nodeIdentityMigration';
 import { KNOWN_SINGULARITY_PROBLEMS } from './catalog';
 import {
   CanonicalCatalogReconciliationPlanner,
@@ -21,6 +22,7 @@ export interface PersistedSnapshot {
   axioms: Axiom[];
   proofs: Record<string, Proof>;
   savedAt: string;
+  nodeIdAliases?: Record<string, string>;
 }
 
 export function toSnapshot(state: MapState): PersistedSnapshot {
@@ -32,6 +34,7 @@ export function toSnapshot(state: MapState): PersistedSnapshot {
     axioms: state.axioms,
     proofs: state.proofs,
     savedAt: new Date().toISOString(),
+    nodeIdAliases: state.nodeIdAliases,
   };
 }
 
@@ -101,21 +104,80 @@ export function sanitizeMap(map: MapState): MapState {
   return { ...map, agentLogs: Array.isArray(map.agentLogs) ? map.agentLogs : [], nodes, zones };
 }
 
-function reconcileCanonicalCatalog(map: MapState): MapState {
+function canonicalCatalogIdentitySnapshot(): MapState {
+  const initialIds = new Set(initialMap.nodes.map((node) => node.id));
+  const catalogOnly = KNOWN_SINGULARITY_PROBLEMS.filter((node) => !initialIds.has(node.id));
+  return migrateMapNodeIdentitySync({
+    nodes: [...initialMap.nodes, ...catalogOnly],
+    edges: initialMap.edges,
+    zones: initialMap.zones,
+    axioms: [],
+    proofs: {},
+    agentLogs: [],
+  }).map;
+}
+
+function remapKnownCatalogIdentity(map: MapState, canonicalCatalog: MapState): MapState {
+  const aliases = canonicalCatalog.nodeIdAliases ?? {};
+  const canonicalPaths = new Map(canonicalCatalog.nodes.map((node) => [node.id, node.canonicalPath]));
+  const remap = (id: string): string => aliases[id] ?? id;
+  const unique = (values: readonly string[]): string[] => [...new Set(values.map(remap))];
+  const nodes = map.nodes
+    .map((node) => ({
+      ...node,
+      id: remap(node.id),
+      canonicalPath: node.canonicalPath ?? canonicalPaths.get(remap(node.id)),
+      dependencyIds: unique(node.dependencyIds ?? []),
+      dependentIds: unique(node.dependentIds ?? []),
+    }))
+    .sort((left, right) => Number(/^[0-9a-f]{32}$/u.test(right.id)) - Number(/^[0-9a-f]{32}$/u.test(left.id)));
+  const edges = map.edges.map((edge) => {
+    const fromId = remap(edge.fromId);
+    const toId = remap(edge.toId);
+    return { ...edge, id: `edge-${fromId}-${toId}`, fromId, toId };
+  });
+  const zones = map.zones.map((zone) => ({ ...zone, nodeIds: unique(zone.nodeIds ?? []) }));
+  const axioms = map.axioms.map((axiom) => ({
+    ...axiom,
+    sourceNodeId: remap(axiom.sourceNodeId),
+    usedByNodeIds: unique(axiom.usedByNodeIds ?? []),
+  }));
+  const proofs = Object.fromEntries(Object.entries(map.proofs ?? {}).map(([id, proof]) => {
+    const nodeId = remap(proof.nodeId || id);
+    return [nodeId, { ...proof, nodeId }];
+  }));
+  const agentLogs = map.agentLogs.map((entry) => entry.nodeId ? { ...entry, nodeId: remap(entry.nodeId) } : { ...entry });
+  const dedupedNodes = [...new Map(nodes.map((node) => [node.id, node])).values()];
+  const dedupedEdges = [...new Map(edges.map((edge) => [edge.id, edge])).values()];
+  return migrateMapNodeIdentitySync({
+    ...map,
+    nodes: dedupedNodes,
+    edges: dedupedEdges,
+    zones,
+    axioms,
+    proofs,
+    agentLogs,
+    nodeIdAliases: { ...(map.nodeIdAliases ?? {}), ...aliases },
+  }).map;
+}
+
+export function reconcileCanonicalCatalog(map: MapState): MapState {
+  const canonicalCatalog = canonicalCatalogIdentitySnapshot();
+  const normalizedMap = remapKnownCatalogIdentity(map, canonicalCatalog);
   const planner = new CanonicalCatalogReconciliationPlanner();
   const reconciliation = planner.plan({
-    persistedNodes: map.nodes,
-    persistedZones: map.zones,
+    persistedNodes: normalizedMap.nodes,
+    persistedZones: normalizedMap.zones,
     canonical: {
-      nodes: KNOWN_SINGULARITY_PROBLEMS,
+      nodes: canonicalCatalog.nodes,
       zones: initialMap.zones,
     },
   });
 
-  if (reconciliation.kind !== 'reconciliation_planned') return map;
+  if (reconciliation.kind !== 'reconciliation_planned') return normalizedMap;
 
-  const applied = new CatalogReconciliationApplication().apply({ map, plan: reconciliation });
-  return applied.kind === 'applied' ? applied.map : map;
+  const applied = new CatalogReconciliationApplication().apply({ map: normalizedMap, plan: reconciliation });
+  return applied.kind === 'applied' ? applied.map : normalizedMap;
 }
 
 export function fromSnapshot(s: PersistedSnapshot): MapState | null {
@@ -128,6 +190,7 @@ export function fromSnapshot(s: PersistedSnapshot): MapState | null {
     axioms: Array.isArray(s.axioms) ? s.axioms : [],
     proofs: s.proofs && typeof s.proofs === 'object' ? s.proofs : {},
     agentLogs: [],
+    nodeIdAliases: s.nodeIdAliases && typeof s.nodeIdAliases === 'object' ? s.nodeIdAliases : {},
   });
 }
 
@@ -142,72 +205,121 @@ function loadLegacyLocalStorage(): MapState | null {
   }
 }
 
-/** Загрузка: IndexedDB → миграция из localStorage → seed initialMap. */
+/**
+ * Merge a persisted graph with the published seed without mixing legacy IDs into
+ * an already migrated graph. Partially migrated records are repaired first: all
+ * known seed IDs and every reference to them are moved into the canonical SHA-128
+ * space before migration or graph validation is allowed to run.
+ */
+export function mergeCanonicalSeedGraph(loadedState: MapState): MapState {
+  const canonicalSeed = migrateMapNodeIdentitySync(sanitizeMap({ ...deepCopyInitialMap() })).map;
+  const canonicalCatalog = canonicalCatalogIdentitySnapshot();
+  const seedAliases = { ...(canonicalSeed.nodeIdAliases ?? {}), ...(canonicalCatalog.nodeIdAliases ?? {}) };
+  const seedPaths = new Map([
+    ...canonicalSeed.nodes.map((node) => [node.id, node.canonicalPath] as const),
+    ...canonicalCatalog.nodes.map((node) => [node.id, node.canonicalPath] as const),
+  ]);
+  const remap = (id: string): string => seedAliases[id] ?? id;
+  const unique = (values: readonly string[]): string[] => [...new Set(values.map(remap))];
+
+  const normalizedInput = sanitizeMap(loadedState);
+  const normalizedNodes = normalizedInput.nodes
+    .map((node) => ({
+      ...node,
+      id: remap(node.id),
+      canonicalPath: node.canonicalPath ?? seedPaths.get(remap(node.id)),
+      dependencyIds: unique(node.dependencyIds ?? []),
+      dependentIds: unique(node.dependentIds ?? []),
+    }))
+    .sort((left, right) => Number(/^[0-9a-f]{32}$/u.test(right.id)) - Number(/^[0-9a-f]{32}$/u.test(left.id)));
+  const nodes = [...new Map(normalizedNodes.map((node) => [node.id, node])).values()];
+  const nodeIds = new Set(nodes.map((node) => node.id));
+  const normalizedEdges = normalizedInput.edges.map((edge) => {
+    const fromId = remap(edge.fromId);
+    const toId = remap(edge.toId);
+    return { ...edge, id: `edge-${fromId}-${toId}`, fromId, toId };
+  });
+  const edges = [...new Map(normalizedEdges.map((edge) => [edge.id, edge])).values()];
+  const zones = normalizedInput.zones.map((zone) => ({ ...zone, nodeIds: unique(zone.nodeIds ?? []) }));
+  const axioms = normalizedInput.axioms.map((axiom) => ({
+    ...axiom,
+    sourceNodeId: remap(axiom.sourceNodeId),
+    usedByNodeIds: unique(axiom.usedByNodeIds ?? []),
+  }));
+  const proofs = Object.fromEntries(Object.entries(normalizedInput.proofs ?? {}).map(([id, proof]) => {
+    const nodeId = remap(proof.nodeId || id);
+    return [nodeId, { ...proof, nodeId }];
+  }));
+  const agentLogs = normalizedInput.agentLogs.map((entry) => entry.nodeId ? { ...entry, nodeId: remap(entry.nodeId) } : { ...entry });
+  const canonicalized = migrateMapNodeIdentitySync({
+    ...normalizedInput,
+    nodes,
+    edges,
+    zones,
+    axioms,
+    proofs,
+    agentLogs,
+    nodeIdAliases: { ...(normalizedInput.nodeIdAliases ?? {}), ...seedAliases },
+  }).map;
+
+  const existingZoneIds = new Set(canonicalized.zones.map((zone) => zone.id));
+  const existingNodeIds = new Set(canonicalized.nodes.map((node) => node.id));
+  const existingEdgeIds = new Set(canonicalized.edges.map((edge) => edge.id));
+  const mergedNodes = [
+    ...canonicalized.nodes,
+    ...canonicalSeed.nodes
+      .filter((node) => !existingNodeIds.has(node.id))
+      .map((node) => ({ ...node, zoneIds: [...node.zoneIds], dependencyIds: [...node.dependencyIds], dependentIds: [...node.dependentIds] })),
+  ];
+  const mergedNodeIds = new Set(mergedNodes.map((node) => node.id));
+  const mergedEdges = [
+    ...canonicalized.edges,
+    ...canonicalSeed.edges
+      .filter((edge) => !existingEdgeIds.has(edge.id) && mergedNodeIds.has(edge.fromId) && mergedNodeIds.has(edge.toId))
+      .map((edge) => ({ ...edge })),
+  ];
+  const mergedZones = [
+    ...canonicalized.zones,
+    ...canonicalSeed.zones
+      .filter((zone) => !existingZoneIds.has(zone.id))
+      .map((zone) => ({ ...zone, nodeIds: [...zone.nodeIds], economicProfile: { ...zone.economicProfile } })),
+  ];
+
+  return sanitizeMap({ ...canonicalized, nodes: mergedNodes, edges: mergedEdges, zones: mergedZones });
+}
+
+/** Загрузка: IndexedDB → миграция из localStorage → canonical SHA-128 seed. */
 export async function hydrateInitialState(): Promise<MapState> {
-  
   let fromDb = await dbLoadMap();
   if (fromDb) fromDb = sanitizeMap(fromDb);
-  let loadedState = null;
-  
+  let loadedState: MapState | null = null;
+
   if (fromDb && fromDb.nodes.length > 0) {
     loadedState = fromDb;
   } else {
     const legacy = loadLegacyLocalStorage();
     if (legacy && legacy.nodes.length > 0) {
-      await dbSaveMap(legacy);
+      loadedState = legacy;
       try {
         localStorage.removeItem(LEGACY_KEY);
       } catch {
         /* ignore */
       }
-      loadedState = legacy;
     }
   }
 
-  let stateToMigrate: MapState;
+  const stateToMigrate = loadedState
+    ? mergeCanonicalSeedGraph(loadedState)
+    : sanitizeMap({ ...deepCopyInitialMap() });
 
-  if (loadedState) {
-    // Merge any zones from initialMap that are missing in the loaded state
-    const existingZoneIds = new Set(loadedState.zones.map(z => z.id));
-    const missingZones = initialMap.zones.filter(z => !existingZoneIds.has(z.id));
-    if (missingZones.length > 0) {
-      loadedState.zones = [...loadedState.zones, ...missingZones.map(z => ({
-        ...z,
-        nodeIds: [...z.nodeIds],
-        economicProfile: { ...z.economicProfile }
-      }))];
-    }
-
-    // Merge any nodes from initialMap that are missing in the loaded state
-    const existingNodeIds = new Set(loadedState.nodes.map(n => n.id));
-    const missingNodes = initialMap.nodes.filter(n => !existingNodeIds.has(n.id));
-    if (missingNodes.length > 0) {
-      loadedState.nodes = [...loadedState.nodes, ...missingNodes.map(n => ({
-        ...n,
-        zoneIds: [...(n.zoneIds || ['math'])],
-        dependencyIds: [...(n.dependencyIds || [])],
-        dependentIds: [...(n.dependentIds || [])],
-      }))];
-    }
-
-    // Merge any edges from initialMap that are missing in the loaded state
-    const existingEdgeIds = new Set(loadedState.edges.map(e => e.id));
-    const missingEdges = initialMap.edges.filter(e => !existingEdgeIds.has(e.id));
-    if (missingEdges.length > 0) {
-      loadedState.edges = [...loadedState.edges, ...missingEdges.map(e => ({ ...e }))];
-    }
-
-    stateToMigrate = loadedState;
-  } else {
-    stateToMigrate = sanitizeMap({
-      ...deepCopyInitialMap(),
-    });
-  }
-
+  // Reconcile catalog identities before the audit; the audit must never see a persisted
+  // legacy catalog duplicate that can be deterministically collapsed first.
+  const preReconciled = reconcileCanonicalCatalog(stateToMigrate);
   // Execute one-time DB migration & audit (fixes titles, repairs orphan node connections to RICIS, rebuilds edges & updates DB version)
-  const migrationResult = await runDatabaseMigration(stateToMigrate);
-  const reconciled = reconcileCanonicalCatalog(migrationResult.map);
-  if (reconciled !== migrationResult.map) await dbSaveMap(reconciled);
+  const migrationResult = await runDatabaseMigration(preReconciled);
+  const identityMigration = await migrateMapNodeIdentity(migrationResult.map);
+  const reconciled = reconcileCanonicalCatalog(identityMigration.map);
+  if (reconciled !== identityMigration.map || identityMigration.report.migratedNodes > 0) await dbSaveMap(reconciled);
   return reconciled;
 }
 
@@ -234,8 +346,9 @@ export async function importMapJson(text: string): Promise<MapState | null> {
     const parsed = JSON.parse(text) as PersistedSnapshot;
     const state = fromSnapshot(parsed);
     if (!state) return null;
-    await dbSaveMap(state);
-    return state;
+    const identityMigration = await migrateMapNodeIdentity(state);
+    await dbSaveMap(identityMigration.map);
+    return identityMigration.map;
   } catch {
     return null;
   }

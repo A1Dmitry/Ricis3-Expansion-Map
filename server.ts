@@ -1,6 +1,5 @@
 import express from "express";
 import path from "path";
-import { createServer as createViteServer } from "vite";
 import { GoogleGenAI } from "@google/genai";
 import { RICIS_CORE_SYSTEM_PROMPT, auditProofContent, buildCanonicalRicisProofLatex } from "./src/model/ricisCoreRules";
 import { SERVER_GEMINI_MODEL_POOL } from "./src/model/geminiCatalogProjection";
@@ -24,9 +23,14 @@ async function callAIWithFallback(
   responseMimeType = "text/plain",
   preferredModel?: string
 ) {
-  const apiKey = process.env.GEMINI_API_KEY;
-  if (!apiKey) {
-    throw new Error("GEMINI_API_KEY is not configured on the server.");
+  const apiKey = process.env.GEMINI_API_KEY?.trim();
+  if (
+    !apiKey ||
+    apiKey === "MY_GEMINI_API_KEY" ||
+    apiKey === "about:blank" ||
+    apiKey.includes("about:blank")
+  ) {
+    throw new Error("GEMINI_API_KEY не настроен или содержит некорректное значение (about:blank). Проверьте настройки Secrets в AI Studio.");
   }
 
   let pool = [...MODELS_POOL];
@@ -606,6 +610,7 @@ ${axiomList}
   registerAdminCoreUnavailableRoutes(app);
 
   if (process.env.NODE_ENV !== "production") {
+    const { createServer: createViteServer } = await import("vite");
     const vite = await createViteServer({
       server: { 
         middlewareMode: true,
@@ -617,7 +622,7 @@ ${axiomList}
   } else {
     const distPath = path.join(process.cwd(), "dist");
     app.use(express.static(distPath));
-    app.get("*", (req, res) => {
+    app.get("*all", (req, res) => {
       res.sendFile(path.join(distPath, "index.html"));
     });
   }
