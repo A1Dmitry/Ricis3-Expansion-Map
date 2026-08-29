@@ -875,6 +875,12 @@ export const LOCALE_OVERRIDES: Partial<Record<TranslationKey, LocaleOverride>> =
     'hi-IN': 'ग्राफ़ साफ़ करें (GC)',
     'ms-MY': 'Bersihkan Graf (GC)',
   },
+  'audit.repairGraph': {
+    'fr-CA': 'Réparer le graphe & Découvrir',
+    'de-DE': 'Graph reparieren & Entdecken',
+    'hi-IN': 'ग्राफ़ की मरम्मत करें और खोजें',
+    'ms-MY': 'Baiki Graf & Temui',
+  },
   'audit.emptyTargets': {
     'fr-CA': 'Cibles vides',
     'de-DE': 'Leere Ziele',
@@ -886,6 +892,12 @@ export const LOCALE_OVERRIDES: Partial<Record<TranslationKey, LocaleOverride>> =
     'de-DE': 'Mit AI füllen',
     'hi-IN': 'AI द्वारा भरें',
     'ms-MY': 'Isi melalui AI',
+  },
+  'audit.searchDerivatives': {
+    'fr-CA': 'Rechercher plagiat/dérivés',
+    'de-DE': 'Plagiate/Derivate suchen',
+    'hi-IN': 'साहित्यिक चोरी/व्युत्पन्न खोजें',
+    'ms-MY': 'Cari Plagiat/Derivatif',
   },
   'audit.executing': {
     'fr-CA': 'Exécution de l\'opération canonique...',
