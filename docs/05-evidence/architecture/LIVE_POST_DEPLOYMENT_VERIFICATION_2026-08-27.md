@@ -90,3 +90,13 @@ The correct `Persistence & Export` selector was identified as `data-manus_click_
 ## Persistence panel visibility follow-up
 
 The correct `Persistence & Export` selector was enabled, but after closing Settings the current live viewport still showed no dedicated persistence action panel or JSON import modal. No import action was executed and no user state changed.
+
+## Persistence & Export post-deployment verification — v0.4.68
+
+After PR #5 merge commit `7869b555b92eefd05a4592868cbf4b60f752cd68`, Pages workflow `33103117209` completed successfully. A fresh read-only navigation to the live URL served `v0.4.68`, rendered the selected `real-catalog-98` node, and exposed the `SAVE & EXPORT` accordion content. The live extracted UI showed `Сохранить в IndexedDB`, `Импорт решений (JSON)`, `Скачать .json`, and `Сброс карты` within that action panel. No import button was clicked, no file was uploaded, and no user map state was mutated.
+
+## Controlled live import — confirmed success
+
+With explicit user confirmation, the verified patch `import-patches/ricis-real-catalog-98-root-link.json` was loaded through the live `Импорт решений (JSON)` dialog. The UI reported `Синтаксис валиден (patch_merge)` and showed the expected add-only metadata: one edge patch, zero node patches, zero proof/evidence payloads. The user-confirmed `Применить к карте` action completed successfully and reported `Пакет успешно применен и синхронизирован с картой`, `Создано новых узлов: 0`, and `Прикреплено доказательств: 0`.
+
+Post-import live state remained `v0.4.68` with 278 nodes and the selected `real-catalog-98` identity. The node remained `UNRESOLVED` and `No proof evidence attached`; its presentation reflected the linked `Целевая функция AGI (RICIS Core)` context and `LOCKED` status, consistent with the new prerequisite edge. No reset, save, download, provider call, or unrelated mutation was performed.
