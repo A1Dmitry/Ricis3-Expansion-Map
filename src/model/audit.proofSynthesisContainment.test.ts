@@ -456,7 +456,6 @@ describe('OIR-03 — audit proof-synthesis containment', () => {
       '?? docs/03-quality/SPRINT_AGENT_GATEWAY_RUNTIME_ACTIVATION_STEP3_QA_SPEC.md',
       '?? src/agentGateway/agentGatewayRuntime.test.ts',
       '?? src/agentGateway/agentGatewayRuntime.ts',
-=======
       '?? src/passportReceiptLedger/passportReceiptLedger.domain.test.ts',
       '?? src/passportReceiptLedger/passportReceiptLedger.application.test.ts',
       '?? src/passportReceiptLedger/passportReceiptLedger.retention.test.ts',
