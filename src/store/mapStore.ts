@@ -26,7 +26,7 @@ import {
   exportMapJson,
   importMapJson,
 } from '../model/persistence';
-import { runDatabaseMigration, MigrationAuditReport } from '../model/migrationAudit';
+import { runDatabaseMigration, MigrationAuditReport, auditAndFixMapGraph } from '../model/migrationAudit';
 import { normalizeCanonicalPath, sha256Truncated128Hex } from '../model/nodeIdentityMigration';
 import { DependencyGraphAuditor } from '../model/dependencyGraph';
 import { AuditReportMonolith, GarbageCollectionResult, TransformationLog } from '../model/dependencyGraph.types';
@@ -103,6 +103,12 @@ interface MapStore extends MapState {
   transformationHistory: TransformationLog<string>[];
   runSystemAudit: () => Promise<AuditReportMonolith>;
   executeGarbageCollection: () => Promise<GarbageCollectionResult>;
+  runGraphRepair: () => Promise<{ 
+    repairedCount: number; 
+    discoveredCount: number; 
+    newZonesAdded: string[]; 
+    details: string[] 
+  }>;
   clearAuditReport: () => void;
   recalculateAcademicProof: (nodeId: string, premises?: string[], expectedGoal?: string) => Promise<RicisAcademicProofResult | null>;
 }
@@ -691,6 +697,221 @@ export const useMapStore = create<MapStore>((set, get) => ({
       const report = auditor.audit(get());
       set({ lastAuditReport: report });
       return report;
+    } finally {
+      set({ isAuditing: false });
+    }
+  },
+
+  runGraphRepair: async () => {
+    set({ isAuditing: true });
+    try {
+      const state = get();
+      const details: string[] = [];
+      let repairedCount = 0;
+      let discoveredCount = 0;
+      const newZonesAdded: string[] = [];
+
+      // 1. Run migration/repair audit
+      const { map: auditedMap, report } = auditAndFixMapGraph(state);
+      repairedCount = (report.titlesFixed || 0) + (report.targetFunctionsRepaired || 0) + (report.connectionsFixed || 0);
+      details.push(...(report.details || []));
+
+      // 2. Identify leaves of the graph
+      const activeNodeIds = new Set(auditedMap.nodes.map(n => n.id));
+      const hasOutgoing = new Set<string>();
+      
+      // Calculate outgoing edges based on edges
+      auditedMap.edges.forEach(e => {
+        if (activeNodeIds.has(e.fromId) && activeNodeIds.has(e.toId)) {
+          hasOutgoing.add(e.fromId);
+        }
+      });
+      
+      // Also calculate outgoing based on dependentIds/dependencyIds
+      auditedMap.nodes.forEach(n => {
+        if (n.dependentIds && n.dependentIds.length > 0) {
+          n.dependentIds.forEach(id => {
+            if (activeNodeIds.has(id)) {
+              hasOutgoing.add(n.id);
+            }
+          });
+        }
+        if (n.dependencyIds && n.dependencyIds.length > 0) {
+          n.dependencyIds.forEach(id => {
+            if (activeNodeIds.has(id)) {
+              hasOutgoing.add(id);
+            }
+          });
+        }
+      });
+
+      // Find actual leaves (excluding derivative claims, completed goals or core-agi-target)
+      const leaves = auditedMap.nodes.filter(n => 
+        n.type !== 'derivative_claim' && 
+        n.id !== 'core-agi-target' && 
+        !hasOutgoing.has(n.id)
+      );
+
+      details.push(`Найдено листьев графа для расширения зависимостей: ${leaves.length}`);
+
+      let finalMap = { ...auditedMap };
+
+      if (leaves.length > 0) {
+        // 3. Call AI search to expand leaves
+        const existingZones = finalMap.zones.map(z => z.id);
+        const existingTitles = finalMap.nodes.map(n => n.title);
+
+        try {
+          const res = await postJson<any>('/api/expandLeaves', {
+            leaves: leaves.map(l => ({ id: l.id, title: l.title, description: l.description, targetFunction: l.targetFunction })),
+            existingZones,
+            existingTitles
+          });
+
+          if (!res.ok) {
+            throw new Error(res.error);
+          }
+
+          const data = res.data;
+          if (data && Array.isArray(data.tasks) && data.tasks.length > 0) {
+            const addedNodes: ProblemNode[] = [];
+            const addedEdges: DependencyEdge[] = [];
+            const addedZones: ScienceZone[] = [];
+
+            for (const t of data.tasks) {
+              // Create a unique deterministic ID
+              const titleNormalized = t.title.toLowerCase().replace(/[^a-zа-я0-9]/g, '');
+              const newId = await sha256Truncated128Hex(`leaf-expansion-${t.parentId}-${titleNormalized}`);
+
+              // Check if already exists to avoid duplicate insertions
+              if (finalMap.nodes.some(n => n.id === newId || n.title.toLowerCase() === t.title.toLowerCase())) {
+                continue;
+              }
+
+              // Create scientific zone if it doesn't exist
+              const zoneId = t.zoneId || 'math';
+              if (!finalMap.zones.some(z => z.id === zoneId) && !addedZones.some(z => z.id === zoneId)) {
+                const newZone: ScienceZone = {
+                  id: zoneId,
+                  name: t.zoneName || zoneId,
+                  description: t.zoneDescription || '',
+                  nodeIds: [newId],
+                  economicProfile: {
+                    costUnresolved: 1200000,
+                    costToSolve: 450000,
+                    marketGain: 3500000,
+                    riskLoss: 1500000
+                  }
+                };
+                addedZones.push(newZone);
+                newZonesAdded.push(t.zoneName || zoneId);
+              }
+
+              // Create ProblemNode
+              const newNode: ProblemNode = {
+                id: newId,
+                title: t.title,
+                description: t.description,
+                state: 'unresolved',
+                type: 'scientific_task',
+                targetFunction: t.targetFunction || '',
+                zoneIds: [zoneId],
+                dependencyIds: [t.parentId],
+                dependentIds: [],
+                fractalDepth: 1,
+                economic: {
+                  costUnresolved: 800000,
+                  costToSolve: 300000,
+                  marketGain: 2500000,
+                  riskLoss: 1000000
+                },
+                singularityHint: t.singularityHint || ''
+              };
+              addedNodes.push(newNode);
+
+              // Create DependencyEdge (from parent/leaf to new task)
+              const edgeId = await sha256Truncated128Hex(`edge-leaf-expansion-${t.parentId}-${newId}`);
+              const newEdge: DependencyEdge = {
+                id: edgeId,
+                fromId: t.parentId,
+                toId: newId,
+                strength: 0.85,
+                stateColor: 'blue',
+                economicInfluence: 0.9,
+                stateCode: 'L1_IDENTITY',
+                stateLabel: 'Фундаментальная зависимость решения'
+              };
+              addedEdges.push(newEdge);
+              discoveredCount++;
+            }
+
+            // Merge into finalMap
+            if (addedNodes.length > 0) {
+              const nodesWithUpdatedLeaves = finalMap.nodes.map(n => {
+                const childTasks = addedNodes.filter(an => an.dependencyIds.includes(n.id));
+                if (childTasks.length > 0) {
+                  return {
+                    ...n,
+                    dependentIds: Array.from(new Set([...(n.dependentIds || []), ...childTasks.map(ct => ct.id)]))
+                  };
+                }
+                return n;
+              });
+
+              finalMap = {
+                ...finalMap,
+                nodes: [...nodesWithUpdatedLeaves, ...addedNodes],
+                edges: [...finalMap.edges, ...addedEdges],
+                zones: [
+                  ...finalMap.zones.map(sz => {
+                    const nodesInThisZone = addedNodes.filter(an => an.zoneIds.includes(sz.id)).map(an => an.id);
+                    if (nodesInThisZone.length > 0) {
+                      return {
+                        ...sz,
+                        nodeIds: Array.from(new Set([...(sz.nodeIds || []), ...nodesInThisZone]))
+                      };
+                    }
+                    return sz;
+                  }),
+                  ...addedZones
+                ]
+              };
+
+              details.push(`Успешно добавлено ${addedNodes.length} новых зависимых задач в граф.`);
+              if (addedZones.length > 0) {
+                details.push(`Создано новых научных зон: ${addedZones.length} (${addedZones.map(z => z.name).join(', ')})`);
+              }
+            }
+          }
+        } catch (e: any) {
+          console.error('[expandLeaves AI error]:', e);
+          details.push(`Ошибка при автоматическом поиске зависимых задач по ИИ: ${e.message || e}`);
+        }
+      }
+
+      // 4. Save and set new state
+      const logMsg = `Выполнен ремонт и редукция графа: Исправлено ошибок/связей: ${repairedCount}. Открыто новых прикладных задач: ${discoveredCount}.`;
+      
+      const nextState = {
+        ...state,
+        nodes: finalMap.nodes,
+        edges: finalMap.edges,
+        zones: finalMap.zones,
+        agentLogs: [
+          ...state.agentLogs,
+          createLogEntry(logMsg, 'ricis', details.join('; ')),
+        ]
+      };
+
+      set(nextState);
+      await saveMapToDb(nextState);
+
+      return {
+        repairedCount,
+        discoveredCount,
+        newZonesAdded,
+        details
+      };
     } finally {
       set({ isAuditing: false });
     }

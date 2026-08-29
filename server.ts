@@ -21,7 +21,8 @@ const delay = (ms: number) => new Promise((res) => setTimeout(res, ms));
 async function callAIWithFallback(
   prompt: string,
   responseMimeType = "text/plain",
-  preferredModel?: string
+  preferredModel?: string,
+  enableSearch = false
 ) {
   const apiKey = process.env.GEMINI_API_KEY?.trim();
   if (
@@ -52,7 +53,10 @@ async function callAIWithFallback(
         const response = await ai.models.generateContent({
           model,
           contents: prompt,
-          config: { responseMimeType },
+          config: { 
+            responseMimeType,
+            tools: enableSearch ? [{ googleSearch: {} }] : undefined,
+          },
         });
 
         console.log(`[AI] Success with model ${model}`);
@@ -301,7 +305,7 @@ ${axiomList}
 Верни СТРОГИЙ JSON массив объектов: title (строка), description (строка), targetFunction (строка), zoneId (строка - ID научной области на английском. Используй одну из существующих зон, ИЛИ если проблема совсем в них не попадает, придумай НОВЫЙ ID, например finance, ecology), significance (число 0-1), singularityHint (строка).
 Предпочитай проблемы, расширяющие ядро сингулярностей или применяющие RICIS к новым дисциплинам. Максимум 8 элементов. Выведи ТОЛЬКО JSON массив.`;
 
-      const response = await callAIWithFallback(prompt, "application/json", preferredModel);
+      const response = await callAIWithFallback(prompt, "application/json", preferredModel, true);
 
       let text = response.text || "[]";
       const match = text.match(/\[[\s\S]*\]/);
@@ -409,6 +413,76 @@ ${axiomList}
     }
   });
 
+  app.post("/api/expandLeaves", async (req, res) => {
+    const { leaves, existingZones, existingTitles, preferredModel } = req.body || {};
+
+    try {
+      const validation = validatePayload(req.body, {
+        leaves: "array",
+        existingZones: "array?",
+        existingTitles: "array?",
+        preferredModel: "string?"
+      });
+      if (!validation.isValid) {
+        return res.status(400).json({ error: validation.error });
+      }
+
+      if (!leaves || leaves.length === 0) {
+        return res.json({ tasks: [] });
+      }
+
+      // We can summarize the leaves or process the first few to keep prompt size reasonable
+      const leavesStr = leaves.slice(0, 10).map((l: any) => 
+        `- [ID: ${l.id}] Название: "${l.title}"\n  Описание: "${l.description}"\n  Целевая функция: "${l.targetFunction}"`
+      ).join("\n\n");
+
+      const prompt = `Ты научный координатор и агент-исследователь RICIS-III.
+Проведи ПОИСК В СЕТИ научных и практических задач, решение которых НАПРЯМУЮ зависит от успешного решения следующих фундаментальных сингулярных задач (листьев графа):
+
+${leavesStr}
+
+Для каждого из этих листьев найди ВНЕШНИЕ реальные прикладные или теоретические научные/инженерные задачи, которые:
+1. Зависят от решения этой базовой задачи.
+2. Содержат в собственной формулировке или методе решения сингулярные проблемы (деление на ноль, бесконечные расходимости, неопределенности [0/0] или [inf/inf]), которые не разрешаются классической теорией пределов Коши без аппроксимаций, но точно вычисляются по аксиомам RICIS-III.
+3. Относятся к различным научным областям (астрофизика, квантовая механика, биология, финансовый анализ, экология и т.д.).
+
+Уже на карте (не дублируй): ${(Array.isArray(existingTitles) ? existingTitles : []).slice(0, 60).join("; ")}
+Существующие научные зоны: ${(Array.isArray(existingZones) ? existingZones : []).join(", ")}.
+
+Верни СТРОГИЙ JSON массив объектов (максимум 5):
+[
+  {
+    "parentId": "ID листа, от которого зависит данная задача",
+    "title": "Название новой зависимой задачи",
+    "description": "Подробное научное описание новой задачи и объяснение того, как она зависит от родительского узла",
+    "targetFunction": "Классическая математическая формулировка с пределами или делением на ноль, переходящая в RICIS-III за O(1)",
+    "singularityHint": "Суть сингулярности в решении",
+    "zoneId": "ID научной области на английском, например astrophysics, mechanics, finance, ecology",
+    "zoneName": "Название научной области на русском, например Астрофизика, Квантовая механика, Финансовый инжиниринг, Экологическое моделирование",
+    "zoneDescription": "Описание научной области"
+  }
+]
+Выведи ТОЛЬКО JSON массив.`;
+
+      const response = await callAIWithFallback(prompt, "application/json", preferredModel, true);
+
+      let text = response.text || "[]";
+      const match = text.match(/\[[\s\S]*\]/);
+      if (match) text = match[0];
+      let tasks = [];
+      try {
+        tasks = JSON.parse(text.trim());
+      } catch {
+        tasks = [];
+      }
+      if (!Array.isArray(tasks)) tasks = [];
+      res.json({ tasks, model: response.model });
+    } catch (e: any) {
+      console.warn("[expandLeaves fallback activated]:", e?.message || e);
+      res.json({ tasks: [], error: e?.message || e });
+    }
+  });
+
   app.post("/api/fillNodeParams", async (req, res) => {
     const { title, description, zoneIds, preferredModel } = req.body || {};
 
@@ -448,7 +522,7 @@ ${axiomList}
 }
 Выведи ТОЛЬКО JSON объект.`;
 
-      const response = await callAIWithFallback(prompt, "application/json", preferredModel);
+      const response = await callAIWithFallback(prompt, "application/json", preferredModel, true);
 
       let text = response.text || "{}";
       const match = text.match(/\{[\s\S]*\}/);
@@ -500,7 +574,7 @@ ${axiomList}
 Уже на карте: ${Array.isArray(existingTitles) ? existingTitles.slice(0, 40).join("; ") : ""}
 Отвечай СТРОГО на РУССКОМ ЯЗЫКЕ. Выведи ТОЛЬКО валидный JSON массив.`;
 
-      const response = await callAIWithFallback(typeof prompt === "string" && prompt.length > 100 ? prompt : fallbackPrompt, "application/json", preferredModel);
+      const response = await callAIWithFallback(typeof prompt === "string" && prompt.length > 100 ? prompt : fallbackPrompt, "application/json", preferredModel, true);
 
       let text = response.text || "[]";
       const match = text.match(/\[[\s\S]*\]/);

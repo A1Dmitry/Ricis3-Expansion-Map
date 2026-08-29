@@ -722,6 +722,10 @@ export const DICTIONARY = {
     ru: 'Аудит системы',
     en: 'System Audit',
   },
+  'audit.repairGraph': {
+    ru: 'Ремонт графа & Поиск',
+    en: 'Repair Graph & Discover',
+  },
   'audit.cleanGraph': {
     ru: 'Очистить граф (GC)',
     en: 'Clean Graph (GC)',
@@ -733,6 +737,10 @@ export const DICTIONARY = {
   'audit.fillAi': {
     ru: 'Заполнить ИИ',
     en: 'Fill via AI',
+  },
+  'audit.searchDerivatives': {
+    ru: 'Поиск плагиата/деривативов',
+    en: 'Search Plagiarism/Derivatives',
   },
   'audit.executing': {
     ru: 'Выполнение канонической операции...',

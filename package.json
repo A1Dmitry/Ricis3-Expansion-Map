@@ -1,7 +1,7 @@
 {
   "name": "ricis3-expansion",
   "private": false,
-  "version": "0.4.79",
+  "version": "0.4.83",
   "description": "Interactive RICIS-III singularity research map with explicit proof-trust boundaries",
   "type": "module",
   "packageManager": "npm@10.9.2",

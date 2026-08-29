@@ -421,7 +421,9 @@ export const Map3D: React.FC = () => {
   const [isCalculatorExplorerOpen, setIsCalculatorExplorerOpen] = useState(false);
   const [isMonolithGuidedCaseTrailOpen, setIsMonolithGuidedCaseTrailOpen] = useState(false);
   const calculatorExplorer = React.useMemo(
-    () => buildCalculatorExplorerProjection({ baseUrl: import.meta.env.VITE_RICIS_CALCULATOR_BASE_URL }),
+    () => buildCalculatorExplorerProjection({
+      baseUrl: (typeof window !== 'undefined' ? `${window.location.origin}/calculator-sandbox/` : '') || import.meta.env.VITE_RICIS_CALCULATOR_BASE_URL || 'https://remix-ricis-iii-501343051156.europe-west2.run.app/',
+    }),
     [],
   );
   const monolithGuidedCaseTrail = React.useMemo(

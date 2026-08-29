@@ -8,7 +8,8 @@ import {
   Sparkles, 
   RefreshCw, 
   CheckCircle,
-  AlertCircle
+  AlertCircle,
+  ShieldAlert
 } from 'lucide-react';
 
 export const AuditPanel: React.FC = () => {
@@ -17,9 +18,11 @@ export const AuditPanel: React.FC = () => {
   const { 
     isAuditing, 
     runSystemAudit,
+    runGraphRepair,
     executeGarbageCollection,
     runAuditMissingTargets,
     runFillMissingTargets,
+    runDerivativeSearch,
     addAgentLog
   } = store;
 
@@ -36,6 +39,8 @@ export const AuditPanel: React.FC = () => {
       let msg = `OK: ${name}`;
       if (name === 'Сборка мусора' && result) {
         msg = `GC. Nodes: ${result.removedNodeIds.length}, edges: ${result.removedEdgeIds.length}.`;
+      } else if (name === 'Ремонт графа' && result) {
+        msg = `Ремонт: Исправлено: ${result.repairedCount}, создано задач: ${result.discoveredCount}, новых зон: ${result.newZonesAdded.length}.`;
       }
       setStatusMessage(msg);
       addAgentLog(`Operation "${name}" completed successfully.`, 'ricis');
@@ -54,7 +59,7 @@ export const AuditPanel: React.FC = () => {
   return (
     <div className="space-y-2 text-xs font-mono p-1" id="ricis-audit-panel-root">
       {/* Кнопочный интерфейс управления */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2" id="audit-buttons-grid">
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-2" id="audit-buttons-grid">
         <button
           onClick={() => handleAction('System Audit', runSystemAudit)}
           disabled={isLoading}
@@ -64,6 +69,17 @@ export const AuditPanel: React.FC = () => {
         >
           <Activity className="w-3.5 h-3.5 text-violet-400 shrink-0" />
           <span>{t('audit.systemAudit')}</span>
+        </button>
+
+        <button
+          onClick={() => handleAction('Ремонт графа', runGraphRepair)}
+          disabled={isLoading}
+          className="px-3 py-2 text-[11px] font-medium bg-slate-900 hover:bg-slate-800 disabled:opacity-50 text-slate-300 border border-slate-800 rounded flex items-center justify-center gap-1.5 transition active:scale-95 cursor-pointer"
+          id="btn-repair-graph"
+          title="Repair links, target functions and discover dependent leaf tasks"
+        >
+          <RefreshCw className="w-3.5 h-3.5 text-sky-400 shrink-0" />
+          <span>{t('audit.repairGraph')}</span>
         </button>
 
         <button
@@ -97,6 +113,17 @@ export const AuditPanel: React.FC = () => {
         >
           <Sparkles className="w-3.5 h-3.5 text-amber-400 shrink-0" />
           <span>{t('audit.fillAi')}</span>
+        </button>
+
+        <button
+          onClick={() => handleAction('Search Followers', runDerivativeSearch)}
+          disabled={isLoading}
+          className="px-3 py-2 text-[11px] font-medium bg-slate-900 hover:bg-slate-800 disabled:opacity-50 text-slate-300 border border-slate-800 rounded flex items-center justify-center gap-1.5 transition active:scale-95 cursor-pointer col-span-2 sm:col-span-1 md:col-span-1"
+          id="btn-search-derivatives"
+          title="Search external work for plagiarism"
+        >
+          <ShieldAlert className="w-3.5 h-3.5 text-purple-400 shrink-0" />
+          <span>{t('audit.searchDerivatives')}</span>
         </button>
       </div>
 

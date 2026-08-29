@@ -1,0 +1,28 @@
+diff --git a/src/App.tsx b/src/App.tsx
+index 44da502..2797d85 100644
+--- a/src/App.tsx
++++ b/src/App.tsx
+@@ -129,7 +129,24 @@ const SIMPLE_EXAMPLES = [
+ export default function App() {
+   const { language, setLanguage, t } = useLanguage();
+-  const [activeMode, setActiveMode] = useState<SingularityMode>(SingularityMode.CASES_AND_SOLUTIONS);
++  const [activeMode, setActiveMode] = useState<SingularityMode>(() => {
++    try {
++      const params = new URLSearchParams(typeof window !== 'undefined' ? window.location.search : '');
++      const modeParam = params.get('mode');
++      if (modeParam) {
++        let uppercaseMode = modeParam.toUpperCase();
++        if (uppercaseMode === 'MALDENBROT') {
++          uppercaseMode = 'MANDELBROT';
++        }
++        if (Object.values(SingularityMode).includes(uppercaseMode as SingularityMode)) {
++          return uppercaseMode as SingularityMode;
++        }
++      }
++    } catch (e) {
++      console.error('Error determining initial activeMode:', e);
++    }
++    return SingularityMode.CASES_AND_SOLUTIONS;
++  });
+   const [activeState, setActiveState] = useState<any>(null);
+   const [copied, setCopied] = useState<boolean>(false);

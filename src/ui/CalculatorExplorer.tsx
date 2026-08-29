@@ -1,3 +1,4 @@
+import { ExternalLink } from 'lucide-react';
 import type { CalculatorExplorerEntry } from '../calculatorExplorer/calculatorExplorer.domain';
 import type { SupportedLocale, TranslationKey } from '../model/i18n.types';
 
@@ -30,31 +31,43 @@ export function CalculatorExplorer({ isOpen, entries, locale, t, onClose, onSele
 
       <div className="mt-2 max-h-56 space-y-1 overflow-y-auto pr-1" role="list">
         {entries.map(entry => (
-          <button
-            key={entry.monolith.id}
-            type="button"
-            aria-label={t('calculatorExplorer.open', { title: entry.monolith.title[catalogLocale] })}
-            onClick={() => select(onSelectNode, entry.nodeId)}
-            onKeyDown={(event) => {
-              if (event.key === 'Enter') {
-                event.preventDefault();
-                select(onSelectNode, entry.nodeId);
-              }
-            }}
-            className="w-full rounded border border-emerald-950/80 bg-black/15 px-2 py-1.5 text-left transition-colors hover:border-emerald-700/80 hover:bg-emerald-950/45 focus:outline-none focus:ring-1 focus:ring-emerald-400"
-          >
-            <span className="block text-[10px] font-semibold text-emerald-100">{entry.monolith.title[catalogLocale]}</span>
-            <code className="mt-0.5 block text-[9px] text-cyan-200">{entry.semanticIndexExpression}</code>
-            {entry.monolith.calculator.mode === 'KINEMATIC' && (
-              <span className="mt-1 block text-[8.5px] leading-relaxed text-amber-100/85">{entry.researchOnlyDisclosure}</span>
+          <div key={entry.monolith.id} className="group relative flex items-center justify-between gap-1 rounded border border-emerald-950/80 bg-black/15 hover:border-emerald-700/80 hover:bg-emerald-950/45 transition-colors">
+            <button
+              type="button"
+              aria-label={t('calculatorExplorer.open', { title: entry.monolith.title[catalogLocale] })}
+              onClick={() => select(onSelectNode, entry.nodeId)}
+              onKeyDown={(event) => {
+                if (event.key === 'Enter') {
+                  event.preventDefault();
+                  select(onSelectNode, entry.nodeId);
+                }
+              }}
+              className="flex-1 text-left px-2 py-1.5 focus:outline-none focus:ring-1 focus:ring-emerald-400"
+            >
+              <span className="block text-[10px] font-semibold text-emerald-100">{entry.monolith.title[catalogLocale]}</span>
+              <code className="mt-0.5 block text-[9px] text-cyan-200">{entry.semanticIndexExpression}</code>
+              {entry.monolith.calculator.mode === 'KINEMATIC' && (
+                <span className="mt-1 block text-[8.5px] leading-relaxed text-amber-100/85">{entry.researchOnlyDisclosure}</span>
+              )}
+              {entry.launch.kind === 'UNCONFIGURED' && (
+                <span className="mt-1 block text-[8.5px] text-amber-300">{t('calculatorExplorer.unconfigured', { reason: entry.launch.reason ?? 'unknown' })}</span>
+              )}
+              {entry.launch.kind === 'REJECTED' && (
+                <span className="mt-1 block text-[8.5px] text-rose-300">{t('calculatorExplorer.rejected', { reason: entry.launch.reason ?? 'unknown' })}</span>
+              )}
+            </button>
+            {entry.launch.kind === 'READY' && entry.launch.href && (
+              <a
+                href={entry.launch.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                title="Open visual calculator case"
+                className="mr-2 p-1.5 rounded border border-emerald-800/50 bg-emerald-900/10 text-emerald-300 hover:border-emerald-400 hover:text-white transition flex items-center justify-center shrink-0 hover:scale-105"
+              >
+                <ExternalLink size={12} />
+              </a>
             )}
-            {entry.launch.kind === 'UNCONFIGURED' && (
-              <span className="mt-1 block text-[8.5px] text-amber-300">{t('calculatorExplorer.unconfigured', { reason: entry.launch.reason ?? 'unknown' })}</span>
-            )}
-            {entry.launch.kind === 'REJECTED' && (
-              <span className="mt-1 block text-[8.5px] text-rose-300">{t('calculatorExplorer.rejected', { reason: entry.launch.reason ?? 'unknown' })}</span>
-            )}
-          </button>
+          </div>
         ))}
       </div>
     </section>

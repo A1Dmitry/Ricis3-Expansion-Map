@@ -160,9 +160,10 @@ export const NodeCardDetails: React.FC<Props> = ({
   const { t } = useI18nStore();
   const refs = getReferencesForNode(node);
   const proof = map?.proofs?.[node.id] as Proof | undefined;
+  const calculatorBaseUrl = (typeof window !== 'undefined' ? `${window.location.origin}/calculator-sandbox/` : '') || import.meta.env.VITE_RICIS_CALCULATOR_BASE_URL || 'https://remix-ricis-iii-501343051156.europe-west2.run.app/';
   const calculatorEntry = getCalculatorExplorerEntryForNodeId({
     nodeId: node.id,
-    baseUrl: import.meta.env.VITE_RICIS_CALCULATOR_BASE_URL,
+    baseUrl: calculatorBaseUrl,
   });
   const solution = calculatorEntry?.monolith ?? getSolutionForNodeId(node.id);
   const leanEvidence = leanEvidenceFromProof(proof);
@@ -177,7 +178,7 @@ export const NodeCardDetails: React.FC<Props> = ({
       green: presentGreenMonolith({ solution, leanEvidence, nodeState: node.state }),
       leanEvidence,
       launch: calculatorEntry?.launch ?? buildCalculatorLaunchLink({
-        baseUrl: import.meta.env.VITE_RICIS_CALCULATOR_BASE_URL,
+        baseUrl: calculatorBaseUrl,
         definition: solution,
       }),
     })
