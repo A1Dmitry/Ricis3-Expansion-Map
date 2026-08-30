@@ -32,6 +32,8 @@ describe('Deep Linking & Share Service Tests', () => {
     expect(params.initialMode).toBe('lean4');
     expect(params.initialRoadmap).toBe(true);
     expect(params.initialRootNodeId).toBe('core-agi-target');
+    expect(params.initialKinematic).toBe(false);
+    expect(params.initialKinematic).toBe(false);
   });
 
   it('должен обновлять URL в строке браузера без перезагрузки', () => {

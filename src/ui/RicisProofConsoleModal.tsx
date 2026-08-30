@@ -13,7 +13,8 @@ import {
 import { useI18nStore } from '../store/useI18nStore';
 import { writeCoreRecovery } from '../services/coreRecovery';
 import { APP_BUILD_LABEL } from '../version';
-import { X, Play, Cpu, BookOpen, Layers, CheckCircle2 } from 'lucide-react';
+import { X, Play, Cpu, BookOpen, Layers, CheckCircle2, Bookmark } from 'lucide-react';
+import { RICIS_EXAMPLE_CATALOG } from '../data/exampleCatalogData';
 
 interface RicisProofConsoleModalProps {
   isOpen: boolean;
@@ -179,39 +180,62 @@ export const RicisProofConsoleModal: React.FC<RicisProofConsoleModalProps> = ({
 
         {/* Content Area */}
         <div className="flex-1 overflow-y-auto p-5 space-y-4">
-          {/* Quick Presets */}
-          <div className="flex items-center gap-2 flex-wrap">
-            <span className="text-[11px] text-slate-500 uppercase tracking-wider font-mono">{t('proofConsole.presets')}:</span>
-            <button
-              onClick={() => setPreset('0_5 * inf_3')}
-              className="text-[11px] font-mono px-2.5 py-1 rounded bg-[#0e1626] hover:bg-cyan-950/60 border border-cyan-900/40 text-cyan-300 transition-colors"
-            >
-              {t('proofConsole.preset.a6')}
-            </button>
-            <button
-              onClick={() => setPreset('0_7 / 0_7')}
-              className="text-[11px] font-mono px-2.5 py-1 rounded bg-[#0e1626] hover:bg-cyan-950/60 border border-cyan-900/40 text-cyan-300 transition-colors"
-            >
-              {t('proofConsole.preset.l1')}
-            </button>
-            <button
-              onClick={() => setPreset('0_10 / 0_2')}
-              className="text-[11px] font-mono px-2.5 py-1 rounded bg-[#0e1626] hover:bg-cyan-950/60 border border-cyan-900/40 text-cyan-300 transition-colors"
-            >
-              {t('proofConsole.preset.a4')}
-            </button>
-            <button
-              onClick={() => setPreset('8 / 0')}
-              className="text-[11px] font-mono px-2.5 py-1 rounded bg-[#0e1626] hover:bg-cyan-950/60 border border-cyan-900/40 text-cyan-300 transition-colors"
-            >
-              {t('proofConsole.preset.a10')}
-            </button>
-            <button
-              onClick={() => setPreset('inf_10 - inf_3')}
-              className="text-[11px] font-mono px-2.5 py-1 rounded bg-[#0e1626] hover:bg-cyan-950/60 border border-cyan-900/40 text-cyan-300 transition-colors"
-            >
-              {t('proofConsole.preset.a7')}
-            </button>
+          {/* Quick Presets & Catalog Dropdown */}
+          <div className="flex items-center justify-between gap-2 flex-wrap border-b border-cyan-950/60 pb-3">
+            <div className="flex items-center gap-1.5 flex-wrap">
+              <span className="text-[11px] text-slate-500 uppercase tracking-wider font-mono">{t('proofConsole.presets')}:</span>
+              <button
+                onClick={() => setPreset('0_5 * inf_3')}
+                className="text-[11px] font-mono px-2.5 py-1 rounded bg-[#0e1626] hover:bg-cyan-950/60 border border-cyan-900/40 text-cyan-300 transition-colors"
+              >
+                {t('proofConsole.preset.a6')}
+              </button>
+              <button
+                onClick={() => setPreset('0_7 / 0_7')}
+                className="text-[11px] font-mono px-2.5 py-1 rounded bg-[#0e1626] hover:bg-cyan-950/60 border border-cyan-900/40 text-cyan-300 transition-colors"
+              >
+                {t('proofConsole.preset.l1')}
+              </button>
+              <button
+                onClick={() => setPreset('0_10 / 0_2')}
+                className="text-[11px] font-mono px-2.5 py-1 rounded bg-[#0e1626] hover:bg-cyan-950/60 border border-cyan-900/40 text-cyan-300 transition-colors"
+              >
+                {t('proofConsole.preset.a4')}
+              </button>
+              <button
+                onClick={() => setPreset('8 / 0')}
+                className="text-[11px] font-mono px-2.5 py-1 rounded bg-[#0e1626] hover:bg-cyan-950/60 border border-cyan-900/40 text-cyan-300 transition-colors"
+              >
+                {t('proofConsole.preset.a10')}
+              </button>
+              <button
+                onClick={() => setPreset('inf_10 - inf_3')}
+                className="text-[11px] font-mono px-2.5 py-1 rounded bg-[#0e1626] hover:bg-cyan-950/60 border border-cyan-900/40 text-cyan-300 transition-colors"
+              >
+                {t('proofConsole.preset.a7')}
+              </button>
+            </div>
+
+            {/* Catalog L0-L66 Selector */}
+            <div className="flex items-center gap-1.5">
+              <Bookmark className="w-3.5 h-3.5 text-cyan-400" />
+              <select
+                aria-label="RICIS Catalog (L0-L66)"
+                onChange={(e) => {
+                  if (e.target.value) {
+                    setPreset(e.target.value);
+                  }
+                }}
+                className="text-[11px] font-mono px-2 py-1 rounded bg-[#08101e] border border-cyan-800/60 text-cyan-200 focus:outline-none focus:border-cyan-400"
+              >
+                <option value="">Catalog L0–L66 (66 Expressions)...</option>
+                {RICIS_EXAMPLE_CATALOG.map((item) => (
+                  <option key={item.id} value={item.input}>
+                    [{item.id}] {item.title} — {item.input}
+                  </option>
+                ))}
+              </select>
+            </div>
           </div>
 
           {activeTab === 'evaluate' && (

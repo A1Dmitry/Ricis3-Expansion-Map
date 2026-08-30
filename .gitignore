@@ -6,3 +6,5 @@ coverage/
 *.log
 .env*
 !.env.example
+temp-ricis-core-2/
+*.tmp

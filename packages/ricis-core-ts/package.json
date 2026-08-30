@@ -1,0 +1,16 @@
+{
+  "name": "@ricis/core-ts",
+  "version": "0.1.0",
+  "description": "RICIS-III TypeScript Resident Engine & AST Library",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "type": "module",
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run"
+  },
+  "devDependencies": {
+    "typescript": "^5.9.3",
+    "vitest": "^4.1.10"
+  }
+}

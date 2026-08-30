@@ -8,6 +8,7 @@ import { useMapStore } from './store/mapStore';
 const Map3D = lazyNamedComponent(() => import('./ui/Map3D'), 'Map3D');
 const CoreRecoveryPage = lazyNamedComponent(() => import('./ui/CoreRecoveryPage'), 'CoreRecoveryPage');
 const RoadmapPage = lazyNamedComponent(() => import('./ui/RoadmapPage'), 'RoadmapPage');
+const KinematicEnginePage = lazyNamedComponent(() => import('./ui/KinematicEnginePage'), 'KinematicEnginePage');
 
 function formatHydrationError(error: unknown): string {
   if (error instanceof Error) return error.message;
@@ -73,6 +74,19 @@ export default function App() {
   }
 
   const roadmapParams = new URLSearchParams(locationSearch);
+  if (roadmapParams.get('view') === 'kinematic') {
+    return (
+      <RouteSurfaceBoundary>
+        <KinematicEnginePage
+          onBackToMap={() => {
+            UrlShareService.updateBrowserUrl({ kinematic: false });
+            setLocationSearch(window.location.search);
+          }}
+        />
+      </RouteSurfaceBoundary>
+    );
+  }
+
   if (roadmapParams.get('view') === 'roadmap') {
     return (
       <RouteSurfaceBoundary>

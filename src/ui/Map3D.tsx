@@ -36,11 +36,14 @@ import {
   List,
   Gift,
   BookOpen,
+  Activity,
+  Bug,
 } from 'lucide-react';
 import { SettingsModal } from './SettingsModal';
 import { RicisProofConsoleModal } from './RicisProofConsoleModal';
 import { VoynichDecryptionPanel } from './VoynichDecryptionPanel';
 import { MapPatchImportModal } from './MapPatchImportModal';
+import { AutomatedTestingModal } from './components/testing/AutomatedTestingModal';
 import {
   isNodeAvailable,
   findPathToRicis,
@@ -101,6 +104,9 @@ import {
 } from '../catalogVisibility/catalogVisibility.domain';
 import type { DeepLinkFocusOutcome } from '../catalogVisibility/catalogVisibility.contracts';
 import { STATIC_ADMIN_CORE_SNAPSHOT } from '../adminCoreConnection/staticAdminCoreConnection';
+import { isMissingTargetFunction, nodeHasSorry } from '../model/audit';
+import { ActionButton } from './ActionButton';
+import { presentMapNodeVisualStatus } from '../ricisSolutionCatalog';
 
 type PanelId = 'actions' | 'zones' | 'available' | 'agent' | 'persistence';
 
@@ -113,10 +119,6 @@ const UI_ELEMENTS: UIElement[] = [
 ];
 
 const discoverablePanelIds = new Set<PanelId>(['persistence']);
-import { isMissingTargetFunction, nodeHasSorry } from '../model/audit';
-import { ActionButton } from './ActionButton';
-import { presentMapNodeVisualStatus } from '../ricisSolutionCatalog';
-
 
 let hoveredNodePos: THREE.Vector3 | null = null;
 
@@ -453,6 +455,7 @@ export const Map3D: React.FC = () => {
   const [showProofConsole, setShowProofConsole] = useState(false);
   const [showVoynichModal, setShowVoynichModal] = useState(false);
   const [showPatchImportModal, setShowPatchImportModal] = useState(false);
+  const [showAutomatedTestingModal, setShowAutomatedTestingModal] = useState(false);
   const [editingNode, setEditingNode] = useState<ProblemNode | null>(null);
   const [isSolving, setIsSolving] = useState(false);
   const [isAgentSearching, setIsAgentSearching] = useState(false);
@@ -1573,6 +1576,17 @@ export const Map3D: React.FC = () => {
                 <span className="inline-flex items-center gap-2"><List size={16} /> Roadmap: выбрать маршрут исследования</span><ChevronRight size={17} />
               </button>
 
+              <button
+                type="button"
+                onClick={() => {
+                  UrlShareService.updateBrowserUrl({ kinematic: true });
+                  window.dispatchEvent(new PopStateEvent('popstate'));
+                }}
+                className="min-h-12 w-full rounded-lg border border-emerald-800/80 bg-emerald-950/35 px-3 text-left text-xs font-bold text-emerald-100 inline-flex items-center justify-between"
+              >
+                <span className="inline-flex items-center gap-2"><Activity size={16} className="text-emerald-400" /> 3D Кинематика: Манипулятор и Singularity Engine</span><ChevronRight size={17} />
+              </button>
+
               {selectedNode && (
                 <button
                   type="button"
@@ -1589,6 +1603,7 @@ export const Map3D: React.FC = () => {
                 <summary className="min-h-12 cursor-pointer list-none px-3 text-xs font-bold text-slate-300 inline-flex w-full items-center justify-between gap-3"><span className="inline-flex items-center gap-2"><SlidersHorizontal size={16} className="text-cyan-400" /> Инструменты и настройки</span><ChevronDown size={16} className="text-slate-500" /></summary>
                 <div className="mobile-menu-secondary-grid border-t border-neutral-800 p-2">
                   <button type="button" onClick={openMobileSettings} className="min-h-12 rounded-lg border border-neutral-700 bg-neutral-900/70 px-3 text-left text-xs font-bold text-slate-100 inline-flex items-center gap-2"><Settings size={16} className="text-cyan-400" /> Настройки интерфейса и физики</button>
+                  <button type="button" onClick={() => setShowAutomatedTestingModal(true)} className="min-h-12 rounded-lg border border-rose-800/70 bg-rose-950/40 px-3 text-left text-xs font-bold text-rose-200 inline-flex items-center gap-2"><Bug size={16} className="text-rose-400" /> QA Тестирование (Flood-Fill & Stress)</button>
                   <button type="button" onClick={() => void toggleSensorMode()} className="min-h-12 rounded-lg border border-neutral-700 bg-neutral-900/70 px-3 text-left text-xs font-bold text-slate-100 inline-flex items-center gap-2"><Compass size={16} className={sensorModeEnabled ? 'text-emerald-400' : 'text-cyan-400'} /> {sensorModeEnabled ? 'Отключить управление наклоном' : 'Включить управление наклоном'}</button>
                   <button type="button" onClick={() => setShowAddNode(true)} className="min-h-12 rounded-lg border border-emerald-800/70 bg-emerald-950/40 px-3 text-left text-xs font-bold text-emerald-100 inline-flex items-center gap-2"><Plus size={16} /> {t('filter.addNewTask')}</button>
                   <button type="button" onClick={checkCoreRuntime} disabled={isCheckingCoreRuntime} className="min-h-12 rounded-lg border border-violet-800/70 bg-violet-950/30 px-3 text-left text-xs font-bold text-violet-100 inline-flex items-center gap-2 disabled:opacity-50"><Cpu size={16} /> {isCheckingCoreRuntime ? t('core.status.checking') : 'Проверить RICIS Core'}</button>
@@ -1668,6 +1683,18 @@ export const Map3D: React.FC = () => {
           <button
             type="button"
             onClick={() => {
+              UrlShareService.updateBrowserUrl({ kinematic: true });
+              window.dispatchEvent(new PopStateEvent('popstate'));
+            }}
+            className="min-h-10 bg-emerald-950/60 hover:bg-emerald-900/70 border border-emerald-600/60 text-emerald-300 font-bold text-xs px-2 sm:px-3.5 py-1.5 rounded-md transition-all cursor-pointer flex items-center gap-1.5 uppercase tracking-wider shadow-[0_0_12px_rgba(16,185,129,0.2)]"
+            aria-label="3D Кинематика"
+            title="3D Кинематический движок и манипулятор"
+          >
+            <Activity size={14} className="text-emerald-400" /> <span className="hidden sm:inline">3D Кинематика</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => {
               UrlShareService.updateBrowserUrl({ roadmap: true, rootNodeId: null });
               window.dispatchEvent(new PopStateEvent('popstate'));
             }}
@@ -1702,6 +1729,15 @@ export const Map3D: React.FC = () => {
             title={t('map.presentation.toggle')}
           >
             <Layers size={14} /> <span className="hidden sm:inline">{mapPresentationMode === 'three_dimensional' ? t('map.presentation.list') : t('map.presentation.threeDimensional')}</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => setShowAutomatedTestingModal(true)}
+            className="min-h-10 min-w-10 bg-rose-950/60 hover:bg-rose-900/70 border border-rose-700/60 text-rose-200 font-bold text-xs px-2 sm:px-3.5 py-1.5 rounded-md shadow-[0_0_12px_rgba(244,63,94,0.2)] transition-all cursor-pointer flex items-center gap-1.5 uppercase tracking-wider"
+            aria-label="QA Тестирование и стресс-тест"
+            title="Запустить автоматическое тестирование (Flood-Fill обход графа + Стресс-тест манипулятора)"
+          >
+            <Bug size={14} className="text-rose-400" /> <span className="hidden sm:inline">QA Тесты</span>
           </button>
           <button
             type="button"
@@ -2552,6 +2588,22 @@ export const Map3D: React.FC = () => {
 
       {showPatchImportModal && (
         <MapPatchImportModal onClose={() => setShowPatchImportModal(false)} />
+      )}
+
+      {showAutomatedTestingModal && (
+        <AutomatedTestingModal
+          isOpen={showAutomatedTestingModal}
+          nodes={map.nodes}
+          proofs={map.proofs || {}}
+          selectedNodeId={selectedNodeId}
+          onSelectNode={handleNavigateToNode}
+          onNavigateToKinematics={() => {
+            setShowAutomatedTestingModal(false);
+            UrlShareService.updateBrowserUrl({ kinematic: true });
+            window.dispatchEvent(new PopStateEvent('popstate'));
+          }}
+          onClose={() => setShowAutomatedTestingModal(false)}
+        />
       )}
     </div>
   );
