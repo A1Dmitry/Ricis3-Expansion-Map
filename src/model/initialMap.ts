@@ -1118,6 +1118,58 @@ export const initialMap: MapState = {
   ],
   axioms: [],
   proofs: {
+    "core-agi-target": {
+      "nodeId": "core-agi-target",
+      "targetFunction": "0_F \\times \\infty_G = F \\cdot G",
+      "steps": [
+        {
+          "phase": -1,
+          "name": "L1_IDENTITY & Ontological Origin",
+          "action": "Verify AGI target function ontological identity and type conservation",
+          "expression": "Type_Identity = AGITargetMonolith"
+        },
+        {
+          "phase": 0.5,
+          "name": "Semantic Indexing SP4",
+          "action": "Assign semantic indices to loss functions and infinite parameter spaces",
+          "expression": "0_{Loss} \\times \\infty_{Capacity} = F \\cdot G"
+        },
+        {
+          "phase": 2,
+          "name": "RICIS transform & Axiom A6",
+          "action": "Apply Axiom A6 Geometric Bridge to determine exact scalar invariant",
+          "expression": "0_F \\times \\infty_G = \\det(u, v) = F \\cdot G (Spec: https://doi.org/10.5281/zenodo.21529989)"
+        }
+      ],
+      "finalResult": "Axiom Extracted: core-agi-target_resolved",
+      "latex": "\\section*{RICIS-III Proof: Целевая функция AGI (RICIS Core)}\n\\textbf{Author:} Dmitry V. Aleinikov (ORCID: 0009-0004-3226-7700)\n\\textbf{Target Function:} $0_F \\times \\infty_G = F \\cdot G$\n\\subsection*{RICIS Transform & Axiom A6}\n$ 0_F \\times \\infty_G = F \\cdot G $\n\\textbf{Specification Lean 4 DOI:} \\href{https://doi.org/10.5281/zenodo.21529989}{https://doi.org/10.5281/zenodo.21529989} (Master Registry \\href{https://doi.org/10.5281/zenodo.21836220}{10.5281/zenodo.21836220}) (Foundations \\href{https://doi.org/10.5281/zenodo.17872755}{10.5281/zenodo.17872755})\n\\textbf{Final Result:} Axiom Extracted: core-agi-target_resolved"
+    },
+    "math-singularity": {
+      "nodeId": "math-singularity",
+      "targetFunction": "0_F / 0_G = F / G",
+      "steps": [
+        {
+          "phase": -1,
+          "name": "L1_IDENTITY & Ontological Origin",
+          "action": "Verify algebraic zero monad identity and semantic origins",
+          "expression": "Type_Identity = ZeroMonad"
+        },
+        {
+          "phase": 0.5,
+          "name": "Semantic Indexing SP4",
+          "action": "Index singularity zero by generating algebraic expressions",
+          "expression": "0_{E_1} / 0_{E_2} = E_1 / E_2"
+        },
+        {
+          "phase": 2,
+          "name": "RICIS transform & Axiom A4",
+          "action": "Apply Axiom A4 zero ratio law after SP2 reduction",
+          "expression": "0_F / 0_G = F / G (Spec: https://doi.org/10.5281/zenodo.21529989)"
+        }
+      ],
+      "finalResult": "Axiom Extracted: math-singularity_resolved",
+      "latex": "\\section*{RICIS-III Proof: Разрешение сингулярностей (Деление на ноль)}\n\\textbf{Author:} Dmitry V. Aleinikov (ORCID: 0009-0004-3226-7700)\n\\textbf{Target Function:} $0_F / 0_G = F / G$\n\\subsection*{RICIS Transform & Axiom A6}\n$ 0_F \\times \\infty_G = F \\cdot G $\n\\textbf{Specification Lean 4 DOI:} \\href{https://doi.org/10.5281/zenodo.21529989}{https://doi.org/10.5281/zenodo.21529989} (Master Registry \\href{https://doi.org/10.5281/zenodo.21836220}{10.5281/zenodo.21836220}) (Foundations \\href{https://doi.org/10.5281/zenodo.17872755}{10.5281/zenodo.17872755})\n\\textbf{Final Result:} Axiom Extracted: math-singularity_resolved"
+    },
     "ricis-chatbot-monetization": {
       "nodeId": "ricis-chatbot-monetization",
       "targetFunction": "V(N) = V_0 + \\alpha \\cdot N \\cdot \\log_2(N) \\quad [0_F \\times \\infty_G = F \\cdot G]",
