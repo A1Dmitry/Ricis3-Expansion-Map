@@ -2,3 +2,8 @@ export * from './ast/ExpressionTypes';
 export * from './engine/RicisEngineContracts';
 export * from './engine/IRicisReductionEngine';
 export * from './engine/RicisTypeScriptEngine';
+export * from './engine/AlgebraicSimplifier';
+export * from './engine/SemanticIndexer';
+export * from './engine/SymbolicDifferentiator';
+export * from './engine/FractionReducer';
+export * from './parser/LambdaParser';

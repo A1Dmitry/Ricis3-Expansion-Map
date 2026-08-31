@@ -1,0 +1,91 @@
+{
+  "@type": "RICIS.MapStatePatch",
+  "meta": {
+    "method": "resolve_core_agi_target_sp4_l1_a6",
+    "baseSeed": "map_after_geometric_bridge_doi",
+    "generated": "2026-08-31T21:50:00Z",
+    "author": "Dmitry Aleinikov / package prepared for Zenodo",
+    "sourceSystem": "PENDING_DOI — replace after Zenodo publish",
+    "trustPolicy": "WORKFLOW_ONLY. Marks core-agi-target resolved under SP4 path-indexed Goal_P + L1 + A6 geometric bridge (10.5281/zenodo.22124493). Does NOT claim empirical AGI alignment, Clay status, or full Lean-kernel certification. Replace PENDING_DOI with the new Zenodo DOI before import.",
+    "unlocks": [
+      "med-diagnostics",
+      "pharm-design",
+      "econ-value",
+      "ethic-alignment",
+      "ricis-chatbot-monetization"
+    ]
+  },
+  "nodePatches": [
+    {
+      "id": "core-agi-target",
+      "name": "Целевая функция AGI (RICIS Core)",
+      "type": "core_singularity",
+      "state": "resolved",
+      "targetFunction": "FormalizeAGITarget() = Goal_P  [SP4 path index]; path singularity → SP3/SP4 or A6: det((A,0),(0,B))=A·B",
+      "description": "Path-indexed AGI objective Goal_P under L1 identity. Multi-path divergence 0/0 or 0×∞ reduces via SP3/SP4 or local geometric bridge A6 (DOI 10.5281/zenodo.22124493). Provenance of this formalization: PENDING_DOI. Unlocks applied child frontier on the map. Workflow trust only.",
+      "zoneIds": [
+        "informatics"
+      ],
+      "fractalDepth": 0
+    }
+  ],
+  "proofs": {
+    "core-agi-target": {
+      "nodeId": "core-agi-target",
+      "targetFunction": "Goal_P = SP4(Objective, P); 0_Δs × ∞_Δctx = A·B",
+      "steps": [
+        {
+          "phase": -1,
+          "name": "L1_IDENTITY",
+          "action": "Preserve goal monolith identity X = X; no context erasure",
+          "expression": "Goal_P = Goal_P"
+        },
+        {
+          "phase": 1,
+          "name": "SP4_PATH_INDEX",
+          "action": "Index objective by provenance/protocol P",
+          "expression": "Goal_P := SP4(Objective, P)"
+        },
+        {
+          "phase": 2,
+          "name": "PATH_SINGULARITY",
+          "action": "Detect unindexed multi-path 0/0 or 0×∞ in goal space",
+          "expression": "Δs/Δctx or 0_Δs × ∞_Δctx"
+        },
+        {
+          "phase": 3,
+          "name": "A6_GEOMETRIC_BRIDGE",
+          "action": "Local determinant reduction of product-type path singularity",
+          "expression": "det((A,0),(0,B))=A·B  [DOI 10.5281/zenodo.22124493]"
+        },
+        {
+          "phase": 4,
+          "name": "PROVENANCE_DOI",
+          "action": "Cite this formalization record",
+          "expression": "PENDING_DOI"
+        },
+        {
+          "phase": 5,
+          "name": "MAP_UNLOCK",
+          "action": "Parent objective available for child scientific tasks",
+          "expression": "dependentIds ← med-diagnostics, pharm-design, econ-value, ethic-alignment, ricis-chatbot-monetization"
+        },
+        {
+          "phase": 6,
+          "name": "SCOPE_BOUNDARY",
+          "action": "Workflow + structural contract only",
+          "expression": "NOT empirical AGI safety certificate; NOT Clay; Lean = prototype"
+        }
+      ],
+      "finalResult": "core-agi-target workflow-resolved via Goal_P (SP4/L1) and A6 bridge. PENDING_DOI. Child frontier unlocked structurally.",
+      "latex": "\\section*{RICIS-III: AGI Target Formalization}\\textbf{Goal}_P:=\\mathrm{SP4}(\\mathrm{Objective},P).\\quad 0_{\\Delta s}\\times\\infty_{\\Delta\\mathrm{ctx}}=\\det((A,0),(0,B))=A\\cdot B.\\textbf{DOI:} PENDING_DOI. Scope: workflow only.",
+      "axiomsUsed": [
+        "L1_IDENTITY",
+        "SP4",
+        "A6_GEOMETRIC_BRIDGE",
+        "10.5281/zenodo.22124493",
+        "PENDING_DOI"
+      ]
+    }
+  }
+}

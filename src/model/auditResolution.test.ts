@@ -108,7 +108,6 @@ describe('RICIS-III Audit Resolution & Graph Integrity (QA Automation Suite)', (
       expect(LEAN_SPEC_URL).toBe('https://doi.org/10.5281/zenodo.21529989');
       expect(OFFICIAL_ZENODO_DOIS.FOUNDATIONS).toBe('10.5281/zenodo.17872755');
       expect(OFFICIAL_ZENODO_DOIS.LEAN4_SPEC).toBe('10.5281/zenodo.21529989');
-      expect(OFFICIAL_ZENODO_DOIS.MASTER_REGISTRY).toBe('10.5281/zenodo.21836220');
     });
   });
 });

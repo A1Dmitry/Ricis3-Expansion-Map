@@ -8,7 +8,8 @@ export type ExpressionNodeType =
   | 'Power'
   | 'Function'
   | 'SingularityZero'
-  | 'SingularityInfinity';
+  | 'SingularityInfinity'
+  | 'Derivative';
 
 export interface Expression {
   readonly nodeType: ExpressionNodeType;
@@ -41,6 +42,12 @@ export interface SingularityExpression extends Expression {
   readonly basis: Expression;
 }
 
+export interface DerivativeExpression extends Expression {
+  readonly nodeType: 'Derivative';
+  readonly expression: Expression;
+  readonly variable: string;
+}
+
 // Утилиты-фабрики для быстрого создания AST в тестах и коде
 export const AST = {
   Const: (value: number): ConstantExpression => ({ nodeType: 'Constant', value }),
@@ -52,5 +59,6 @@ export const AST = {
   Pow: (left: Expression, right: Expression): BinaryExpression => ({ nodeType: 'Power', left, right }),
   Fn: (name: string, args: Expression[]): FunctionExpression => ({ nodeType: 'Function', name, args }),
   Zero: (basis: Expression): SingularityExpression => ({ nodeType: 'SingularityZero', basis }),
-  Inf: (basis: Expression): SingularityExpression => ({ nodeType: 'SingularityInfinity', basis })
+  Inf: (basis: Expression): SingularityExpression => ({ nodeType: 'SingularityInfinity', basis }),
+  Diff: (expression: Expression, variable: string): DerivativeExpression => ({ nodeType: 'Derivative', expression, variable })
 };

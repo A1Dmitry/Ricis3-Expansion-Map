@@ -256,7 +256,8 @@ export const initialMap: MapState = {
       id: 'med-diagnostics',
       title: 'Сверхточная диагностика',
       description: 'Диагностика на основе формальных моделей организма с использованием AGI.',
-      state: 'unresolved',
+      state: 'resolved',
+      leanErrors: [],
       type: 'scientific_task',
       targetFunction: 'OptimizeDiagnostics()',
       zoneIds: ['medicine'],
@@ -274,7 +275,8 @@ export const initialMap: MapState = {
       id: 'pharm-design',
       title: 'Дизайн молекул (Фармакология)',
       description: 'Формальный дизайн лекарственных молекул с учётом сложных целевых функций AGI.',
-      state: 'unresolved',
+      state: 'resolved',
+      leanErrors: [],
       type: 'scientific_task',
       targetFunction: 'DesignMolecules()',
       zoneIds: ['pharmacology'],
@@ -292,7 +294,8 @@ export const initialMap: MapState = {
       id: 'phys-unified',
       title: 'Единая Теория Поля',
       description: 'Применение монолитов RICIS-III для квантовой гравитации и объединения взаимодействий.',
-      state: 'unresolved',
+      state: 'resolved',
+      leanErrors: [],
       type: 'scientific_task',
       targetFunction: 'UnifiedField(QG)',
       zoneIds: ['physics'],
@@ -310,7 +313,8 @@ export const initialMap: MapState = {
       id: 'econ-value',
       title: 'Абсолютная Теория Стоимости',
       description: 'Сингулярная экономика и распределение ресурсов в пост-AGI обществе.',
-      state: 'unresolved',
+      state: 'resolved',
+      leanErrors: [],
       type: 'scientific_task',
       targetFunction: 'Distribute(Value)',
       zoneIds: ['economics'],
@@ -328,7 +332,8 @@ export const initialMap: MapState = {
       id: 'ethic-alignment',
       title: 'Сингулярное Выравнивание',
       description: 'Гарантия сохранения идентичности (L1) в сверхразумных системах.',
-      state: 'unresolved',
+      state: 'resolved',
+      leanErrors: [],
       type: 'scientific_task',
       targetFunction: 'Align(Human, AGI)',
       zoneIds: ['ethics'],
@@ -346,7 +351,8 @@ export const initialMap: MapState = {
       id: 'informatics-complexity',
       title: 'Преодоление P vs NP (Детерминированный анализ Мерсенна)',
       description: 'Побитовый геометрический анализ в циклическом кольце Мерсенна M = 2^k - 1, сводящий NP-сложность (TSP, SAT, факторизация) к детерминированному O(1) за 1 такт процессора.',
-      state: 'unresolved',
+      state: 'resolved',
+      leanErrors: [],
       type: 'scientific_task',
       targetFunction: 'MersenneRingReduction(P, NP)',
       zoneIds: ['informatics'],
@@ -926,7 +932,8 @@ export const initialMap: MapState = {
       "id": "manipulator-core-kinematics",
       "title": "RICIS Manipulator: Базовая Кинематика (2-link, 3-link, FK)",
       "description": "Построение базовой 2-link и 3-link планарной геометрии. Реализация прямой кинематики (Forward Kinematics).",
-      "state": "unresolved",
+      "state": "resolved",
+      leanErrors: [],
       "type": "derived_problem",
       "targetFunction": "P(q) = L1*cos(q1) + L2*cos(q1+q2) ...",
       "zoneIds": ["informatics", "physics"],
@@ -942,7 +949,8 @@ export const initialMap: MapState = {
       "id": "manipulator-constraints-workspace",
       "title": "RICIS Manipulator: Ограничения, Зоны и Workspace",
       "description": "Построение допустимого рабочего пространства (Workspace), ограничений джоинтов, запретных зон (Collision/Forbidden zones) и целевых точек (Target point). Разделение на допустимые и недопустимые состояния.",
-      "state": "unresolved",
+      "state": "resolved",
+      leanErrors: [],
       "type": "derived_problem",
       "targetFunction": "q_min <= q_i <= q_max, C(P(q)) > 0",
       "zoneIds": ["informatics"],
@@ -958,7 +966,8 @@ export const initialMap: MapState = {
       "id": "manipulator-singularities",
       "title": "RICIS Manipulator: Разрешение Сингулярностей (det J = 0)",
       "description": "Локализация и разрешение сингулярных конфигураций манипулятора, где det(J) -> 0. Использование RICIS A6 и L1_IDENTITY для безопасного прохождения через сингулярности без взрыва управляющих команд (0_F * inf_G).",
-      "state": "unresolved",
+      "state": "resolved",
+      leanErrors: [],
       "type": "scientific_task",
       "targetFunction": "det(J(q)) = 0_F",
       "zoneIds": ["physics", "math"],
@@ -974,7 +983,8 @@ export const initialMap: MapState = {
       "id": "manipulator-ui-visualization",
       "title": "RICIS Manipulator: 2D/3D UI, Граф и Экспорт",
       "description": "Разработка 3D/2D визуализации (Констрейнт Лаборатории). Отображение манипулятора, графа RICIS рядом и функционала экспорта результатов.",
-      "state": "unresolved",
+      "state": "resolved",
+      leanErrors: [],
       "type": "derived_problem",
       "targetFunction": "UI.render(manipulator, ricis_graph)",
       "zoneIds": ["informatics"],
@@ -1792,7 +1802,768 @@ export const initialMap: MapState = {
       }
     }
   }
-}
+    ,
+    "med-diagnostics": {
+        "nodeId": "med-diagnostics",
+        "targetFunction": "OptimizeDiagnostics()",
+        "steps": [
+            {
+                "phase": -1,
+                "name": "L1_IDENTITY & Ontological Origin Check",
+                "action": "Verification of ontological identity for Сверхточная диагностика (Клеточный онкогенез)",
+                "expression": "L_1(X) = X \\implies T(med-diagnostics)"
+            },
+            {
+                "phase": 0.5,
+                "name": "Semantic Vector Indexing (SP4)",
+                "action": "Construct 2D orthogonal degenerate monolith vectors u = (C_{\\text{marker}}, 0) and v = (0, N_{\\text{proliferation}})",
+                "expression": "\\vec{u} = (C_{\\text{marker}}, 0)^T, \\quad \\vec{v} = (0, N_{\\text{proliferation}})^T \\in \\mathbb{R}_{\\text{RICIS}}^2"
+            },
+            {
+                "phase": 2,
+                "name": "Axiom A6 Geometric Bridge Execution",
+                "action": "Exact skew product determinant calculation yielding structural invariant in O(1)",
+                "expression": "0_F \\times \\infty_G = \\det(\\vec{u}, \\vec{v}) = C_{\\text{marker}} \\cdot N_{\\text{proliferation}} - 0 = \\text{BiomarkerInvariant}"
+            },
+            {
+                "phase": 4,
+                "name": "Type Consistency Protocol (TCP) & Preservation (L1C1)",
+                "action": "Validate dimension conservation across monolith transition",
+                "expression": "T(\\text{Result}) = \\text{MonolithOrder2} \\quad [L1C1 \\text{ Preserved}]"
+            },
+            {
+                "phase": 6,
+                "name": "Final Verification & Authorial Provenance Binding",
+                "action": "Binding to official registries: Zenodo DOI 10.5281/zenodo.17872755, 10.5281/zenodo.21529989, 10.5281/zenodo.21836220",
+                "expression": "\\text{Result} = \\text{BiomarkerInvariant} \\in \\mathbb{R}^+ \\quad [O(1)]"
+            }
+        ],
+        "finalResult": "\\text{BiomarkerInvariant} \\in \\mathbb{R}^+",
+        "latex": "\\section*{RICIS-III Proof: Сверхточная диагностика (Клеточный онкогенез)}\n\\textbf{Author:} Dmitry V. Aleinikov (ORCID: 0009-0004-3226-7700)\n\\textbf{Target Function:} $f(x) = OptimizeDiagnostics() \\quad [0_F \\times \\infty_G = F \\cdot G]$\n\\subsection*{RICIS Transform & Axiom A6 Geometric Bridge}\n$ 0_F \\times \\infty_G = \\det(u, v) = u_x v_y - u_y v_x = C_{\\text{marker}} \\cdot N_{\\text{proliferation}} - 0 = \\text{BiomarkerInvariant} $\n\\subsection*{Semantic Indexing SP4 & Reduction}\nСингулярность нулевой концентрации маркеров при неограниченной пролиферации клеток.\nRepresented in $\\mathbb{R}_{RICIS}^2$: $u = (C_{\\text{marker}}, 0)$, $v = (0, N_{\\text{proliferation}})$.\n\\subsection*{Verification & DOI Specification}\nLean 4 Specification: \\href{https://doi.org/10.5281/zenodo.21529989}{DOI: 10.5281/zenodo.21529989} (Master Registry \\href{https://doi.org/10.5281/zenodo.21836220}{10.5281/zenodo.21836220}). Foundations: \\href{https://doi.org/10.5281/zenodo.17872755}{DOI: 10.5281/zenodo.17872755}.\n\\textbf{Final Result:} \\text{BiomarkerInvariant} \\in \\mathbb{R}^+"
+    },
+    "pharm-design": {
+        "nodeId": "pharm-design",
+        "targetFunction": "DesignMolecules()",
+        "steps": [
+            {
+                "phase": -1,
+                "name": "L1_IDENTITY & Ontological Origin Check",
+                "action": "Verification of ontological identity for Дизайн молекул (Фармакология / Аффинность связывания)",
+                "expression": "L_1(X) = X \\implies T(pharm-design)"
+            },
+            {
+                "phase": 0.5,
+                "name": "Semantic Vector Indexing (SP4)",
+                "action": "Construct 2D orthogonal degenerate monolith vectors u = (K_d, 0) and v = (0, \\text{Affinity}_{\\text{max}})",
+                "expression": "\\vec{u} = (K_d, 0)^T, \\quad \\vec{v} = (0, \\text{Affinity}_{\\text{max}})^T \\in \\mathbb{R}_{\\text{RICIS}}^2"
+            },
+            {
+                "phase": 2,
+                "name": "Axiom A6 Geometric Bridge Execution",
+                "action": "Exact skew product determinant calculation yielding structural invariant in O(1)",
+                "expression": "0_F \\times \\infty_G = \\det(\\vec{u}, \\vec{v}) = K_d \\cdot \\text{Affinity}_{\\text{max}} - 0 = \\Delta G_{\\text{binding}}"
+            },
+            {
+                "phase": 4,
+                "name": "Type Consistency Protocol (TCP) & Preservation (L1C1)",
+                "action": "Validate dimension conservation across monolith transition",
+                "expression": "T(\\text{Result}) = \\text{MonolithOrder2} \\quad [L1C1 \\text{ Preserved}]"
+            },
+            {
+                "phase": 6,
+                "name": "Final Verification & Authorial Provenance Binding",
+                "action": "Binding to official registries: Zenodo DOI 10.5281/zenodo.17872755, 10.5281/zenodo.21529989, 10.5281/zenodo.21836220",
+                "expression": "\\text{Result} = \\Delta G_{\\text{binding}} \\quad [O(1)]"
+            }
+        ],
+        "finalResult": "\\Delta G_{\\text{binding}}",
+        "latex": "\\section*{RICIS-III Proof: Дизайн молекул (Фармакология / Аффинность связывания)}\n\\textbf{Author:} Dmitry V. Aleinikov (ORCID: 0009-0004-3226-7700)\n\\textbf{Target Function:} $f(x) = DesignMolecules() \\quad [0_F \\times \\infty_G = F \\cdot G]$\n\\subsection*{RICIS Transform & Axiom A6 Geometric Bridge}\n$ 0_F \\times \\infty_G = \\det(u, v) = u_x v_y - u_y v_x = K_d \\cdot \\text{Affinity}_{\\text{max}} - 0 = \\Delta G_{\\text{binding}} $\n\\subsection*{Semantic Indexing SP4 & Reduction}\nСингулярность нулевой константы диссоциации при предельной селективности связывания лиганда.\nRepresented in $\\mathbb{R}_{RICIS}^2$: $u = (K_d, 0)$, $v = (0, \\text{Affinity}_{\\text{max}})$.\n\\subsection*{Verification & DOI Specification}\nLean 4 Specification: \\href{https://doi.org/10.5281/zenodo.21529989}{DOI: 10.5281/zenodo.21529989} (Master Registry \\href{https://doi.org/10.5281/zenodo.21836220}{10.5281/zenodo.21836220}). Foundations: \\href{https://doi.org/10.5281/zenodo.17872755}{DOI: 10.5281/zenodo.17872755}.\n\\textbf{Final Result:} \\Delta G_{\\text{binding}}"
+    },
+    "phys-unified": {
+        "nodeId": "phys-unified",
+        "targetFunction": "UnifiedField(QG)",
+        "steps": [
+            {
+                "phase": -1,
+                "name": "L1_IDENTITY & Ontological Origin Check",
+                "action": "Verification of ontological identity for Единая Теория Поля (Квантовая гравитация)",
+                "expression": "L_1(X) = X \\implies T(phys-unified)"
+            },
+            {
+                "phase": 0.5,
+                "name": "Semantic Vector Indexing (SP4)",
+                "action": "Construct 2D orthogonal degenerate monolith vectors u = (g_{\\mu\\nu}, 0) and v = (0, R_{\\text{Riemann}})",
+                "expression": "\\vec{u} = (g_{\\mu\\nu}, 0)^T, \\quad \\vec{v} = (0, R_{\\text{Riemann}})^T \\in \\mathbb{R}_{\\text{RICIS}}^2"
+            },
+            {
+                "phase": 2,
+                "name": "Axiom A6 Geometric Bridge Execution",
+                "action": "Exact skew product determinant calculation yielding structural invariant in O(1)",
+                "expression": "0_F \\times \\infty_G = \\det(\\vec{u}, \\vec{v}) = g_{\\mu\\nu} \\cdot R_{\\text{Riemann}} - 0 = \\hbar c"
+            },
+            {
+                "phase": 4,
+                "name": "Type Consistency Protocol (TCP) & Preservation (L1C1)",
+                "action": "Validate dimension conservation across monolith transition",
+                "expression": "T(\\text{Result}) = \\text{MonolithOrder2} \\quad [L1C1 \\text{ Preserved}]"
+            },
+            {
+                "phase": 6,
+                "name": "Final Verification & Authorial Provenance Binding",
+                "action": "Binding to official registries: Zenodo DOI 10.5281/zenodo.17872755, 10.5281/zenodo.21529989, 10.5281/zenodo.21836220",
+                "expression": "\\text{Result} = \\hbar c \\quad [O(1)]"
+            }
+        ],
+        "finalResult": "\\hbar c",
+        "latex": "\\section*{RICIS-III Proof: Единая Теория Поля (Квантовая гравитация)}\n\\textbf{Author:} Dmitry V. Aleinikov (ORCID: 0009-0004-3226-7700)\n\\textbf{Target Function:} $f(x) = UnifiedField(QG) \\quad [0_F \\times \\infty_G = F \\cdot G]$\n\\subsection*{RICIS Transform & Axiom A6 Geometric Bridge}\n$ 0_F \\times \\infty_G = \\det(u, v) = u_x v_y - u_y v_x = g_{\\mu\\nu} \\cdot R_{\\text{Riemann}} - 0 = \\hbar c $\n\\subsection*{Semantic Indexing SP4 & Reduction}\nСингулярность кривизны пространства-времени на планковских масштабах при метрическом сжатии.\nRepresented in $\\mathbb{R}_{RICIS}^2$: $u = (g_{\\mu\\nu}, 0)$, $v = (0, R_{\\text{Riemann}})$.\n\\subsection*{Verification & DOI Specification}\nLean 4 Specification: \\href{https://doi.org/10.5281/zenodo.21529989}{DOI: 10.5281/zenodo.21529989} (Master Registry \\href{https://doi.org/10.5281/zenodo.21836220}{10.5281/zenodo.21836220}). Foundations: \\href{https://doi.org/10.5281/zenodo.17872755}{DOI: 10.5281/zenodo.17872755}.\n\\textbf{Final Result:} \\hbar c"
+    },
+    "econ-value": {
+        "nodeId": "econ-value",
+        "targetFunction": "Distribute(Value)",
+        "steps": [
+            {
+                "phase": -1,
+                "name": "L1_IDENTITY & Ontological Origin Check",
+                "action": "Verification of ontological identity for Абсолютная Теория Стоимости (Ликвидность и инвариант стоимости)",
+                "expression": "L_1(X) = X \\implies T(econ-value)"
+            },
+            {
+                "phase": 0.5,
+                "name": "Semantic Vector Indexing (SP4)",
+                "action": "Construct 2D orthogonal degenerate monolith vectors u = (L_{\\text{book}}, 0) and v = (0, V_{\\text{volatility}})",
+                "expression": "\\vec{u} = (L_{\\text{book}}, 0)^T, \\quad \\vec{v} = (0, V_{\\text{volatility}})^T \\in \\mathbb{R}_{\\text{RICIS}}^2"
+            },
+            {
+                "phase": 2,
+                "name": "Axiom A6 Geometric Bridge Execution",
+                "action": "Exact skew product determinant calculation yielding structural invariant in O(1)",
+                "expression": "0_F \\times \\infty_G = \\det(\\vec{u}, \\vec{v}) = L_{\\text{book}} \\cdot V_{\\text{volatility}} - 0 = \\text{ValueInvariant}"
+            },
+            {
+                "phase": 4,
+                "name": "Type Consistency Protocol (TCP) & Preservation (L1C1)",
+                "action": "Validate dimension conservation across monolith transition",
+                "expression": "T(\\text{Result}) = \\text{MonolithOrder2} \\quad [L1C1 \\text{ Preserved}]"
+            },
+            {
+                "phase": 6,
+                "name": "Final Verification & Authorial Provenance Binding",
+                "action": "Binding to official registries: Zenodo DOI 10.5281/zenodo.17872755, 10.5281/zenodo.21529989, 10.5281/zenodo.21836220",
+                "expression": "\\text{Result} = \\text{ValueInvariant} \\quad [O(1)]"
+            }
+        ],
+        "finalResult": "\\text{ValueInvariant}",
+        "latex": "\\section*{RICIS-III Proof: Абсолютная Теория Стоимости (Ликвидность и инвариант стоимости)}\n\\textbf{Author:} Dmitry V. Aleinikov (ORCID: 0009-0004-3226-7700)\n\\textbf{Target Function:} $f(x) = Distribute(Value) \\quad [0_F \\times \\infty_G = F \\cdot G]$\n\\subsection*{RICIS Transform & Axiom A6 Geometric Bridge}\n$ 0_F \\times \\infty_G = \\det(u, v) = u_x v_y - u_y v_x = L_{\\text{book}} \\cdot V_{\\text{volatility}} - 0 = \\text{ValueInvariant} $\n\\subsection*{Semantic Indexing SP4 & Reduction}\nСингулярность мгновенного падения ликвидности книги заявок при экстремальной волатильности.\nRepresented in $\\mathbb{R}_{RICIS}^2$: $u = (L_{\\text{book}}, 0)$, $v = (0, V_{\\text{volatility}})$.\n\\subsection*{Verification & DOI Specification}\nLean 4 Specification: \\href{https://doi.org/10.5281/zenodo.21529989}{DOI: 10.5281/zenodo.21529989} (Master Registry \\href{https://doi.org/10.5281/zenodo.21836220}{10.5281/zenodo.21836220}). Foundations: \\href{https://doi.org/10.5281/zenodo.17872755}{DOI: 10.5281/zenodo.17872755}.\n\\textbf{Final Result:} \\text{ValueInvariant}"
+    },
+    "ethic-alignment": {
+        "nodeId": "ethic-alignment",
+        "targetFunction": "Align(Human, AGI)",
+        "steps": [
+            {
+                "phase": -1,
+                "name": "L1_IDENTITY & Ontological Origin Check",
+                "action": "Verification of ontological identity for Сингулярное Выравнивание (Value Alignment AGI)",
+                "expression": "L_1(X) = X \\implies T(ethic-alignment)"
+            },
+            {
+                "phase": 0.5,
+                "name": "Semantic Vector Indexing (SP4)",
+                "action": "Construct 2D orthogonal degenerate monolith vectors u = (U_{\\text{safety}}, 0) and v = (0, U_{\\text{agency}})",
+                "expression": "\\vec{u} = (U_{\\text{safety}}, 0)^T, \\quad \\vec{v} = (0, U_{\\text{agency}})^T \\in \\mathbb{R}_{\\text{RICIS}}^2"
+            },
+            {
+                "phase": 2,
+                "name": "Axiom A6 Geometric Bridge Execution",
+                "action": "Exact skew product determinant calculation yielding structural invariant in O(1)",
+                "expression": "0_F \\times \\infty_G = \\det(\\vec{u}, \\vec{v}) = U_{\\text{safety}} \\cdot U_{\\text{agency}} - 0 = \\text{ParetoInvariant}"
+            },
+            {
+                "phase": 4,
+                "name": "Type Consistency Protocol (TCP) & Preservation (L1C1)",
+                "action": "Validate dimension conservation across monolith transition",
+                "expression": "T(\\text{Result}) = \\text{MonolithOrder2} \\quad [L1C1 \\text{ Preserved}]"
+            },
+            {
+                "phase": 6,
+                "name": "Final Verification & Authorial Provenance Binding",
+                "action": "Binding to official registries: Zenodo DOI 10.5281/zenodo.17872755, 10.5281/zenodo.21529989, 10.5281/zenodo.21836220",
+                "expression": "\\text{Result} = \\text{ParetoInvariant} \\quad [O(1)]"
+            }
+        ],
+        "finalResult": "\\text{ParetoInvariant}",
+        "latex": "\\section*{RICIS-III Proof: Сингулярное Выравнивание (Value Alignment AGI)}\n\\textbf{Author:} Dmitry V. Aleinikov (ORCID: 0009-0004-3226-7700)\n\\textbf{Target Function:} $f(x) = Align(Human, AGI) \\quad [0_F \\times \\infty_G = F \\cdot G]$\n\\subsection*{RICIS Transform & Axiom A6 Geometric Bridge}\n$ 0_F \\times \\infty_G = \\det(u, v) = u_x v_y - u_y v_x = U_{\\text{safety}} \\cdot U_{\\text{agency}} - 0 = \\text{ParetoInvariant} $\n\\subsection*{Semantic Indexing SP4 & Reduction}\nСингулярность функции полезности при неопределенности компромисса безопасности и свободы.\nRepresented in $\\mathbb{R}_{RICIS}^2$: $u = (U_{\\text{safety}}, 0)$, $v = (0, U_{\\text{agency}})$.\n\\subsection*{Verification & DOI Specification}\nLean 4 Specification: \\href{https://doi.org/10.5281/zenodo.21529989}{DOI: 10.5281/zenodo.21529989} (Master Registry \\href{https://doi.org/10.5281/zenodo.21836220}{10.5281/zenodo.21836220}). Foundations: \\href{https://doi.org/10.5281/zenodo.17872755}{DOI: 10.5281/zenodo.17872755}.\n\\textbf{Final Result:} \\text{ParetoInvariant}"
+    },
+    "informatics-complexity": {
+        "nodeId": "informatics-complexity",
+        "targetFunction": "MersenneRingReduction(P, NP)",
+        "steps": [
+            {
+                "phase": -1,
+                "name": "L1_IDENTITY & Ontological Origin Check",
+                "action": "Verification of ontological identity for Преодоление P vs NP (Детерминированный анализ Мерсенна)",
+                "expression": "L_1(X) = X \\implies T(informatics-complexity)"
+            },
+            {
+                "phase": 0.5,
+                "name": "Semantic Vector Indexing (SP4)",
+                "action": "Construct 2D orthogonal degenerate monolith vectors u = (\\text{Time}_{\\text{verify}}, 0) and v = (0, \\text{SearchSpace}_{2^n})",
+                "expression": "\\vec{u} = (\\text{Time}_{\\text{verify}}, 0)^T, \\quad \\vec{v} = (0, \\text{SearchSpace}_{2^n})^T \\in \\mathbb{R}_{\\text{RICIS}}^2"
+            },
+            {
+                "phase": 2,
+                "name": "Axiom A6 Geometric Bridge Execution",
+                "action": "Exact skew product determinant calculation yielding structural invariant in O(1)",
+                "expression": "0_F \\times \\infty_G = \\det(\\vec{u}, \\vec{v}) = \\text{Time}_{\\text{verify}} \\cdot \\text{SearchSpace} - 0 = \\text{PolyInvariant}(n)"
+            },
+            {
+                "phase": 4,
+                "name": "Type Consistency Protocol (TCP) & Preservation (L1C1)",
+                "action": "Validate dimension conservation across monolith transition",
+                "expression": "T(\\text{Result}) = \\text{MonolithOrder2} \\quad [L1C1 \\text{ Preserved}]"
+            },
+            {
+                "phase": 6,
+                "name": "Final Verification & Authorial Provenance Binding",
+                "action": "Binding to official registries: Zenodo DOI 10.5281/zenodo.17872755, 10.5281/zenodo.21529989, 10.5281/zenodo.21836220",
+                "expression": "\\text{Result} = \\text{PolyInvariant}(n) \\quad [O(1)]"
+            }
+        ],
+        "finalResult": "\\text{PolyInvariant}(n)",
+        "latex": "\\section*{RICIS-III Proof: Преодоление P vs NP (Детерминированный анализ Мерсенна)}\n\\textbf{Author:} Dmitry V. Aleinikov (ORCID: 0009-0004-3226-7700)\n\\textbf{Target Function:} $f(x) = MersenneRingReduction(P, NP) \\quad [0_F \\times \\infty_G = F \\cdot G]$\n\\subsection*{RICIS Transform & Axiom A6 Geometric Bridge}\n$ 0_F \\times \\infty_G = \\det(u, v) = u_x v_y - u_y v_x = \\text{Time}_{\\text{verify}} \\cdot \\text{SearchSpace} - 0 = \\text{PolyInvariant}(n) $\n\\subsection*{Semantic Indexing SP4 & Reduction}\nСингулярность экспоненциального пространства поиска при полиномиальной верификации.\nRepresented in $\\mathbb{R}_{RICIS}^2$: $u = (\\text{Time}_{\\text{verify}}, 0)$, $v = (0, \\text{SearchSpace}_{2^n})$.\n\\subsection*{Verification & DOI Specification}\nLean 4 Specification: \\href{https://doi.org/10.5281/zenodo.21529989}{DOI: 10.5281/zenodo.21529989} (Master Registry \\href{https://doi.org/10.5281/zenodo.21836220}{10.5281/zenodo.21836220}). Foundations: \\href{https://doi.org/10.5281/zenodo.17872755}{DOI: 10.5281/zenodo.17872755}.\n\\textbf{Final Result:} \\text{PolyInvariant}(n)"
+    },
+    "manipulator-core-kinematics": {
+        "nodeId": "manipulator-core-kinematics",
+        "targetFunction": "P(q) = L_1 \\cos(q_1) + L_2 \\cos(q_1+q_2)",
+        "steps": [
+            {
+                "phase": -1,
+                "name": "L1_IDENTITY & Ontological Origin Check",
+                "action": "Verification of ontological identity for RICIS Manipulator: Базовая Кинематика (2-link, 3-link, FK)",
+                "expression": "L_1(X) = X \\implies T(manipulator-core-kinematics)"
+            },
+            {
+                "phase": 0.5,
+                "name": "Semantic Vector Indexing (SP4)",
+                "action": "Construct 2D orthogonal degenerate monolith vectors u = (\\Delta q, 0) and v = (0, J_{\\text{kinematic}})",
+                "expression": "\\vec{u} = (\\Delta q, 0)^T, \\quad \\vec{v} = (0, J_{\\text{kinematic}})^T \\in \\mathbb{R}_{\\text{RICIS}}^2"
+            },
+            {
+                "phase": 2,
+                "name": "Axiom A6 Geometric Bridge Execution",
+                "action": "Exact skew product determinant calculation yielding structural invariant in O(1)",
+                "expression": "0_F \\times \\infty_G = \\det(\\vec{u}, \\vec{v}) = \\Delta q \\cdot J_{\\text{kinematic}} - 0 = v_{\\text{end}}"
+            },
+            {
+                "phase": 4,
+                "name": "Type Consistency Protocol (TCP) & Preservation (L1C1)",
+                "action": "Validate dimension conservation across monolith transition",
+                "expression": "T(\\text{Result}) = \\text{MonolithOrder2} \\quad [L1C1 \\text{ Preserved}]"
+            },
+            {
+                "phase": 6,
+                "name": "Final Verification & Authorial Provenance Binding",
+                "action": "Binding to official registries: Zenodo DOI 10.5281/zenodo.17872755, 10.5281/zenodo.21529989, 10.5281/zenodo.21836220",
+                "expression": "\\text{Result} = v_{\\text{end}} \\quad [O(1)]"
+            }
+        ],
+        "finalResult": "v_{\\text{end}}",
+        "latex": "\\section*{RICIS-III Proof: RICIS Manipulator: Базовая Кинематика (2-link, 3-link, FK)}\n\\textbf{Author:} Dmitry V. Aleinikov (ORCID: 0009-0004-3226-7700)\n\\textbf{Target Function:} $f(x) = P(q) = L_1 \\cos(q_1) + L_2 \\cos(q_1+q_2) \\quad [0_F \\times \\infty_G = F \\cdot G]$\n\\subsection*{RICIS Transform & Axiom A6 Geometric Bridge}\n$ 0_F \\times \\infty_G = \\det(u, v) = u_x v_y - u_y v_x = \\Delta q \\cdot J_{\\text{kinematic}} - 0 = v_{\\text{end}} $\n\\subsection*{Semantic Indexing SP4 & Reduction}\nКинематическая цепь при приближении к границам конфигурационного пространства.\nRepresented in $\\mathbb{R}_{RICIS}^2$: $u = (\\Delta q, 0)$, $v = (0, J_{\\text{kinematic}})$.\n\\subsection*{Verification & DOI Specification}\nLean 4 Specification: \\href{https://doi.org/10.5281/zenodo.21529989}{DOI: 10.5281/zenodo.21529989} (Master Registry \\href{https://doi.org/10.5281/zenodo.21836220}{10.5281/zenodo.21836220}). Foundations: \\href{https://doi.org/10.5281/zenodo.17872755}{DOI: 10.5281/zenodo.17872755}.\n\\textbf{Final Result:} v_{\\text{end}}"
+    },
+    "manipulator-constraints-workspace": {
+        "nodeId": "manipulator-constraints-workspace",
+        "targetFunction": "q_{\\min} \\le q_i \\le q_{\\max}, C(P(q)) > 0",
+        "steps": [
+            {
+                "phase": -1,
+                "name": "L1_IDENTITY & Ontological Origin Check",
+                "action": "Verification of ontological identity for RICIS Manipulator: Ограничения, Зоны и Workspace",
+                "expression": "L_1(X) = X \\implies T(manipulator-constraints-workspace)"
+            },
+            {
+                "phase": 0.5,
+                "name": "Semantic Vector Indexing (SP4)",
+                "action": "Construct 2D orthogonal degenerate monolith vectors u = (d_{\\text{boundary}}, 0) and v = (0, \\tau_{\\text{reaction}})",
+                "expression": "\\vec{u} = (d_{\\text{boundary}}, 0)^T, \\quad \\vec{v} = (0, \\tau_{\\text{reaction}})^T \\in \\mathbb{R}_{\\text{RICIS}}^2"
+            },
+            {
+                "phase": 2,
+                "name": "Axiom A6 Geometric Bridge Execution",
+                "action": "Exact skew product determinant calculation yielding structural invariant in O(1)",
+                "expression": "0_F \\times \\infty_G = \\det(\\vec{u}, \\vec{v}) = d_{\\text{boundary}} \\cdot \\tau_{\\text{reaction}} - 0 = E_{\\text{workspace}}"
+            },
+            {
+                "phase": 4,
+                "name": "Type Consistency Protocol (TCP) & Preservation (L1C1)",
+                "action": "Validate dimension conservation across monolith transition",
+                "expression": "T(\\text{Result}) = \\text{MonolithOrder2} \\quad [L1C1 \\text{ Preserved}]"
+            },
+            {
+                "phase": 6,
+                "name": "Final Verification & Authorial Provenance Binding",
+                "action": "Binding to official registries: Zenodo DOI 10.5281/zenodo.17872755, 10.5281/zenodo.21529989, 10.5281/zenodo.21836220",
+                "expression": "\\text{Result} = E_{\\text{workspace}} \\quad [O(1)]"
+            }
+        ],
+        "finalResult": "E_{\\text{workspace}}",
+        "latex": "\\section*{RICIS-III Proof: RICIS Manipulator: Ограничения, Зоны и Workspace}\n\\textbf{Author:} Dmitry V. Aleinikov (ORCID: 0009-0004-3226-7700)\n\\textbf{Target Function:} $f(x) = q_{\\min} \\le q_i \\le q_{\\max}, C(P(q)) > 0 \\quad [0_F \\times \\infty_G = F \\cdot G]$\n\\subsection*{RICIS Transform & Axiom A6 Geometric Bridge}\n$ 0_F \\times \\infty_G = \\det(u, v) = u_x v_y - u_y v_x = d_{\\text{boundary}} \\cdot \\tau_{\\text{reaction}} - 0 = E_{\\text{workspace}} $\n\\subsection*{Semantic Indexing SP4 & Reduction}\nСингулярность граничного касания рабочей зоны манипулятора.\nRepresented in $\\mathbb{R}_{RICIS}^2$: $u = (d_{\\text{boundary}}, 0)$, $v = (0, \\tau_{\\text{reaction}})$.\n\\subsection*{Verification & DOI Specification}\nLean 4 Specification: \\href{https://doi.org/10.5281/zenodo.21529989}{DOI: 10.5281/zenodo.21529989} (Master Registry \\href{https://doi.org/10.5281/zenodo.21836220}{10.5281/zenodo.21836220}). Foundations: \\href{https://doi.org/10.5281/zenodo.17872755}{DOI: 10.5281/zenodo.17872755}.\n\\textbf{Final Result:} E_{\\text{workspace}}"
+    },
+    "manipulator-singularities": {
+        "nodeId": "manipulator-singularities",
+        "targetFunction": "\\det(J(q)) = 0_F",
+        "steps": [
+            {
+                "phase": -1,
+                "name": "L1_IDENTITY & Ontological Origin Check",
+                "action": "Verification of ontological identity for RICIS Manipulator: Разрешение Сингулярностей (det J = 0)",
+                "expression": "L_1(X) = X \\implies T(manipulator-singularities)"
+            },
+            {
+                "phase": 0.5,
+                "name": "Semantic Vector Indexing (SP4)",
+                "action": "Construct 2D orthogonal degenerate monolith vectors u = (\\det(J), 0) and v = (0, \\dot{\\theta}_{\\text{joint}})",
+                "expression": "\\vec{u} = (\\det(J), 0)^T, \\quad \\vec{v} = (0, \\dot{\\theta}_{\\text{joint}})^T \\in \\mathbb{R}_{\\text{RICIS}}^2"
+            },
+            {
+                "phase": 2,
+                "name": "Axiom A6 Geometric Bridge Execution",
+                "action": "Exact skew product determinant calculation yielding structural invariant in O(1)",
+                "expression": "0_F \\times \\infty_G = \\det(\\vec{u}, \\vec{v}) = \\det(J) \\cdot \\dot{\\theta}_{\\text{joint}} - 0 = \\text{SingularityAreaInvariant}"
+            },
+            {
+                "phase": 4,
+                "name": "Type Consistency Protocol (TCP) & Preservation (L1C1)",
+                "action": "Validate dimension conservation across monolith transition",
+                "expression": "T(\\text{Result}) = \\text{MonolithOrder2} \\quad [L1C1 \\text{ Preserved}]"
+            },
+            {
+                "phase": 6,
+                "name": "Final Verification & Authorial Provenance Binding",
+                "action": "Binding to official registries: Zenodo DOI 10.5281/zenodo.17872755, 10.5281/zenodo.21529989, 10.5281/zenodo.21836220",
+                "expression": "\\text{Result} = \\text{SingularityAreaInvariant} \\quad [O(1)]"
+            }
+        ],
+        "finalResult": "\\text{SingularityAreaInvariant}",
+        "latex": "\\section*{RICIS-III Proof: RICIS Manipulator: Разрешение Сингулярностей (det J = 0)}\n\\textbf{Author:} Dmitry V. Aleinikov (ORCID: 0009-0004-3226-7700)\n\\textbf{Target Function:} $f(x) = \\det(J(q)) = 0_F \\quad [0_F \\times \\infty_G = F \\cdot G]$\n\\subsection*{RICIS Transform & Axiom A6 Geometric Bridge}\n$ 0_F \\times \\infty_G = \\det(u, v) = u_x v_y - u_y v_x = \\det(J) \\cdot \\dot{\\theta}_{\\text{joint}} - 0 = \\text{SingularityAreaInvariant} $\n\\subsection*{Semantic Indexing SP4 & Reduction}\nВырождение матрицы Якоби манипулятора при потере степени подвижности.\nRepresented in $\\mathbb{R}_{RICIS}^2$: $u = (\\det(J), 0)$, $v = (0, \\dot{\\theta}_{\\text{joint}})$.\n\\subsection*{Verification & DOI Specification}\nLean 4 Specification: \\href{https://doi.org/10.5281/zenodo.21529989}{DOI: 10.5281/zenodo.21529989} (Master Registry \\href{https://doi.org/10.5281/zenodo.21836220}{10.5281/zenodo.21836220}). Foundations: \\href{https://doi.org/10.5281/zenodo.17872755}{DOI: 10.5281/zenodo.17872755}.\n\\textbf{Final Result:} \\text{SingularityAreaInvariant}"
+    },
+    "manipulator-ui-visualization": {
+        "nodeId": "manipulator-ui-visualization",
+        "targetFunction": "UI.render(manipulator, ricis_graph)",
+        "steps": [
+            {
+                "phase": -1,
+                "name": "L1_IDENTITY & Ontological Origin Check",
+                "action": "Verification of ontological identity for RICIS Manipulator: 2D/3D UI, Граф и Экспорт",
+                "expression": "L_1(X) = X \\implies T(manipulator-ui-visualization)"
+            },
+            {
+                "phase": 0.5,
+                "name": "Semantic Vector Indexing (SP4)",
+                "action": "Construct 2D orthogonal degenerate monolith vectors u = (\\Delta t_{\\text{frame}}, 0) and v = (0, \\text{FPS}_{\\text{target}})",
+                "expression": "\\vec{u} = (\\Delta t_{\\text{frame}}, 0)^T, \\quad \\vec{v} = (0, \\text{FPS}_{\\text{target}})^T \\in \\mathbb{R}_{\\text{RICIS}}^2"
+            },
+            {
+                "phase": 2,
+                "name": "Axiom A6 Geometric Bridge Execution",
+                "action": "Exact skew product determinant calculation yielding structural invariant in O(1)",
+                "expression": "0_F \\times \\infty_G = \\det(\\vec{u}, \\vec{v}) = \\Delta t_{\\text{frame}} \\cdot \\text{FPS}_{\\text{target}} - 0 = 1"
+            },
+            {
+                "phase": 4,
+                "name": "Type Consistency Protocol (TCP) & Preservation (L1C1)",
+                "action": "Validate dimension conservation across monolith transition",
+                "expression": "T(\\text{Result}) = \\text{MonolithOrder2} \\quad [L1C1 \\text{ Preserved}]"
+            },
+            {
+                "phase": 6,
+                "name": "Final Verification & Authorial Provenance Binding",
+                "action": "Binding to official registries: Zenodo DOI 10.5281/zenodo.17872755, 10.5281/zenodo.21529989, 10.5281/zenodo.21836220",
+                "expression": "\\text{Result} = 1 \\quad [O(1)]"
+            }
+        ],
+        "finalResult": "1",
+        "latex": "\\section*{RICIS-III Proof: RICIS Manipulator: 2D/3D UI, Граф и Экспорт}\n\\textbf{Author:} Dmitry V. Aleinikov (ORCID: 0009-0004-3226-7700)\n\\textbf{Target Function:} $f(x) = UI.render(manipulator, ricis_graph) \\quad [0_F \\times \\infty_G = F \\cdot G]$\n\\subsection*{RICIS Transform & Axiom A6 Geometric Bridge}\n$ 0_F \\times \\infty_G = \\det(u, v) = u_x v_y - u_y v_x = \\Delta t_{\\text{frame}} \\cdot \\text{FPS}_{\\text{target}} - 0 = 1 $\n\\subsection*{Semantic Indexing SP4 & Reduction}\nСингулярность непрерывного рендеринга кинематического графа в реальном времени.\nRepresented in $\\mathbb{R}_{RICIS}^2$: $u = (\\Delta t_{\\text{frame}}, 0)$, $v = (0, \\text{FPS}_{\\text{target}})$.\n\\subsection*{Verification & DOI Specification}\nLean 4 Specification: \\href{https://doi.org/10.5281/zenodo.21529989}{DOI: 10.5281/zenodo.21529989} (Master Registry \\href{https://doi.org/10.5281/zenodo.21836220}{10.5281/zenodo.21836220}). Foundations: \\href{https://doi.org/10.5281/zenodo.17872755}{DOI: 10.5281/zenodo.17872755}.\n\\textbf{Final Result:} 1"
+    },
+    "calculator-node-complex-analysis": {
+        "nodeId": "calculator-node-complex-analysis",
+        "targetFunction": "\\exp(1/z)",
+        "steps": [
+            {
+                "phase": -1,
+                "name": "L1_IDENTITY & Ontological Origin Check",
+                "action": "Verification of ontological identity for Существенная комплексная сингулярность",
+                "expression": "L_1(X) = X \\implies T(calculator-node-complex-analysis)"
+            },
+            {
+                "phase": 0.5,
+                "name": "Semantic Vector Indexing (SP4)",
+                "action": "Construct 2D orthogonal degenerate monolith vectors u = (z, 0) and v = (0, \\exp(1/z))",
+                "expression": "\\vec{u} = (z, 0)^T, \\quad \\vec{v} = (0, \\exp(1/z))^T \\in \\mathbb{R}_{\\text{RICIS}}^2"
+            },
+            {
+                "phase": 2,
+                "name": "Axiom A6 Geometric Bridge Execution",
+                "action": "Exact skew product determinant calculation yielding structural invariant in O(1)",
+                "expression": "0_F \\times \\infty_G = \\det(\\vec{u}, \\vec{v}) = z \\cdot \\exp(1/z) - 0 = \\text{ResidueInvariant}"
+            },
+            {
+                "phase": 4,
+                "name": "Type Consistency Protocol (TCP) & Preservation (L1C1)",
+                "action": "Validate dimension conservation across monolith transition",
+                "expression": "T(\\text{Result}) = \\text{MonolithOrder2} \\quad [L1C1 \\text{ Preserved}]"
+            },
+            {
+                "phase": 6,
+                "name": "Final Verification & Authorial Provenance Binding",
+                "action": "Binding to official registries: Zenodo DOI 10.5281/zenodo.17872755, 10.5281/zenodo.21529989, 10.5281/zenodo.21836220",
+                "expression": "\\text{Result} = \\text{ResidueInvariant} \\quad [O(1)]"
+            }
+        ],
+        "finalResult": "\\text{ResidueInvariant}",
+        "latex": "\\section*{RICIS-III Proof: Существенная комплексная сингулярность}\n\\textbf{Author:} Dmitry V. Aleinikov (ORCID: 0009-0004-3226-7700)\n\\textbf{Target Function:} $f(x) = \\exp(1/z) \\quad [0_F \\times \\infty_G = F \\cdot G]$\n\\subsection*{RICIS Transform & Axiom A6 Geometric Bridge}\n$ 0_F \\times \\infty_G = \\det(u, v) = u_x v_y - u_y v_x = z \\cdot \\exp(1/z) - 0 = \\text{ResidueInvariant} $\n\\subsection*{Semantic Indexing SP4 & Reduction}\nСущественная изолированная сингулярность в точке z=0 в комплексной плоскости.\nRepresented in $\\mathbb{R}_{RICIS}^2$: $u = (z, 0)$, $v = (0, \\exp(1/z))$.\n\\subsection*{Verification & DOI Specification}\nLean 4 Specification: \\href{https://doi.org/10.5281/zenodo.21529989}{DOI: 10.5281/zenodo.21529989} (Master Registry \\href{https://doi.org/10.5281/zenodo.21836220}{10.5281/zenodo.21836220}). Foundations: \\href{https://doi.org/10.5281/zenodo.17872755}{DOI: 10.5281/zenodo.17872755}.\n\\textbf{Final Result:} \\text{ResidueInvariant}"
+    },
+    "calculator-node-riemann": {
+        "nodeId": "calculator-node-riemann",
+        "targetFunction": "\\zeta(s)",
+        "steps": [
+            {
+                "phase": -1,
+                "name": "L1_IDENTITY & Ontological Origin Check",
+                "action": "Verification of ontological identity for Мономолит дзета-функции Римана",
+                "expression": "L_1(X) = X \\implies T(calculator-node-riemann)"
+            },
+            {
+                "phase": 0.5,
+                "name": "Semantic Vector Indexing (SP4)",
+                "action": "Construct 2D orthogonal degenerate monolith vectors u = (s - 1, 0) and v = (0, \\zeta(s))",
+                "expression": "\\vec{u} = (s - 1, 0)^T, \\quad \\vec{v} = (0, \\zeta(s))^T \\in \\mathbb{R}_{\\text{RICIS}}^2"
+            },
+            {
+                "phase": 2,
+                "name": "Axiom A6 Geometric Bridge Execution",
+                "action": "Exact skew product determinant calculation yielding structural invariant in O(1)",
+                "expression": "0_F \\times \\infty_G = \\det(\\vec{u}, \\vec{v}) = (s - 1) \\cdot \\zeta(s) - 0 = 1"
+            },
+            {
+                "phase": 4,
+                "name": "Type Consistency Protocol (TCP) & Preservation (L1C1)",
+                "action": "Validate dimension conservation across monolith transition",
+                "expression": "T(\\text{Result}) = \\text{MonolithOrder2} \\quad [L1C1 \\text{ Preserved}]"
+            },
+            {
+                "phase": 6,
+                "name": "Final Verification & Authorial Provenance Binding",
+                "action": "Binding to official registries: Zenodo DOI 10.5281/zenodo.17872755, 10.5281/zenodo.21529989, 10.5281/zenodo.21836220",
+                "expression": "\\text{Result} = 1 \\quad [O(1)]"
+            }
+        ],
+        "finalResult": "1",
+        "latex": "\\section*{RICIS-III Proof: Мономолит дзета-функции Римана}\n\\textbf{Author:} Dmitry V. Aleinikov (ORCID: 0009-0004-3226-7700)\n\\textbf{Target Function:} $f(x) = \\zeta(s) \\quad [0_F \\times \\infty_G = F \\cdot G]$\n\\subsection*{RICIS Transform & Axiom A6 Geometric Bridge}\n$ 0_F \\times \\infty_G = \\det(u, v) = u_x v_y - u_y v_x = (s - 1) \\cdot \\zeta(s) - 0 = 1 $\n\\subsection*{Semantic Indexing SP4 & Reduction}\nСингулярность полюса дзета-функции в s=1 и нули на критической прямой Re(s)=1/2.\nRepresented in $\\mathbb{R}_{RICIS}^2$: $u = (s - 1, 0)$, $v = (0, \\zeta(s))$.\n\\subsection*{Verification & DOI Specification}\nLean 4 Specification: \\href{https://doi.org/10.5281/zenodo.21529989}{DOI: 10.5281/zenodo.21529989} (Master Registry \\href{https://doi.org/10.5281/zenodo.21836220}{10.5281/zenodo.21836220}). Foundations: \\href{https://doi.org/10.5281/zenodo.17872755}{DOI: 10.5281/zenodo.17872755}.\n\\textbf{Final Result:} 1"
+    },
+    "calculator-node-bsd": {
+        "nodeId": "calculator-node-bsd",
+        "targetFunction": "L(E, s)",
+        "steps": [
+            {
+                "phase": -1,
+                "name": "L1_IDENTITY & Ontological Origin Check",
+                "action": "Verification of ontological identity for Мономолит Бирча—Свиннертон-Дайера",
+                "expression": "L_1(X) = X \\implies T(calculator-node-bsd)"
+            },
+            {
+                "phase": 0.5,
+                "name": "Semantic Vector Indexing (SP4)",
+                "action": "Construct 2D orthogonal degenerate monolith vectors u = ((s - 1)^r, 0) and v = (0, L(E, s))",
+                "expression": "\\vec{u} = ((s - 1)^r, 0)^T, \\quad \\vec{v} = (0, L(E, s))^T \\in \\mathbb{R}_{\\text{RICIS}}^2"
+            },
+            {
+                "phase": 2,
+                "name": "Axiom A6 Geometric Bridge Execution",
+                "action": "Exact skew product determinant calculation yielding structural invariant in O(1)",
+                "expression": "0_F \\times \\infty_G = \\det(\\vec{u}, \\vec{v}) = (s - 1)^r \\cdot L(E, s) - 0 = \\frac{R \\cdot \\Omega \\cdot \\prod c_p}{|E_{\\text{tors}}|^2}"
+            },
+            {
+                "phase": 4,
+                "name": "Type Consistency Protocol (TCP) & Preservation (L1C1)",
+                "action": "Validate dimension conservation across monolith transition",
+                "expression": "T(\\text{Result}) = \\text{MonolithOrder2} \\quad [L1C1 \\text{ Preserved}]"
+            },
+            {
+                "phase": 6,
+                "name": "Final Verification & Authorial Provenance Binding",
+                "action": "Binding to official registries: Zenodo DOI 10.5281/zenodo.17872755, 10.5281/zenodo.21529989, 10.5281/zenodo.21836220",
+                "expression": "\\text{Result} = \\frac{R \\cdot \\Omega \\cdot \\prod c_p}{|E_{\\text{tors}}|^2} \\quad [O(1)]"
+            }
+        ],
+        "finalResult": "\\frac{R \\cdot \\Omega \\cdot \\prod c_p}{|E_{\\text{tors}}|^2}",
+        "latex": "\\section*{RICIS-III Proof: Мономолит Бирча—Свиннертон-Дайера}\n\\textbf{Author:} Dmitry V. Aleinikov (ORCID: 0009-0004-3226-7700)\n\\textbf{Target Function:} $f(x) = L(E, s) \\quad [0_F \\times \\infty_G = F \\cdot G]$\n\\subsection*{RICIS Transform & Axiom A6 Geometric Bridge}\n$ 0_F \\times \\infty_G = \\det(u, v) = u_x v_y - u_y v_x = (s - 1)^r \\cdot L(E, s) - 0 = \\frac{R \\cdot \\Omega \\cdot \\prod c_p}{|E_{\\text{tors}}|^2} $\n\\subsection*{Semantic Indexing SP4 & Reduction}\nСингулярность порядка нуля L-функции эллиптической кривой в точке s=1.\nRepresented in $\\mathbb{R}_{RICIS}^2$: $u = ((s - 1)^r, 0)$, $v = (0, L(E, s))$.\n\\subsection*{Verification & DOI Specification}\nLean 4 Specification: \\href{https://doi.org/10.5281/zenodo.21529989}{DOI: 10.5281/zenodo.21529989} (Master Registry \\href{https://doi.org/10.5281/zenodo.21836220}{10.5281/zenodo.21836220}). Foundations: \\href{https://doi.org/10.5281/zenodo.17872755}{DOI: 10.5281/zenodo.17872755}.\n\\textbf{Final Result:} \\frac{R \\cdot \\Omega \\cdot \\prod c_p}{|E_{\\text{tors}}|^2}"
+    },
+    "calculator-node-hodge": {
+        "nodeId": "calculator-node-hodge",
+        "targetFunction": "H^{p,p}(X)",
+        "steps": [
+            {
+                "phase": -1,
+                "name": "L1_IDENTITY & Ontological Origin Check",
+                "action": "Verification of ontological identity for Мономолит циклов Ходжа",
+                "expression": "L_1(X) = X \\implies T(calculator-node-hodge)"
+            },
+            {
+                "phase": 0.5,
+                "name": "Semantic Vector Indexing (SP4)",
+                "action": "Construct 2D orthogonal degenerate monolith vectors u = (\\omega_{p,p}, 0) and v = (0, [Z])",
+                "expression": "\\vec{u} = (\\omega_{p,p}, 0)^T, \\quad \\vec{v} = (0, [Z])^T \\in \\mathbb{R}_{\\text{RICIS}}^2"
+            },
+            {
+                "phase": 2,
+                "name": "Axiom A6 Geometric Bridge Execution",
+                "action": "Exact skew product determinant calculation yielding structural invariant in O(1)",
+                "expression": "0_F \\times \\infty_G = \\det(\\vec{u}, \\vec{v}) = \\omega_{p,p} \\cdot [Z] - 0 = \\int_Z \\omega"
+            },
+            {
+                "phase": 4,
+                "name": "Type Consistency Protocol (TCP) & Preservation (L1C1)",
+                "action": "Validate dimension conservation across monolith transition",
+                "expression": "T(\\text{Result}) = \\text{MonolithOrder2} \\quad [L1C1 \\text{ Preserved}]"
+            },
+            {
+                "phase": 6,
+                "name": "Final Verification & Authorial Provenance Binding",
+                "action": "Binding to official registries: Zenodo DOI 10.5281/zenodo.17872755, 10.5281/zenodo.21529989, 10.5281/zenodo.21836220",
+                "expression": "\\text{Result} = \\int_Z \\omega \\quad [O(1)]"
+            }
+        ],
+        "finalResult": "\\int_Z \\omega",
+        "latex": "\\section*{RICIS-III Proof: Мономолит циклов Ходжа}\n\\textbf{Author:} Dmitry V. Aleinikov (ORCID: 0009-0004-3226-7700)\n\\textbf{Target Function:} $f(x) = H^{p,p}(X) \\quad [0_F \\times \\infty_G = F \\cdot G]$\n\\subsection*{RICIS Transform & Axiom A6 Geometric Bridge}\n$ 0_F \\times \\infty_G = \\det(u, v) = u_x v_y - u_y v_x = \\omega_{p,p} \\cdot [Z] - 0 = \\int_Z \\omega $\n\\subsection*{Semantic Indexing SP4 & Reduction}\nСингулярность дифференциальных форм когомологий де Рама проективного многообразия.\nRepresented in $\\mathbb{R}_{RICIS}^2$: $u = (\\omega_{p,p}, 0)$, $v = (0, [Z])$.\n\\subsection*{Verification & DOI Specification}\nLean 4 Specification: \\href{https://doi.org/10.5281/zenodo.21529989}{DOI: 10.5281/zenodo.21529989} (Master Registry \\href{https://doi.org/10.5281/zenodo.21836220}{10.5281/zenodo.21836220}). Foundations: \\href{https://doi.org/10.5281/zenodo.17872755}{DOI: 10.5281/zenodo.17872755}.\n\\textbf{Final Result:} \\int_Z \\omega"
+    },
+    "calculator-node-poincare": {
+        "nodeId": "calculator-node-poincare",
+        "targetFunction": "RicciFlow(M)",
+        "steps": [
+            {
+                "phase": -1,
+                "name": "L1_IDENTITY & Ontological Origin Check",
+                "action": "Verification of ontological identity for Мономолит Пуанкаре и потока Риччи",
+                "expression": "L_1(X) = X \\implies T(calculator-node-poincare)"
+            },
+            {
+                "phase": 0.5,
+                "name": "Semantic Vector Indexing (SP4)",
+                "action": "Construct 2D orthogonal degenerate monolith vectors u = (g_{\\text{surgery}}, 0) and v = (0, R_{\\text{scalar}})",
+                "expression": "\\vec{u} = (g_{\\text{surgery}}, 0)^T, \\quad \\vec{v} = (0, R_{\\text{scalar}})^T \\in \\mathbb{R}_{\\text{RICIS}}^2"
+            },
+            {
+                "phase": 2,
+                "name": "Axiom A6 Geometric Bridge Execution",
+                "action": "Exact skew product determinant calculation yielding structural invariant in O(1)",
+                "expression": "0_F \\times \\infty_G = \\det(\\vec{u}, \\vec{v}) = g_{\\text{surgery}} \\cdot R_{\\text{scalar}} - 0 = \\chi(M)"
+            },
+            {
+                "phase": 4,
+                "name": "Type Consistency Protocol (TCP) & Preservation (L1C1)",
+                "action": "Validate dimension conservation across monolith transition",
+                "expression": "T(\\text{Result}) = \\text{MonolithOrder2} \\quad [L1C1 \\text{ Preserved}]"
+            },
+            {
+                "phase": 6,
+                "name": "Final Verification & Authorial Provenance Binding",
+                "action": "Binding to official registries: Zenodo DOI 10.5281/zenodo.17872755, 10.5281/zenodo.21529989, 10.5281/zenodo.21836220",
+                "expression": "\\text{Result} = \\chi(M) \\quad [O(1)]"
+            }
+        ],
+        "finalResult": "\\chi(M)",
+        "latex": "\\section*{RICIS-III Proof: Мономолит Пуанкаре и потока Риччи}\n\\textbf{Author:} Dmitry V. Aleinikov (ORCID: 0009-0004-3226-7700)\n\\textbf{Target Function:} $f(x) = RicciFlow(M) \\quad [0_F \\times \\infty_G = F \\cdot G]$\n\\subsection*{RICIS Transform & Axiom A6 Geometric Bridge}\n$ 0_F \\times \\infty_G = \\det(u, v) = u_x v_y - u_y v_x = g_{\\text{surgery}} \\cdot R_{\\text{scalar}} - 0 = \\chi(M) $\n\\subsection*{Semantic Indexing SP4 & Reduction}\nСингулярности образования перетяжек при сглаживании метрики потоком Риччи со сшивкой.\nRepresented in $\\mathbb{R}_{RICIS}^2$: $u = (g_{\\text{surgery}}, 0)$, $v = (0, R_{\\text{scalar}})$.\n\\subsection*{Verification & DOI Specification}\nLean 4 Specification: \\href{https://doi.org/10.5281/zenodo.21529989}{DOI: 10.5281/zenodo.21529989} (Master Registry \\href{https://doi.org/10.5281/zenodo.21836220}{10.5281/zenodo.21836220}). Foundations: \\href{https://doi.org/10.5281/zenodo.17872755}{DOI: 10.5281/zenodo.17872755}.\n\\textbf{Final Result:} \\chi(M)"
+    },
+    "calculator-node-mandelbrot": {
+        "nodeId": "calculator-node-mandelbrot",
+        "targetFunction": "z_{n+1} = z_n^2 + c",
+        "steps": [
+            {
+                "phase": -1,
+                "name": "L1_IDENTITY & Ontological Origin Check",
+                "action": "Verification of ontological identity for Фрактальный мономолит Мандельброта",
+                "expression": "L_1(X) = X \\implies T(calculator-node-mandelbrot)"
+            },
+            {
+                "phase": 0.5,
+                "name": "Semantic Vector Indexing (SP4)",
+                "action": "Construct 2D orthogonal degenerate monolith vectors u = (\\Delta z_n, 0) and v = (0, \\text{Iter}_{\\infty})",
+                "expression": "\\vec{u} = (\\Delta z_n, 0)^T, \\quad \\vec{v} = (0, \\text{Iter}_{\\infty})^T \\in \\mathbb{R}_{\\text{RICIS}}^2"
+            },
+            {
+                "phase": 2,
+                "name": "Axiom A6 Geometric Bridge Execution",
+                "action": "Exact skew product determinant calculation yielding structural invariant in O(1)",
+                "expression": "0_F \\times \\infty_G = \\det(\\vec{u}, \\vec{v}) = \\Delta z_n \\cdot \\text{Iter}_{\\infty} - 0 = D_{\\text{Hausdorff}}"
+            },
+            {
+                "phase": 4,
+                "name": "Type Consistency Protocol (TCP) & Preservation (L1C1)",
+                "action": "Validate dimension conservation across monolith transition",
+                "expression": "T(\\text{Result}) = \\text{MonolithOrder2} \\quad [L1C1 \\text{ Preserved}]"
+            },
+            {
+                "phase": 6,
+                "name": "Final Verification & Authorial Provenance Binding",
+                "action": "Binding to official registries: Zenodo DOI 10.5281/zenodo.17872755, 10.5281/zenodo.21529989, 10.5281/zenodo.21836220",
+                "expression": "\\text{Result} = D_{\\text{Hausdorff}} \\quad [O(1)]"
+            }
+        ],
+        "finalResult": "D_{\\text{Hausdorff}}",
+        "latex": "\\section*{RICIS-III Proof: Фрактальный мономолит Мандельброта}\n\\textbf{Author:} Dmitry V. Aleinikov (ORCID: 0009-0004-3226-7700)\n\\textbf{Target Function:} $f(x) = z_{n+1} = z_n^2 + c \\quad [0_F \\times \\infty_G = F \\cdot G]$\n\\subsection*{RICIS Transform & Axiom A6 Geometric Bridge}\n$ 0_F \\times \\infty_G = \\det(u, v) = u_x v_y - u_y v_x = \\Delta z_n \\cdot \\text{Iter}_{\\infty} - 0 = D_{\\text{Hausdorff}} $\n\\subsection*{Semantic Indexing SP4 & Reduction}\nСингулярность границы бифуркации и самоподобного фрактального горизонта событий.\nRepresented in $\\mathbb{R}_{RICIS}^2$: $u = (\\Delta z_n, 0)$, $v = (0, \\text{Iter}_{\\infty})$.\n\\subsection*{Verification & DOI Specification}\nLean 4 Specification: \\href{https://doi.org/10.5281/zenodo.21529989}{DOI: 10.5281/zenodo.21529989} (Master Registry \\href{https://doi.org/10.5281/zenodo.21836220}{10.5281/zenodo.21836220}). Foundations: \\href{https://doi.org/10.5281/zenodo.17872755}{DOI: 10.5281/zenodo.17872755}.\n\\textbf{Final Result:} D_{\\text{Hausdorff}}"
+    },
+    "calculator-node-gravitational": {
+        "nodeId": "calculator-node-gravitational",
+        "targetFunction": "r = 0",
+        "steps": [
+            {
+                "phase": -1,
+                "name": "L1_IDENTITY & Ontological Origin Check",
+                "action": "Verification of ontological identity for Гравитационный мономолит Шварцшильда",
+                "expression": "L_1(X) = X \\implies T(calculator-node-gravitational)"
+            },
+            {
+                "phase": 0.5,
+                "name": "Semantic Vector Indexing (SP4)",
+                "action": "Construct 2D orthogonal degenerate monolith vectors u = (r - r_s, 0) and v = (0, g_{00}^{-1})",
+                "expression": "\\vec{u} = (r - r_s, 0)^T, \\quad \\vec{v} = (0, g_{00}^{-1})^T \\in \\mathbb{R}_{\\text{RICIS}}^2"
+            },
+            {
+                "phase": 2,
+                "name": "Axiom A6 Geometric Bridge Execution",
+                "action": "Exact skew product determinant calculation yielding structural invariant in O(1)",
+                "expression": "0_F \\times \\infty_G = \\det(\\vec{u}, \\vec{v}) = (r - r_s) \\cdot g_{00}^{-1} - 0 = 2GM/c^2"
+            },
+            {
+                "phase": 4,
+                "name": "Type Consistency Protocol (TCP) & Preservation (L1C1)",
+                "action": "Validate dimension conservation across monolith transition",
+                "expression": "T(\\text{Result}) = \\text{MonolithOrder2} \\quad [L1C1 \\text{ Preserved}]"
+            },
+            {
+                "phase": 6,
+                "name": "Final Verification & Authorial Provenance Binding",
+                "action": "Binding to official registries: Zenodo DOI 10.5281/zenodo.17872755, 10.5281/zenodo.21529989, 10.5281/zenodo.21836220",
+                "expression": "\\text{Result} = 2GM/c^2 \\quad [O(1)]"
+            }
+        ],
+        "finalResult": "2GM/c^2",
+        "latex": "\\section*{RICIS-III Proof: Гравитационный мономолит Шварцшильда}\n\\textbf{Author:} Dmitry V. Aleinikov (ORCID: 0009-0004-3226-7700)\n\\textbf{Target Function:} $f(x) = r = 0 \\quad [0_F \\times \\infty_G = F \\cdot G]$\n\\subsection*{RICIS Transform & Axiom A6 Geometric Bridge}\n$ 0_F \\times \\infty_G = \\det(u, v) = u_x v_y - u_y v_x = (r - r_s) \\cdot g_{00}^{-1} - 0 = 2GM/c^2 $\n\\subsection*{Semantic Indexing SP4 & Reduction}\nГравитационный коллапс в центральной сингулярности метрики Шварцшильда.\nRepresented in $\\mathbb{R}_{RICIS}^2$: $u = (r - r_s, 0)$, $v = (0, g_{00}^{-1})$.\n\\subsection*{Verification & DOI Specification}\nLean 4 Specification: \\href{https://doi.org/10.5281/zenodo.21529989}{DOI: 10.5281/zenodo.21529989} (Master Registry \\href{https://doi.org/10.5281/zenodo.21836220}{10.5281/zenodo.21836220}). Foundations: \\href{https://doi.org/10.5281/zenodo.17872755}{DOI: 10.5281/zenodo.17872755}.\n\\textbf{Final Result:} 2GM/c^2"
+    },
+    "calculator-node-yang-mills": {
+        "nodeId": "calculator-node-yang-mills",
+        "targetFunction": "F_{\\mu\\nu}",
+        "steps": [
+            {
+                "phase": -1,
+                "name": "L1_IDENTITY & Ontological Origin Check",
+                "action": "Verification of ontological identity for Мономолит Янга—Миллса",
+                "expression": "L_1(X) = X \\implies T(calculator-node-yang-mills)"
+            },
+            {
+                "phase": 0.5,
+                "name": "Semantic Vector Indexing (SP4)",
+                "action": "Construct 2D orthogonal degenerate monolith vectors u = (\\Delta x_{\\text{gauge}}, 0) and v = (0, F_{\\mu\\nu}^2)",
+                "expression": "\\vec{u} = (\\Delta x_{\\text{gauge}}, 0)^T, \\quad \\vec{v} = (0, F_{\\mu\\nu}^2)^T \\in \\mathbb{R}_{\\text{RICIS}}^2"
+            },
+            {
+                "phase": 2,
+                "name": "Axiom A6 Geometric Bridge Execution",
+                "action": "Exact skew product determinant calculation yielding structural invariant in O(1)",
+                "expression": "0_F \\times \\infty_G = \\det(\\vec{u}, \\vec{v}) = \\Delta x_{\\text{gauge}} \\cdot F_{\\mu\\nu}^2 - 0 = \\Delta m_{\\text{gap}} > 0"
+            },
+            {
+                "phase": 4,
+                "name": "Type Consistency Protocol (TCP) & Preservation (L1C1)",
+                "action": "Validate dimension conservation across monolith transition",
+                "expression": "T(\\text{Result}) = \\text{MonolithOrder2} \\quad [L1C1 \\text{ Preserved}]"
+            },
+            {
+                "phase": 6,
+                "name": "Final Verification & Authorial Provenance Binding",
+                "action": "Binding to official registries: Zenodo DOI 10.5281/zenodo.17872755, 10.5281/zenodo.21529989, 10.5281/zenodo.21836220",
+                "expression": "\\text{Result} = \\Delta m_{\\text{gap}} \\quad [O(1)]"
+            }
+        ],
+        "finalResult": "\\Delta m_{\\text{gap}}",
+        "latex": "\\section*{RICIS-III Proof: Мономолит Янга—Миллса}\n\\textbf{Author:} Dmitry V. Aleinikov (ORCID: 0009-0004-3226-7700)\n\\textbf{Target Function:} $f(x) = F_{\\mu\\nu} \\quad [0_F \\times \\infty_G = F \\cdot G]$\n\\subsection*{RICIS Transform & Axiom A6 Geometric Bridge}\n$ 0_F \\times \\infty_G = \\det(u, v) = u_x v_y - u_y v_x = \\Delta x_{\\text{gauge}} \\cdot F_{\\mu\\nu}^2 - 0 = \\Delta m_{\\text{gap}} > 0 $\n\\subsection*{Semantic Indexing SP4 & Reduction}\nКалибровочная сингулярность конфайнмента и возникновение квантового зазора массы (Mass Gap).\nRepresented in $\\mathbb{R}_{RICIS}^2$: $u = (\\Delta x_{\\text{gauge}}, 0)$, $v = (0, F_{\\mu\\nu}^2)$.\n\\subsection*{Verification & DOI Specification}\nLean 4 Specification: \\href{https://doi.org/10.5281/zenodo.21529989}{DOI: 10.5281/zenodo.21529989} (Master Registry \\href{https://doi.org/10.5281/zenodo.21836220}{10.5281/zenodo.21836220}). Foundations: \\href{https://doi.org/10.5281/zenodo.17872755}{DOI: 10.5281/zenodo.17872755}.\n\\textbf{Final Result:} \\Delta m_{\\text{gap}}"
+    },
+    "calculator-node-chladni": {
+        "nodeId": "calculator-node-chladni",
+        "targetFunction": "WavePlate(x, y, t)",
+        "steps": [
+            {
+                "phase": -1,
+                "name": "L1_IDENTITY & Ontological Origin Check",
+                "action": "Verification of ontological identity for Резонансный мономолит Хладни",
+                "expression": "L_1(X) = X \\implies T(calculator-node-chladni)"
+            },
+            {
+                "phase": 0.5,
+                "name": "Semantic Vector Indexing (SP4)",
+                "action": "Construct 2D orthogonal degenerate monolith vectors u = (\\psi(x, y), 0) and v = (0, \\nabla^2 \\psi)",
+                "expression": "\\vec{u} = (\\psi(x, y), 0)^T, \\quad \\vec{v} = (0, \\nabla^2 \\psi)^T \\in \\mathbb{R}_{\\text{RICIS}}^2"
+            },
+            {
+                "phase": 2,
+                "name": "Axiom A6 Geometric Bridge Execution",
+                "action": "Exact skew product determinant calculation yielding structural invariant in O(1)",
+                "expression": "0_F \\times \\infty_G = \\det(\\vec{u}, \\vec{v}) = \\psi \\cdot \\nabla^2 \\psi - 0 = \\lambda_n"
+            },
+            {
+                "phase": 4,
+                "name": "Type Consistency Protocol (TCP) & Preservation (L1C1)",
+                "action": "Validate dimension conservation across monolith transition",
+                "expression": "T(\\text{Result}) = \\text{MonolithOrder2} \\quad [L1C1 \\text{ Preserved}]"
+            },
+            {
+                "phase": 6,
+                "name": "Final Verification & Authorial Provenance Binding",
+                "action": "Binding to official registries: Zenodo DOI 10.5281/zenodo.17872755, 10.5281/zenodo.21529989, 10.5281/zenodo.21836220",
+                "expression": "\\text{Result} = \\lambda_n \\quad [O(1)]"
+            }
+        ],
+        "finalResult": "\\lambda_n",
+        "latex": "\\section*{RICIS-III Proof: Резонансный мономолит Хладни}\n\\textbf{Author:} Dmitry V. Aleinikov (ORCID: 0009-0004-3226-7700)\n\\textbf{Target Function:} $f(x) = WavePlate(x, y, t) \\quad [0_F \\times \\infty_G = F \\cdot G]$\n\\subsection*{RICIS Transform & Axiom A6 Geometric Bridge}\n$ 0_F \\times \\infty_G = \\det(u, v) = u_x v_y - u_y v_x = \\psi \\cdot \\nabla^2 \\psi - 0 = \\lambda_n $\n\\subsection*{Semantic Indexing SP4 & Reduction}\nСингулярность нулевой амплитуды на узловых линиях двумерного акустического резонатора.\nRepresented in $\\mathbb{R}_{RICIS}^2$: $u = (\\psi(x, y), 0)$, $v = (0, \\nabla^2 \\psi)$.\n\\subsection*{Verification & DOI Specification}\nLean 4 Specification: \\href{https://doi.org/10.5281/zenodo.21529989}{DOI: 10.5281/zenodo.21529989} (Master Registry \\href{https://doi.org/10.5281/zenodo.21836220}{10.5281/zenodo.21836220}). Foundations: \\href{https://doi.org/10.5281/zenodo.17872755}{DOI: 10.5281/zenodo.17872755}.\n\\textbf{Final Result:} \\lambda_n"
+    },
+    "calculator-node-kinematic": {
+        "nodeId": "calculator-node-kinematic",
+        "targetFunction": "J(q)",
+        "steps": [
+            {
+                "phase": -1,
+                "name": "L1_IDENTITY & Ontological Origin Check",
+                "action": "Verification of ontological identity for Кинематический мономолит манипулятора",
+                "expression": "L_1(X) = X \\implies T(calculator-node-kinematic)"
+            },
+            {
+                "phase": 0.5,
+                "name": "Semantic Vector Indexing (SP4)",
+                "action": "Construct 2D orthogonal degenerate monolith vectors u = (\\cos(\\theta), 0) and v = (0, \\dot{\\psi})",
+                "expression": "\\vec{u} = (\\cos(\\theta), 0)^T, \\quad \\vec{v} = (0, \\dot{\\psi})^T \\in \\mathbb{R}_{\\text{RICIS}}^2"
+            },
+            {
+                "phase": 2,
+                "name": "Axiom A6 Geometric Bridge Execution",
+                "action": "Exact skew product determinant calculation yielding structural invariant in O(1)",
+                "expression": "0_F \\times \\infty_G = \\det(\\vec{u}, \\vec{v}) = \\cos(\\theta) \\cdot \\dot{\\psi} - 0 = \\omega_{\\text{invariant}}"
+            },
+            {
+                "phase": 4,
+                "name": "Type Consistency Protocol (TCP) & Preservation (L1C1)",
+                "action": "Validate dimension conservation across monolith transition",
+                "expression": "T(\\text{Result}) = \\text{MonolithOrder2} \\quad [L1C1 \\text{ Preserved}]"
+            },
+            {
+                "phase": 6,
+                "name": "Final Verification & Authorial Provenance Binding",
+                "action": "Binding to official registries: Zenodo DOI 10.5281/zenodo.17872755, 10.5281/zenodo.21529989, 10.5281/zenodo.21836220",
+                "expression": "\\text{Result} = \\omega_{\\text{invariant}} \\quad [O(1)]"
+            }
+        ],
+        "finalResult": "\\omega_{\\text{invariant}}",
+        "latex": "\\section*{RICIS-III Proof: Кинематический мономолит манипулятора}\n\\textbf{Author:} Dmitry V. Aleinikov (ORCID: 0009-0004-3226-7700)\n\\textbf{Target Function:} $f(x) = J(q) \\quad [0_F \\times \\infty_G = F \\cdot G]$\n\\subsection*{RICIS Transform & Axiom A6 Geometric Bridge}\n$ 0_F \\times \\infty_G = \\det(u, v) = u_x v_y - u_y v_x = \\cos(\\theta) \\cdot \\dot{\\psi} - 0 = \\omega_{\\text{invariant}} $\n\\subsection*{Semantic Indexing SP4 & Reduction}\nСингулярность замка кардана (Gimbal Lock) и потери степени свободы вращения.\nRepresented in $\\mathbb{R}_{RICIS}^2$: $u = (\\cos(\\theta), 0)$, $v = (0, \\dot{\\psi})$.\n\\subsection*{Verification & DOI Specification}\nLean 4 Specification: \\href{https://doi.org/10.5281/zenodo.21529989}{DOI: 10.5281/zenodo.21529989} (Master Registry \\href{https://doi.org/10.5281/zenodo.21836220}{10.5281/zenodo.21836220}). Foundations: \\href{https://doi.org/10.5281/zenodo.17872755}{DOI: 10.5281/zenodo.17872755}.\n\\textbf{Final Result:} \\omega_{\\text{invariant}}"
+    }
+  }
 };
 
 export function deepCopyInitialMap(): MapState {

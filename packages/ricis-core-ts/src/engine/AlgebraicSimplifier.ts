@@ -20,26 +20,38 @@ export class AlgebraicSimplifier {
           if (rSub.left.nodeType === 'Parameter' || rSub.left.nodeType === 'Function') {
             const xNode = rSub.left;
             
-            // Check for x^n - a^n
-            if (lSub.left.nodeType === 'Power' && (lSub.left as BinaryExpression).left.nodeType === xNode.nodeType) {
-               const nNode = (lSub.left as BinaryExpression).right;
-               if (nNode.nodeType === 'Constant') {
-                  const n = (nNode as any).value;
-                  const lRight = lSub.right;
-                  const rRight = rSub.right; // 'a'
-                  
-                  if (rRight.nodeType === 'Constant' && lRight.nodeType === 'Constant') {
-                     const a = (rRight as any).value;
-                     const an = (lRight as any).value;
-                     if (Math.abs(Math.pow(a, n) - an) < 1e-10) {
-                        // Factorize!
-                        return this.buildPolynomialSum(xNode, a, n);
-                     }
-                  } else if (lRight.nodeType === 'Constant' && (lRight as any).value === 1 && rRight.nodeType === 'Constant' && (rRight as any).value === 1) {
-                     // (x^n - 1) / (x - 1)
-                     return this.buildPolynomialSum(xNode, 1, n);
-                  }
-               }
+            // Check for x^n - a^n (Power or Function 'pow')
+            let powBase: Expression | null = null;
+            let powExp: number | null = null;
+
+            if (lSub.left.nodeType === 'Power') {
+              powBase = (lSub.left as BinaryExpression).left;
+              const expNode = (lSub.left as BinaryExpression).right;
+              if (expNode.nodeType === 'Constant') powExp = (expNode as any).value;
+            } else if (lSub.left.nodeType === 'Function' && (lSub.left as FunctionExpression).name.toLowerCase() === 'pow') {
+              const fnArgs = (lSub.left as FunctionExpression).args;
+              if (fnArgs.length >= 2) {
+                powBase = fnArgs[0]!;
+                if (fnArgs[1]!.nodeType === 'Constant') powExp = (fnArgs[1] as any).value;
+              }
+            }
+
+            if (powBase && powExp !== null && this.areEqual(powBase, xNode)) {
+              const n = powExp;
+              const lRight = lSub.right;
+              const rRight = rSub.right; // 'a'
+              
+              if (rRight.nodeType === 'Constant' && lRight.nodeType === 'Constant') {
+                 const a = (rRight as any).value;
+                 const an = (lRight as any).value;
+                 if (Math.abs(Math.pow(a, n) - an) < 1e-10) {
+                    // Factorize!
+                    return this.buildPolynomialSum(xNode, a, n);
+                 }
+              } else if (lRight.nodeType === 'Constant' && (lRight as any).value === 1 && rRight.nodeType === 'Constant' && (rRight as any).value === 1) {
+                 // (x^n - 1) / (x - 1)
+                 return this.buildPolynomialSum(xNode, 1, n);
+              }
             } else if (lSub.left.nodeType === 'Multiply') {
                 // (x*x*x*x - 1) / (x - 1)
                 // We'll skip complex arbitrary parsing and stick to standard Pow for now, but handle L8
@@ -165,30 +177,65 @@ export class AlgebraicSimplifier {
   private static reduceBasis(basis: Expression): Expression {
     if (basis.nodeType === 'Function') {
       const fnNode = basis as FunctionExpression;
+      const fnName = fnNode.name.toLowerCase();
       const arg = fnNode.args[0]!;
-      // sin(x) ≈ x
-      if (fnNode.name === 'sin') return this.reduceBasis(arg);
-      // tan(x) ≈ x
-      if (fnNode.name === 'tan') return this.reduceBasis(arg);
-      // exp(x) - 1 ≈ x  -- handled if basis is Sub(exp(x), 1)
-      // sinh(x) ≈ x
-      if (fnNode.name === 'sinh') return this.reduceBasis(arg);
+      // sin(x) ≈ x, tan(x) ≈ x, sinh(x) ≈ x
+      if (fnName === 'sin' || fnName === 'tan' || fnName === 'sinh') {
+        return this.reduceBasis(arg);
+      }
+      // ln(1 + u) ≈ u or log(1 + u) ≈ u
+      if (fnName === 'log' || fnName === 'ln') {
+        if (arg.nodeType === 'Add') {
+          const add = arg as BinaryExpression;
+          if (add.left.nodeType === 'Constant' && (add.left as any).value === 1) {
+            return this.reduceBasis(add.right);
+          }
+          if (add.right.nodeType === 'Constant' && (add.right as any).value === 1) {
+            return this.reduceBasis(add.left);
+          }
+        }
+        // ln(x) around 1 -> x - 1
+        if (arg.nodeType === 'Parameter') {
+          return AST.Sub(arg, AST.Const(1));
+        }
+      }
     }
     
     if (basis.nodeType === 'Subtract') {
       const sub = basis as BinaryExpression;
       // exp(x) - 1 ≈ x
-      if (sub.left.nodeType === 'Function' && (sub.left as FunctionExpression).name === 'exp') {
+      if (sub.left.nodeType === 'Function' && (sub.left as FunctionExpression).name.toLowerCase() === 'exp') {
          if (sub.right.nodeType === 'Constant' && (sub.right as any).value === 1) {
             return this.reduceBasis((sub.left as FunctionExpression).args[0]!);
          }
       }
       // 1 - cos(x) ≈ x^2 / 2
       if (sub.left.nodeType === 'Constant' && (sub.left as any).value === 1) {
-         if (sub.right.nodeType === 'Function' && (sub.right as FunctionExpression).name === 'cos') {
+         if (sub.right.nodeType === 'Function' && (sub.right as FunctionExpression).name.toLowerCase() === 'cos') {
             const arg = (sub.right as FunctionExpression).args[0]!;
             return AST.Div(AST.Mul(arg, arg), AST.Const(2));
          }
+      }
+      // 3rd order: x - sin(x) ≈ x^3 / 6
+      if (sub.right.nodeType === 'Function' && (sub.right as FunctionExpression).name.toLowerCase() === 'sin') {
+        const sinArg = (sub.right as FunctionExpression).args[0]!;
+        if (this.areEqual(sub.left, sinArg)) {
+          return AST.Div(AST.Pow(sinArg, AST.Const(3)), AST.Const(6));
+        }
+      }
+      // 3rd order: sinh(x) - x ≈ x^3 / 6
+      if (sub.left.nodeType === 'Function' && (sub.left as FunctionExpression).name.toLowerCase() === 'sinh') {
+        const sinhArg = (sub.left as FunctionExpression).args[0]!;
+        if (this.areEqual(sub.right, sinhArg)) {
+          return AST.Div(AST.Pow(sinhArg, AST.Const(3)), AST.Const(6));
+        }
+      }
+      // 3rd order: tan(x) - x ≈ x^3 / 3
+      if (sub.left.nodeType === 'Function' && (sub.left as FunctionExpression).name.toLowerCase() === 'tan') {
+        const tanArg = (sub.left as FunctionExpression).args[0]!;
+        if (this.areEqual(sub.right, tanArg)) {
+          return AST.Div(AST.Pow(tanArg, AST.Const(3)), AST.Const(3));
+        }
       }
     }
 

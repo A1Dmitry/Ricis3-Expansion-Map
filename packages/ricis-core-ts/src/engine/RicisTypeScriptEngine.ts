@@ -1,11 +1,25 @@
-import { Expression, AST, BinaryExpression, SingularityExpression } from '../ast/ExpressionTypes';
+import { Expression, AST, BinaryExpression, SingularityExpression, FunctionExpression, DerivativeExpression } from '../ast/ExpressionTypes';
 import { IRicisReductionEngine } from './IRicisReductionEngine';
 import { RicisReductionResult, TransformationLogEntry } from './RicisEngineContracts';
+import { SymbolicDifferentiator } from './SymbolicDifferentiator';
 
 export class RicisTypeScriptEngine implements IRicisReductionEngine {
   
   areEqual(a: Expression, b: Expression): boolean {
-    if (a.nodeType !== b.nodeType) return false;
+    if (a.nodeType !== b.nodeType) {
+      // Check Power vs Function('pow')
+      if (a.nodeType === 'Power' && b.nodeType === 'Function' && (b as FunctionExpression).name.toLowerCase() === 'pow') {
+        const powA = a as BinaryExpression;
+        const fnB = b as FunctionExpression;
+        return this.areEqual(powA.left, fnB.args[0]!) && this.areEqual(powA.right, fnB.args[1]!);
+      }
+      if (b.nodeType === 'Power' && a.nodeType === 'Function' && (a as FunctionExpression).name.toLowerCase() === 'pow') {
+        const powB = b as BinaryExpression;
+        const fnA = a as FunctionExpression;
+        return this.areEqual(fnA.args[0]!, powB.left) && this.areEqual(fnA.args[1]!, powB.right);
+      }
+      return false;
+    }
     
     switch (a.nodeType) {
       case 'Constant':
@@ -21,15 +35,19 @@ export class RicisTypeScriptEngine implements IRicisReductionEngine {
         const binB = b as BinaryExpression;
         return this.areEqual(binA.left, binB.left) && this.areEqual(binA.right, binB.right);
       case 'Function':
-        const fnA = a as import('../ast/ExpressionTypes').FunctionExpression;
-        const fnB = b as import('../ast/ExpressionTypes').FunctionExpression;
-        if (fnA.name !== fnB.name || fnA.args.length !== fnB.args.length) return false;
+        const fnA = a as FunctionExpression;
+        const fnB = b as FunctionExpression;
+        if (fnA.name.toLowerCase() !== fnB.name.toLowerCase() || fnA.args.length !== fnB.args.length) return false;
         return fnA.args.every((arg, idx) => this.areEqual(arg, fnB.args[idx]!));
       case 'SingularityZero':
       case 'SingularityInfinity':
         const singA = a as SingularityExpression;
         const singB = b as SingularityExpression;
         return this.areEqual(singA.basis, singB.basis);
+      case 'Derivative':
+        const d_A = a as DerivativeExpression;
+        const d_B = b as DerivativeExpression;
+        return d_A.variable === d_B.variable && this.areEqual(d_A.expression, d_B.expression);
       default:
         return false;
     }
@@ -48,11 +66,28 @@ export class RicisTypeScriptEngine implements IRicisReductionEngine {
   }
 
   private reduceNode(node: Expression, trace: TransformationLogEntry[]): Expression {
+    // Символьное дифференцирование
+    if (node.nodeType === 'Derivative') {
+      const deriv = node as DerivativeExpression;
+      const dExpr = SymbolicDifferentiator.diff(deriv.expression, deriv.variable);
+      trace.push({
+        phase: 2,
+        ruleFamily: 'Derivative',
+        description: `Symbolic differentiation d(${deriv.variable})`,
+        before: node,
+        after: dExpr
+      });
+      return this.reduceNode(dExpr, trace);
+    }
+
     // Рекурсивный спуск (Post-order traversal)
     if (node.nodeType === 'Function') {
-      const fnNode = node as import('../ast/ExpressionTypes').FunctionExpression;
+      const fnNode = node as FunctionExpression;
+      if (fnNode.name === 'pi') {
+        return AST.Const(Math.PI);
+      }
       const reducedArgs = fnNode.args.map(arg => this.reduceNode(arg, trace));
-      return { nodeType: 'Function', name: fnNode.name, args: reducedArgs } as import('../ast/ExpressionTypes').FunctionExpression;
+      return { nodeType: 'Function', name: fnNode.name, args: reducedArgs } as FunctionExpression;
     }
 
     if ('left' in node && 'right' in node) {
@@ -89,6 +124,59 @@ export class RicisTypeScriptEngine implements IRicisReductionEngine {
         return AST.Const(1);
       }
 
+      // (c * X) / X => c
+      if (node.nodeType === 'Divide' && left.nodeType === 'Multiply') {
+        const lMul = left as BinaryExpression;
+        if (this.areEqual(lMul.right, right)) {
+          trace.push({
+            phase: 3,
+            ruleFamily: 'Algebraic Cleanup',
+            description: '(c * X) / X -> c',
+            before: { ...binNode, left, right } as Expression,
+            after: lMul.left
+          });
+          return this.reduceNode(lMul.left, trace);
+        }
+        if (this.areEqual(lMul.left, right)) {
+          trace.push({
+            phase: 3,
+            ruleFamily: 'Algebraic Cleanup',
+            description: '(X * c) / X -> c',
+            before: { ...binNode, left, right } as Expression,
+            after: lMul.right
+          });
+          return this.reduceNode(lMul.right, trace);
+        }
+      }
+
+      // X / (c * X) => 1 / c
+      if (node.nodeType === 'Divide' && right.nodeType === 'Multiply') {
+        const rMul = right as BinaryExpression;
+        if (this.areEqual(rMul.right, left)) {
+          const after = AST.Div(AST.Const(1), rMul.left);
+          trace.push({
+            phase: 3,
+            ruleFamily: 'Algebraic Cleanup',
+            description: 'X / (c * X) -> 1 / c',
+            before: { ...binNode, left, right } as Expression,
+            after
+          });
+          return this.reduceNode(after, trace);
+        }
+        if (this.areEqual(rMul.left, left)) {
+          const after = AST.Div(AST.Const(1), rMul.right);
+          trace.push({
+            phase: 3,
+            ruleFamily: 'Algebraic Cleanup',
+            description: 'X / (X * c) -> 1 / c',
+            before: { ...binNode, left, right } as Expression,
+            after
+          });
+          return this.reduceNode(after, trace);
+        }
+      }
+
+      // (A / B) / C
       if (node.nodeType === 'Divide' && left.nodeType === 'Divide') {
           const lDiv = left as BinaryExpression;
           if (this.areEqual(lDiv.left, right)) {
