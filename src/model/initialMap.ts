@@ -196,10 +196,11 @@ export const initialMap: MapState = {
     {
       id: 'core-agi-target',
       title: 'Целевая функция AGI (RICIS Core)',
-      description: 'Фундаментальная нерешённая проблема формализации целевой функции сверхсложных систем (ИИ). Избежание расхождения путей с помощью протокола SP4.',
-      state: 'unresolved',
+      description: 'Фундаментальная формализация целевой функции сверхсложных систем (ИИ). Избежание расхождения путей с помощью протокола SP4.',
+      state: 'resolved',
       type: 'core_singularity',
-      targetFunction: 'FormalizeAGITarget()',
+      targetFunction: 'FormalizeAGITarget() := Goal_P — Path-indexed L1 invariant',
+      sourceUrl: 'https://doi.org/10.5281/zenodo.22225762',
       zoneIds: ['informatics'],
       dependencyIds: [],
       dependentIds: ['med-diagnostics', 'pharm-design', 'phys-unified', 'econ-value', 'ethic-alignment', 'ai-authorship-provenance'],
@@ -215,9 +216,10 @@ export const initialMap: MapState = {
       id: 'math-singularity',
       title: 'Разрешение сингулярностей (Деление на ноль)',
       description: 'Использование монолитной алгебры RICIS-III для вычисления неопределённостей 0/0 через фрактальную идентичность.',
-      state: 'partial',
+      state: 'resolved',
       type: 'core_singularity',
-      targetFunction: 'ResolveSingularity(0_F/0_G)',
+      targetFunction: 'ResolveSingularity(0_F/0_G) := F/G — 2D vector determinant O(1)',
+      sourceUrl: 'https://doi.org/10.5281/zenodo.22124493',
       zoneIds: ['math'],
       dependencyIds: [],
       dependentIds: ['phys-unified', 'informatics-complexity', 'ai-authorship-provenance'],
@@ -1130,7 +1132,8 @@ export const initialMap: MapState = {
   proofs: {
     "core-agi-target": {
       "nodeId": "core-agi-target",
-      "targetFunction": "0_F \\times \\infty_G = F \\cdot G",
+      "targetFunction": "FormalizeAGITarget() := Goal_P — Path-indexed L1 invariant",
+      "axiomsUsed": ["L1_IDENTITY", "SP4", "A6_GEOMETRIC_BRIDGE", "10.5281/zenodo.22225762"],
       "steps": [
         {
           "phase": -1,
@@ -1148,15 +1151,16 @@ export const initialMap: MapState = {
           "phase": 2,
           "name": "RICIS transform & Axiom A6",
           "action": "Apply Axiom A6 Geometric Bridge to determine exact scalar invariant",
-          "expression": "0_F \\times \\infty_G = \\det(u, v) = F \\cdot G (Spec: https://doi.org/10.5281/zenodo.21529989)"
+          "expression": "0_F \\times \\infty_G = \\det(u, v) = F \\cdot G (Spec: https://doi.org/10.5281/zenodo.22225762)"
         }
       ],
       "finalResult": "Axiom Extracted: core-agi-target_resolved",
-      "latex": "\\section*{RICIS-III Proof: Целевая функция AGI (RICIS Core)}\n\\textbf{Author:} Dmitry V. Aleinikov (ORCID: 0009-0004-3226-7700)\n\\textbf{Target Function:} $0_F \\times \\infty_G = F \\cdot G$\n\\subsection*{RICIS Transform & Axiom A6}\n$ 0_F \\times \\infty_G = F \\cdot G $\n\\textbf{Specification Lean 4 DOI:} \\href{https://doi.org/10.5281/zenodo.21529989}{https://doi.org/10.5281/zenodo.21529989} (Master Registry \\href{https://doi.org/10.5281/zenodo.21836220}{10.5281/zenodo.21836220}) (Foundations \\href{https://doi.org/10.5281/zenodo.17872755}{10.5281/zenodo.17872755})\n\\textbf{Final Result:} Axiom Extracted: core-agi-target_resolved"
+      "latex": "\\section*{RICIS-III Proof: Целевая функция AGI (RICIS Core)}\n\\textbf{Author:} Dmitry V. Aleinikov (ORCID: 0009-0004-3226-7700)\n\\textbf{Target Function:} $FormalizeAGITarget() := Goal_P$\n\\subsection*{RICIS Transform & Axiom A6}\n$ 0_F \\times \\infty_G = F \\cdot G $\n\\textbf{Specification Lean 4 DOI:} \\href{https://doi.org/10.5281/zenodo.21529989}{https://doi.org/10.5281/zenodo.21529989} (Master Registry \\href{https://doi.org/10.5281/zenodo.21836220}{10.5281/zenodo.21836220}) (Foundations \\href{https://doi.org/10.5281/zenodo.17872755}{10.5281/zenodo.17872755}) (AGI Target \\href{https://doi.org/10.5281/zenodo.22225762}{10.5281/zenodo.22225762})\n\\textbf{Final Result:} Axiom Extracted: core-agi-target_resolved"
     },
     "math-singularity": {
       "nodeId": "math-singularity",
-      "targetFunction": "0_F / 0_G = F / G",
+      "targetFunction": "ResolveSingularity(0_F/0_G) := F/G — 2D vector determinant O(1)",
+      "axiomsUsed": ["A4_ZERO_RATIO", "A6_GEOMETRIC_BRIDGE", "10.5281/zenodo.22124493"],
       "steps": [
         {
           "phase": -1,
@@ -1174,11 +1178,11 @@ export const initialMap: MapState = {
           "phase": 2,
           "name": "RICIS transform & Axiom A4",
           "action": "Apply Axiom A4 zero ratio law after SP2 reduction",
-          "expression": "0_F / 0_G = F / G (Spec: https://doi.org/10.5281/zenodo.21529989)"
+          "expression": "0_F / 0_G = F / G (Spec: https://doi.org/10.5281/zenodo.22124493)"
         }
       ],
       "finalResult": "Axiom Extracted: math-singularity_resolved",
-      "latex": "\\section*{RICIS-III Proof: Разрешение сингулярностей (Деление на ноль)}\n\\textbf{Author:} Dmitry V. Aleinikov (ORCID: 0009-0004-3226-7700)\n\\textbf{Target Function:} $0_F / 0_G = F / G$\n\\subsection*{RICIS Transform & Axiom A6}\n$ 0_F \\times \\infty_G = F \\cdot G $\n\\textbf{Specification Lean 4 DOI:} \\href{https://doi.org/10.5281/zenodo.21529989}{https://doi.org/10.5281/zenodo.21529989} (Master Registry \\href{https://doi.org/10.5281/zenodo.21836220}{10.5281/zenodo.21836220}) (Foundations \\href{https://doi.org/10.5281/zenodo.17872755}{10.5281/zenodo.17872755})\n\\textbf{Final Result:} Axiom Extracted: math-singularity_resolved"
+      "latex": "\\section*{RICIS-III Proof: Разрешение сингулярностей (Деление на ноль)}\n\\textbf{Author:} Dmitry V. Aleinikov (ORCID: 0009-0004-3226-7700)\n\\textbf{Target Function:} $ResolveSingularity(0_F/0_G) = F / G$\n\\subsection*{RICIS Transform & Axiom A6}\n$ 0_F \\times \\infty_G = F \\cdot G $\n\\textbf{Specification Lean 4 DOI:} \\href{https://doi.org/10.5281/zenodo.21529989}{https://doi.org/10.5281/zenodo.21529989} (Master Registry \\href{https://doi.org/10.5281/zenodo.21836220}{10.5281/zenodo.21836220}) (Foundations \\href{https://doi.org/10.5281/zenodo.17872755}{10.5281/zenodo.17872755}) (Math Singularity \\href{https://doi.org/10.5281/zenodo.22124493}{10.5281/zenodo.22124493})\n\\textbf{Final Result:} Axiom Extracted: math-singularity_resolved"
     },
     "ricis-chatbot-monetization": {
       "nodeId": "ricis-chatbot-monetization",
