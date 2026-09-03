@@ -42,10 +42,10 @@ describe('RICIS-III Audit Resolution & Graph Integrity (QA Automation Suite)', (
         e => e.fromId === 'ai-authorship-provenance' || e.toId === 'ai-authorship-provenance'
       );
       expect(provEdges.length).toBeGreaterThan(0);
-      // Connected edges to unresolved source node should be yellow
+      // Connected edges between fully resolved and proven nodes should be green
       const agiToProv = provEdges.find(e => e.fromId === 'core-agi-target' && e.toId === 'ai-authorship-provenance');
       expect(agiToProv).toBeDefined();
-      expect(agiToProv?.stateColor).toBe('yellow');
+      expect(agiToProv?.stateColor).toBe('green');
     });
   });
 
