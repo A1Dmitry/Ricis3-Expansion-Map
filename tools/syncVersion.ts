@@ -27,6 +27,11 @@ console.log(`Synchronized src/version.ts with package version ${version}.`);
 
 const documentsToUpdate = [
   {
+    path: 'package-lock.json',
+    regex: /("name":\s*"ricis3-expansion",\s*"version":\s*")(\d+\.\d+\.\d+)(")/gu,
+    replace: `$1${version}$3`,
+  },
+  {
     path: 'index.html',
     regex: /("softwareVersion":\s*")(\d+\.\d+\.\d+)(")/u,
     replace: `$1${version}$3`,

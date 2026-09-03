@@ -122,6 +122,7 @@ export class UrlShareService {
       }
 
       window.history.replaceState({}, '', url.toString());
+      window.dispatchEvent(new PopStateEvent('popstate'));
     } catch (e) {
       console.warn('Failed to update browser url:', e);
     }

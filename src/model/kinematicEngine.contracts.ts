@@ -106,6 +106,36 @@ export interface IAdvantageEvent {
   readonly ricisVelocityError: number;
 }
 
+export type CoordinateSystemMode = 'CARTESIAN' | 'POLAR';
+
+export interface PolarVector2D {
+  readonly r: number;
+  readonly thetaRad: number;
+}
+
+export interface CylindricalVector3D {
+  readonly r: number;
+  readonly thetaRad: number;
+  readonly z: number;
+}
+
+export interface IQATelemetryTraceEntry {
+  readonly stepIndex: number;
+  readonly timestamp: number;
+  readonly coordinateMode: CoordinateSystemMode;
+  readonly polarTarget: CylindricalVector3D;
+  readonly cartesianTarget: Vector3D;
+  readonly invariantPreserved: boolean;
+  readonly cauchyLimitsBanned: boolean; // Strictly true under RICIS
+  readonly solverComplexity: 'O(1)' | 'ITERATIVE';
+  readonly ghostDampingPenalty: number; // lambda^2 penalty of DLS
+  readonly ghostDirectionDeviationDeg: number;
+  readonly ricisDirectionDeviationDeg: number;
+  readonly positionErrorCm: number;
+  readonly qaScore: number; // 100 for RICIS, reduced for DLS
+  readonly evaluationNotes: string;
+}
+
 export interface IKinematicLogEntry {
   readonly id: string;
   readonly stepIndex: number;
@@ -113,11 +143,14 @@ export interface IKinematicLogEntry {
   readonly mode: KinematicEngineMode;
   readonly jacobianDet: number;
   readonly target: Vector3D;
+  readonly polarTarget?: CylindricalVector3D;
+  readonly coordinateMode?: CoordinateSystemMode;
   readonly dlsEE: Vector3D;
   readonly ricisEE: Vector3D;
   readonly dlsMetrics: ISolverMetrics3D;
   readonly ricisMetrics: ISolverMetrics3D;
   readonly advantageEvent: IAdvantageEvent | null;
+  readonly qaTrace?: IQATelemetryTraceEntry;
 }
 
 export interface IKinematicTelemetryLedger {
