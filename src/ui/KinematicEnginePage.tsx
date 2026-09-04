@@ -18,6 +18,7 @@ import {
   Copy,
   Check,
   FileText,
+  Cpu,
 } from 'lucide-react';
 import type {
   IKinematicState3D,
@@ -28,6 +29,7 @@ import type {
   IKinematicLogEntry,
   CoordinateSystemMode,
   IQATelemetryTraceEntry,
+  RicisSolverMode,
 } from '../model/kinematicEngine.contracts';
 import { RobotArm3DCanvas } from './components/kinematic/RobotArm3DCanvas';
 import { PolarCoordinateService } from '../services/kinematic/polarCoordinateService';
@@ -36,11 +38,18 @@ import {
   ClassicDlsGhostSolver,
   KinematicDualDebuggerEngine,
 } from '../services/kinematic/polarSolvers';
+import { RicisSymbolicJacobianSolver3D } from '../services/kinematic/kinematicSolvers';
 import { PickAndPlaceController } from '../services/kinematic/pickAndPlaceController';
 import { KinematicTelemetryLogger } from '../services/kinematic/kinematicLogger';
 import { forwardKinematics3D, computeJacobianDeterminant3D } from '../services/kinematic/kinematicMath';
 import { useMapStore } from '../store/mapStore';
 import { AutomatedTestingModal } from './components/testing/AutomatedTestingModal';
+import { RicisAstInspector } from './components/kinematic/RicisAstInspector';
+import { RicisSymbolicJacobianEngine } from '../services/kinematic/ricisSymbolicJacobian';
+import type {
+  IRicisAstInverseSolution,
+  ISymbolicJacobianMatrix3D,
+} from '../model/ricisSymbolicJacobian.contracts';
 
 interface Props {
   readonly onBackToMap: () => void;
@@ -101,12 +110,29 @@ export const KinematicEnginePage: React.FC<Props> = ({ onBackToMap }) => {
   // Mode: 'PICK_AND_PLACE' | 'SINGULAR_ORBIT' | 'MANUAL'
   const [simMode, setSimMode] = useState<'PICK_AND_PLACE' | 'SINGULAR_ORBIT' | 'MANUAL'>('PICK_AND_PLACE');
   const [coordinateMode, setCoordinateMode] = useState<CoordinateSystemMode>('POLAR');
+  const [ricisSolverMode, setRicisSolverMode] = useState<RicisSolverMode>('POLAR_GEOMETRIC');
   const [isRunning, setIsRunning] = useState(true);
   const [showDlsGhost, setShowDlsGhost] = useState(true);
   const [speedMultiplier, setSpeedMultiplier] = useState(1);
   const [showTestingModal, setShowTestingModal] = useState(false);
   const [copiedTrace, setCopiedTrace] = useState(false);
-  const [activeTab, setActiveTab] = useState<'TELEMETRY' | 'QA_TRACE' | 'MATH'>('TELEMETRY');
+  const [activeTab, setActiveTab] = useState<'TELEMETRY' | 'QA_TRACE' | 'MATH' | 'AST_JACOBIAN'>('TELEMETRY');
+
+  // Synchronize RICIS solver implementation in dualEngine with ricisSolverMode
+  useEffect(() => {
+    if (ricisSolverMode === 'SYMBOLIC_AST') {
+      dualEngine.setRicisSolver(new RicisSymbolicJacobianSolver3D(), 'SYMBOLIC_AST');
+    } else {
+      dualEngine.setRicisSolver(new PolarRicisConstraintSolver(), 'POLAR_GEOMETRIC');
+    }
+  }, [ricisSolverMode, dualEngine]);
+  
+  // Symbolic Jacobian AST Engine
+  const symbolicJacobianEngine = useMemo(() => new RicisSymbolicJacobianEngine(), []);
+  const [symbolicSolution, setSymbolicSolution] = useState<IRicisAstInverseSolution | null>(null);
+  const [symbolicMatrix, setSymbolicMatrix] = useState<ISymbolicJacobianMatrix3D | null>(() =>
+    symbolicJacobianEngine.buildSymbolicJacobian(initJoints, LINK_LENGTHS)
+  );
   
   const mapStore = useMapStore();
 
@@ -291,6 +317,21 @@ export const KinematicEnginePage: React.FC<Props> = ({ onBackToMap }) => {
           setRicisMetrics(stepResult.ricisResult.metrics);
           setDlsMetrics(stepResult.dlsResult.metrics);
           setLatestQaTrace(stepResult.ricisResult.qaTrace);
+
+          // Compute live symbolic Jacobian AST & resolution
+          const currentJoints = stepResult.ricisResult.nextState.joints;
+          const currentEE = stepResult.ricisResult.nextState.endEffector;
+          const cDir = {
+            x: activeTarget.x - currentEE.x,
+            y: activeTarget.y - currentEE.y,
+            z: activeTarget.z - currentEE.z,
+          };
+          const dist = Math.hypot(cDir.x, cDir.y, cDir.z);
+          const cNorm = dist > 1e-6 ? { x: cDir.x / dist, y: cDir.y / dist, z: cDir.z / dist } : { x: 0, y: 0, z: 0 };
+          const symSol = symbolicJacobianEngine.solveJointVelocities(currentJoints, cNorm, LINK_LENGTHS);
+          const symMatrix = symbolicJacobianEngine.buildSymbolicJacobian(currentJoints, LINK_LENGTHS);
+          setSymbolicSolution(symSol);
+          setSymbolicMatrix(symMatrix);
         }
 
         // Throttle ledger React re-renders to 10Hz or on advantage events
@@ -400,6 +441,40 @@ export const KinematicEnginePage: React.FC<Props> = ({ onBackToMap }) => {
               </button>
             ))}
           </div>
+
+          <div className="h-4 w-px bg-neutral-700" />
+
+          {/* RICIS Solver Mode Toggle (Polar Geometric vs Symbolic AST) */}
+          <div className="flex items-center bg-neutral-900/90 rounded-md p-0.5 border border-neutral-700 text-[11px]">
+            <button
+              type="button"
+              onClick={() => setRicisSolverMode('POLAR_GEOMETRIC')}
+              className={`flex items-center gap-1 px-2.5 py-1 rounded transition-colors font-medium ${
+                ricisSolverMode === 'POLAR_GEOMETRIC'
+                  ? 'bg-emerald-700 text-white font-bold shadow-sm'
+                  : 'text-slate-400 hover:text-white'
+              }`}
+              title="Полярный геометрический инвариант RICIS: аналитическое O(1) преобразование (r, theta, z)"
+            >
+              <Compass size={12} />
+              <span>RICIS Polar</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setRicisSolverMode('SYMBOLIC_AST')}
+              className={`flex items-center gap-1 px-2.5 py-1 rounded transition-colors font-medium ${
+                ricisSolverMode === 'SYMBOLIC_AST'
+                  ? 'bg-cyan-700 text-white font-bold shadow-sm'
+                  : 'text-slate-400 hover:text-white'
+              }`}
+              title="Символический AST Якобиан RICIS: редукция sing-factors O(1) в сингулярностях"
+            >
+              <Cpu size={12} />
+              <span>RICIS AST</span>
+            </button>
+          </div>
+
+          <div className="h-4 w-px bg-neutral-700" />
 
           {/* Ghost Arm Toggle */}
           <label className="flex items-center gap-1.5 text-[11px] text-slate-300 bg-neutral-800/80 px-2.5 py-1 rounded border border-neutral-700/80 cursor-pointer hover:bg-neutral-700/80 transition-colors">
@@ -689,6 +764,18 @@ export const KinematicEnginePage: React.FC<Props> = ({ onBackToMap }) => {
             >
               RICIS Обоснование
             </button>
+            <button
+              type="button"
+              onClick={() => setActiveTab('AST_JACOBIAN')}
+              className={`flex-1 py-1 px-2 rounded text-xs font-bold transition-all text-center flex items-center justify-center gap-1 ${
+                activeTab === 'AST_JACOBIAN'
+                  ? 'bg-neutral-800 text-cyan-300 shadow'
+                  : 'text-slate-400 hover:text-white'
+              }`}
+            >
+              <Layers size={12} />
+              AST Якобиан
+            </button>
           </div>
 
           {activeTab === 'TELEMETRY' && (
@@ -716,7 +803,12 @@ export const KinematicEnginePage: React.FC<Props> = ({ onBackToMap }) => {
                   {/* RICIS Column */}
                   <div className="bg-emerald-950/30 border border-emerald-800/60 rounded p-2 text-xs">
                     <div className="flex items-center justify-between text-emerald-400 font-bold mb-1.5 pb-1 border-b border-emerald-800/40">
-                      <span>🟢 RICIS Монолит</span>
+                      <div className="flex items-center gap-1.5">
+                        <span>🟢 RICIS Монолит</span>
+                        <span className="text-[9px] px-1.5 py-0.2 rounded bg-emerald-900/80 text-emerald-300 font-mono font-normal border border-emerald-700/50">
+                          {ricisSolverMode === 'SYMBOLIC_AST' ? 'AST' : 'Polar'}
+                        </span>
+                      </div>
                       <ShieldCheck size={13} />
                     </div>
                     <div className="space-y-1 font-mono text-[10px]">
@@ -952,6 +1044,17 @@ export const KinematicEnginePage: React.FC<Props> = ({ onBackToMap }) => {
                   <strong>3. Аксиома A6 и Геометрический мост:</strong> RICIS-III разрешает границу рабочей зоны через замкнутую алгебраическую проекцию на многообразие A6: 0_F × ∞_G = F · G, сохраняя направление вектора (0.0° погрешности) за O(1) без численных итераций.
                 </p>
               </div>
+            </div>
+          )}
+
+          {activeTab === 'AST_JACOBIAN' && (
+            <div className="flex-1 flex flex-col overflow-y-auto pr-1">
+              <RicisAstInspector
+                solution={symbolicSolution}
+                jacobianMatrix={symbolicMatrix}
+                joints={ricisState.joints}
+                linkLengths={LINK_LENGTHS}
+              />
             </div>
           )}
         </div>

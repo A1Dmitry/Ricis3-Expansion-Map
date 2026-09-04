@@ -21,6 +21,7 @@ export interface IKinematicState3D {
 }
 
 export interface ISolverMetrics3D {
+  readonly solverId?: 'DLS_BASELINE' | 'RICIS_INVARIANT_ENGINE' | 'RICIS_SYMBOLIC_JACOBIAN' | string;
   readonly positionError: number;
   readonly velocityError: number;
   readonly directionPreservedDeg: number;
@@ -35,8 +36,15 @@ export interface ISolverResult3D {
   readonly metrics: ISolverMetrics3D;
 }
 
+/**
+ * Режим алгоритма решения сингулярностей RICIS-III:
+ * - 'POLAR_GEOMETRIC': Геометрическая полярная проекция на цилиндрическое многообразие (PolarRicisConstraintSolver).
+ * - 'SYMBOLIC_AST': Символическое AST-обращение Якобиана через аксиомы SP2/SP4/A6 (RicisSymbolicJacobianSolver3D).
+ */
+export type RicisSolverMode = 'POLAR_GEOMETRIC' | 'SYMBOLIC_AST';
+
 export interface IKinematicSolver3D {
-  readonly solverId: 'DLS_BASELINE' | 'RICIS_INVARIANT_ENGINE' | 'RICIS_SYMBOLIC_JACOBIAN';
+  readonly solverId: 'DLS_BASELINE' | 'CLASSICAL_DLS_GHOST' | 'RICIS_INVARIANT_ENGINE' | 'RICIS_POLAR_MONOLITH' | 'RICIS_SYMBOLIC_JACOBIAN';
   solve(
     currentState: IKinematicState3D,
     targetPosition: Vector3D,
