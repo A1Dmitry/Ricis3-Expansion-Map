@@ -36,7 +36,7 @@ export interface ISolverResult3D {
 }
 
 export interface IKinematicSolver3D {
-  readonly solverId: 'DLS_BASELINE' | 'RICIS_INVARIANT_ENGINE';
+  readonly solverId: 'DLS_BASELINE' | 'RICIS_INVARIANT_ENGINE' | 'RICIS_SYMBOLIC_JACOBIAN';
   solve(
     currentState: IKinematicState3D,
     targetPosition: Vector3D,
