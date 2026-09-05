@@ -9,6 +9,7 @@ export interface ShareParams {
   mode?: string | null;
   roadmap?: boolean | null;
   kinematic?: boolean | null;
+  comparison?: boolean | null;
   rootNodeId?: string | null;
 }
 
@@ -33,6 +34,9 @@ export class UrlShareService {
     }
     if (params.kinematic) {
       url.searchParams.set('view', 'kinematic');
+    }
+    if (params.comparison) {
+      url.searchParams.set('view', 'comparison');
     }
     if (params.rootNodeId) {
       url.searchParams.set('root', params.rootNodeId);
@@ -108,6 +112,13 @@ export class UrlShareService {
       if (params.kinematic !== undefined) {
         if (params.kinematic) {
           url.searchParams.set('view', 'kinematic');
+        } else {
+          url.searchParams.delete('view');
+        }
+      }
+      if (params.comparison !== undefined) {
+        if (params.comparison) {
+          url.searchParams.set('view', 'comparison');
         } else {
           url.searchParams.delete('view');
         }

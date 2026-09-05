@@ -9,6 +9,7 @@ const Map3D = lazyNamedComponent(() => import('./ui/Map3D'), 'Map3D');
 const CoreRecoveryPage = lazyNamedComponent(() => import('./ui/CoreRecoveryPage'), 'CoreRecoveryPage');
 const RoadmapPage = lazyNamedComponent(() => import('./ui/RoadmapPage'), 'RoadmapPage');
 const KinematicEnginePage = lazyNamedComponent(() => import('./ui/KinematicEnginePage'), 'KinematicEnginePage');
+const ProofGraphComparisonPage = lazyNamedComponent(() => import('./ui/ProofGraphComparisonPage'), 'ProofGraphComparisonPage');
 
 function formatHydrationError(error: unknown): string {
   if (error instanceof Error) return error.message;
@@ -80,6 +81,19 @@ export default function App() {
         <KinematicEnginePage
           onBackToMap={() => {
             UrlShareService.updateBrowserUrl({ kinematic: false });
+            setLocationSearch(window.location.search);
+          }}
+        />
+      </RouteSurfaceBoundary>
+    );
+  }
+
+  if (roadmapParams.get('view') === 'comparison') {
+    return (
+      <RouteSurfaceBoundary>
+        <ProofGraphComparisonPage
+          onBackToMap={() => {
+            UrlShareService.updateBrowserUrl({ comparison: false });
             setLocationSearch(window.location.search);
           }}
         />

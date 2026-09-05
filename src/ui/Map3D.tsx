@@ -38,6 +38,7 @@ import {
   BookOpen,
   Activity,
   Bug,
+  GitBranch,
 } from 'lucide-react';
 import { SettingsModal } from './SettingsModal';
 import { RicisProofConsoleModal } from './RicisProofConsoleModal';
@@ -1680,6 +1681,18 @@ export const Map3D: React.FC = () => {
             <div className="flex flex-col"><span className="text-slate-400 text-[10px]">{t('header.resolved')}</span><span className="text-green-400 font-bold">{availability.resolved}</span></div>
           </div>
           <LanguageToggle />
+          <button
+            type="button"
+            onClick={() => {
+              UrlShareService.updateBrowserUrl({ comparison: true });
+              window.dispatchEvent(new PopStateEvent('popstate'));
+            }}
+            className="min-h-10 bg-cyan-950/70 hover:bg-cyan-900/80 border border-cyan-600/70 text-cyan-200 font-bold text-xs px-2 sm:px-3.5 py-1.5 rounded-md transition-all cursor-pointer flex items-center gap-1.5 uppercase tracking-wider shadow-[0_0_12px_rgba(6,182,212,0.25)]"
+            aria-label="Сравнение Графов: RICIS vs Anthropic"
+            title="Сравнить граф RICIS-III DAG с графом доказательства Ферма Anthropic"
+          >
+            <GitBranch size={14} className="text-cyan-400" /> <span className="hidden sm:inline">RICIS vs Anthropic</span>
+          </button>
           <button
             type="button"
             onClick={() => {
