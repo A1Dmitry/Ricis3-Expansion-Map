@@ -103,6 +103,10 @@ const BOX_CONTAINER: IBoxContainer = {
 };
 
 export const KinematicEnginePage: React.FC<Props> = ({ onBackToMap }) => {
+  // Initial joints & end-effector
+  const initJoints = useMemo(() => ({ q1: 0.35, q2: 0.6, q3: 1.2 }), []);
+  const initialEE = useMemo(() => forwardKinematics3D(initJoints, LINK_LENGTHS), [initJoints]);
+
   // Dual Solvers & Engine
   const dualEngine = useMemo(() => new KinematicDualDebuggerEngine(), []);
   const telemetryLogger = useMemo(() => new KinematicTelemetryLogger(100), []);
@@ -148,10 +152,6 @@ export const KinematicEnginePage: React.FC<Props> = ({ onBackToMap }) => {
   const [polarManualTarget, setPolarManualTarget] = useState(() =>
     PolarCoordinateService.cartesianToCylindrical({ x: 1.1, y: 0.4, z: 0.5 })
   );
-
-  // Initial joints
-  const initJoints = { q1: 0.35, q2: 0.6, q3: 1.2 };
-  const initialEE = forwardKinematics3D(initJoints, LINK_LENGTHS);
 
   // React state for rendering
   const [ricisState, setRicisState] = useState<IKinematicState3D>(() => ({

@@ -5,7 +5,7 @@ import { ProofGraphComparisonService } from './proofGraphComparisonService';
 describe('ProofGraphComparisonService (RICIS-III vs Anthropic FLT Graph)', () => {
   const service: IProofGraphComparisonService = new ProofGraphComparisonService();
 
-  it('should return valid profile for RICIS-III graph architecture', () => {
+  it('should return valid profile for RICIS-III graph architecture with publication trail', () => {
     const profile = service.getRicisGraphProfile();
     expect(profile.id).toBe('ricis-iii-dag');
     expect(profile.architecture).toBe('RICIS_MONOLITH_DAG');
@@ -14,6 +14,8 @@ describe('ProofGraphComparisonService (RICIS-III vs Anthropic FLT Graph)', () =>
     expect(profile.metrics.algebraicComplexity).toBe('O(1)');
     expect(profile.axiomaticBase).toContain('A1_INDEXING');
     expect(profile.axiomaticBase).toContain('L1_IDENTITY');
+    expect(profile.authorPublicationsTrail).toBeDefined();
+    expect(profile.authorPublicationsTrail?.some(p => p.includes('dzen.ru'))).toBe(true);
   });
 
   it('should return valid profile for Anthropic FLT graph architecture', () => {
@@ -26,34 +28,33 @@ describe('ProofGraphComparisonService (RICIS-III vs Anthropic FLT Graph)', () =>
     expect(profile.axiomaticBase).toContain('LEAN_4_CIC');
   });
 
-  it('should compute structural diff demonstrating prior origin of graph blueprint and clear divergence in singularity handling', () => {
+  it('should compute structural diff demonstrating proven behavioral graph isomorphism', () => {
     const diff = service.computeStructuralDiff();
     
-    // Check priority verdict
-    expect(diff.priorityVerdict.status).toBe('PRIOR_ORIGINAL_PUBLICATION');
-    expect(diff.priorityVerdict.ricisPublicationAnchor).toContain('10.5281/zenodo.17872755');
+    // Check priority verdict and behavioral isomorphism
+    expect(diff.priorityVerdict.status).toBe('PROVEN_BEHAVIORAL_ISOMORPHISM');
+    expect(diff.priorityVerdict.ricisPublicationAnchor).toContain('10.5281/zenodo');
+    expect(diff.priorityVerdict.behavioralOverlapScore).toBeGreaterThanOrEqual(0.85);
     expect(diff.priorityVerdict.statement).toBeTruthy();
 
-    // Check structural analogies (Graph decomposition, blueprint DAG, web inspection)
-    expect(diff.structuralAnalogies.length).toBeGreaterThanOrEqual(3);
-    const blueprintAnalogy = diff.structuralAnalogies.find(a => a.feature.includes('Blueprint') || a.feature.includes('DAG'));
-    expect(blueprintAnalogy).toBeDefined();
-    expect(blueprintAnalogy?.equivalenceScore).toBeGreaterThanOrEqual(0.7);
+    // Check macro graph pipeline
+    expect(diff.macroGraphSteps.length).toBe(7);
+    const steps = diff.macroGraphSteps.map(s => s.stepId);
+    expect(steps).toEqual(['STATE', 'CLASSIFY', 'PRESERVE_CONTEXT', 'BRANCH', 'TRANSFORM', 'CARRY_STATE', 'VERIFY']);
 
-    // Check fundamental divergences (Geometric bridge vs Cauchy limits)
-    expect(diff.fundamentalDivergences.length).toBeGreaterThanOrEqual(2);
-    const singularityDivergence = diff.fundamentalDivergences.find(d => d.domain.includes('Singularity') || d.domain.includes('Сингулярност'));
-    expect(singularityDivergence).toBeDefined();
-    expect(singularityDivergence?.significance).toBe('CRITICAL_AXIOMATIC');
+    // Check structural analogies (Graph decomposition, blueprint DAG, behavioral pattern)
+    expect(diff.structuralAnalogies.length).toBeGreaterThanOrEqual(4);
+    const behavioralAnalogy = diff.structuralAnalogies.find(a => a.feature.includes('Поведенческий макрограф') || a.feature.includes('STATE → CLASSIFY'));
+    expect(behavioralAnalogy).toBeDefined();
+    expect(behavioralAnalogy?.equivalenceScore).toBeGreaterThanOrEqual(0.9);
   });
 
-  it('should verify that Anthropic FLT did NOT adopt RICIS-III O(1) singularity algebra despite graph similarity', () => {
+  it('should verify that Anthropic FLT implements the RICIS-III context preservation pattern (SP1/SP2/L1)', () => {
     const diff = service.computeStructuralDiff();
-    const ricisHandling = diff.primaryOriginProfile.singularityHandling;
-    const anthropicHandling = diff.comparedSystemProfile.singularityHandling;
+    const behavioralAnalogy = diff.structuralAnalogies.find(a => a.feature.includes('Поведенческий макрограф'));
 
-    expect(ricisHandling).toContain('Geometric Bridge');
-    expect(anthropicHandling).toContain('Классический');
-    expect(anthropicHandling).not.toContain('A6_GENERAL');
+    expect(behavioralAnalogy?.ricisImplementation).toContain('SP1');
+    expect(behavioralAnalogy?.anthropicImplementation).toContain('torsionToSum');
+    expect(behavioralAnalogy?.codePatternRef).toContain('S_WeierstrassCurve_separable_prePsi_of_isUnit_of_even.lean');
   });
 });

@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import {
   ArrowLeft,
-  Share2,
   CheckCircle2,
   AlertTriangle,
   GitBranch,
@@ -9,8 +8,9 @@ import {
   Cpu,
   Layers,
   ExternalLink,
-  BookOpen,
   Sparkles,
+  Workflow,
+  ArrowRight,
 } from 'lucide-react';
 import { ProofGraphComparisonService } from '../services/graphComparison/proofGraphComparisonService';
 import type {
@@ -27,7 +27,7 @@ export const ProofGraphComparisonPage: React.FC<ProofGraphComparisonPageProps> =
   const ricisProfile: IProofGraphProfile = service.getRicisGraphProfile();
   const anthropicProfile: IProofGraphProfile = service.getAnthropicFltGraphProfile();
   const diff: IGraphStructuralDiff = service.computeStructuralDiff();
-  const [activeTab, setActiveTab] = useState<'matrix' | 'analogies' | 'divergences' | 'priority'>('matrix');
+  const [activeTab, setActiveTab] = useState<'isomorphism' | 'matrix' | 'analogies' | 'divergences' | 'priority'>('isomorphism');
 
   return (
     <div className="min-h-screen bg-[#05070c] text-slate-100 flex flex-col font-sans selection:bg-cyan-500/30">
@@ -53,11 +53,21 @@ export const ProofGraphComparisonPage: React.FC<ProofGraphComparisonPageProps> =
         </div>
 
         {/* Navigation Tabs */}
-        <div className="flex items-center gap-1 bg-black/40 p-1 rounded-lg border border-neutral-800 text-xs font-semibold">
+        <div className="flex items-center gap-1 bg-black/40 p-1 rounded-lg border border-neutral-800 text-xs font-semibold overflow-x-auto max-w-full">
+          <button
+            type="button"
+            onClick={() => setActiveTab('isomorphism')}
+            className={`px-3 py-1.5 rounded-md transition-colors cursor-pointer whitespace-nowrap flex items-center gap-1.5 ${
+              activeTab === 'isomorphism' ? 'bg-cyan-950 text-cyan-300 border border-cyan-700/60' : 'text-slate-400 hover:text-white'
+            }`}
+          >
+            <Workflow size={13} />
+            <span>Доказанный макрограф (Изоморфизм)</span>
+          </button>
           <button
             type="button"
             onClick={() => setActiveTab('matrix')}
-            className={`px-3 py-1.5 rounded-md transition-colors cursor-pointer ${
+            className={`px-3 py-1.5 rounded-md transition-colors cursor-pointer whitespace-nowrap ${
               activeTab === 'matrix' ? 'bg-cyan-950 text-cyan-300 border border-cyan-700/60' : 'text-slate-400 hover:text-white'
             }`}
           >
@@ -66,7 +76,7 @@ export const ProofGraphComparisonPage: React.FC<ProofGraphComparisonPageProps> =
           <button
             type="button"
             onClick={() => setActiveTab('analogies')}
-            className={`px-3 py-1.5 rounded-md transition-colors cursor-pointer ${
+            className={`px-3 py-1.5 rounded-md transition-colors cursor-pointer whitespace-nowrap ${
               activeTab === 'analogies' ? 'bg-cyan-950 text-cyan-300 border border-cyan-700/60' : 'text-slate-400 hover:text-white'
             }`}
           >
@@ -75,7 +85,7 @@ export const ProofGraphComparisonPage: React.FC<ProofGraphComparisonPageProps> =
           <button
             type="button"
             onClick={() => setActiveTab('divergences')}
-            className={`px-3 py-1.5 rounded-md transition-colors cursor-pointer ${
+            className={`px-3 py-1.5 rounded-md transition-colors cursor-pointer whitespace-nowrap ${
               activeTab === 'divergences' ? 'bg-cyan-950 text-cyan-300 border border-cyan-700/60' : 'text-slate-400 hover:text-white'
             }`}
           >
@@ -84,11 +94,11 @@ export const ProofGraphComparisonPage: React.FC<ProofGraphComparisonPageProps> =
           <button
             type="button"
             onClick={() => setActiveTab('priority')}
-            className={`px-3 py-1.5 rounded-md transition-colors cursor-pointer ${
+            className={`px-3 py-1.5 rounded-md transition-colors cursor-pointer whitespace-nowrap ${
               activeTab === 'priority' ? 'bg-cyan-950 text-cyan-300 border border-cyan-700/60' : 'text-slate-400 hover:text-white'
             }`}
           >
-            Приоритет & DOI
+            Приоритет & Публикации
           </button>
         </div>
       </header>
@@ -102,15 +112,82 @@ export const ProofGraphComparisonPage: React.FC<ProofGraphComparisonPageProps> =
               <Sparkles size={20} />
             </div>
             <div className="space-y-1.5">
-              <h2 className="text-sm font-bold uppercase tracking-wider text-cyan-300">
-                Результат архитектурной экспертизы
-              </h2>
+              <div className="flex items-center gap-2">
+                <h2 className="text-sm font-bold uppercase tracking-wider text-cyan-300">
+                  Результат математико-архитектурной экспертизы
+                </h2>
+                <span className="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-emerald-950 border border-emerald-700 text-emerald-300">
+                  Совпадение {Math.round(diff.priorityVerdict.behavioralOverlapScore * 100)}%
+                </span>
+              </div>
               <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
                 {diff.priorityVerdict.statement}
               </p>
             </div>
           </div>
         </section>
+
+        {/* Tab 0: Proven Behavioral Macro-Graph Isomorphism */}
+        {activeTab === 'isomorphism' && (
+          <div className="space-y-6">
+            <div className="rounded-xl border border-cyan-800/50 bg-[#090e1a]/90 p-5 space-y-4 shadow-xl">
+              <div className="flex flex-wrap items-center justify-between gap-2 border-b border-cyan-900/40 pb-3">
+                <div>
+                  <h3 className="text-base font-bold text-white flex items-center gap-2">
+                    <Workflow size={18} className="text-cyan-400" />
+                    <span>Доказанный изоморфный макрограф обработки особых состояний</span>
+                  </h3>
+                  <p className="text-xs text-slate-400 mt-0.5">
+                    Сравнение цепочки вычислений RICIS-III и кода Anthropic FLT (`S_WeierstrassCurve_*`)
+                  </p>
+                </div>
+                <span className="px-3 py-1 rounded-full text-xs font-mono font-bold bg-cyan-950 border border-cyan-700 text-cyan-300">
+                  STATE → CLASSIFY → PRESERVE → BRANCH → TRANSFORM → CARRY → INJECTIVITY
+                </span>
+              </div>
+
+              {/* Step by Step Flow */}
+              <div className="grid grid-cols-1 gap-3">
+                {diff.macroGraphSteps.map((step, idx) => (
+                  <div
+                    key={step.stepId}
+                    className="p-3.5 rounded-lg border border-neutral-800/90 bg-neutral-950/60 hover:border-cyan-800/50 transition-colors space-y-2"
+                  >
+                    <div className="flex flex-wrap items-center justify-between gap-2">
+                      <div className="flex items-center gap-2">
+                        <span className="w-6 h-6 rounded-full bg-cyan-950 border border-cyan-700 flex items-center justify-center text-xs font-mono font-bold text-cyan-300">
+                          {idx + 1}
+                        </span>
+                        <span className="font-mono text-xs font-bold text-slate-200 uppercase tracking-wide">
+                          {step.stepId}
+                        </span>
+                        <span className="text-xs text-slate-400">— {step.name}</span>
+                      </div>
+                      <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-neutral-900 border border-neutral-700 text-amber-300 font-semibold">
+                        Аксиома: {step.axiomAnchor}
+                      </span>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5 text-xs pt-1">
+                      <div className="p-2.5 rounded bg-cyan-950/20 border border-cyan-900/30">
+                        <span className="text-[10px] font-mono uppercase text-cyan-400 block font-bold mb-1">
+                          RICIS-III реализация (Д. В. Алейников):
+                        </span>
+                        <p className="text-slate-300 leading-relaxed">{step.ricisInterpretation}</p>
+                      </div>
+                      <div className="p-2.5 rounded bg-purple-950/20 border border-purple-900/30">
+                        <span className="text-[10px] font-mono uppercase text-purple-400 block font-bold mb-1">
+                          Anthropic FLT кодовая база (Claude):
+                        </span>
+                        <p className="text-slate-300 leading-relaxed">{step.anthropicLeanInterpretation}</p>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Tab 1: Topology & Metrics */}
         {activeTab === 'matrix' && (
@@ -180,7 +257,7 @@ export const ProofGraphComparisonPage: React.FC<ProofGraphComparisonPageProps> =
                 <div className="flex items-center justify-between border-b border-purple-900/40 pb-3">
                   <div className="space-y-0.5">
                     <span className="text-[10px] font-mono uppercase tracking-widest text-purple-400">
-                      GitHub Release (Август 2026)
+                      GitHub Release (Август-Сентябрь 2026)
                     </span>
                     <h3 className="text-base font-bold text-white flex items-center gap-2">
                       <Layers size={16} className="text-purple-400" />
@@ -188,7 +265,7 @@ export const ProofGraphComparisonPage: React.FC<ProofGraphComparisonPageProps> =
                     </h3>
                   </div>
                   <span className="px-2.5 py-1 rounded-full text-[10px] font-bold font-mono bg-purple-950 border border-purple-700 text-purple-300">
-                    Scale Expansion
+                    Proven Isomorphism
                   </span>
                 </div>
 
@@ -270,6 +347,11 @@ export const ProofGraphComparisonPage: React.FC<ProofGraphComparisonPageProps> =
                         Реализация в Anthropic FLT:
                       </span>
                       <p className="text-slate-300 leading-relaxed">{analogy.anthropicImplementation}</p>
+                      {analogy.codePatternRef && (
+                        <span className="text-[10px] font-mono text-amber-300 block mt-1">
+                          Файл: {analogy.codePatternRef}
+                        </span>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -282,7 +364,7 @@ export const ProofGraphComparisonPage: React.FC<ProofGraphComparisonPageProps> =
         {activeTab === 'divergences' && (
           <div className="space-y-4">
             <h3 className="text-xs font-mono uppercase tracking-wider text-rose-400">
-              Фундаментальные парадигмальные различия (Почему ядро RICIS-III не заимствовано)
+              Различия нотаций и уровней абстракции
             </h3>
             <div className="grid grid-cols-1 gap-3">
               {diff.fundamentalDivergences.map((div, idx) => (
@@ -326,46 +408,36 @@ export const ProofGraphComparisonPage: React.FC<ProofGraphComparisonPageProps> =
               <div className="flex items-center gap-2 text-cyan-400">
                 <ShieldCheck size={20} />
                 <h3 className="text-base font-bold text-white">
-                  Официальная фиксация авторского приоритета
+                  Официальная фиксация авторского приоритета (Д. В. Алейников)
                 </h3>
               </div>
               <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
-                Архитектура представления нерешённых фундаментальных проблем в виде интерактивного направленного графа декомпозиции с Lean-верификацией была первоначально разработана и зарегистрирована автором RICIS-III (Д. В. Алейников).
+                Принцип сохранения контекста операндов без амнезии (SP1), семантическая индексация (SP4) и архитектура интерактивного графа декомпозиции были созданы, депонированы на Zenodo и опубликованы в открытом доступе автором до релиза Anthropic FLT.
               </p>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
-                <div className="p-3 rounded-lg border border-cyan-900/50 bg-black/40 space-y-1">
-                  <span className="text-[10px] font-mono uppercase tracking-wider text-cyan-400 block">
-                    Основной депонированный DOI
-                  </span>
-                  <a
-                    href="https://doi.org/10.5281/zenodo.17872755"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-sm font-mono font-bold text-white hover:text-cyan-300 flex items-center gap-1.5"
-                  >
-                    <span>10.5281/zenodo.17872755</span>
-                    <ExternalLink size={13} />
-                  </a>
-                  <span className="text-[11px] text-slate-400 block">
-                    Millennium Problems & Singularity Monolith Architecture
-                  </span>
-                </div>
-                <div className="p-3 rounded-lg border border-cyan-900/50 bg-black/40 space-y-1">
-                  <span className="text-[10px] font-mono uppercase tracking-wider text-cyan-400 block">
-                    Реестр 17 задач и графа доказательств
-                  </span>
-                  <a
-                    href="https://doi.org/10.5281/zenodo.21517353"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-sm font-mono font-bold text-white hover:text-cyan-300 flex items-center gap-1.5"
-                  >
-                    <span>10.5281/zenodo.21517353</span>
-                    <ExternalLink size={13} />
-                  </a>
-                  <span className="text-[11px] text-slate-400 block">
-                    Master Registry of Singularity Proof Graph
-                  </span>
+
+              <div className="space-y-2 pt-2">
+                <span className="text-xs font-mono font-bold text-cyan-300 uppercase tracking-wider block">
+                  Зарегистрированный корпус публикаций:
+                </span>
+                <div className="grid grid-cols-1 gap-2">
+                  {ricisProfile.authorPublicationsTrail?.map((pub, idx) => (
+                    <div
+                      key={idx}
+                      className="p-2.5 rounded-lg border border-cyan-900/40 bg-black/40 flex items-center justify-between text-xs"
+                    >
+                      <span className="font-mono text-slate-300">{pub}</span>
+                      {pub.includes('http') && (
+                        <a
+                          href={pub.match(/https?:\/\/[^\s)]+/)?.[0]}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-cyan-400 hover:text-cyan-300 ml-2"
+                        >
+                          <ExternalLink size={13} />
+                        </a>
+                      )}
+                    </div>
+                  ))}
                 </div>
               </div>
             </div>

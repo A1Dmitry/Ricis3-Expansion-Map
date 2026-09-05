@@ -15,9 +15,18 @@ export type VerificationBackend =
   | 'COMBINED_LEAN_AND_RICIS';
 
 export type PriorityStatus =
-  | 'PRIOR_ORIGINAL_PUBLICATION' // Задепонировано и опубликовано ранее (RICIS-III)
-  | 'DERIVATIVE_SCALE_EXPANSION'  // Последующая масштабная автоматизация (Anthropic)
-  | 'INDEPENDENT_PARALLEL';
+  | 'PRIOR_ORIGINAL_PUBLICATION'       // Задепонировано и опубликовано ранее (RICIS-III)
+  | 'PROVEN_BEHAVIORAL_ISOMORPHISM'    // Доказанный структурный и поведенческий изоморфизм графов
+  | 'DERIVATIVE_SCALE_EXPANSION';
+
+/** Шаг декомпозиционно-инвариантного макрографа */
+export interface IBehavioralMacroGraphStep {
+  readonly stepId: 'STATE' | 'CLASSIFY' | 'PRESERVE_CONTEXT' | 'BRANCH' | 'TRANSFORM' | 'CARRY_STATE' | 'VERIFY';
+  readonly name: string;
+  readonly ricisInterpretation: string;
+  readonly anthropicLeanInterpretation: string;
+  readonly axiomAnchor: string; // L0, L1, SP1, SP2, etc.
+}
 
 /** Метрики сложности и топологии графа доказательства */
 export interface IProofGraphTopologyMetrics {
@@ -45,6 +54,7 @@ export interface IProofGraphProfile {
   readonly singularityHandling: string;
   readonly interactiveInspectionModel: '3D_WEBGL_AST_DYNAMIC' | 'STATIC_HTML_EXPORTER';
   readonly axiomaticBase: readonly string[];
+  readonly authorPublicationsTrail?: readonly string[];
 }
 
 export interface IStructuralAnalogyEntry {
@@ -53,13 +63,14 @@ export interface IStructuralAnalogyEntry {
   readonly anthropicImplementation: string;
   readonly equivalenceScore: number; // 0..1
   readonly isArchitectureBorrowed: boolean;
+  readonly codePatternRef?: string;
 }
 
 export interface IFundamentalDivergenceEntry {
   readonly domain: string;
   readonly ricisParadigm: string;
   readonly anthropicParadigm: string;
-  readonly significance: 'CRITICAL_AXIOMATIC' | 'STRUCTURAL' | 'SCALE_ONLY';
+  readonly significance: 'METHODOLOGICAL_CONVERGENCE' | 'CRITICAL_AXIOMATIC' | 'SCALE_ONLY';
 }
 
 /** Сравнительный дифференциал двух графов */
@@ -67,6 +78,7 @@ export interface IGraphStructuralDiff {
   readonly timestamp: string;
   readonly primaryOriginProfile: IProofGraphProfile; // RICIS-III
   readonly comparedSystemProfile: IProofGraphProfile; // Anthropic FLT
+  readonly macroGraphSteps: readonly IBehavioralMacroGraphStep[];
   readonly structuralAnalogies: readonly IStructuralAnalogyEntry[];
   readonly fundamentalDivergences: readonly IFundamentalDivergenceEntry[];
   readonly priorityVerdict: {
@@ -74,6 +86,7 @@ export interface IGraphStructuralDiff {
     readonly ricisPublicationAnchor: string;
     readonly anthropicPublicationAnchor: string;
     readonly statement: string;
+    readonly behavioralOverlapScore: number; // 0..1 (>= 0.90)
   };
 }
 
