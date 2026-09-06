@@ -12,6 +12,11 @@ import {
   ITypeConsistencyValidator
 } from './oopContracts';
 import { HOMOGENEOUS_SCALAR_PRECONDITIONS } from './a6A7Homogeneous';
+import {
+  SingularityOperandExtractor,
+  SingularityPairValidator,
+  StructuralExpressionFactory,
+} from './oopDomainServices';
 
 export abstract class BaseSingularityRule implements ISingularityRule {
   abstract readonly ruleName: LocalStructuralRule;
@@ -34,8 +39,11 @@ export abstract class BaseSingularityRule implements ISingularityRule {
     const applicability = this.checkApplicability(expression, indexValidator, typeValidator);
     
     if (!applicability.isApplicable) {
+      const isDeferred = applicability.reason === 'TCP_COMPOSITE_REQUIRED' ||
+        applicability.reason === 'SP4_SOURCE_MISMATCH' ||
+        applicability.reason === 'INVALID_FINITE_KEYS';
       return {
-        status: 'NOT_APPLICABLE',
+        status: isDeferred ? 'DEFERRED' : 'NOT_APPLICABLE',
         reason: applicability.reason || 'Failed preconditions'
       };
     }
@@ -63,39 +71,73 @@ export class A6GeometricBridgeRule extends BaseSingularityRule {
   readonly phase = 'A1_A4_A10';
   readonly authority = 'RICIS_III_EXPLICIT';
 
+  private readonly extractor = new SingularityOperandExtractor();
+  private readonly pairValidator = new SingularityPairValidator();
+  private readonly factory = new StructuralExpressionFactory();
+
   protected checkApplicability(
     expression: StructuralExpression,
     indexValidator: ISemanticIndexValidator,
     typeValidator: ITypeConsistencyValidator
   ): { isApplicable: boolean; reason?: string } {
-    if (expression.kind !== 'BINARY' || expression.operator !== 'MULTIPLY') {
-      return { isApplicable: false, reason: 'Must be a multiplication operation' };
+    if (expression.kind !== 'BINARY') {
+      return { isApplicable: false, reason: 'Must be a binary expression' };
     }
 
-    const hasZero = expression.left.kind === 'INDEXED_ZERO' || expression.right.kind === 'INDEXED_ZERO';
-    const hasInf = expression.left.kind === 'INDEXED_INFINITY' || expression.right.kind === 'INDEXED_INFINITY';
+    const pair = this.extractor.extractA6Pair(expression);
+    if (!pair) {
+      return { isApplicable: false, reason: 'Must have multiplication of INDEXED_ZERO and INDEXED_INFINITY' };
+    }
 
-    if (!hasZero || !hasInf) {
-      return { isApplicable: false, reason: 'Must have exactly one ZERO and one INFINITY' };
+    const validation = this.pairValidator.validateA6Pair(pair, indexValidator, typeValidator);
+    if (!validation.isValid) {
+      return { isApplicable: false, reason: validation.reason };
     }
 
     return { isApplicable: true };
   }
 
   protected executeReduction(expression: StructuralExpression): StructuralExpression {
-    // In a full implementation, this creates the reduced StructuralExpression by multiplying payloads.
-    // We return a mock placeholder for now, preserving DRY principle structure.
-    return {
-      kind: 'SCALAR',
-      value: 1, // MOCK F*G scalar value
+    if (expression.kind !== 'BINARY') {
+      throw new Error('Invalid expression shape for A6 reduction');
+    }
+    const pair = this.extractor.extractA6Pair(expression);
+    if (!pair) {
+      throw new Error('Operands not found for A6 reduction');
+    }
+
+    const defaultSource = expression.identity?.source ?? {
+      sourceHash: 'default-source',
+      sourceCanonical: 'source',
+      sourceSpan: { start: 0, endExclusive: 6 },
+      origin: 'DERIVED_RICIS_RULE' as const,
+    };
+
+    const zeroPayload = pair.zero.payload ?? {
+      kind: 'FINITE_LITERAL',
+      lexeme: '0',
       identity: {
-        structuralHash: 'a6-hash',
-        canonical: 'F * G',
+        structuralHash: '0',
+        canonical: '0',
         typeTag: 'scalar',
-        source: { sourceHash: 'src', sourceCanonical: 'src' }
+        source: defaultSource,
       },
-      semanticKeys: []
-    } as unknown as StructuralExpression;
+      semanticKeys: [],
+    };
+
+    const infPayload = pair.infinity.payload ?? {
+      kind: 'FINITE_LITERAL',
+      lexeme: '1',
+      identity: {
+        structuralHash: '1',
+        canonical: '1',
+        typeTag: 'scalar',
+        source: defaultSource,
+      },
+      semanticKeys: [],
+    };
+
+    return this.factory.createA6Product(zeroPayload, infPayload, defaultSource);
   }
 }
 
@@ -104,35 +146,72 @@ export class A7InfinitySubtractionRule extends BaseSingularityRule {
   readonly phase = 'A1_A4_A10';
   readonly authority = 'RICIS_III_EXPLICIT';
 
+  private readonly extractor = new SingularityOperandExtractor();
+  private readonly pairValidator = new SingularityPairValidator();
+  private readonly factory = new StructuralExpressionFactory();
+
   protected checkApplicability(
     expression: StructuralExpression,
     indexValidator: ISemanticIndexValidator,
     typeValidator: ITypeConsistencyValidator
   ): { isApplicable: boolean; reason?: string } {
-    if (expression.kind !== 'BINARY' || expression.operator !== 'SUBTRACT') {
-      return { isApplicable: false, reason: 'Must be a subtraction operation' };
+    if (expression.kind !== 'BINARY') {
+      return { isApplicable: false, reason: 'Must be a binary expression' };
     }
 
-    if (expression.left.kind !== 'INDEXED_INFINITY' || expression.right.kind !== 'INDEXED_INFINITY') {
-      return { isApplicable: false, reason: 'Both operands must be INDEXED_INFINITY' };
+    const pair = this.extractor.extractA7Pair(expression);
+    if (!pair) {
+      return { isApplicable: false, reason: 'Both operands must be INDEXED_INFINITY with subtraction' };
+    }
+
+    const validation = this.pairValidator.validateA7Pair(pair, indexValidator, typeValidator);
+    if (!validation.isValid) {
+      return { isApplicable: false, reason: validation.reason };
     }
 
     return { isApplicable: true };
   }
 
   protected executeReduction(expression: StructuralExpression): StructuralExpression {
-    // Return F-G as an INDEXED_INFINITY mock for DRY structure preservation.
-    return {
-      kind: 'INDEXED_INFINITY',
-      index: { basis: 'SP4_SOURCE_EXPRESSION', payloadHash: 'f-g', payloadCanonical: 'F-G', payloadTypeTag: 'scalar', sourceHash: 'src', semanticKeys: [] },
-      payload: { identity: { typeTag: 'scalar' }, semanticKeys: [] },
+    if (expression.kind !== 'BINARY') {
+      throw new Error('Invalid expression shape for A7 reduction');
+    }
+    const pair = this.extractor.extractA7Pair(expression);
+    if (!pair) {
+      throw new Error('Operands not found for A7 reduction');
+    }
+
+    const defaultSource = expression.identity?.source ?? {
+      sourceHash: 'default-source',
+      sourceCanonical: 'source',
+      sourceSpan: { start: 0, endExclusive: 6 },
+      origin: 'DERIVED_RICIS_RULE' as const,
+    };
+
+    const leftPayload = pair.leftInfinity.payload ?? {
+      kind: 'FINITE_LITERAL',
+      lexeme: 'F',
       identity: {
-        structuralHash: 'a7-hash',
-        canonical: 'inf_{F-G}',
+        structuralHash: 'F',
+        canonical: 'F',
         typeTag: 'scalar',
-        source: { sourceHash: 'src', sourceCanonical: 'src' }
+        source: defaultSource,
       },
-      semanticKeys: []
-    } as unknown as StructuralExpression;
+      semanticKeys: [],
+    };
+
+    const rightPayload = pair.rightInfinity.payload ?? {
+      kind: 'FINITE_LITERAL',
+      lexeme: 'G',
+      identity: {
+        structuralHash: 'G',
+        canonical: 'G',
+        typeTag: 'scalar',
+        source: defaultSource,
+      },
+      semanticKeys: [],
+    };
+
+    return this.factory.createA7Difference(leftPayload, rightPayload, defaultSource);
   }
 }
