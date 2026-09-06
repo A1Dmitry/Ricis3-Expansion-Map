@@ -333,13 +333,15 @@ export const RobotArm3DCanvas: React.FC<Props> = ({
     if (presentationMode !== '3d') return;
 
     if (ricisBaseRef.current && ricisShoulderRef.current && ricisElbowRef.current) {
-      ricisBaseRef.current.rotation.y = -ricisState.joints.q1;
+      // Correct mathematical azimuth: in Three.js right-handed frame with link along +X,
+      // positive q1 (atan2(y, x)) maps to rotation.y = +q1 to aim at target (x, z, -y)
+      ricisBaseRef.current.rotation.y = ricisState.joints.q1;
       ricisShoulderRef.current.rotation.z = ricisState.joints.q2;
       ricisElbowRef.current.rotation.z = ricisState.joints.q3;
     }
 
     if (dlsBaseRef.current && dlsShoulderRef.current && dlsElbowRef.current) {
-      dlsBaseRef.current.rotation.y = -dlsState.joints.q1;
+      dlsBaseRef.current.rotation.y = dlsState.joints.q1;
       dlsShoulderRef.current.rotation.z = dlsState.joints.q2;
       dlsElbowRef.current.rotation.z = dlsState.joints.q3;
       if (dlsBaseRef.current.parent) {

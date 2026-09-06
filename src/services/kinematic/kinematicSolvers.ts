@@ -47,9 +47,12 @@ export class DlsSolver3D implements IKinematicSolver3D {
     const desiredVector: Vector3D = { x: dx, y: dy, z: dz };
     const distToTarget = Math.sqrt(dx * dx + dy * dy + dz * dz);
 
-    // Compute Base Azimuth rotation q1
+    // Compute Base Azimuth rotation q1 via shortest arc
     const targetAzimuth = Math.atan2(targetPosition.y, targetPosition.x);
-    let deltaQ1 = (targetAzimuth - q1) * 2.5 * dt;
+    let diffQ1 = targetAzimuth - q1;
+    while (diffQ1 > Math.PI) diffQ1 -= 2 * Math.PI;
+    while (diffQ1 < -Math.PI) diffQ1 += 2 * Math.PI;
+    let deltaQ1 = diffQ1 * 2.5 * dt;
 
     // Planar cross-section geometry
     const radialTarget = Math.sqrt(targetPosition.x * targetPosition.x + targetPosition.y * targetPosition.y);
@@ -202,11 +205,15 @@ export class RicisConstraintSolver3D implements IKinematicSolver3D {
     const beta = Math.atan2(L2 * Math.sin(targetQ3), L1 + L2 * Math.cos(targetQ3));
     const targetQ2 = alpha - beta;
 
-    // Smooth Euler integration towards exact algebraic state
-    const lerpRate = 8.0 * dt;
-    const nextQ1 = currentState.joints.q1 + (targetAzimuth - currentState.joints.q1) * Math.min(1.0, lerpRate);
-    const nextQ2 = currentState.joints.q2 + (targetQ2 - currentState.joints.q2) * Math.min(1.0, lerpRate);
-    const nextQ3 = currentState.joints.q3 + (targetQ3 - currentState.joints.q3) * Math.min(1.0, lerpRate);
+    // Smooth Euler integration towards exact algebraic state via shortest arc
+    const lerpRate = Math.min(1.0, 8.0 * dt);
+    let diffQ1 = targetAzimuth - currentState.joints.q1;
+    while (diffQ1 > Math.PI) diffQ1 -= 2 * Math.PI;
+    while (diffQ1 < -Math.PI) diffQ1 += 2 * Math.PI;
+
+    const nextQ1 = currentState.joints.q1 + diffQ1 * lerpRate;
+    const nextQ2 = currentState.joints.q2 + (targetQ2 - currentState.joints.q2) * lerpRate;
+    const nextQ3 = currentState.joints.q3 + (targetQ3 - currentState.joints.q3) * lerpRate;
 
     const nextJoints: JointState3D = {
       q1: nextQ1,

@@ -121,38 +121,49 @@ export class PickAndPlaceController {
       }
 
       case 'TRANSFERRING_TO_BOX': {
-        const boxDropTarget: Vector3D = {
+        // Safe hover target strictly above the box center
+        const boxHoverTarget: Vector3D = {
           x: this.state.box.position.x,
           y: this.state.box.position.y,
-          z: this.state.box.position.z + 0.4,
+          z: this.state.box.position.z + 0.35,
         };
         this.updateGraspedBallPos(endEffector);
 
-        const dist = distance3D(endEffector, boxDropTarget);
-        if (dist < 0.1 || this.currentPhaseTimer > 3.0) {
+        const dist = distance3D(endEffector, boxHoverTarget);
+        // Only advance when the arm has genuinely arrived above the box
+        if (dist < 0.08 || this.currentPhaseTimer > 4.0) {
           this.state = { ...this.state, phase: 'RELEASING' };
           this.currentPhaseTimer = 0;
         }
-        return { target: boxDropTarget, shouldGrip: true };
+        return { target: boxHoverTarget, shouldGrip: true };
       }
 
       case 'RELEASING': {
-        const boxDropTarget: Vector3D = {
+        // "Fragile Egg" Protocol: Gently descend all the way into the box onto its floor
+        // Box floor height: box.position.z - box.dimensions.z / 2 + ballRadius
+        const boxFloorTarget: Vector3D = {
           x: this.state.box.position.x,
           y: this.state.box.position.y,
-          z: this.state.box.position.z + 0.15,
+          z: this.state.box.position.z - this.state.box.dimensions.z / 2 + 0.05,
         };
-        if (this.currentPhaseTimer > 0.4) {
-          // Ball in box
+
+        // Continually hold ball in gripper during descent
+        this.updateGraspedBallPos(endEffector);
+
+        const distToFloor = distance3D(endEffector, boxFloorTarget);
+
+        // Soft release only when gripper is right at the floor of the box
+        if (distToFloor < 0.05 || this.currentPhaseTimer > 2.5) {
+          // Ball safely deposited on the bottom of the box
           const updatedBalls = this.state.balls.map(b =>
             b.id === currentBall.id
               ? {
                   ...b,
                   status: 'IN_BOX' as const,
                   currentPosition: {
-                    x: this.state.box.position.x + (Math.random() - 0.5) * 0.15,
-                    y: this.state.box.position.y + (Math.random() - 0.5) * 0.15,
-                    z: this.state.box.position.z + 0.08,
+                    x: this.state.box.position.x + (Math.random() - 0.5) * 0.12,
+                    y: this.state.box.position.y + (Math.random() - 0.5) * 0.12,
+                    z: this.state.box.position.z - this.state.box.dimensions.z / 2 + 0.04,
                   },
                 }
               : b
@@ -173,9 +184,9 @@ export class PickAndPlaceController {
             },
           };
           this.currentPhaseTimer = 0;
-          eventTriggered = `Ball [${currentBall.id}] Successfully Placed into Box!`;
+          eventTriggered = `Fragile Egg [${currentBall.id}] Gently Placed onto Box Floor (RICIS L0 Continuity)`;
         }
-        return { target: boxDropTarget, shouldGrip: false, eventTriggered };
+        return { target: boxFloorTarget, shouldGrip: distToFloor >= 0.05, eventTriggered };
       }
 
       default:
