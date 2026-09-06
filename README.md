@@ -4,7 +4,7 @@
 [![Formal Verification](https://img.shields.io/badge/Formal%20Verification-Lean%204.33.1-blue.svg)](https://lean-lang.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-**Версия: 0.4.129**
+**Версия: 0.4.131**
 
 Интерактивная исследовательская карта сингулярностей, ориентированный граф доказательств (Blueprint DAG) и аналитический вычислительный движок на базе аксиоматической системы **RICIS-III v7.7** (Recursive Indexed Calculus of Identity and Singularity).
 

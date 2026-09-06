@@ -49,6 +49,46 @@ export interface TypeCompatibilityResult {
 }
 
 /**
+ * Извлеченная пара операндов для деления нулей A4 (0_F / 0_G).
+ */
+export interface A4OperandPair {
+  readonly numeratorZero: StructuralIndexedZero;
+  readonly denominatorZero: StructuralIndexedZero;
+}
+
+/**
+ * Извлеченная пара операндов для деления бесконечностей A5 (inf_F / inf_G).
+ */
+export interface A5OperandPair {
+  readonly numeratorInfinity: StructuralIndexedInfinity;
+  readonly denominatorInfinity: StructuralIndexedInfinity;
+}
+
+/**
+ * Извлеченная пара операндов для деления на нуль A1 (F / 0 -> inf_F).
+ */
+export interface A1OperandPair {
+  readonly numeratorPayload: StructuralExpression;
+  readonly zeroDenominator: StructuralExpression;
+}
+
+/**
+ * Извлеченная пара операндов для умножения на нуль A10 (F * 0 -> 0_F или 0 * F -> 0_F).
+ */
+export interface A10OperandPair {
+  readonly finitePayload: StructuralExpression;
+  readonly zeroFactor: StructuralExpression;
+}
+
+/**
+ * Извлеченная пара операндов для разности нулей A8 (0_F - 0_G -> 0_{F - G}).
+ */
+export interface A8OperandPair {
+  readonly leftZero: StructuralIndexedZero;
+  readonly rightZero: StructuralIndexedZero;
+}
+
+/**
  * Извлеченная пара операндов для геометрического произведения A6 (0_F x inf_G).
  */
 export interface A6OperandPair {
@@ -121,14 +161,31 @@ export interface ISemanticIndexValidator {
  * Доменный сервис извлечения операндов из бинарного дерева (устраняет дублирование pattern-matching).
  */
 export interface ISingularityOperandExtractor {
+  extractA4Pair(expression: StructuralBinaryExpression): A4OperandPair | undefined;
+  extractA5Pair(expression: StructuralBinaryExpression): A5OperandPair | undefined;
   extractA6Pair(expression: StructuralBinaryExpression): A6OperandPair | undefined;
   extractA7Pair(expression: StructuralBinaryExpression): A7OperandPair | undefined;
+  extractA1Pair(expression: StructuralBinaryExpression): A1OperandPair | undefined;
+  extractA10Pair(expression: StructuralBinaryExpression): A10OperandPair | undefined;
+  extractA8Pair(expression: StructuralBinaryExpression): A8OperandPair | undefined;
 }
 
 /**
  * Доменный сервис валидации пары сингулярных операндов (единая точка валидации SP4 + TCP).
  */
 export interface ISingularityPairValidator {
+  validateA4Pair(
+    pair: A4OperandPair,
+    indexValidator: ISemanticIndexValidator,
+    typeValidator: ITypeConsistencyValidator
+  ): SingularityPairValidationResult;
+
+  validateA5Pair(
+    pair: A5OperandPair,
+    indexValidator: ISemanticIndexValidator,
+    typeValidator: ITypeConsistencyValidator
+  ): SingularityPairValidationResult;
+
   validateA6Pair(
     pair: A6OperandPair,
     indexValidator: ISemanticIndexValidator,
@@ -140,6 +197,24 @@ export interface ISingularityPairValidator {
     indexValidator: ISemanticIndexValidator,
     typeValidator: ITypeConsistencyValidator
   ): SingularityPairValidationResult;
+
+  validateA1Pair(
+    pair: A1OperandPair,
+    indexValidator: ISemanticIndexValidator,
+    typeValidator: ITypeConsistencyValidator
+  ): SingularityPairValidationResult;
+
+  validateA10Pair(
+    pair: A10OperandPair,
+    indexValidator: ISemanticIndexValidator,
+    typeValidator: ITypeConsistencyValidator
+  ): SingularityPairValidationResult;
+
+  validateA8Pair(
+    pair: A8OperandPair,
+    indexValidator: ISemanticIndexValidator,
+    typeValidator: ITypeConsistencyValidator
+  ): SingularityPairValidationResult;
 }
 
 /**
@@ -147,6 +222,18 @@ export interface ISingularityPairValidator {
  * идентичности, происхождения, канонических строковых представлений и семантических ключей.
  */
 export interface IStructuralExpressionFactory {
+  createA4Quotient(
+    numeratorPayload: StructuralExpression,
+    denominatorPayload: StructuralExpression,
+    sourceRef: StructuralSourceReference
+  ): StructuralExpression;
+
+  createA5Quotient(
+    numeratorPayload: StructuralExpression,
+    denominatorPayload: StructuralExpression,
+    sourceRef: StructuralSourceReference
+  ): StructuralExpression;
+
   createA6Product(
     zeroPayload: StructuralExpression,
     infinityPayload: StructuralExpression,
@@ -158,6 +245,22 @@ export interface IStructuralExpressionFactory {
     rightPayload: StructuralExpression,
     sourceRef: StructuralSourceReference
   ): StructuralIndexedInfinity;
+
+  createA1Infinity(
+    numeratorPayload: StructuralExpression,
+    sourceRef: StructuralSourceReference
+  ): StructuralIndexedInfinity;
+
+  createA10Zero(
+    finitePayload: StructuralExpression,
+    sourceRef: StructuralSourceReference
+  ): StructuralIndexedZero;
+
+  createA8Difference(
+    leftPayload: StructuralExpression,
+    rightPayload: StructuralExpression,
+    sourceRef: StructuralSourceReference
+  ): StructuralIndexedZero;
 }
 
 /**

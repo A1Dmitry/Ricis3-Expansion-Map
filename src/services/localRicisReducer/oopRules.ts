@@ -215,3 +215,331 @@ export class A7InfinitySubtractionRule extends BaseSingularityRule {
     return { success: true, reduced: this.factory.createA7Difference(leftPayload, rightPayload, defaultSource) };
   }
 }
+
+export class A4ZeroQuotientRule extends BaseSingularityRule {
+  readonly ruleName = 'A4_INDEXED_ZERO_OVER_INDEXED_ZERO';
+  readonly phase = 'A1_A4_A10';
+  readonly authority = 'RICIS_III_EXPLICIT';
+
+  private readonly extractor = new SingularityOperandExtractor();
+  private readonly pairValidator = new SingularityPairValidator();
+  private readonly factory = new StructuralExpressionFactory();
+
+  protected checkApplicability(
+    expression: StructuralExpression,
+    indexValidator: ISemanticIndexValidator,
+    typeValidator: ITypeConsistencyValidator
+  ): { isApplicable: boolean; reason?: string } {
+    if (expression.kind !== 'BINARY') {
+      return { isApplicable: false, reason: 'Must be a binary expression' };
+    }
+
+    const pair = this.extractor.extractA4Pair(expression);
+    if (!pair) {
+      return { isApplicable: false, reason: 'Both operands must be INDEXED_ZERO with division' };
+    }
+
+    const validation = this.pairValidator.validateA4Pair(pair, indexValidator, typeValidator);
+    if (!validation.isValid) {
+      return { isApplicable: false, reason: validation.reason };
+    }
+
+    return { isApplicable: true };
+  }
+
+  protected executeReduction(expression: StructuralExpression): { success: true; reduced: StructuralExpression } | { success: false; reason: string } {
+    if (expression.kind !== 'BINARY') {
+      return { success: false, reason: 'Invalid expression shape for A4 reduction' };
+    }
+    const pair = this.extractor.extractA4Pair(expression);
+    if (!pair) {
+      return { success: false, reason: 'Operands not found for A4 reduction' };
+    }
+
+    const defaultSource = expression.identity?.source ?? {
+      sourceHash: 'default-source',
+      sourceCanonical: 'source',
+      sourceSpan: { start: 0, endExclusive: 6 },
+      origin: 'DERIVED_RICIS_RULE' as const,
+    };
+
+    const numPayload = pair.numeratorZero.payload ?? {
+      kind: 'FINITE_LITERAL',
+      lexeme: 'F',
+      identity: {
+        structuralHash: 'F',
+        canonical: 'F',
+        typeTag: 'scalar',
+        source: defaultSource,
+      },
+      semanticKeys: [],
+    };
+
+    const denPayload = pair.denominatorZero.payload ?? {
+      kind: 'FINITE_LITERAL',
+      lexeme: 'G',
+      identity: {
+        structuralHash: 'G',
+        canonical: 'G',
+        typeTag: 'scalar',
+        source: defaultSource,
+      },
+      semanticKeys: [],
+    };
+
+    return { success: true, reduced: this.factory.createA4Quotient(numPayload, denPayload, defaultSource) };
+  }
+}
+
+export class A5InfinityQuotientRule extends BaseSingularityRule {
+  readonly ruleName = 'A5_INDEXED_INFINITY_OVER_INDEXED_INFINITY';
+  readonly phase = 'A1_A4_A10';
+  readonly authority = 'RICIS_III_EXPLICIT';
+
+  private readonly extractor = new SingularityOperandExtractor();
+  private readonly pairValidator = new SingularityPairValidator();
+  private readonly factory = new StructuralExpressionFactory();
+
+  protected checkApplicability(
+    expression: StructuralExpression,
+    indexValidator: ISemanticIndexValidator,
+    typeValidator: ITypeConsistencyValidator
+  ): { isApplicable: boolean; reason?: string } {
+    if (expression.kind !== 'BINARY') {
+      return { isApplicable: false, reason: 'Must be a binary expression' };
+    }
+
+    const pair = this.extractor.extractA5Pair(expression);
+    if (!pair) {
+      return { isApplicable: false, reason: 'Both operands must be INDEXED_INFINITY with division' };
+    }
+
+    const validation = this.pairValidator.validateA5Pair(pair, indexValidator, typeValidator);
+    if (!validation.isValid) {
+      return { isApplicable: false, reason: validation.reason };
+    }
+
+    return { isApplicable: true };
+  }
+
+  protected executeReduction(expression: StructuralExpression): { success: true; reduced: StructuralExpression } | { success: false; reason: string } {
+    if (expression.kind !== 'BINARY') {
+      return { success: false, reason: 'Invalid expression shape for A5 reduction' };
+    }
+    const pair = this.extractor.extractA5Pair(expression);
+    if (!pair) {
+      return { success: false, reason: 'Operands not found for A5 reduction' };
+    }
+
+    const defaultSource = expression.identity?.source ?? {
+      sourceHash: 'default-source',
+      sourceCanonical: 'source',
+      sourceSpan: { start: 0, endExclusive: 6 },
+      origin: 'DERIVED_RICIS_RULE' as const,
+    };
+
+    const numPayload = pair.numeratorInfinity.payload ?? {
+      kind: 'FINITE_LITERAL',
+      lexeme: 'F',
+      identity: {
+        structuralHash: 'F',
+        canonical: 'F',
+        typeTag: 'scalar',
+        source: defaultSource,
+      },
+      semanticKeys: [],
+    };
+
+    const denPayload = pair.denominatorInfinity.payload ?? {
+      kind: 'FINITE_LITERAL',
+      lexeme: 'G',
+      identity: {
+        structuralHash: 'G',
+        canonical: 'G',
+        typeTag: 'scalar',
+        source: defaultSource,
+      },
+      semanticKeys: [],
+    };
+
+    return { success: true, reduced: this.factory.createA5Quotient(numPayload, denPayload, defaultSource) };
+  }
+}
+
+export class A1FiniteOverZeroRule extends BaseSingularityRule {
+  readonly ruleName = 'A1_FINITE_OVER_ZERO';
+  readonly phase = 'A1_A4_A10';
+  readonly authority = 'RICIS_III_EXPLICIT';
+
+  private readonly extractor = new SingularityOperandExtractor();
+  private readonly pairValidator = new SingularityPairValidator();
+  private readonly factory = new StructuralExpressionFactory();
+
+  protected checkApplicability(
+    expression: StructuralExpression,
+    indexValidator: ISemanticIndexValidator,
+    typeValidator: ITypeConsistencyValidator
+  ): { isApplicable: boolean; reason?: string } {
+    if (expression.kind !== 'BINARY') {
+      return { isApplicable: false, reason: 'Must be a binary expression' };
+    }
+
+    const pair = this.extractor.extractA1Pair(expression);
+    if (!pair) {
+      return { isApplicable: false, reason: 'Must be finite numerator over zero denominator' };
+    }
+
+    const validation = this.pairValidator.validateA1Pair(pair, indexValidator, typeValidator);
+    if (!validation.isValid) {
+      return { isApplicable: false, reason: validation.reason };
+    }
+
+    return { isApplicable: true };
+  }
+
+  protected executeReduction(expression: StructuralExpression): { success: true; reduced: StructuralExpression } | { success: false; reason: string } {
+    if (expression.kind !== 'BINARY') {
+      return { success: false, reason: 'Invalid expression shape for A1 reduction' };
+    }
+    const pair = this.extractor.extractA1Pair(expression);
+    if (!pair) {
+      return { success: false, reason: 'Operands not found for A1 reduction' };
+    }
+
+    const defaultSource = expression.identity?.source ?? {
+      sourceHash: 'default-source',
+      sourceCanonical: 'source',
+      sourceSpan: { start: 0, endExclusive: 6 },
+      origin: 'DERIVED_RICIS_RULE' as const,
+    };
+
+    return { success: true, reduced: this.factory.createA1Infinity(pair.numeratorPayload, defaultSource) };
+  }
+}
+
+export class A10FiniteTimesZeroRule extends BaseSingularityRule {
+  readonly ruleName = 'A10_FINITE_TIMES_ZERO';
+  readonly phase = 'A1_A4_A10';
+  readonly authority = 'RICIS_III_EXPLICIT';
+
+  private readonly extractor = new SingularityOperandExtractor();
+  private readonly pairValidator = new SingularityPairValidator();
+  private readonly factory = new StructuralExpressionFactory();
+
+  protected checkApplicability(
+    expression: StructuralExpression,
+    indexValidator: ISemanticIndexValidator,
+    typeValidator: ITypeConsistencyValidator
+  ): { isApplicable: boolean; reason?: string } {
+    if (expression.kind !== 'BINARY') {
+      return { isApplicable: false, reason: 'Must be a binary expression' };
+    }
+
+    const pair = this.extractor.extractA10Pair(expression);
+    if (!pair) {
+      return { isApplicable: false, reason: 'Must be finite expression multiplied by zero' };
+    }
+
+    const validation = this.pairValidator.validateA10Pair(pair, indexValidator, typeValidator);
+    if (!validation.isValid) {
+      return { isApplicable: false, reason: validation.reason };
+    }
+
+    return { isApplicable: true };
+  }
+
+  protected executeReduction(expression: StructuralExpression): { success: true; reduced: StructuralExpression } | { success: false; reason: string } {
+    if (expression.kind !== 'BINARY') {
+      return { success: false, reason: 'Invalid expression shape for A10 reduction' };
+    }
+    const pair = this.extractor.extractA10Pair(expression);
+    if (!pair) {
+      return { success: false, reason: 'Operands not found for A10 reduction' };
+    }
+
+    const defaultSource = expression.identity?.source ?? {
+      sourceHash: 'default-source',
+      sourceCanonical: 'source',
+      sourceSpan: { start: 0, endExclusive: 6 },
+      origin: 'DERIVED_RICIS_RULE' as const,
+    };
+
+    return { success: true, reduced: this.factory.createA10Zero(pair.finitePayload, defaultSource) };
+  }
+}
+
+export class A8ZeroSubtractionRule extends BaseSingularityRule {
+  readonly ruleName = 'A8_HOMOGENEOUS_SCALAR_INDEXED_SUBTRACTION';
+  readonly phase = 'A5_A6_A7';
+  readonly authority = 'RICIS_III_EXPLICIT';
+
+  private readonly extractor = new SingularityOperandExtractor();
+  private readonly pairValidator = new SingularityPairValidator();
+  private readonly factory = new StructuralExpressionFactory();
+
+  protected checkApplicability(
+    expression: StructuralExpression,
+    indexValidator: ISemanticIndexValidator,
+    typeValidator: ITypeConsistencyValidator
+  ): { isApplicable: boolean; reason?: string } {
+    if (expression.kind !== 'BINARY') {
+      return { isApplicable: false, reason: 'Must be a binary expression' };
+    }
+
+    const pair = this.extractor.extractA8Pair(expression);
+    if (!pair) {
+      return { isApplicable: false, reason: 'Both operands must be INDEXED_ZERO with subtraction' };
+    }
+
+    const validation = this.pairValidator.validateA8Pair(pair, indexValidator, typeValidator);
+    if (!validation.isValid) {
+      return { isApplicable: false, reason: validation.reason };
+    }
+
+    return { isApplicable: true };
+  }
+
+  protected executeReduction(expression: StructuralExpression): { success: true; reduced: StructuralExpression } | { success: false; reason: string } {
+    if (expression.kind !== 'BINARY') {
+      return { success: false, reason: 'Invalid expression shape for A8 reduction' };
+    }
+    const pair = this.extractor.extractA8Pair(expression);
+    if (!pair) {
+      return { success: false, reason: 'Operands not found for A8 reduction' };
+    }
+
+    const defaultSource = expression.identity?.source ?? {
+      sourceHash: 'default-source',
+      sourceCanonical: 'source',
+      sourceSpan: { start: 0, endExclusive: 6 },
+      origin: 'DERIVED_RICIS_RULE' as const,
+    };
+
+    const leftPayload = pair.leftZero.payload ?? {
+      kind: 'FINITE_LITERAL',
+      lexeme: 'F',
+      identity: {
+        structuralHash: 'F',
+        canonical: 'F',
+        typeTag: 'scalar',
+        source: defaultSource,
+      },
+      semanticKeys: [],
+    };
+
+    const rightPayload = pair.rightZero.payload ?? {
+      kind: 'FINITE_LITERAL',
+      lexeme: 'G',
+      identity: {
+        structuralHash: 'G',
+        canonical: 'G',
+        typeTag: 'scalar',
+        source: defaultSource,
+      },
+      semanticKeys: [],
+    };
+
+    return { success: true, reduced: this.factory.createA8Difference(leftPayload, rightPayload, defaultSource) };
+  }
+}
+
