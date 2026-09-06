@@ -29,7 +29,7 @@ export abstract class BaseSingularityRule implements ISingularityRule {
     typeValidator: ITypeConsistencyValidator
   ): { isApplicable: boolean; reason?: string };
 
-  protected abstract executeReduction(expression: StructuralExpression): StructuralExpression;
+  protected abstract executeReduction(expression: StructuralExpression): { success: true; reduced: StructuralExpression } | { success: false; reason: string };
 
   evaluate(
     expression: StructuralExpression,
@@ -48,27 +48,27 @@ export abstract class BaseSingularityRule implements ISingularityRule {
       };
     }
 
-    try {
-      const reduced = this.executeReduction(expression);
-      return {
-        status: 'APPLIED',
-        reduced,
-        preconditions: [...HOMOGENEOUS_SCALAR_PRECONDITIONS],
-        rule: this.ruleName,
-        phase: this.phase
-      };
-    } catch (e: any) {
+    const execution = this.executeReduction(expression);
+    if (!execution.success) {
       return {
         status: 'DEFERRED',
-        reason: e.message || 'Reduction execution failed'
+        reason: execution.reason
       };
     }
+
+    return {
+      status: 'APPLIED',
+      reduced: execution.reduced,
+      preconditions: [...HOMOGENEOUS_SCALAR_PRECONDITIONS],
+      rule: this.ruleName,
+      phase: this.phase
+    };
   }
 }
 
 export class A6GeometricBridgeRule extends BaseSingularityRule {
   readonly ruleName = 'A6_HOMOGENEOUS_SCALAR_PRODUCT';
-  readonly phase = 'A1_A4_A10';
+  readonly phase = 'A5_A6_A7';
   readonly authority = 'RICIS_III_EXPLICIT';
 
   private readonly extractor = new SingularityOperandExtractor();
@@ -97,13 +97,13 @@ export class A6GeometricBridgeRule extends BaseSingularityRule {
     return { isApplicable: true };
   }
 
-  protected executeReduction(expression: StructuralExpression): StructuralExpression {
+  protected executeReduction(expression: StructuralExpression): { success: true; reduced: StructuralExpression } | { success: false; reason: string } {
     if (expression.kind !== 'BINARY') {
-      throw new Error('Invalid expression shape for A6 reduction');
+      return { success: false, reason: 'Invalid expression shape for A6 reduction' };
     }
     const pair = this.extractor.extractA6Pair(expression);
     if (!pair) {
-      throw new Error('Operands not found for A6 reduction');
+      return { success: false, reason: 'Operands not found for A6 reduction' };
     }
 
     const defaultSource = expression.identity?.source ?? {
@@ -137,13 +137,13 @@ export class A6GeometricBridgeRule extends BaseSingularityRule {
       semanticKeys: [],
     };
 
-    return this.factory.createA6Product(zeroPayload, infPayload, defaultSource);
+    return { success: true, reduced: this.factory.createA6Product(zeroPayload, infPayload, defaultSource) };
   }
 }
 
 export class A7InfinitySubtractionRule extends BaseSingularityRule {
   readonly ruleName = 'A7_HOMOGENEOUS_SCALAR_INDEXED_SUBTRACTION';
-  readonly phase = 'A1_A4_A10';
+  readonly phase = 'A5_A6_A7';
   readonly authority = 'RICIS_III_EXPLICIT';
 
   private readonly extractor = new SingularityOperandExtractor();
@@ -172,13 +172,13 @@ export class A7InfinitySubtractionRule extends BaseSingularityRule {
     return { isApplicable: true };
   }
 
-  protected executeReduction(expression: StructuralExpression): StructuralExpression {
+  protected executeReduction(expression: StructuralExpression): { success: true; reduced: StructuralExpression } | { success: false; reason: string } {
     if (expression.kind !== 'BINARY') {
-      throw new Error('Invalid expression shape for A7 reduction');
+      return { success: false, reason: 'Invalid expression shape for A7 reduction' };
     }
     const pair = this.extractor.extractA7Pair(expression);
     if (!pair) {
-      throw new Error('Operands not found for A7 reduction');
+      return { success: false, reason: 'Operands not found for A7 reduction' };
     }
 
     const defaultSource = expression.identity?.source ?? {
@@ -212,6 +212,6 @@ export class A7InfinitySubtractionRule extends BaseSingularityRule {
       semanticKeys: [],
     };
 
-    return this.factory.createA7Difference(leftPayload, rightPayload, defaultSource);
+    return { success: true, reduced: this.factory.createA7Difference(leftPayload, rightPayload, defaultSource) };
   }
 }

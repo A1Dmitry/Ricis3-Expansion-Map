@@ -121,8 +121,8 @@ export const RicisProofConsoleModal: React.FC<RicisProofConsoleModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-in fade-in duration-200">
-      <div className="w-full max-w-4xl bg-[#090d16] border border-cyan-900/60 rounded-xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4 animate-in fade-in duration-200">
+      <div className="w-full max-w-4xl bg-slate-900 border border-cyan-900/60 rounded-xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
         {/* Header */}
         <div className="flex items-center justify-between px-5 py-3.5 border-b border-cyan-900/40 bg-[#060a12]">
           <div className="flex items-center gap-3">

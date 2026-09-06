@@ -194,8 +194,8 @@ export const AutomatedTestingModal: React.FC<AutomatedTestingModalProps> = ({
       : 0;
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-2 sm:p-4 overflow-y-auto">
-      <div className="bg-[#0b0f17] border border-cyan-500/30 rounded-xl w-full max-w-6xl max-h-[92vh] flex flex-col shadow-2xl overflow-hidden font-sans text-slate-200">
+    <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-md flex items-center justify-center p-2 sm:p-4 overflow-y-auto">
+      <div className="bg-slate-900 border border-cyan-500/30 rounded-xl w-full max-w-6xl max-h-[92vh] flex flex-col shadow-2xl overflow-hidden font-sans text-slate-200">
         {/* Header */}
         <div className="p-4 sm:p-5 bg-[#0e1422] border-b border-cyan-500/20 flex items-center justify-between gap-3">
           <div className="flex items-center gap-3">
