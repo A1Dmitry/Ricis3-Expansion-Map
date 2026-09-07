@@ -2,6 +2,8 @@ import { ExternalLink, FileCheck2, GitCommitHorizontal, ShieldCheck, Waypoints }
 import type { SolutionMonolithCardView } from '../ricisSolutionCatalog';
 import { WidgetCapabilityBoundary } from './components/resilience/WidgetCapabilityBoundary';
 import { TcpFractalInspectorCard } from './components/tcp/TcpFractalInspectorCard';
+import { RationalSingularityInspectorCard } from './components/rationalSingularity/RationalSingularityInspectorCard';
+import type { IRationalFunctionInput } from '../services/rationalSingularity/rationalSingularityEngine.contracts';
 
 interface Props {
   readonly view: SolutionMonolithCardView;
@@ -64,6 +66,23 @@ export function SolutionMonolithCard({ view }: Props) {
             nodeId={solution.id}
             nodeTitle={solution.title.ru}
             formula={solution.sourceEvidence.semanticIndexExpression}
+          />
+        </WidgetCapabilityBoundary>
+      </div>
+
+      {/* RICIS-III Rational Singularity Engine & Lean A1_div_zero Inspector */}
+      <div className="mt-2">
+        <WidgetCapabilityBoundary componentName="RationalSingularityInspectorCard" mode="CARD_STUB">
+          <RationalSingularityInspectorCard
+            exampleId={solution.id}
+            title={solution.title.ru}
+            rationalInput={{
+              variable: 'x',
+              numeratorFactors: [],
+              numeratorConstant: 10,
+              denominatorFactors: [{ factorText: 'x - 2', root: 2, power: 1 }],
+            }}
+            description="Анализ решения уравнения знаменателя D(x) = 0 и редукция по Аксиоме A1/A10 (Lean: A1_div_zero)"
           />
         </WidgetCapabilityBoundary>
       </div>
