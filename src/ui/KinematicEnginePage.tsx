@@ -63,6 +63,7 @@ import { kinematicContainer } from '../services/kinematic/kinematicModuleRegistr
 import type { KinematicModuleId } from '../services/kinematic/kinematicIoc.contracts';
 import '../services/kinematic/kinematicIocBootstrap';
 import { WidgetCapabilityBoundary } from './components/resilience/WidgetCapabilityBoundary';
+import { GeometricBridgeVisualizerCard } from './components/geometricBridge/GeometricBridgeVisualizerCard';
 import { PlanarManipulatorCanvas } from './components/kinematic/PlanarManipulatorCanvas';
 import { FourStagePipelineCard } from './components/kinematic/FourStagePipelineCard';
 import { RealTimeFourStageBadge } from './components/kinematic/RealTimeFourStageBadge';
@@ -1249,8 +1250,8 @@ export const KinematicEnginePage: React.FC<Props> = ({ onBackToMap }) => {
 
           {activeTab === 'MATH' && (
             /* Theoretical Foundations & Axioms */
-            <div className="bg-purple-950/20 border border-purple-900/50 rounded-lg p-3 text-[11px] flex-1 flex flex-col text-purple-200 overflow-y-auto">
-              <h4 className="font-bold text-purple-300 flex items-center gap-1.5 mb-2 pb-1 border-b border-purple-900/40">
+            <div className="bg-purple-950/20 border border-purple-900/50 rounded-lg p-3 text-[11px] flex-1 flex flex-col text-purple-200 overflow-y-auto space-y-3">
+              <h4 className="font-bold text-purple-300 flex items-center gap-1.5 pb-1 border-b border-purple-900/40">
                 <Terminal size={14} />
                 Математическое обоснование RICIS-III
               </h4>
@@ -1262,9 +1263,14 @@ export const KinematicEnginePage: React.FC<Props> = ({ onBackToMap }) => {
                   <strong>2. Запрет пределов Коши:</strong> Классический анализ ищет lim (x → a) f(x), что вблизи сингулярности det(J) → 0 приводит к бесконечным скоростям шарниров q̇ = J⁻¹ ẋ → ∞. Классический метод DLS вводит демпфер λ², искажающий траекторию.
                 </p>
                 <p>
-                  <strong>3. Аксиома A6 и Геометрический мост:</strong> RICIS-III разрешает границу рабочей зоны через замкнутую алгебраическую проекцию на многообразие A6: 0_F × ∞_G = F · G, сохраняя направление вектора (0.0° погрешности) за O(1) без численных итераций.
+                  <strong>3. Аксиома A6 и Геометрический мост:</strong> RICIS-III разрешает границу рабочей зоны через замкнутую алгебраическую проекцию на многообразие A6: 0_F × ∞_G = det(u,v) = F · G, сохраняя направление вектора (0.0° погрешности) за O(1) без численных итераций.
                 </p>
               </div>
+
+              {/* Interactive Geometric Bridge in R^2_RICIS */}
+              <WidgetCapabilityBoundary componentName="GeometricBridgeVisualizerCard" mode="CARD_STUB">
+                <GeometricBridgeVisualizerCard initialF={4} initialG={3} />
+              </WidgetCapabilityBoundary>
             </div>
           )}
 
