@@ -65,6 +65,8 @@ import '../services/kinematic/kinematicIocBootstrap';
 import { WidgetCapabilityBoundary } from './components/resilience/WidgetCapabilityBoundary';
 import { PlanarManipulatorCanvas } from './components/kinematic/PlanarManipulatorCanvas';
 import { FourStagePipelineCard } from './components/kinematic/FourStagePipelineCard';
+import { RealTimeFourStageBadge } from './components/kinematic/RealTimeFourStageBadge';
+import { FourStageTelemetryAdapter } from '../services/kinematic/fourStageTelemetryAdapter';
 
 interface Props {
   readonly onBackToMap: () => void;
@@ -159,6 +161,8 @@ export const KinematicEnginePage: React.FC<Props> = ({ onBackToMap }) => {
 
   // Compute live planar state & heatmap
   const planarLinks: [number, number, number] = useMemo(() => [LINK_LENGTHS[0], LINK_LENGTHS[1], LINK_LENGTHS[2]], []);
+  const fourStageTelemetryAdapter = useMemo(() => new FourStageTelemetryAdapter(planarKinematicService), [planarKinematicService]);
+
   const planarState = useMemo(() => {
     const J = planarKinematicService.computeJacobian(planarJoints, planarLinks, planarMode);
     const svd = planarKinematicService.computeSingularValues(J);
@@ -259,6 +263,15 @@ export const KinematicEnginePage: React.FC<Props> = ({ onBackToMap }) => {
     isWorkspaceBoundaryExceeded: false,
     gripperClosed: false,
   }));
+
+  const liveFourStageTelemetry = useMemo(() => {
+    return fourStageTelemetryAdapter.evaluateRealTimeTelemetry(
+      [ricisState.joints.q1, ricisState.joints.q2, ricisState.joints.q3],
+      planarLinks,
+      planarMode,
+      ricisState.jacobianDeterminant
+    );
+  }, [fourStageTelemetryAdapter, ricisState.joints, planarLinks, planarMode, ricisState.jacobianDeterminant]);
 
   const [dlsState, setDlsState] = useState<IKinematicState3D>(() => ({
     timestamp: Date.now(),
@@ -1108,6 +1121,15 @@ export const KinematicEnginePage: React.FC<Props> = ({ onBackToMap }) => {
                 </div>
               </div>
 
+              {/* Real-Time 4-Stage Architectural Telemetry Badge */}
+              <WidgetCapabilityBoundary
+                componentName="RealTimeFourStageBadge"
+                title="4-Stage Telemetry Badge"
+                mode="CARD_STUB"
+              >
+                <RealTimeFourStageBadge telemetry={liveFourStageTelemetry} />
+              </WidgetCapabilityBoundary>
+
               {/* Advantage Events Ledger */}
               <div className="bg-neutral-900/90 border border-neutral-800 rounded-lg p-3 flex-1 flex flex-col min-h-[200px]">
                 <div className="flex items-center justify-between mb-2 pb-1 border-b border-neutral-800">
@@ -1265,6 +1287,21 @@ export const KinematicEnginePage: React.FC<Props> = ({ onBackToMap }) => {
 
           {activeTab === 'TWO_STAGE_SINGULARITY' && (
             <div className="flex-1 flex flex-col gap-3 overflow-y-auto pr-1">
+              {/* Interactive Step-by-Step Walkthrough Controller */}
+              <WidgetCapabilityBoundary
+                componentName="WalkthroughControllerPanel"
+                title="Интерактивный сценарий шагов"
+                mode="CARD_STUB"
+              >
+                <WalkthroughControllerPanel
+                  currentStepIndex={walkthroughIndex}
+                  isPlaying={isWalkthroughPlaying}
+                  onStepChange={handleWalkthroughStepChange}
+                  onTogglePlay={handleToggleWalkthroughPlay}
+                  onReset={handleResetWalkthrough}
+                />
+              </WidgetCapabilityBoundary>
+
               {/* Parameterization Mode Selector & Metrics */}
               <div className="bg-slate-900/90 border border-slate-700/80 rounded-xl p-3 shadow-lg">
                 <div className="flex items-center justify-between pb-2 border-b border-slate-800 mb-2">
