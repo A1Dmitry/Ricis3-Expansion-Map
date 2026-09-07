@@ -19,6 +19,7 @@ import {
   Check,
   FileText,
   Cpu,
+  Sparkles,
 } from 'lucide-react';
 import type {
   IKinematicState3D,
@@ -50,6 +51,20 @@ import type {
   IRicisAstInverseSolution,
   ISymbolicJacobianMatrix3D,
 } from '../model/ricisSymbolicJacobian.contracts';
+import { Planar3LinkKinematicService } from '../services/kinematic/planar3LinkKinematicService';
+import type { ParameterizationMode, ISingularityHeatmapGrid } from '../services/kinematic/twoStageSingularity.contracts';
+import { WALKTHROUGH_STEPS } from '../services/kinematic/walkthroughScenarios';
+import { SingularityLandscapeHeatmap } from './components/kinematic/SingularityLandscapeHeatmap';
+import { RicisReductionOverlayPanel } from './components/kinematic/RicisReductionOverlayPanel';
+import { AsyncCriticalLogViewer } from './components/kinematic/AsyncCriticalLogViewer';
+import { WalkthroughControllerPanel } from './components/kinematic/WalkthroughControllerPanel';
+import { ModuleInDevelopmentStub } from './components/kinematic/ModuleInDevelopmentStub';
+import { kinematicContainer } from '../services/kinematic/kinematicModuleRegistry';
+import type { KinematicModuleId } from '../services/kinematic/kinematicIoc.contracts';
+import '../services/kinematic/kinematicIocBootstrap';
+import { WidgetCapabilityBoundary } from './components/resilience/WidgetCapabilityBoundary';
+import { PlanarManipulatorCanvas } from './components/kinematic/PlanarManipulatorCanvas';
+import { FourStagePipelineCard } from './components/kinematic/FourStagePipelineCard';
 
 interface Props {
   readonly onBackToMap: () => void;
@@ -120,7 +135,88 @@ export const KinematicEnginePage: React.FC<Props> = ({ onBackToMap }) => {
   const [speedMultiplier, setSpeedMultiplier] = useState(1);
   const [showTestingModal, setShowTestingModal] = useState(false);
   const [copiedTrace, setCopiedTrace] = useState(false);
-  const [activeTab, setActiveTab] = useState<'TELEMETRY' | 'QA_TRACE' | 'MATH' | 'AST_JACOBIAN'>('TELEMETRY');
+  const [activeTab, setActiveTab] = useState<'TELEMETRY' | 'QA_TRACE' | 'MATH' | 'AST_JACOBIAN' | 'TWO_STAGE_SINGULARITY'>('TWO_STAGE_SINGULARITY');
+
+  // ==========================================
+  // IoC-Resolved Kinematic Manipulator Engine
+  // ==========================================
+  const [selectedModuleId, setSelectedModuleId] = useState<KinematicModuleId>('planar-3link-two-stage');
+  const resolvedModule = useMemo(() => {
+    return kinematicContainer.resolveOrFallback(selectedModuleId, 'POLAR_TRANSITION');
+  }, [selectedModuleId]);
+
+  const planarKinematicService = useMemo(() => {
+    if (resolvedModule.isAvailable && 'service' in resolvedModule.module) {
+      return (resolvedModule.module as any).service as Planar3LinkKinematicService;
+    }
+    return new Planar3LinkKinematicService();
+  }, [resolvedModule]);
+
+  const [planarJoints, setPlanarJoints] = useState<[number, number, number]>([0.35, 0.78, 0.65]);
+  const [planarMode, setPlanarMode] = useState<ParameterizationMode>('CARTESIAN');
+  const [walkthroughIndex, setWalkthroughIndex] = useState(0);
+  const [isWalkthroughPlaying, setIsWalkthroughPlaying] = useState(false);
+
+  // Compute live planar state & heatmap
+  const planarLinks: [number, number, number] = useMemo(() => [LINK_LENGTHS[0], LINK_LENGTHS[1], LINK_LENGTHS[2]], []);
+  const planarState = useMemo(() => {
+    const J = planarKinematicService.computeJacobian(planarJoints, planarLinks, planarMode);
+    const svd = planarKinematicService.computeSingularValues(J);
+    const overlay = planarKinematicService.evaluateRicisReduction(planarJoints, planarLinks, planarMode);
+    const fk = planarKinematicService.computeForwardKinematics(planarJoints, planarLinks);
+    const fourStageReport = planarKinematicService.evaluateFourStagePipeline(planarJoints, planarLinks, planarMode);
+    return { J, svd, overlay, fk, fourStageReport };
+  }, [planarKinematicService, planarJoints, planarLinks, planarMode]);
+
+  const heatmapGrid = useMemo<ISingularityHeatmapGrid>(() => {
+    return planarKinematicService.generateHeatmapGrid(planarJoints[0], planarLinks, 28);
+  }, [planarKinematicService, planarJoints, planarLinks]);
+
+  // Walkthrough Auto-Play Timer
+  useEffect(() => {
+    if (!isWalkthroughPlaying) return;
+    const step = WALKTHROUGH_STEPS[walkthroughIndex] ?? WALKTHROUGH_STEPS[0];
+    const timer = setTimeout(() => {
+      if (walkthroughIndex < WALKTHROUGH_STEPS.length - 1) {
+        const nextIdx = walkthroughIndex + 1;
+        setWalkthroughIndex(nextIdx);
+        const nextStep = WALKTHROUGH_STEPS[nextIdx];
+        if (nextStep) {
+          setPlanarJoints([...nextStep.targetJoints] as [number, number, number]);
+          if (nextStep.forcedMode) {
+            setPlanarMode(nextStep.forcedMode);
+          }
+        }
+      } else {
+        setIsWalkthroughPlaying(false);
+      }
+    }, step.durationMs);
+
+    return () => clearTimeout(timer);
+  }, [isWalkthroughPlaying, walkthroughIndex]);
+
+  const handleWalkthroughStepChange = (index: number) => {
+    setWalkthroughIndex(index);
+    const step = WALKTHROUGH_STEPS[index];
+    if (step) {
+      setPlanarJoints([...step.targetJoints] as [number, number, number]);
+      if (step.forcedMode) {
+        setPlanarMode(step.forcedMode);
+      }
+    }
+  };
+
+  const handleToggleWalkthroughPlay = () => {
+    if (!isWalkthroughPlaying && walkthroughIndex >= WALKTHROUGH_STEPS.length - 1) {
+      handleWalkthroughStepChange(0);
+    }
+    setIsWalkthroughPlaying((prev) => !prev);
+  };
+
+  const handleResetWalkthrough = () => {
+    setIsWalkthroughPlaying(false);
+    handleWalkthroughStepChange(0);
+  };
 
   // Synchronize RICIS solver implementation in dualEngine with ricisSolverMode
   useEffect(() => {
@@ -506,80 +602,171 @@ export const KinematicEnginePage: React.FC<Props> = ({ onBackToMap }) => {
       <div className="flex-1 grid grid-cols-1 lg:grid-cols-12 gap-3 p-3 overflow-hidden">
         {/* Left Side: 3D Visualization Canvas & Scenarios (8 cols) */}
         <div className="lg:col-span-8 flex flex-col gap-2.5 min-h-0">
-          {/* Mode Selector Tabs */}
-          <div className="flex items-center justify-between bg-neutral-900/80 p-1.5 rounded-lg border border-neutral-800 shrink-0">
-            <div className="flex items-center gap-1.5">
-              <button
-                type="button"
-                onClick={() => setSimMode('PICK_AND_PLACE')}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded text-xs font-bold transition-all ${
-                  simMode === 'PICK_AND_PLACE'
-                    ? 'bg-emerald-950/80 border border-emerald-500/80 text-emerald-300'
-                    : 'text-slate-400 hover:text-white hover:bg-neutral-800'
-                }`}
-              >
-                <Box size={14} />
-                Сортировка в коробку
-              </button>
-              <button
-                type="button"
-                onClick={() => setSimMode('SINGULAR_ORBIT')}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded text-xs font-bold transition-all ${
-                  simMode === 'SINGULAR_ORBIT'
-                    ? 'bg-cyan-950/80 border border-cyan-500/80 text-cyan-300'
-                    : 'text-slate-400 hover:text-white hover:bg-neutral-800'
-                }`}
-              >
-                <Activity size={14} />
-                Орбита границы ($\det(J) \to 0$)
-              </button>
-              <button
-                type="button"
-                onClick={() => setSimMode('MANUAL')}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded text-xs font-bold transition-all ${
-                  simMode === 'MANUAL'
-                    ? 'bg-purple-950/80 border border-purple-500/80 text-purple-300'
-                    : 'text-slate-400 hover:text-white hover:bg-neutral-800'
-                }`}
-              >
-                <Sliders size={14} />
-                Ручной целеуказатель
-              </button>
+          {/* Mode & IoC Module Selector Tabs */}
+          <div className="flex flex-col gap-2 bg-neutral-900/80 p-2 rounded-lg border border-neutral-800 shrink-0">
+            {/* Top row: IoC Manipulator Model Selector */}
+            <div className="flex items-center justify-between pb-1.5 border-b border-neutral-800/60">
+              <div className="flex items-center gap-2">
+                <span className="text-[11px] font-mono text-slate-400">IoC Модель:</span>
+                <div className="flex items-center gap-1.5">
+                  <button
+                    type="button"
+                    onClick={() => setSelectedModuleId('planar-3link-two-stage')}
+                    className={`px-2.5 py-1 rounded text-xs font-mono font-medium transition-all ${
+                      selectedModuleId === 'planar-3link-two-stage'
+                        ? 'bg-cyan-950 border border-cyan-500 text-cyan-200 shadow-sm'
+                        : 'text-slate-400 hover:text-white bg-neutral-950/60 border border-neutral-800'
+                    }`}
+                  >
+                    3-Link Planar (READY)
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setSelectedModuleId('planar-5link-redundant')}
+                    className={`px-2.5 py-1 rounded text-xs font-mono font-medium transition-all ${
+                      selectedModuleId === 'planar-5link-redundant'
+                        ? 'bg-purple-950 border border-purple-500 text-purple-200 shadow-sm'
+                        : 'text-slate-400 hover:text-white bg-neutral-950/60 border border-neutral-800'
+                    }`}
+                  >
+                    5-Link Hyper-Redundant (IN DEV)
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setSelectedModuleId('spatial-6dof-ricis')}
+                    className={`px-2.5 py-1 rounded text-xs font-mono font-medium transition-all ${
+                      selectedModuleId === 'spatial-6dof-ricis'
+                        ? 'bg-amber-950 border border-amber-500 text-amber-200 shadow-sm'
+                        : 'text-slate-400 hover:text-white bg-neutral-950/60 border border-neutral-800'
+                    }`}
+                  >
+                    Spatial 6-DOF (IN DEV)
+                  </button>
+                </div>
+              </div>
+
+              <div className="text-[10px] font-mono text-emerald-400 flex items-center gap-1">
+                <ShieldCheck size={12} />
+                <span>IoC Guard Active</span>
+              </div>
             </div>
 
-            {simMode === 'PICK_AND_PLACE' ? (
-              <div className="flex items-center gap-3 px-2 text-xs">
-                <span className="text-slate-400">
-                  Фаза: <strong className="text-cyan-300 font-mono text-[11px]">{pnpState.phase}</strong>
-                </span>
-                <span className="text-slate-400">
-                  Собрано:{' '}
-                  <strong className="text-emerald-400 font-mono">
-                    {pnpState.ballsPlacedCount} / {pnpState.balls.length}
-                  </strong>
-                </span>
+            {/* Bottom row: Operational Sim Modes */}
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-1.5">
+                <button
+                  type="button"
+                  onClick={() => setSimMode('PICK_AND_PLACE')}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded text-xs font-bold transition-all ${
+                    simMode === 'PICK_AND_PLACE'
+                      ? 'bg-emerald-950/80 border border-emerald-500/80 text-emerald-300'
+                      : 'text-slate-400 hover:text-white hover:bg-neutral-800'
+                  }`}
+                >
+                  <Box size={14} />
+                  Сортировка в коробку
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setSimMode('SINGULAR_ORBIT')}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded text-xs font-bold transition-all ${
+                    simMode === 'SINGULAR_ORBIT'
+                      ? 'bg-cyan-950/80 border border-cyan-500/80 text-cyan-300'
+                      : 'text-slate-400 hover:text-white hover:bg-neutral-800'
+                  }`}
+                >
+                  <Activity size={14} />
+                  Орбита границы ($\det(J) \to 0$)
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setSimMode('MANUAL')}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded text-xs font-bold transition-all ${
+                    simMode === 'MANUAL'
+                      ? 'bg-purple-950/80 border border-purple-500/80 text-purple-300'
+                      : 'text-slate-400 hover:text-white hover:bg-neutral-800'
+                  }`}
+                >
+                  <Sliders size={14} />
+                  Ручной целеуказатель
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSimMode('TWO_STAGE_WALKTHROUGH' as any);
+                    setActiveTab('TWO_STAGE_SINGULARITY');
+                  }}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded text-xs font-bold transition-all ${
+                    simMode === ('TWO_STAGE_WALKTHROUGH' as any)
+                      ? 'bg-gradient-to-r from-purple-900 to-indigo-900 border border-purple-400 text-purple-200 shadow-lg shadow-purple-950/60'
+                      : 'text-slate-400 hover:text-white hover:bg-neutral-800'
+                  }`}
+                >
+                  <Sparkles size={14} className="text-purple-400" />
+                  2-Stage RICIS Walkthrough
+                </button>
               </div>
+
+              {simMode === 'PICK_AND_PLACE' ? (
+                <div className="flex items-center gap-3 px-2 text-xs">
+                  <span className="text-slate-400">
+                    Фаза: <strong className="text-cyan-300 font-mono text-[11px]">{pnpState.phase}</strong>
+                  </span>
+                  <span className="text-slate-400">
+                    Собрано:{' '}
+                    <strong className="text-emerald-400 font-mono">
+                      {pnpState.ballsPlacedCount} / {pnpState.balls.length}
+                    </strong>
+                  </span>
+                </div>
+              ) : (
+                <div className="flex items-center gap-2 px-2 text-[11px] text-slate-400 font-mono">
+                  <span>EE R: <strong className="text-emerald-300">{currentEEPolar.r.toFixed(2)}m</strong></span>
+                  <span>θ: <strong className="text-emerald-300">{PolarCoordinateService.radToDeg(currentEEPolar.thetaRad).toFixed(0)}°</strong></span>
+                  <span>Z: <strong className="text-emerald-300">{ricisState.endEffector.z.toFixed(2)}m</strong></span>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Visualization Canvas (Resilient Fallback vs WebGL 3D vs Planar 2D Engine) */}
+          <div className="flex-1 relative min-h-0">
+            {!resolvedModule.isAvailable ? (
+              <ModuleInDevelopmentStub
+                metadata={resolvedModule.metadata}
+                reason={resolvedModule.reason}
+                onFallbackToDefault={() => setSelectedModuleId('planar-3link-two-stage')}
+              />
+            ) : simMode === ('TWO_STAGE_WALKTHROUGH' as any) ? (
+              <PlanarManipulatorCanvas
+                joints={planarJoints}
+                links={[LINK_LENGTHS[0], LINK_LENGTHS[1], LINK_LENGTHS[2]]}
+                mode={planarMode}
+                overlay={planarState.overlay}
+              />
             ) : (
-              <div className="flex items-center gap-2 px-2 text-[11px] text-slate-400 font-mono">
-                <span>EE R: <strong className="text-emerald-300">{currentEEPolar.r.toFixed(2)}m</strong></span>
-                <span>θ: <strong className="text-emerald-300">{PolarCoordinateService.radToDeg(currentEEPolar.thetaRad).toFixed(0)}°</strong></span>
-                <span>Z: <strong className="text-emerald-300">{ricisState.endEffector.z.toFixed(2)}m</strong></span>
-              </div>
+              <RobotArm3DCanvas
+                ricisState={ricisState}
+                dlsState={dlsState}
+                target={currentDesiredTarget}
+                balls={pnpState.balls}
+                box={pnpState.box}
+                showDlsGhost={showDlsGhost}
+                linkLengths={LINK_LENGTHS}
+              />
             )}
           </div>
 
-          {/* 3D WebGL Arm Canvas */}
-          <div className="flex-1 relative min-h-0">
-            <RobotArm3DCanvas
-              ricisState={ricisState}
-              dlsState={dlsState}
-              target={currentDesiredTarget}
-              balls={pnpState.balls}
-              box={pnpState.box}
-              showDlsGhost={showDlsGhost}
-              linkLengths={LINK_LENGTHS}
+          {/* Walkthrough Scenario Script Controller (visible in TWO_STAGE_WALKTHROUGH mode) */}
+          {simMode === ('TWO_STAGE_WALKTHROUGH' as any) && (
+            <WalkthroughControllerPanel
+              currentStepIndex={walkthroughIndex}
+              isPlaying={isWalkthroughPlaying}
+              onStepChange={handleWalkthroughStepChange}
+              onTogglePlay={handleToggleWalkthroughPlay}
+              onReset={handleResetWalkthrough}
             />
-          </div>
+          )}
 
           {/* Coordinate System Selector & Sliders (visible in MANUAL mode) */}
           {simMode === 'MANUAL' && (
@@ -775,6 +962,18 @@ export const KinematicEnginePage: React.FC<Props> = ({ onBackToMap }) => {
             >
               <Layers size={12} />
               AST Якобиан
+            </button>
+            <button
+              type="button"
+              onClick={() => setActiveTab('TWO_STAGE_SINGULARITY')}
+              className={`flex-1 py-1 px-2 rounded text-xs font-bold transition-all text-center flex items-center justify-center gap-1 ${
+                activeTab === 'TWO_STAGE_SINGULARITY'
+                  ? 'bg-purple-900/80 border border-purple-500/80 text-purple-200 shadow'
+                  : 'text-slate-400 hover:text-white'
+              }`}
+            >
+              <Sparkles size={12} className="text-purple-400" />
+              2-Stage RICIS
             </button>
           </div>
 
@@ -1049,12 +1248,157 @@ export const KinematicEnginePage: React.FC<Props> = ({ onBackToMap }) => {
 
           {activeTab === 'AST_JACOBIAN' && (
             <div className="flex-1 flex flex-col overflow-y-auto pr-1">
-              <RicisAstInspector
-                solution={symbolicSolution}
-                jacobianMatrix={symbolicMatrix}
-                joints={ricisState.joints}
-                linkLengths={LINK_LENGTHS}
-              />
+              <WidgetCapabilityBoundary
+                componentName="RicisAstInspector"
+                title="Символьный AST Якобиан"
+                mode="CARD_STUB"
+              >
+                <RicisAstInspector
+                  solution={symbolicSolution}
+                  jacobianMatrix={symbolicMatrix}
+                  joints={ricisState.joints}
+                  linkLengths={LINK_LENGTHS}
+                />
+              </WidgetCapabilityBoundary>
+            </div>
+          )}
+
+          {activeTab === 'TWO_STAGE_SINGULARITY' && (
+            <div className="flex-1 flex flex-col gap-3 overflow-y-auto pr-1">
+              {/* Parameterization Mode Selector & Metrics */}
+              <div className="bg-slate-900/90 border border-slate-700/80 rounded-xl p-3 shadow-lg">
+                <div className="flex items-center justify-between pb-2 border-b border-slate-800 mb-2">
+                  <div className="flex items-center gap-2">
+                    <Sparkles className="w-4 h-4 text-purple-400" />
+                    <span className="text-xs font-bold text-slate-100">Stage 1: Parameterization Mode</span>
+                  </div>
+                  <span className="text-[10px] font-mono text-purple-400">
+                    σ_min: {planarState.svd.sigmaMin.toFixed(4)}
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-2 gap-2 mb-3">
+                  <button
+                    type="button"
+                    onClick={() => setPlanarMode('CARTESIAN')}
+                    className={`py-1.5 px-2 rounded-lg text-xs font-bold transition-all border ${
+                      planarMode === 'CARTESIAN'
+                        ? 'bg-cyan-950 border-cyan-500 text-cyan-300 shadow-md shadow-cyan-950/50'
+                        : 'bg-slate-950/60 border-slate-800 text-slate-400 hover:text-slate-200'
+                    }`}
+                  >
+                    Cartesian Parameterization
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setPlanarMode('POLAR')}
+                    className={`py-1.5 px-2 rounded-lg text-xs font-bold transition-all border ${
+                      planarMode === 'POLAR'
+                        ? 'bg-purple-950 border-purple-500 text-purple-300 shadow-md shadow-purple-950/50'
+                        : 'bg-slate-950/60 border-slate-800 text-slate-400 hover:text-slate-200'
+                    }`}
+                  >
+                    Polar (Cluster Re-param)
+                  </button>
+                </div>
+
+                {/* Joint Angle Sliders */}
+                <div className="space-y-2 text-xs font-mono">
+                  <div>
+                    <div className="flex justify-between text-slate-400 text-[11px] mb-0.5">
+                      <span>θ₁ (Shoulder):</span>
+                      <span className="text-purple-300 font-semibold">{(planarJoints[0] * 180 / Math.PI).toFixed(1)}°</span>
+                    </div>
+                    <input
+                      type="range"
+                      min="-3.14"
+                      max="3.14"
+                      step="0.02"
+                      value={planarJoints[0]}
+                      onChange={(e) => setPlanarJoints([parseFloat(e.target.value), planarJoints[1], planarJoints[2]])}
+                      className="w-full accent-purple-400"
+                    />
+                  </div>
+
+                  <div>
+                    <div className="flex justify-between text-slate-400 text-[11px] mb-0.5">
+                      <span>θ₂ (Elbow):</span>
+                      <span className="text-purple-300 font-semibold">{(planarJoints[1] * 180 / Math.PI).toFixed(1)}°</span>
+                    </div>
+                    <input
+                      type="range"
+                      min="-3.14"
+                      max="3.14"
+                      step="0.02"
+                      value={planarJoints[1]}
+                      onChange={(e) => setPlanarJoints([planarJoints[0], parseFloat(e.target.value), planarJoints[2]])}
+                      className="w-full accent-purple-400"
+                    />
+                  </div>
+
+                  <div>
+                    <div className="flex justify-between text-slate-400 text-[11px] mb-0.5">
+                      <span>θ₃ (Wrist):</span>
+                      <span className="text-purple-300 font-semibold">{(planarJoints[2] * 180 / Math.PI).toFixed(1)}°</span>
+                    </div>
+                    <input
+                      type="range"
+                      min="-3.14"
+                      max="3.14"
+                      step="0.02"
+                      value={planarJoints[2]}
+                      onChange={(e) => setPlanarJoints([planarJoints[0], planarJoints[1], parseFloat(e.target.value)])}
+                      className="w-full accent-purple-400"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* 4-Stage Architecture Summary Card with Resilience Boundary */}
+              <WidgetCapabilityBoundary
+                componentName="FourStagePipelineCard"
+                title="4-уровневая архитектура манипулятора RICIS"
+                mode="CARD_STUB"
+              >
+                <FourStagePipelineCard report={planarState.fourStageReport} />
+              </WidgetCapabilityBoundary>
+
+              {/* Heatmap & SVD Landscape with Resilience Boundary */}
+              <WidgetCapabilityBoundary
+                componentName="SingularityLandscapeHeatmap"
+                title="Тепловая карта ландшафта сингулярностей"
+                mode="CARD_STUB"
+              >
+                <SingularityLandscapeHeatmap
+                  grid={heatmapGrid}
+                  mode={planarMode}
+                  currentTheta2={planarJoints[1]}
+                  currentTheta3={planarJoints[2]}
+                  onSelectAngles={(t2, t3) => setPlanarJoints([planarJoints[0], t2, t3])}
+                />
+              </WidgetCapabilityBoundary>
+
+              {/* Stage 2: RICIS Reduction Overlay with Resilience Boundary */}
+              <WidgetCapabilityBoundary
+                componentName="RicisReductionOverlayPanel"
+                title="Панель редукции второго этапа RICIS"
+                mode="CARD_STUB"
+              >
+                <RicisReductionOverlayPanel
+                  overlay={planarState.overlay}
+                  mode={planarMode}
+                  sigmaMin={planarState.svd.sigmaMin}
+                />
+              </WidgetCapabilityBoundary>
+
+              {/* Async Critical Event Log Stream with Resilience Boundary */}
+              <WidgetCapabilityBoundary
+                componentName="AsyncCriticalLogViewer"
+                title="Журнал асинхронных критических событий"
+                mode="CARD_STUB"
+              >
+                <AsyncCriticalLogViewer />
+              </WidgetCapabilityBoundary>
             </div>
           )}
         </div>

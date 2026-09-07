@@ -1,0 +1,88 @@
+// ============================================================================
+// SCRIPTED WALKTHROUGH SCENARIO DEFINITIONS (8-Step Architecture Demo)
+// ============================================================================
+
+import type { IWalkthroughStep } from './twoStageSingularity.contracts';
+
+export const WALKTHROUGH_STEPS: readonly IWalkthroughStep[] = [
+  {
+    id: 1,
+    title: '1. Normal Operation',
+    engineeringAnnotation: 'Normal operation: Full mobility, σ_min > 0. All 3 DOF operate freely in Cartesian parameterization.',
+    mathDetail: 'σ₁ = 1.12, σ₂ = 0.45, σ_min = 0.45. Well-conditioned Jacobian.',
+    targetJoints: [0.35, 0.78, 0.65],
+    forcedMode: 'CARTESIAN',
+    durationMs: 3500,
+    stage: 'NORMAL',
+  },
+  {
+    id: 2,
+    title: '2. Approaching Singularity',
+    engineeringAnnotation: 'Approaching singular configuration in Cartesian parameterization (θ₃ → 0, folded wrist/elbow alignment).',
+    mathDetail: 'det(J) → 0.015, σ_min drops toward zero. High joint velocity required for cartesian tracking.',
+    targetJoints: [0.35, 0.78, 0.04],
+    forcedMode: 'CARTESIAN',
+    durationMs: 3500,
+    stage: 'NORMAL',
+  },
+  {
+    id: 3,
+    title: '3. Polar Transition Activates',
+    engineeringAnnotation: 'Polar transition: Coordinate re-parameterization active around joint cluster. Eliminates structural degeneracy.',
+    mathDetail: 'Switch to local polar (r_c, φ). Modifies Jacobian determinant structure so σ_min remains bounded away from 0.',
+    targetJoints: [0.35, 0.78, 0.04],
+    forcedMode: 'POLAR',
+    durationMs: 4000,
+    stage: 'STAGE_1_POLAR',
+  },
+  {
+    id: 4,
+    title: '4. Singular Value Landscape Changes',
+    engineeringAnnotation: 'Singular value landscape updates. Former singular regions appear healed under polar frame.',
+    mathDetail: 'Heatmap contour slice shows elimination of the fold boundary singularity. σ_min increases from 0.01 to 0.38.',
+    targetJoints: [0.35, 0.78, 0.04],
+    forcedMode: 'POLAR',
+    durationMs: 4000,
+    stage: 'STAGE_1_POLAR',
+  },
+  {
+    id: 5,
+    title: '5. Residual Singularity (Boundary Reach)',
+    engineeringAnnotation: 'RICIS reduction active: Arm reaches full physical extension (collinear links), which is singular even in polar frame.',
+    mathDetail: 'Typed zero 0_{det J(q_s)} created. Kernel basis analyzed, lost radial direction isolated, adaptive λ(S) applied.',
+    targetJoints: [0.1, 0.01, 0.01],
+    forcedMode: 'POLAR',
+    durationMs: 4500,
+    stage: 'STAGE_2_RICIS',
+  },
+  {
+    id: 6,
+    title: '6. Self-Motion Recovery',
+    engineeringAnnotation: 'Recovery: Projected null-space escape executed (self-motion). Arm bends inward without moving TCP position.',
+    mathDetail: 'Δq_null = (I - J^# J) · ∇H(q). Arm escapes degenerate boundary via redundant degree of freedom.',
+    targetJoints: [0.3, 0.6, 0.5],
+    forcedMode: 'POLAR',
+    durationMs: 4000,
+    stage: 'RECOVERY',
+  },
+  {
+    id: 7,
+    title: '7. Second Singularity Type (Shoulder Alignment)',
+    engineeringAnnotation: 'Second class of singularity: θ₂ → 0. Demonstrates how polar transition responds to different joint cluster topologies.',
+    mathDetail: 'Local cluster centered at Link 1-2. Coordinates mapped to preserve angular momentum and orientation.',
+    targetJoints: [0.6, 0.02, 0.8],
+    forcedMode: 'POLAR',
+    durationMs: 4000,
+    stage: 'STAGE_1_POLAR',
+  },
+  {
+    id: 8,
+    title: '8. Return to Normal Operation',
+    engineeringAnnotation: 'Full return to normal non-singular operation. The system seamlessly switches between Cartesian & Polar modes.',
+    mathDetail: 'All singular values restored to nominal range (σ_min = 0.52). Pipeline ready for continuous trajectory tracking.',
+    targetJoints: [0.4, 0.7, 0.6],
+    forcedMode: 'CARTESIAN',
+    durationMs: 3500,
+    stage: 'NORMAL',
+  },
+];
