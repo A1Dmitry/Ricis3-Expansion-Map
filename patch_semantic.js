@@ -1,4 +1,7 @@
-import { Expression, AST, BinaryExpression, FunctionExpression } from '../ast/ExpressionTypes';
+const fs = require('fs');
+const file = 'packages/ricis-core-ts/src/engine/SemanticIndexer.ts';
+
+const content = `import { Expression, AST, BinaryExpression, FunctionExpression } from '../ast/ExpressionTypes';
 import { AstSubstitution } from './AstSubstitution';
 import { AlgebraicSimplifier } from './AlgebraicSimplifier';
 
@@ -39,10 +42,6 @@ export class SemanticIndexer {
          return AST.Div(leftIndexed, rightIndexed);
       }
       
-      if (leftIndexed.nodeType === 'Constant' && rightIndexed.nodeType === 'SingularityZero' && binNode.nodeType === 'Divide') {
-          return AST.Inf(node);
-      }
-      
       if (leftIndexed.nodeType === 'Constant' && rightIndexed.nodeType === 'Constant') {
           // If both children are constant but the parent didn't fold into a single constant,
           // it might be because of Infinity or NaN.
@@ -62,3 +61,6 @@ export class SemanticIndexer {
     return node;
   }
 }
+`;
+
+fs.writeFileSync(file, content);
