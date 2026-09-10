@@ -116,6 +116,11 @@ export interface IRicisSymbolicJacobianEngine {
     linkLengths: readonly [number, number, number],
   ): ISymbolicJacobianMatrix3D;
 
+  buildSymbolicNullSpace2x3(
+    row0: readonly [RicisAstExpr, RicisAstExpr, RicisAstExpr],
+    row1: readonly [RicisAstExpr, RicisAstExpr, RicisAstExpr],
+  ): readonly [RicisAstExpr, RicisAstExpr, RicisAstExpr];
+
   solveJointVelocities(
     q: JointState3D,
     cNorm: Vector3D,

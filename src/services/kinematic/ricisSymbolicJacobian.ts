@@ -216,6 +216,41 @@ export class RicisSymbolicJacobianEngine implements IRicisSymbolicJacobianEngine
   }
 
   /**
+   * Builds the symbolic 3D Null-space vector of a 2x3 Jacobian using the cross-product formula.
+   * This represents the self-motion null-space of the 3-DOF manipulator.
+   */
+  public buildSymbolicNullSpace2x3(
+    row0: readonly [RicisAstExpr, RicisAstExpr, RicisAstExpr],
+    row1: readonly [RicisAstExpr, RicisAstExpr, RicisAstExpr],
+  ): readonly [RicisAstExpr, RicisAstExpr, RicisAstExpr] {
+    const [j00, j01, j02] = row0;
+    const [j10, j11, j12] = row1;
+
+    const v0: RicisAstExpr = {
+      kind: 'SUB',
+      left: { kind: 'MUL', left: j01, right: j12, type: 'SCALAR' },
+      right: { kind: 'MUL', left: j02, right: j11, type: 'SCALAR' },
+      type: 'SCALAR',
+    };
+
+    const v1: RicisAstExpr = {
+      kind: 'SUB',
+      left: { kind: 'MUL', left: j02, right: j10, type: 'SCALAR' },
+      right: { kind: 'MUL', left: j00, right: j12, type: 'SCALAR' },
+      type: 'SCALAR',
+    };
+
+    const v2: RicisAstExpr = {
+      kind: 'SUB',
+      left: { kind: 'MUL', left: j00, right: j11, type: 'SCALAR' },
+      right: { kind: 'MUL', left: j01, right: j10, type: 'SCALAR' },
+      type: 'SCALAR',
+    };
+
+    return [v0, v1, v2] as const;
+  }
+
+  /**
    * Step 5 & 6: Resolves inverse Jacobian action dq = J_inv(q) * C_norm
    * through RICIS-SP2/SP4 algebraic reduction, avoiding Cauchy limits and scalar det(J) division.
    */

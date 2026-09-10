@@ -174,4 +174,34 @@ describe('RICIS-III v7.7 Symbolic Jacobian AST Engine (QA Suite)', () => {
       expect(Number.isNaN(currentJoints.q3)).toBe(false);
     });
   });
+
+  describe('4. Symbolic Null-Space (P6 integration)', () => {
+    it('builds a symbolic null-space 2x3 and evaluates to an orthogonal vector', () => {
+      const q: JointState3D = { q1: Math.PI / 6, q2: Math.PI / 4, q3: Math.PI / 3 };
+      const J = engine.buildSymbolicJacobian(q, linkLengths);
+
+      const row0 = [J.m00, J.m01, J.m02] as const;
+      const row1 = [J.m10, J.m11, J.m12] as const;
+
+      const nullSpace = engine.buildSymbolicNullSpace2x3(row0, row1);
+      expect(nullSpace.length).toBe(3);
+
+      const vx = engine.evaluateAst(nullSpace[0]);
+      const vy = engine.evaluateAst(nullSpace[1]);
+      const vz = engine.evaluateAst(nullSpace[2]);
+
+      expect(Number.isFinite(vx)).toBe(true);
+      expect(Number.isFinite(vy)).toBe(true);
+      expect(Number.isFinite(vz)).toBe(true);
+
+      // Dot product with Row 0
+      const dot0 = engine.evaluateAst(row0[0]) * vx + engine.evaluateAst(row0[1]) * vy + engine.evaluateAst(row0[2]) * vz;
+      // Dot product with Row 1
+      const dot1 = engine.evaluateAst(row1[0]) * vx + engine.evaluateAst(row1[1]) * vy + engine.evaluateAst(row1[2]) * vz;
+
+      // In floating point, dot products should be extremely close to 0
+      expect(dot0).toBeCloseTo(0, 9);
+      expect(dot1).toBeCloseTo(0, 9);
+    });
+  });
 });

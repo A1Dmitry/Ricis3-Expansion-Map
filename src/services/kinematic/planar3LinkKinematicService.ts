@@ -20,6 +20,7 @@ import type {
   ISelfCollisionReport,
   IDownstreamRelativeChainReport,
 } from './fourStagePipeline.contracts';
+import { RicisSymbolicJacobianEngine } from './ricisSymbolicJacobian';
 
 /**
  * Base Abstract Manipulator Service.
@@ -213,12 +214,17 @@ export class Planar3LinkKinematicService
     const isActive = sv.isSingular;
     const adaptiveLambda = this.computeAdaptiveLambda(sv.sigmaMin);
 
-    // Compute Null Space Basis Vector of J (2x3)
-    // Cross product of row0 and row1 gives orthogonal null-space direction
-    const [r0, r1] = J.rows;
-    const nx = r0[1] * r1[2] - r0[2] * r1[1];
-    const ny = r0[2] * r1[0] - r0[0] * r1[2];
-    const nz = r0[0] * r1[1] - r0[1] * r1[0];
+    // Compute Null Space Basis Vector of J (2x3) using the symbolic RICIS-III core
+    const symEngine = new RicisSymbolicJacobianEngine();
+    const qState = { q1: joints[0], q2: joints[1], q3: joints[2] };
+    const symJ = symEngine.buildSymbolicJacobian(qState, links);
+    const symRow0 = [symJ.m00, symJ.m01, symJ.m02] as const;
+    const symRow1 = [symJ.m10, symJ.m11, symJ.m12] as const;
+
+    const symNull = symEngine.buildSymbolicNullSpace2x3(symRow0, symRow1);
+    const nx = symEngine.evaluateAst(symNull[0]);
+    const ny = symEngine.evaluateAst(symNull[1]);
+    const nz = symEngine.evaluateAst(symNull[2]);
 
     const normN = Math.sqrt(nx * nx + ny * ny + nz * nz);
     const kernelVector: [number, number, number] =
@@ -278,12 +284,17 @@ export class Planar3LinkKinematicService
     const gradQ2 = (targetQ2 - q2) * 0.5;
     const gradQ3 = (targetQ3 - q3) * 0.5;
 
-    // Project gradient onto null space (I - J^# * J) * grad
-    const J = this.computeJacobian(joints, links, 'CARTESIAN');
-    const [r0, r1] = J.rows;
-    const nx = r0[1] * r1[2] - r0[2] * r1[1];
-    const ny = r0[2] * r1[0] - r0[0] * r1[2];
-    const nz = r0[0] * r1[1] - r0[1] * r1[0];
+    // Project gradient onto symbolic null space using the RICIS-III core
+    const symEngine = new RicisSymbolicJacobianEngine();
+    const qState = { q1: joints[0], q2: joints[1], q3: joints[2] };
+    const symJ = symEngine.buildSymbolicJacobian(qState, links);
+    const symRow0 = [symJ.m00, symJ.m01, symJ.m02] as const;
+    const symRow1 = [symJ.m10, symJ.m11, symJ.m12] as const;
+
+    const symNull = symEngine.buildSymbolicNullSpace2x3(symRow0, symRow1);
+    const nx = symEngine.evaluateAst(symNull[0]);
+    const ny = symEngine.evaluateAst(symNull[1]);
+    const nz = symEngine.evaluateAst(symNull[2]);
 
     const norm = Math.sqrt(nx * nx + ny * ny + nz * nz);
     if (norm < 1e-6) {
