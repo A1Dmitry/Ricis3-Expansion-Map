@@ -6,4 +6,5 @@ export * from './engine/AlgebraicSimplifier';
 export * from './engine/SemanticIndexer';
 export * from './engine/SymbolicDifferentiator';
 export * from './engine/FractionReducer';
+export * from './engine/AstSubstitution';
 export * from './parser/LambdaParser';
