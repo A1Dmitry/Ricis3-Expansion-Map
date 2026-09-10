@@ -19,6 +19,9 @@ export interface IProofTraceExecutionModel {
   readonly steps: readonly ProofStep[];
   readonly verifiedAxioms?: readonly string[];
   readonly complexity?: string; // O(1)
+  readonly proofType?: string;
+  readonly theoremName?: string;
+  readonly isFullyVerified?: boolean;
 }
 
 // ----------------------------------------------------------------------------

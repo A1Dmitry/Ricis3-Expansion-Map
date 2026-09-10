@@ -15,7 +15,7 @@ import type { ProofStep } from '../../../model/types';
 export class LeanTraceViewModelFactory implements ILeanTraceViewModelFactory {
   public createViewModel(model: IProofTraceExecutionModel): ILeanTraceDocumentViewModel {
     const rawId = (model.taskId || 'proof_task').replace(/[^a-zA-Z0-9_]/g, '_');
-    const theoremName = `theorem_${rawId}`;
+    const theoremName = model.theoremName?.trim() ? model.theoremName.trim() : `theorem_${rawId}`;
     const derivationTheoremName = `${theoremName}_derivation`;
 
     const rawInit = model.initialExpression.trim();

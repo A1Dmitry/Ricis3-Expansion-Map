@@ -95,6 +95,9 @@ export interface ProofStep {
   name: string;
   action: string;
   expression: string;
+  title?: string;
+  rule?: string;
+  description?: string;
 }
 
 export type ExternalLeanTrustStatus =

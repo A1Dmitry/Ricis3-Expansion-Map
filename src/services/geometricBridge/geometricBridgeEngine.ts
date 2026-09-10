@@ -39,26 +39,35 @@ export class GeometricBridgeEngine implements IGeometricBridgeEngine {
       ? `0_{${labelF}} \\times \\infty_{${labelG}} = \\det(u, v) = ${labelF}^2 = ${det}`
       : `0_{${labelF}} \\times \\infty_{${labelG}} = \\det(u, v) = ${labelF} \\cdot ${labelG} = ${det}`;
 
+    const u = {
+      x: u_x,
+      y: u_y,
+      label: `0_${labelF} (length ${labelF}, thickness 0)`,
+    };
+    const v = {
+      x: v_x,
+      y: v_y,
+      label: `∞_${labelG} (width ${labelG})`,
+    };
+
     return {
-      degenerateVectorU: {
-        x: u_x,
-        y: u_y,
-        label: `0_${labelF} (length ${labelF}, thickness 0)`,
-      },
-      infiniteVectorV: {
-        x: v_x,
-        y: v_y,
-        label: `∞_${labelG} (width ${labelG})`,
-      },
+      degenerateVectorU: u,
+      infiniteVectorV: v,
+      uVector: u,
+      vVector: v,
       skewProductDeterminant: det,
       exactInvariantArea: det,
+      areaInvariant: det,
       isDiagonalTelescope,
       classicalComparison: {
         classicalOutcome: 'NaN',
         cauchyLimitRequired: false,
       },
       computationalComplexity: 'O(1)',
+      complexity: 'O(1)',
       formulaLatex,
+      axiomApplied: 'A6_GENERAL_PRODUCT',
+      geometricMeaning: 'Invariant Area in R^2_RICIS resolved via Skew Product Determinant',
     };
   }
 }
