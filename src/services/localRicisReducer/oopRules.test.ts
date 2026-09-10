@@ -2,6 +2,11 @@ import { describe, it, expect } from 'vitest';
 import { A6GeometricBridgeRule, A7InfinitySubtractionRule } from './oopRules';
 import { SemanticIndexValidator, TypeConsistencyValidator } from './oopImplementation';
 import { StructuralExpression } from './contracts';
+import {
+  SingularityOperandExtractor,
+  SingularityPairValidator,
+  StructuralExpressionFactory,
+} from './oopDomainServices';
 
 describe('RICIS-III OOP Rules - Concrete Axiom Tests', () => {
   const indexValidator = new SemanticIndexValidator();
@@ -56,6 +61,16 @@ describe('RICIS-III OOP Rules - Concrete Axiom Tests', () => {
       if (result.status === 'APPLIED') {
         expect(result.rule).toBe('A7_HOMOGENEOUS_SCALAR_INDEXED_SUBTRACTION');
       }
+    });
+
+    it('поддерживает внедрение зависимостей (Dependency Injection) через конструктор BaseSingularityRule', () => {
+      const customExtractor = new SingularityOperandExtractor();
+      const customValidator = new SingularityPairValidator();
+      const customFactory = new StructuralExpressionFactory();
+
+      const rule = new A7InfinitySubtractionRule(customExtractor, customValidator, customFactory);
+      expect(rule).toBeDefined();
+      expect(rule.ruleName).toBe('A7_HOMOGENEOUS_SCALAR_INDEXED_SUBTRACTION');
     });
   });
 });

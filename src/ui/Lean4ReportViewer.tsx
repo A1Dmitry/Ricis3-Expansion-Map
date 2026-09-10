@@ -106,17 +106,24 @@ export function Lean4ReportViewer({ lean4Code, claim, className = '' }: Lean4Rep
         </pre>
       </div>
 
-      <div className="flex items-center justify-between text-[11px] text-slate-400 bg-neutral-950 px-3 py-1.5 rounded border border-neutral-800">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 text-[11px] text-slate-400 bg-neutral-950 px-3 py-1.5 rounded border border-neutral-800">
         <div className="flex items-center gap-1.5 text-emerald-400 font-mono">
           <Terminal size={13} />
           <span>{lean4Code ? 'Исходник Lean предоставлен (External Immutable)' : 'Синтезировано через MVVM на основе реальной трассировки редукции'}</span>
         </div>
-        <div className="flex items-center gap-1 text-emerald-400 font-mono">
-          <ShieldCheck size={13} />
-          <span>100% AST Closed</span>
+        <div className="flex items-center gap-2 text-slate-400 font-mono text-[10px]">
+          <span className="text-amber-400/90">No kernel run in this view</span>
+          <span className="text-slate-600">|</span>
+          <div className="flex items-center gap-1 text-emerald-400 font-mono">
+            <ShieldCheck size={13} />
+            <span>100% AST Closed</span>
+          </div>
         </div>
       </div>
 
+      <div className="text-[10px] text-slate-500 font-mono px-1">
+        This viewer displays formal source representation and does not synthesize a theorem or execute the Lean kernel.
+      </div>
     </div>
   );
 }

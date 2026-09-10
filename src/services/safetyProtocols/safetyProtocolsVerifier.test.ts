@@ -66,4 +66,51 @@ describe('RICIS-III Safety Protocols (SP1 - SP4) Tests', () => {
     const statusBad = verifier.verifySemanticIndexing('4 - 4', 0);
     expect(statusBad.isCompliant).toBe(false);
   });
+
+  it('QA-SP-05 (Adversarial): Корректное вычисление для произвольного фактора x-3 при x=3 с нелинейным хвостом', () => {
+    const expr: IRationalZeroFactorExpression = {
+      numeratorFactors: ['x - 3', '2 * x + 4'],
+      denominatorFactors: ['x - 3'],
+      pointVariable: 'x',
+      pointValue: 3,
+    };
+
+    const res = verifier.verifyRationalSingularity(expr);
+
+    expect(res.sp1LocalityReport.isCompliant).toBe(true);
+    expect(res.paradoxPrevented).toBe(true);
+    expect(res.activeTailExpression).toBe('(2 * x + 4)');
+    // 2*3 + 4 = 10
+    expect(res.resolvedInvariant).toBe('10');
+  });
+
+  it('QA-SP-06 (Adversarial): Корректное вычисление для другой переменной t и точки 7', () => {
+    const expr: IRationalZeroFactorExpression = {
+      numeratorFactors: ['t - 7', 't^2 - 9'],
+      denominatorFactors: ['t - 7'],
+      pointVariable: 't',
+      pointValue: 7,
+    };
+
+    const res = verifier.verifyRationalSingularity(expr);
+
+    expect(res.sp1LocalityReport.isCompliant).toBe(true);
+    expect(res.paradoxPrevented).toBe(true);
+    // 7^2 - 9 = 40
+    expect(res.resolvedInvariant).toBe('40');
+  });
+
+  it('QA-SP-07 (Adversarial): Отношение коэффициентов 7/4 для произвольных множителей при z=10', () => {
+    const expr: IRationalZeroFactorExpression = {
+      numeratorFactors: ['7*(z - 10)'],
+      denominatorFactors: ['4*(z - 10)'],
+      pointVariable: 'z',
+      pointValue: 10,
+    };
+
+    const res = verifier.verifyRationalSingularity(expr);
+
+    expect(res.sp3IndexLawReport.isCompliant).toBe(true);
+    expect(res.resolvedInvariant).toBe('1.75'); // 7/4 = 1.75
+  });
 });
