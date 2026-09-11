@@ -115,7 +115,7 @@ export class PolarRicisConstraintSolver extends BaseKinematicSolver3D {
     const metrics: ISolverMetrics3D = {
       positionError: posError,
       velocityError: Math.min(0.2, posError * 0.1),
-      directionPreservedDeg: Math.min(KinematicConstants.MAX_SINGULAR_DIRECTION_DEVIATION_DEG, dirDeviation),
+      directionPreservedDeg: dirDeviation,
       singularityIndex: Math.max(0, 1 - absDet / (L1 * L2)),
       nearSingularityBehavior: isSingular ? 'recovered' : 'stable',
       recoverySuccess: true,
@@ -265,7 +265,7 @@ export class ClassicDlsGhostSolver extends BaseKinematicSolver3D {
     const metrics: ISolverMetrics3D = {
       positionError: posError,
       velocityError: (Math.abs(distToTarget - distance3D(nextEE, currentState.endEffector)) / dt) * 0.05,
-      directionPreservedDeg: degraded ? Math.min(45, dirDeviation + 15) : dirDeviation,
+      directionPreservedDeg: dirDeviation,
       singularityIndex: Math.max(0, 1 - absDet / (L1 * L2)),
       nearSingularityBehavior: degraded ? 'degraded' : isSingular ? 'degraded' : 'stable',
       recoverySuccess: !isSingular,

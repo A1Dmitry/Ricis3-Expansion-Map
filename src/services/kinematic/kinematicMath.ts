@@ -102,7 +102,6 @@ export function computeSolverMetrics3D(params: {
   maxReach: number;
   dt: number;
   isBoundarySingular?: boolean;
-  forcedDirectionDeviation?: number;
   nearSingularityBehavior?: 'stable' | 'degraded' | 'recovered';
   recoverySuccess?: boolean;
 }): {
@@ -121,13 +120,11 @@ export function computeSolverMetrics3D(params: {
     maxReach,
     dt,
     isBoundarySingular = false,
-    forcedDirectionDeviation,
     nearSingularityBehavior,
     recoverySuccess,
   } = params;
 
-  const rawDirDeviation = calculateAngleDeviationDeg(desiredVector, actualStepVector);
-  const dirDeviation = forcedDirectionDeviation !== undefined ? forcedDirectionDeviation : rawDirDeviation;
+  const dirDeviation = calculateAngleDeviationDeg(desiredVector, actualStepVector);
   const posError = distance3D(nextEE, targetPosition);
   const distToTarget = distance3D(currentEE, targetPosition);
   const velocityError = Math.abs(distToTarget - distance3D(nextEE, currentEE)) / Math.max(KinematicConstants.MIN_RADIAL_DISTANCE_GUARD, dt);

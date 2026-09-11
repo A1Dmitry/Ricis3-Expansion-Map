@@ -78,7 +78,6 @@ export abstract class BaseKinematicSolver3D implements IKinematicSolver3D {
     linkLengths: readonly [number, number, number];
     dt: number;
     isBoundarySingular?: boolean;
-    forcedDirectionDeviation?: number;
     nearSingularityBehavior?: 'stable' | 'degraded' | 'recovered';
     recoverySuccess?: boolean;
     isWorkspaceExceeded?: boolean;
@@ -91,7 +90,6 @@ export abstract class BaseKinematicSolver3D implements IKinematicSolver3D {
       linkLengths,
       dt,
       isBoundarySingular = false,
-      forcedDirectionDeviation,
       nearSingularityBehavior,
       recoverySuccess,
       isWorkspaceExceeded = false,
@@ -118,7 +116,6 @@ export abstract class BaseKinematicSolver3D implements IKinematicSolver3D {
       maxReach: L1 * L2,
       dt,
       isBoundarySingular,
-      forcedDirectionDeviation,
       nearSingularityBehavior,
       recoverySuccess,
     });

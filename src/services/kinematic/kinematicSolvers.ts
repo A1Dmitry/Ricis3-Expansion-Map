@@ -189,12 +189,6 @@ export class RicisConstraintSolver3D extends BaseKinematicSolver3D {
       linkLengths,
       dt,
       isBoundarySingular,
-      forcedDirectionDeviation: isNearSingularity
-        ? Math.min(
-            KinematicConstants.MAX_SINGULAR_DIRECTION_DEVIATION_DEG,
-            calculateAngleDeviationDeg(desiredVector, actualStepVector)
-          )
-        : undefined,
       nearSingularityBehavior: isNearSingularity ? 'recovered' : 'stable',
       recoverySuccess: true,
       isWorkspaceExceeded: distFromShoulder > maxReach,
