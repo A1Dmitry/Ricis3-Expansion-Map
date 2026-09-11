@@ -98,7 +98,7 @@ describe('Ricis Console Regression Tests', () => {
          const indexed = SemanticIndexer.indexAtPoint(simplified, parsed.parameterName, singularity);
 
          // Phase 1.5: Transcendental reduction inside Singularity Zeroes
-         const reducedBasis = AlgebraicSimplifier.simplifySingularityBasis(indexed);
+         const reducedBasis = AlgebraicSimplifier.applySP5PolarPrenormalization(indexed);
 
          // Phase 2-6: RICIS Axiom Application
          const result = engine.reduce(reducedBasis);

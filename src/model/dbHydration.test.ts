@@ -2,7 +2,7 @@ import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest';
 import { dbLoadMap, openDbWithTimeout } from './db';
 import { hydrateInitialState } from './persistence';
 
-describe('RICIS-III DB Hydration Guard & Timeout Safeguards (O(1) Singularity Resolution)', () => {
+describe('RICIS-III DB Hydration Guard & Timeout Safeguards (Constant Time O(1) Fallback)', () => {
   beforeEach(() => {
     vi.useFakeTimers();
   });

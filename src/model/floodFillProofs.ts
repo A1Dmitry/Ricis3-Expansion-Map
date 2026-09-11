@@ -41,7 +41,7 @@ Lean 4 Specification: \\href{https://doi.org/10.5281/zenodo.21529989}{DOI: 10.52
       {
         phase: 2,
         name: "Axiom A6 Geometric Bridge Execution",
-        action: "Exact skew product determinant calculation yielding structural invariant in O(1)",
+        action: "Exact skew product determinant calculation yielding structural invariant in NUMERICAL LAYER O(1)",
         expression: `0_F \\times \\infty_G = \\det(\\vec{u}, \\vec{v}) = ${ricisFormula}`
       },
       {
@@ -54,7 +54,7 @@ Lean 4 Specification: \\href{https://doi.org/10.5281/zenodo.21529989}{DOI: 10.52
         phase: 6,
         name: "Final Verification & Authorial Provenance Binding",
         action: "Binding to official registries: Zenodo DOI 10.5281/zenodo.17872755, 10.5281/zenodo.21529989, 10.5281/zenodo.21836220",
-        expression: `\\text{Result} = ${finalResult} \\quad [O(1)]`
+        expression: `\\text{Result} = ${finalResult} \\quad [\\text{Numeric } O(1)]`
       }
     ],
     finalResult,

@@ -26,7 +26,7 @@ describe('QA Suite: RICIS-III Chatbot Monetization', () => {
 
     const result = service.evaluateNetworkValue(transaction);
 
-    // Ожидаем O(1) редукцию 0_C * infinity_N = C * N (10 * 50 = 500)
+    // Ожидаем Numerical Layer O(1) редукцию 0_C * infinity_N = C * N (10 * 50 = 500)
     expect(result.value).toBe(500);
     expect(result.semanticIndex).toBe('C_times_N');
     expect(result.isSingularity).toBe(false);

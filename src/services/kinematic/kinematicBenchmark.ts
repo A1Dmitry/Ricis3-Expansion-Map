@@ -145,24 +145,31 @@ export class KinematicHeadlessBenchmark {
 
     // SCENARIO 1: Boundary Outer Reach (Full Extension)
     // Target moves outward past max reach (1.8m), forcing the arm to fully stretch
-    const start1: Vector3D = { x: 1.2, y: 0.5, z: 1.0 };
-    const end1: Vector3D = { x: 1.85, y: 0.7, z: 1.0 }; // Exceeds L1+L2 (1.8m)
     const initialJoints1: JointState3D = { q1: 0.38, q2: 0.15, q3: 0.3 };
+    const start1 = forwardKinematics3D(initialJoints1, this.linkLengths);
+    const end1: Vector3D = { x: 1.85, y: 0.7, z: start1.z }; // Exceeds L1+L2 (1.8m)
     const traj1 = this.generateTrajectory(start1, end1, steps);
 
     // SCENARIO 2: Singular Inner Fold (Folded Elbow)
     // Trajectory moves through the inner shoulder space where L1 folds completely against L2
-    const start2: Vector3D = { x: 0.6, y: 0.0, z: 0.8 };
-    const end2: Vector3D = { x: 0.15, y: 0.0, z: 0.8 }; // Very close to base axis
     const initialJoints2: JointState3D = { q1: 0, q2: Math.PI / 3, q3: -Math.PI / 2 };
+    const start2 = forwardKinematics3D(initialJoints2, this.linkLengths);
+    const end2: Vector3D = { x: 0.15, y: 0.0, z: start2.z }; // Very close to base axis
     const traj2 = this.generateTrajectory(start2, end2, steps);
 
-    // SCENARIO 3: Shoulder Pole Singularity (Azimuth Vanish)
-    // Path crosses the exact center z-axis (x=0, y=0), forcing azimuth flips
-    const start3: Vector3D = { x: -0.5, y: 0.1, z: 1.2 };
-    const end3: Vector3D = { x: 0.5, y: 0.1, z: 1.2 };
+    // SCENARIO 3: Shoulder Exact Pole Singularity (Azimuth Vanish)
+    // Path crosses the exact center z-axis (x=0, y=0), where radial reach R=0 and azimuth is indeterminate
     const initialJoints3: JointState3D = { q1: Math.PI, q2: Math.PI / 4, q3: -Math.PI / 4 };
+    const start3 = forwardKinematics3D(initialJoints3, this.linkLengths);
+    const end3: Vector3D = { x: 0.5, y: 0.0, z: start3.z };
     const traj3 = this.generateTrajectory(start3, end3, steps);
+
+    // SCENARIO 4: Near-Pole Bypass (Azimuth Near-Vanish)
+    // Path passes very close to the z-axis (y = 0.05), requiring rapid azimuth rotation without hitting R=0
+    const initialJoints4: JointState3D = { q1: Math.PI * 0.95, q2: Math.PI / 4, q3: -Math.PI / 4 };
+    const start4 = forwardKinematics3D(initialJoints4, this.linkLengths);
+    const end4: Vector3D = { x: 0.5, y: 0.05, z: start4.z };
+    const traj4 = this.generateTrajectory(start4, end4, steps);
 
     const solvers: ('DLS_BASELINE' | 'RICIS_INVARIANT_ENGINE' | 'RICIS_SYMBOLIC_JACOBIAN')[] = [
       'DLS_BASELINE',
@@ -198,9 +205,20 @@ export class KinematicHeadlessBenchmark {
       metrics3[s] = this.benchmarkSolverOnTrajectory(s, initialJoints3, traj3);
     }
     reports.push({
-      scenarioName: 'Shoulder Pole Singularity (Azimuth Vanish)',
-      description: 'Tests the coordinate pole singularity when passing directly through or extremely close to the base z-axis (x=0, y=0).',
+      scenarioName: 'Shoulder Exact Pole Singularity (Azimuth Vanish)',
+      description: 'Tests the coordinate pole singularity when passing directly through the base z-axis (x=0, y=0).',
       metrics: metrics3,
+    });
+
+    // Evaluate Scenario 4
+    const metrics4: Record<string, IBenchmarkMetrics> = {};
+    for (const s of solvers) {
+      metrics4[s] = this.benchmarkSolverOnTrajectory(s, initialJoints4, traj4);
+    }
+    reports.push({
+      scenarioName: 'Near-Pole Bypass (Azimuth Near-Vanish)',
+      description: 'Tests near-pole behavior when passing close to the base z-axis (y=0.05) with rapid azimuth changes.',
+      metrics: metrics4,
     });
 
     return reports;

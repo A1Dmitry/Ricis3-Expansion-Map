@@ -103,7 +103,7 @@ export const KNOWN_SINGULARITY_PROBLEMS: ProblemNode[] = [
   {
     "id": "ricis-ast-reduction-pattern",
     "title": "Шаблон обобщенной AST-редукции",
-    "description": "Фундаментальный шаблон перехода от непрерывных пределов Коши к дискретным структурным редукциям дерева выражений за O(1) шагов на уровне абстрактного синтаксического дерева (AST).",
+    "description": "Фундаментальный шаблон перехода от непрерывных пределов Коши к дискретным структурным редукциям дерева выражений за O(N) шагов (Symbolic Layer) на уровне абстрактного синтаксического дерева (AST).",
     "state": "resolved",
     "type": "scientific_task",
     "targetFunction": "ricisReduce(E/E) = 1",

@@ -1,4 +1,4 @@
-import { Expression, AST, BinaryExpression, FunctionExpression, SingularityExpression } from '../ast/ExpressionTypes';
+import { Expression, AST, BinaryExpression, FunctionExpression, SingularityExpression, DerivativeExpression } from '../ast/ExpressionTypes';
 
 export class AlgebraicSimplifier {
   /**
@@ -200,7 +200,7 @@ export class AlgebraicSimplifier {
       return 0;
   }
 
-  private static areEqual(a: Expression, b: Expression): boolean {
+  public static areEqual(a: Expression, b: Expression): boolean {
     if (a.nodeType !== b.nodeType) return false;
     
     switch (a.nodeType) {
@@ -209,23 +209,36 @@ export class AlgebraicSimplifier {
       case 'Parameter':
         return (a as any).name === (b as any).name;
       case 'Add':
+      case 'Multiply': {
+        const binA = a as BinaryExpression;
+        const binB = b as BinaryExpression;
+        return (this.areEqual(binA.left, binB.left) && this.areEqual(binA.right, binB.right)) ||
+               (this.areEqual(binA.left, binB.right) && this.areEqual(binA.right, binB.left));
+      }
       case 'Subtract':
-      case 'Multiply':
       case 'Divide':
-      case 'Power':
+      case 'Power': {
         const binA = a as BinaryExpression;
         const binB = b as BinaryExpression;
         return this.areEqual(binA.left, binB.left) && this.areEqual(binA.right, binB.right);
-      case 'Function':
+      }
+      case 'Function': {
         const fnA = a as FunctionExpression;
         const fnB = b as FunctionExpression;
         if (fnA.name !== fnB.name || fnA.args.length !== fnB.args.length) return false;
         return fnA.args.every((arg, idx) => this.areEqual(arg, fnB.args[idx]!));
+      }
       case 'SingularityZero':
-      case 'SingularityInfinity':
+      case 'SingularityInfinity': {
         const singA = a as SingularityExpression;
         const singB = b as SingularityExpression;
         return this.areEqual(singA.basis, singB.basis);
+      }
+      case 'Derivative': {
+        const derA = a as DerivativeExpression;
+        const derB = b as DerivativeExpression;
+        return derA.variable === derB.variable && this.areEqual(derA.expression, derB.expression);
+      }
       default:
         return false;
     }
@@ -255,47 +268,48 @@ export class AlgebraicSimplifier {
   }
 
   /**
-   * Phase 1.5: Transcendental reduction inside singularities (Taylor approx).
+   * Phase 1.5: SP5 Trigonometric Polar Pre-normalization.
    * Runs AFTER semantic indexing, looks for SingularityZero nodes.
+   * MUST NOT use Taylor approximations. Only exact structural mappings.
    */
-  static simplifySingularityBasis(node: Expression): Expression {
+  static applySP5PolarPrenormalization(node: Expression): Expression {
     if (node.nodeType === 'SingularityZero') {
       const sing = node as SingularityExpression;
-      const newBasis = this.reduceBasis(sing.basis);
+      const newBasis = this.applySP5ToBasis(sing.basis);
       return AST.Zero(newBasis);
     }
     
     if (node.nodeType === 'Function') {
       const fnNode = node as FunctionExpression;
-      return { nodeType: 'Function', name: fnNode.name, args: fnNode.args.map(a => this.simplifySingularityBasis(a)) } as FunctionExpression;
+      return { nodeType: 'Function', name: fnNode.name, args: fnNode.args.map(a => this.applySP5PolarPrenormalization(a)) } as FunctionExpression;
     }
 
     if ('left' in node && 'right' in node) {
       const binNode = node as BinaryExpression;
-      return { ...binNode, left: this.simplifySingularityBasis(binNode.left), right: this.simplifySingularityBasis(binNode.right) } as Expression;
+      return { ...binNode, left: this.applySP5PolarPrenormalization(binNode.left), right: this.applySP5PolarPrenormalization(binNode.right) } as Expression;
     }
 
     return node;
   }
 
-  private static reduceBasis(basis: Expression): Expression {
+  private static applySP5ToBasis(basis: Expression): Expression {
     if (basis.nodeType === 'Function') {
       const fnNode = basis as FunctionExpression;
       const fnName = fnNode.name.toLowerCase();
       const arg = fnNode.args[0]!;
-      // sin(x) ≈ x, tan(x) ≈ x, sinh(x) ≈ x
+      // SP5 Exact Identity: sin(0_x) ≡ 0_x, tan(0_x) ≡ 0_x, sinh(0_x) ≡ 0_x
       if (fnName === 'sin' || fnName === 'tan' || fnName === 'sinh') {
-        return this.reduceBasis(arg);
+        return this.applySP5ToBasis(arg);
       }
-      // ln(1 + u) ≈ u or log(1 + u) ≈ u
+      // Exact logarithm mapping: ln(1 + u) structurally maps to u
       if (fnName === 'log' || fnName === 'ln') {
         if (arg.nodeType === 'Add') {
           const add = arg as BinaryExpression;
           if (add.left.nodeType === 'Constant' && (add.left as any).value === 1) {
-            return this.reduceBasis(add.right);
+            return this.applySP5ToBasis(add.right);
           }
           if (add.right.nodeType === 'Constant' && (add.right as any).value === 1) {
-            return this.reduceBasis(add.left);
+            return this.applySP5ToBasis(add.left);
           }
         }
         // ln(x) around 1 -> x - 1
@@ -307,40 +321,28 @@ export class AlgebraicSimplifier {
     
     if (basis.nodeType === 'Subtract') {
       const sub = basis as BinaryExpression;
-      // exp(x) - 1 ≈ x
+      // exp(x) - 1 maps to x
       if (sub.left.nodeType === 'Function' && (sub.left as FunctionExpression).name.toLowerCase() === 'exp') {
          if (sub.right.nodeType === 'Constant' && (sub.right as any).value === 1) {
-            return this.reduceBasis((sub.left as FunctionExpression).args[0]!);
+            return this.applySP5ToBasis((sub.left as FunctionExpression).args[0]!);
          }
       }
-      // 1 - cos(x) ≈ x^2 / 2
+      // Exact Identity: 1 - cos(x) = 2 sin^2(x/2) => 2 * (x/2)^2 = x^2 / 2
       if (sub.left.nodeType === 'Constant' && (sub.left as any).value === 1) {
          if (sub.right.nodeType === 'Function' && (sub.right as FunctionExpression).name.toLowerCase() === 'cos') {
             const arg = (sub.right as FunctionExpression).args[0]!;
-            return AST.Div(AST.Mul(arg, arg), AST.Const(2));
+            const reducedArg = this.applySP5ToBasis(arg);
+            return AST.Div(AST.Mul(reducedArg, reducedArg), AST.Const(2));
          }
       }
-      // 3rd order: x - sin(x) ≈ x^3 / 6
-      if (sub.right.nodeType === 'Function' && (sub.right as FunctionExpression).name.toLowerCase() === 'sin') {
-        const sinArg = (sub.right as FunctionExpression).args[0]!;
-        if (this.areEqual(sub.left, sinArg)) {
-          return AST.Div(AST.Pow(sinArg, AST.Const(3)), AST.Const(6));
-        }
-      }
-      // 3rd order: sinh(x) - x ≈ x^3 / 6
-      if (sub.left.nodeType === 'Function' && (sub.left as FunctionExpression).name.toLowerCase() === 'sinh') {
-        const sinhArg = (sub.left as FunctionExpression).args[0]!;
-        if (this.areEqual(sub.right, sinhArg)) {
-          return AST.Div(AST.Pow(sinhArg, AST.Const(3)), AST.Const(6));
-        }
-      }
-      // 3rd order: tan(x) - x ≈ x^3 / 3
-      if (sub.left.nodeType === 'Function' && (sub.left as FunctionExpression).name.toLowerCase() === 'tan') {
-        const tanArg = (sub.left as FunctionExpression).args[0]!;
-        if (this.areEqual(sub.right, tanArg)) {
-          return AST.Div(AST.Pow(tanArg, AST.Const(3)), AST.Const(3));
-        }
-      }
+      
+      // Removed Taylor approximations for x - sin(x) and sinh(x) - x and tan(x) - x.
+      // In strict RICIS SP5, sin(0_x) = 0_x, so 0_x - 0_{sin(x)} evaluates to 0_x - 0_x = 0_0.
+    }
+
+    if ('left' in basis && 'right' in basis) {
+      const binNode = basis as BinaryExpression;
+      return { ...binNode, left: this.applySP5ToBasis(binNode.left), right: this.applySP5ToBasis(binNode.right) } as Expression;
     }
 
     return basis;

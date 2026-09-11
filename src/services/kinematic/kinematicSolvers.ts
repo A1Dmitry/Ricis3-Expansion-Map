@@ -100,15 +100,8 @@ export class DlsSolver3D implements IKinematicSolver3D {
     const tempY = invC * dRad + invD * dZ;
 
     // Joint velocities
-    let deltaQ2 = (j11 * tempX + j21 * tempY) * 3.0 * dt;
-    let deltaQ3 = (j12 * tempX + j22 * tempY) * 3.0 * dt;
-
-    // In severe singularity, DLS damping causes drift
-    if (absDet < 0.15) {
-      deltaQ1 *= 0.6; // Damped response
-      deltaQ2 *= 0.4;
-      deltaQ3 *= 0.15; // Elbow freezes near 0
-    }
+    const deltaQ2 = (j11 * tempX + j21 * tempY) * 3.0 * dt;
+    const deltaQ3 = (j12 * tempX + j22 * tempY) * 3.0 * dt;
 
     const nextJoints: JointState3D = {
       q1: q1 + deltaQ1,
@@ -132,8 +125,8 @@ export class DlsSolver3D implements IKinematicSolver3D {
 
     const metrics: ISolverMetrics3D = {
       positionError: posError,
-      velocityError: velocityError * 0.05,
-      directionPreservedDeg: degraded ? Math.min(45, dirDeviation + 15) : dirDeviation,
+      velocityError: velocityError,
+      directionPreservedDeg: dirDeviation,
       singularityIndex: Math.max(0, 1 - absDet / (L1 * L2)),
       nearSingularityBehavior: degraded ? 'degraded' : isSingular ? 'degraded' : 'stable',
       recoverySuccess: !isSingular,
@@ -235,13 +228,15 @@ export class RicisConstraintSolver3D implements IKinematicSolver3D {
 
     const dirDeviation = calculateAngleDeviationDeg(desiredVector, actualStepVector);
     const posError = distance3D(nextEE, targetPosition);
+    const distToTarget = distance3D(currentState.endEffector, targetPosition);
+    const velocityError = Math.abs(distToTarget - distance3D(nextEE, currentState.endEffector)) / dt;
     const detJ = computeJacobianDeterminant3D(nextJoints, linkLengths);
     const absDet = Math.abs(detJ);
 
     const metrics: ISolverMetrics3D = {
       positionError: posError,
-      velocityError: Math.min(0.2, posError * 0.1),
-      directionPreservedDeg: Math.min(4.5, dirDeviation), // Direction is preserved
+      velocityError: velocityError,
+      directionPreservedDeg: dirDeviation,
       singularityIndex: Math.max(0, 1 - absDet / (L1 * L2)),
       nearSingularityBehavior: isBoundarySingular || absDet < 0.15 ? 'recovered' : 'stable',
       recoverySuccess: true,
@@ -303,13 +298,15 @@ export class RicisSymbolicJacobianSolver3D implements IKinematicSolver3D {
 
     const dirDeviation = calculateAngleDeviationDeg(desiredVector, actualStepVector);
     const posError = stepResult.distanceToTarget;
+    const distToTarget = distance3D(currentState.endEffector, targetPosition);
+    const velocityError = Math.abs(distToTarget - distance3D(nextEE, currentState.endEffector)) / dt;
     const detJ = computeJacobianDeterminant3D(stepResult.nextJoints, linkLengths);
     const absDet = Math.abs(detJ);
 
     const metrics: ISolverMetrics3D = {
       positionError: posError,
-      velocityError: Math.min(0.2, posError * 0.1),
-      directionPreservedDeg: Math.min(3.5, dirDeviation),
+      velocityError: velocityError,
+      directionPreservedDeg: dirDeviation,
       singularityIndex: Math.max(0, 1 - absDet / (L1 * L2)),
       nearSingularityBehavior: stepResult.solution.isSingularZone ? 'recovered' : 'stable',
       recoverySuccess: true,

@@ -112,12 +112,12 @@ export class RicisTypeScriptEngine implements IRicisReductionEngine {
         return this.reduceNode(result, trace);
       }
 
-      // --- RICIS Phase 1: O(1) L1_IDENTITY Reduction (A / A = 1) ---
+      // --- RICIS Phase 1: SYMBOLIC LAYER (O(N) AST Traversal) finding L1_IDENTITY (A / A = 1) ---
       if (node.nodeType === 'Divide' && this.areEqual(left, right)) {
         trace.push({
           phase: 1,
           ruleFamily: 'L1',
-          description: 'Structural Identity Cancellation F/F=1 (O(1))',
+          description: 'Structural Identity Cancellation F/F=1 (Symbolic O(N) traversal)',
           before: { ...binNode, left, right } as Expression,
           after: AST.Const(1)
         });
@@ -147,6 +147,30 @@ export class RicisTypeScriptEngine implements IRicisReductionEngine {
           });
           return this.reduceNode(lMul.right, trace);
         }
+      }
+
+      // --- RICIS Phase 3: Algebraic Cleanup A - A = 0 ---
+      if (node.nodeType === 'Subtract' && this.areEqual(left, right)) {
+        trace.push({
+          phase: 3,
+          ruleFamily: 'Algebraic Cleanup',
+          description: 'A - A = 0',
+          before: { ...binNode, left, right } as Expression,
+          after: AST.Const(0)
+        });
+        return AST.Const(0);
+      }
+      
+      // 0 / X => 0
+      if (node.nodeType === 'Divide' && left.nodeType === 'Constant' && (left as any).value === 0 && right.nodeType !== 'SingularityZero') {
+        trace.push({
+          phase: 3,
+          ruleFamily: 'Algebraic Cleanup',
+          description: '0 / X = 0',
+          before: { ...binNode, left, right } as Expression,
+          after: AST.Const(0)
+        });
+        return AST.Const(0);
       }
 
       // X / (c * X) => 1 / c

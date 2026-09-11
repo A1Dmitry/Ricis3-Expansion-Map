@@ -14,6 +14,87 @@ import type {
   RicisAstExpr,
 } from '../../model/ricisSymbolicJacobian.contracts';
 import { forwardKinematics3D } from './kinematicMath';
+import { AST, type Expression } from '../../../packages/ricis-core-ts/src/ast/ExpressionTypes';
+
+/**
+ * P11: AST Unified Model Adapter.
+ * Converts kinematic RicisAstExpr to core engine Expression.
+ */
+export function toCoreAst(node: RicisAstExpr): Expression {
+  switch (node.kind) {
+    case 'CONST':
+      return AST.Const(node.value);
+    case 'PARAM':
+    case 'VAR':
+      return AST.Var(node.name);
+    case 'ADD':
+      return AST.Add(toCoreAst(node.left), toCoreAst(node.right));
+    case 'SUB':
+      return AST.Sub(toCoreAst(node.left), toCoreAst(node.right));
+    case 'MUL':
+      return AST.Mul(toCoreAst(node.left), toCoreAst(node.right));
+    case 'DIV':
+      return AST.Div(toCoreAst(node.numerator), toCoreAst(node.denominator));
+    case 'SIN':
+      return AST.Fn('sin', [toCoreAst(node.arg)]);
+    case 'COS':
+      return AST.Fn('cos', [toCoreAst(node.arg)]);
+    case 'NEG':
+      return AST.Mul(AST.Const(-1), toCoreAst(node.expr));
+    case 'SEMANTIC_ZERO':
+      return AST.Zero(toCoreAst(node.originExpr));
+    case 'SEMANTIC_INF':
+      return AST.Inf(toCoreAst(node.indexExpr));
+    case 'MONOLITH_INVARIANT':
+      return AST.Mul(toCoreAst(node.factorZero), toCoreAst(node.factorInf));
+  }
+}
+
+/**
+ * P11: AST Unified Model Adapter.
+ * Converts core engine Expression to kinematic RicisAstExpr.
+ */
+export function fromCoreAst(expr: Expression, context?: Record<string, number>): RicisAstExpr {
+  switch (expr.nodeType) {
+    case 'Constant':
+      return { kind: 'CONST', value: (expr as any).value, type: 'SCALAR' };
+    case 'Parameter': {
+      const name = (expr as any).name;
+      const val = context && typeof context[name] === 'number' ? context[name] : 0;
+      if (name === 'L0' || name === 'L1' || name === 'L2') {
+        return { kind: 'PARAM', name, value: val, type: 'LINK_LENGTH' };
+      }
+      if (name === 'q1' || name === 'q2' || name === 'q3') {
+        return { kind: 'VAR', name, value: val, type: 'JOINT_ANGLE' };
+      }
+      return { kind: 'CONST', value: val, type: 'SCALAR', label: name };
+    }
+    case 'Add':
+      return { kind: 'ADD', left: fromCoreAst((expr as any).left, context), right: fromCoreAst((expr as any).right, context), type: 'SCALAR' };
+    case 'Subtract':
+      return { kind: 'SUB', left: fromCoreAst((expr as any).left, context), right: fromCoreAst((expr as any).right, context), type: 'SCALAR' };
+    case 'Multiply':
+      return { kind: 'MUL', left: fromCoreAst((expr as any).left, context), right: fromCoreAst((expr as any).right, context), type: 'SCALAR' };
+    case 'Divide':
+      return { kind: 'DIV', numerator: fromCoreAst((expr as any).left, context), denominator: fromCoreAst((expr as any).right, context), type: 'SCALAR' };
+    case 'Function': {
+      const fn = expr as any;
+      if (fn.name === 'sin' && fn.args[0]) {
+        return { kind: 'SIN', arg: fromCoreAst(fn.args[0], context), type: 'TRIGONOMETRIC' };
+      }
+      if (fn.name === 'cos' && fn.args[0]) {
+        return { kind: 'COS', arg: fromCoreAst(fn.args[0], context), type: 'TRIGONOMETRIC' };
+      }
+      return { kind: 'CONST', value: 0, type: 'SCALAR', label: fn.name };
+    }
+    case 'SingularityZero':
+      return { kind: 'SEMANTIC_ZERO', originExpr: fromCoreAst((expr as any).basis, context), evaluatedWeight: 0 };
+    case 'SingularityInfinity':
+      return { kind: 'SEMANTIC_INF', indexExpr: fromCoreAst((expr as any).basis, context), evaluatedIndex: 0 };
+    default:
+      return { kind: 'CONST', value: 0, type: 'SCALAR' };
+  }
+}
 
 /**
  * Evaluates Forward Kinematics TCP position in 3D workspace.
@@ -120,6 +201,14 @@ export class RicisSymbolicJacobianEngine implements IRicisSymbolicJacobianEngine
     if (a.kind === 'VAR' && b.kind === 'VAR') return a.name === b.name;
     if (a.kind === 'SIN' && b.kind === 'SIN') return this.areAstNodesIdentical(a.arg, b.arg);
     if (a.kind === 'COS' && b.kind === 'COS') return this.areAstNodesIdentical(a.arg, b.arg);
+    if (a.kind === 'NEG' && b.kind === 'NEG') return this.areAstNodesIdentical(a.expr, b.expr);
+    if (a.kind === 'ADD' && b.kind === 'ADD') return (this.areAstNodesIdentical(a.left, b.left) && this.areAstNodesIdentical(a.right, b.right)) || (this.areAstNodesIdentical(a.left, b.right) && this.areAstNodesIdentical(a.right, b.left));
+    if (a.kind === 'SUB' && b.kind === 'SUB') return this.areAstNodesIdentical(a.left, b.left) && this.areAstNodesIdentical(a.right, b.right);
+    if (a.kind === 'MUL' && b.kind === 'MUL') return (this.areAstNodesIdentical(a.left, b.left) && this.areAstNodesIdentical(a.right, b.right)) || (this.areAstNodesIdentical(a.left, b.right) && this.areAstNodesIdentical(a.right, b.left));
+    if (a.kind === 'DIV' && b.kind === 'DIV') return this.areAstNodesIdentical(a.numerator, b.numerator) && this.areAstNodesIdentical(a.denominator, b.denominator);
+    if (a.kind === 'SEMANTIC_ZERO' && b.kind === 'SEMANTIC_ZERO') return this.areAstNodesIdentical(a.originExpr, b.originExpr);
+    if (a.kind === 'SEMANTIC_INF' && b.kind === 'SEMANTIC_INF') return this.areAstNodesIdentical(a.indexExpr, b.indexExpr);
+    if (a.kind === 'MONOLITH_INVARIANT' && b.kind === 'MONOLITH_INVARIANT') return this.areAstNodesIdentical(a.factorZero, b.factorZero) && this.areAstNodesIdentical(a.factorInf, b.factorInf);
     return false;
   }
 
@@ -213,6 +302,92 @@ export class RicisSymbolicJacobianEngine implements IRicisSymbolicJacobianEngine
       m10, m11, m12,
       m20, m21, m22,
     };
+  }
+
+  /**
+   * P6: Prove SYMBOLIC NULL-SPACE INVARIANT.
+   * Structurally expands dot(row, nullSpace) and cancels identical terms to exactly 0,
+   * without any numerical floating point evaluation.
+   */
+  public verifySymbolicOrthogonality(
+    row: readonly [RicisAstExpr, RicisAstExpr, RicisAstExpr],
+    nullSpace: readonly [RicisAstExpr, RicisAstExpr, RicisAstExpr],
+  ): boolean {
+    const [a1, a2, a3] = row;
+    
+    const extractTerms = (expr: RicisAstExpr, sign: number): { factors: RicisAstExpr[], sign: number }[] => {
+      if (expr.kind === 'ADD') {
+        return [...extractTerms(expr.left, sign), ...extractTerms(expr.right, sign)];
+      }
+      if (expr.kind === 'SUB') {
+        return [...extractTerms(expr.left, sign), ...extractTerms(expr.right, -sign)];
+      }
+      if (expr.kind === 'MUL') {
+        const leftTerms = extractTerms(expr.left, 1);
+        const rightTerms = extractTerms(expr.right, 1);
+        const result: { factors: RicisAstExpr[], sign: number }[] = [];
+        for (const l of leftTerms) {
+           for (const r of rightTerms) {
+              result.push({ factors: [...l.factors, ...r.factors], sign: sign * l.sign * r.sign });
+           }
+        }
+        return result;
+      }
+      if (expr.kind === 'NEG') {
+        return extractTerms(expr.expr, -sign);
+      }
+      return [{ factors: [expr], sign }];
+    };
+
+    const dotProductTree: RicisAstExpr = {
+      kind: 'ADD',
+      type: 'SCALAR',
+      left: {
+        kind: 'ADD',
+        type: 'SCALAR',
+        left: { kind: 'MUL', left: a1, right: nullSpace[0], type: 'SCALAR' },
+        right: { kind: 'MUL', left: a2, right: nullSpace[1], type: 'SCALAR' },
+      },
+      right: { kind: 'MUL', left: a3, right: nullSpace[2], type: 'SCALAR' }
+    };
+
+    const terms = extractTerms(dotProductTree, 1);
+    
+    const activeTerms = [...terms];
+    for (let i = 0; i < activeTerms.length; i++) {
+       if (activeTerms[i].sign === 0) continue;
+       for (let j = i + 1; j < activeTerms.length; j++) {
+          if (activeTerms[j].sign === -activeTerms[i].sign) {
+             const f1 = activeTerms[i].factors;
+             const f2 = activeTerms[j].factors;
+             if (f1.length === f2.length) {
+                const used = new Array(f2.length).fill(false);
+                let allMatch = true;
+                for (const f of f1) {
+                   let found = false;
+                   for (let k = 0; k < f2.length; k++) {
+                      if (!used[k] && this.areAstNodesIdentical(f, f2[k])) {
+                         used[k] = true;
+                         found = true;
+                         break;
+                      }
+                   }
+                   if (!found) {
+                      allMatch = false;
+                      break;
+                   }
+                }
+                if (allMatch) {
+                   activeTerms[i].sign = 0;
+                   activeTerms[j].sign = 0;
+                   break;
+                }
+             }
+          }
+       }
+    }
+
+    return activeTerms.every(t => t.sign === 0);
   }
 
   /**

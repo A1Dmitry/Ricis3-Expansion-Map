@@ -6,7 +6,7 @@ describe('RicisBackendReductionService Unit Tests', () => {
   const service = new RicisBackendReductionService<number>();
 
   describe('L1_IDENTITY & Base Reductions', () => {
-    it('should reduce divSelf of any expression to one (L1_IDENTITY) in O(1)', () => {
+    it('should reduce divSelf of any expression to one (L1_IDENTITY) symbolically in O(N)', () => {
       const complexExpr: RExpr = {
         type: 'divSelf',
         operands: [

@@ -121,6 +121,11 @@ export interface IRicisSymbolicJacobianEngine {
     row1: readonly [RicisAstExpr, RicisAstExpr, RicisAstExpr],
   ): readonly [RicisAstExpr, RicisAstExpr, RicisAstExpr];
 
+  verifySymbolicOrthogonality(
+    row: readonly [RicisAstExpr, RicisAstExpr, RicisAstExpr],
+    nullSpace: readonly [RicisAstExpr, RicisAstExpr, RicisAstExpr],
+  ): boolean;
+
   solveJointVelocities(
     q: JointState3D,
     cNorm: Vector3D,

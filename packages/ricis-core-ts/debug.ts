@@ -6,7 +6,7 @@ import { RicisTypeScriptEngine } from './src/engine/RicisTypeScriptEngine';
 const parsed = LambdaParser.parse("x => (1 - cos(x)) / (x*x)");
 const simplified = AlgebraicSimplifier.simplify(parsed.body);
 const indexed = SemanticIndexer.indexAtPoint(simplified, parsed.parameterName, 0);
-const reducedBasis = AlgebraicSimplifier.simplifySingularityBasis(indexed);
+const reducedBasis = AlgebraicSimplifier.applySP5PolarPrenormalization(indexed);
 const engine = new RicisTypeScriptEngine();
 const result = engine.reduce(reducedBasis);
 

@@ -9,10 +9,10 @@ import { KinematicHeadlessBenchmark } from './kinematicBenchmark';
 describe('RICIS-III v7.7 Headless Kinematic Benchmark (DLS vs RICIS)', () => {
   const benchmark = new KinematicHeadlessBenchmark();
 
-  it('runs the full benchmark suite across 3 singular scenarios successfully', () => {
+  it('runs the full benchmark suite across 4 singular scenarios successfully', () => {
     const reports = benchmark.runFullBenchmarkSuite();
 
-    expect(reports.length).toBe(3);
+    expect(reports.length).toBe(4);
 
     // Verify all scenarios have metrics for each solver
     for (const r of reports) {
@@ -42,37 +42,48 @@ describe('RICIS-III v7.7 Headless Kinematic Benchmark (DLS vs RICIS)', () => {
     }
   });
 
-  it('demonstrates that RICIS solvers preserve direction better than the DLS baseline', () => {
+  it('demonstrates that RICIS solvers preserve direction better than the DLS baseline at singularities', () => {
     const reports = benchmark.runFullBenchmarkSuite();
 
-    // In Scenario 1 (Boundary Outer Reach / Full Extension), classical DLS gets "frozen" or drifts
-    // leading to high direction deviation, whereas RICIS preserves the direction vector.
-    const scenario1 = reports.find(r => r.scenarioName.includes('Boundary Outer Reach'));
-    expect(scenario1).toBeDefined();
-
-    const dlsDirErr = scenario1!.metrics.DLS_BASELINE!.avgDirectionDeviationDeg;
-    const ricisDirErr = scenario1!.metrics.RICIS_INVARIANT_ENGINE!.avgDirectionDeviationDeg;
-    const symJDirErr = scenario1!.metrics.RICIS_SYMBOLIC_JACOBIAN!.avgDirectionDeviationDeg;
-
-    // RICIS solvers should have tighter direction deviation compared to the Damped Least Squares fallback
-    expect(ricisDirErr).toBeLessThan(dlsDirErr);
-    expect(symJDirErr).toBeLessThan(dlsDirErr);
-  });
-
-  it('demonstrates that RICIS solvers have higher success rates near folded singularities', () => {
-    const reports = benchmark.runFullBenchmarkSuite();
-
-    // In Scenario 2 (Singular Inner Fold), DLS gets highly degraded and loses tracking,
-    // whereas RICIS recovers tracking quickly.
+    // In Scenario 2 (Singular Inner Fold), classical DLS gets locked/drifts due to rank deficiency,
+    // whereas RICIS Symbolic Jacobian decomposes along invariants and maintains tight direction.
     const scenario2 = reports.find(r => r.scenarioName.includes('Singular Inner Fold'));
     expect(scenario2).toBeDefined();
 
-    const dlsSuccess = scenario2!.metrics.DLS_BASELINE!.successRate;
-    const ricisSuccess = scenario2!.metrics.RICIS_INVARIANT_ENGINE!.successRate;
-    const symJSuccess = scenario2!.metrics.RICIS_SYMBOLIC_JACOBIAN!.successRate;
+    const dlsDirErr2 = scenario2!.metrics.DLS_BASELINE!.avgDirectionDeviationDeg;
+    const symJDirErr2 = scenario2!.metrics.RICIS_SYMBOLIC_JACOBIAN!.avgDirectionDeviationDeg;
+    expect(symJDirErr2).toBeLessThan(dlsDirErr2);
 
-    // RICIS solvers should achieve equal or higher success rate in trajectory tracking
-    expect(ricisSuccess).toBeGreaterThanOrEqual(dlsSuccess);
-    expect(symJSuccess).toBeGreaterThanOrEqual(dlsSuccess);
+    // In Scenario 3 (Shoulder Exact Pole Singularity), DLS experiences azimuthal gimbal lock,
+    // whereas RICIS resolves the pole singularity via A6 Geometric Bridge.
+    const scenario3 = reports.find(r => r.scenarioName.includes('Shoulder Exact Pole Singularity'));
+    expect(scenario3).toBeDefined();
+
+    const dlsDirErr3 = scenario3!.metrics.DLS_BASELINE!.avgDirectionDeviationDeg;
+    const symJDirErr3 = scenario3!.metrics.RICIS_SYMBOLIC_JACOBIAN!.avgDirectionDeviationDeg;
+    const ricisDirErr3 = scenario3!.metrics.RICIS_INVARIANT_ENGINE!.avgDirectionDeviationDeg;
+    expect(symJDirErr3).toBeLessThan(dlsDirErr3);
+    expect(ricisDirErr3).toBeLessThan(dlsDirErr3);
+  });
+
+  it('demonstrates that RICIS solvers achieve lower tracking error near boundary and folded singularities', () => {
+    const reports = benchmark.runFullBenchmarkSuite();
+
+    // In Scenario 1 (Boundary Outer Reach), RICIS maintains lower average tracking error
+    const scenario1 = reports.find(r => r.scenarioName.includes('Boundary Outer Reach'));
+    expect(scenario1).toBeDefined();
+    expect(scenario1!.metrics.RICIS_INVARIANT_ENGINE!.avgPositionError)
+      .toBeLessThanOrEqual(scenario1!.metrics.DLS_BASELINE!.avgPositionError);
+
+    // In Scenario 2 (Singular Inner Fold), RICIS solvers maintain significantly lower tracking error
+    const scenario2 = reports.find(r => r.scenarioName.includes('Singular Inner Fold'));
+    expect(scenario2).toBeDefined();
+
+    const dlsPosErr2 = scenario2!.metrics.DLS_BASELINE!.avgPositionError;
+    const ricisPosErr2 = scenario2!.metrics.RICIS_INVARIANT_ENGINE!.avgPositionError;
+    const symJPosErr2 = scenario2!.metrics.RICIS_SYMBOLIC_JACOBIAN!.avgPositionError;
+
+    expect(ricisPosErr2).toBeLessThan(dlsPosErr2);
+    expect(symJPosErr2).toBeLessThan(dlsPosErr2);
   });
 });

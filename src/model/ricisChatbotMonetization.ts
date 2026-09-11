@@ -8,7 +8,7 @@ export class RicisChatbotMonetizationService implements IMonetizationService {
     // В классической математике C (0) * N (Infinity) вызвало бы NaN или ошибку.
     // В RICIS-III мы используем Аксиому A6: 0_C * \infty_N = C * N (сохраняя инвариант площади).
     
-    // Эмуляция разрешения по Аксиоме A6 (O(1) редукция)
+    // Эмуляция разрешения по Аксиоме A6 (Numerical Layer O(1) редукция)
     const resolvedValue = C * N;
 
     transaction.history.push({

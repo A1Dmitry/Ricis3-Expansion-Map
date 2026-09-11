@@ -26,7 +26,7 @@ describe('RICIS-III TypeScript Resident Engine', () => {
     });
   });
 
-  describe('Phase 1 / L1: Deterministic O(1) Reduction', () => {
+  describe('Phase 1 / L1: Deterministic Symbolic Reduction (O(N) Traversal)', () => {
     it('должен сокращать F / F = 1 без вычисления', () => {
       const expr = AST.Div(
         AST.Sub(AST.Var('x'), AST.Const(2)), 

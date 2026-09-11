@@ -3,6 +3,8 @@ import type { JointState3D, Vector3D } from '../../model/kinematicEngine.contrac
 import {
   RicisSymbolicJacobianEngine,
   RicisTrajectoryController,
+  toCoreAst,
+  fromCoreAst,
 } from './ricisSymbolicJacobian';
 
 describe('RICIS-III v7.7 Symbolic Jacobian AST Engine (QA Suite)', () => {
@@ -87,7 +89,7 @@ describe('RICIS-III v7.7 Symbolic Jacobian AST Engine (QA Suite)', () => {
       expect(rulesApplied).toContain('SP4_SEMANTIC_INDEX');
     });
 
-    it('resolves A6 Geometric Bridge (0_F * oo_G = F * G) in O(1)', () => {
+    it('resolves A6 Geometric Bridge (0_F * oo_G = F * G) in NUMERICAL LAYER O(1)', () => {
       const factorF = {
         kind: 'CONST' as const,
         value: 2.5,
@@ -194,14 +196,50 @@ describe('RICIS-III v7.7 Symbolic Jacobian AST Engine (QA Suite)', () => {
       expect(Number.isFinite(vy)).toBe(true);
       expect(Number.isFinite(vz)).toBe(true);
 
-      // Dot product with Row 0
+      // Dot product with Row 0 (numerical check)
       const dot0 = engine.evaluateAst(row0[0]) * vx + engine.evaluateAst(row0[1]) * vy + engine.evaluateAst(row0[2]) * vz;
-      // Dot product with Row 1
+      // Dot product with Row 1 (numerical check)
       const dot1 = engine.evaluateAst(row1[0]) * vx + engine.evaluateAst(row1[1]) * vy + engine.evaluateAst(row1[2]) * vz;
 
       // In floating point, dot products should be extremely close to 0
       expect(dot0).toBeCloseTo(0, 9);
       expect(dot1).toBeCloseTo(0, 9);
+
+      // P6 Requirement: EXACT SYMBOLIC ORTHOGONALITY
+      // We must prove dot(J1, n) = 0 exactly in AST structure without floats.
+      const isOrthogonal0 = engine.verifySymbolicOrthogonality(row0, nullSpace);
+      const isOrthogonal1 = engine.verifySymbolicOrthogonality(row1, nullSpace);
+      
+      expect(isOrthogonal0).toBe(true);
+      expect(isOrthogonal1).toBe(true);
+    });
+  });
+
+  describe('P11: AST Unified Model Adapter (toCoreAst & fromCoreAst)', () => {
+    it('converts kinematic AST to core AST and back preserving structural semantics', () => {
+      const q: JointState3D = { q1: Math.PI / 4, q2: Math.PI / 3, q3: Math.PI / 6 };
+      const J = engine.buildSymbolicJacobian(q, linkLengths);
+
+      // Convert J.m00 (kinematic AST) to Core AST
+      const coreNode = toCoreAst(J.m00);
+      expect(coreNode).toBeDefined();
+      expect(coreNode.nodeType).toBe('Multiply');
+
+      // Convert Core AST back to Kinematic AST with context
+      const roundTrip = fromCoreAst(coreNode, {
+        q1: q.q1,
+        q2: q.q2,
+        q3: q.q3,
+        L0: linkLengths[0],
+        L1: linkLengths[1],
+        L2: linkLengths[2],
+      });
+      expect(roundTrip).toBeDefined();
+
+      // Ensure numerical evaluation remains exact
+      const valOriginal = engine.evaluateAst(J.m00);
+      const valRoundTrip = engine.evaluateAst(roundTrip);
+      expect(valRoundTrip).toBeCloseTo(valOriginal, 10);
     });
   });
 });
