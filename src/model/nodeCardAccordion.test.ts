@@ -102,7 +102,7 @@ describe('Node Card Accordion, Navigation & Ricis.Core Audit Tests', () => {
       expect(proofDoc.theoremTitle).toBeDefined();
       expect(proofDoc.lean4CodeSnippet).toContain('geometric_bridge');
       expect(proofDoc.lean4CodeSnippet).not.toContain('sorry');
-      expect(proofDoc.complexity).toBe('Symbolic O(N)');
+      expect(proofDoc.complexity).toBe('O(1)');
     });
 
     it('при недоступном Core не подменяет геометрический мост fallback-вычислением', async () => {

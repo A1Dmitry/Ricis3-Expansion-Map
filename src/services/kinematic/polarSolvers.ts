@@ -12,12 +12,15 @@ import type {
   IKinematicSolver3D,
   RicisSolverMode,
 } from '../../model/kinematicEngine.contracts';
+import { BaseKinematicSolver3D } from './baseKinematicSolver3D';
+import { KinematicConstants } from './kinematicConstants';
 import { PolarCoordinateService } from './polarCoordinateService';
 import {
   forwardKinematics3D,
   computeJacobianDeterminant3D,
   distance3D,
   calculateAngleDeviationDeg,
+  wrapToPi,
 } from './kinematicMath';
 import { detectAdvantageEvent } from './advantageDetector';
 
@@ -27,19 +30,19 @@ import { detectAdvantageEvent } from './advantageDetector';
  * Replaces Cauchy limit transitions (lim x->a) with exact O(1) algebraic invariant projection (A6, SP4).
  * Enforces L1_IDENTITY: when r -> 0 (center singularity), theta retains previous orientation without amnesia (SP1).
  */
-export class PolarRicisConstraintSolver {
+export class PolarRicisConstraintSolver extends BaseKinematicSolver3D {
   public readonly solverId = 'RICIS_POLAR_MONOLITH' as const;
 
   public solve(
     currentState: IKinematicState3D,
     targetPosition: Vector3D,
     linkLengths: readonly [number, number, number],
-    dt = 0.016,
+    dt = KinematicConstants.DEFAULT_DT_SECONDS,
     coordinateMode: CoordinateSystemMode = 'CARTESIAN'
   ): ISolverResult3D & { qaTrace: IQATelemetryTraceEntry; polarTarget: CylindricalVector3D } {
     const [L0, L1, L2] = linkLengths;
     const maxReach = L1 + L2;
-    const minReach = Math.abs(L1 - L2) + 0.04;
+    const minReach = Math.abs(L1 - L2) + KinematicConstants.MIN_REACH_BUFFER_METERS;
 
     // 1. Convert to Polar Coordinates relative to robot base with L1_IDENTITY continuity
     const polarTarget = PolarCoordinateService.cartesianToCylindrical(
@@ -58,11 +61,11 @@ export class PolarRicisConstraintSolver {
     let clampedReach = planarReach;
     let isBoundarySingular = false;
 
-    if (planarReach >= maxReach - 1e-4) {
-      clampedReach = maxReach - 0.001;
+    if (planarReach >= maxReach - KinematicConstants.BOUNDARY_EPSILON_METERS) {
+      clampedReach = maxReach - KinematicConstants.MANIFOLD_PROJECTION_OFFSET_METERS;
       isBoundarySingular = true;
     } else if (planarReach <= minReach) {
-      clampedReach = minReach + 0.001;
+      clampedReach = minReach + KinematicConstants.MANIFOLD_PROJECTION_OFFSET_METERS;
       isBoundarySingular = true;
     }
 
@@ -72,16 +75,13 @@ export class PolarRicisConstraintSolver {
     const targetQ3 = Math.acos(clampedCosQ3);
 
     // 6. Shoulder pitch q2
-    const alpha = Math.atan2(targetZRel, Math.max(1e-6, polarTarget.r));
+    const alpha = Math.atan2(targetZRel, Math.max(KinematicConstants.MIN_RADIAL_DISTANCE_GUARD, polarTarget.r));
     const beta = Math.atan2(L2 * Math.sin(targetQ3), L1 + L2 * Math.cos(targetQ3));
     const targetQ2 = alpha - beta;
 
     // 7. Smooth continuous Euler integration towards exact algebraic target via shortest arc
-    const lerpRate = Math.min(1.0, 8.0 * dt);
-    // Shortest angular difference for q1 to prevent 360-deg spins
-    let deltaQ1 = targetQ1 - currentState.joints.q1;
-    while (deltaQ1 > Math.PI) deltaQ1 -= 2 * Math.PI;
-    while (deltaQ1 < -Math.PI) deltaQ1 += 2 * Math.PI;
+    const lerpRate = Math.min(1.0, KinematicConstants.RICIS_LERP_RATE_MULTIPLIER * dt);
+    const deltaQ1 = wrapToPi(targetQ1 - currentState.joints.q1);
 
     const nextQ1 = currentState.joints.q1 + deltaQ1 * lerpRate;
     const nextQ2 = currentState.joints.q2 + (targetQ2 - currentState.joints.q2) * lerpRate;
@@ -110,12 +110,12 @@ export class PolarRicisConstraintSolver {
     const detJ = computeJacobianDeterminant3D(nextJoints, linkLengths);
     const absDet = Math.abs(detJ);
 
-    const isSingular = absDet < 0.15 || isBoundarySingular;
+    const isSingular = absDet < KinematicConstants.SINGULARITY_DETERMINANT_THRESHOLD || isBoundarySingular;
 
     const metrics: ISolverMetrics3D = {
       positionError: posError,
       velocityError: Math.min(0.2, posError * 0.1),
-      directionPreservedDeg: Math.min(3.5, dirDeviation),
+      directionPreservedDeg: Math.min(KinematicConstants.MAX_SINGULAR_DIRECTION_DEVIATION_DEG, dirDeviation),
       singularityIndex: Math.max(0, 1 - absDet / (L1 * L2)),
       nearSingularityBehavior: isSingular ? 'recovered' : 'stable',
       recoverySuccess: true,
@@ -136,7 +136,7 @@ export class PolarRicisConstraintSolver {
       ghostDirectionDeviationDeg: 0.0,
       ricisDirectionDeviationDeg: metrics.directionPreservedDeg,
       positionErrorCm: posError * 100,
-      qaScore: 100,
+      qaScore: KinematicConstants.QA_MAX_SCORE,
       evaluationNotes: isSingular
         ? 'RICIS A6/SP4 Manifold Projection active: 0/0 singular boundary converted to exact invariant in O(1).'
         : 'Stable coordinate domain: exact inverse kinematics satisfied without limits.',
@@ -164,11 +164,12 @@ export class PolarRicisConstraintSolver {
  * Near singularity det(J) -> 0, damping parameter lambda^2 slows response and introduces
  * directional error and position lag, demonstrating the disadvantage of Cauchy-limit-based approximations.
  */
-export class ClassicDlsGhostSolver {
+export class ClassicDlsGhostSolver extends BaseKinematicSolver3D {
   public readonly solverId = 'CLASSICAL_DLS_GHOST' as const;
   private readonly dampingFactor: number;
 
-  constructor(dampingFactor = 0.18) {
+  constructor(dampingFactor = KinematicConstants.DEFAULT_GHOST_DLS_DAMPING_FACTOR) {
+    super();
     this.dampingFactor = dampingFactor;
   }
 
@@ -176,35 +177,29 @@ export class ClassicDlsGhostSolver {
     currentState: IKinematicState3D,
     targetPosition: Vector3D,
     linkLengths: readonly [number, number, number],
-    dt = 0.016
+    dt = KinematicConstants.DEFAULT_DT_SECONDS
   ): ISolverResult3D {
     const [L0, L1, L2] = linkLengths;
     const { q1, q2, q3 } = currentState.joints;
 
-    // Desired displacement
-    const dx = targetPosition.x - currentState.endEffector.x;
-    const dy = targetPosition.y - currentState.endEffector.y;
-    const dz = targetPosition.z - currentState.endEffector.z;
+    const {
+      desiredVector,
+      diffQ1,
+      targetRadial,
+      targetZRel,
+    } = this.computePlanarTargetGeometry(targetPosition, currentState, linkLengths);
 
-    const desiredVector: Vector3D = { x: dx, y: dy, z: dz };
-    const distToTarget = Math.sqrt(dx * dx + dy * dy + dz * dz);
+    const distToTarget = Math.sqrt(
+      desiredVector.x * desiredVector.x + desiredVector.y * desiredVector.y + desiredVector.z * desiredVector.z
+    );
 
-    // Target polar azimuth
-    const targetAzimuth = Math.atan2(targetPosition.y, targetPosition.x);
-    let diffQ1 = targetAzimuth - q1;
-    while (diffQ1 > Math.PI) diffQ1 -= 2 * Math.PI;
-    while (diffQ1 < -Math.PI) diffQ1 += 2 * Math.PI;
     let deltaQ1 = diffQ1 * 2.2 * dt;
-
-    // Planar cross-section geometry
-    const radialTarget = Math.sqrt(targetPosition.x * targetPosition.x + targetPosition.y * targetPosition.y);
-    const zTargetRel = targetPosition.z - L0;
 
     const currentRad = L1 * Math.cos(q2) + L2 * Math.cos(q2 + q3);
     const currentZRel = L1 * Math.sin(q2) + L2 * Math.sin(q2 + q3);
 
-    const dRad = radialTarget - currentRad;
-    const dZ = zTargetRel - currentZRel;
+    const dRad = targetRadial - currentRad;
+    const dZ = targetZRel - currentZRel;
 
     // Jacobian elements
     const s2 = Math.sin(q2);
@@ -240,7 +235,7 @@ export class ClassicDlsGhostSolver {
     let deltaQ3 = (j12 * tempX + j22 * tempY) * 2.8 * dt;
 
     // Classical singularity stall
-    if (absDet < 0.15) {
+    if (absDet < KinematicConstants.SINGULARITY_DETERMINANT_THRESHOLD) {
       deltaQ1 *= 0.5;
       deltaQ2 *= 0.35;
       deltaQ3 *= 0.12; // Elbow freezes near full extension
@@ -249,7 +244,10 @@ export class ClassicDlsGhostSolver {
     const nextJoints: JointState3D = {
       q1: q1 + deltaQ1,
       q2: q2 + deltaQ2,
-      q3: Math.max(0.01, Math.min(Math.PI - 0.05, q3 + deltaQ3)),
+      q3: Math.max(
+        KinematicConstants.MIN_ELBOW_JOINT_LIMIT_RAD,
+        Math.min(Math.PI - KinematicConstants.MAX_ELBOW_JOINT_LIMIT_OFFSET_RAD, q3 + deltaQ3)
+      ),
     };
 
     const nextEE = forwardKinematics3D(nextJoints, linkLengths);
@@ -261,12 +259,12 @@ export class ClassicDlsGhostSolver {
 
     const dirDeviation = calculateAngleDeviationDeg(desiredVector, actualStepVector);
     const posError = distance3D(nextEE, targetPosition);
-    const isSingular = absDet < 0.15;
-    const degraded = isSingular && dirDeviation > 8.0;
+    const isSingular = absDet < KinematicConstants.SINGULARITY_DETERMINANT_THRESHOLD;
+    const degraded = isSingular && dirDeviation > KinematicConstants.DEGRADED_DIRECTION_THRESHOLD_DEG;
 
     const metrics: ISolverMetrics3D = {
       positionError: posError,
-      velocityError: Math.abs(distToTarget - distance3D(nextEE, currentState.endEffector)) / dt * 0.05,
+      velocityError: (Math.abs(distToTarget - distance3D(nextEE, currentState.endEffector)) / dt) * 0.05,
       directionPreservedDeg: degraded ? Math.min(45, dirDeviation + 15) : dirDeviation,
       singularityIndex: Math.max(0, 1 - absDet / (L1 * L2)),
       nearSingularityBehavior: degraded ? 'degraded' : isSingular ? 'degraded' : 'stable',
@@ -281,7 +279,7 @@ export class ClassicDlsGhostSolver {
         endEffector: nextEE,
         jacobianDeterminant: computeJacobianDeterminant3D(nextJoints, linkLengths),
         isSingularZone: isSingular,
-        isWorkspaceBoundaryExceeded: radialTarget > (L1 + L2),
+        isWorkspaceBoundaryExceeded: targetRadial > (L1 + L2),
         gripperClosed: currentState.gripperClosed,
       },
       metrics,
@@ -373,7 +371,7 @@ export class KinematicDualDebuggerEngine {
         ghostDirectionDeviationDeg: 0.0,
         ricisDirectionDeviationDeg: rawRicisResult.metrics.directionPreservedDeg,
         positionErrorCm: rawRicisResult.metrics.positionError * 100,
-        qaScore: 100,
+        qaScore: KinematicConstants.QA_MAX_SCORE,
         evaluationNotes: isSing
           ? 'RICIS-III Symbolic AST reduction active (SP2/SP4/A6): singular denominator algebraically bypassed.'
           : 'Regular domain: Symbolic Jacobian AST inverse satisfied with exact trajectory projection.',
@@ -416,9 +414,16 @@ export class KinematicDualDebuggerEngine {
     // Merge Ghost comparison into QA trace
     const enrichedQaTrace: IQATelemetryTraceEntry = {
       ...ricisResult.qaTrace,
-      ghostDampingPenalty: 0.18 * 0.18,
+      ghostDampingPenalty: KinematicConstants.DEFAULT_GHOST_DLS_DAMPING_FACTOR * KinematicConstants.DEFAULT_GHOST_DLS_DAMPING_FACTOR,
       ghostDirectionDeviationDeg: dlsResult.metrics.directionPreservedDeg,
-      qaScore: Math.max(20, Math.round(100 - dlsResult.metrics.directionPreservedDeg * 1.5 - (dlsResult.metrics.positionError * 50))),
+      qaScore: Math.max(
+        KinematicConstants.QA_MIN_SCORE,
+        Math.round(
+          KinematicConstants.QA_MAX_SCORE -
+            dlsResult.metrics.directionPreservedDeg * 1.5 -
+            dlsResult.metrics.positionError * 50
+        )
+      ),
     };
 
     const logEntry: IKinematicLogEntry = {

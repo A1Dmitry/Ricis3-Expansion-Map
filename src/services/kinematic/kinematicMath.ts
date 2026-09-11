@@ -1,4 +1,5 @@
 import type { Vector3D, JointState3D } from '../../model/kinematicEngine.contracts';
+import { KinematicConstants } from './kinematicConstants';
 
 /**
  * 3D Pure Kinematics Math Service (DDD, No external side effects).
@@ -68,7 +69,7 @@ export function calculateAngleDeviationDeg(desired: Vector3D, actual: Vector3D):
   const lenD = vectorLength3D(desired);
   const lenA = vectorLength3D(actual);
 
-  if (lenD < 1e-6 || lenA < 1e-6) {
+  if (lenD < KinematicConstants.MIN_RADIAL_DISTANCE_GUARD || lenA < KinematicConstants.MIN_RADIAL_DISTANCE_GUARD) {
     return 0.0;
   }
 
@@ -76,4 +77,78 @@ export function calculateAngleDeviationDeg(desired: Vector3D, actual: Vector3D):
   const clampedDot = Math.max(-1.0, Math.min(1.0, dot));
   const rad = Math.acos(clampedDot);
   return (rad * 180) / Math.PI;
+}
+
+/**
+ * Normalizes angle to (-PI, PI] range (shortest rotational arc)
+ */
+export function wrapToPi(angle: number): number {
+  let wrapped = angle;
+  while (wrapped > Math.PI) wrapped -= 2 * Math.PI;
+  while (wrapped < -Math.PI) wrapped += 2 * Math.PI;
+  return wrapped;
+}
+
+/**
+ * Standardized pure calculation of 3D kinematic solver metrics (DRY).
+ */
+export function computeSolverMetrics3D(params: {
+  desiredVector: Vector3D;
+  actualStepVector: Vector3D;
+  nextEE: Vector3D;
+  targetPosition: Vector3D;
+  currentEE: Vector3D;
+  absDet: number;
+  maxReach: number;
+  dt: number;
+  isBoundarySingular?: boolean;
+  forcedDirectionDeviation?: number;
+  nearSingularityBehavior?: 'stable' | 'degraded' | 'recovered';
+  recoverySuccess?: boolean;
+}): {
+  dirDeviation: number;
+  posError: number;
+  velocityError: number;
+  metrics: import('../../model/kinematicEngine.contracts').ISolverMetrics3D;
+} {
+  const {
+    desiredVector,
+    actualStepVector,
+    nextEE,
+    targetPosition,
+    currentEE,
+    absDet,
+    maxReach,
+    dt,
+    isBoundarySingular = false,
+    forcedDirectionDeviation,
+    nearSingularityBehavior,
+    recoverySuccess,
+  } = params;
+
+  const rawDirDeviation = calculateAngleDeviationDeg(desiredVector, actualStepVector);
+  const dirDeviation = forcedDirectionDeviation !== undefined ? forcedDirectionDeviation : rawDirDeviation;
+  const posError = distance3D(nextEE, targetPosition);
+  const distToTarget = distance3D(currentEE, targetPosition);
+  const velocityError = Math.abs(distToTarget - distance3D(nextEE, currentEE)) / Math.max(KinematicConstants.MIN_RADIAL_DISTANCE_GUARD, dt);
+  const isSingular = isBoundarySingular || absDet < KinematicConstants.SINGULARITY_DETERMINANT_THRESHOLD;
+
+  let behavior = nearSingularityBehavior;
+  if (!behavior) {
+    behavior = isSingular
+      ? (dirDeviation > KinematicConstants.DEGRADED_DIRECTION_THRESHOLD_DEG ? 'degraded' : 'recovered')
+      : 'stable';
+  }
+
+  const metrics: import('../../model/kinematicEngine.contracts').ISolverMetrics3D = {
+    positionError: posError,
+    velocityError: velocityError,
+    directionPreservedDeg: dirDeviation,
+    singularityIndex: Math.max(0, 1 - absDet / Math.max(KinematicConstants.MIN_RADIAL_DISTANCE_GUARD, maxReach)),
+    nearSingularityBehavior: behavior,
+    recoverySuccess: recoverySuccess !== undefined ? recoverySuccess : !isSingular,
+    invariantPreserved: true,
+  };
+
+  return { dirDeviation, posError, velocityError, metrics };
 }

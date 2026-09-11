@@ -2,9 +2,10 @@ import type {
   IAdvantageEvent,
   ISolverMetrics3D,
 } from '../../model/kinematicEngine.contracts';
+import { KinematicConstants } from './kinematicConstants';
 
 /**
- * Advantage Detector for RICIS-III vs Classical DLS Solver.
+ * Advantage Detector for RICIS-III vs Classical DLS Solver (DDD & SOLID).
  * Triggers when DLS suffers from singularity damping, direction drift, or velocity spikes,
  * while RICIS maintains invariant projection and stability.
  */
