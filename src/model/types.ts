@@ -95,6 +95,9 @@ export interface ProofStep {
   name: string;
   action: string;
   expression: string;
+  title?: string;
+  rule?: string;
+  description?: string;
 }
 
 export type ExternalLeanTrustStatus =
@@ -125,6 +128,7 @@ export interface Proof {
   steps: ProofStep[];
   finalResult: string;
   latex: string;
+  axiomsUsed?: string[];
   /** Present only when the original text was supplied externally as Lean source. */
   externalLean?: ExternalLeanProvenance;
 }

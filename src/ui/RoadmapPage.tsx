@@ -1,5 +1,5 @@
+import React, { useMemo, useState } from 'react';
 import { ArrowLeft, BookOpen, ChevronRight, Compass, ListTree, SearchCheck, ShieldCheck } from 'lucide-react';
-import { useMemo, useState } from 'react';
 import type { ProblemNode } from '../model/types';
 import { getRootConnectedScientificTasks, getRootPathLabel, resolveRootSelection } from '../model/rootTaskFilter';
 import { UrlShareService } from '../services/UrlShareService';

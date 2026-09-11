@@ -2,13 +2,15 @@ import React, { useState, useEffect } from 'react';
 import type { ProblemNode, Proof } from '../model/types';
 import { isMissingTargetFunction, nodeHasSorry } from '../model/audit';
 import { getUnlockedTargets, getUnlockRequirements } from '../model/access';
-import { ChevronDown, ChevronUp, ArrowLeft, ExternalLink, ShieldCheck, Sparkles, Lock, Unlock, BookOpen, DollarSign, Terminal, CheckCircle2, Share2, Check } from 'lucide-react';
+import { ChevronDown, ChevronUp, ArrowLeft, ExternalLink, ShieldCheck, Sparkles, Lock, Unlock, BookOpen, DollarSign, Terminal, CheckCircle2, Share2, Check, Calculator, Sliders, Layers as LayersIcon } from 'lucide-react';
+import { useTerminalStore } from '../store/useTerminalStore';
 import { LatexRenderer } from './LatexRenderer';
 import { ExecutionTraceViewer } from './ExecutionTraceViewer';
 import type { ITransformationLogDTO } from '../model/traceVisualizer.types';
 import { getRicisCoreEngine } from '../services/ricisCore';
 import { isCoreExecutionFailure } from '../services/ricisCore/IRicisCoreEngine';
 import { writeCoreRecovery } from '../services/coreRecovery';
+import { Activity } from 'lucide-react';
 import { UrlShareService } from '../services/UrlShareService';
 import { useI18nStore } from '../store/useI18nStore';
 import { ProofTrustBadge } from './ProofTrustBadge';
@@ -149,6 +151,7 @@ export function getReferencesForNode(node: ProblemNode) {
  * Modern Accordion-based Node Card Details.
  */
 export const NodeCardDetails: React.FC<Props> = ({
+
   node,
   map,
   isExpanded,
@@ -158,6 +161,12 @@ export const NodeCardDetails: React.FC<Props> = ({
   previousNodeTitle,
 }) => {
   const { t } = useI18nStore();
+  const isKinematicManipulator = 
+    node.id === 'calculator-node-kinematic' || 
+    node.id === 'manipulator-core-kinematics' || 
+    node.id === 'manipulator-constraints-workspace' || 
+    node.id === 'manipulator-singularities' || 
+    node.id === 'manipulator-ui-visualization';
   const refs = getReferencesForNode(node);
   const proof = map?.proofs?.[node.id] as Proof | undefined;
   const calculatorBaseUrl = (typeof window !== 'undefined' ? `${window.location.origin}/calculator-sandbox/` : '') || import.meta.env.VITE_RICIS_CALCULATOR_BASE_URL || 'https://remix-ricis-iii-501343051156.europe-west2.run.app/';
@@ -293,6 +302,132 @@ export const NodeCardDetails: React.FC<Props> = ({
         </button>
       )}
 
+      {/* ОБЛАСТЬ КОНТЕКСТНОГО РАСШИРЕНИЯ И ИНТЕРАКТИВНОГО КАЛЬКУЛЯТОРА */}
+      <section className="border-b border-cyan-800/60 bg-gradient-to-br from-cyan-950/40 via-neutral-950/80 to-purple-950/30 p-3 rounded-lg border my-2 shadow-lg">
+        <div className="flex items-center justify-between mb-2">
+          <p className="text-[10px] font-bold uppercase tracking-[0.15em] text-cyan-300 flex items-center gap-1.5">
+            <Calculator size={13} className="text-emerald-400" />
+            Контекстное расширение и Калькулятор
+          </p>
+          <span className="text-[9px] font-mono px-1.5 py-0.5 rounded bg-cyan-950/80 border border-cyan-800 text-cyan-300 font-bold">
+            RICIS Engine
+          </span>
+        </div>
+
+        <p className="text-[9.5px] text-slate-300/90 mb-2.5 leading-relaxed">
+          Интерактивные инструменты для этой задачи: запуск вычислений в песочнице, 3D симуляция кинематики и детальная форма аналитического доказательства.
+        </p>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+          {/* Кнопка 1: Интерактивный Калькулятор / Песочница */}
+          <button
+            type="button"
+            onClick={() => {
+              const expr = node.targetFunction || '0/0';
+              useTerminalStore.getState().setInput(expr);
+              useTerminalStore.getState().toggleTerminal(true);
+            }}
+            className="flex items-center gap-2 p-2 rounded-md bg-purple-950/60 hover:bg-purple-900/70 border border-purple-700/70 hover:border-purple-400 text-left transition-all group shadow-sm cursor-pointer"
+          >
+            <div className="p-1.5 rounded bg-purple-900/80 text-purple-300 group-hover:scale-105 transition-transform shrink-0">
+              <Calculator size={14} />
+            </div>
+            <div className="min-w-0 flex-1">
+              <span className="block text-[10px] font-bold text-purple-200 group-hover:text-white">
+                Калькулятор формулы
+              </span>
+              <span className="block text-[8.5px] text-purple-300/75 truncate font-mono">
+                {node.targetFunction ? `$$${node.targetFunction}$$` : 'Вычислить сингулярность'}
+              </span>
+            </div>
+          </button>
+
+          {/* Кнопка 2: Кинематический 3D Движок */}
+          <button
+            type="button"
+            onClick={() => {
+              UrlShareService.updateBrowserUrl({ kinematic: true });
+              window.dispatchEvent(new PopStateEvent('popstate'));
+            }}
+            className="flex items-center gap-2 p-2 rounded-md bg-emerald-950/60 hover:bg-emerald-900/70 border border-emerald-700/70 hover:border-emerald-400 text-left transition-all group shadow-sm cursor-pointer"
+          >
+            <div className="p-1.5 rounded bg-emerald-900/80 text-emerald-300 group-hover:scale-105 transition-transform shrink-0">
+              <Activity size={14} />
+            </div>
+            <div className="min-w-0 flex-1">
+              <span className="block text-[10px] font-bold text-emerald-200 group-hover:text-white">
+                3D Кинематический Движок
+              </span>
+              <span className="block text-[8.5px] text-emerald-300/75 truncate">
+                Сравнение с DLS и Pick & Place
+              </span>
+            </div>
+          </button>
+
+          {/* Кнопка 3: Полная Форма задачи (Roadmap) */}
+          <button
+            type="button"
+            onClick={() => {
+              UrlShareService.updateBrowserUrl({ roadmap: true, rootNodeId: node.id });
+              window.dispatchEvent(new PopStateEvent('popstate'));
+            }}
+            className="flex items-center gap-2 p-2 rounded-md bg-cyan-950/60 hover:bg-cyan-900/70 border border-cyan-700/70 hover:border-cyan-400 text-left transition-all group shadow-sm cursor-pointer"
+          >
+            <div className="p-1.5 rounded bg-cyan-900/80 text-cyan-300 group-hover:scale-105 transition-transform shrink-0">
+              <LayersIcon size={14} />
+            </div>
+            <div className="min-w-0 flex-1">
+              <span className="block text-[10px] font-bold text-cyan-200 group-hover:text-white">
+                Форма задачи & Roadmap
+              </span>
+              <span className="block text-[8.5px] text-cyan-300/75 truncate">
+                Детальный граф связей и доказательств
+              </span>
+            </div>
+          </button>
+
+          {/* Кнопка 4: Внешний калькулятор / Поделиться ссылкой */}
+          {calculatorEntry?.launch?.kind === 'READY' && calculatorEntry.launch.href ? (
+            <a
+              href={calculatorEntry.launch.href}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-2 p-2 rounded-md bg-blue-950/60 hover:bg-blue-900/70 border border-blue-700/70 hover:border-blue-400 text-left transition-all group shadow-sm cursor-pointer"
+            >
+              <div className="p-1.5 rounded bg-blue-900/80 text-blue-300 group-hover:scale-105 transition-transform shrink-0">
+                <ExternalLink size={14} />
+              </div>
+              <div className="min-w-0 flex-1">
+                <span className="block text-[10px] font-bold text-blue-200 group-hover:text-white">
+                  Веб-приложение Монолита
+                </span>
+                <span className="block text-[8.5px] text-blue-300/75 truncate">
+                  Открыть внешний калькулятор
+                </span>
+              </div>
+            </a>
+          ) : (
+            <button
+              type="button"
+              onClick={handleShareNode}
+              className="flex items-center gap-2 p-2 rounded-md bg-neutral-900/80 hover:bg-neutral-800 border border-neutral-700 hover:border-cyan-500 text-left transition-all group shadow-sm cursor-pointer"
+            >
+              <div className="p-1.5 rounded bg-neutral-800 text-cyan-300 group-hover:scale-105 transition-transform shrink-0">
+                <Share2 size={14} />
+              </div>
+              <div className="min-w-0 flex-1">
+                <span className="block text-[10px] font-bold text-slate-200 group-hover:text-white">
+                  {copiedLink ? 'Ссылка скопирована!' : 'Скопировать прямую ссылку'}
+                </span>
+                <span className="block text-[8.5px] text-slate-400 truncate">
+                  Поделиться формой этой задачи
+                </span>
+              </div>
+            </button>
+          )}
+        </div>
+      </section>
+
       <section className="border-b border-neutral-800/50 bg-gradient-to-br from-cyan-950/25 via-transparent to-violet-950/20 p-3">
         <p className="mb-2 text-[9px] font-bold uppercase tracking-[0.15em] text-cyan-300">Исследовательские действия</p>
         <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
@@ -325,6 +460,26 @@ export const NodeCardDetails: React.FC<Props> = ({
           </button>
         </div>
       </section>
+
+      
+      {isKinematicManipulator && (
+        <section className="mb-3 rounded border border-emerald-800/70 bg-emerald-950/25 p-3">
+          <p className="text-[10px] font-bold text-emerald-100 uppercase tracking-wider mb-2 flex items-center gap-1.5"><Activity size={12}/> Engineering Demo</p>
+          <p className="text-[9px] text-emerald-200/80 mb-3 leading-relaxed">
+            Open the Kinematic Constraint Engine. Compare classical DLS with RICIS constraint recovery directly in the browser.
+          </p>
+          <button 
+            type="button"
+            onClick={() => {
+              UrlShareService.updateBrowserUrl({ kinematic: true });
+              window.dispatchEvent(new PopStateEvent('popstate'));
+            }}
+            className="w-full flex items-center justify-center gap-1.5 rounded bg-emerald-700/80 py-2 px-3 text-[10px] font-bold text-white hover:bg-emerald-600 transition-colors"
+          >
+            Launch Kinematic Constraint Engine
+          </button>
+        </section>
+      )}
 
       {calculatorEntry?.monolith.calculator.mode === 'KINEMATIC' && (
         <section aria-label="Граница визуализации манипулятора" className="mb-3 rounded border border-amber-800/70 bg-amber-950/25 p-2 text-[9px] leading-relaxed text-amber-100">

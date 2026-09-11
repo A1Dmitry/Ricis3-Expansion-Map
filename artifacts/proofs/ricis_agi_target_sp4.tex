@@ -1,0 +1,70 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[russian,english]{babel}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{hyperref}
+\usepackage{geometry}
+\geometry{margin=2.5cm}
+
+\title{\textbf{RICIS-III Formalization of the AGI Target Function:\\Path-Indexed Objective via SP4, L1 Identity, and A6 Geometric Bridge}}
+\author{\textbf{Dmitry V. Aleinikov}\\ORCID: \href{https://orcid.org/0009-0004-3226-7700}{0009-0004-3226-7700}}
+\date{August 31, 2026}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+This technical note formalizes the root AGI target objective function $\mathrm{Goal}_P$ within the Recursive Indexed Calculus of Identity and Singularity (RICIS-III v7.7) framework. By indexing the goal metric under Safety Protocol 4 (SP4) and preserving $L1$ Identity ($X=X$), path divergence singularities of indeterminate form $0/0$ and $0 \times \infty$ are resolved deterministically without resort to Cauchy limits or $NaN$ states. The product-type singularity $0_{\Delta s} \times \infty_{\Delta\mathrm{ctx}}$ is evaluated in $O(1)$ computational complexity using the published 2D Geometric Bridge (DOI \href{https://doi.org/10.5281/zenodo.22124493}{10.5281/zenodo.22124493}): $\det((A,0),(0,B)) = A \cdot B$.
+\end{abstract}
+
+\section{Introduction \& Role on the Expansion Map}
+The root node \texttt{core-agi-target} serves as the primary structural dependency parent for downstream applied domain nodes on the RICIS-III Expansion Map:
+\begin{itemize}
+    \item \texttt{med-diagnostics} (Medical Diagnostics)
+    \item \texttt{pharm-design} (Pharmaceutical Molecular Design)
+    \item \texttt{econ-value} (Economic Value Allocation)
+    \item \texttt{ethic-alignment} (Ethical Alignment Protocols)
+    \item \texttt{ricis-chatbot-monetization} (Monetization & Utility Channels)
+\end{itemize}
+
+While pure mathematical singularity resolution is anchored by DOI \href{https://doi.org/10.5281/zenodo.22124493}{10.5281/zenodo.22124493}, this technical package formalizes the decision-theoretic AGI root.
+
+\section{Mathematical Formulation}
+
+\subsection{Path-Indexed Objective (SP4 + L1 Identity)}
+Under RICIS-III $L1$ Identity, structural information is conserved across all algebraic mappings:
+\begin{equation}
+L1: \quad X = X, \quad \frac{0_{\mathrm{Goal}_P}}{0_{\mathrm{Goal}_P}} = 1
+\end{equation}
+When multiple agentic search paths induce potential path divergence, Safety Protocol 4 (SP4) requires indexing the objective function by its generating evaluation protocol $P$:
+\begin{equation}
+\mathrm{Goal}_P := \mathrm{SP4}(\mathrm{Objective}, P)
+\end{equation}
+
+\subsection{Singularity Resolution via 2D Geometric Bridge (Axiom A6)}
+In agent context spaces where zero-error tolerance $0_{\Delta s}$ meets infinite context space $\infty_{\Delta\mathrm{ctx}}$, classical analysis yields an undefined indeterminate form $0 \times \infty$. RICIS-III maps orthogonal components into $\mathbb{R}^2_{\mathrm{RICIS}}$:
+\begin{equation}
+u = (A, 0), \quad v = (0, B)
+\end{equation}
+Applying the 2D Skew Product (Determinant):
+\begin{equation}
+\det(u, v) = \det\begin{pmatrix} A & 0 \\ 0 & B \end{pmatrix} = A \cdot B - 0 \cdot 0 = A \cdot B
+\end{equation}
+This yields an exact finite invariant $A \cdot B$ in $O(1)$ time complexity, eliminating floating-point $NaN$ collapse.
+
+\section{Scope Boundary \& Trust Policy}
+\begin{itemize}
+    \item \textbf{Claimed:} Structural path-indexed objective $\mathrm{Goal}_P$ under SP4 + L1; use of the published 2D geometric bridge $\det((A,0),(0,B)) = A \cdot B$; structural unlock of child nodes at \texttt{workflow} trust level.
+    \item \textbf{Not Claimed:} Empirical industrial AGI safety guarantees; Clay Millennium Prize certification; full Lean-kernel verification of all external reducers.
+\end{itemize}
+
+\section{Related Identifiers}
+\begin{itemize}
+    \item Geometric Bridge A6: \href{https://doi.org/10.5281/zenodo.22124493}{10.5281/zenodo.22124493}
+    \item RICIS Master Registry: \href{https://doi.org/10.5281/zenodo.21517353}{10.5281/zenodo.21517353}
+    \item AI Authorship Provenance: \href{https://doi.org/10.5281/zenodo.21309650}{10.5281/zenodo.21309650}
+    \item Current Package DOI: \texttt{PENDING\_DOI}
+\end{itemize}
+
+\end{document}

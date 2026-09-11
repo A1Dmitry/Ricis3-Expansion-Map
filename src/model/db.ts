@@ -113,6 +113,53 @@ function openDb(): Promise<IDBDatabase> {
   });
 }
 
+/**
+ * Открытие IndexedDB с защитным тайм-аутом (O(1) Singularity Fallback).
+ * Защищает от зависаний в средах iFrame / AI Studio Sandbox.
+ */
+export function openDbWithTimeout(timeoutMs = 2500): Promise<IDBDatabase | null> {
+  if (!isIndexedDbAvailable) {
+    return Promise.resolve(null);
+  }
+  return new Promise((resolve) => {
+    let timer: ReturnType<typeof setTimeout> | null = null;
+    let settled = false;
+
+    timer = setTimeout(() => {
+      if (!settled) {
+        settled = true;
+        isIndexedDbAvailable = false;
+        console.warn(`RICIS DB Guard: IndexedDB open timed out after ${timeoutMs}ms, falling back to memoryStores.`);
+        resolve(null);
+      }
+    }, timeoutMs);
+
+    openDb()
+      .then((db) => {
+        if (!settled) {
+          settled = true;
+          if (timer) clearTimeout(timer);
+          resolve(db);
+        } else {
+          try {
+            db.close();
+          } catch {
+            /* ignore */
+          }
+        }
+      })
+      .catch((err) => {
+        if (!settled) {
+          settled = true;
+          if (timer) clearTimeout(timer);
+          isIndexedDbAvailable = false;
+          console.warn('RICIS DB Guard: openDb failed, falling back to memoryStores:', err);
+          resolve(null);
+        }
+      });
+  });
+}
+
 function txDone(tx: IDBTransaction): Promise<void> {
   return new Promise((resolve, reject) => {
     tx.oncomplete = () => resolve();
@@ -174,7 +221,11 @@ export async function dbSaveMap(state: MapState): Promise<void> {
   }
 
   try {
-    const db = await openDb();
+    const db = await openDbWithTimeout(1500);
+    if (!db) {
+      saveToMemory();
+      return;
+    }
     try {
       const storeNames: StoreName[] = [
         STORES.nodes,
@@ -227,7 +278,7 @@ export async function dbSaveMap(state: MapState): Promise<void> {
 }
 
 /** Восстановление полной карты из документных store. */
-export async function dbLoadMap(): Promise<MapState | null> {
+export async function dbLoadMap(options?: { timeoutMs?: number }): Promise<MapState | null> {
   const loadFromMemory = () => {
     const nodes = Array.from(memoryStores.nodes.values());
     if (nodes.length === 0) return null;
@@ -245,7 +296,10 @@ export async function dbLoadMap(): Promise<MapState | null> {
   }
 
   try {
-    const db = await openDb();
+    const db = await openDbWithTimeout(options?.timeoutMs ?? 2500);
+    if (!db) {
+      return loadFromMemory();
+    }
     try {
       const nodes = await getAll<ProblemNode>(db, STORES.nodes);
       if (nodes.length === 0) return null;

@@ -1,156 +1,257 @@
 import React, { useState } from 'react';
 import { useMapStore } from '../store/mapStore';
 import { useI18nStore } from '../store/useI18nStore';
-import { 
-  Activity, 
-  Trash2, 
-  Search, 
-  Sparkles, 
-  RefreshCw, 
+import {
+  ShieldAlert,
+  Wrench,
+  Trash2,
+  FileSearch,
+  Sparkles,
+  Search,
+  Loader2,
   CheckCircle,
-  AlertCircle,
-  ShieldAlert
+  AlertTriangle,
+  type LucideIcon,
 } from 'lucide-react';
 
+/**
+ * Варианты цветовой палитры кнопок аудита
+ */
+export type AuditActionButtonVariant = 'primary' | 'secondary' | 'warning' | 'emerald' | 'cyan' | 'purple';
+
+/**
+ * Описание кнопки действия панели аудита
+ */
+export interface AuditActionButtonDescriptor {
+  readonly id: string;
+  readonly icon: LucideIcon;
+  readonly tooltipTitle: string;
+  readonly tooltipDescription: string;
+  readonly variant: AuditActionButtonVariant;
+  readonly onClick: () => void | Promise<void>;
+  readonly disabled?: boolean;
+}
+
+const variantStyles: Record<AuditActionButtonVariant, string> = {
+  primary: 'bg-indigo-600/80 hover:bg-indigo-500 border-indigo-400/40 text-indigo-100 hover:text-white',
+  secondary: 'bg-slate-700/80 hover:bg-slate-600 border-slate-500/40 text-slate-200 hover:text-white',
+  warning: 'bg-amber-600/80 hover:bg-amber-500 border-amber-400/40 text-amber-100 hover:text-white',
+  emerald: 'bg-emerald-600/80 hover:bg-emerald-500 border-emerald-400/40 text-emerald-100 hover:text-white',
+  cyan: 'bg-cyan-600/80 hover:bg-cyan-500 border-cyan-400/40 text-cyan-100 hover:text-white',
+  purple: 'bg-purple-600/80 hover:bg-purple-500 border-purple-400/40 text-purple-100 hover:text-white',
+};
+
 export const AuditPanel: React.FC = () => {
-  const { t } = useI18nStore();
-  const store = useMapStore() as any;
-  const { 
-    isAuditing, 
+  const {
     runSystemAudit,
     runGraphRepair,
     executeGarbageCollection,
     runAuditMissingTargets,
     runFillMissingTargets,
     runDerivativeSearch,
-    addAgentLog
-  } = store;
+    isAuditing,
+    lastAuditReport,
+  } = useMapStore();
 
-  const [localLoading, setLocalLoading] = useState(false);
+  const { locale } = useI18nStore();
+  const isRu = locale === 'ru';
+
+  const [localLoading, setLocalLoading] = useState<string | null>(null);
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
-  const [isError, setIsError] = useState(false);
 
-  const handleAction = async (name: string, actionFn: () => Promise<any>) => {
-    setLocalLoading(true);
-    setStatusMessage(null);
-    setIsError(false);
+  const handleAction = async (actionName: string, actionFn: () => Promise<unknown>) => {
     try {
-      const result = await actionFn();
-      let msg = `OK: ${name}`;
-      if (name === 'Сборка мусора' && result) {
-        msg = `GC. Nodes: ${result.removedNodeIds.length}, edges: ${result.removedEdgeIds.length}.`;
-      } else if (name === 'Ремонт графа' && result) {
-        msg = `Ремонт: Исправлено: ${result.repairedCount}, создано задач: ${result.discoveredCount}, новых зон: ${result.newZonesAdded.length}.`;
-      }
-      setStatusMessage(msg);
-      addAgentLog(`Operation "${name}" completed successfully.`, 'ricis');
-    } catch (err: any) {
-      console.error(err);
-      setIsError(true);
-      setStatusMessage(`Error: ${err.message || err}`);
-      addAgentLog(`Operation "${name}" failed: ${err.message || err}`, 'warn');
+      setLocalLoading(actionName);
+      setStatusMessage(null);
+      await actionFn();
+      setStatusMessage(
+        isRu
+          ? `Действие "${actionName}" успешно выполнено.`
+          : `Action "${actionName}" completed successfully.`
+      );
+    } catch (err: unknown) {
+      const errorMsg = err instanceof Error ? err.message : String(err);
+      setStatusMessage(
+        isRu ? `Ошибка: ${errorMsg}` : `Error: ${errorMsg}`
+      );
     } finally {
-      setLocalLoading(false);
+      setLocalLoading(null);
     }
   };
 
-  const isLoading = isAuditing || localLoading;
+  const isLoading = isAuditing || localLoading !== null;
+
+  const actionButtons: AuditActionButtonDescriptor[] = [
+    {
+      id: 'btn-run-audit',
+      icon: ShieldAlert,
+      tooltipTitle: isRu ? 'Системный аудит графа' : 'Run System Audit',
+      tooltipDescription: isRu
+        ? 'Проверить целостность топологии, семантические индексы SP4 и наличие нарушений.'
+        : 'Verify topology integrity, SP4 semantic indices, and detect graph violations.',
+      variant: 'primary',
+      onClick: () => handleAction(isRu ? 'Аудит' : 'Audit', runSystemAudit),
+    },
+    {
+      id: 'btn-repair-graph',
+      icon: Wrench,
+      tooltipTitle: isRu ? 'Восстановление связей и таргетов' : 'Repair Graph & Targets',
+      tooltipDescription: isRu
+        ? 'Автоматически восстановить отсутствующие связи и целевые формулы.'
+        : 'Automatically repair broken edges and missing target formulas.',
+      variant: 'warning',
+      onClick: () => handleAction(isRu ? 'Восстановление' : 'Repair', runGraphRepair),
+    },
+    {
+      id: 'btn-run-gc',
+      icon: Trash2,
+      tooltipTitle: isRu ? 'Сборка мусора (GC)' : 'Garbage Collection (GC)',
+      tooltipDescription: isRu
+        ? 'Удалить изолированные и неиспользуемые узлы из графа.'
+        : 'Remove orphaned and unreachable nodes from the ontological graph.',
+      variant: 'secondary',
+      onClick: () => handleAction(isRu ? 'Очистка' : 'GC', executeGarbageCollection),
+    },
+    {
+      id: 'btn-audit-missing',
+      icon: FileSearch,
+      tooltipTitle: isRu ? 'Поиск пустых выражений' : 'Audit Missing Targets',
+      tooltipDescription: isRu
+        ? 'Найти все узлы и сингулярности, не имеющие целевых математических выражений.'
+        : 'Locate all nodes and singularities lacking target mathematical expressions.',
+      variant: 'cyan',
+      onClick: () => handleAction(isRu ? 'Поиск пустых' : 'Audit Missing', runAuditMissingTargets),
+    },
+    {
+      id: 'btn-fill-missing',
+      icon: Sparkles,
+      tooltipTitle: isRu ? 'Автозаполнение таргетов' : 'Auto-fill Missing Targets',
+      tooltipDescription: isRu
+        ? 'Заполнить недостающие целевые функции через генератор инвариантов.'
+        : 'Generate and fill missing target functions via the invariant generator.',
+      variant: 'emerald',
+      onClick: () => handleAction(isRu ? 'Автозаполнение' : 'Auto-fill', runFillMissingTargets),
+    },
+    {
+      id: 'btn-search-derivatives',
+      icon: Search,
+      tooltipTitle: isRu ? 'Поиск производных работ' : 'Search Derivatives',
+      tooltipDescription: isRu
+        ? 'Найти связанные цитирования и внешние производные работы.'
+        : 'Search for citations and external derivative works.',
+      variant: 'purple',
+      onClick: () => handleAction(isRu ? 'Поиск производных' : 'Derivatives', runDerivativeSearch),
+    },
+  ];
+
+  const totalViolations = lastAuditReport
+    ? lastAuditReport.orphans.length +
+      lastAuditReport.brokenEdges.length +
+      lastAuditReport.desyncedNodeIds.length +
+      lastAuditReport.cyclicGroups.length
+    : 0;
 
   return (
-    <div className="space-y-2 text-xs font-mono p-1" id="ricis-audit-panel-root">
-      {/* Кнопочный интерфейс управления */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-2" id="audit-buttons-grid">
-        <button
-          onClick={() => handleAction('System Audit', runSystemAudit)}
-          disabled={isLoading}
-          className="px-3 py-2 text-[11px] font-medium bg-slate-900 hover:bg-slate-800 disabled:opacity-50 text-slate-300 border border-slate-800 rounded flex items-center justify-center gap-1.5 transition active:scale-95 cursor-pointer"
-          id="btn-run-audit"
-          title="Audit graph structure"
-        >
-          <Activity className="w-3.5 h-3.5 text-violet-400 shrink-0" />
-          <span>{t('audit.systemAudit')}</span>
-        </button>
-
-        <button
-          onClick={() => handleAction('Ремонт графа', runGraphRepair)}
-          disabled={isLoading}
-          className="px-3 py-2 text-[11px] font-medium bg-slate-900 hover:bg-slate-800 disabled:opacity-50 text-slate-300 border border-slate-800 rounded flex items-center justify-center gap-1.5 transition active:scale-95 cursor-pointer"
-          id="btn-repair-graph"
-          title="Repair links, target functions and discover dependent leaf tasks"
-        >
-          <RefreshCw className="w-3.5 h-3.5 text-sky-400 shrink-0" />
-          <span>{t('audit.repairGraph')}</span>
-        </button>
-
-        <button
-          onClick={() => handleAction('Garbage Collection', executeGarbageCollection)}
-          disabled={isLoading}
-          className="px-3 py-2 text-[11px] font-medium bg-slate-900 hover:bg-slate-800 disabled:opacity-50 text-slate-300 border border-slate-800 rounded flex items-center justify-center gap-1.5 transition active:scale-95 cursor-pointer"
-          id="btn-run-gc"
-          title="Clean isolated nodes"
-        >
-          <Trash2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
-          <span>{t('audit.cleanGraph')}</span>
-        </button>
-
-        <button
-          onClick={() => handleAction('Search Empty Targets', runAuditMissingTargets)}
-          disabled={isLoading}
-          className="px-3 py-2 text-[11px] font-medium bg-slate-900 hover:bg-slate-800 disabled:opacity-50 text-slate-300 border border-slate-800 rounded flex items-center justify-center gap-1.5 transition active:scale-95 cursor-pointer"
-          id="btn-audit-missing"
-          title="Find empty target expressions"
-        >
-          <Search className="w-3.5 h-3.5 text-blue-400 shrink-0" />
-          <span>{t('audit.emptyTargets')}</span>
-        </button>
-
-        <button
-          onClick={() => handleAction('Fill Missing Targets AI', runFillMissingTargets)}
-          disabled={isLoading}
-          className="px-3 py-2 text-[11px] font-medium bg-slate-900 hover:bg-slate-800 disabled:opacity-50 text-slate-300 border border-slate-800 rounded flex items-center justify-center gap-1.5 transition active:scale-95 cursor-pointer"
-          id="btn-fill-missing"
-          title="Fill empty targets via AI"
-        >
-          <Sparkles className="w-3.5 h-3.5 text-amber-400 shrink-0" />
-          <span>{t('audit.fillAi')}</span>
-        </button>
-
-        <button
-          onClick={() => handleAction('Search Followers', runDerivativeSearch)}
-          disabled={isLoading}
-          className="px-3 py-2 text-[11px] font-medium bg-slate-900 hover:bg-slate-800 disabled:opacity-50 text-slate-300 border border-slate-800 rounded flex items-center justify-center gap-1.5 transition active:scale-95 cursor-pointer col-span-2 sm:col-span-1 md:col-span-1"
-          id="btn-search-derivatives"
-          title="Search external work for plagiarism"
-        >
-          <ShieldAlert className="w-3.5 h-3.5 text-purple-400 shrink-0" />
-          <span>{t('audit.searchDerivatives')}</span>
-        </button>
+    <div
+      id="audit-panel-root"
+      className="p-3 bg-slate-900/95 border border-slate-700/80 rounded-xl shadow-2xl backdrop-blur-md text-slate-200 text-xs w-full max-w-md space-y-2.5"
+    >
+      <div className="flex items-center justify-between border-b border-slate-700/60 pb-2">
+        <div className="flex items-center gap-1.5 font-semibold text-slate-100">
+          <ShieldAlert className="w-4 h-4 text-indigo-400" />
+          <span>{isRu ? 'Аудит и контроль графа' : 'Graph Audit & Control'}</span>
+        </div>
+        {isLoading && (
+          <div className="flex items-center gap-1 text-indigo-400 animate-pulse text-[11px]">
+            <Loader2 className="w-3.5 h-3.5 animate-spin" />
+            <span>{isRu ? 'Выполняется...' : 'Processing...'}</span>
+          </div>
+        )}
       </div>
 
-      {/* Индикатор работы */}
-      {isLoading && (
-        <div className="text-[10px] text-slate-500 flex items-center gap-1.5 px-1 py-0.5" id="audit-loading-indicator">
-          <RefreshCw className="w-3 h-3 animate-spin text-violet-400" />
-          <span>{t('audit.executing')}</span>
+      {/* Компактный тулбар кнопок без текста с всплывающими подсказками (tooltips) */}
+      <div id="audit-action-toolbar" className="flex items-center flex-wrap gap-1.5">
+        {actionButtons.map((btn) => {
+          const Icon = btn.icon;
+          const isButtonBusy = localLoading !== null && btn.id.includes(localLoading.toLowerCase());
+          const tooltip = `${btn.tooltipTitle}\n${btn.tooltipDescription}`;
+          const ariaLabel = `${btn.tooltipTitle}: ${btn.tooltipDescription}`;
+
+          return (
+            <button
+              key={btn.id}
+              id={btn.id}
+              type="button"
+              disabled={isLoading || btn.disabled}
+              onClick={btn.onClick}
+              title={tooltip}
+              aria-label={ariaLabel}
+              className={`p-2 rounded-lg border transition-all duration-150 shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-400/50 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer flex items-center justify-center ${
+                variantStyles[btn.variant]
+              }`}
+            >
+              {isButtonBusy ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : (
+                <Icon className="w-4 h-4" />
+              )}
+            </button>
+          );
+        })}
+      </div>
+
+      {/* Статусное сообщение */}
+      {statusMessage && (
+        <div
+          id="audit-status-banner"
+          className="px-2.5 py-1.5 rounded-md bg-slate-800/90 border border-slate-700 text-slate-300 text-[11px] flex items-center gap-1.5"
+        >
+          <span className="inline-block w-1.5 h-1.5 rounded-full bg-indigo-400" />
+          <span className="truncate">{statusMessage}</span>
         </div>
       )}
 
-      {/* Ультра-минималистичный статус операции */}
-      {statusMessage && !isLoading && (
-        <div 
-          className={`px-2 py-1 rounded text-[10px] flex items-center gap-1.5 border ${
-            isError 
-              ? 'bg-red-950/20 border-red-900/30 text-red-400' 
-              : 'bg-emerald-950/20 border-emerald-900/30 text-emerald-400'
-          }`} 
-          id="audit-status-banner"
+      {/* Сводка последнего аудита */}
+      {lastAuditReport && (
+        <div
+          id="audit-report-summary"
+          className="p-2 bg-slate-800/60 border border-slate-700/50 rounded-lg space-y-1.5 text-[11px]"
         >
-          {isError ? (
-            <AlertCircle className="w-3 h-3 shrink-0" />
-          ) : (
-            <CheckCircle className="w-3 h-3 shrink-0" />
+          <div className="flex items-center justify-between text-slate-400">
+            <span>{isRu ? 'Проверено элементов:' : 'Inspected elements:'}</span>
+            <span className="font-mono text-slate-200">{lastAuditReport.totalInspected}</span>
+          </div>
+
+          <div className="flex items-center justify-between">
+            <span className="text-slate-400">{isRu ? 'Статус топологии:' : 'Topology status:'}</span>
+            {lastAuditReport.isValid && totalViolations === 0 ? (
+              <span className="flex items-center gap-1 text-emerald-400">
+                <CheckCircle className="w-3 h-3" />
+                {isRu ? 'Инвариант соблюдён' : 'Invariant OK'}
+              </span>
+            ) : (
+              <span className="flex items-center gap-1 text-amber-400">
+                <AlertTriangle className="w-3 h-3" />
+                {isRu
+                  ? `Нарушений: ${totalViolations}`
+                  : `Violations: ${totalViolations}`}
+              </span>
+            )}
+          </div>
+
+          {totalViolations > 0 && (
+            <div className="pt-1 max-h-24 overflow-y-auto space-y-1 pr-1 text-slate-300 text-[10px]">
+              {lastAuditReport.orphans.length > 0 && (
+                <div>• {isRu ? `Изолированных узлов: ${lastAuditReport.orphans.length}` : `Orphan nodes: ${lastAuditReport.orphans.length}`}</div>
+              )}
+              {lastAuditReport.brokenEdges.length > 0 && (
+                <div>• {isRu ? `Поврежденных связей: ${lastAuditReport.brokenEdges.length}` : `Broken edges: ${lastAuditReport.brokenEdges.length}`}</div>
+              )}
+              {lastAuditReport.desyncedNodeIds.length > 0 && (
+                <div>• {isRu ? `Рассинхронизированных узлов: ${lastAuditReport.desyncedNodeIds.length}` : `Desynced nodes: ${lastAuditReport.desyncedNodeIds.length}`}</div>
+              )}
+            </div>
           )}
-          <span className="truncate">{statusMessage}</span>
         </div>
       )}
     </div>

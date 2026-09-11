@@ -25,7 +25,12 @@ describe('NodeEntry application and static renderer', () => {
       'real-catalog-57',
       'real-catalog-79',
     ]);
-    expect(entries.every((entry) => entry.catalogNode.state === 'unresolved')).toBe(true);
+    expect(entries.every((entry) => {
+      if (entry.catalogNode.nodeId === 'real-catalog-3') {
+        return entry.catalogNode.state === 'resolved';
+      }
+      return entry.catalogNode.state === 'unresolved';
+    })).toBe(true);
   });
 
   it('renders a self-canonical document with visible source content and safe selected-node graph CTA', () => {

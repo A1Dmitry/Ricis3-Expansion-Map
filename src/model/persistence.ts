@@ -290,37 +290,48 @@ export function mergeCanonicalSeedGraph(loadedState: MapState): MapState {
 
 /** Загрузка: IndexedDB → миграция из localStorage → canonical SHA-128 seed. */
 export async function hydrateInitialState(): Promise<MapState> {
-  let fromDb = await dbLoadMap();
-  if (fromDb) fromDb = sanitizeMap(fromDb);
-  let loadedState: MapState | null = null;
+  try {
+    let fromDb = await dbLoadMap();
+    if (fromDb) fromDb = sanitizeMap(fromDb);
+    let loadedState: MapState | null = null;
 
-  if (fromDb && fromDb.nodes.length > 0) {
-    loadedState = fromDb;
-  } else {
-    const legacy = loadLegacyLocalStorage();
-    if (legacy && legacy.nodes.length > 0) {
-      loadedState = legacy;
-      try {
-        localStorage.removeItem(LEGACY_KEY);
-      } catch {
-        /* ignore */
+    if (fromDb && fromDb.nodes.length > 0) {
+      loadedState = fromDb;
+    } else {
+      const legacy = loadLegacyLocalStorage();
+      if (legacy && legacy.nodes.length > 0) {
+        loadedState = legacy;
+        try {
+          localStorage.removeItem(LEGACY_KEY);
+        } catch {
+          /* ignore */
+        }
       }
     }
+
+    const stateToMigrate = loadedState
+      ? mergeCanonicalSeedGraph(loadedState)
+      : sanitizeMap({ ...deepCopyInitialMap() });
+
+    // Reconcile catalog identities before the audit; the audit must never see a persisted
+    // legacy catalog duplicate that can be deterministically collapsed first.
+    const preReconciled = reconcileCanonicalCatalog(stateToMigrate);
+    // Execute one-time DB migration & audit (fixes titles, repairs orphan node connections to RICIS, rebuilds edges & updates DB version)
+    const migrationResult = await runDatabaseMigration(preReconciled);
+    const identityMigration = await migrateMapNodeIdentity(migrationResult.map);
+    const reconciled = reconcileCanonicalCatalog(identityMigration.map);
+    try {
+      if (reconciled !== identityMigration.map || identityMigration.report.migratedNodes > 0) {
+        await dbSaveMap(reconciled);
+      }
+    } catch {
+      /* ignore DB save errors in fallback mode */
+    }
+    return reconciled;
+  } catch (err) {
+    console.warn('RICIS Persistence Guard: Hydration failed, returning canonical seed map:', err);
+    return mergeCanonicalSeedGraph(sanitizeMap({ ...deepCopyInitialMap() }));
   }
-
-  const stateToMigrate = loadedState
-    ? mergeCanonicalSeedGraph(loadedState)
-    : sanitizeMap({ ...deepCopyInitialMap() });
-
-  // Reconcile catalog identities before the audit; the audit must never see a persisted
-  // legacy catalog duplicate that can be deterministically collapsed first.
-  const preReconciled = reconcileCanonicalCatalog(stateToMigrate);
-  // Execute one-time DB migration & audit (fixes titles, repairs orphan node connections to RICIS, rebuilds edges & updates DB version)
-  const migrationResult = await runDatabaseMigration(preReconciled);
-  const identityMigration = await migrateMapNodeIdentity(migrationResult.map);
-  const reconciled = reconcileCanonicalCatalog(identityMigration.map);
-  if (reconciled !== identityMigration.map || identityMigration.report.migratedNodes > 0) await dbSaveMap(reconciled);
-  return reconciled;
 }
 
 export async function saveMapToDb(state: MapState): Promise<boolean> {

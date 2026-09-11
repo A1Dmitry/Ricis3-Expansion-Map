@@ -21,6 +21,7 @@ import { isNodeAvailable } from '../model/access';
 import {
   sanitizeMap,
   hydrateInitialState,
+  mergeCanonicalSeedGraph,
   saveMapToDb,
   clearMapDb,
   exportMapJson,
@@ -148,11 +149,36 @@ export const useMapStore = create<MapStore>((set, get) => ({
     if (get().hydrated || isHydrating) return;
     isHydrating = true;
     try {
-      get().addAgentLog('Инициализация состояния из IndexedDB...', 'info');
-      const state = await hydrateInitialState();
-      const memory = await trainAgentFromDb(state);
+      get().addAgentLog('Инициализация состояния карты RICIS-III (Guard Protected)...', 'info');
+      
+      const timeoutPromise = new Promise<never>((_, reject) => {
+        setTimeout(() => reject(new Error('Hydration Guard Timeout (2500ms)')), 2500);
+      });
+
+      let state: MapState;
+      try {
+        state = await Promise.race([hydrateInitialState(), timeoutPromise]);
+      } catch (err) {
+        get().addAgentLog(`Предупреждение гидратации: задействован in-memory фолбэк канонического графа (${String(err)})`, 'warn');
+        state = mergeCanonicalSeedGraph(sanitizeMap({ ...deepCopyInitialMap() }));
+      }
+
+      let memory: AgentTrainingMemory | null = null;
+      try {
+        memory = await trainAgentFromDb(state);
+      } catch {
+        memory = null;
+      }
+
       set({ ...state, hydrated: true, agentTrainingMemory: memory });
-      get().addAgentLog(`Граф загружен. Обучение Агента завершено (${memory.resolvedNodesCount} из ${memory.totalNodesInDb} решенных задач, ${memory.proofsCount} доказательств).`, 'success');
+      get().addAgentLog(
+        `Граф загружен. Обучение Агента завершено (${memory?.resolvedNodesCount ?? 0} из ${memory?.totalNodesInDb ?? state.nodes.length} решенных задач, ${memory?.proofsCount ?? 0} доказательств).`,
+        'success'
+      );
+    } catch (criticalErr) {
+      get().addAgentLog('Критический сбой гидратации. Применение канонического графа из памяти.', 'error', String(criticalErr));
+      const fallbackState = mergeCanonicalSeedGraph(sanitizeMap({ ...deepCopyInitialMap() }));
+      set({ ...fallbackState, hydrated: true });
     } finally {
       isHydrating = false;
     }

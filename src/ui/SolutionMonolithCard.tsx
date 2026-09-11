@@ -1,5 +1,9 @@
 import { ExternalLink, FileCheck2, GitCommitHorizontal, ShieldCheck, Waypoints } from 'lucide-react';
 import type { SolutionMonolithCardView } from '../ricisSolutionCatalog';
+import { WidgetCapabilityBoundary } from './components/resilience/WidgetCapabilityBoundary';
+import { TcpFractalInspectorCard } from './components/tcp/TcpFractalInspectorCard';
+import { RationalSingularityInspectorCard } from './components/rationalSingularity/RationalSingularityInspectorCard';
+import type { IRationalFunctionInput } from '../services/rationalSingularity/rationalSingularityEngine.contracts';
 
 interface Props {
   readonly view: SolutionMonolithCardView;
@@ -53,6 +57,34 @@ export function SolutionMonolithCard({ view }: Props) {
           <p className="text-[8px] font-bold uppercase tracking-wider text-slate-500">Пример</p>
           <p className="mt-1 text-[9.5px] leading-relaxed text-slate-300">{solution.example.expectedStructuralResult}</p>
         </div>
+      </div>
+
+      {/* RICIS-III Type Consistency Protocol (TCP) & Fractal Law R(Q) */}
+      <div className="mt-2">
+        <WidgetCapabilityBoundary componentName="TcpFractalInspectorCard" mode="CARD_STUB">
+          <TcpFractalInspectorCard
+            nodeId={solution.id}
+            nodeTitle={solution.title.ru}
+            formula={solution.sourceEvidence.semanticIndexExpression}
+          />
+        </WidgetCapabilityBoundary>
+      </div>
+
+      {/* RICIS-III Rational Singularity Engine & Lean A1_div_zero Inspector */}
+      <div className="mt-2">
+        <WidgetCapabilityBoundary componentName="RationalSingularityInspectorCard" mode="CARD_STUB">
+          <RationalSingularityInspectorCard
+            exampleId={solution.id}
+            title={solution.title.ru}
+            rationalInput={{
+              variable: 'x',
+              numeratorFactors: [],
+              numeratorConstant: 10,
+              denominatorFactors: [{ factorText: 'x - 2', root: 2, power: 1 }],
+            }}
+            description="Анализ решения уравнения знаменателя D(x) = 0 и редукция по Аксиоме A1/A10 (Lean: A1_div_zero)"
+          />
+        </WidgetCapabilityBoundary>
       </div>
 
       <div className="mt-2 rounded-md border border-neutral-800 bg-neutral-950/55 p-2 text-[9px] text-slate-300">

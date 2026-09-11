@@ -12,7 +12,7 @@
 
 | Каталог | Содержимое | Нормативность | Правило использования |
 |---|---|---|---|
-| `docs/00-governance/` | Strict Development Rules, Work Patterns, contribution/security policies, documentation catalog. | Высокая. | Читать до проектирования или изменения public/security/release boundary. |
+| `docs/00-governance/` | Strict Development Rules, Work Patterns, RCVAP Autonomous Anti-Tukhta Agile Protocol, contribution/security policies, documentation catalog. | Высокая. | Читать до проектирования или изменения public/security/release boundary. |
 | `docs/01-architecture/` | DDD/SOLID/DRY plans, structural-hash reports, design contracts. | Высокая после утверждения соответствующего шага. | Не начинать implementation по draft без явного user approval. |
 | `docs/02-sprints/` | Active and planned sprint specifications, acceptance criteria, implementation dependencies. | Контекстно высокая. | Сопоставлять со статусом и датой; закрытый sprint не является current runtime fact. |
 | `docs/03-quality/` | QA baselines, findings, regression/release evidence summaries. | Фактическая на дату проверки. | Не переносить исторический PASS на изменённый codebase. |

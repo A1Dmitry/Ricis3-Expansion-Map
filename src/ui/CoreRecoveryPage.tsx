@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { AlertTriangle, ArrowLeft, ServerCrash, ShieldAlert } from 'lucide-react';
 import {
   probeRicisCoreHealth,

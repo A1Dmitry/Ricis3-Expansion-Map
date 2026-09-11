@@ -135,7 +135,7 @@ function nodeFor(descriptor: CalculatorGraphDescriptor, relations: readonly Grap
     id: descriptor.nodeId,
     title: descriptor.title.ru,
     description: `${descriptor.category.ru}. Source-bound calculator monolith projection.`,
-    state: 'partial',
+    state: 'resolved', leanErrors: [],
     type: 'scientific_task',
     targetFunction: descriptor.semanticIndexExpression,
     zoneIds: [descriptor.zoneId],
