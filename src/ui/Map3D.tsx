@@ -45,6 +45,7 @@ import { RicisProofConsoleModal } from './RicisProofConsoleModal';
 import { VoynichDecryptionPanel } from './VoynichDecryptionPanel';
 import { MapPatchImportModal } from './MapPatchImportModal';
 import { AutomatedTestingModal } from './components/testing/AutomatedTestingModal';
+import { AutoProverModal } from './AutoProverModal';
 import {
   isNodeAvailable,
   findPathToRicis,
@@ -512,6 +513,7 @@ export const Map3D: React.FC = () => {
   const [communityReadinessStatus, setCommunityReadinessStatus] = useState<CommunityRewardsClientStatus | null>(null);
   const [isCopyingCommunityInvitation, setIsCopyingCommunityInvitation] = useState(false);
   const [communityInvitationCopyResult, setCommunityInvitationCopyResult] = useState<CommunityInvitationCopyResult>('idle');
+  const [showAutoProverModal, setShowAutoProverModal] = useState(false);
 
   const handleOpenCommunityReadiness = useCallback(async () => {
     if (isLoadingCommunityReadiness) return;
@@ -2502,6 +2504,16 @@ export const Map3D: React.FC = () => {
             <span>Лог ИИ</span>
           </button>
 
+          <button
+            type="button"
+            onClick={() => setShowAutoProverModal(true)}
+            className="flex items-center gap-1.5 px-2 py-0.5 bg-gradient-to-r from-cyan-950/90 to-blue-950/90 hover:from-cyan-900 hover:to-blue-900 border border-cyan-500/50 text-cyan-200 hover:text-white rounded text-[10px] font-mono font-bold transition-all cursor-pointer shadow-[0_0_12px_rgba(6,182,212,0.25)] shrink-0"
+            title="Запустить RICIS Auto Prover v7.7 (RefinementLoop, Lean 4)"
+          >
+            <Cpu size={11} className="text-cyan-400 animate-pulse" />
+            <span>Auto Prover v7.7</span>
+          </button>
+
           <span className="text-neutral-700 font-sans select-none shrink-0">|</span>
 
           <button
@@ -2616,6 +2628,14 @@ export const Map3D: React.FC = () => {
             window.dispatchEvent(new PopStateEvent('popstate'));
           }}
           onClose={() => setShowAutomatedTestingModal(false)}
+        />
+      )}
+
+      {showAutoProverModal && (
+        <AutoProverModal
+          isOpen={showAutoProverModal}
+          onClose={() => setShowAutoProverModal(false)}
+          selectedNodeId={selectedNodeId}
         />
       )}
     </div>
