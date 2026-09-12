@@ -73,7 +73,7 @@ export const NODE_ENTRY_MANIFESTS: readonly NodeEntryManifest[] = [
       editorialPolicyVersion: 'node-entry-v1',
     },
     safetyNotices: ['research_only', 'not_a_formal_proof'],
-    trustFraming: 'kernel_checked_evidence',
+    trustFraming: 'research_node_unresolved',
     publicationState: 'published',
   },
   {

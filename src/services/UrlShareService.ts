@@ -8,8 +8,6 @@ export interface ShareParams {
   sandboxExpr?: string | null;
   mode?: string | null;
   roadmap?: boolean | null;
-  kinematic?: boolean | null;
-  comparison?: boolean | null;
   rootNodeId?: string | null;
 }
 
@@ -31,12 +29,6 @@ export class UrlShareService {
     }
     if (params.roadmap) {
       url.searchParams.set('view', 'roadmap');
-    }
-    if (params.kinematic) {
-      url.searchParams.set('view', 'kinematic');
-    }
-    if (params.comparison) {
-      url.searchParams.set('view', 'comparison');
     }
     if (params.rootNodeId) {
       url.searchParams.set('root', params.rootNodeId);
@@ -109,20 +101,6 @@ export class UrlShareService {
           url.searchParams.delete('view');
         }
       }
-      if (params.kinematic !== undefined) {
-        if (params.kinematic) {
-          url.searchParams.set('view', 'kinematic');
-        } else {
-          url.searchParams.delete('view');
-        }
-      }
-      if (params.comparison !== undefined) {
-        if (params.comparison) {
-          url.searchParams.set('view', 'comparison');
-        } else {
-          url.searchParams.delete('view');
-        }
-      }
 
       if (params.rootNodeId !== undefined) {
         if (params.rootNodeId) {
@@ -133,7 +111,6 @@ export class UrlShareService {
       }
 
       window.history.replaceState({}, '', url.toString());
-      window.dispatchEvent(new PopStateEvent('popstate'));
     } catch (e) {
       console.warn('Failed to update browser url:', e);
     }
@@ -147,7 +124,6 @@ export class UrlShareService {
     initialSandboxExpr: string | null;
     initialMode: string | null;
     initialRoadmap: boolean;
-    initialKinematic: boolean;
     initialRootNodeId: string | null;
   } {
     try {
@@ -157,7 +133,6 @@ export class UrlShareService {
         initialSandboxExpr: params.get('sandbox') || params.get('expr'),
         initialMode: params.get('mode'),
         initialRoadmap: params.get('view') === 'roadmap',
-        initialKinematic: params.get('view') === 'kinematic',
         initialRootNodeId: params.get('root'),
       };
     } catch {
@@ -166,7 +141,6 @@ export class UrlShareService {
         initialSandboxExpr: null,
         initialMode: null,
         initialRoadmap: false,
-        initialKinematic: false,
         initialRootNodeId: null,
       };
     }

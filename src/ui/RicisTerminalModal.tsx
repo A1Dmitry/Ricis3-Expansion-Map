@@ -163,8 +163,8 @@ export function RicisTerminalModal() {
   return (
     <>
       {isOpen && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
-          <div className="w-full max-w-4xl bg-slate-900 border border-cyan-900/40 rounded-xl shadow-[0_0_50px_rgba(0,0,0,0.5)] flex flex-col max-h-[85vh] overflow-hidden">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+          <div className="w-full max-w-4xl bg-[#090c12] border border-cyan-900/40 rounded-xl shadow-[0_0_50px_rgba(0,0,0,0.9)] flex flex-col max-h-[85vh] overflow-hidden">
             
             {/* Top Bar */}
             <div className="flex items-center justify-between px-4 py-2.5 border-b border-neutral-800 bg-[#0d1117]">
@@ -272,7 +272,7 @@ export function RicisTerminalModal() {
             </div>
 
             {/* Output / History Area */}
-            <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-6 custom-scrollbar bg-slate-950">
+            <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-6 custom-scrollbar bg-[#080b10]">
               {history.length === 0 ? (
                 <div className="flex-1 flex flex-col items-center justify-center text-slate-400 font-mono text-xs gap-2 py-10">
                   <TerminalIcon size={36} className="text-cyan-700/40 mb-2" />

@@ -198,8 +198,8 @@ export const DICTIONARY = {
     en: 'Local RICIS path; Lean status requires separate reproducible kernel evidence.',
   },
   'proofConsole.tab.evaluate': {
-    ru: 'Вычисление сингулярностей O(N) (Symbolic)',
-    en: 'O(N) Symbolic singularity evaluation',
+    ru: 'Вычисление сингулярностей O(1)',
+    en: 'O(1) singularity evaluation',
   },
   'proofConsole.tab.prove': {
     ru: 'Генератор формальных доказательств',
@@ -238,8 +238,8 @@ export const DICTIONARY = {
     en: 'Evaluating...',
   },
   'proofConsole.evaluate': {
-    ru: 'Рассчитать за O(N)',
-    en: 'Evaluate in O(N)',
+    ru: 'Рассчитать за O(1)',
+    en: 'Evaluate in O(1)',
   },
   'proofConsole.exactInvariant': {
     ru: 'Точный инвариант RICIS-III',

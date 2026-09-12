@@ -16,14 +16,11 @@ function RouteSurfaceLoadingFallback() {
   );
 }
 
-const AUTO_RELOAD_KEY = '__ricis_surface_auto_reload_count__';
-
 class RouteSurfaceErrorBoundary extends React.Component<
   { children: ReactNode },
   { hasError: boolean; error: Error | null }
 > {
   public state: { hasError: boolean; error: Error | null } = { hasError: false, error: null };
-  private autoReloadTimer: number | null = null;
 
   public static getDerivedStateFromError(error: Error) {
     return { hasError: true, error };
@@ -31,43 +28,7 @@ class RouteSurfaceErrorBoundary extends React.Component<
 
   public componentDidCatch(error: Error) {
     console.error('RouteSurfaceBoundary caught surface error:', error);
-    const msg = error?.message || '';
-    const isFetchError =
-      msg.includes('dynamically imported module') ||
-      msg.includes('Failed to fetch') ||
-      msg.includes('Loading chunk');
-
-    if (isFetchError && typeof window !== 'undefined') {
-      try {
-        const attempts = Number(sessionStorage.getItem(AUTO_RELOAD_KEY) || '0');
-        if (attempts < 2) {
-          sessionStorage.setItem(AUTO_RELOAD_KEY, String(attempts + 1));
-          this.autoReloadTimer = window.setTimeout(() => {
-            this.handleReload();
-          }, 1200);
-        }
-      } catch {
-        // Fallback for sandboxed context where sessionStorage is blocked
-      }
-    }
   }
-
-  public componentWillUnmount() {
-    if (this.autoReloadTimer !== null) {
-      window.clearTimeout(this.autoReloadTimer);
-    }
-  }
-
-  private handleReload = () => {
-    if (typeof window !== 'undefined') {
-      try {
-        sessionStorage.removeItem(AUTO_RELOAD_KEY);
-        window.location.reload();
-      } catch {
-        window.location.href = window.location.href;
-      }
-    }
-  };
 
   public render() {
     if (this.state.hasError) {
@@ -80,10 +41,10 @@ class RouteSurfaceErrorBoundary extends React.Component<
             {this.state.error?.message || 'Failed to load dynamic component surface'}
           </div>
           <button
-            onClick={this.handleReload}
+            onClick={() => window.location.reload()}
             className="px-4 py-2 bg-cyan-950 hover:bg-cyan-900 border border-cyan-500/50 text-cyan-300 rounded font-mono text-xs uppercase tracking-widest transition-colors cursor-pointer"
           >
-            Перезагрузить поверхность // Reload Surface
+            Reload Surface
           </button>
         </div>
       );
@@ -97,14 +58,6 @@ class RouteSurfaceErrorBoundary extends React.Component<
  * It intentionally does not own hydration, errors, RICIS state, Core calls, or trust state.
  */
 export function RouteSurfaceBoundary({ children }: RouteSurfaceBoundaryProps) {
-  React.useEffect(() => {
-    try {
-      sessionStorage.removeItem(AUTO_RELOAD_KEY);
-    } catch {
-      // Ignored in sandboxed iframes
-    }
-  }, []);
-
   return (
     <RouteSurfaceErrorBoundary>
       <Suspense fallback={<RouteSurfaceLoadingFallback />}>{children}</Suspense>

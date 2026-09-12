@@ -3,7 +3,6 @@ import type {
   StructuralExpression,
   StructuralIndex,
 } from './contracts';
-import { TypeConsistencyValidator, SemanticIndexValidator } from './oopImplementation';
 
 export const HOMOGENEOUS_SCALAR_PRECONDITIONS = Object.freeze([
   'PAYLOAD_CHILDREN_REDUCED',
@@ -46,13 +45,38 @@ function freeze<T>(value: T): T {
   return Object.freeze(value);
 }
 
-const semanticValidator = new SemanticIndexValidator();
-const typeValidator = new TypeConsistencyValidator();
+function hasFiniteKey(key: FiniteStructuralKey): boolean {
+  return key.key.length > 0 && key.key.length <= 512 &&
+    key.sourceHash.length > 0 && key.sourceCanonical.length > 0;
+}
+
+function hasFiniteKeys(expression: StructuralExpression): boolean {
+  if (expression.semanticKeys.length === 0 || !expression.semanticKeys.every(hasFiniteKey)) return false;
+  switch (expression.kind) {
+    case 'UNARY':
+      return hasFiniteKeys(expression.operand);
+    case 'BINARY':
+      return hasFiniteKeys(expression.left) && hasFiniteKeys(expression.right);
+    case 'INDEXED_ZERO':
+    case 'INDEXED_INFINITY':
+      return expression.index.semanticKeys.length > 0 &&
+        expression.index.semanticKeys.every(hasFiniteKey) && hasFiniteKeys(expression.payload);
+    default:
+      return true;
+  }
+}
 
 function hasSourceExpressionIndex(operand: IndexedOperand): boolean {
   const { index, payload } = operand;
   return index.basis === 'SP4_SOURCE_EXPRESSION' &&
-    semanticValidator.isIndexMatching(index, payload);
+    hasMatchingIndex(index, payload);
+}
+
+function hasMatchingIndex(index: StructuralIndex, payload: StructuralExpression): boolean {
+  return index.payloadHash === payload.identity.structuralHash &&
+    index.payloadCanonical === payload.identity.canonical &&
+    index.payloadTypeTag === payload.identity.typeTag &&
+    index.sourceHash === payload.identity.source.sourceHash;
 }
 
 function isIndexed(expression: StructuralExpression, kind: IndexedOperand['kind']): expression is IndexedOperand {
@@ -60,7 +84,7 @@ function isIndexed(expression: StructuralExpression, kind: IndexedOperand['kind'
 }
 
 function needsTypeCompositeDeferral(left: IndexedOperand, right: IndexedOperand): boolean {
-  return typeValidator.checkCompatibility(left.payload.identity.typeTag, right.payload.identity.typeTag).requiresCompositeDeferral;
+  return left.payload.identity.typeTag !== 'scalar' || right.payload.identity.typeTag !== 'scalar';
 }
 
 function validateIndexedPair(left: IndexedOperand, right: IndexedOperand): HomogeneousScalarPlan | undefined {
@@ -70,7 +94,7 @@ function validateIndexedPair(left: IndexedOperand, right: IndexedOperand): Homog
   if (!hasSourceExpressionIndex(left) || !hasSourceExpressionIndex(right)) {
     return freeze({ status: 'NOT_APPLICABLE', reason: 'SP4_INDEX_INVALID' });
   }
-  if (!semanticValidator.hasValidFiniteKeys(left.payload) || !semanticValidator.hasValidFiniteKeys(right.payload)) {
+  if (!hasFiniteKeys(left.payload) || !hasFiniteKeys(right.payload)) {
     return freeze({ status: 'NOT_APPLICABLE', reason: 'SEMANTIC_KEYS_INVALID' });
   }
   return undefined;

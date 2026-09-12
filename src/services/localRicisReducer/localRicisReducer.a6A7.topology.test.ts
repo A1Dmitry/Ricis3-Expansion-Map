@@ -75,7 +75,7 @@ describe('LOCAL-RICIS-02 — A6/A7 topology, integration and release separation'
   it('L02-QA-47: confines implementation change to approved local reducer seam and new pure helper', async () => {
     await future();
     const reducerSource = readFileSync('src/services/localRicisReducer/index.ts', 'utf8');
-    expect(reducerSource).toContain("./oopRules");
+    expect(reducerSource).toContain("./a6A7Homogeneous");
   });
   it('L02-QA-48: keeps the target test IDs unique and exactly fifty across four approved files', async () => {
     await future();

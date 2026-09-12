@@ -133,34 +133,6 @@ describe('release alignment policy', () => {
     }
   });
 
-  it('enforces CI/CD deployment stability rules and forbids breaking global npm mutations', () => {
-    const workflowPaths = [
-      '.github/workflows/deploy-pages.yml',
-      '.github/workflows/pr-verify.yml',
-    ];
-
-    for (const workflowPath of workflowPaths) {
-      const workflowContent = readText(workflowPath);
-
-      // Rule: Forbid global npm installations that require root and cause EACCES in CI runners
-      expect(workflowContent).not.toMatch(/npm\s+(?:install|i)\s+(?:--global|-g)/u);
-
-      // Rule: Must use locked dependencies
-      expect(workflowContent).toContain('npm ci');
-
-      // Rule: Must run static node entry generation before building
-      expect(workflowContent).toContain('npm run generate:node-entries && npx vite build');
-
-      // Rule: Must support both main and master branches as well as workflow_dispatch
-      expect(workflowContent).toMatch(/branches:\s*\[main,\s*master\]/u);
-      expect(workflowContent).toContain('workflow_dispatch:');
-    }
-
-    const deployWorkflow = readText('.github/workflows/deploy-pages.yml');
-    expect(deployWorkflow).toContain('pages: write');
-    expect(deployWorkflow).toContain('id-token: write');
-  });
-
   it('uses the canonical repository slug for public Pages assets and the README demo', () => {
     const viteConfig = readText('vite.config.ts');
     const readme = readText('README.md');

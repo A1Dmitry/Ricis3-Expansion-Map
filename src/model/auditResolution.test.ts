@@ -42,10 +42,10 @@ describe('RICIS-III Audit Resolution & Graph Integrity (QA Automation Suite)', (
         e => e.fromId === 'ai-authorship-provenance' || e.toId === 'ai-authorship-provenance'
       );
       expect(provEdges.length).toBeGreaterThan(0);
-      // Connected edges between fully resolved and proven nodes should be green
+      // Connected edges to unresolved source node should be yellow
       const agiToProv = provEdges.find(e => e.fromId === 'core-agi-target' && e.toId === 'ai-authorship-provenance');
       expect(agiToProv).toBeDefined();
-      expect(agiToProv?.stateColor).toBe('green');
+      expect(agiToProv?.stateColor).toBe('yellow');
     });
   });
 
@@ -108,6 +108,7 @@ describe('RICIS-III Audit Resolution & Graph Integrity (QA Automation Suite)', (
       expect(LEAN_SPEC_URL).toBe('https://doi.org/10.5281/zenodo.21529989');
       expect(OFFICIAL_ZENODO_DOIS.FOUNDATIONS).toBe('10.5281/zenodo.17872755');
       expect(OFFICIAL_ZENODO_DOIS.LEAN4_SPEC).toBe('10.5281/zenodo.21529989');
+      expect(OFFICIAL_ZENODO_DOIS.MASTER_REGISTRY).toBe('10.5281/zenodo.21836220');
     });
   });
 });

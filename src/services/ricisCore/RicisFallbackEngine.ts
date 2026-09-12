@@ -67,11 +67,8 @@ function evaluateSafeArithmetic(expression: string, variables: Record<string, nu
  * Deterministic Native TypeScript Engine for RICIS-III v7.7.
  * Evaluates singularities and generates formal proofs in exact O(1) without Cauchy limits.
  */
-import { TypeConsistencyValidator } from '../localRicisReducer/oopImplementation';
-
 export class RicisFallbackEngine implements IRicisCoreEngine {
   private _status: RicisCoreStatus = 'uninitialized';
-  private readonly _tcp = new TypeConsistencyValidator();
 
   public get status(): RicisCoreStatus {
     return this._status;

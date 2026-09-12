@@ -50,7 +50,7 @@ export function PlainTerminalLogViewer({ logData, className = '' }: PlainTermina
   };
 
   return (
-    <div className={`font-mono text-xs text-slate-100 bg-slate-900 border border-neutral-800 rounded-lg p-3.5 space-y-2.5 select-text relative group ${className}`}>
+    <div className={`font-mono text-xs text-slate-100 bg-[#06080c] border border-neutral-800 rounded-lg p-3.5 space-y-2.5 select-text relative group ${className}`}>
       
       {/* Header Bar: Semantic Index + Copy Button */}
       <div className="flex items-center justify-between border-b border-neutral-800/80 pb-2">

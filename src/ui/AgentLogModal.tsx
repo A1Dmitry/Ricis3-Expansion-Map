@@ -72,8 +72,8 @@ export function AgentLogModal({ onClose, onSelectNode }: AgentLogModalProps) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-md animate-fadeIn">
-      <div className="relative w-full max-w-4xl max-h-[85vh] bg-slate-900 border border-cyan-800/70 rounded-xl shadow-[0_0_50px_rgba(6,182,212,0.15)] flex flex-col overflow-hidden text-slate-200 font-mono">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fadeIn">
+      <div className="relative w-full max-w-4xl max-h-[85vh] bg-[#05080c] border border-cyan-800/70 rounded-xl shadow-[0_0_50px_rgba(6,182,212,0.15)] flex flex-col overflow-hidden text-slate-200 font-mono">
         {/* Header */}
         <div className="flex items-center justify-between px-5 py-3.5 bg-gradient-to-r from-neutral-900 via-cyan-950/40 to-neutral-900 border-b border-cyan-900/60 shrink-0">
           <div className="flex items-center gap-2.5">
@@ -204,7 +204,7 @@ export function AgentLogModal({ onClose, onSelectNode }: AgentLogModalProps) {
                 </div>
 
                 {entry.details && (
-                  <div className="ml-14 mt-1 p-2 bg-slate-950 border border-neutral-800/80 rounded text-[11px] text-slate-400 font-mono overflow-x-auto whitespace-pre-wrap">
+                  <div className="ml-14 mt-1 p-2 bg-[#020305] border border-neutral-800/80 rounded text-[11px] text-slate-400 font-mono overflow-x-auto whitespace-pre-wrap">
                     {entry.details}
                   </div>
                 )}
