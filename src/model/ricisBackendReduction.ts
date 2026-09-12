@@ -61,6 +61,40 @@ export class RicisBackendReductionService<T> implements IRicisBackendReductionSe
   }
 
   /**
+   * Evaluates an RExpr structure against a numeric input value.
+   */
+  public evalRExpr(expr: RExpr, input: number): number {
+    switch (expr.type) {
+      case 'zero':
+        return 0;
+      case 'one':
+        return 1;
+      case 'variable':
+        return input;
+      case 'divSelf':
+        return 1;
+      case 'indexedZero':
+        return 0;
+      case 'indexedInf':
+        return Infinity;
+      case 'add': {
+        const ops = expr.operands || [];
+        return (ops[0] ? this.evalRExpr(ops[0], input) : 0) + (ops[1] ? this.evalRExpr(ops[1], input) : 0);
+      }
+      case 'sub': {
+        const ops = expr.operands || [];
+        return (ops[0] ? this.evalRExpr(ops[0], input) : 0) - (ops[1] ? this.evalRExpr(ops[1], input) : 0);
+      }
+      case 'mul': {
+        const ops = expr.operands || [];
+        return (ops[0] ? this.evalRExpr(ops[0], input) : 1) * (ops[1] ? this.evalRExpr(ops[1], input) : 1);
+      }
+      default:
+        return typeof input === 'number' ? input : 0;
+    }
+  }
+
+  /**
    * Pre-compiles the expression by applying the static reduction pass.
    */
   public compile(expr: RExpr): CompiledExpr {
@@ -92,14 +126,15 @@ export class RicisBackendReductionService<T> implements IRicisBackendReductionSe
   }
 
   /**
-   * Simulates the exact, error-free execution of the compiled expression on CPU.
+   * Executes the compiled expression on CPU using exact measured timing.
    */
   public executeCPU(code: CPUCode, initialInput: T): BackendExecutionResult<T> {
     const start = typeof performance !== 'undefined' ? performance.now() : Date.now();
     const reduced = code.code.optimized;
     
-    // Model unit valuation: self-division always evaluates to 1, otherwise stays unchanged.
-    const finalVal = reduced.type === 'one' ? (1 as unknown as T) : initialInput;
+    const finalVal = typeof initialInput === 'number' 
+      ? (this.evalRExpr(reduced, initialInput) as unknown as T)
+      : (reduced.type === 'one' ? (1 as unknown as T) : initialInput);
     
     const end = typeof performance !== 'undefined' ? performance.now() : Date.now();
     const diffNs = Math.round((end - start) * 1e6);
@@ -110,7 +145,7 @@ export class RicisBackendReductionService<T> implements IRicisBackendReductionSe
         expression: reduced,
         history: [
           {
-            stepName: 'CPU O(1) Pre-compiled Hardware Bypass',
+            stepName: 'CPU Execution (Compiled Delegate)',
             timestamp: new Date().toISOString(),
             startExpr: code.code.source,
             endExpr: reduced,
@@ -121,19 +156,21 @@ export class RicisBackendReductionService<T> implements IRicisBackendReductionSe
         ],
       },
       executedOn: 'CPU',
-      executionTimeNs: Math.max(15, diffNs),
+      executionTimeNs: Math.max(0, diffNs),
       errorContribution: 0,
     };
   }
 
   /**
-   * Simulates the exact, error-free execution of the compiled expression on GPU (CUDA warp).
+   * Evaluates the compiled expression in a simulated parallel execution environment (CPU SIMD / GPU model).
    */
   public executeCUDA(kernel: CUDAKernel, initialInput: T): BackendExecutionResult<T> {
     const start = typeof performance !== 'undefined' ? performance.now() : Date.now();
     const reduced = kernel.kernel.optimized;
     
-    const finalVal = reduced.type === 'one' ? (1 as unknown as T) : initialInput;
+    const finalVal = typeof initialInput === 'number' 
+      ? (this.evalRExpr(reduced, initialInput) as unknown as T)
+      : (reduced.type === 'one' ? (1 as unknown as T) : initialInput);
     
     const end = typeof performance !== 'undefined' ? performance.now() : Date.now();
     const diffNs = Math.round((end - start) * 1e6);
@@ -144,7 +181,7 @@ export class RicisBackendReductionService<T> implements IRicisBackendReductionSe
         expression: reduced,
         history: [
           {
-            stepName: 'CUDA Warp SIMD Parallel Error-Free Precomputation',
+            stepName: 'CPU SIMD Emulation Model (Virtual CUDA Warp)',
             timestamp: new Date().toISOString(),
             startExpr: kernel.kernel.source,
             endExpr: reduced,
@@ -155,7 +192,7 @@ export class RicisBackendReductionService<T> implements IRicisBackendReductionSe
         ],
       },
       executedOn: 'CUDA',
-      executionTimeNs: Math.max(6, diffNs),
+      executionTimeNs: Math.max(0, diffNs),
       errorContribution: 0,
     };
   }

@@ -143,7 +143,7 @@ export function computeSolverMetrics3D(params: {
     directionPreservedDeg: dirDeviation,
     singularityIndex: Math.max(0, 1 - absDet / Math.max(KinematicConstants.MIN_RADIAL_DISTANCE_GUARD, maxReach)),
     nearSingularityBehavior: behavior,
-    recoverySuccess: recoverySuccess !== undefined ? recoverySuccess : !isSingular,
+    recoverySuccess: recoverySuccess !== undefined ? recoverySuccess : (isSingular ? !Number.isNaN(posError) && behavior === 'recovered' : true),
     invariantPreserved: true,
   };
 

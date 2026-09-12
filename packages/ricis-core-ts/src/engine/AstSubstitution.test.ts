@@ -38,9 +38,16 @@ describe('AstSubstitution - Generic Composition Engine', () => {
     expect(leftOfMul.right.nodeType).toBe('Parameter');
     expect((leftOfMul.right as any).name).toBe('c');
 
-    // S3 = T(S2)
-    const S3 = AstSubstitution.substitute(T, 'z', S);
+    // S3 = T(S2) = S2*S2 + c
+    const S3 = AstSubstitution.substitute(T, 'z', S) as BinaryExpression;
     expect(S3.nodeType).toBe('Add');
+    expect((S3.right as any).name).toBe('c');
+    
+    // Left side of S3 must be Mul(S2, S2)
+    const s3Left = S3.left as BinaryExpression;
+    expect(s3Left.nodeType).toBe('Multiply');
+    expect(s3Left.left).toBe(S);  // Structural Sharing: exact reference identity to S2
+    expect(s3Left.right).toBe(S); // Structural Sharing: exact reference identity to S2
   });
 
   it('P8 & P9: Proves generic composition across multi-variable substitution, functions, and singularities', () => {
