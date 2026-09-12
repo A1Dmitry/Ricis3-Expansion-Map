@@ -139,13 +139,15 @@ describe('RicisProofConsoleModal authoritative proof transport', () => {
     const store = useI18nStore.getState();
     store.setLocale('ru');
     expect(store.t('proofConsole.title')).toBe('Консоль доказательств и сингулярностей RICIS-III');
-    expect(store.t('proofConsole.evaluate')).toBe('Рассчитать за O(1)');
+    // Словарь намеренно даёт O(N), а не O(1): по AGENTS.md §5 утверждение O(1)
+    // допускается только для конкретной локальной редукции при выполненных предпосылках.
+    expect(store.t('proofConsole.evaluate')).toBe('Рассчитать за O(N)');
     expect(store.t('proofConsole.traceTitle')).toBe('Трассировка 8 фаз конвейера (фазы -1...6)');
     expect(store.t('proofConsole.close')).toBe('Закрыть консоль доказательств');
 
     store.setLocale('en-US');
     expect(store.t('proofConsole.title')).toBe('RICIS-III Proof & Singularity Console');
-    expect(store.t('proofConsole.evaluate')).toBe('Evaluate in O(1)');
+    expect(store.t('proofConsole.evaluate')).toBe('Evaluate in O(N)');
     expect(store.t('proofConsole.traceTitle')).toBe('Eight-phase pipeline trace (phases -1...6)');
     expect(store.t('proofConsole.close')).toBe('Close proof console');
   });
