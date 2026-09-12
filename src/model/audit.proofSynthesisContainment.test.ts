@@ -12,8 +12,16 @@ function tryGit(args: string[]): string | null {
   }
 }
 
-// Keep immutable-path checks anchored to the current published baseline after the #22 provenance increment.
-const BASELINE = '7e2e15f90313e3bcc62f09795f106826dde2149b';
+// Keep immutable-path checks anchored to the current published baseline.
+//
+// RE-ANCHORED 2026-09-12: 7e2e15f90313e3bcc62f09795f106826dde2149b -> 426570c824ddb232cdf9a060c19cf014ee918b8e.
+// Reason: after the #22 provenance increment, main added the LUNAR_ECOSYSTEM Zenodo DOI to
+// `src/model/ricisCoreRules.ts`. The only byte delta between the old anchor and main HEAD is that
+// single registry line (verified: `git diff 7e2e15f9 426570c -- src/model/ricisCoreRules.ts`),
+// so with the old anchor the guard failed on main itself, not on a branch change.
+// The invariant is preserved: protected paths are still compared byte-for-byte against
+// published main; only the anchor moved to the current published state.
+const BASELINE = '426570c824ddb232cdf9a060c19cf014ee918b8e';
 const protectedPaths = [
   'src/model/logic.ts',
   'src/model/legacyProofDiagnostic.ts',
