@@ -190,7 +190,6 @@ export class RicisConstraintSolver3D extends BaseKinematicSolver3D {
       dt,
       isBoundarySingular,
       nearSingularityBehavior: isNearSingularity ? 'recovered' : 'stable',
-      recoverySuccess: true,
       isWorkspaceExceeded: distFromShoulder > maxReach,
     });
   }
@@ -234,7 +233,6 @@ export class RicisSymbolicJacobianSolver3D extends BaseKinematicSolver3D {
       dt,
       isBoundarySingular: stepResult.solution.isSingularZone,
       nearSingularityBehavior: stepResult.solution.isSingularZone ? 'recovered' : 'stable',
-      recoverySuccess: true,
       isWorkspaceExceeded: stepResult.distanceToTarget > (L1 + L2) * KinematicConstants.WORKSPACE_BOUNDARY_MARGIN_RATIO,
     });
   }

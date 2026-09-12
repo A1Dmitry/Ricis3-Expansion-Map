@@ -57,6 +57,7 @@ export interface AxiomFingerprintInput {
   readonly id: string;
   readonly layer: string;
   readonly statement: string;
+  readonly guard?: string;
   readonly covers: readonly string[];
   readonly consequences: readonly { readonly inputForm: string; readonly outputForm: string }[];
 }
@@ -72,6 +73,7 @@ export function axiomFingerprint(input: AxiomFingerprintInput): AxiomFingerprint
       id: input.id,
       layer: input.layer,
       statement: input.statement,
+      guard: input.guard ?? '',
       covers: [...input.covers],
       consequences: input.consequences.map(entry => ({ inputForm: entry.inputForm, outputForm: entry.outputForm })),
     }),

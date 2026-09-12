@@ -65,6 +65,28 @@ describe('RICIS SEED — протокол расширения R(n+1) = ExpandTo
     expect(system.seed.generation).toBe(system.seed.ledger.length);
   });
 
+  it('закрепляет A14 как тождество: inf_F - inf_F = 0, а не 1 (L1 до аксиом, SP2)', () => {
+    const { system } = grow(Ric, [U_NESTED, U_MIXED, U_INF_SELF]);
+    // Идентификаторы производных правил не входят в закрытое множество `AxiomId` зерна:
+    // они возникают только в ходе развёртывания, поэтому сравнение идёт как со строкой.
+    const a14 = system.seed.axioms.find(axiom => (axiom.id as string) === 'A14');
+    expect(a14?.statement).toBe('inf_F-inf_F = 0');
+    expect(a14?.proof?.steps.map(step => step.rule)).toEqual(['L1']);
+    expect(a14?.guard).toContain('X - X = 0');
+  });
+
+  it('отказывает кандидату, нарушающему тождество, даже если все правила цепочки есть в R(n)', () => {
+    const wrongBranch = UNSOLVED_PROBLEM_REGISTRY.find(entry => entry.id === 'U-INF-SELF-DIFF-WRONG-BRANCH')!;
+    const result = Ric.ExpandTo((x: RicisState) => x.Resolve(wrongBranch));
+
+    expect(result.kind).toBe('REJECTED');
+    if (result.kind !== 'REJECTED') return;
+    expect(result.reason).toBe('IDENTITY_VIOLATION');
+    expect(result.detail).toContain('X - X = 0');
+    expect(gateOutcome(result, 'IDENTITY_COHERENCE')).toBe('FAIL');
+    expect(result.seed.fingerprint).toBe(createSeed().fingerprint);
+  });
+
   it('детерминирован: одинаковая цепочка расширений даёт одинаковый отпечаток поколения', () => {
     const left = grow(createRicisSystem({ resolvers: HONEST_RESOLVERS }), [U_NESTED, U_MIXED, U_INF_SELF]);
     const right = grow(createRicisSystem({ resolvers: HONEST_RESOLVERS }), [U_NESTED, U_MIXED, U_INF_SELF]);
@@ -280,6 +302,7 @@ describe('RICIS SEED — ворота допуска отказывают там
       'PROBLEM_OPEN_IN_RICIS',
       'NO_DUPLICATE_AXIOM',
       'CONSISTENCY_TABLE',
+      'IDENTITY_COHERENCE',
       'MONOTONIC_COMMIT',
     ]);
   });

@@ -65,11 +65,13 @@ function candidate(
   conclusion: string,
   covers: readonly SingularityClass[],
   consequences: readonly { readonly inputForm: string; readonly outputForm: string }[],
+  guard?: string,
 ): CandidateAxiom {
   return Object.freeze({
     id,
     layer: 'AXIOM',
     statement: `${problemForm} = ${conclusion}`,
+    guard,
     covers: Object.freeze([...covers]),
     consequences: Object.freeze(consequences.map(entry => Object.freeze({ ...entry }))),
   });
@@ -88,6 +90,7 @@ export const UNSOLVED_PROBLEM_REGISTRY: readonly UnsolvedSingularProblem[] = Obj
   problem('U-REVERSED-ZERO-QUOTIENT-PRODUCT', '(0_F/0_G)*(0_H/0_K)', ['NESTED_SINGULAR_DIV', 'ZERO_OVER_ZERO'], ['SP2', 'A4']),
   problem('U-IDENTITY-LAW-RESTATEMENT', '0_F/0_F', ['ZERO_OVER_ZERO'], ['L1']),
   problem('U-CONJUGATE-SINGULAR-PRODUCT', '0_F*inf_G', ['ZERO_TIMES_INF'], ['A6']),
+  problem('U-INF-SELF-DIFF-WRONG-BRANCH', 'inf_G-inf_G', ['INF_MINUS_INF'], ['A7', 'A2']),
 ]);
 
 export const DEMO_PROBLEM_CATALOG: readonly DemoProblemView[] = Object.freeze([
@@ -113,7 +116,9 @@ export const DEMO_PROBLEM_CATALOG: readonly DemoProblemView[] = Object.freeze([
     latex: '\\infty_F - \\infty_F',
     trust: 'STRUCTURAL_PROOF',
     expectation: 'EXPANDS',
-    expectationText: 'A7 → локальная редукция → A2. Даёт A14 = 1 без пределов и без классической неопределённости.',
+    expectationText:
+      'inf_F - inf_F — это X - X, а не сингулярная разность: по тождеству L1 (SP2 — сначала чистка) ' +
+      'результат 0. Даёт A14 = 0; ветка A7 → inf_0 → A2 → 1 тождество нарушает и отклоняется.',
   },
   {
     problem: UNSOLVED_PROBLEM_REGISTRY[3]!,
@@ -146,6 +151,16 @@ export const DEMO_PROBLEM_CATALOG: readonly DemoProblemView[] = Object.freeze([
     trust: 'REJECTION_DEMO',
     expectation: 'REJECTED',
     expectationText: 'Ядро зерна (L0, L1, L1C1, L1C2, SP1–SP4, A11) не переопределяется расширениями: PROTECTED_CORE_MUTATION.',
+  },
+  {
+    problem: UNSOLVED_PROBLEM_REGISTRY[8]!,
+    title: 'Нарушение тождества: цепочка A7 → inf_0 → A2 даёт 1 вместо 0',
+    latex: '\infty_F - \\infty_F \\xrightarrow{A7,A2} 1',
+    trust: 'REJECTION_DEMO',
+    expectation: 'REJECTED',
+    expectationText:
+      'Цепочка формально корректна (все правила есть в R(n)), но результат 1 нарушает тождество X - X = 0. ' +
+      'Ворота IDENTITY_COHERENCE отклоняют кандидата: тождество применяется до аксиом сингулярностей.',
   },
   {
     problem: UNSOLVED_PROBLEM_REGISTRY[7]!,
@@ -213,18 +228,24 @@ const derivedRuleResolver: UnsolvedProblemResolver = Object.freeze({
         };
       }
       case 'U-INF-SELF-DIFF': {
-        const conclusion = '1';
+        // ТОЖДЕСТВО ПРЕЖДЕ АКСИОМ (L1 + SP2): inf_F - inf_F — это X - X, а не сингулярная разность.
+        // Цепочка A7 -> inf_(F-F) -> inf_0 -> A2 -> 1 НАРУШАЕТ тождество и системой отклоняется
+        // (см. отдельный Challenger-сценарий U-INF-SELF-DIFF-WRONG-BRANCH).
+        const conclusion = '0';
         return {
           kind: 'RESOLVED',
           resolution: {
             problem,
-            candidate: candidate('A14', problem.inputForm, conclusion, ['INF_MINUS_INF'], [
-              { inputForm: problem.inputForm, outputForm: conclusion },
-            ]),
+            candidate: candidate(
+              'A14',
+              problem.inputForm,
+              conclusion,
+              ['INF_MINUS_INF'],
+              [{ inputForm: problem.inputForm, outputForm: conclusion }],
+              'Тождество L1: X - X = 0. Применяется до A7 (SP2); A7 работает только при NF(F) != NF(G).',
+            ),
             proof: certificate('RICIS_STRUCTURAL', [
-              { rule: 'A7', from: 'inf_F-inf_F', to: 'inf_(F-F)' },
-              { rule: 'LOCAL_STRUCTURAL_REDUCTION', from: 'inf_(F-F)', to: 'inf_0' },
-              { rule: 'A2', from: 'inf_0', to: '1' },
+              { rule: 'L1', from: 'inf_F-inf_F', to: '0' },
             ], conclusion),
           },
         };
@@ -248,6 +269,7 @@ const adversarialResolver: UnsolvedProblemResolver = Object.freeze({
     'U-COMMUTED-ZERO-INF-PRODUCT',
     'U-REVERSED-ZERO-QUOTIENT-PRODUCT',
     'U-IDENTITY-LAW-RESTATEMENT',
+    'U-INF-SELF-DIFF-WRONG-BRANCH',
   ]),
   resolve(problem: UnsolvedSingularProblem, _state: RicisState): ResolutionResult {
     switch (problem.id) {
@@ -285,6 +307,26 @@ const adversarialResolver: UnsolvedProblemResolver = Object.freeze({
             proof: certificate('INHERITED_CLASSICAL', [
               { rule: 'CLASSICAL', from: '(0_F/0_G)*(0_H/0_K)', to: '(G/F)*(K/H)' },
               { rule: 'CLASSICAL', from: '(G/F)*(K/H)', to: '(G*K)/(F*H)' },
+            ], conclusion),
+          },
+        };
+      }
+      case 'U-INF-SELF-DIFF-WRONG-BRANCH': {
+        // НАМЕРЕННО НЕВЕРНАЯ ВЕТКА (историческая ошибка): A7 -> inf_(F-F) -> inf_0 -> A2 -> 1.
+        // Формально цепочка связана и правила существуют в R(n), но результат 1 противоречит
+        // тождеству X - X = 0. Ворота IDENTITY_COHERENCE обязаны это перехватить.
+        const conclusion = '1';
+        return {
+          kind: 'RESOLVED',
+          resolution: {
+            problem,
+            candidate: candidate('A17', problem.inputForm, conclusion, ['INF_MINUS_INF'], [
+              { inputForm: problem.inputForm, outputForm: conclusion },
+            ]),
+            proof: certificate('RICIS_STRUCTURAL', [
+              { rule: 'A7', from: 'inf_G-inf_G', to: 'inf_(G-G)' },
+              { rule: 'LOCAL_STRUCTURAL_REDUCTION', from: 'inf_(G-G)', to: 'inf_0' },
+              { rule: 'A2', from: 'inf_0', to: '1' },
             ], conclusion),
           },
         };

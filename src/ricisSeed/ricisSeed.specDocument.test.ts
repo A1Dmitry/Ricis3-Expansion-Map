@@ -20,7 +20,7 @@ const document = JSON.parse(
   readFileSync(resolve(root, 'docs/01-architecture/ricis-unified-complete-document-8.0-seed-expansion.json'), 'utf8'),
 ).RICIS_Unified_Complete_Document;
 
-const [U_NESTED, U_MIXED, U_INF_SELF, U_POWER, U_SELF_CERT, U_CONTRADICTION, U_CORE, U_COVERED] =
+const [U_NESTED, U_MIXED, U_INF_SELF, U_POWER, U_SELF_CERT, U_CONTRADICTION, U_CORE, U_COVERED, U_WRONG_BRANCH] =
   UNSOLVED_PROBLEM_REGISTRY as readonly UnsolvedSingularProblem[];
 
 const seed = createSeed();
@@ -87,6 +87,17 @@ describe('Единый документ RICIS v8.0 (seed expansion)', () => {
     }
   });
 
+  it('фиксирует A14 как тождество и ворота IDENTITY_COHERENCE в документе', () => {
+    const a14 = document.AXIOMS.derived_by_seed_expansion.A14;
+    expect(a14.statement).toBe('inf_F-inf_F = 0');
+    const gates = document.PART_7_SEED_EXPANSION_PROTOCOL.admissibility_gates.map((gate: { gate: string }) => gate.gate);
+    expect(gates).toContain('IDENTITY_COHERENCE');
+    expect(document.PART_2_SAFETY_PROTOCOLS.SP2_REDUCTION_PRIORITY).toEqual(
+      baseDocument.PART_2_SAFETY_PROTOCOLS.SP2_REDUCTION_PRIORITY,
+    );
+    expect(document.PART_7_SEED_EXPANSION_PROTOCOL.trust_boundary.identity_rule).toContain('X - X = 0');
+  });
+
   it('ведёт журнал поколений с отпечатками, совпадающими с фактическим прогоном', () => {
     const ledger = document.PART_8_EXPANSION_LEDGER;
     expect(ledger.generations.R0).toBe(seed.fingerprint);
@@ -113,6 +124,7 @@ describe('Единый документ RICIS v8.0 (seed expansion)', () => {
       [U_CONTRADICTION!, 'CONTRADICTS_EXISTING_AXIOM'],
       [U_CORE!, 'PROTECTED_CORE_MUTATION'],
       [U_COVERED!, 'PROBLEM_ALREADY_COVERED'],
+      [U_WRONG_BRANCH!, 'IDENTITY_VIOLATION'],
     ];
 
     for (const [problem, expected] of cases) {

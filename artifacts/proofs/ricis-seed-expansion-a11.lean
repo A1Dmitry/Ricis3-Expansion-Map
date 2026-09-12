@@ -15,8 +15,9 @@ import Mathlib
   Modelling note: the TypeScript implementation in `src/ricisSeed` represents
   proofs, gates and fingerprints concretely. This Lean model abstracts them to
   decidable predicates in order to state the structural invariants:
-  monotonicity (R_k ⊆ R_(k+1)), rejection preserves the generation, and an
-  unproved candidate never commits.
+  monotonicity (R_k ⊆ R_(k+1)), rejection preserves the generation, an unproved
+  candidate never commits, and a breach of the identity law (X - X = 0, X / X = 1)
+  is rejected before it can be committed (SP2: identity first).
 -/
 
 namespace RICIS.Seed
@@ -36,6 +37,9 @@ structure Rule where
   statement : String
   fingerprint : String
   origin : String
+  /-- Applicability restriction, e.g. "A7 applies only when NF(F) ≠ NF(G)".
+      The guard is part of the mathematical content: changing it changes the fingerprint. -/
+  guard : String := ""
   deriving DecidableEq, Repr
 
 /-- A generation of the system: number, rules, expansion ledger. -/
@@ -122,5 +126,56 @@ theorem core_rule_never_commits (s : Seed) (form : String) (r : Rule) :
   intro h
   unfold expandTo coreProtected
   simp [h]
+
+/-- The identity gate (IDENTITY_COHERENCE).
+
+    L1 is applied BEFORE the singularity axioms (SP2: Clean First). Therefore for every
+    identification of index symbols an expression `E - E` must reduce to `0` and `E / E` to `1`.
+    The evaluator is the canonical-form normaliser; it enters here as a parameter, so the
+    kernel-level claim is exactly as strong as the supplied evaluator and nothing more is asserted. -/
+def identityCoherent (check : String → String → Bool) (inputForm outputForm : String) : Bool :=
+  check inputForm outputForm
+
+/-- Identity is checked after admission: a candidate whose proof chain is valid but whose
+    consequence breaks `X - X = 0` (or `X / X = 1`) is rejected, not committed. -/
+def admitWithIdentity (check : String → String → Bool) (inputForm outputForm : String)
+    (outcome : ExpansionOutcome) : ExpansionOutcome :=
+  match outcome with
+  | ExpansionOutcome.expanded seed axiomId =>
+      if identityCoherent check inputForm outputForm then
+        ExpansionOutcome.expanded seed axiomId
+      else
+        ExpansionOutcome.rejected seed "IDENTITY_VIOLATION"
+  | ExpansionOutcome.rejected seed reason => ExpansionOutcome.rejected seed reason
+
+/-- A breach of the identity law is never committed, even when every rule of the candidate's
+    proof chain exists in the generation (case `U-INF-SELF-DIFF-WRONG-BRANCH`). -/
+theorem identity_violation_never_commits
+    (check : String → String → Bool) (inputForm outputForm : String) (seed : Seed) (axiomId : String)
+    (h : identityCoherent check inputForm outputForm = false) :
+    admitWithIdentity check inputForm outputForm (ExpansionOutcome.expanded seed axiomId)
+      = ExpansionOutcome.rejected seed "IDENTITY_VIOLATION" := by
+  unfold admitWithIdentity identityCoherent
+  simp [h]
+
+/-- A candidate satisfying the identity law passes the gate unchanged (no false rejections). -/
+theorem identity_ok_preserves_expansion
+    (check : String → String → Bool) (inputForm outputForm : String) (seed : Seed) (axiomId : String)
+    (h : identityCoherent check inputForm outputForm = true) :
+    admitWithIdentity check inputForm outputForm (ExpansionOutcome.expanded seed axiomId)
+      = ExpansionOutcome.expanded seed axiomId := by
+  unfold admitWithIdentity identityCoherent
+  simp [h]
+
+/-- The recorded A14 case: `inf_F - inf_F` is `X - X`, so the only admissible consequence is `0`.
+    The chain A7 → ∞₀ → A2 → 1 satisfies every other gate but is rejected here. -/
+example (check : String → String → Bool)
+    (hok : identityCoherent check "inf_F-inf_F" "0" = true)
+    (hbad : identityCoherent check "inf_G-inf_G" "1" = false) :
+    admitWithIdentity check "inf_G-inf_G" "1"
+      (ExpansionOutcome.expanded { generation := 2, rules := [], ledger := [] } "A17")
+      = ExpansionOutcome.rejected { generation := 2, rules := [], ledger := [] } "IDENTITY_VIOLATION" := by
+  unfold admitWithIdentity identityCoherent
+  simp [hbad]
 
 end RICIS.Seed

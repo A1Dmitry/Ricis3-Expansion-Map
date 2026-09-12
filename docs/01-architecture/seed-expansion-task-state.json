@@ -1,0 +1,74 @@
+{
+  "task": "RICIS SEED — протокол саморасширения A11, производные A12–A14, единый документ v8.0",
+  "branch": "arena/01a094af-ricis3-expansion-map",
+  "resume": [
+    "npm run bootstrap (если node_modules пуст — он не переносится между сеансами)",
+    "npx tsx scripts/seedTaskState.ts status",
+    "npm run seed:reconcile -- --tests"
+  ],
+  "updatedAt": "2026-09-12T10:49:04.126Z",
+  "steps": [
+    {
+      "id": "S1",
+      "title": "Ядро семени: Ric.ExpandTo((x)=>x.Resolve(U)), 10 ворот допуска, отпечатки",
+      "verify": "npx vitest run src/ricisSeed",
+      "status": "done"
+    },
+    {
+      "id": "S2",
+      "title": "Ядро R0 приведено к v7.9 (L1C3, SP5, P1; A3 снята)",
+      "verify": "npx vitest run src/ricisSeed/ricisSeed.contracts.test.ts",
+      "status": "done"
+    },
+    {
+      "id": "S3",
+      "title": "Тождество L1: inf_F-inf_F = 0 (A14), ворота IDENTITY_COHERENCE, guard на A4/A5/A7",
+      "verify": "npx vitest run src/ricisSeed/ricisSeed.canonicalForm.test.ts src/ricisSeed/ricisSeed.domain.test.ts",
+      "status": "done"
+    },
+    {
+      "id": "S4",
+      "title": "Единый документ v8.0 сгенерирован из фактического прогона",
+      "verify": "npm run seed:reconcile",
+      "status": "done"
+    },
+    {
+      "id": "S5",
+      "title": "UI: страница ?view=seed и навигация",
+      "verify": "npx vitest run src/ui/RicisSeedPage.test.tsx",
+      "status": "done"
+    },
+    {
+      "id": "S6",
+      "title": "Синхронизация с main (0.4.164) -> версия 0.4.165",
+      "verify": "git log --oneline -3",
+      "status": "done"
+    },
+    {
+      "id": "S7",
+      "title": "Документация: AXIOMS_AND_TEST_FAILURES, README, evidence-отчёт (A14=0, ворота тождества)",
+      "verify": "grep -n 'A14' AXIOMS_AND_TEST_FAILURES.md README.md",
+      "status": "done"
+    },
+    {
+      "id": "S8",
+      "title": "Lean-черновик: модель A11 + guard тождества (статус REQUIRES_CORE_LEAN)",
+      "verify": "cat artifacts/proofs/ricis-seed-expansion-a11.lean | head -20",
+      "status": "done"
+    },
+    {
+      "id": "S9",
+      "title": "Полная верификация: lint + npm test + build",
+      "verify": "npm run lint && npm test && npm run build",
+      "status": "done",
+      "note": "lint + npm test (1793 теста) + build — зелёные"
+    },
+    {
+      "id": "S10",
+      "title": "Фиксация: коммит + push + комментарий в PR #35",
+      "verify": "gh pr checks 35",
+      "status": "done",
+      "note": "коммит слияния bc577f6, push, CI"
+    }
+  ]
+}

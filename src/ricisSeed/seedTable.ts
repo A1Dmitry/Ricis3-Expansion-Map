@@ -20,6 +20,12 @@ export interface SeedAxiomDefinition {
   readonly statement: string;
   /** Отображение для человека (LaTeX, KaTeX). */
   readonly latex: string;
+  /**
+   * Ограничение применимости по тождеству (L1/SP2).
+   * Тождество X - X = 0 и X / X = 1 применяется ДО аксиом сингулярностей,
+   * поэтому A4/A5/A7 не применяются к структурно идентичным индексам.
+   */
+  readonly guard?: string;
   readonly description: string;
   readonly covers: readonly SingularityClass[];
   readonly consequences: readonly { readonly inputForm: string; readonly outputForm: string }[];
@@ -40,9 +46,15 @@ export const SEED_AXIOM_TABLE: readonly SeedAxiomDefinition[] = Object.freeze([
     layer: 'LAW',
     statement: 'X / X = 1',
     latex: '\\frac{X}{X} = 1',
-    description: 'Принцип тождества. Онтологический корень X = X, включая 0_F / 0_F = 1.',
+    description:
+      'Принцип тождества. Онтологический корень X = X: X/X = 1 и X-X = 0. ' +
+      'Тождество применяется ДО аксиом сингулярностей (SP2): структурно идентичные ' +
+      'операнды сворачиваются по L1, а не по A4/A5/A7.',
     covers: ['ZERO_OVER_ZERO'],
-    consequences: [{ inputForm: 'X/X', outputForm: '1' }],
+    consequences: [
+      { inputForm: 'X/X', outputForm: '1' },
+      { inputForm: 'X-X', outputForm: '0' },
+    ],
   },
   {
     id: 'L1C1',
@@ -166,6 +178,7 @@ export const SEED_AXIOM_TABLE: readonly SeedAxiomDefinition[] = Object.freeze([
     statement: '0_F / 0_G = F / G',
     latex: '\\frac{0_F}{0_G} = \\frac{F}{G}',
     description: 'Раскрытие отношения индексированных нулей (после SP2 и SP4).',
+    guard: 'Применяется, только если NF(F) != NF(G): при NF(F) = NF(G) работает тождество L1 (X/X = 1).',
     covers: ['ZERO_OVER_ZERO'],
     consequences: [{ inputForm: '0_F/0_G', outputForm: 'F/G' }],
   },
@@ -175,6 +188,7 @@ export const SEED_AXIOM_TABLE: readonly SeedAxiomDefinition[] = Object.freeze([
     statement: 'inf_F / inf_G = F / G',
     latex: '\\frac{\\infty_F}{\\infty_G} = \\frac{F}{G}',
     description: 'Раскрытие отношения индексированных бесконечностей.',
+    guard: 'Применяется, только если NF(F) != NF(G): при NF(F) = NF(G) работает тождество L1 (X/X = 1).',
     covers: ['INF_OVER_INF'],
     consequences: [{ inputForm: 'inf_F/inf_G', outputForm: 'F/G' }],
   },
@@ -193,6 +207,9 @@ export const SEED_AXIOM_TABLE: readonly SeedAxiomDefinition[] = Object.freeze([
     statement: 'inf_F - inf_G = inf_(F - G)',
     latex: '\\infty_F - \\infty_G = \\infty_{F - G}',
     description: 'Вычитание индексированных бесконечностей.',
+    guard:
+      'Применяется, только если NF(F) != NF(G): при NF(F) = NF(G) работает тождество L1 ' +
+      '(inf_F - inf_F = 0), а не цепочка A7 -> inf_0 -> A2 -> 1.',
     covers: ['INF_MINUS_INF'],
     consequences: [{ inputForm: 'inf_F-inf_G', outputForm: 'inf_(F-G)' }],
   },

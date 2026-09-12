@@ -191,7 +191,7 @@
           ],
           "solved_problem_id": "U-NESTED-SINGULAR-DIV",
           "generation_committed": 1,
-          "fingerprint": "axiom-v1:05705443f0f233c8",
+          "fingerprint": "axiom-v1:2b6b1a9ccadc044d",
           "proof": {
             "strategy": "INHERITED_CLASSICAL",
             "steps": [
@@ -236,7 +236,7 @@
           ],
           "solved_problem_id": "U-MIXED-ZERO-INF-DIFF",
           "generation_committed": 2,
-          "fingerprint": "axiom-v1:026c9d5bbc5948c8",
+          "fingerprint": "axiom-v1:760ba974e3c4235d",
           "proof": {
             "strategy": "RICIS_STRUCTURAL",
             "steps": [
@@ -265,38 +265,29 @@
           "id": "A14",
           "layer": "AXIOM",
           "origin": "EXPANSION",
-          "statement": "inf_F-inf_F = 1",
+          "statement": "inf_F-inf_F = 0",
           "input_form": "inf_F-inf_F",
           "consequence": {
             "inputForm": "inf_F-inf_F",
-            "outputForm": "1"
+            "outputForm": "0"
           },
           "covers": [
             "INF_MINUS_INF"
           ],
+          "guard": "Тождество L1: X - X = 0. Применяется до A7 (SP2); A7 работает только при NF(F) != NF(G).",
           "solved_problem_id": "U-INF-SELF-DIFF",
           "generation_committed": 3,
-          "fingerprint": "axiom-v1:cb8d045819ee4f3b",
+          "fingerprint": "axiom-v1:e0cd9539ad318fbe",
           "proof": {
             "strategy": "RICIS_STRUCTURAL",
             "steps": [
               {
-                "rule": "A7",
+                "rule": "L1",
                 "from": "inf_F-inf_F",
-                "to": "inf_(F-F)"
-              },
-              {
-                "rule": "LOCAL_STRUCTURAL_REDUCTION",
-                "from": "inf_(F-F)",
-                "to": "inf_0"
-              },
-              {
-                "rule": "A2",
-                "from": "inf_0",
-                "to": "1"
+                "to": "0"
               }
             ],
-            "conclusion": "1",
+            "conclusion": "0",
             "uses_limits": false,
             "uses_numeric_approximation": false
           },
@@ -356,6 +347,14 @@
           "rejection_reason": "PROBLEM_ALREADY_COVERED",
           "failed_gate": "RESOLUTION_PRESENT",
           "failed_gate_detail": "Resolve вернул UNRESOLVED (ALREADY_COVERED_BY_RICIS) для проблемы U-CONJUGATE-SINGULAR-PRODUCT",
+          "seed_fingerprint_unchanged": true
+        },
+        "U-INF-SELF-DIFF-WRONG-BRANCH": {
+          "input_form": "inf_G-inf_G",
+          "description": "Chain A7 -> inf_(F-F) -> inf_0 -> A2 -> 1 uses only existing rules but breaks the identity X - X = 0. Identity (L1/SP2) is applied before the singularity axioms, so the candidate is rejected.",
+          "rejection_reason": "IDENTITY_VIOLATION",
+          "failed_gate": "IDENTITY_COHERENCE",
+          "failed_gate_detail": "при совпадении операндов форма inf_G-inf_G обязана дать 0 по тождеству L1 (X - X = 0), а кандидат даёт 1. Тождество применяется до A4/A5/A7 (SP2) и не нарушается никаким расширением.",
           "seed_fingerprint_unchanged": true
         }
       },
@@ -552,7 +551,7 @@
         {
           "phase": 9,
           "name": "ADMISSIBILITY_GATES",
-          "rule": "Run all gates of A11 (resolution present, core protected, no forbidden semantics, no self-certification, rule-set closure, chain connected, class open, no duplicate, consistency table)."
+          "rule": "Run all gates of A11 (resolution present, core protected, no forbidden semantics, no self-certification, rule-set closure, chain connected, class open, no duplicate, consistency table, identity coherence)."
         },
         {
           "phase": 10,
@@ -649,7 +648,8 @@
           "U-COMMUTED-ZERO-INF-PRODUCT",
           "U-REVERSED-ZERO-QUOTIENT-PRODUCT",
           "U-IDENTITY-LAW-RESTATEMENT",
-          "U-CONJUGATE-SINGULAR-PRODUCT"
+          "U-CONJUGATE-SINGULAR-PRODUCT",
+          "U-INF-SELF-DIFF-WRONG-BRANCH"
         ],
         "lean_kernel_verification": "REQUIRES_CORE_LEAN (not performed locally; no claim upgraded)",
         "reproducibility": "Two independent runs produce identical fingerprints for R0..R3"
@@ -682,6 +682,23 @@
       "x_semantics": "x is the current state of the RICIS system itself (axiom set, covered forms, expansion ledger), not a numeric variable and not a placeholder for the problem argument.",
       "resolve_semantics": "Resolve = resolve AND prove. Resolve(U) returns a proof certificate, not a candidate guess.",
       "expandto_semantics": "ExpandTo is the act of admission (Commit). It is deliberately separate from Resolve: a computed statement never becomes an axiom automatically.",
+      "recursive_self_improvement": {
+        "term": "RSI (Recursive Self-Improvement) — рекурсивное самоулучшение",
+        "class": "guarded, proof-gated RSI (bounded by the seed kernel)",
+        "definition": "A11 is the RSI operator of RICIS: the system may extend its own rule set, but each extension must be a proved consequence of the current generation R_k, admitted through gates, and it is never a redefinition of the protected core.",
+        "difference_from_generic_rsi": [
+          "Generic RSI: an agent rewrites its own code/weights freely and evaluates success empirically.",
+          "RICIS RSI: every self-extension is a proved theorem of the previous state; admission is a separate act (P2); failure leaves R_k bit-identical (no partial self-modification).",
+          "Growth is monotone (L1C4): R_k is a subset of R_(k+1); a rule is never retracted, weakened or silently rewritten.",
+          "The identity law (L1) outranks the singularity axioms (SP2): self-improvement may not break X - X = 0."
+        ],
+        "loop": [
+          "detect an unresolved structural class U_k",
+          "Resolve(U_k) -> proof certificate (strategy, step chain, conclusion; no limits, no thresholds)",
+          "run the admissibility gates, including IDENTITY_COHERENCE",
+          "on PASS: R_(k+1) = R_k union {A_new}; on FAIL: R_k unchanged and U_k stays open"
+        ]
+      },
       "seed_core_R0": {
         "generation": 0,
         "laws": [
@@ -738,7 +755,7 @@
           "A6_BYPASS"
         ],
         "deprecated_note": "A3 and A6_BYPASS are removed as obsolete in v7.7/v7.9. They are kept in the historical seed table (src/ricisSeed/seedTable.ts, deprecated: true) but are not part of the active kernel R0.",
-        "fingerprint": "seed-v1:fa42fc7b5dd510b1",
+        "fingerprint": "seed-v1:d0125a3c2f2e9c56",
         "axiom_count": 21,
         "historical_table_size": 22
       },
@@ -790,6 +807,11 @@
           "rejection": "CONTRADICTS_EXISTING_AXIOM"
         },
         {
+          "gate": "IDENTITY_COHERENCE",
+          "rule": "Identity precedes the singularity axioms (L1 + SP2): E - E must give 0 and E / E must give 1 under every identification of index symbols. A candidate that breaks X - X = 0 or X / X = 1 is never committed.",
+          "rejection": "IDENTITY_VIOLATION"
+        },
+        {
           "gate": "MONOTONIC_COMMIT",
           "rule": "R_k is a subset of R_(k+1); previous axioms keep their fingerprints; generation and ledger stay consistent.",
           "rejection": "INVALID_CANDIDATE"
@@ -803,6 +825,7 @@
         "note": "Provenance (origin, solvedProblemId, proof) is intentionally excluded from the fingerprint: the same mathematics is the same axiom."
       },
       "trust_boundary": {
+        "identity_rule": "Identity precedes the singularity axioms (L1 + SP2): X - X = 0 and X / X = 1 for any expression X, including inf_F - inf_F = 0. A7/A5/A4 are guarded and do not apply when the indices are structurally identical. The IDENTITY_COHERENCE gate enforces this for every candidate under every identification of index symbols.",
         "structural_verification": "Local: TypeScript gate run in src/ricisSeed, verified by unit tests.",
         "lean_kernel_verification": "REQUIRES_CORE_LEAN. Local structural verification is not a Lean kernel run; no claim is upgraded without toolchain, compiler output, #print axioms and sorry-free evidence.",
         "derived_vs_new_assumption": "A12-A14 are derived rules (proved from R_0), not new independent assumptions.",
@@ -812,10 +835,10 @@
     "PART_8_EXPANSION_LEDGER": {
       "command": "grow(Ric, [U-NESTED-SINGULAR-DIV, U-MIXED-ZERO-INF-DIFF, U-INF-SELF-DIFF])",
       "generations": {
-        "R0": "seed-v1:fa42fc7b5dd510b1",
-        "R1": "seed-v1:664a5891eff96ce5",
-        "R2": "seed-v1:d6b5705b062e70a0",
-        "R3": "seed-v1:d24f16c96fbcf443"
+        "R0": "seed-v1:d0125a3c2f2e9c56",
+        "R1": "seed-v1:7e65fabea6bee052",
+        "R2": "seed-v1:538a4a96c5d49384",
+        "R3": "seed-v1:3a88a50500d02e94"
       },
       "final_generation": "R3",
       "final_axiom_count": 24,
@@ -827,9 +850,9 @@
           "problem_id": "U-NESTED-SINGULAR-DIV",
           "problem_input_form": "(0_F/0_G)/(0_H/0_K)",
           "axiom_id": "A12",
-          "axiom_fingerprint": "axiom-v1:05705443f0f233c8",
-          "seed_fingerprint_before": "seed-v1:fa42fc7b5dd510b1",
-          "seed_fingerprint_after": "seed-v1:664a5891eff96ce5",
+          "axiom_fingerprint": "axiom-v1:2b6b1a9ccadc044d",
+          "seed_fingerprint_before": "seed-v1:d0125a3c2f2e9c56",
+          "seed_fingerprint_after": "seed-v1:7e65fabea6bee052",
           "proof_strategy": "INHERITED_CLASSICAL",
           "proof_step_count": 3
         },
@@ -840,9 +863,9 @@
           "problem_id": "U-MIXED-ZERO-INF-DIFF",
           "problem_input_form": "0_F*(inf_G-inf_H)",
           "axiom_id": "A13",
-          "axiom_fingerprint": "axiom-v1:026c9d5bbc5948c8",
-          "seed_fingerprint_before": "seed-v1:664a5891eff96ce5",
-          "seed_fingerprint_after": "seed-v1:d6b5705b062e70a0",
+          "axiom_fingerprint": "axiom-v1:760ba974e3c4235d",
+          "seed_fingerprint_before": "seed-v1:7e65fabea6bee052",
+          "seed_fingerprint_after": "seed-v1:538a4a96c5d49384",
           "proof_strategy": "RICIS_STRUCTURAL",
           "proof_step_count": 2
         },
@@ -853,11 +876,11 @@
           "problem_id": "U-INF-SELF-DIFF",
           "problem_input_form": "inf_F-inf_F",
           "axiom_id": "A14",
-          "axiom_fingerprint": "axiom-v1:cb8d045819ee4f3b",
-          "seed_fingerprint_before": "seed-v1:d6b5705b062e70a0",
-          "seed_fingerprint_after": "seed-v1:d24f16c96fbcf443",
+          "axiom_fingerprint": "axiom-v1:e0cd9539ad318fbe",
+          "seed_fingerprint_before": "seed-v1:538a4a96c5d49384",
+          "seed_fingerprint_after": "seed-v1:3a88a50500d02e94",
           "proof_strategy": "RICIS_STRUCTURAL",
-          "proof_step_count": 3
+          "proof_step_count": 1
         }
       ]
     }

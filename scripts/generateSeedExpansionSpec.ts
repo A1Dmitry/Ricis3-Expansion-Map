@@ -29,9 +29,18 @@ import { SEED_AXIOM_TABLE } from '../src/ricisSeed/seedTable';
 
 const repositoryRoot = resolve(process.cwd());
 const baseDocumentPath = resolve(repositoryRoot, 'docs/01-architecture/ricis-unified-complete-document-7.9-vector.json');
-const outputPath = resolve(repositoryRoot, 'docs/01-architecture/ricis-unified-complete-document-8.0-seed-expansion.json');
+const DEFAULT_OUTPUT = resolve(repositoryRoot, 'docs/01-architecture/ricis-unified-complete-document-8.0-seed-expansion.json');
 
-const [U_NESTED, U_MIXED, U_INF_SELF, U_POWER, U_SELF_CERT, U_CONTRADICTION, U_CORE, U_COVERED] = UNSOLVED_PROBLEM_REGISTRY as readonly UnsolvedSingularProblem[];
+/** `--out <path>` позволяет сверять генерацию без записи в репозиторий (используется тестом свежести). */
+function outputPathFromArguments(): string {
+  const index = process.argv.indexOf('--out');
+  const target = index >= 0 ? process.argv[index + 1] : undefined;
+  return target ? resolve(repositoryRoot, target) : DEFAULT_OUTPUT;
+}
+
+const outputPath = outputPathFromArguments();
+
+const [U_NESTED, U_MIXED, U_INF_SELF, U_POWER, U_SELF_CERT, U_CONTRADICTION, U_CORE, U_COVERED, U_WRONG_BRANCH] = UNSOLVED_PROBLEM_REGISTRY as readonly UnsolvedSingularProblem[];
 
 // ---------------------------------------------------------------------------
 // 1. Фактический прогон протокола развёртывания семени
@@ -66,6 +75,7 @@ for (const result of growth.results) {
     input_form: result.record.problemInputForm,
     consequence: result.axiom.consequences[0] ?? null,
     covers: [...result.axiom.covers],
+    guard: result.axiom.guard,
     solved_problem_id: result.axiom.solvedProblemId,
     generation_committed: result.record.toGeneration,
     fingerprint: result.axiom.fingerprint,
@@ -114,6 +124,13 @@ const rejectionRuns = [
   { id: U_CONTRADICTION!.id, expected: 'CONTRADICTS_EXISTING_AXIOM', description: 'Candidate redefines the already proved form 0_F/0_G = F/G as G/F.' },
   { id: U_CORE!.id, expected: 'PROTECTED_CORE_MUTATION', description: 'Candidate tries to redefine L1 inside the protected core.' },
   { id: U_COVERED!.id, expected: 'PROBLEM_ALREADY_COVERED', description: 'Form 0_F*inf_G is already resolved by A6; axiom inflation is forbidden.' },
+  {
+    id: U_WRONG_BRANCH!.id,
+    expected: 'IDENTITY_VIOLATION',
+    description:
+      'Chain A7 -> inf_(F-F) -> inf_0 -> A2 -> 1 uses only existing rules but breaks the identity X - X = 0. ' +
+      'Identity (L1/SP2) is applied before the singularity axioms, so the candidate is rejected.',
+  },
 ];
 
 const rejectionRegistry: Record<string, unknown> = {};
@@ -161,6 +178,27 @@ const seedProtocol = {
   expandto_semantics:
     'ExpandTo is the act of admission (Commit). It is deliberately separate from Resolve: ' +
     'a computed statement never becomes an axiom automatically.',
+  recursive_self_improvement: {
+    term: 'RSI (Recursive Self-Improvement) — рекурсивное самоулучшение',
+    class: 'guarded, proof-gated RSI (bounded by the seed kernel)',
+    definition:
+      'A11 is the RSI operator of RICIS: the system may extend its own rule set, but each extension must be ' +
+      'a proved consequence of the current generation R_k, admitted through gates, and it is never a redefinition ' +
+      'of the protected core.',
+    difference_from_generic_rsi: [
+      'Generic RSI: an agent rewrites its own code/weights freely and evaluates success empirically.',
+      'RICIS RSI: every self-extension is a proved theorem of the previous state; admission is a separate act (P2); ' +
+        'failure leaves R_k bit-identical (no partial self-modification).',
+      'Growth is monotone (L1C4): R_k is a subset of R_(k+1); a rule is never retracted, weakened or silently rewritten.',
+      'The identity law (L1) outranks the singularity axioms (SP2): self-improvement may not break X - X = 0.',
+    ],
+    loop: [
+      'detect an unresolved structural class U_k',
+      'Resolve(U_k) -> proof certificate (strategy, step chain, conclusion; no limits, no thresholds)',
+      'run the admissibility gates, including IDENTITY_COHERENCE',
+      'on PASS: R_(k+1) = R_k union {A_new}; on FAIL: R_k unchanged and U_k stays open',
+    ],
+  },
   seed_core_R0: {
     generation: 0,
     // Списки формируются из исполняемого зерна src/ricisSeed, а не переписываются вручную:
@@ -196,6 +234,7 @@ const seedProtocol = {
     { gate: 'PROBLEM_OPEN_IN_RICIS', rule: 'The input form is not already resolved by R_k (no axiom inflation).', rejection: 'PROBLEM_ALREADY_COVERED' },
     { gate: 'NO_DUPLICATE_AXIOM', rule: 'Neither the id nor the structural fingerprint of the candidate already exists in R_k.', rejection: 'DUPLICATE_AXIOM' },
     { gate: 'CONSISTENCY_TABLE', rule: 'No input form may receive two different output forms (determinism of the O(1) reduction table).', rejection: 'CONTRADICTS_EXISTING_AXIOM' },
+    { gate: 'IDENTITY_COHERENCE', rule: 'Identity precedes the singularity axioms (L1 + SP2): E - E must give 0 and E / E must give 1 under every identification of index symbols. A candidate that breaks X - X = 0 or X / X = 1 is never committed.', rejection: 'IDENTITY_VIOLATION' },
     { gate: 'MONOTONIC_COMMIT', rule: 'R_k is a subset of R_(k+1); previous axioms keep their fingerprints; generation and ledger stay consistent.', rejection: 'INVALID_CANDIDATE' },
   ],
   monotonicity: 'R_0 subset R_1 subset ... subset R_k: an admitted axiom is never retracted or rewritten by a later expansion.',
@@ -206,6 +245,10 @@ const seedProtocol = {
     note: 'Provenance (origin, solvedProblemId, proof) is intentionally excluded from the fingerprint: the same mathematics is the same axiom.',
   },
   trust_boundary: {
+    identity_rule:
+      'Identity precedes the singularity axioms (L1 + SP2): X - X = 0 and X / X = 1 for any expression X, ' +
+      'including inf_F - inf_F = 0. A7/A5/A4 are guarded and do not apply when the indices are structurally identical. ' +
+      'The IDENTITY_COHERENCE gate enforces this for every candidate under every identification of index symbols.',
     structural_verification: 'Local: TypeScript gate run in src/ricisSeed, verified by unit tests.',
     lean_kernel_verification: 'REQUIRES_CORE_LEAN. Local structural verification is not a Lean kernel run; no claim is upgraded without toolchain, compiler output, #print axioms and sorry-free evidence.',
     derived_vs_new_assumption: 'A12-A14 are derived rules (proved from R_0), not new independent assumptions.',
@@ -412,7 +455,7 @@ const extended = {
         {
           phase: 9,
           name: 'ADMISSIBILITY_GATES',
-          rule: 'Run all gates of A11 (resolution present, core protected, no forbidden semantics, no self-certification, rule-set closure, chain connected, class open, no duplicate, consistency table).',
+          rule: 'Run all gates of A11 (resolution present, core protected, no forbidden semantics, no self-certification, rule-set closure, chain connected, class open, no duplicate, consistency table, identity coherence).',
         },
         {
           phase: 10,
@@ -490,6 +533,9 @@ const extended = {
 
 await mkdir(dirname(outputPath), { recursive: true });
 await writeFile(outputPath, `${JSON.stringify(extended, null, 2)}\n`, 'utf8');
+if (outputPath !== DEFAULT_OUTPUT) {
+  console.log(`[generate] запись выполнена в альтернативный путь: ${outputPath}`);
+}
 
 console.log(JSON.stringify({
   output: outputPath,

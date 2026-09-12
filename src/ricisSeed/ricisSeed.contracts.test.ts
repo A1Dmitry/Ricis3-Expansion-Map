@@ -95,9 +95,42 @@ describe('RICIS SEED — контракты зерна', () => {
       id: expandedTwin.id,
       layer: expandedTwin.layer,
       statement: expandedTwin.statement,
+      guard: seedAxiom.guard,
       covers: expandedTwin.covers,
       consequences: expandedTwin.consequences,
     })).toBe(seedAxiom.fingerprint);
+  });
+
+  it('считает ограничение по тождеству (guard) частью математического содержания аксиомы', () => {
+    const seedAxiom = axiomFromDefinition(SEED_AXIOM_TABLE.find(entry => entry.id === 'A6')!);
+    const withoutGuard = axiomFingerprint({
+      id: seedAxiom.id,
+      layer: seedAxiom.layer,
+      statement: seedAxiom.statement,
+      covers: seedAxiom.covers,
+      consequences: seedAxiom.consequences,
+    });
+    const withGuard = axiomFingerprint({
+      id: seedAxiom.id,
+      layer: seedAxiom.layer,
+      statement: seedAxiom.statement,
+      guard: 'Применяется, только если NF(F) != NF(G)',
+      covers: seedAxiom.covers,
+      consequences: seedAxiom.consequences,
+    });
+    expect(withoutGuard).toBe(seedAxiom.fingerprint);
+    expect(withGuard).not.toBe(withoutGuard);
+  });
+
+  it('фиксирует в зерне тождество X - X = 0 и ограничения применимости A4/A5/A7', () => {
+    const l1 = SEED_AXIOM_TABLE.find(entry => entry.id === 'L1')!;
+    expect(l1.consequences).toEqual([
+      { inputForm: 'X/X', outputForm: '1' },
+      { inputForm: 'X-X', outputForm: '0' },
+    ]);
+    for (const id of ['A4', 'A5', 'A7']) {
+      expect(SEED_AXIOM_TABLE.find(entry => entry.id === id)?.guard, id).toContain('NF(F) != NF(G)');
+    }
   });
 
   it('стабильно вычисляет отпечаток при перестановке полей объекта', () => {

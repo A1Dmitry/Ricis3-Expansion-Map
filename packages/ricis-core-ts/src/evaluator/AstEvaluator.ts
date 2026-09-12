@@ -1,11 +1,26 @@
 import { Expression } from '../ast/ExpressionTypes';
+import { AstCompiler } from './AstCompiler';
 
 export class AstEvaluator {
+  /**
+   * Compiles an Expression into a zero-overhead executable delegate: (x: number) => number
+   * Runtime calls to the returned delegate DO NOT traverse AST or invoke interpreter recursions.
+   */
   static compile(parameterName: string, expr: Expression): (x: number) => number {
-    return (x: number) => this.evaluate(expr, parameterName, x);
+    return AstCompiler.compileSingleParam(parameterName, expr);
   }
 
-  private static evaluate(node: Expression, parameterName: string, x: number): number {
+  /**
+   * Compiles an Expression into a multi-parameter executable delegate: (params: Record<string, number>) => number
+   */
+  static compileDictionary(expr: Expression): (params: Record<string, number>) => number {
+    return AstCompiler.compileDictionary(expr);
+  }
+
+  /**
+   * Fallback direct AST evaluation interpreter method for single-shot evaluations.
+   */
+  static evaluate(node: Expression, parameterName: string, x: number): number {
     switch (node.nodeType) {
       case 'Constant':
         return (node as any).value;

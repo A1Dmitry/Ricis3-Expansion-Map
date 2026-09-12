@@ -34,6 +34,7 @@ import {
   type UnsolvedProblemResolver,
   type UnsolvedSingularProblem,
 } from './contracts';
+import { canonicalizeForm, identityExpectation, indexSymbolsOf, substituteSymbol } from './canonicalForm';
 import { axiomFingerprint, seedFingerprint, type SeedFingerprint } from './fingerprint';
 import { SEED_AXIOM_TABLE, type SeedAxiomDefinition } from './seedTable';
 
@@ -52,10 +53,12 @@ export function axiomFromDefinition(definition: SeedAxiomDefinition): RicisAxiom
       id: definition.id,
       layer: definition.layer,
       statement: definition.statement,
+      guard: definition.guard,
       covers: definition.covers,
       consequences: definition.consequences,
     }),
     origin: 'SEED' as const,
+    guard: definition.guard,
     covers: Object.freeze([...definition.covers]),
     consequences: Object.freeze(definition.consequences.map(entry => Object.freeze({ ...entry }))),
   });
@@ -322,6 +325,7 @@ const ALL_GATES: readonly GateId[] = Object.freeze([
   'PROBLEM_OPEN_IN_RICIS',
   'NO_DUPLICATE_AXIOM',
   'CONSISTENCY_TABLE',
+  'IDENTITY_COHERENCE',
   'MONOTONIC_COMMIT',
 ]);
 
@@ -375,6 +379,79 @@ function checkConsistency(seed: RicisSeedState, candidate: CandidateAxiom): stri
     const existing = table.get(consequence.inputForm);
     if (existing && existing.outputForm !== consequence.outputForm) {
       return `форма ${consequence.inputForm} уже разрешена аксиомой ${existing.axiomId} как ${existing.outputForm}, кандидат даёт ${consequence.outputForm}`;
+    }
+  }
+  return null;
+}
+
+/**
+ * Все подстановки отождествления индексных символов (включая тождественную).
+ * Для n <= 4 перебираются все отображения (n^n), иначе — попарные отождествления:
+ * цель — проверить случаи, когда индексы совпадают, а не построить полную унификацию.
+ */
+function identityInstantiations(symbols: readonly string[]): readonly (readonly string[])[] {
+  const unique = [...new Set(symbols)].sort();
+  if (unique.length === 0) return Object.freeze([Object.freeze([])]);
+  if (unique.length ** unique.length <= 512) {
+    const maps: (readonly string[])[] = [];
+    const build = (position: number, current: string[]): void => {
+      if (position === unique.length) {
+        maps.push(Object.freeze([...current]));
+        return;
+      }
+      for (const target of unique) build(position + 1, [...current, target]);
+    };
+    build(0, []);
+    return Object.freeze(maps);
+  }
+  const maps: (readonly string[])[] = [Object.freeze(unique.map(symbol => symbol))];
+  for (const from of unique) {
+    for (const to of unique) {
+      if (from === to) continue;
+      maps.push(Object.freeze(unique.map(symbol => (symbol === from ? to : symbol))));
+    }
+  }
+  return Object.freeze(maps);
+}
+
+function applyInstantiation(form: string, symbols: readonly string[], targets: readonly string[]): string {
+  let result = form;
+  for (const [index, symbol] of symbols.entries()) {
+    const target = targets[index];
+    if (!target || target === symbol) continue;
+    result = substituteSymbol(result, symbol, target);
+  }
+  return result;
+}
+
+/**
+ * Ворота ТОЖДЕСТВА (L1): структура вида E - E обязана дать 0, а E / E — 1,
+ * причём ДО аксиом сингулярностей (SP2). Проверка выполняется для самой формы
+ * кандидата и для всех отождествлений его индексных символов, потому что
+ * таблица следствий сравнивает формы как строки и не видит совпадения индексов.
+ */
+export function identityCoherenceViolation(
+  consequences: readonly { readonly inputForm: string; readonly outputForm: string }[],
+): string | null {
+  for (const consequence of consequences) {
+    const symbols = [...new Set([
+      ...indexSymbolsOf(consequence.inputForm),
+      ...indexSymbolsOf(consequence.outputForm),
+    ])].sort();
+
+    for (const targets of identityInstantiations(symbols)) {
+      const inputForm = applyInstantiation(consequence.inputForm, symbols, targets);
+      const outputForm = applyInstantiation(consequence.outputForm, symbols, targets);
+      const expected = identityExpectation(inputForm);
+      if (expected === null) continue;
+      const actual = canonicalizeForm(outputForm);
+      if (actual !== expected) {
+        return (
+          `при совпадении операндов форма ${inputForm} обязана дать ${expected} по тождеству L1 ` +
+          `(X ${expected === '0' ? '-' : '/'} X = ${expected}), а кандидат даёт ${actual}. ` +
+          'Тождество применяется до A4/A5/A7 (SP2) и не нарушается никаким расширением.'
+        );
+      }
     }
   }
   return null;
@@ -508,6 +585,7 @@ export function expandTo(seed: RicisSeedState, state: RicisState, program: Expan
     id: candidate.id,
     layer: candidate.layer,
     statement: candidate.statement,
+    guard: candidate.guard,
     covers: candidate.covers,
     consequences: candidate.consequences,
   });
@@ -522,6 +600,14 @@ export function expandTo(seed: RicisSeedState, state: RicisState, program: Expan
   if (inconsistency) gates.fail('CONSISTENCY_TABLE', 'CONTRADICTS_EXISTING_AXIOM', inconsistency);
   else gates.pass('CONSISTENCY_TABLE', 'таблица следствий кандидата согласована с R(n)');
 
+  // Тождество: E - E = 0 и E / E = 1 при любом отождествлении индексов (L1 до аксиом сингулярностей).
+  const identityViolation = identityCoherenceViolation([
+    { inputForm: problem.inputForm, outputForm: proof.conclusion },
+    ...candidate.consequences,
+  ]);
+  if (identityViolation) gates.fail('IDENTITY_COHERENCE', 'IDENTITY_VIOLATION', identityViolation);
+  else gates.pass('IDENTITY_COHERENCE', 'тождество L1 (X - X = 0, X / X = 1) не нарушается ни при одном отождествлении индексов');
+
   const run = gates.finish(ALL_GATES);
   if (run.rejection) {
     return { kind: 'REJECTED', seed, reason: run.rejection.reason, detail: run.rejection.detail, trace: run.trace };
@@ -534,6 +620,7 @@ export function expandTo(seed: RicisSeedState, state: RicisState, program: Expan
     statement: candidate.statement,
     fingerprint,
     origin: 'EXPANSION',
+    guard: candidate.guard,
     covers: Object.freeze([...candidate.covers]),
     consequences: Object.freeze(candidate.consequences.map(entry => Object.freeze({ ...entry }))),
     solvedProblemId: problem.id,

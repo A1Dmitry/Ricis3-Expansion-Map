@@ -140,6 +140,7 @@ export interface CandidateAxiom {
   readonly id: string;
   readonly layer: Extract<AxiomLayer, 'AXIOM' | 'PROTOCOL'>;
   readonly statement: string;
+  readonly guard?: string;
   /** Канонические следствия: входная форма → выходная форма (таблица O(1)-редукции). */
   readonly consequences: readonly { readonly inputForm: string; readonly outputForm: string }[];
   readonly covers: readonly SingularityClass[];
@@ -172,6 +173,12 @@ export interface RicisAxiom {
   readonly id: AxiomId;
   readonly layer: AxiomLayer;
   readonly statement: string;
+  /**
+   * Ограничение применимости по тождеству (L1/SP2).
+   * Например, A7 не применяется, когда индексы структурно идентичны:
+   * сначала работает тождество X - X = 0.
+   */
+  readonly guard?: string;
   readonly fingerprint: AxiomFingerprint;
   readonly origin: AxiomOrigin;
   readonly covers: readonly SingularityClass[];
@@ -237,6 +244,7 @@ export type GateId =
   | 'NO_DUPLICATE_AXIOM'
   | 'CORE_PROTECTED'
   | 'CONSISTENCY_TABLE'
+  | 'IDENTITY_COHERENCE'
   | 'MONOTONIC_COMMIT';
 
 export type GateOutcome = 'PASS' | 'FAIL' | 'SKIPPED';
@@ -257,6 +265,7 @@ export type ExpansionRejection =
   | 'PROOF_CHAIN_BROKEN'
   | 'PROTECTED_CORE_MUTATION'
   | 'CONTRADICTS_EXISTING_AXIOM'
+  | 'IDENTITY_VIOLATION'
   | 'FORBIDDEN_NON_RICIS_SEMANTICS'
   | 'INVALID_PROBLEM'
   | 'INVALID_CANDIDATE';

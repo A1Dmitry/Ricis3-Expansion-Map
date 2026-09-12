@@ -4,7 +4,7 @@
 [![Formal Verification](https://img.shields.io/badge/Formal%20Verification-Lean%204.33.1-blue.svg)](https://lean-lang.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-**Версия: 0.4.163**
+**Версия: 0.4.165**
 
 Интерактивная исследовательская карта сингулярностей, ориентированный граф доказательств (Blueprint DAG) и аналитический вычислительный движок на базе аксиоматической системы **RICIS-III v7.7** (Recursive Indexed Calculus of Identity and Singularity).
 
@@ -56,16 +56,22 @@ $$ \boxed{ R_{n+1} = \operatorname{Ric.ExpandTo}\!\left(R_n,\; \operatorname{Res
 | :--- | :--- | :--- | :--- |
 | **A12** | $\dfrac{0_F/0_G}{0_H/0_K} = \dfrac{F \cdot K}{G \cdot H}$ | A4 → A4 → классическая алгебра дробей | R1 |
 | **A13** | $0_F \cdot (\infty_G - \infty_H) = F \cdot (G - H)$ | A7 → A6 | R2 |
-| **A14** | $\infty_F - \infty_F = 1$ | A7 → локальная редукция → A2 | R3 |
+| **A14** | $\infty_F - \infty_F = 0$ | **L1**: тождество $X - X = 0$, применяется до A7 (SP2) | R3 |
 
 Это **производные правила** (доказаны из аксиом зерна), а не новые допущения.
 Класс $(0_F)^{\infty_G}$ открыт, доказательства не имеет и потому **не** зафиксирован.
+
+> **Тождество не нарушается (L1 + SP2).** $\infty_F - \infty_F = 0$, а не $1$: это $X - X$, и тождество
+> применяется **до** аксиом сингулярностей. Ветка $A7 \to \infty_{F-F} \to \infty_0 \to A2 \to 1$
+> отклоняется воротами `IDENTITY_COHERENCE`. Поэтому A4/A5/A7 снабжены `guard`:
+> они работают только при $NF(F) \neq NF(G)$.
 
 ### Разделение уровней: почему Resolve ≠ Commit
 
 Любое «посчитанное» утверждение не становится аксиомой. Кандидат проходит ворота:
 `RESOLUTION_PRESENT → CORE_PROTECTED → NO_FORBIDDEN_SEMANTICS → NO_SELF_CERTIFICATION → RULE_SET_CLOSED →
-PROOF_CHAIN_CONNECTED → PROBLEM_OPEN_IN_RICIS → NO_DUPLICATE_AXIOM → CONSISTENCY_TABLE → MONOTONIC_COMMIT`.
+PROOF_CHAIN_CONNECTED → PROBLEM_OPEN_IN_RICIS → NO_DUPLICATE_AXIOM → CONSISTENCY_TABLE →
+IDENTITY_COHERENCE → MONOTONIC_COMMIT`.
 Отказ оставляет $R_n$ неизменным: отпечаток поколения сохраняется.
 
 * Модуль: [`src/ricisSeed`](src/ricisSeed) (чистый домен: без React/DOM/сети, детерминированные структурные отпечатки).
@@ -74,6 +80,16 @@ PROOF_CHAIN_CONNECTED → PROBLEM_OPEN_IN_RICIS → NO_DUPLICATE_AXIOM → CONSI
 * Отчёт о прогоне: [`ricis-seed-expansion-run-2026-09-12.md`](docs/05-evidence/proofs/ricis-seed-expansion-run-2026-09-12.md).
 * **Граница доверия:** локальная структурная проверка не является запуском ядра Lean;
   статус Lean для слоя развёртывания — `REQUIRES_CORE_LEAN`.
+> **Терминология: это RSI, но с доказательной петлёй.** A11 — оператор *рекурсивного
+> самоулучшения* (Recursive Self-Improvement, RSI): система дополняет собственное множество правил.
+> Отличие от «обычного» RSI — самодопущение невозможно: каждое расширение есть **доказанное следствие**
+> предыдущего поколения $R_k$, приём — отдельный акт (P2), отказ оставляет $R_k$ байт-в-байт прежним,
+> рост монотонен ($R_k \subseteq R_{k+1}$, L1C4), а тождество (L1) старше аксиом сингулярностей (SP2).
+> Петля: класс $U_k$ → `Resolve` (сертификат доказательства) → ворота допуска → $R_{k+1} = R_k \cup \{A_{new}\}$.
+
+* **Восстановление после обрыва:** `npm run seed:state` (состояние задачи) и `npm run seed:reconcile`
+  (сверка документа с кодом, `--fix` перегенерирует). Генерация идемпотентна: повторный прогон
+  обязан дать байт-в-байт тот же документ — это проверяется тестом `tools/seedArtifactFreshness.test.ts`.
 
 ---
 
