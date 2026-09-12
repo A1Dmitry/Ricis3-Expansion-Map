@@ -37,6 +37,7 @@ import {
   Gift,
   BookOpen,
   Activity,
+  Sprout,
   Bug,
   GitBranch,
 } from 'lucide-react';
@@ -1582,6 +1583,17 @@ export const Map3D: React.FC = () => {
               <button
                 type="button"
                 onClick={() => {
+                  UrlShareService.updateBrowserUrl({ seed: true });
+                  window.dispatchEvent(new PopStateEvent('popstate'));
+                }}
+                className="min-h-12 w-full rounded-lg border border-emerald-700/80 bg-emerald-950/35 px-3 text-left text-xs font-bold text-emerald-100 inline-flex items-center justify-between"
+              >
+                <span className="inline-flex items-center gap-2"><Sprout size={16} className="text-emerald-300" /> RICIS SEED: развёртывание семени</span><ChevronRight size={17} />
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
                   UrlShareService.updateBrowserUrl({ kinematic: true });
                   window.dispatchEvent(new PopStateEvent('popstate'));
                 }}
@@ -1706,6 +1718,18 @@ export const Map3D: React.FC = () => {
             title="3D Кинематический движок и манипулятор"
           >
             <Activity size={14} className="text-emerald-400" /> <span className="hidden sm:inline">3D Кинематика</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              UrlShareService.updateBrowserUrl({ seed: true });
+              window.dispatchEvent(new PopStateEvent('popstate'));
+            }}
+            className="ricis-seed-nav min-h-10 bg-emerald-950/60 hover:bg-emerald-900/70 border border-emerald-500/70 text-emerald-200 font-bold text-xs px-2 sm:px-3.5 py-1.5 rounded-md transition-all cursor-pointer flex items-center gap-1.5 uppercase tracking-wider shadow-[0_0_12px_rgba(52,211,153,0.25)]"
+            aria-label="RICIS SEED: протокол саморасширения"
+            title="RICIS SEED: семя, которое развивается через Ric.ExpandTo((x) => x.Resolve(U))"
+          >
+            <Sprout size={14} className="text-emerald-300" /> <span className="hidden sm:inline">RICIS SEED</span>
           </button>
           <button
             type="button"
