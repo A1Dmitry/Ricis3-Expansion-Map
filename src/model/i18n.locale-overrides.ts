@@ -881,6 +881,12 @@ export const LOCALE_OVERRIDES: Partial<Record<TranslationKey, LocaleOverride>> =
     'hi-IN': 'ग्राफ़ साफ़ करें (GC)',
     'ms-MY': 'Bersihkan Graf (GC)',
   },
+  'audit.repairGraph': {
+    'fr-CA': 'Réparer le graphe & Découvrir',
+    'de-DE': 'Graph reparieren & Entdecken',
+    'hi-IN': 'ग्राफ़ की मरम्मत करें और खोजें',
+    'ms-MY': 'Baiki Graf & Temui',
+  },
   'audit.emptyTargets': {
     'fr-CA': 'Cibles vides',
     'de-DE': 'Leere Ziele',
