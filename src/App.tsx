@@ -10,6 +10,7 @@ const CoreRecoveryPage = lazyNamedComponent(() => import('./ui/CoreRecoveryPage'
 const RoadmapPage = lazyNamedComponent(() => import('./ui/RoadmapPage'), 'RoadmapPage');
 const KinematicEnginePage = lazyNamedComponent(() => import('./ui/KinematicEnginePage'), 'KinematicEnginePage');
 const ProofGraphComparisonPage = lazyNamedComponent(() => import('./ui/ProofGraphComparisonPage'), 'ProofGraphComparisonPage');
+const RicisSeedPage = lazyNamedComponent(() => import('./ui/RicisSeedPage'), 'RicisSeedPage');
 
 function formatHydrationError(error: unknown): string {
   if (error instanceof Error) return error.message;
@@ -94,6 +95,19 @@ export default function App() {
         <ProofGraphComparisonPage
           onBackToMap={() => {
             UrlShareService.updateBrowserUrl({ comparison: false });
+            setLocationSearch(window.location.search);
+          }}
+        />
+      </RouteSurfaceBoundary>
+    );
+  }
+
+  if (roadmapParams.get('view') === 'seed') {
+    return (
+      <RouteSurfaceBoundary>
+        <RicisSeedPage
+          onBackToMap={() => {
+            UrlShareService.updateBrowserUrl({ seed: false });
             setLocationSearch(window.location.search);
           }}
         />

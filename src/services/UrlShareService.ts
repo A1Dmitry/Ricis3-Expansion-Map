@@ -9,6 +9,7 @@ export interface ShareParams {
   mode?: string | null;
   roadmap?: boolean | null;
   kinematic?: boolean | null;
+  seed?: boolean | null;
   comparison?: boolean | null;
   rootNodeId?: string | null;
 }
@@ -37,6 +38,9 @@ export class UrlShareService {
     }
     if (params.comparison) {
       url.searchParams.set('view', 'comparison');
+    }
+    if (params.seed) {
+      url.searchParams.set('view', 'seed');
     }
     if (params.rootNodeId) {
       url.searchParams.set('root', params.rootNodeId);

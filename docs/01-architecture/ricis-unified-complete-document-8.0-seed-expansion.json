@@ -1,0 +1,888 @@
+{
+  "RICIS_Unified_Complete_Document": {
+    "document_version": "8.0_seed_expansion",
+    "status": "LOGICALLY_COMPLETE_SECURE_EXTENDED_SELF_EXPANDING",
+    "created_from": [
+      "v7.7_fully_consistent",
+      "geometric_A6_realization",
+      "semantic_AST_axes_and_deferred_functions",
+      "trigonometric_pre_normalization",
+      "P1_no_recursive_limits_or_LHopital",
+      "vector_axiom_layer_and_multidimensional_resolution",
+      "v7.9_vector_multidimensional_extension",
+      "seed_expansion_protocol_A11",
+      "derived_axioms_A12_A13_A14_from_actual_seed_run",
+      "admissibility_gates_and_rejection_registry"
+    ],
+    "language": "English",
+    "logical_integrity": "Derived from L1_IDENTITY, 0 assumptions, Safety Protocols SP1-SP5, expansion protocols SP6-SP11, P1, P2, the conservative Vector Axiom Layer, and the meta-axiom A11 (expandability). A6_GENERAL is realized geometrically through preserved orthogonal axes; A11 is a rule over the rule system, not a new physical assumption.",
+    "enhancements": "Preserves all v7.9 rules; adds the SEED model of RICIS, the meta-axiom A11 with the operator Ric.ExpandTo((x) => x.Resolve(U)), the Resolve/Commit split, ten admissibility gates, protocols SP6-SP11 and P2, a coordinatewise vector lift of the expansion layer, and the derived axioms A12-A14 obtained by an actual seed run.",
+    "FUNDAMENTAL_LOGICAL_STRUCTURE": {
+      "absolute_root": {
+        "L0_ABSOLUTE_CONTINUITY": "No level of recursion can lose identity (pre-ontological)",
+        "L1_IDENTITY": "X = X (ontological root); X/X = 1 only for structurally identical normalized factors"
+      },
+      "derivation_chain": "L0 -> L1 -> Safety Protocols SP1-SP5 -> P1 -> Axioms A1-A10 -> Operations -> Vector Axiom Layer -> Monoliths -> FractalLaw -> Seed Expansion Layer (A11, SP6-SP11, P2) -> Derived Axioms A12...An",
+      "inviolable_rule": "Any inference contradicting L0/L1, Safety Protocols SP1-SP5, P1, the expansion protocols SP6-SP11, P2, or the admissibility gates of A11 is invalid",
+      "layer_order": [
+        "semantic identity",
+        "optional trigonometric pre-normalization",
+        "semantic indexing",
+        "algebraic reduction and structural cancellation",
+        "indexed/geometric RICIS resolution",
+        "vector lifting and multidimensional monoliths",
+        "type consistency",
+        "classical projection",
+        "open class detection",
+        "resolve and prove",
+        "admissibility gates",
+        "expansion commit (R_(k+1))"
+      ],
+      "seed_principle": "The system contains not only knowledge but also a proved way to acquire new proved knowledge."
+    },
+    "PART_1_ABSOLUTE_FOUNDATIONS": {
+      "L0_ABSOLUTE_CONTINUITY": {
+        "statement": "No level of recursion — including fractal unfolding, monoliths, infinity_F, 0_F, geometric cells, and deferred expressions — permits discontinuity or identity loss",
+        "implication": "Global enforcement across all operations and all finite recursive depths"
+      },
+      "L1_IDENTITY": {
+        "statement": "X = X",
+        "meaning": "Identity includes T(X), normalized expression structure, and preserved origin. Operations cannot transmute types without a morphism.",
+        "consequences": [
+          "L1C1_Preservation",
+          "L1C2_TypeAsIdentity",
+          "L1C3_StructuralEqualityBeforeEvaluation",
+          "L1C4_MonotonicGrowth"
+        ],
+        "L1C4_MonotonicGrowth": "The identity of an admitted axiom is preserved across generations: A in R_k implies A unchanged in R_(k+1), therefore R_k subset R_(k+1). Growth never rewrites what is already proved."
+      }
+    },
+    "PART_2_SAFETY_PROTOCOLS": {
+      "description": "Mandatory rules preventing identity loss and false reductions during singularity resolution",
+      "SP1_LOCALITY_RULE": {
+        "name": "No Total Amnesia",
+        "rule": "When 0/0 occurs, do NOT replace the entire expression with 1. Apply identity ONLY to identical normalized zero-factors.",
+        "example": "In (x-5)(x+5)/(x-5), only (x-5)/(x-5) becomes 1. The tail (x+5) remains active."
+      },
+      "SP2_REDUCTION_PRIORITY": {
+        "name": "Clean First",
+        "rule": "Algebraic simplification and cancellation of identical normalized factors MUST be performed BEFORE applying RICIS singularity axioms.",
+        "rationale": "Prevents false zeros and preserves the factor that carries semantic identity.",
+        "structural_cancellation": [
+          "(H*K)/K -> H only when NF(K) is the same admissible common factor",
+          "(H*0_F)/0_F -> H only for the same indexed factor 0_F",
+          "0_F/0_F -> 1",
+          "0_F/0_G -> F/G when NF(F) != NF(G)"
+        ],
+        "prohibition": "Numeric equality in one environment does not justify cancellation of structurally different expressions."
+      },
+      "SP3_INDEX_LAW": {
+        "name": "Weight of Zero",
+        "rule": "If cancellation is impossible, 0_F / 0_G is strictly defined by the ratio of indices: 0_F / 0_G = F/G.",
+        "prohibition": "Treating 0_F and 0_G as scalar zeros and replacing their ratio with 1 is forbidden unless their normalized identities coincide."
+      },
+      "SP4_SEMANTIC_PRIORITY": {
+        "name": "Index by Expression, Not Value",
+        "rule": "When indexing singularities from E(a), use the parent expression E(x) evaluated structurally at x=a, not only the numerical result E(a).",
+        "example": "For f(x)=x^2-4 at x=2: index as 0_{(x^2-4)|_{x=2}}, NOT as 0_{(4-4)}.",
+        "rationale": "Preserves algebraic structure for SP2 factorization and resolves path divergence."
+      },
+      "SP5_TRIGONOMETRIC_PRE_NORMALIZATION": {
+        "name": "Polarize Before RICIS",
+        "applicability": "Applies when the current expression contains trigonometric combinations that admit polar/amplitude-phase normalization.",
+        "rule": "Before SP4 indexing and subsequent RICIS transforms, normalize trigonometric expressions to a canonical polar form whenever applicable.",
+        "canonical_form": "a*cos(theta) + b*sin(theta) -> r*cos(theta-phi), where r=sqrt(a^2+b^2), a=r*cos(phi), b=r*sin(phi).",
+        "rationale": "The normalized trigonometric expression becomes the parent expression for semantic indexing and structural reduction."
+      },
+      "P1_NO_RECURSIVE_LIMITS_OR_LHOPITAL": {
+        "name": "Direct Structural Resolution Only",
+        "rule": "Inside Resolve_RICIS, it is forbidden to replace a singular node by an analytic limit, a sequence of numerical approximations, or L'Hopital's rule, including recursively at a child node of fractal unfolding.",
+        "formal_notation": "Limit, NumericalApproximation, LHopital notin Resolve_RICIS",
+        "compatibility_with_phase_0": "Removing lim(x->a) means direct structural substitution at x=a followed by SP4, SP2, and local RICIS resolution; it does not mean computing a limit."
+      },
+      "SP6_PROOF_BEFORE_COMMIT": {
+        "name": "Resolve Then Admit, Never Compute Then Assume",
+        "rule": "A candidate rule enters R only together with a proof certificate produced by Resolve. Resolve means resolve AND prove.",
+        "prohibition": "A numerically or heuristically obtained statement is never an axiom, and SP6 forbids treating it as one."
+      },
+      "SP7_NO_SELF_CERTIFICATION": {
+        "name": "No Circularity",
+        "rule": "No step of a proof may cite the axiom that this proof introduces.",
+        "rationale": "Otherwise any statement could certify itself and the axiom set would degrade into a list of assertions."
+      },
+      "SP8_NO_AXIOM_INFLATION": {
+        "name": "No New Axiom For A Covered Form",
+        "rule": "If R_k already resolves an input form directly, no new axiom may be introduced for it.",
+        "rationale": "Growth is measured by new proved coverage, not by the number of named rules."
+      },
+      "SP9_CORE_IMMUTABILITY": {
+        "name": "Protected Seed Core",
+        "rule": "L0, L1, L1C1-L1C4, SP1-SP5, P1 and A11 are immutable under expansion.",
+        "rationale": "A growth operator that could rewrite its own foundation is not growth but loss of identity."
+      },
+      "SP10_CONSISTENCY_TABLE": {
+        "name": "One Input Form, One Output Form",
+        "rule": "The O(1) reduction table stays functional: an input form cannot receive two different output forms.",
+        "limitation": "Exact-form guard; it detects overt contradictions, not all unification-level inconsistencies."
+      },
+      "SP11_REPRODUCIBILITY": {
+        "name": "Deterministic Expansion",
+        "rule": "Fingerprints are structural and deterministic; expansion contains no Date.now, Math.random, or environment-dependent data.",
+        "rationale": "A generation that cannot be reproduced cannot be audited, hence cannot be trusted."
+      },
+      "P2_ADMISSIBILITY_GATES": {
+        "name": "Commit Is A Separate Act",
+        "rule": "Commit(A_new) is not implied by Resolve(U). The candidate must pass all admissibility gates of A11.",
+        "formal_notation": "R_(k+1) = R_k union {A_new} iff Gates(Resolve(U_k), R_k) = PASS"
+      }
+    },
+    "AXIOMS": {
+      "core": {
+        "A1_INDEXING": "F/0 -> infinity_F",
+        "A2_INDEXED_INFINITY": "infinity_F exists for all F != 0; infinity_0 = 1"
+      },
+      "indeterminate_forms": {
+        "A4_0DIV0": "0_F/0_G = F/G",
+        "A5_INFDIVINF": "infinity_F/infinity_G = F/G",
+        "A6_GENERAL": "0_F times infinity_G = F*G (for all F, G; includes F=G giving F^2)",
+        "A6_GEOMETRIC_REALIZATION": {
+          "semantic_transition": "0_F otimes infinity_G => R(F,G) ->[mu] F*G",
+          "meaning": "The transition is not equality of ordinary field elements 0*infinity and F*G. It first composes preserved orthogonal axes into a rectangle, then projects its area.",
+          "objects": {
+            "strip": "S_F = R(F,0), preserving horizontal axis F despite zero numerical area",
+            "segment": "I_G = R(0,G), preserving vertical axis G despite zero numerical area",
+            "orthogonal_composition": "S_F boxtimes I_G = R(F,G)",
+            "measure": "mu(R(F,G)) = F*G"
+          }
+        },
+        "A7_INFSUBINF": "infinity_F - infinity_G = infinity_{F-G}",
+        "A10_FTIMES0": "F*0 = 0_F"
+      },
+      "deprecated": {
+        "A3": "Removed as obsolete in v7.7.",
+        "A6_BYPASS": "Removed as obsolete in v7.7."
+      },
+      "meta": {
+        "A11_EXPANDABILITY": {
+          "level": "META_AXIOM (a rule over the rule system, not an eleventh singularity formula next to A1-A10)",
+          "statement": "R_(k+1) = Ric.ExpandTo(R_k, Resolve(U_k))",
+          "program_notation": "Ric.ExpandTo((x) => x.Resolve(UnsolvedSingularProblem))",
+          "reading": "If U_k is a structural class not resolved by R_k, and Resolve(U_k) returns a proved resolution, then ExpandTo admits the proved rule into R_(k+1).",
+          "x_is": "the current state of the RICIS system itself",
+          "resolve_is": "resolve AND prove (returns a proof certificate)",
+          "expandto_is": "admission of the proved rule (Commit), guarded by SP6-SP11 and P2",
+          "protects": "A11 belongs to the protected core and cannot be redefined by what it produces",
+          "conservativity": "If no open class exists, ExpandTo is the identity on R_k."
+        }
+      },
+      "derived_by_seed_expansion": {
+        "A12": {
+          "id": "A12",
+          "layer": "AXIOM",
+          "origin": "EXPANSION",
+          "statement": "(0_F/0_G)/(0_H/0_K) = (F*K)/(G*H)",
+          "input_form": "(0_F/0_G)/(0_H/0_K)",
+          "consequence": {
+            "inputForm": "(0_F/0_G)/(0_H/0_K)",
+            "outputForm": "(F*K)/(G*H)"
+          },
+          "covers": [
+            "NESTED_SINGULAR_DIV"
+          ],
+          "solved_problem_id": "U-NESTED-SINGULAR-DIV",
+          "generation_committed": 1,
+          "fingerprint": "axiom-v1:2b6b1a9ccadc044d",
+          "proof": {
+            "strategy": "INHERITED_CLASSICAL",
+            "steps": [
+              {
+                "rule": "A4",
+                "from": "(0_F/0_G)/(0_H/0_K)",
+                "to": "(F/G)/(0_H/0_K)"
+              },
+              {
+                "rule": "A4",
+                "from": "(F/G)/(0_H/0_K)",
+                "to": "(F/G)/(H/K)"
+              },
+              {
+                "rule": "CLASSICAL",
+                "from": "(F/G)/(H/K)",
+                "to": "(F*K)/(G*H)"
+              }
+            ],
+            "conclusion": "(F*K)/(G*H)",
+            "uses_limits": false,
+            "uses_numeric_approximation": false
+          },
+          "verification_status": {
+            "structural_proof_local": "PASS",
+            "lean_kernel": "REQUIRES_CORE_LEAN",
+            "note": "Derived rule: proved from seed axioms only, not an independent new assumption."
+          }
+        },
+        "A13": {
+          "id": "A13",
+          "layer": "AXIOM",
+          "origin": "EXPANSION",
+          "statement": "0_F*(inf_G-inf_H) = F*(G-H)",
+          "input_form": "0_F*(inf_G-inf_H)",
+          "consequence": {
+            "inputForm": "0_F*(inf_G-inf_H)",
+            "outputForm": "F*(G-H)"
+          },
+          "covers": [
+            "MIXED_ZERO_INF_DIFF"
+          ],
+          "solved_problem_id": "U-MIXED-ZERO-INF-DIFF",
+          "generation_committed": 2,
+          "fingerprint": "axiom-v1:760ba974e3c4235d",
+          "proof": {
+            "strategy": "RICIS_STRUCTURAL",
+            "steps": [
+              {
+                "rule": "A7",
+                "from": "0_F*(inf_G-inf_H)",
+                "to": "0_F*inf_(G-H)"
+              },
+              {
+                "rule": "A6",
+                "from": "0_F*inf_(G-H)",
+                "to": "F*(G-H)"
+              }
+            ],
+            "conclusion": "F*(G-H)",
+            "uses_limits": false,
+            "uses_numeric_approximation": false
+          },
+          "verification_status": {
+            "structural_proof_local": "PASS",
+            "lean_kernel": "REQUIRES_CORE_LEAN",
+            "note": "Derived rule: proved from seed axioms only, not an independent new assumption."
+          }
+        },
+        "A14": {
+          "id": "A14",
+          "layer": "AXIOM",
+          "origin": "EXPANSION",
+          "statement": "inf_F-inf_F = 0",
+          "input_form": "inf_F-inf_F",
+          "consequence": {
+            "inputForm": "inf_F-inf_F",
+            "outputForm": "0"
+          },
+          "covers": [
+            "INF_MINUS_INF"
+          ],
+          "guard": "Тождество L1: X - X = 0. Применяется до A7 (SP2); A7 работает только при NF(F) != NF(G).",
+          "solved_problem_id": "U-INF-SELF-DIFF",
+          "generation_committed": 3,
+          "fingerprint": "axiom-v1:e0cd9539ad318fbe",
+          "proof": {
+            "strategy": "RICIS_STRUCTURAL",
+            "steps": [
+              {
+                "rule": "L1",
+                "from": "inf_F-inf_F",
+                "to": "0"
+              }
+            ],
+            "conclusion": "0",
+            "uses_limits": false,
+            "uses_numeric_approximation": false
+          },
+          "verification_status": {
+            "structural_proof_local": "PASS",
+            "lean_kernel": "REQUIRES_CORE_LEAN",
+            "note": "Derived rule: proved from seed axioms only, not an independent new assumption."
+          }
+        }
+      },
+      "open_classes_uncommitted": {
+        "POWER_OF_SINGULAR": {
+          "input_form": "(0_F)^(inf_G)",
+          "status": "OPEN_UNPROVEN",
+          "decision": "NOT COMMITTED",
+          "reason": "The class is genuinely outside R_0 coverage, but no proof certificate exists; SP6 blocks admission.",
+          "rejection_reason": "RESOLUTION_REQUIRED",
+          "note": "Openness alone is not a licence to axiomatize. The system records the class and refuses to guess."
+        }
+      },
+      "rejected_candidate_patterns": {
+        "U-POWER-OF-SINGULAR": {
+          "input_form": "(0_F)^(inf_G)",
+          "description": "Open class without proof: no candidate may be committed.",
+          "rejection_reason": "RESOLUTION_REQUIRED",
+          "failed_gate": "RESOLUTION_PRESENT",
+          "failed_gate_detail": "Resolve вернул UNRESOLVED (NO_PROOF) для проблемы U-POWER-OF-SINGULAR",
+          "seed_fingerprint_unchanged": true
+        },
+        "U-COMMUTED-ZERO-INF-PRODUCT": {
+          "input_form": "inf_F*0_G",
+          "description": "Proof cites the axiom it introduces (A15); circularity is rejected before rule-set closure.",
+          "rejection_reason": "SELF_CERTIFICATION",
+          "failed_gate": "NO_SELF_CERTIFICATION",
+          "failed_gate_detail": "шаги доказательства ссылаются на вводимую аксиому A15",
+          "seed_fingerprint_unchanged": true
+        },
+        "U-REVERSED-ZERO-QUOTIENT-PRODUCT": {
+          "input_form": "(0_F/0_G)*(0_H/0_K)",
+          "description": "Candidate redefines the already proved form 0_F/0_G = F/G as G/F.",
+          "rejection_reason": "CONTRADICTS_EXISTING_AXIOM",
+          "failed_gate": "CONSISTENCY_TABLE",
+          "failed_gate_detail": "форма 0_F/0_G уже разрешена аксиомой A4 как F/G, кандидат даёт G/F",
+          "seed_fingerprint_unchanged": true
+        },
+        "U-IDENTITY-LAW-RESTATEMENT": {
+          "input_form": "0_F/0_F",
+          "description": "Candidate tries to redefine L1 inside the protected core.",
+          "rejection_reason": "PROTECTED_CORE_MUTATION",
+          "failed_gate": "CORE_PROTECTED",
+          "failed_gate_detail": "L1 принадлежит защищённому ядру зерна",
+          "seed_fingerprint_unchanged": true
+        },
+        "U-CONJUGATE-SINGULAR-PRODUCT": {
+          "input_form": "0_F*inf_G",
+          "description": "Form 0_F*inf_G is already resolved by A6; axiom inflation is forbidden.",
+          "rejection_reason": "PROBLEM_ALREADY_COVERED",
+          "failed_gate": "RESOLUTION_PRESENT",
+          "failed_gate_detail": "Resolve вернул UNRESOLVED (ALREADY_COVERED_BY_RICIS) для проблемы U-CONJUGATE-SINGULAR-PRODUCT",
+          "seed_fingerprint_unchanged": true
+        },
+        "U-INF-SELF-DIFF-WRONG-BRANCH": {
+          "input_form": "inf_G-inf_G",
+          "description": "Chain A7 -> inf_(F-F) -> inf_0 -> A2 -> 1 uses only existing rules but breaks the identity X - X = 0. Identity (L1/SP2) is applied before the singularity axioms, so the candidate is rejected.",
+          "rejection_reason": "IDENTITY_VIOLATION",
+          "failed_gate": "IDENTITY_COHERENCE",
+          "failed_gate_detail": "при совпадении операндов форма inf_G-inf_G обязана дать 0 по тождеству L1 (X - X = 0), а кандидат даёт 1. Тождество применяется до A4/A5/A7 (SP2) и не нарушается никаким расширением.",
+          "seed_fingerprint_unchanged": true
+        }
+      },
+      "reserved_numbering": "A15 and above are reserved for future committed expansions; they are not axioms until a proof passes the gates."
+    },
+    "TYPECONSISTENCY_PROTOCOL": {
+      "derivation": "From L1C2 (Type=Identity)",
+      "expression_domain": {
+        "symbol": "E",
+        "rule": "F and G may be constants, variables, function applications, compound expressions, or deferred functions. They remain expressions until explicit evaluation/projection.",
+        "late_evaluation": "eval_rho : E -> R is a separate late morphism; no axis is replaced by a numerical value before structural and geometric resolution."
+      },
+      "rules": [
+        {
+          "case": "Homogeneous T(F)==T(G)",
+          "resolution": "Direct operation (F may != G)",
+          "example": "infinity_5 + infinity_3 = infinity_8; infinity_{sin x}/infinity_{cos x} = infinity_{tan x}"
+        },
+        {
+          "case": "Compatible T(F) subset T(G)",
+          "resolution": "Type promotion",
+          "example": "infinity_5 + infinity_{2x} = infinity_{5+2x}"
+        },
+        {
+          "case": "Incompatible types",
+          "resolution": "Composite monolith infinity_{(F,G)}",
+          "example": "infinity_{Time} + infinity_{Space} = infinity_{(Time,Space)}"
+        }
+      ]
+    },
+    "VECTOR_AXIOM_LAYER": {
+      "principle": "For dimension n, V_n(E)=E^n. The vector is a container of component identities; no component origin is erased by vector formation.",
+      "carrier": {
+        "expressions": "F=(F_1,...,F_n), G=(G_1,...,G_n)",
+        "indexed_objects": "0_F=(0_{F_1},...,0_{F_n}); infinity_G=(infinity_{G_1},...,infinity_{G_n})",
+        "identity": "F=F iff every component preserves its normalized expression, type, and origin."
+      },
+      "coordinatewise_lift": {
+        "L1": "X=X coordinatewise",
+        "SP1_SP2": "Normalize and cancel only structurally identical factors in the same component",
+        "SP4": "Each component receives its own parent-expression index",
+        "A4": "0_F / 0_G -> (F_1/G_1,...,F_n/G_n)",
+        "A5": "infinity_F / infinity_G -> (F_1/G_1,...,F_n/G_n)",
+        "A6": "0_F otimes infinity_G => R_vec(F,G) ->[mu_vec] F hadamard G",
+        "A12": "(0_F/0_G)/(0_H/0_K) -> ((F_1*K_1)/(G_1*H_1), ..., (F_n*K_n)/(G_n*H_n))",
+        "A13": "0_F*(infinity_G - infinity_H) -> (F_1*(G_1-H_1), ..., F_n*(G_n-H_n))",
+        "A14": "infinity_F - infinity_F -> (1, ..., 1)"
+      },
+      "geometric_realization": {
+        "rectangle_vector": "R_vec(F,G)=(R(F_1,G_1),...,R(F_n,G_n))",
+        "measure": "mu_vec(R_vec(F,G))=F hadamard G=(F_1*G_1,...,F_n*G_n)",
+        "optional_scalar_projection": "Sigma(F hadamard G)=sum_i F_i*G_i=<F,G>; this is a later explicit projection, not a replacement for the vector result."
+      },
+      "resolve_operator": "Resolve_RICIS^(n)(Q_1,...,Q_n)=(Resolve_RICIS(Q_1),...,Resolve_RICIS(Q_n)); initialization is external and one-time, while each prepared local resolution has constant rule depth.",
+      "pde_application": {
+        "Navier_Stokes_residual": "R_vec(U,P)=(R_1,R_2,R_3)",
+        "exact_multidimensional_solution": "Resolve_RICIS^(3)(R_vec)=(0_{R_1},0_{R_2},0_{R_3}) together with Resolve_RICIS(div U)=0_divU and Resolve_RICIS(U(_,0)-U0)=0_initial."
+      },
+      "fractal_lift": "R^(n)(Q_vec)={Q_vec,T(Q_vec),infinity_Qvec,0_Qvec,R^(n)(infinity_Qvec),R^(n)(0_Qvec)} with every node retaining dimension and component indices.",
+      "conservativity": "At n=1 the layer reduces exactly to base RICIS III. It supplies the form of a multidimensional solution but does not itself manufacture a missing certificate.",
+      "seed_expansion_lift": {
+        "principle": "The seed expansion layer lifts coordinatewise exactly like every other RICIS layer.",
+        "open_class_vector": "U_vec = (U_1, ..., U_n); a class is open in R^(n) when at least one component form is open in R^(1).",
+        "resolve_vector": "Resolve_vec(U_vec) = (Resolve(U_1), ..., Resolve(U_n))",
+        "expandto_vector": "R^(n)_(k+1) = Ric.ExpandTo(R^(n)_k, Resolve_vec(U_vec_k))",
+        "commit_rule": "All components must pass the admissibility gates. A partial pass commits nothing (no partial axiom).",
+        "coordinatewise_derived_lift": {
+          "A12": "(0_F/0_G)/(0_H/0_K) -> ((F_1*K_1)/(G_1*H_1), ..., (F_n*K_n)/(G_n*H_n))",
+          "A13": "0_F*(infinity_G - infinity_H) -> (F_1*(G_1-H_1), ..., F_n*(G_n-H_n))",
+          "A14": "infinity_F - infinity_F -> (1, ..., 1)"
+        },
+        "conservativity": "At n=1 the lifted expansion reduces exactly to scalar seed expansion; the layer adds no certificates of its own."
+      }
+    },
+    "PART_4_MONOLITHS": {
+      "hierarchy": [
+        {
+          "order": 0,
+          "name": "Atomic Monolith (Point)",
+          "definition": "Pure identity F, infinity_F, 0_F (no internal structure)"
+        },
+        {
+          "order": 1,
+          "name": "First-Order Monolith (Line)",
+          "definition": "Composition of Order0 closed under RICIS operations"
+        },
+        {
+          "order": 2,
+          "name": "Second-Order Monolith (Plane)",
+          "definition": "Interconnected Order0-1 with recursive unfolding"
+        },
+        {
+          "order": 3,
+          "name": "Third-Order Monolith (Volume)",
+          "definition": "Self-organizing system with autonomous navigation"
+        }
+      ],
+      "geometric_cell_interpretation": "At any node nu carrying expression labels (F_nu,G_nu), the local geometric cell is R_nu = S_{F_nu} boxtimes I_{G_nu} = R(F_nu,G_nu), with mu(R_nu)=F_nu*G_nu.",
+      "seed_property": "The Order-0 monolith is a seed: it carries the growth operator A11 alongside its identities. A monolith that resolves a new class and proves the resolution becomes a monolith of the next generation."
+    },
+    "PART_5_FRACTAL_LAW": {
+      "principle": "Each element unfolds the whole system recursively",
+      "schema": "R(Q) = {Q, T(Q), infinity_Q, 0_Q, R(infinity_Q), R(0_Q)}",
+      "property": "Potentially infinite but information-preserving",
+      "geometric_invariant": {
+        "statement": "For every node nu at each finite depth m, mu(R_nu)=F_nu*G_nu.",
+        "derivation": "Each child repeats the same local strip-segment-rectangle construction with its own preserved labels."
+      },
+      "seed_lift": "Each unresolved node U_k of the unfolding is a candidate expansion step: R_seed(Q) = {Q, T(Q), infinity_Q, 0_Q, Resolve(Q), ExpandTo(Q)}; a node enters the axiom set only through the gates."
+    },
+    "PART_6_GEOMETRY_CORRECTION": {
+      "classical_error": "Line = Sum(Points): Type(0-dim) != Type(1-dim)",
+      "RICIS_solution": {
+        "line": "Primary Monolith Order1",
+        "point": "Line intersection 0_observer (derived)"
+      },
+      "A6_geometric_bridge": {
+        "principle": "A zero measure is not complete information about an object; a strip and a segment retain distinct axes even when each has numerical area zero.",
+        "result": "The product F*G is the area of the restored rectangle R(F,G), not a numeric multiplication of two zero areas."
+      }
+    },
+    "COMPUTATION_ALGORITHM": {
+      "phases": [
+        {
+          "phase": -1,
+          "name": "L1_IDENTITY",
+          "steps": [
+            "For all X: X=X",
+            "T(X) defined",
+            "Expression identity preserved"
+          ]
+        },
+        {
+          "phase": 0,
+          "name": "REMOVE_LIMIT_OPERATOR",
+          "rule": "lim(x->a) syntax is replaced by direct structural substitution x=a; do not compute an analytic limit."
+        },
+        {
+          "phase": 0.25,
+          "name": "TRIGONOMETRIC_PRE_NORMALIZATION (SP5)",
+          "rule": "If applicable, transform trigonometric combinations to polar/amplitude-phase normal form before indexing."
+        },
+        {
+          "phase": 0.5,
+          "name": "SEMANTIC_INDEXING (SP4)",
+          "rule": "Index singularities by normalized parent expressions, not numerical values."
+        },
+        {
+          "phase": 1,
+          "name": "SAFETY_CHECK (SP1/SP2/SP3)",
+          "rule": "Perform algebraic reduction and cancellation of structurally identical factors before singularity evaluation."
+        },
+        {
+          "phase": 2,
+          "name": "RICIS_TRANSFORMS",
+          "patterns": [
+            "F/0 -> infinity_F",
+            "0_F/0_G -> F/G",
+            "infinity_F/infinity_G -> F/G",
+            "0_F otimes infinity_G => R(F,G) ->[mu] F*G",
+            "infinity_F - infinity_G -> infinity_{F-G}"
+          ]
+        },
+        {
+          "phase": 3,
+          "name": "ALGEBRAIC_CLEANUP",
+          "rule": "Simplify the regular resolved expression without losing semantic labels before projection."
+        },
+        {
+          "phase": 4,
+          "name": "TYPE_CHECK",
+          "rule": "Apply TypeConsistencyProtocol."
+        },
+        {
+          "phase": 5,
+          "name": "STANDARD_OPERATIONS_AND_PROJECTION",
+          "rule": "Use classical arithmetic, geometry, vectors, matrices, and polar interpretation only after the RICIS result is regular and typed."
+        },
+        {
+          "phase": 6,
+          "name": "L1_VERIFICATION",
+          "rule": "Verify that the result preserves identity, origin, and type."
+        },
+        {
+          "phase": 7,
+          "name": "OPEN_CLASS_DETECTION",
+          "rule": "If the resulting form is not covered by R_k, register it as an open class U_k. Do not approximate and do not silently fail."
+        },
+        {
+          "phase": 8,
+          "name": "RESOLVE_AND_PROVE",
+          "rule": "Resolve(U_k) must return a proof certificate: strategy, step chain, conclusion; no limits, no numerical thresholds (P1)."
+        },
+        {
+          "phase": 9,
+          "name": "ADMISSIBILITY_GATES",
+          "rule": "Run all gates of A11 (resolution present, core protected, no forbidden semantics, no self-certification, rule-set closure, chain connected, class open, no duplicate, consistency table, identity coherence)."
+        },
+        {
+          "phase": 10,
+          "name": "EXPANSION_COMMIT",
+          "rule": "On PASS: R_(k+1) = R_k union {A_new}, ledger entry written, new structural fingerprint computed. On FAIL: R_k is unchanged."
+        }
+      ],
+      "prohibitions": [
+        "No recursive analytic limits inside Resolve_RICIS",
+        "No recursive LHopital rule inside Resolve_RICIS",
+        "No recursive sequence-of-approximations inside Resolve_RICIS",
+        "No premature Float or grid projection",
+        "No commit of an unproved candidate (SP6/P2)",
+        "No self-certifying proof (SP7)",
+        "No axiom for an already covered form (SP8)",
+        "No redefinition of the protected core, including A11 itself (SP9)",
+        "No nondeterministic or environment-dependent expansion (SP11)"
+      ]
+    },
+    "EXAMPLES": {
+      "basic": [
+        "5/0 = infinity_5",
+        "0_5 otimes infinity_5 => R(5,5) ->[mu] 25",
+        "0_5 otimes infinity_3 => R(5,3) ->[mu] 15",
+        "infinity_6 / infinity_2 = 3",
+        "0_8 / 0_2 = 4"
+      ],
+      "path_convergence_examples": {
+        "example1": "(x^2-4)/(x-2) at x=2",
+        "solution": {
+          "with_SP4": "0_{(x^2-4)|_{x=2}}/0_{(x-2)|_{x=2}} -> factor -> 0_{(x-2)}*(x+2)/0_{(x-2)} -> cancel -> x+2 at x=2 = 4",
+          "both_paths_converge": "Algebraic and arithmetic paths give the same result while preserving parent-expression identity."
+        }
+      },
+      "trigonometric": {
+        "normalization_example": "a*cos(theta)+b*sin(theta) -> r*cos(theta-phi) before SP4 indexing, where r=sqrt(a^2+b^2).",
+        "singular_example": "sin(x)/x at x=0 -> direct structural substitution and parent-expression indexing -> algebraic/series structural reduction -> 1; no analytic limit or LHopital recursion."
+      },
+      "advanced": [
+        "infinity_{Time} + infinity_{Space} = infinity_{(Time,Space)} (Type Protocol)",
+        "For a vector family, area_i = F_i*G_i and the area vector is F hadamard G; only then may a dot-product projection be taken."
+      ],
+      "seed_expansion": [
+        "(0_F/0_G)/(0_H/0_K): A4 -> A4 -> classical fraction algebra => (F*K)/(G*H)  [A12, R1]",
+        "0_F*(infinity_G - infinity_H): A7 -> infinity_(G-H), then A6 => F*(G-H)  [A13, R2, pure RICIS, no classical step]",
+        "infinity_F - infinity_F: A7 -> infinity_(F-F) -> local structural reduction -> infinity_0 -> A2 => 1  [A14, R3]",
+        "0_F*infinity_G: already covered by A6 => no new axiom (PROBLEM_ALREADY_COVERED)",
+        "(0_F)^(infinity_G): open class without proof => no commit (RESOLUTION_REQUIRED)"
+      ]
+    },
+    "COMPATIBILITY": {
+      "classical": "Extends singularity resolution while preserving classical algebra for regular expressions",
+      "indices": "Indices apply to singularities and preserve parent-expression origin; classical numeric values are a late projection",
+      "L1_preserved": "Always, including in classical projection",
+      "path_invariance": "Guaranteed by SP4 together with SP2 structural reduction",
+      "geometric_extension": "A6 is compatible with the base rule but distinguishes a semantic transition and geometric measurement from equality of ordinary field elements",
+      "formal_status": "The local geometric A6 and vector lift are machine-checked in a separate Lean extension; global fractal-order and metatheoretic claims require further formalization.",
+      "seed_expansion": "At k=0 and with no open class the expansion layer is the identity; it never changes an existing resolution.",
+      "derived_axiom_status": "A12-A14 are consequences of R_0 lifted into the rule table for O(1) reuse, not new assumptions.",
+      "formal_status_seed": "The seed protocol is locally verified in TypeScript (structural gates, determinism, monotonicity, rejection registry). Lean kernel verification of the expansion layer is REQUIRES_CORE_LEAN and is not claimed here."
+    },
+    "QUICK_REFERENCE": {
+      "laws": "L0 (Continuity), L1 (X=X, L1C4 monotonic growth), SP1-SP5 (Safety), SP6-SP11 (Expansion safety), P1 (No Recursive Limits or LHopital), P2 (Commit Is A Separate Act)",
+      "core": "F/0=infinity_F; 0_F otimes infinity_G => R(F,G) ->[mu] F*G; 0_F/0_G=F/G; infinity_F/infinity_G=F/G; F*0=0_F",
+      "seed": "A11: R_(k+1) = Ric.ExpandTo(R_k, Resolve(U_k)); x = current RICIS state; Resolve = resolve AND prove; ExpandTo = admission through gates",
+      "priority": "Phase -1 L1 -> Phase 0 Direct Point Substitution -> Phase 0.25 Trig Polarization -> Phase 0.5 SP4 -> Phase 1 Safety -> Phase 2 RICIS -> Phase 7 Open Class -> Phase 8 Resolve+Prove -> Phase 9 Gates -> Phase 10 Commit",
+      "new_rules": "SP6 proof before commit; SP7 no self-certification; SP8 no axiom inflation; SP9 protected core; SP10 one input form one output form; SP11 deterministic expansion; P2 commit is a separate act",
+      "derived_now": "A12 (nested singular division), A13 (zero times infinity difference), A14 (infinity minus itself = 1)"
+    },
+    "VERIFICATION_STATUS": {
+      "logical_consistency": "Base v7.7 status retained; geometric and operational additions require the stated semantic model.",
+      "dependencies": "L0->L1->SP1-SP5->P1->Axioms->Operations->VectorLayer->Monoliths->FractalLaw->A11/SP6-SP11/P2->Derived axioms",
+      "assumptions": "0 declared base assumptions; A11, SP6-SP11, P2 and the derived rules are explicit, auditable extension rules.",
+      "source_integration": "Complete against v7.7 structure; v7.8 additions are identified in created_from and nested extension fields.",
+      "path_divergence_resolved": "YES, via SP4 plus SP2",
+      "human_readable": "Yes",
+      "LLM_trainable": "Yes",
+      "ready_for_publication": "Requires author review of the v8.0 seed-expansion wording and of the Lean formalization status.",
+      "seed_expansion_run": {
+        "local_structural_verification": "PASS (TypeScript, src/ricisSeed, deterministic reruns)",
+        "generations_verified": [
+          "R0",
+          "R1",
+          "R2",
+          "R3"
+        ],
+        "derived_axioms_verified": [
+          "A12",
+          "A13",
+          "A14"
+        ],
+        "rejection_scenarios_verified": [
+          "U-POWER-OF-SINGULAR",
+          "U-COMMUTED-ZERO-INF-PRODUCT",
+          "U-REVERSED-ZERO-QUOTIENT-PRODUCT",
+          "U-IDENTITY-LAW-RESTATEMENT",
+          "U-CONJUGATE-SINGULAR-PRODUCT",
+          "U-INF-SELF-DIFF-WRONG-BRANCH"
+        ],
+        "lean_kernel_verification": "REQUIRES_CORE_LEAN (not performed locally; no claim upgraded)",
+        "reproducibility": "Two independent runs produce identical fingerprints for R0..R3"
+      }
+    },
+    "CALCULUS_RESOLUTION_EXTENSION": {
+      "limit_resolution_principle": {
+        "concept": "Replace lim(x->a) syntax with direct structural evaluation at x=a, preserving parent expressions and resolving singularities through SP5 if applicable, SP4, SP2, and A4/A5/A6.",
+        "formula": "direct_substitute(x=a) -> normalize_trigonometry_if_applicable -> 0_F/0_G -> SP2+SP4+A4 -> F/G",
+        "complexity": "O(1) exact local resolution after expression normalization; no recursive analytic limit algorithm."
+      },
+      "integral_resolution_principle": {
+        "concept": "Replace Riemann-sum limits with exact Monolith plane difference and indexed gap evaluation.",
+        "complexity": "O(1) direct geometric complement",
+        "formalization_status": "Specification-level rule; not included in the local geometric Lean proof module."
+      },
+      "expansion_resolution_principle": {
+        "concept": "When a local resolution meets a form that no rule of R_k covers, the system registers an open class, refuses analytic substitution by a limit or an approximation, and admits a new rule only after a proved resolution.",
+        "formula": "uncovered(form) -> register U_k -> Resolve(U_k) -> Gates -> (COMMIT | REJECT with R_k unchanged)",
+        "complexity": "O(1) gate evaluation over the candidate; the cost lies in producing the proof, not in admitting it.",
+        "formalization_status": "Specification-level rule with a local structural implementation; Lean kernel formalization pending."
+      }
+    },
+    "previous_version": "7.9_vector_multidimensional_extension",
+    "version_rationale": "Major version: the object changes kind. v7.9 describes a fixed axiom system; v8.0 describes a growing one (a seed with a self-expansion operator). All v7.9 rules are preserved verbatim; the new layer is additive and conservative.",
+    "PART_7_SEED_EXPANSION_PROTOCOL": {
+      "principle": "RICIS is not a frozen list of rules but a SEED: a minimal kernel that carries its own growth operator. When the system meets a structural class it cannot resolve, it does not replace the task by an approximation; it resolves and proves the class, and only then admits the proved rule into the axiom set.",
+      "canonical_notation": "Ric.ExpandTo((x) => x.Resolve(UnsolvedSingularProblem))",
+      "transition": "R_(k+1) = Ric.ExpandTo(R_k, Resolve(U_k)) = R_k union {A_new}",
+      "x_semantics": "x is the current state of the RICIS system itself (axiom set, covered forms, expansion ledger), not a numeric variable and not a placeholder for the problem argument.",
+      "resolve_semantics": "Resolve = resolve AND prove. Resolve(U) returns a proof certificate, not a candidate guess.",
+      "expandto_semantics": "ExpandTo is the act of admission (Commit). It is deliberately separate from Resolve: a computed statement never becomes an axiom automatically.",
+      "recursive_self_improvement": {
+        "term": "RSI (Recursive Self-Improvement) — рекурсивное самоулучшение",
+        "class": "guarded, proof-gated RSI (bounded by the seed kernel)",
+        "definition": "A11 is the RSI operator of RICIS: the system may extend its own rule set, but each extension must be a proved consequence of the current generation R_k, admitted through gates, and it is never a redefinition of the protected core.",
+        "difference_from_generic_rsi": [
+          "Generic RSI: an agent rewrites its own code/weights freely and evaluates success empirically.",
+          "RICIS RSI: every self-extension is a proved theorem of the previous state; admission is a separate act (P2); failure leaves R_k bit-identical (no partial self-modification).",
+          "Growth is monotone (L1C4): R_k is a subset of R_(k+1); a rule is never retracted, weakened or silently rewritten.",
+          "The identity law (L1) outranks the singularity axioms (SP2): self-improvement may not break X - X = 0."
+        ],
+        "loop": [
+          "detect an unresolved structural class U_k",
+          "Resolve(U_k) -> proof certificate (strategy, step chain, conclusion; no limits, no thresholds)",
+          "run the admissibility gates, including IDENTITY_COHERENCE",
+          "on PASS: R_(k+1) = R_k union {A_new}; on FAIL: R_k unchanged and U_k stays open"
+        ]
+      },
+      "seed_core_R0": {
+        "generation": 0,
+        "laws": [
+          "L0",
+          "L1",
+          "L1C1",
+          "L1C2",
+          "L1C3"
+        ],
+        "safety_protocols": [
+          "SP1",
+          "SP2",
+          "SP3",
+          "SP4",
+          "SP5"
+        ],
+        "prohibitions": [
+          "P1"
+        ],
+        "mathematical_axioms": [
+          "A1",
+          "A2",
+          "A4",
+          "A5",
+          "A6",
+          "A7",
+          "A8",
+          "A9",
+          "A10"
+        ],
+        "meta_axiom": [
+          "A11"
+        ],
+        "protected_core": [
+          "L0",
+          "L1",
+          "L1C1",
+          "L1C2",
+          "L1C3",
+          "SP1",
+          "SP2",
+          "SP3",
+          "SP4",
+          "SP5",
+          "P1",
+          "A11"
+        ],
+        "protected_core_derived": [
+          "L1C4"
+        ],
+        "protected_core_note": "L1C4 (monotonic growth) is a derived guarantee of A11 + L1, not a separate seed row; it is enforced by the MONOTONIC_COMMIT gate and by src/ricisSeed invariant checks.",
+        "deprecated_not_in_R0": [
+          "A3",
+          "A6_BYPASS"
+        ],
+        "deprecated_note": "A3 and A6_BYPASS are removed as obsolete in v7.7/v7.9. They are kept in the historical seed table (src/ricisSeed/seedTable.ts, deprecated: true) but are not part of the active kernel R0.",
+        "fingerprint": "seed-v1:d0125a3c2f2e9c56",
+        "axiom_count": 21,
+        "historical_table_size": 22
+      },
+      "protection_rule": "The protected core (L0/L1/L1C*, SP1-SP5, P1, A11) is never redefined by an expansion. A11 protects itself: the growth operator cannot be rewritten by what it produces.",
+      "admissibility_gates": [
+        {
+          "gate": "RESOLUTION_PRESENT",
+          "rule": "Resolve returned a certificate with a non-empty step chain and strategy != UNPROVEN.",
+          "rejection": "RESOLUTION_REQUIRED"
+        },
+        {
+          "gate": "CORE_PROTECTED",
+          "rule": "The candidate id is not in the protected core.",
+          "rejection": "PROTECTED_CORE_MUTATION"
+        },
+        {
+          "gate": "NO_FORBIDDEN_SEMANTICS",
+          "rule": "No limits, no numerical eps-thresholds; a LEAN_KERNEL claim requires a verified kernel run (compiler output, #print axioms, sorry-free).",
+          "rejection": "FORBIDDEN_NON_RICIS_SEMANTICS"
+        },
+        {
+          "gate": "NO_SELF_CERTIFICATION",
+          "rule": "No proof step may cite the axiom that this proof introduces.",
+          "rejection": "SELF_CERTIFICATION"
+        },
+        {
+          "gate": "RULE_SET_CLOSED",
+          "rule": "Every proof step uses an axiom already in R_k, or an explicitly allowed external rule (CLASSICAL under INHERITED_CLASSICAL, LEAN_KERNEL with evidence).",
+          "rejection": "PROOF_RULE_UNKNOWN"
+        },
+        {
+          "gate": "PROOF_CHAIN_CONNECTED",
+          "rule": "The chain starts at the problem input form, has no gaps, and ends exactly at the candidate statement.",
+          "rejection": "PROOF_CHAIN_BROKEN / PROOF_CONCLUSION_MISMATCH"
+        },
+        {
+          "gate": "PROBLEM_OPEN_IN_RICIS",
+          "rule": "The input form is not already resolved by R_k (no axiom inflation).",
+          "rejection": "PROBLEM_ALREADY_COVERED"
+        },
+        {
+          "gate": "NO_DUPLICATE_AXIOM",
+          "rule": "Neither the id nor the structural fingerprint of the candidate already exists in R_k.",
+          "rejection": "DUPLICATE_AXIOM"
+        },
+        {
+          "gate": "CONSISTENCY_TABLE",
+          "rule": "No input form may receive two different output forms (determinism of the O(1) reduction table).",
+          "rejection": "CONTRADICTS_EXISTING_AXIOM"
+        },
+        {
+          "gate": "IDENTITY_COHERENCE",
+          "rule": "Identity precedes the singularity axioms (L1 + SP2): E - E must give 0 and E / E must give 1 under every identification of index symbols. A candidate that breaks X - X = 0 or X / X = 1 is never committed.",
+          "rejection": "IDENTITY_VIOLATION"
+        },
+        {
+          "gate": "MONOTONIC_COMMIT",
+          "rule": "R_k is a subset of R_(k+1); previous axioms keep their fingerprints; generation and ledger stay consistent.",
+          "rejection": "INVALID_CANDIDATE"
+        }
+      ],
+      "monotonicity": "R_0 subset R_1 subset ... subset R_k: an admitted axiom is never retracted or rewritten by a later expansion.",
+      "reproducibility": {
+        "rule": "Expansion is deterministic: fingerprints are structural (no Date.now, no Math.random, no crypto).",
+        "axiom_fingerprint_scheme": "axiom-v1:<fnv1a64 of canonicalized {id, layer, statement, covers, consequences}>",
+        "seed_fingerprint_scheme": "seed-v1:<fnv1a64 of canonicalized {generation, sorted axiom fingerprints}>",
+        "note": "Provenance (origin, solvedProblemId, proof) is intentionally excluded from the fingerprint: the same mathematics is the same axiom."
+      },
+      "trust_boundary": {
+        "identity_rule": "Identity precedes the singularity axioms (L1 + SP2): X - X = 0 and X / X = 1 for any expression X, including inf_F - inf_F = 0. A7/A5/A4 are guarded and do not apply when the indices are structurally identical. The IDENTITY_COHERENCE gate enforces this for every candidate under every identification of index symbols.",
+        "structural_verification": "Local: TypeScript gate run in src/ricisSeed, verified by unit tests.",
+        "lean_kernel_verification": "REQUIRES_CORE_LEAN. Local structural verification is not a Lean kernel run; no claim is upgraded without toolchain, compiler output, #print axioms and sorry-free evidence.",
+        "derived_vs_new_assumption": "A12-A14 are derived rules (proved from R_0), not new independent assumptions.",
+        "known_limitation": "The consistency table is an exact-form guard. It detects overt contradictions but is not a full unification-based semantic decision procedure; deeper consistency requires Lean."
+      }
+    },
+    "PART_8_EXPANSION_LEDGER": {
+      "command": "grow(Ric, [U-NESTED-SINGULAR-DIV, U-MIXED-ZERO-INF-DIFF, U-INF-SELF-DIFF])",
+      "generations": {
+        "R0": "seed-v1:d0125a3c2f2e9c56",
+        "R1": "seed-v1:7e65fabea6bee052",
+        "R2": "seed-v1:538a4a96c5d49384",
+        "R3": "seed-v1:3a88a50500d02e94"
+      },
+      "final_generation": "R3",
+      "final_axiom_count": 24,
+      "ledger": [
+        {
+          "sequence": 0,
+          "from_generation": "R0",
+          "to_generation": "R1",
+          "problem_id": "U-NESTED-SINGULAR-DIV",
+          "problem_input_form": "(0_F/0_G)/(0_H/0_K)",
+          "axiom_id": "A12",
+          "axiom_fingerprint": "axiom-v1:2b6b1a9ccadc044d",
+          "seed_fingerprint_before": "seed-v1:d0125a3c2f2e9c56",
+          "seed_fingerprint_after": "seed-v1:7e65fabea6bee052",
+          "proof_strategy": "INHERITED_CLASSICAL",
+          "proof_step_count": 3
+        },
+        {
+          "sequence": 1,
+          "from_generation": "R1",
+          "to_generation": "R2",
+          "problem_id": "U-MIXED-ZERO-INF-DIFF",
+          "problem_input_form": "0_F*(inf_G-inf_H)",
+          "axiom_id": "A13",
+          "axiom_fingerprint": "axiom-v1:760ba974e3c4235d",
+          "seed_fingerprint_before": "seed-v1:7e65fabea6bee052",
+          "seed_fingerprint_after": "seed-v1:538a4a96c5d49384",
+          "proof_strategy": "RICIS_STRUCTURAL",
+          "proof_step_count": 2
+        },
+        {
+          "sequence": 2,
+          "from_generation": "R2",
+          "to_generation": "R3",
+          "problem_id": "U-INF-SELF-DIFF",
+          "problem_input_form": "inf_F-inf_F",
+          "axiom_id": "A14",
+          "axiom_fingerprint": "axiom-v1:e0cd9539ad318fbe",
+          "seed_fingerprint_before": "seed-v1:538a4a96c5d49384",
+          "seed_fingerprint_after": "seed-v1:3a88a50500d02e94",
+          "proof_strategy": "RICIS_STRUCTURAL",
+          "proof_step_count": 1
+        }
+      ]
+    }
+  }
+}

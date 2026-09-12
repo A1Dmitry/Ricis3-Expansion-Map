@@ -1,0 +1,364 @@
+{
+  "RICIS_Unified_Complete_Document": {
+    "document_version": "7.9_vector_multidimensional_extension",
+    "status": "LOGICALLY_COMPLETE_SECURE_EXTENDED",
+    "created_from": [
+      "v7.7_fully_consistent",
+      "geometric_A6_realization",
+      "semantic_AST_axes_and_deferred_functions",
+      "trigonometric_pre_normalization",
+      "P1_no_recursive_limits_or_LHopital",
+      "vector_axiom_layer_and_multidimensional_resolution"
+    ],
+    "language": "English",
+    "logical_integrity": "Derived from L1_IDENTITY, 0 assumptions, Safety Protocols SP1-SP4, trigonometrical pre-normalization SP5, P1, and a conservative Vector Axiom Layer. A6_GENERAL is realized geometrically through preserved orthogonal axes.",
+    "enhancements": "Preserves all v7.7 rules; adds a typed geometric realization of A6, AST-valued axes F and G, controlled structural cancellation, a trigonometric polar-normalization layer before RICIS rules, a ban on recursive limits, numerical approximations, and L'Hopital inside Resolve_RICIS, plus a conservative vector layer that lifts all rules coordinatewise into multidimensional monoliths.",
+
+    "FUNDAMENTAL_LOGICAL_STRUCTURE": {
+      "absolute_root": {
+        "L0_ABSOLUTE_CONTINUITY": "No level of recursion can lose identity (pre-ontological)",
+        "L1_IDENTITY": "X = X (ontological root); X/X = 1 only for structurally identical normalized factors"
+      },
+      "derivation_chain": "L0 -> L1 -> Safety Protocols -> Axioms -> Operations -> Vector Axiom Layer -> Monoliths -> FractalLaw",
+      "inviolable_rule": "Any inference contradicting L0/L1, Safety Protocols, or P1 is invalid",
+      "layer_order": [
+        "semantic identity",
+        "optional trigonometric pre-normalization",
+        "semantic indexing",
+        "algebraic reduction and structural cancellation",
+        "indexed/geometric RICIS resolution",
+        "vector lifting and multidimensional monoliths",
+        "type consistency",
+        "classical projection"
+      ]
+    },
+
+    "PART_1_ABSOLUTE_FOUNDATIONS": {
+      "L0_ABSOLUTE_CONTINUITY": {
+        "statement": "No level of recursion — including fractal unfolding, monoliths, infinity_F, 0_F, geometric cells, and deferred expressions — permits discontinuity or identity loss",
+        "implication": "Global enforcement across all operations and all finite recursive depths"
+      },
+      "L1_IDENTITY": {
+        "statement": "X = X",
+        "meaning": "Identity includes T(X), normalized expression structure, and preserved origin. Operations cannot transmute types without a morphism.",
+        "consequences": [
+          "L1C1_Preservation",
+          "L1C2_TypeAsIdentity",
+          "L1C3_StructuralEqualityBeforeEvaluation"
+        ]
+      }
+    },
+
+    "PART_2_SAFETY_PROTOCOLS": {
+      "description": "Mandatory rules preventing identity loss and false reductions during singularity resolution",
+      "SP1_LOCALITY_RULE": {
+        "name": "No Total Amnesia",
+        "rule": "When 0/0 occurs, do NOT replace the entire expression with 1. Apply identity ONLY to identical normalized zero-factors.",
+        "example": "In (x-5)(x+5)/(x-5), only (x-5)/(x-5) becomes 1. The tail (x+5) remains active."
+      },
+      "SP2_REDUCTION_PRIORITY": {
+        "name": "Clean First",
+        "rule": "Algebraic simplification and cancellation of identical normalized factors MUST be performed BEFORE applying RICIS singularity axioms.",
+        "rationale": "Prevents false zeros and preserves the factor that carries semantic identity.",
+        "structural_cancellation": [
+          "(H*K)/K -> H only when NF(K) is the same admissible common factor",
+          "(H*0_F)/0_F -> H only for the same indexed factor 0_F",
+          "0_F/0_F -> 1",
+          "0_F/0_G -> F/G when NF(F) != NF(G)"
+        ],
+        "prohibition": "Numeric equality in one environment does not justify cancellation of structurally different expressions."
+      },
+      "SP3_INDEX_LAW": {
+        "name": "Weight of Zero",
+        "rule": "If cancellation is impossible, 0_F / 0_G is strictly defined by the ratio of indices: 0_F / 0_G = F/G.",
+        "prohibition": "Treating 0_F and 0_G as scalar zeros and replacing their ratio with 1 is forbidden unless their normalized identities coincide."
+      },
+      "SP4_SEMANTIC_PRIORITY": {
+        "name": "Index by Expression, Not Value",
+        "rule": "When indexing singularities from E(a), use the parent expression E(x) evaluated structurally at x=a, not only the numerical result E(a).",
+        "example": "For f(x)=x^2-4 at x=2: index as 0_{(x^2-4)|_{x=2}}, NOT as 0_{(4-4)}.",
+        "rationale": "Preserves algebraic structure for SP2 factorization and resolves path divergence."
+      },
+      "SP5_TRIGONOMETRIC_PRE_NORMALIZATION": {
+        "name": "Polarize Before RICIS",
+        "applicability": "Applies when the current expression contains trigonometric combinations that admit polar/amplitude-phase normalization.",
+        "rule": "Before SP4 indexing and subsequent RICIS transforms, normalize trigonometric expressions to a canonical polar form whenever applicable.",
+        "canonical_form": "a*cos(theta) + b*sin(theta) -> r*cos(theta-phi), where r=sqrt(a^2+b^2), a=r*cos(phi), b=r*sin(phi).",
+        "rationale": "The normalized trigonometric expression becomes the parent expression for semantic indexing and structural reduction."
+      },
+      "P1_NO_RECURSIVE_LIMITS_OR_LHOPITAL": {
+        "name": "Direct Structural Resolution Only",
+        "rule": "Inside Resolve_RICIS, it is forbidden to replace a singular node by an analytic limit, a sequence of numerical approximations, or L'Hopital's rule, including recursively at a child node of fractal unfolding.",
+        "formal_notation": "Limit, NumericalApproximation, LHopital notin Resolve_RICIS",
+        "compatibility_with_phase_0": "Removing lim(x->a) means direct structural substitution at x=a followed by SP4, SP2, and local RICIS resolution; it does not mean computing a limit."
+      }
+    },
+
+    "AXIOMS": {
+      "core": {
+        "A1_INDEXING": "F/0 -> infinity_F",
+        "A2_INDEXED_INFINITY": "infinity_F exists for all F != 0; infinity_0 = 1"
+      },
+      "indeterminate_forms": {
+        "A4_0DIV0": "0_F/0_G = F/G",
+        "A5_INFDIVINF": "infinity_F/infinity_G = F/G",
+        "A6_GENERAL": "0_F times infinity_G = F*G (for all F, G; includes F=G giving F^2)",
+        "A6_GEOMETRIC_REALIZATION": {
+          "semantic_transition": "0_F otimes infinity_G => R(F,G) ->[mu] F*G",
+          "meaning": "The transition is not equality of ordinary field elements 0*infinity and F*G. It first composes preserved orthogonal axes into a rectangle, then projects its area.",
+          "objects": {
+            "strip": "S_F = R(F,0), preserving horizontal axis F despite zero numerical area",
+            "segment": "I_G = R(0,G), preserving vertical axis G despite zero numerical area",
+            "orthogonal_composition": "S_F boxtimes I_G = R(F,G)",
+            "measure": "mu(R(F,G)) = F*G"
+          }
+        },
+        "A7_INFSUBINF": "infinity_F - infinity_G = infinity_{F-G}",
+        "A10_FTIMES0": "F*0 = 0_F"
+      },
+      "deprecated": {
+        "A3": "Removed as obsolete in v7.7.",
+        "A6_BYPASS": "Removed as obsolete in v7.7."
+      }
+    },
+
+    "TYPECONSISTENCY_PROTOCOL": {
+      "derivation": "From L1C2 (Type=Identity)",
+      "expression_domain": {
+        "symbol": "E",
+        "rule": "F and G may be constants, variables, function applications, compound expressions, or deferred functions. They remain expressions until explicit evaluation/projection.",
+        "late_evaluation": "eval_rho : E -> R is a separate late morphism; no axis is replaced by a numerical value before structural and geometric resolution."
+      },
+      "rules": [
+        {
+          "case": "Homogeneous T(F)==T(G)",
+          "resolution": "Direct operation (F may != G)",
+          "example": "infinity_5 + infinity_3 = infinity_8; infinity_{sin x}/infinity_{cos x} = infinity_{tan x}"
+        },
+        {
+          "case": "Compatible T(F) subset T(G)",
+          "resolution": "Type promotion",
+          "example": "infinity_5 + infinity_{2x} = infinity_{5+2x}"
+        },
+        {
+          "case": "Incompatible types",
+          "resolution": "Composite monolith infinity_{(F,G)}",
+          "example": "infinity_{Time} + infinity_{Space} = infinity_{(Time,Space)}"
+        }
+      ]
+    },
+
+    "VECTOR_AXIOM_LAYER": {
+      "principle": "For dimension n, V_n(E)=E^n. The vector is a container of component identities; no component origin is erased by vector formation.",
+      "carrier": {
+        "expressions": "F=(F_1,...,F_n), G=(G_1,...,G_n)",
+        "indexed_objects": "0_F=(0_{F_1},...,0_{F_n}); infinity_G=(infinity_{G_1},...,infinity_{G_n})",
+        "identity": "F=F iff every component preserves its normalized expression, type, and origin."
+      },
+      "coordinatewise_lift": {
+        "L1": "X=X coordinatewise",
+        "SP1_SP2": "Normalize and cancel only structurally identical factors in the same component",
+        "SP4": "Each component receives its own parent-expression index",
+        "A4": "0_F / 0_G -> (F_1/G_1,...,F_n/G_n)",
+        "A5": "infinity_F / infinity_G -> (F_1/G_1,...,F_n/G_n)",
+        "A6": "0_F otimes infinity_G => R_vec(F,G) ->[mu_vec] F hadamard G"
+      },
+      "geometric_realization": {
+        "rectangle_vector": "R_vec(F,G)=(R(F_1,G_1),...,R(F_n,G_n))",
+        "measure": "mu_vec(R_vec(F,G))=F hadamard G=(F_1*G_1,...,F_n*G_n)",
+        "optional_scalar_projection": "Sigma(F hadamard G)=sum_i F_i*G_i=<F,G>; this is a later explicit projection, not a replacement for the vector result."
+      },
+      "resolve_operator": "Resolve_RICIS^(n)(Q_1,...,Q_n)=(Resolve_RICIS(Q_1),...,Resolve_RICIS(Q_n)); initialization is external and one-time, while each prepared local resolution has constant rule depth.",
+      "pde_application": {
+        "Navier_Stokes_residual": "R_vec(U,P)=(R_1,R_2,R_3)",
+        "exact_multidimensional_solution": "Resolve_RICIS^(3)(R_vec)=(0_{R_1},0_{R_2},0_{R_3}) together with Resolve_RICIS(div U)=0_divU and Resolve_RICIS(U(_,0)-U0)=0_initial."
+      },
+      "fractal_lift": "R^(n)(Q_vec)={Q_vec,T(Q_vec),infinity_Qvec,0_Qvec,R^(n)(infinity_Qvec),R^(n)(0_Qvec)} with every node retaining dimension and component indices.",
+      "conservativity": "At n=1 the layer reduces exactly to base RICIS III. It supplies the form of a multidimensional solution but does not itself manufacture a missing certificate."
+    },
+
+    "PART_4_MONOLITHS": {
+      "hierarchy": [
+        {
+          "order": 0,
+          "name": "Atomic Monolith (Point)",
+          "definition": "Pure identity F, infinity_F, 0_F (no internal structure)"
+        },
+        {
+          "order": 1,
+          "name": "First-Order Monolith (Line)",
+          "definition": "Composition of Order0 closed under RICIS operations"
+        },
+        {
+          "order": 2,
+          "name": "Second-Order Monolith (Plane)",
+          "definition": "Interconnected Order0-1 with recursive unfolding"
+        },
+        {
+          "order": 3,
+          "name": "Third-Order Monolith (Volume)",
+          "definition": "Self-organizing system with autonomous navigation"
+        }
+      ],
+      "geometric_cell_interpretation": "At any node nu carrying expression labels (F_nu,G_nu), the local geometric cell is R_nu = S_{F_nu} boxtimes I_{G_nu} = R(F_nu,G_nu), with mu(R_nu)=F_nu*G_nu."
+    },
+
+    "PART_5_FRACTAL_LAW": {
+      "principle": "Each element unfolds the whole system recursively",
+      "schema": "R(Q) = {Q, T(Q), infinity_Q, 0_Q, R(infinity_Q), R(0_Q)}",
+      "property": "Potentially infinite but information-preserving",
+      "geometric_invariant": {
+        "statement": "For every node nu at each finite depth m, mu(R_nu)=F_nu*G_nu.",
+        "derivation": "Each child repeats the same local strip-segment-rectangle construction with its own preserved labels."
+      }
+    },
+
+    "PART_6_GEOMETRY_CORRECTION": {
+      "classical_error": "Line = Sum(Points): Type(0-dim) != Type(1-dim)",
+      "RICIS_solution": {
+        "line": "Primary Monolith Order1",
+        "point": "Line intersection 0_observer (derived)"
+      },
+      "A6_geometric_bridge": {
+        "principle": "A zero measure is not complete information about an object; a strip and a segment retain distinct axes even when each has numerical area zero.",
+        "result": "The product F*G is the area of the restored rectangle R(F,G), not a numeric multiplication of two zero areas."
+      }
+    },
+
+    "COMPUTATION_ALGORITHM": {
+      "phases": [
+        {
+          "phase": -1,
+          "name": "L1_IDENTITY",
+          "steps": [
+            "For all X: X=X",
+            "T(X) defined",
+            "Expression identity preserved"
+          ]
+        },
+        {
+          "phase": 0,
+          "name": "REMOVE_LIMIT_OPERATOR",
+          "rule": "lim(x->a) syntax is replaced by direct structural substitution x=a; do not compute an analytic limit."
+        },
+        {
+          "phase": 0.25,
+          "name": "TRIGONOMETRIC_PRE_NORMALIZATION (SP5)",
+          "rule": "If applicable, transform trigonometric combinations to polar/amplitude-phase normal form before indexing."
+        },
+        {
+          "phase": 0.5,
+          "name": "SEMANTIC_INDEXING (SP4)",
+          "rule": "Index singularities by normalized parent expressions, not numerical values."
+        },
+        {
+          "phase": 1,
+          "name": "SAFETY_CHECK (SP1/SP2/SP3)",
+          "rule": "Perform algebraic reduction and cancellation of structurally identical factors before singularity evaluation."
+        },
+        {
+          "phase": 2,
+          "name": "RICIS_TRANSFORMS",
+          "patterns": [
+            "F/0 -> infinity_F",
+            "0_F/0_G -> F/G",
+            "infinity_F/infinity_G -> F/G",
+            "0_F otimes infinity_G => R(F,G) ->[mu] F*G",
+            "infinity_F - infinity_G -> infinity_{F-G}"
+          ]
+        },
+        {
+          "phase": 3,
+          "name": "ALGEBRAIC_CLEANUP",
+          "rule": "Simplify the regular resolved expression without losing semantic labels before projection."
+        },
+        {
+          "phase": 4,
+          "name": "TYPE_CHECK",
+          "rule": "Apply TypeConsistencyProtocol."
+        },
+        {
+          "phase": 5,
+          "name": "STANDARD_OPERATIONS_AND_PROJECTION",
+          "rule": "Use classical arithmetic, geometry, vectors, matrices, and polar interpretation only after the RICIS result is regular and typed."
+        },
+        {
+          "phase": 6,
+          "name": "L1_VERIFICATION",
+          "rule": "Verify that the result preserves identity, origin, and type."
+        }
+      ],
+      "prohibitions": [
+        "No recursive analytic limits inside Resolve_RICIS",
+        "No recursive LHopital rule inside Resolve_RICIS",
+        "No recursive sequence-of-approximations inside Resolve_RICIS",
+        "No premature Float or grid projection"
+      ]
+    },
+
+    "EXAMPLES": {
+      "basic": [
+        "5/0 = infinity_5",
+        "0_5 otimes infinity_5 => R(5,5) ->[mu] 25",
+        "0_5 otimes infinity_3 => R(5,3) ->[mu] 15",
+        "infinity_6 / infinity_2 = 3",
+        "0_8 / 0_2 = 4"
+      ],
+      "path_convergence_examples": {
+        "example1": "(x^2-4)/(x-2) at x=2",
+        "solution": {
+          "with_SP4": "0_{(x^2-4)|_{x=2}}/0_{(x-2)|_{x=2}} -> factor -> 0_{(x-2)}*(x+2)/0_{(x-2)} -> cancel -> x+2 at x=2 = 4",
+          "both_paths_converge": "Algebraic and arithmetic paths give the same result while preserving parent-expression identity."
+        }
+      },
+      "trigonometric": {
+        "normalization_example": "a*cos(theta)+b*sin(theta) -> r*cos(theta-phi) before SP4 indexing, where r=sqrt(a^2+b^2).",
+        "singular_example": "sin(x)/x at x=0 -> direct structural substitution and parent-expression indexing -> algebraic/series structural reduction -> 1; no analytic limit or LHopital recursion."
+      },
+      "advanced": [
+        "infinity_{Time} + infinity_{Space} = infinity_{(Time,Space)} (Type Protocol)",
+        "For a vector family, area_i = F_i*G_i and the area vector is F hadamard G; only then may a dot-product projection be taken."
+      ]
+    },
+
+    "COMPATIBILITY": {
+      "classical": "Extends singularity resolution while preserving classical algebra for regular expressions",
+      "indices": "Indices apply to singularities and preserve parent-expression origin; classical numeric values are a late projection",
+      "L1_preserved": "Always, including in classical projection",
+      "path_invariance": "Guaranteed by SP4 together with SP2 structural reduction",
+      "geometric_extension": "A6 is compatible with the base rule but distinguishes a semantic transition and geometric measurement from equality of ordinary field elements",
+      "formal_status": "The local geometric A6 and vector lift are machine-checked in a separate Lean extension; global fractal-order and metatheoretic claims require further formalization."
+    },
+
+    "QUICK_REFERENCE": {
+      "laws": "L0 (Continuity), L1 (X=X), SP1-4 (Safety), SP5 (Trigonometrical Polar Pre-Normalization), P1 (No Recursive Limits or LHopital)",
+      "core": "F/0=infinity_F; 0_F otimes infinity_G => R(F,G) ->[mu] F*G; 0_F/0_G=F/G; infinity_F/infinity_G=F/G; F*0=0_F",
+      "priority": "Phase -1 L1 -> Phase 0 Direct Point Substitution -> Phase 0.25 Trig Polarization -> Phase 0.5 SP4 -> Phase 1 Safety -> Phase 2 RICIS",
+      "new_rules": "SP5: polar-normalize trigonometry before RICIS; P1: no recursive limit, numerical approximation, or LHopital inside Resolve_RICIS"
+    },
+
+    "VERIFICATION_STATUS": {
+      "logical_consistency": "Base v7.7 status retained; geometric and operational additions require the stated semantic model.",
+      "dependencies": "L0->L1->SP1-4->SP5/P1->Axioms->Operations->Monoliths->FractalLaw",
+      "assumptions": "0 declared base assumptions; geometric realization, SP5, and P1 are explicit extension rules.",
+      "source_integration": "Complete against v7.7 structure; v7.8 additions are identified in created_from and nested extension fields.",
+      "path_divergence_resolved": "YES, via SP4 plus SP2",
+      "human_readable": "Yes",
+      "LLM_trainable": "Yes",
+      "ready_for_publication": "Requires author review of v7.8 extension wording and formalization status."
+    },
+
+    "CALCULUS_RESOLUTION_EXTENSION": {
+      "limit_resolution_principle": {
+        "concept": "Replace lim(x->a) syntax with direct structural evaluation at x=a, preserving parent expressions and resolving singularities through SP5 if applicable, SP4, SP2, and A4/A5/A6.",
+        "formula": "direct_substitute(x=a) -> normalize_trigonometry_if_applicable -> 0_F/0_G -> SP2+SP4+A4 -> F/G",
+        "complexity": "O(1) exact local resolution after expression normalization; no recursive analytic limit algorithm."
+      },
+      "integral_resolution_principle": {
+        "concept": "Replace Riemann-sum limits with exact Monolith plane difference and indexed gap evaluation.",
+        "complexity": "O(1) direct geometric complement",
+        "formalization_status": "Specification-level rule; not included in the local geometric Lean proof module."
+      }
+    }
+  }
+}
