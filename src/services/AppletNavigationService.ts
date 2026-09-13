@@ -58,15 +58,25 @@ export class AppletNavigationService {
     this.syncUrl(target);
   }
 
+  public static getActiveApplet(): AppletId {
+    return this.currentApplet;
+  }
+
+  public static resetHistory(): void {
+    this.historyStack = [];
+    this.forwardStack = [];
+    this.currentApplet = 'map';
+  }
+
   /**
    * Browser-like Back
    */
-  public static goBack(): void {
+  public static goBack(): AppletId | null {
     if (this.historyStack.length === 0) {
-      if (window.history.length > 1) {
+      if (typeof window !== 'undefined' && window.history.length > 1) {
         window.history.back();
       }
-      return;
+      return null;
     }
 
     const previous = this.historyStack.pop()!;
@@ -74,17 +84,18 @@ export class AppletNavigationService {
     this.currentApplet = previous;
 
     this.syncUrl(previous);
+    return previous;
   }
 
   /**
    * Browser-like Forward
    */
-  public static goForward(): void {
+  public static goForward(): AppletId | null {
     if (this.forwardStack.length === 0) {
-      if (window.history.length > 1) {
+      if (typeof window !== 'undefined' && window.history.length > 1) {
         window.history.forward();
       }
-      return;
+      return null;
     }
 
     const next = this.forwardStack.pop()!;
@@ -92,6 +103,7 @@ export class AppletNavigationService {
     this.currentApplet = next;
 
     this.syncUrl(next);
+    return next;
   }
 
   public static canGoBack(): boolean {

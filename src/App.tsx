@@ -21,6 +21,10 @@ const RoadmapPage = lazyNamedComponent(() => import('./ui/RoadmapPage'), 'Roadma
 const KinematicEnginePage = lazyNamedComponent(() => import('./ui/KinematicEnginePage'), 'KinematicEnginePage');
 const ProofGraphComparisonPage = lazyNamedComponent(() => import('./ui/ProofGraphComparisonPage'), 'ProofGraphComparisonPage');
 const RicisSeedPage = lazyNamedComponent(() => import('./ui/RicisSeedPage'), 'RicisSeedPage');
+const VoynichDecryptionPanel = lazyNamedComponent(() => import('./ui/VoynichDecryptionPanel'), 'VoynichDecryptionPanel');
+const RicisProofConsoleModal = lazyNamedComponent(() => import('./ui/RicisProofConsoleModal'), 'RicisProofConsoleModal');
+const AutoProverModal = lazyNamedComponent(() => import('./ui/AutoProverModal'), 'AutoProverModal');
+const SettingsModal = lazyNamedComponent(() => import('./ui/SettingsModal'), 'SettingsModal');
 
 function formatHydrationError(error: unknown): string {
   if (error instanceof Error) return error.message;
@@ -121,6 +125,75 @@ export default function App() {
             initialRootNodeId={roadmapParams.get('root')}
             onBackToMap={() => handleSelectApplet('map')}
           />
+        );
+      case 'voynich':
+        return (
+          <div className="w-full h-full overflow-y-auto p-4 bg-[#070b14]">
+            <div className="max-w-6xl mx-auto mb-4 flex items-center justify-between">
+              <button
+                onClick={() => handleSelectApplet('map')}
+                className="px-3 py-1.5 rounded-lg text-xs font-mono bg-slate-800 hover:bg-slate-700 text-cyan-300 transition-colors flex items-center gap-1.5"
+              >
+                ← Вернуться к 3D Карте
+              </button>
+            </div>
+            <VoynichDecryptionPanel onClose={() => handleSelectApplet('map')} />
+          </div>
+        );
+      case 'terminal':
+        return (
+          <div className="w-full h-full overflow-y-auto p-4 bg-[#070b14]">
+            <div className="max-w-6xl mx-auto mb-4 flex items-center justify-between">
+              <button
+                onClick={() => handleSelectApplet('map')}
+                className="px-3 py-1.5 rounded-lg text-xs font-mono bg-slate-800 hover:bg-slate-700 text-cyan-300 transition-colors flex items-center gap-1.5"
+              >
+                ← Вернуться к 3D Карте
+              </button>
+            </div>
+            <RicisProofConsoleModal
+              isOpen={true}
+              onClose={() => handleSelectApplet('map')}
+            />
+          </div>
+        );
+      case 'qa-tests':
+        return (
+          <div className="w-full h-full overflow-y-auto p-4 bg-[#070b14]">
+            <div className="max-w-6xl mx-auto mb-4 flex items-center justify-between">
+              <button
+                onClick={() => handleSelectApplet('map')}
+                className="px-3 py-1.5 rounded-lg text-xs font-mono bg-slate-800 hover:bg-slate-700 text-cyan-300 transition-colors flex items-center gap-1.5"
+              >
+                ← Вернуться к 3D Карте
+              </button>
+            </div>
+            <AutoProverModal
+              isOpen={true}
+              onClose={() => handleSelectApplet('map')}
+            />
+          </div>
+        );
+      case 'settings':
+        return (
+          <div className="w-full h-full overflow-y-auto p-4 bg-[#070b14]">
+            <div className="max-w-6xl mx-auto mb-4 flex items-center justify-between">
+              <button
+                onClick={() => handleSelectApplet('map')}
+                className="px-3 py-1.5 rounded-lg text-xs font-mono bg-slate-800 hover:bg-slate-700 text-cyan-300 transition-colors flex items-center gap-1.5"
+              >
+                ← Вернуться к 3D Карте
+              </button>
+            </div>
+            <SettingsModal
+              isOpen={true}
+              onClose={() => handleSelectApplet('map')}
+              roles={[]}
+              currentRoleId="default"
+              onSelectRole={() => {}}
+              onCreateRole={() => {}}
+            />
+          </div>
         );
       case 'map':
       default:
