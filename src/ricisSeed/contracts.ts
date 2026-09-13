@@ -23,19 +23,20 @@
  */
 
 import type { AxiomFingerprint, SeedFingerprint } from './fingerprint';
+export type { AxiomFingerprint, SeedFingerprint };
 
 // ---------------------------------------------------------------------------
 // 1. Идентификаторы и слои аксиоматики
 // ---------------------------------------------------------------------------
 
-export type LawId = 'L0' | 'L1' | 'L1C1' | 'L1C2' | 'L1C3';
+export type LawId = 'L0' | 'L1' | 'L1C1' | 'L1C2' | 'L1C3' | 'L1C4';
 export type ProtocolId = 'SP1' | 'SP2' | 'SP3' | 'SP4' | 'SP5';
 export type ProhibitionId = 'P1';
 export type MathAxiomId = 'A1' | 'A2' | 'A3' | 'A4' | 'A5' | 'A6' | 'A7' | 'A8' | 'A9' | 'A10';
 export type MetaAxiomId = 'A11';
 export type ExpansionAxiomId = `A${number}` & string;
 
-export type AxiomId = LawId | ProtocolId | ProhibitionId | MathAxiomId | MetaAxiomId;
+export type AxiomId = LawId | ProtocolId | ProhibitionId | MathAxiomId | MetaAxiomId | ExpansionAxiomId;
 
 /**
  * Слой аксиоматики:

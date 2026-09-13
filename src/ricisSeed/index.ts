@@ -42,6 +42,17 @@ export {
   type DemoTrust,
 } from './ricisSeed.unsolvedRegistry';
 export { SEED_AXIOM_TABLE, type SeedAxiomDefinition } from './seedTable';
+export {
+  serializeSeedStateToJson,
+  deserializeSeedStateFromJson,
+  PersistentSeedStorage,
+  type SerializedSeedState,
+} from './knowledgeGraph';
+export {
+  graphGuidedPreSolve,
+  PreSolveMatcher,
+  type PreSolveMatchResult,
+} from './preSolver';
 
 /** Готовый экземпляр с демонстрационными решателями (включая Challenger-сценарии отказов). */
 export const Ric = createRicisSystem({ resolvers: DEMO_RESOLVERS });

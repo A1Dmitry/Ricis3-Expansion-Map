@@ -52,6 +52,7 @@ import type {
   ISymbolicJacobianMatrix3D,
 } from '../model/ricisSymbolicJacobian.contracts';
 import { Planar3LinkKinematicService } from '../services/kinematic/planar3LinkKinematicService';
+import { GenericNLinkKinematicService } from '../services/kinematic/genericNLinkKinematicService';
 import type { ParameterizationMode, ISingularityHeatmapGrid } from '../services/kinematic/twoStageSingularity.contracts';
 import { WALKTHROUGH_STEPS } from '../services/kinematic/walkthroughScenarios';
 import { SingularityLandscapeHeatmap } from './components/kinematic/SingularityLandscapeHeatmap';
@@ -65,6 +66,8 @@ import '../services/kinematic/kinematicIocBootstrap';
 import { WidgetCapabilityBoundary } from './components/resilience/WidgetCapabilityBoundary';
 import { GeometricBridgeVisualizerCard } from './components/geometricBridge/GeometricBridgeVisualizerCard';
 import { PlanarManipulatorCanvas } from './components/kinematic/PlanarManipulatorCanvas';
+import { ModularManipulator3DCanvas } from './components/kinematic/ModularManipulator3DCanvas';
+import { MultiLinkJointController } from './components/kinematic/MultiLinkJointController';
 import { FourStagePipelineCard } from './components/kinematic/FourStagePipelineCard';
 import { RealTimeFourStageBadge } from './components/kinematic/RealTimeFourStageBadge';
 import { FourStageTelemetryAdapter } from '../services/kinematic/fourStageTelemetryAdapter';
@@ -140,6 +143,11 @@ export const KinematicEnginePage: React.FC<Props> = ({ onBackToMap }) => {
   const [copiedTrace, setCopiedTrace] = useState(false);
   const [activeTab, setActiveTab] = useState<'TELEMETRY' | 'QA_TRACE' | 'MATH' | 'AST_JACOBIAN' | 'TWO_STAGE_SINGULARITY'>('TWO_STAGE_SINGULARITY');
 
+  const [planarJoints, setPlanarJoints] = useState<number[]>([0.35, 0.78, 0.65]);
+  const [planarMode, setPlanarMode] = useState<ParameterizationMode>('CARTESIAN');
+  const [walkthroughIndex, setWalkthroughIndex] = useState(0);
+  const [isWalkthroughPlaying, setIsWalkthroughPlaying] = useState(false);
+
   // ==========================================
   // IoC-Resolved Kinematic Manipulator Engine
   // ==========================================
@@ -149,20 +157,16 @@ export const KinematicEnginePage: React.FC<Props> = ({ onBackToMap }) => {
   }, [selectedModuleId]);
 
   const planarKinematicService = useMemo(() => {
-    if (resolvedModule.isAvailable && 'service' in resolvedModule.module) {
-      return (resolvedModule.module as any).service as Planar3LinkKinematicService;
-    }
-    return new Planar3LinkKinematicService();
-  }, [resolvedModule]);
+    return new GenericNLinkKinematicService(planarJoints.length);
+  }, [planarJoints.length]);
 
-  const [planarJoints, setPlanarJoints] = useState<[number, number, number]>([0.35, 0.78, 0.65]);
-  const [planarMode, setPlanarMode] = useState<ParameterizationMode>('CARTESIAN');
-  const [walkthroughIndex, setWalkthroughIndex] = useState(0);
-  const [isWalkthroughPlaying, setIsWalkthroughPlaying] = useState(false);
-
-  // Compute live planar state & heatmap
-  const planarLinks: [number, number, number] = useMemo(() => [LINK_LENGTHS[0], LINK_LENGTHS[1], LINK_LENGTHS[2]], []);
-  const fourStageTelemetryAdapter = useMemo(() => new FourStageTelemetryAdapter(planarKinematicService), [planarKinematicService]);
+  // Compute live planar links matching joint count
+  const planarLinks: number[] = useMemo(() => {
+    if (planarJoints.length === 5) return [0.4, 0.35, 0.3, 0.25, 0.2];
+    if (planarJoints.length === 3) return [LINK_LENGTHS[0], LINK_LENGTHS[1], LINK_LENGTHS[2]];
+    return planarJoints.map(() => 0.35);
+  }, [planarJoints.length]);
+  const fourStageTelemetryAdapter = useMemo(() => new FourStageTelemetryAdapter(new Planar3LinkKinematicService()), []);
 
   const planarState = useMemo(() => {
     const J = planarKinematicService.computeJacobian(planarJoints, planarLinks, planarMode);
@@ -174,7 +178,7 @@ export const KinematicEnginePage: React.FC<Props> = ({ onBackToMap }) => {
   }, [planarKinematicService, planarJoints, planarLinks, planarMode]);
 
   const heatmapGrid = useMemo<ISingularityHeatmapGrid>(() => {
-    return planarKinematicService.generateHeatmapGrid(planarJoints[0], planarLinks, 28);
+    return planarKinematicService.generateHeatmapGrid(planarJoints[0] ?? 0, planarLinks, 28);
   }, [planarKinematicService, planarJoints, planarLinks]);
 
   // Walkthrough Auto-Play Timer
@@ -268,11 +272,11 @@ export const KinematicEnginePage: React.FC<Props> = ({ onBackToMap }) => {
   const liveFourStageTelemetry = useMemo(() => {
     return fourStageTelemetryAdapter.evaluateRealTimeTelemetry(
       [ricisState.joints.q1, ricisState.joints.q2, ricisState.joints.q3],
-      planarLinks,
+      [LINK_LENGTHS[0], LINK_LENGTHS[1], LINK_LENGTHS[2]],
       planarMode,
       ricisState.jacobianDeterminant
     );
-  }, [fourStageTelemetryAdapter, ricisState.joints, planarLinks, planarMode, ricisState.jacobianDeterminant]);
+  }, [fourStageTelemetryAdapter, ricisState.joints, planarMode, ricisState.jacobianDeterminant]);
 
   const [dlsState, setDlsState] = useState<IKinematicState3D>(() => ({
     timestamp: Date.now(),
@@ -625,7 +629,10 @@ export const KinematicEnginePage: React.FC<Props> = ({ onBackToMap }) => {
                 <div className="flex items-center gap-1.5">
                   <button
                     type="button"
-                    onClick={() => setSelectedModuleId('planar-3link-two-stage')}
+                    onClick={() => {
+                      setSelectedModuleId('planar-3link-two-stage');
+                      setPlanarJoints([0.35, 0.78, 0.65] as any);
+                    }}
                     className={`px-2.5 py-1 rounded text-xs font-mono font-medium transition-all ${
                       selectedModuleId === 'planar-3link-two-stage'
                         ? 'bg-cyan-950 border border-cyan-500 text-cyan-200 shadow-sm'
@@ -636,14 +643,17 @@ export const KinematicEnginePage: React.FC<Props> = ({ onBackToMap }) => {
                   </button>
                   <button
                     type="button"
-                    onClick={() => setSelectedModuleId('planar-5link-redundant')}
+                    onClick={() => {
+                      setSelectedModuleId('planar-5link-redundant');
+                      setPlanarJoints([0.2, 0.3, -0.4, 0.5, -0.1] as any);
+                    }}
                     className={`px-2.5 py-1 rounded text-xs font-mono font-medium transition-all ${
                       selectedModuleId === 'planar-5link-redundant'
                         ? 'bg-purple-950 border border-purple-500 text-purple-200 shadow-sm'
                         : 'text-slate-400 hover:text-white bg-neutral-950/60 border border-neutral-800'
                     }`}
                   >
-                    5-Link Hyper-Redundant (IN DEV)
+                    5-Link Hyper-Redundant (READY)
                   </button>
                   <button
                     type="button"
@@ -751,22 +761,21 @@ export const KinematicEnginePage: React.FC<Props> = ({ onBackToMap }) => {
                 reason={resolvedModule.reason}
                 onFallbackToDefault={() => setSelectedModuleId('planar-3link-two-stage')}
               />
-            ) : simMode === ('TWO_STAGE_WALKTHROUGH' as any) ? (
-              <PlanarManipulatorCanvas
-                joints={planarJoints}
-                links={[LINK_LENGTHS[0], LINK_LENGTHS[1], LINK_LENGTHS[2]]}
-                mode={planarMode}
-                overlay={planarState.overlay}
-              />
             ) : (
-              <RobotArm3DCanvas
-                ricisState={ricisState}
-                dlsState={dlsState}
-                target={currentDesiredTarget}
-                balls={pnpState.balls}
-                box={pnpState.box}
-                showDlsGhost={showDlsGhost}
-                linkLengths={LINK_LENGTHS}
+              /* 3D / Dual Scene Rendering using ModularManipulator3DCanvas */
+              <ModularManipulator3DCanvas
+                jointAngles={planarJoints}
+                linkLengths={
+                  planarJoints.length === 5
+                    ? [0.4, 0.35, 0.3, 0.25, 0.2]
+                    : planarJoints.length === 3
+                    ? [LINK_LENGTHS[0], LINK_LENGTHS[1], LINK_LENGTHS[2]]
+                    : planarJoints.map(() => 0.35)
+                }
+                dof={planarJoints.length}
+                isSingular={planarState.svd.isSingular}
+                mode={planarMode}
+                target={[currentDesiredTarget.x, currentDesiredTarget.y, currentDesiredTarget.z]}
               />
             )}
           </div>
@@ -1308,94 +1317,16 @@ export const KinematicEnginePage: React.FC<Props> = ({ onBackToMap }) => {
                 />
               </WidgetCapabilityBoundary>
 
-              {/* Parameterization Mode Selector & Metrics */}
-              <div className="bg-slate-900/90 border border-slate-700/80 rounded-xl p-3 shadow-lg">
-                <div className="flex items-center justify-between pb-2 border-b border-slate-800 mb-2">
-                  <div className="flex items-center gap-2">
-                    <Sparkles className="w-4 h-4 text-purple-400" />
-                    <span className="text-xs font-bold text-slate-100">Stage 1: Parameterization Mode</span>
-                  </div>
-                  <span className="text-[10px] font-mono text-purple-400">
-                    σ_min: {planarState.svd.sigmaMin.toFixed(4)}
-                  </span>
-                </div>
-
-                <div className="grid grid-cols-2 gap-2 mb-3">
-                  <button
-                    type="button"
-                    onClick={() => setPlanarMode('CARTESIAN')}
-                    className={`py-1.5 px-2 rounded-lg text-xs font-bold transition-all border ${
-                      planarMode === 'CARTESIAN'
-                        ? 'bg-cyan-950 border-cyan-500 text-cyan-300 shadow-md shadow-cyan-950/50'
-                        : 'bg-slate-950/60 border-slate-800 text-slate-400 hover:text-slate-200'
-                    }`}
-                  >
-                    Cartesian Parameterization
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setPlanarMode('POLAR')}
-                    className={`py-1.5 px-2 rounded-lg text-xs font-bold transition-all border ${
-                      planarMode === 'POLAR'
-                        ? 'bg-purple-950 border-purple-500 text-purple-300 shadow-md shadow-purple-950/50'
-                        : 'bg-slate-950/60 border-slate-800 text-slate-400 hover:text-slate-200'
-                    }`}
-                  >
-                    Polar (Cluster Re-param)
-                  </button>
-                </div>
-
-                {/* Joint Angle Sliders */}
-                <div className="space-y-2 text-xs font-mono">
-                  <div>
-                    <div className="flex justify-between text-slate-400 text-[11px] mb-0.5">
-                      <span>θ₁ (Shoulder):</span>
-                      <span className="text-purple-300 font-semibold">{(planarJoints[0] * 180 / Math.PI).toFixed(1)}°</span>
-                    </div>
-                    <input
-                      type="range"
-                      min="-3.14"
-                      max="3.14"
-                      step="0.02"
-                      value={planarJoints[0]}
-                      onChange={(e) => setPlanarJoints([parseFloat(e.target.value), planarJoints[1], planarJoints[2]])}
-                      className="w-full accent-purple-400"
-                    />
-                  </div>
-
-                  <div>
-                    <div className="flex justify-between text-slate-400 text-[11px] mb-0.5">
-                      <span>θ₂ (Elbow):</span>
-                      <span className="text-purple-300 font-semibold">{(planarJoints[1] * 180 / Math.PI).toFixed(1)}°</span>
-                    </div>
-                    <input
-                      type="range"
-                      min="-3.14"
-                      max="3.14"
-                      step="0.02"
-                      value={planarJoints[1]}
-                      onChange={(e) => setPlanarJoints([planarJoints[0], parseFloat(e.target.value), planarJoints[2]])}
-                      className="w-full accent-purple-400"
-                    />
-                  </div>
-
-                  <div>
-                    <div className="flex justify-between text-slate-400 text-[11px] mb-0.5">
-                      <span>θ₃ (Wrist):</span>
-                      <span className="text-purple-300 font-semibold">{(planarJoints[2] * 180 / Math.PI).toFixed(1)}°</span>
-                    </div>
-                    <input
-                      type="range"
-                      min="-3.14"
-                      max="3.14"
-                      step="0.02"
-                      value={planarJoints[2]}
-                      onChange={(e) => setPlanarJoints([planarJoints[0], planarJoints[1], parseFloat(e.target.value)])}
-                      className="w-full accent-purple-400"
-                    />
-                  </div>
-                </div>
-              </div>
+              {/* Multi-Link Joint Angle Controller (dynamically handles 3, 5, or N links without overlapping) */}
+              <MultiLinkJointController
+                dof={planarJoints.length}
+                jointAngles={planarJoints}
+                onChangeJoints={(newJoints) => setPlanarJoints(newJoints as any)}
+                mode={planarMode}
+                onChangeMode={(m) => setPlanarMode(m)}
+                sigmaMin={planarState.svd.sigmaMin}
+                isSingular={planarState.svd.isSingular}
+              />
 
               {/* 4-Stage Architecture Summary Card with Resilience Boundary */}
               <WidgetCapabilityBoundary

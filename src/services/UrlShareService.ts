@@ -12,6 +12,7 @@ export interface ShareParams {
   seed?: boolean | null;
   comparison?: boolean | null;
   rootNodeId?: string | null;
+  applet?: string | null;
 }
 
 export class UrlShareService {
@@ -21,6 +22,9 @@ export class UrlShareService {
   public static generateShareUrl(params: ShareParams): string {
     const url = new URL(window.location.origin + window.location.pathname);
     
+    if (params.applet) {
+      url.searchParams.set('applet', params.applet);
+    }
     if (params.nodeId) {
       url.searchParams.set('node', params.nodeId);
     }
@@ -136,6 +140,14 @@ export class UrlShareService {
         }
       }
 
+      if (params.applet !== undefined) {
+        if (params.applet) {
+          url.searchParams.set('applet', params.applet);
+        } else {
+          url.searchParams.delete('applet');
+        }
+      }
+
       window.history.replaceState({}, '', url.toString());
       window.dispatchEvent(new PopStateEvent('popstate'));
     } catch (e) {
@@ -153,6 +165,7 @@ export class UrlShareService {
     initialRoadmap: boolean;
     initialKinematic: boolean;
     initialRootNodeId: string | null;
+    initialApplet: string | null;
   } {
     try {
       const params = new URLSearchParams(window.location.search);
@@ -160,9 +173,10 @@ export class UrlShareService {
         initialNodeId: params.get('node'),
         initialSandboxExpr: params.get('sandbox') || params.get('expr'),
         initialMode: params.get('mode'),
-        initialRoadmap: params.get('view') === 'roadmap',
-        initialKinematic: params.get('view') === 'kinematic',
+        initialRoadmap: params.get('view') === 'roadmap' || params.get('applet') === 'roadmap',
+        initialKinematic: params.get('view') === 'kinematic' || params.get('applet') === 'kinematic',
         initialRootNodeId: params.get('root'),
+        initialApplet: params.get('applet'),
       };
     } catch {
       return {
@@ -172,6 +186,7 @@ export class UrlShareService {
         initialRoadmap: false,
         initialKinematic: false,
         initialRootNodeId: null,
+        initialApplet: null,
       };
     }
   }

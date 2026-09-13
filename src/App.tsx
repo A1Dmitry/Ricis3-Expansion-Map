@@ -1,9 +1,19 @@
-import { useEffect, useState } from 'react';
+// ============================================================================
+// MODIFIED APP CONTAINER WITH ACTIVE APPLET CENTRAL WORKSPACE (MVVM / DDD)
+// Visual Studio / MS Word 2000 style layout:
+// Compact Command Menu Bar at top -> Central Workspace Applet -> Deep-link support
+// ============================================================================
+
+import React, { useEffect, useState } from 'react';
 import { RouteSurfaceBoundary } from './ui/RouteSurfaceBoundary';
 import { lazyNamedComponent } from './ui/lazyNamedComponent';
 import { isCoreRecoveryRoute } from './services/coreRecovery';
 import { UrlShareService } from './services/UrlShareService';
 import { useMapStore } from './store/mapStore';
+import { CompactCommandMenuBar } from './ui/components/CompactCommandMenuBar';
+import { AppletNavigationService } from './services/AppletNavigationService';
+import type { AppletId } from './types/appletRegistry';
+import { APP_BUILD_LABEL } from './version';
 
 const Map3D = lazyNamedComponent(() => import('./ui/Map3D'), 'Map3D');
 const CoreRecoveryPage = lazyNamedComponent(() => import('./ui/CoreRecoveryPage'), 'CoreRecoveryPage');
@@ -75,64 +85,64 @@ export default function App() {
     );
   }
 
-  const roadmapParams = new URLSearchParams(locationSearch);
-  if (roadmapParams.get('view') === 'kinematic') {
-    return (
-      <RouteSurfaceBoundary>
-        <KinematicEnginePage
-          onBackToMap={() => {
-            UrlShareService.updateBrowserUrl({ kinematic: false });
-            setLocationSearch(window.location.search);
-          }}
-        />
-      </RouteSurfaceBoundary>
-    );
-  }
+  const currentApplet = AppletNavigationService.resolveCurrentApplet(locationSearch);
 
-  if (roadmapParams.get('view') === 'comparison') {
-    return (
-      <RouteSurfaceBoundary>
-        <ProofGraphComparisonPage
-          onBackToMap={() => {
-            UrlShareService.updateBrowserUrl({ comparison: false });
-            setLocationSearch(window.location.search);
-          }}
-        />
-      </RouteSurfaceBoundary>
-    );
-  }
+  const handleSelectApplet = (applet: AppletId) => {
+    AppletNavigationService.navigateTo(applet);
+    UrlShareService.updateBrowserUrl({ applet: applet === 'map' ? undefined : applet });
+    setLocationSearch(window.location.search);
+  };
 
-  if (roadmapParams.get('view') === 'seed') {
-    return (
-      <RouteSurfaceBoundary>
-        <RicisSeedPage
-          onBackToMap={() => {
-            UrlShareService.updateBrowserUrl({ seed: false });
-            setLocationSearch(window.location.search);
-          }}
-        />
-      </RouteSurfaceBoundary>
-    );
-  }
-
-  if (roadmapParams.get('view') === 'roadmap') {
-    return (
-      <RouteSurfaceBoundary>
-        <RoadmapPage
-          contextNodeId={roadmapParams.get('node')}
-          initialRootNodeId={roadmapParams.get('root')}
-          onBackToMap={() => {
-            UrlShareService.updateBrowserUrl({ roadmap: false, rootNodeId: null });
-            setLocationSearch(window.location.search);
-          }}
-        />
-      </RouteSurfaceBoundary>
-    );
-  }
+  const renderActiveApplet = () => {
+    switch (currentApplet) {
+      case 'kinematic':
+        return (
+          <KinematicEnginePage
+            onBackToMap={() => handleSelectApplet('map')}
+          />
+        );
+      case 'comparison':
+        return (
+          <ProofGraphComparisonPage
+            onBackToMap={() => handleSelectApplet('map')}
+          />
+        );
+      case 'seed':
+        return (
+          <RicisSeedPage
+            onBackToMap={() => handleSelectApplet('map')}
+          />
+        );
+      case 'roadmap':
+        const roadmapParams = new URLSearchParams(locationSearch);
+        return (
+          <RoadmapPage
+            contextNodeId={roadmapParams.get('node')}
+            initialRootNodeId={roadmapParams.get('root')}
+            onBackToMap={() => handleSelectApplet('map')}
+          />
+        );
+      case 'map':
+      default:
+        return <Map3D />;
+    }
+  };
 
   return (
     <RouteSurfaceBoundary>
-      <Map3D />
+      <div className="w-full h-screen flex flex-col overflow-hidden bg-[#050505] text-slate-100 font-sans">
+        {/* Top Compact Command Menu Bar (Office / Visual Studio style) */}
+        <CompactCommandMenuBar
+          activeApplet={currentApplet}
+          onSelectApplet={handleSelectApplet}
+          appBuildLabel={APP_BUILD_LABEL}
+        />
+
+        {/* Central Workspace: Replaces with the active applet */}
+        <div className="flex-1 relative min-h-0 overflow-hidden">
+          {renderActiveApplet()}
+        </div>
+      </div>
     </RouteSurfaceBoundary>
   );
 }

@@ -5,6 +5,7 @@
 
 import { kinematicContainer } from './kinematicModuleRegistry';
 import { Planar3LinkKinematicService } from './planar3LinkKinematicService';
+import { FiveLinkRedundantKinematicService } from './fiveLinkRedundantKinematicService';
 import type {
   IKinematicCapabilityProvider,
   IKinematicModuleMetadata,
@@ -43,24 +44,25 @@ export class Planar3LinkModuleProvider implements IKinematicCapabilityProvider {
 }
 
 /**
- * 5-Link Hyper-Redundant Planar Manipulator Provider (IN_DEVELOPMENT Placeholder)
+ * 5-Link Hyper-Redundant Planar Manipulator Provider (Production READY)
  */
-export class Planar5LinkInDevModuleProvider implements IKinematicCapabilityProvider {
+export class Planar5LinkModuleProvider implements IKinematicCapabilityProvider {
   public readonly metadata: IKinematicModuleMetadata = {
     id: 'planar-5link-redundant',
     name: '5-Link Hyper-Redundant Planar Manipulator',
-    description: '5-DOF hyper-redundant manipulator with 3-dimensional null-space manifolds and multi-cluster polar parameterization.',
-    status: 'IN_DEVELOPMENT',
+    description: '5-DOF hyper-redundant manipulator with 3-dimensional null-space manifolds, self-collision safety and multi-cluster polar parameterization.',
+    status: 'READY',
     dof: 5,
-    plannedVersion: 'v0.5.0',
     supportedCapabilities: [
       'POLAR_TRANSITION',
       'RICIS_STAGE2_REDUCTION',
       'SELF_MOTION_ESCAPE',
       'ASYNC_CRITICAL_LOGGING',
     ],
-    requiredInterfaces: ['IGenericKinematicManipulatorService', 'IHyperRedundantNullSpaceSolver'],
+    requiredInterfaces: ['IGenericKinematicManipulatorService'],
   };
+
+  public readonly service = new FiveLinkRedundantKinematicService();
 
   public supportsCapability(capability: KinematicCapabilityId): boolean {
     return this.metadata.supportedCapabilities.includes(capability);
@@ -101,5 +103,5 @@ export class Spatial6DofInDevModuleProvider implements IKinematicCapabilityProvi
 
 // Bootstrap default registrations
 kinematicContainer.register(new Planar3LinkModuleProvider());
-kinematicContainer.register(new Planar5LinkInDevModuleProvider());
+kinematicContainer.register(new Planar5LinkModuleProvider());
 kinematicContainer.register(new Spatial6DofInDevModuleProvider());
