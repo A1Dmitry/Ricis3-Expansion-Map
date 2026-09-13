@@ -11,8 +11,11 @@ import { isCoreRecoveryRoute } from './services/coreRecovery';
 import { UrlShareService } from './services/UrlShareService';
 import { useMapStore } from './store/mapStore';
 import { CompactCommandMenuBar } from './ui/components/CompactCommandMenuBar';
+import { AppletActionToolbar } from './ui/components/AppletActionToolbar';
 import { AppletNavigationService } from './services/AppletNavigationService';
 import type { AppletId } from './types/appletRegistry';
+import type { CommandContext } from './types/commandTypes';
+import { CommandRegistry } from './services/commandRegistry';
 import { APP_BUILD_LABEL } from './version';
 
 const Map3D = lazyNamedComponent(() => import('./ui/Map3D'), 'Map3D');
@@ -51,6 +54,7 @@ export default function App() {
   const hydrated = useMapStore(s => s.hydrated);
   const [error, setError] = useState<string | null>(null);
   const [locationSearch, setLocationSearch] = useState(() => window.location.search);
+  const [is3DMode, setIs3DMode] = useState(true);
 
   useEffect(() => {
     hydrate().catch(e => {
@@ -64,6 +68,86 @@ export default function App() {
     window.addEventListener('popstate', onPopState);
     return () => window.removeEventListener('popstate', onPopState);
   }, []);
+
+  const currentApplet = AppletNavigationService.resolveCurrentApplet(locationSearch);
+
+  const handleSelectApplet = (applet: AppletId) => {
+    AppletNavigationService.navigateTo(applet);
+    UrlShareService.updateBrowserUrl({ applet: applet === 'map' ? undefined : applet });
+    setLocationSearch(window.location.search);
+  };
+
+  const commandContext: CommandContext = {
+    activeApplet: currentApplet,
+    is3DMode,
+    onSelectApplet: handleSelectApplet,
+    onToggle3DMode: () => {
+      setIs3DMode(prev => !prev);
+      window.dispatchEvent(new CustomEvent('ricis:toggle-3d-presentation'));
+    },
+    onResetCamera: () => {
+      window.dispatchEvent(new CustomEvent('ricis:reset-camera'));
+    },
+    onSearchNodes: () => {
+      window.dispatchEvent(new CustomEvent('ricis:open-search'));
+    },
+    onToggleSimulation: () => {
+      window.dispatchEvent(new CustomEvent('ricis:kinematic-toggle-play'));
+    },
+    onResetSimulation: () => {
+      window.dispatchEvent(new CustomEvent('ricis:kinematic-reset'));
+    },
+    onStepSimulation: () => {
+      window.dispatchEvent(new CustomEvent('ricis:kinematic-step'));
+    },
+    onClearTerminal: () => {
+      window.dispatchEvent(new CustomEvent('ricis:terminal-clear'));
+    },
+    onRunProver: () => {
+      window.dispatchEvent(new CustomEvent('ricis:qa-run-floodfill'));
+    },
+    onRunDiagnostics: () => {
+      window.dispatchEvent(new CustomEvent('ricis:run-diagnostics'));
+    },
+  };
+
+  // Global Keyboard Shortcuts (Alt+1..9, Space, etc.)
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Don't intercept when user is typing in an input, textarea or contenteditable
+      const target = e.target as HTMLElement | null;
+      if (
+        target &&
+        (target.tagName === 'INPUT' ||
+          target.tagName === 'TEXTAREA' ||
+          target.isContentEditable)
+      ) {
+        return;
+      }
+
+      if (e.altKey && !e.ctrlKey && !e.shiftKey) {
+        const keyNum = parseInt(e.key, 10);
+        const appletMap: Record<number, AppletId> = {
+          1: 'map',
+          2: 'kinematic',
+          3: 'seed',
+          4: 'comparison',
+          5: 'roadmap',
+          6: 'voynich',
+          7: 'terminal',
+          8: 'qa-tests',
+          9: 'settings',
+        };
+        if (keyNum in appletMap) {
+          e.preventDefault();
+          handleSelectApplet(appletMap[keyNum]!);
+        }
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [locationSearch]);
 
   if (error) {
     return (
@@ -88,14 +172,6 @@ export default function App() {
       </RouteSurfaceBoundary>
     );
   }
-
-  const currentApplet = AppletNavigationService.resolveCurrentApplet(locationSearch);
-
-  const handleSelectApplet = (applet: AppletId) => {
-    AppletNavigationService.navigateTo(applet);
-    UrlShareService.updateBrowserUrl({ applet: applet === 'map' ? undefined : applet });
-    setLocationSearch(window.location.search);
-  };
 
   const renderActiveApplet = () => {
     switch (currentApplet) {
@@ -208,7 +284,14 @@ export default function App() {
         <CompactCommandMenuBar
           activeApplet={currentApplet}
           onSelectApplet={handleSelectApplet}
+          commandContext={commandContext}
           appBuildLabel={APP_BUILD_LABEL}
+        />
+
+        {/* Dynamic Context-Aware Action Toolbar */}
+        <AppletActionToolbar
+          activeApplet={currentApplet}
+          commandContext={commandContext}
         />
 
         {/* Central Workspace: Replaces with the active applet */}

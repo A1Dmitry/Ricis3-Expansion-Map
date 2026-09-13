@@ -409,3 +409,5 @@ export class A8ZeroSubtractionRule extends BaseSingularityRule {
   }
 }
 
+export { A15EqualOrderRule } from './a15EqualOrderProfile';
+

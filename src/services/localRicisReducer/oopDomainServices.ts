@@ -14,6 +14,7 @@ import type {
   A1OperandPair,
   A10OperandPair,
   A8OperandPair,
+  A15OperandPair,
   ISingularityOperandExtractor,
   ISingularityPairValidator,
   IStructuralExpressionFactory,
@@ -23,6 +24,7 @@ import type {
   ISemanticIndexValidator,
 } from './oopContracts';
 import { HOMOGENEOUS_SCALAR_PRECONDITIONS } from './a6A7Homogeneous';
+import { OrderProfileCalculator } from './a15EqualOrderProfile';
 
 /**
  * Доменный сервис извлечения операндов из бинарных выражений (DRY).
@@ -173,6 +175,35 @@ export class SingularityOperandExtractor implements ISingularityOperandExtractor
         rightZero: expression.right as StructuralIndexedZero,
       };
     }
+    return undefined;
+  }
+
+  extractA15Pair(expression: StructuralBinaryExpression): A15OperandPair | undefined {
+    if (expression.kind !== 'BINARY' || expression.operator !== 'DIVIDE') {
+      return undefined;
+    }
+
+    const left = expression.left;
+    const right = expression.right;
+    if (!left || !right) return undefined;
+
+    const numPayload = left.kind === 'INDEXED_ZERO' ? left.payload : left;
+    const denPayload = right.kind === 'INDEXED_ZERO' ? right.payload : right;
+
+    const numProfile = OrderProfileCalculator.computeOrderAndDerivative(numPayload, 0);
+    const denProfile = OrderProfileCalculator.computeOrderAndDerivative(denPayload, 0);
+
+    if (numProfile && denProfile && numProfile.order === denProfile.order && numProfile.order > 0) {
+      return {
+        numeratorPayload: numPayload,
+        denominatorPayload: denPayload,
+        order: numProfile.order,
+        numDerivValue: numProfile.derivValue,
+        denDerivValue: denProfile.derivValue,
+        evalPoint: 0,
+      };
+    }
+
     return undefined;
   }
 }
@@ -384,6 +415,30 @@ export class SingularityPairValidator implements ISingularityPairValidator {
       if (!indexValidator.hasValidFiniteKeys(leftZero.payload) || !indexValidator.hasValidFiniteKeys(rightZero.payload)) {
         return { isValid: false, status: 'DEFERRED', reason: 'INVALID_FINITE_KEYS' };
       }
+    }
+
+    return {
+      isValid: true,
+      preconditions: [...HOMOGENEOUS_SCALAR_PRECONDITIONS],
+    };
+  }
+
+  validateA15Pair(
+    pair: A15OperandPair,
+    indexValidator: ISemanticIndexValidator,
+    typeValidator: ITypeConsistencyValidator
+  ): SingularityPairValidationResult {
+    const { numeratorPayload, denominatorPayload } = pair;
+
+    const leftTag = numeratorPayload.identity?.typeTag ?? 'scalar';
+    const rightTag = denominatorPayload.identity?.typeTag ?? 'scalar';
+    const compatibility = typeValidator.checkCompatibility(leftTag, rightTag);
+    if (compatibility.requiresCompositeDeferral) {
+      return { isValid: false, status: 'DEFERRED', reason: 'TCP_COMPOSITE_REQUIRED' };
+    }
+
+    if (!indexValidator.hasValidFiniteKeys(numeratorPayload) || !indexValidator.hasValidFiniteKeys(denominatorPayload)) {
+      return { isValid: false, status: 'DEFERRED', reason: 'INVALID_FINITE_KEYS' };
     }
 
     return {
@@ -716,6 +771,74 @@ export class StructuralExpressionFactory implements IStructuralExpressionFactory
         source,
       }),
       semanticKeys: diffPayload.semanticKeys,
+    });
+  }
+
+  createA15ProfileQuotient(
+    canonicalValue: string,
+    sourceRef: StructuralSourceReference
+  ): StructuralExpression {
+    const source: StructuralSourceReference = {
+      sourceHash: sourceRef.sourceHash,
+      sourceCanonical: canonicalValue,
+      sourceSpan: { start: 0, endExclusive: canonicalValue.length },
+      origin: 'DERIVED_RICIS_RULE',
+    };
+
+    if (canonicalValue.includes('/')) {
+      const parts = canonicalValue.split('/').map(s => s.trim());
+      const numLexeme = parts[0]!;
+      const denLexeme = parts[1]!;
+
+      const left: StructuralExpression = Object.freeze({
+        kind: 'FINITE_LITERAL',
+        lexeme: numLexeme,
+        identity: Object.freeze({
+          structuralHash: `literal:${numLexeme}`,
+          canonical: numLexeme,
+          typeTag: 'scalar',
+          source,
+        }),
+        semanticKeys: Object.freeze([]),
+      });
+
+      const right: StructuralExpression = Object.freeze({
+        kind: 'FINITE_LITERAL',
+        lexeme: denLexeme,
+        identity: Object.freeze({
+          structuralHash: `literal:${denLexeme}`,
+          canonical: denLexeme,
+          typeTag: 'scalar',
+          source,
+        }),
+        semanticKeys: Object.freeze([]),
+      });
+
+      return Object.freeze({
+        kind: 'BINARY',
+        operator: 'DIVIDE',
+        left,
+        right,
+        identity: Object.freeze({
+          structuralHash: `a15:${canonicalValue}`,
+          canonical: canonicalValue,
+          typeTag: 'scalar',
+          source,
+        }),
+        semanticKeys: Object.freeze([]),
+      });
+    }
+
+    return Object.freeze({
+      kind: 'FINITE_LITERAL',
+      lexeme: canonicalValue,
+      identity: Object.freeze({
+        structuralHash: `a15:${canonicalValue}`,
+        canonical: canonicalValue,
+        typeTag: 'scalar',
+        source,
+      }),
+      semanticKeys: Object.freeze([]),
     });
   }
 }

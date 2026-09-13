@@ -1,7 +1,7 @@
 // ============================================================================
 // COMPACT OFFICE / VISUAL STUDIO COMMAND MENU BAR (MVVM / DRY / SOLID)
-// Replaces scattered top-level buttons with grouped hierarchical menus & submenus,
-// browser-style Back/Forward navigation, breadcrumbs and active applet deep linking.
+// Hierarchical dropdown menus with dynamic enable/disable states,
+// shortcut keys, breadcrumbs, and browser history navigation.
 // ============================================================================
 
 import React, { useState, useRef, useEffect } from 'react';
@@ -25,15 +25,27 @@ import {
   HelpCircle,
   Copy,
   Check,
+  Search,
+  RotateCcw,
+  Compass,
+  Play,
+  PlayCircle,
+  Trash2,
+  Cpu,
+  Download,
+  AlertCircle,
 } from 'lucide-react';
 import type { AppletId } from '../../types/appletRegistry';
 import { APPLET_DEFINITIONS } from '../../types/appletRegistry';
 import { AppletNavigationService } from '../../services/AppletNavigationService';
 import { UrlShareService } from '../../services/UrlShareService';
+import type { CommandContext } from '../../types/commandTypes';
+import { CommandRegistry } from '../../services/commandRegistry';
 
 interface CompactCommandMenuBarProps {
   readonly activeApplet: AppletId;
   readonly onSelectApplet: (applet: AppletId) => void;
+  readonly commandContext?: CommandContext;
   readonly onTogglePresentationMode?: () => void;
   readonly presentationModeLabel?: string;
   readonly appBuildLabel?: string;
@@ -42,6 +54,7 @@ interface CompactCommandMenuBarProps {
 export const CompactCommandMenuBar: React.FC<CompactCommandMenuBarProps> = ({
   activeApplet,
   onSelectApplet,
+  commandContext,
   onTogglePresentationMode,
   presentationModeLabel = '3D / 2D',
   appBuildLabel = 'v7.7.4-seed-persistent',
@@ -49,6 +62,13 @@ export const CompactCommandMenuBar: React.FC<CompactCommandMenuBarProps> = ({
   const [openMenu, setOpenMenu] = useState<string | null>(null);
   const [copiedLink, setCopiedLink] = useState(false);
   const menuBarRef = useRef<HTMLDivElement>(null);
+
+  // Fallback context if not provided
+  const ctx: CommandContext = commandContext ?? {
+    activeApplet,
+    is3DMode: true,
+    onSelectApplet,
+  };
 
   // Close menus on click outside
   useEffect(() => {
@@ -76,15 +96,25 @@ export const CompactCommandMenuBar: React.FC<CompactCommandMenuBarProps> = ({
     setOpenMenu(null);
   };
 
+  const handleExecute = (cmdId: string) => {
+    const cmd = CommandRegistry.getById(cmdId);
+    if (cmd && cmd.isEnabled(ctx)) {
+      cmd.execute(ctx);
+      setOpenMenu(null);
+    }
+  };
+
   return (
     <div
       ref={menuBarRef}
       className="relative z-50 flex items-center justify-between px-2 py-1 bg-neutral-950 border-b border-neutral-800 text-xs font-mono select-none"
+      data-testid="compact-command-menu-bar"
     >
       {/* Left: Branding + Browser-like Back/Forward Navigation + Menus */}
       <div className="flex items-center gap-1 sm:gap-2">
         {/* Branding Logo */}
-        <div className="flex items-center gap-1.5 px-2 py-0.5 rounded bg-cyan-950/60 border border-cyan-700/60 text-cyan-300 font-extrabold tracking-wider text-[11px] cursor-pointer"
+        <div
+          className="flex items-center gap-1.5 px-2 py-0.5 rounded bg-cyan-950/60 border border-cyan-700/60 text-cyan-300 font-extrabold tracking-wider text-[11px] cursor-pointer"
           onClick={() => handleNavigate('map')}
           title="RICIS-III Engine Home"
         >
@@ -125,7 +155,7 @@ export const CompactCommandMenuBar: React.FC<CompactCommandMenuBarProps> = ({
                 openMenu === 'file' ? 'bg-neutral-800 text-cyan-300' : 'text-slate-300 hover:bg-neutral-800/80 hover:text-white'
               }`}
             >
-              <span>Рабочая область</span>
+              <span>Файл</span>
               <ChevronDown size={11} className="opacity-70" />
             </button>
 
@@ -143,7 +173,7 @@ export const CompactCommandMenuBar: React.FC<CompactCommandMenuBarProps> = ({
                 >
                   <Layers size={13} className="text-cyan-400" />
                   <span className="flex-1">3D Граф Сингулярностей</span>
-                  <span className="text-[10px] font-mono text-slate-500">Ctrl+1</span>
+                  <span className="text-[10px] font-mono text-slate-500">Alt+1</span>
                 </button>
                 <button
                   type="button"
@@ -153,8 +183,30 @@ export const CompactCommandMenuBar: React.FC<CompactCommandMenuBarProps> = ({
                   }`}
                 >
                   <Activity size={13} className="text-emerald-400" />
-                  <span className="flex-1">3D Кинематика и Манипуляторы</span>
-                  <span className="text-[10px] font-mono text-slate-500">Ctrl+2</span>
+                  <span className="flex-1">3D Кинематика N-Link</span>
+                  <span className="text-[10px] font-mono text-slate-500">Alt+2</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleNavigate('seed')}
+                  className={`w-full px-3 py-1.5 text-left flex items-center gap-2 hover:bg-emerald-950/70 hover:text-emerald-200 transition-colors ${
+                    activeApplet === 'seed' ? 'bg-emerald-950/90 text-emerald-300 font-bold' : 'text-slate-300'
+                  }`}
+                >
+                  <Sprout size={13} className="text-emerald-400" />
+                  <span className="flex-1">Seed Протокол</span>
+                  <span className="text-[10px] font-mono text-slate-500">Alt+3</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleNavigate('comparison')}
+                  className={`w-full px-3 py-1.5 text-left flex items-center gap-2 hover:bg-neutral-800 hover:text-white transition-colors ${
+                    activeApplet === 'comparison' ? 'bg-neutral-800 text-white font-bold' : 'text-slate-300'
+                  }`}
+                >
+                  <GitBranch size={13} className="text-cyan-400" />
+                  <span className="flex-1">Сравнение Графов</span>
+                  <span className="text-[10px] font-mono text-slate-500">Alt+4</span>
                 </button>
                 <button
                   type="button"
@@ -165,7 +217,7 @@ export const CompactCommandMenuBar: React.FC<CompactCommandMenuBarProps> = ({
                 >
                   <List size={13} className="text-violet-400" />
                   <span className="flex-1">Дорожная карта (Roadmap)</span>
-                  <span className="text-[10px] font-mono text-slate-500">Ctrl+5</span>
+                  <span className="text-[10px] font-mono text-slate-500">Alt+5</span>
                 </button>
 
                 <div className="my-1 border-t border-neutral-800" />
@@ -182,7 +234,59 @@ export const CompactCommandMenuBar: React.FC<CompactCommandMenuBarProps> = ({
             )}
           </div>
 
-          {/* MENU 2: Манипулятор / Кинематика */}
+          {/* MENU 2: Вид / Камера */}
+          <div className="relative">
+            <button
+              type="button"
+              onClick={() => setOpenMenu(openMenu === 'view' ? null : 'view')}
+              className={`px-2 py-1 rounded transition-colors flex items-center gap-1 text-[11px] font-sans font-medium ${
+                openMenu === 'view' ? 'bg-neutral-800 text-cyan-300' : 'text-slate-300 hover:bg-neutral-800/80 hover:text-white'
+              }`}
+            >
+              <span>Вид</span>
+              <ChevronDown size={11} className="opacity-70" />
+            </button>
+
+            {openMenu === 'view' && (
+              <div className="absolute left-0 top-full mt-1 w-64 bg-neutral-900 border border-neutral-700/80 rounded-md shadow-2xl py-1 text-xs font-sans z-50">
+                <button
+                  type="button"
+                  disabled={activeApplet !== 'map'}
+                  onClick={() => handleExecute('view.toggle3D')}
+                  className={`w-full px-3 py-1.5 text-left flex items-center gap-2 transition-colors ${
+                    activeApplet === 'map' ? 'text-slate-300 hover:bg-cyan-950/70 hover:text-cyan-200' : 'text-slate-600 opacity-40 cursor-not-allowed'
+                  }`}
+                >
+                  <Compass size={13} className="text-cyan-400" />
+                  <span className="flex-1">3D / 2D Проекция</span>
+                  <span className="text-[10px] font-mono text-slate-500">V</span>
+                </button>
+                <button
+                  type="button"
+                  disabled={activeApplet !== 'map'}
+                  onClick={() => handleExecute('view.resetCamera')}
+                  className={`w-full px-3 py-1.5 text-left flex items-center gap-2 transition-colors ${
+                    activeApplet === 'map' ? 'text-slate-300 hover:bg-cyan-950/70 hover:text-cyan-200' : 'text-slate-600 opacity-40 cursor-not-allowed'
+                  }`}
+                >
+                  <RotateCcw size={13} className="text-cyan-400" />
+                  <span className="flex-1">Сброс Камеры (Изометрия)</span>
+                  <span className="text-[10px] font-mono text-slate-500">R</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleExecute('view.searchNodes')}
+                  className="w-full px-3 py-1.5 text-left flex items-center gap-2 text-slate-300 hover:bg-cyan-950/70 hover:text-cyan-200 transition-colors"
+                >
+                  <Search size={13} className="text-cyan-400" />
+                  <span className="flex-1">Поиск Узлов и DOI</span>
+                  <span className="text-[10px] font-mono text-slate-500">Ctrl+F</span>
+                </button>
+              </div>
+            )}
+          </div>
+
+          {/* MENU 3: Кинематика */}
           <div className="relative">
             <button
               type="button"
@@ -191,13 +295,42 @@ export const CompactCommandMenuBar: React.FC<CompactCommandMenuBarProps> = ({
                 openMenu === 'kinematics' ? 'bg-neutral-800 text-emerald-300' : 'text-slate-300 hover:bg-neutral-800/80 hover:text-white'
               }`}
             >
-              <span>Манипулятор</span>
+              <span>Кинематика</span>
               <ChevronDown size={11} className="opacity-70" />
             </button>
 
             {openMenu === 'kinematics' && (
               <div className="absolute left-0 top-full mt-1 w-72 bg-neutral-900 border border-neutral-700/80 rounded-md shadow-2xl py-1 text-xs font-sans z-50">
                 <div className="px-3 py-1 text-[10px] font-mono uppercase tracking-wider text-slate-500 border-b border-neutral-800">
+                  Управление Физикой
+                </div>
+                <button
+                  type="button"
+                  disabled={activeApplet !== 'kinematic'}
+                  onClick={() => handleExecute('kinematic.toggleSimulation')}
+                  className={`w-full px-3 py-1.5 text-left flex items-center gap-2 transition-colors ${
+                    activeApplet === 'kinematic' ? 'text-slate-300 hover:bg-emerald-950/70 hover:text-emerald-200' : 'text-slate-600 opacity-40 cursor-not-allowed'
+                  }`}
+                >
+                  <Play size={13} className="text-emerald-400" />
+                  <span className="flex-1">Запуск / Пауза Симуляции</span>
+                  <span className="text-[10px] font-mono text-slate-500">Space</span>
+                </button>
+                <button
+                  type="button"
+                  disabled={activeApplet !== 'kinematic'}
+                  onClick={() => handleExecute('kinematic.resetJoints')}
+                  className={`w-full px-3 py-1.5 text-left flex items-center gap-2 transition-colors ${
+                    activeApplet === 'kinematic' ? 'text-slate-300 hover:bg-emerald-950/70 hover:text-emerald-200' : 'text-slate-600 opacity-40 cursor-not-allowed'
+                  }`}
+                >
+                  <RotateCcw size={13} className="text-emerald-400" />
+                  <span className="flex-1">Сброс Шарниров и Положения</span>
+                  <span className="text-[10px] font-mono text-slate-500">Ctrl+R</span>
+                </button>
+
+                <div className="my-1 border-t border-neutral-800" />
+                <div className="px-3 py-1 text-[10px] font-mono uppercase tracking-wider text-slate-500">
                   Модели Манипуляторов
                 </div>
                 <button
@@ -207,7 +340,7 @@ export const CompactCommandMenuBar: React.FC<CompactCommandMenuBarProps> = ({
                 >
                   <Activity size={13} className="text-emerald-400" />
                   <div className="flex flex-col">
-                    <span className="font-semibold">3-Link Planar (READY)</span>
+                    <span className="font-semibold">3-Link Planar</span>
                     <span className="text-[10px] text-slate-400">Полярная редукция O(1) и SVD</span>
                   </div>
                 </button>
@@ -218,26 +351,15 @@ export const CompactCommandMenuBar: React.FC<CompactCommandMenuBarProps> = ({
                 >
                   <Sparkles size={13} className="text-purple-400" />
                   <div className="flex flex-col">
-                    <span className="font-semibold">5-Link Hyper-Redundant (READY)</span>
-                    <span className="text-[10px] text-slate-400">3D Null-space self-motion dim=3</span>
-                  </div>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => handleNavigate('kinematic')}
-                  className="w-full px-3 py-1.5 text-left flex items-center gap-2 text-slate-300 hover:bg-amber-950/70 hover:text-amber-200 transition-colors"
-                >
-                  <Sliders size={13} className="text-amber-400" />
-                  <div className="flex flex-col">
-                    <span className="font-semibold">Spatial 6-DOF RICIS Arm</span>
-                    <span className="text-[10px] text-slate-400">Сферический охват в 3D пространстве</span>
+                    <span className="font-semibold">5-Link Hyper-Redundant</span>
+                    <span className="text-[10px] text-slate-400">Null-space self-motion</span>
                   </div>
                 </button>
               </div>
             )}
           </div>
 
-          {/* MENU 3: Основания (RICIS Foundations) */}
+          {/* MENU 4: Основания (RICIS Foundations) */}
           <div className="relative">
             <button
               type="button"
@@ -259,6 +381,7 @@ export const CompactCommandMenuBar: React.FC<CompactCommandMenuBarProps> = ({
                 >
                   <Sprout size={13} className="text-emerald-300" />
                   <span className="flex-1">RICIS SEED (A11 Протокол)</span>
+                  <span className="text-[10px] font-mono text-slate-500">Alt+3</span>
                 </button>
                 <button
                   type="button"
@@ -267,6 +390,7 @@ export const CompactCommandMenuBar: React.FC<CompactCommandMenuBarProps> = ({
                 >
                   <GitBranch size={13} className="text-cyan-400" />
                   <span className="flex-1">RICIS vs Anthropic Граф</span>
+                  <span className="text-[10px] font-mono text-slate-500">Alt+4</span>
                 </button>
                 <button
                   type="button"
@@ -275,12 +399,13 @@ export const CompactCommandMenuBar: React.FC<CompactCommandMenuBarProps> = ({
                 >
                   <BookOpen size={13} className="text-yellow-400" />
                   <span className="flex-1">Манускрипт Войнича</span>
+                  <span className="text-[10px] font-mono text-slate-500">Alt+6</span>
                 </button>
               </div>
             )}
           </div>
 
-          {/* MENU 4: Сервис и Тестирование */}
+          {/* MENU 5: Сервис и QA */}
           <div className="relative">
             <button
               type="button"
@@ -302,6 +427,7 @@ export const CompactCommandMenuBar: React.FC<CompactCommandMenuBarProps> = ({
                 >
                   <Bug size={13} className="text-rose-400" />
                   <span className="flex-1">QA Стресс-тест и Аудит</span>
+                  <span className="text-[10px] font-mono text-slate-500">Alt+8</span>
                 </button>
                 <button
                   type="button"
@@ -309,8 +435,17 @@ export const CompactCommandMenuBar: React.FC<CompactCommandMenuBarProps> = ({
                   className="w-full px-3 py-1.5 text-left flex items-center gap-2 text-slate-300 hover:bg-purple-950/70 hover:text-purple-200 transition-colors"
                 >
                   <Terminal size={13} className="text-purple-400" />
-                  <span className="flex-1">Интерактивная Консоль (Sandbox)</span>
-                  <span className="text-[10px] font-mono text-slate-500">Ctrl+~</span>
+                  <span className="flex-1">Интерактивный REPL</span>
+                  <span className="text-[10px] font-mono text-slate-500">Alt+7</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleExecute('global.diagnostics')}
+                  className="w-full px-3 py-1.5 text-left flex items-center gap-2 text-slate-300 hover:bg-neutral-800 hover:text-white transition-colors"
+                >
+                  <AlertCircle size={13} className="text-amber-400" />
+                  <span className="flex-1">Самодиагностика Системы</span>
+                  <span className="text-[10px] font-mono text-slate-500">F12</span>
                 </button>
                 <button
                   type="button"
@@ -319,6 +454,7 @@ export const CompactCommandMenuBar: React.FC<CompactCommandMenuBarProps> = ({
                 >
                   <Settings size={13} className="text-slate-400" />
                   <span className="flex-1">Настройки Системы</span>
+                  <span className="text-[10px] font-mono text-slate-500">Alt+9</span>
                 </button>
               </div>
             )}

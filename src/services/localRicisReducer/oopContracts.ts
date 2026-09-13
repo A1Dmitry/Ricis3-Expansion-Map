@@ -97,6 +97,18 @@ export interface A6OperandPair {
 }
 
 /**
+ * Извлеченная пара операндов для профиля равных порядков A15 (Resolve([F/G], a) = D^d F(a) / D^d G(a)).
+ */
+export interface A15OperandPair {
+  readonly numeratorPayload: StructuralExpression;
+  readonly denominatorPayload: StructuralExpression;
+  readonly order: number;
+  readonly numDerivValue: number;
+  readonly denDerivValue: number;
+  readonly evalPoint?: number;
+}
+
+/**
  * Извлеченная пара операндов для разности бесконечностей A7 (inf_F - inf_G).
  */
 export interface A7OperandPair {
@@ -168,6 +180,7 @@ export interface ISingularityOperandExtractor {
   extractA1Pair(expression: StructuralBinaryExpression): A1OperandPair | undefined;
   extractA10Pair(expression: StructuralBinaryExpression): A10OperandPair | undefined;
   extractA8Pair(expression: StructuralBinaryExpression): A8OperandPair | undefined;
+  extractA15Pair(expression: StructuralBinaryExpression): A15OperandPair | undefined;
 }
 
 /**
@@ -212,6 +225,12 @@ export interface ISingularityPairValidator {
 
   validateA8Pair(
     pair: A8OperandPair,
+    indexValidator: ISemanticIndexValidator,
+    typeValidator: ITypeConsistencyValidator
+  ): SingularityPairValidationResult;
+
+  validateA15Pair(
+    pair: A15OperandPair,
     indexValidator: ISemanticIndexValidator,
     typeValidator: ITypeConsistencyValidator
   ): SingularityPairValidationResult;
@@ -261,6 +280,11 @@ export interface IStructuralExpressionFactory {
     rightPayload: StructuralExpression,
     sourceRef: StructuralSourceReference
   ): StructuralIndexedZero;
+
+  createA15ProfileQuotient(
+    canonicalValue: string,
+    sourceRef: StructuralSourceReference
+  ): StructuralExpression;
 }
 
 /**

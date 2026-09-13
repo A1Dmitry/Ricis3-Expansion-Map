@@ -1516,6 +1516,7 @@ export const Map3D: React.FC = () => {
                       }
                     }}
                     className="min-h-10 rounded-lg border border-cyan-800/70 bg-cyan-950/50 px-3 text-[10px] font-bold text-cyan-100 inline-flex items-center gap-1.5"
+                    aria-label={t('map.presentation.toggle')}
                     aria-pressed={mapPresentationMode === 'accessible_list'}
                   >
                     {mapPresentationMode === 'three_dimensional' ? <List size={14} /> : <MapIcon size={14} />}
@@ -1575,6 +1576,7 @@ export const Map3D: React.FC = () => {
                   UrlShareService.updateBrowserUrl({ roadmap: true, rootNodeId: null });
                   window.dispatchEvent(new PopStateEvent('popstate'));
                 }}
+                aria-label={t('map.roadmap.aria')}
                 className="min-h-12 w-full rounded-lg border border-violet-800/80 bg-violet-950/35 px-3 text-left text-xs font-bold text-violet-100 inline-flex items-center justify-between"
               >
                 <span className="inline-flex items-center gap-2"><List size={16} /> Roadmap: выбрать маршрут исследования</span><ChevronRight size={17} />
@@ -1621,6 +1623,7 @@ export const Map3D: React.FC = () => {
                   <button type="button" onClick={() => setShowAutomatedTestingModal(true)} className="min-h-12 rounded-lg border border-rose-800/70 bg-rose-950/40 px-3 text-left text-xs font-bold text-rose-200 inline-flex items-center gap-2"><Bug size={16} className="text-rose-400" /> QA Тестирование (Flood-Fill & Stress)</button>
                   <button type="button" onClick={() => void toggleSensorMode()} className="min-h-12 rounded-lg border border-neutral-700 bg-neutral-900/70 px-3 text-left text-xs font-bold text-slate-100 inline-flex items-center gap-2"><Compass size={16} className={sensorModeEnabled ? 'text-emerald-400' : 'text-cyan-400'} /> {sensorModeEnabled ? 'Отключить управление наклоном' : 'Включить управление наклоном'}</button>
                   <button type="button" onClick={() => setShowAddNode(true)} className="min-h-12 rounded-lg border border-emerald-800/70 bg-emerald-950/40 px-3 text-left text-xs font-bold text-emerald-100 inline-flex items-center gap-2"><Plus size={16} /> {t('filter.addNewTask')}</button>
+                  <button type="button" onClick={() => setShowVoynichModal(true)} className="min-h-12 rounded-lg border border-amber-800/70 bg-amber-950/40 px-3 text-left text-xs font-bold text-amber-200 inline-flex items-center gap-2"><BookOpen size={16} className="text-amber-400" /> {t('map.voynich.label')}</button>
                   <button type="button" onClick={checkCoreRuntime} disabled={isCheckingCoreRuntime} className="min-h-12 rounded-lg border border-violet-800/70 bg-violet-950/30 px-3 text-left text-xs font-bold text-violet-100 inline-flex items-center gap-2 disabled:opacity-50"><Cpu size={16} /> {isCheckingCoreRuntime ? t('core.status.checking') : 'Проверить RICIS Core'}</button>
                 </div>
               </details>
