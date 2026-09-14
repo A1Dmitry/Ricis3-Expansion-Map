@@ -20,6 +20,17 @@
 * **Статус:** `G4_DEVELOPMENT_COMPLETED` (Верифицировано, добавлено в `kinematicBenchmark.ts` & `kinematicBenchmark.test.ts`)
 * **Результаты:** Протестировано 3 сценария сингулярности (Boundary reach, Elbow fold, Shoulder pole). Доказана высокая точность и стабильность направления RICIS по сравнению с Damped Least Squares.
 
+### **[TEST-SUITE-RESTORE] Восстановление верифицируемого 100% Green тестового набора**
+* **Статус:** `G4_DEVELOPMENT_COMPLETED` (независимая проверка: `npm run lint && npm test && npm run build` — 1852/1852 зелёные на чистой ветке)
+* **Результаты:** На базе ветки тест `src/App.routeTopology.test.ts` падал: маркер roadmap-ветки указывал на устаревшую форму маршрутизации (`roadmapParams.get('view') === 'roadmap'`), в то время как roadmap стал applet-ветвью центрального switch (`case 'roadmap':`, deep-link контракт через `AppletNavigationService`). Приоритетный порядок (error → hydration → recovery → applet-выбор → map default) сохранён, тест теперь утверждает актуальные маркеры ветвей. Зафиксировано нарушение анти-туфты: до исправления заявление «100% Green» в документации не соответствовало реальному прогону.
+
+### **[LEAN-KERNEL-VERIFY] Воспроизводимая ядровая проверка Lean-артефактов (пinned toolchain 4.33.1)**
+* **Статус:** `G4_DEVELOPMENT_COMPLETED` для self-contained артефактов; `REQUIRES_CORE_LEAN` сохранён для 14 Mathlib-артефактов (статус не повышен)
+* **Результаты:**
+  * Новый workflow `lean-artifact-kernel-check.yml`: ядро Lean 4.33.1 (elan, `--default-toolchain 4.33.1`), явный allowlist `NO_MATHLIB_ARTIFACTS`, фиксация sha256 исходников, полного вывода компилятора и `#print axioms`; evidence публикуется в step summary, артефакте и комментарии PR.
+  * `database-a6-minimal-core-check.lean` повышен до `LEAN_VERIFIED`: run 34851801990, exit 0, без `sorryAx`, `#print axioms`: «does not depend on any axioms».
+  * Evidence: [`docs/05-evidence/proofs/lean-kernel-run-2026-09-14.md`](docs/05-evidence/proofs/lean-kernel-run-2026-09-14.md); байты исходников не изменялись (AGENTS.md §7).
+
 ---
 
 ## 2. Приоритетный план работ (Dependency-Ordered Roadmap)
