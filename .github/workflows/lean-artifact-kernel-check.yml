@@ -1,0 +1,156 @@
+name: Lean Artifact Kernel Check
+
+# Reproducible Lean kernel verification for RICIS Lean artifacts.
+#
+# Scope and trust boundary (see AGENTS.md §7 and docs/00-governance/CONTRIBUTING.md):
+# - Only artifacts that need no Mathlib build are checked by a pinned Lean toolchain
+#   (4.33.1, matching the project's published badge). Files that `import Mathlib`
+#   remain `REQUIRES_CORE_LEAN`: a from-scratch Mathlib build does not fit on a
+#   standard GitHub runner (disk), and no pinned prebuilt Mathlib artifact exists.
+# - The allowlist below is explicit on purpose: a file is checked only after it has
+#   been made self-contained. Adding a file = one line in NO_MATHLIB_ARTIFACTS.
+# - Artifacts are never modified by this workflow; it records source hashes,
+#   compiler output and `#print axioms` output as evidence.
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches: [main, master]
+    paths:
+      - 'artifacts/proofs/**'
+      - '.github/workflows/lean-artifact-kernel-check.yml'
+  push:
+    branches: [main, master]
+    paths:
+      - 'artifacts/proofs/**'
+      - '.github/workflows/lean-artifact-kernel-check.yml'
+
+permissions:
+  contents: read
+  actions: write
+  pull-requests: write
+
+jobs:
+  kernel-check:
+    name: Lean 4.33.1 kernel run (self-contained artifacts)
+    runs-on: ubuntu-latest
+    env:
+      # Explicit allowlist of artifacts that are checked without Mathlib.
+      NO_MATHLIB_ARTIFACTS: >-
+        artifacts/proofs/database-a6-minimal-core-check.lean
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7.0.1
+        with:
+          fetch-depth: 0
+
+      - name: Install elan and pinned Lean toolchain 4.33.1
+        run: |
+          set -euo pipefail
+          curl -sSfL https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o elan-init.sh
+          # Note: the elan installer accepts -y, --default-toolchain, --no-modify-path only.
+          sh elan-init.sh -y --default-toolchain 4.33.1
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+          # GITHUB_PATH applies to subsequent steps only; extend the current PATH explicitly.
+          export PATH="$HOME/.elan/bin:$PATH"
+          elan toolchain install 4.33.1
+          elan toolchain list
+          lean --version
+
+      - name: Run kernel on self-contained artifacts
+        run: |
+          set -uo pipefail
+          mkdir -p lean-kernel-evidence
+          : > lean-kernel-evidence/summary.txt
+          echo "Lean kernel run — $(date -u +%Y-%m-%dT%H:%M:%SZ)" > lean-kernel-evidence/toolchain.txt
+          lean --version >> lean-kernel-evidence/toolchain.txt
+          echo "toolchain: lean 4.33.1 (pinned via elan, default-toolchain)" >> lean-kernel-evidence/toolchain.txt
+          echo "host: ubuntu-latest (GitHub Actions)" >> lean-kernel-evidence/toolchain.txt
+          sha256sum artifacts/proofs/*.lean > lean-kernel-evidence/sha256.txt
+
+          overall=0
+          for f in $NO_MATHLIB_ARTIFACTS; do
+            name=$(basename "$f" .lean)
+            log="lean-kernel-evidence/${name}.log"
+            echo "=== ${name}: lean +4.33.1 ${f}" | tee -a lean-kernel-evidence/summary.txt
+            if lean +4.33.1 "$f" > "$log" 2>&1; then
+              rc=0
+              echo "    result: OK (compiler exit 0, no compiler errors)" | tee -a lean-kernel-evidence/summary.txt
+            else
+              rc=$?
+              echo "    result: FAILED (compiler exit ${rc})" | tee -a lean-kernel-evidence/summary.txt
+            fi
+            # Record the #print axioms lines of this file in the summary.
+            {
+              echo "--- #print axioms output (${name}) ---"
+              grep -E "has (no axioms|axioms)|^database" "$log" | head -20 || true
+              echo "--- compiler output tail (${name}) ---"
+              tail -n 20 "$log"
+              echo
+            } >> lean-kernel-evidence/summary.txt
+            overall=$(( overall | rc ))
+          done
+
+          {
+            echo "--- not checked (require a Mathlib build; remain REQUIRES_CORE_LEAN) ---"
+            for f in artifacts/proofs/*.lean; do
+              if grep -q '^import' "$f" 2>/dev/null; then
+                echo "  $(basename "$f"): import(s) present — no pinned Mathlib build available on this runner"
+              fi
+            done
+          } >> lean-kernel-evidence/summary.txt
+          cat lean-kernel-evidence/summary.txt
+
+          # Publish the evidence in the job step summary (viewable in the run page).
+          {
+            echo "## Lean kernel evidence (pinned toolchain run)"
+            echo '```text'
+            cat lean-kernel-evidence/toolchain.txt
+            echo "--- sha256 of artifacts ---"
+            cat lean-kernel-evidence/sha256.txt
+            for f in $NO_MATHLIB_ARTIFACTS; do
+              echo "--- full compiler log: $(basename "$f") ---"
+              cat "lean-kernel-evidence/$(basename "$f" .lean).log"
+            done
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+          if [ "$overall" -ne 0 ]; then
+            echo "Kernel run failed for at least one self-contained artifact. Evidence uploaded for inspection."
+            exit 1
+          fi
+
+      - name: Upload kernel evidence
+        if: always()
+        uses: actions/upload-artifact@v7.0.1
+        with:
+          name: lean-kernel-evidence
+          path: lean-kernel-evidence/
+          if-no-files-found: warn
+          retention-days: 90
+
+      - name: Post kernel evidence to the pull request
+        # Durable, readable copy of the run evidence (logs and artifacts are
+        # not always retrievable from restricted environments).
+        if: github.event_name == 'pull_request'
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          set -uo pipefail
+          body_file=lean-kernel-evidence/pr-comment.md
+          {
+            echo "### Lean kernel evidence — run \`${{ github.run_id }}\`"
+            echo ""
+            echo "Toolchain: Lean 4.33.1 (pinned via elan). Command: \`lean +4.33.1 <artifact>\` for every self-contained artifact."
+            echo ""
+            echo '```text'
+            cat lean-kernel-evidence/toolchain.txt
+            echo "--- sha256 (artifacts/proofs/*.lean) ---"
+            cat lean-kernel-evidence/sha256.txt
+            for f in $NO_MATHLIB_ARTIFACTS; do
+              echo "--- full compiler log: $(basename "$f") ---"
+              cat "lean-kernel-evidence/$(basename "$f" .lean).log"
+            done
+            echo '```'
+          } > "$body_file"
+          gh pr comment "${{ github.event.pull_request.number }}" --repo "${{ github.repository }}" --body-file "$body_file"
