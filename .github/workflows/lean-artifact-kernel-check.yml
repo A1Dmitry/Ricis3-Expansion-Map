@@ -28,11 +28,16 @@ on:
 permissions:
   contents: read
   actions: write
+  pull-requests: write
 
 jobs:
   kernel-check:
     name: Lean 4.33.1 kernel run (self-contained artifacts)
     runs-on: ubuntu-latest
+    env:
+      # Explicit allowlist of artifacts that are checked without Mathlib.
+      NO_MATHLIB_ARTIFACTS: >-
+        artifacts/proofs/database-a6-minimal-core-check.lean
     steps:
       - name: Checkout
         uses: actions/checkout@v7.0.1
@@ -53,10 +58,6 @@ jobs:
           lean --version
 
       - name: Run kernel on self-contained artifacts
-        env:
-          # Explicit allowlist of artifacts that are checked without Mathlib.
-          NO_MATHLIB_ARTIFACTS: >-
-            artifacts/proofs/database-a6-minimal-core-check.lean
         run: |
           set -uo pipefail
           mkdir -p lean-kernel-evidence
@@ -127,3 +128,29 @@ jobs:
           path: lean-kernel-evidence/
           if-no-files-found: warn
           retention-days: 90
+
+      - name: Post kernel evidence to the pull request
+        # Durable, readable copy of the run evidence (logs and artifacts are
+        # not always retrievable from restricted environments).
+        if: github.event_name == 'pull_request'
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          set -uo pipefail
+          body_file=lean-kernel-evidence/pr-comment.md
+          {
+            echo "### Lean kernel evidence — run \`${{ github.run_id }}\`"
+            echo ""
+            echo "Toolchain: Lean 4.33.1 (pinned via elan). Command: \`lean +4.33.1 <artifact>\` for every self-contained artifact."
+            echo ""
+            echo '```text'
+            cat lean-kernel-evidence/toolchain.txt
+            echo "--- sha256 (artifacts/proofs/*.lean) ---"
+            cat lean-kernel-evidence/sha256.txt
+            for f in $NO_MATHLIB_ARTIFACTS; do
+              echo "--- full compiler log: $(basename "$f") ---"
+              cat "lean-kernel-evidence/$(basename "$f" .lean).log"
+            done
+            echo '```'
+          } > "$body_file"
+          gh pr comment "${{ github.event.pull_request.number }}" --repo "${{ github.repository }}" --body-file "$body_file"
