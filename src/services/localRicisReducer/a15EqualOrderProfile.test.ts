@@ -54,11 +54,11 @@ describe('A15 Rational Converter & Order Profile Calculator', () => {
     expect(profileSin).toBeDefined();
     expect(profileT).toBeDefined();
 
-    expect(profileSin!.order).toBe(1);
-    expect(profileT!.order).toBe(1);
+    expect(profileSin.order).toBe(1);
+    expect(profileT.order).toBe(1);
 
-    expect(Math.abs(profileSin!.derivValue - 1.0)).toBeLessThan(1e-3);
-    expect(Math.abs(profileT!.derivValue - 1.0)).toBeLessThan(1e-3);
+    expect(Math.abs(profileSin.derivValue! - 1.0)).toBeLessThan(1e-3);
+    expect(Math.abs(profileT.derivValue! - 1.0)).toBeLessThan(1e-3);
   });
 
   it('computes order 3 for (t - sin(t)) and t^3', () => {
@@ -71,10 +71,10 @@ describe('A15 Rational Converter & Order Profile Calculator', () => {
     expect(profileF).toBeDefined();
     expect(profileG).toBeDefined();
 
-    expect(profileF!.order).toBe(3);
-    expect(profileG!.order).toBe(3);
+    expect(profileF.order).toBe(3);
+    expect(profileG.order).toBe(3);
 
-    const ratio = profileF!.derivValue / profileG!.derivValue;
+    const ratio = profileF.derivValue! / profileG.derivValue!;
     expect(toCanonicalRationalString(ratio)).toBe('1 / 6');
   });
 });
@@ -138,5 +138,13 @@ describe('A15EqualOrderRule Execution', () => {
     if (evaluation.status === 'APPLIED') {
       expect(evaluation.reduced.identity.canonical).toBe('1 / 2');
     }
+  });
+
+  it('rejects truncated series approximation for transcendental functions at non-zero evaluation point (P1 guard)', () => {
+    const profile = OrderProfileCalculator.computeOrderAndDerivative('sin(t)', 5);
+    // At evalPoint = 5, sin(t) has a non-zero constant argument u_0 = 5.
+    // Unshifted Maclaurin expansion is rejected, returning undefined instead of a fake truncated rational approximation.
+    expect(profile.isResolved).toBe(false);
+    expect(profile.status).toBe('UNRESOLVED');
   });
 });

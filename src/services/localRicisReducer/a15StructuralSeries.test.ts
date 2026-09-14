@@ -52,15 +52,15 @@ describe('A15 Structural Series & Profile Calculator', () => {
   it('computes exact order and leading rational coefficient via OrderProfileCalculator', () => {
     const profileNum = OrderProfileCalculator.computeOrderAndDerivative('t - sin(t)', 0);
     expect(profileNum).toBeDefined();
-    expect(profileNum?.order).toBe(3);
-    expect(profileNum?.coeff.num).toBe(BigInt(1));
-    expect(profileNum?.coeff.den).toBe(BigInt(6));
+    expect(profileNum.order).toBe(3);
+    expect(profileNum.coeff!.num).toBe(BigInt(1));
+    expect(profileNum.coeff!.den).toBe(BigInt(6));
 
     const profileDen = OrderProfileCalculator.computeOrderAndDerivative('t^3', 0);
     expect(profileDen).toBeDefined();
-    expect(profileDen?.order).toBe(3);
-    expect(profileDen?.coeff.num).toBe(BigInt(1));
-    expect(profileDen?.coeff.den).toBe(BigInt(1));
+    expect(profileDen.order).toBe(3);
+    expect(profileDen.coeff!.num).toBe(BigInt(1));
+    expect(profileDen.coeff!.den).toBe(BigInt(1));
   });
 
   it('reduces equal order zero ratio structurally in A15EqualOrderRule without floating point approximation', () => {

@@ -24,7 +24,7 @@ import type {
   ISemanticIndexValidator,
 } from './oopContracts';
 import { HOMOGENEOUS_SCALAR_PRECONDITIONS } from './a6A7Homogeneous';
-import { OrderProfileCalculator } from './a15EqualOrderProfile';
+import { OrderProfileCalculator } from './orderProfileCalculator';
 
 /**
  * Доменный сервис извлечения операндов из бинарных выражений (DRY).
@@ -187,13 +187,36 @@ export class SingularityOperandExtractor implements ISingularityOperandExtractor
     const right = expression.right;
     if (!left || !right) return undefined;
 
+    // Identical indexed zeros are handled by A4; identical indexed infinities are handled by A5
+    if (
+      left.kind === 'INDEXED_ZERO' &&
+      right.kind === 'INDEXED_ZERO' &&
+      left.payload?.identity?.canonical &&
+      left.payload.identity.canonical === right.payload?.identity?.canonical
+    ) {
+      return undefined;
+    }
+    if (
+      left.kind === 'INDEXED_INFINITY' &&
+      right.kind === 'INDEXED_INFINITY' &&
+      left.payload?.identity?.canonical &&
+      left.payload.identity.canonical === right.payload?.identity?.canonical
+    ) {
+      return undefined;
+    }
+
     const numPayload = left.kind === 'INDEXED_ZERO' ? left.payload : left;
     const denPayload = right.kind === 'INDEXED_ZERO' ? right.payload : right;
 
     const numProfile = OrderProfileCalculator.computeOrderAndDerivative(numPayload, 0);
     const denProfile = OrderProfileCalculator.computeOrderAndDerivative(denPayload, 0);
 
-    if (numProfile && denProfile && numProfile.order === denProfile.order && numProfile.order > 0) {
+    if (
+      numProfile.isResolved &&
+      denProfile.isResolved &&
+      numProfile.order === denProfile.order &&
+      numProfile.order > 0
+    ) {
       return {
         numeratorPayload: numPayload,
         denominatorPayload: denPayload,

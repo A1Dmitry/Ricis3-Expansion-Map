@@ -484,21 +484,6 @@ export class StructuralReducer implements ILocalStructuralReducer {
   private applySingularityFirst(expression: StructuralBinaryExpression, journal: DerivationJournal): NodeReduction | undefined {
     const left = expression.left;
     const right = expression.right;
-    if (expression.operator === 'DIVIDE') {
-      const a15Rule = new A15EqualOrderRule();
-      const typeValidator = new TypeConsistencyValidator();
-      const indexValidator = new SemanticIndexValidator();
-      const evaluated = a15Rule.evaluate(expression, indexValidator, typeValidator);
-      if (evaluated.status === 'APPLIED') {
-        const checked = journal.add('SP3', 'SP3_EXACT_TYPE_AND_FINITE_KEY_CHECK', RICIS_AUTHORITY, 'APPLIED', expression, expression, ['PAYLOAD_CHILDREN_REDUCED', 'EXACT_TYPE_EQUALITY', 'FINITE_SEMANTIC_KEYS'], 'localReducer.sp3.a15EqualOrder');
-        if (!checked) return freeze({ kind: 'NON_APPLICABLE', reason: 'STRUCTURAL_LIMIT_REACHED', expression });
-
-        const applied = journal.add('A1_A4_A10', 'A15_EQUAL_ORDER_STRUCTURAL_PROFILE', RICIS_AUTHORITY, 'APPLIED', expression, evaluated.reduced, ['PAYLOAD_CHILDREN_REDUCED', 'EXACT_TYPE_EQUALITY'], 'localReducer.a15.equalOrderProfile');
-        if (!applied) return freeze({ kind: 'NON_APPLICABLE', reason: 'STRUCTURAL_LIMIT_REACHED', expression });
-
-        return freeze({ kind: 'REDUCED', expression: evaluated.reduced });
-      }
-    }
     if (expression.operator === 'DIVIDE' && left.kind === 'INDEXED_ZERO' && right.kind === 'INDEXED_ZERO') {
       return this.discloseIndexedQuotient(expression, left, right, 'A4_INDEXED_ZERO_OVER_INDEXED_ZERO', journal);
     }
@@ -644,6 +629,20 @@ export class StructuralReducer implements ILocalStructuralReducer {
       cancelled += 1;
     }
     if (cancelled === 0) {
+      const a15Rule = new A15EqualOrderRule();
+      const typeValidator = new TypeConsistencyValidator();
+      const indexValidator = new SemanticIndexValidator();
+      const evaluated = a15Rule.evaluate(expression, indexValidator, typeValidator);
+      if (evaluated.status === 'APPLIED') {
+        const checked = journal.add('SP3', 'SP3_EXACT_TYPE_AND_FINITE_KEY_CHECK', RICIS_AUTHORITY, 'APPLIED', expression, expression, ['PAYLOAD_CHILDREN_REDUCED', 'EXACT_TYPE_EQUALITY', 'FINITE_SEMANTIC_KEYS'], 'localReducer.sp3.a15EqualOrder');
+        if (!checked) return freeze({ kind: 'NON_APPLICABLE', reason: 'STRUCTURAL_LIMIT_REACHED', expression });
+
+        const applied = journal.add('A1_A4_A10', 'A15_EQUAL_ORDER_STRUCTURAL_PROFILE', RICIS_AUTHORITY, 'APPLIED', expression, evaluated.reduced, ['PAYLOAD_CHILDREN_REDUCED', 'EXACT_TYPE_EQUALITY'], 'localReducer.a15.equalOrderProfile');
+        if (!applied) return freeze({ kind: 'NON_APPLICABLE', reason: 'STRUCTURAL_LIMIT_REACHED', expression });
+
+        return freeze({ kind: 'REDUCED', expression: evaluated.reduced });
+      }
+
       journal.add('SP2', 'SP2_ASSOCIATIVE_FACTOR_CANCELLATION', INHERITED_AUTHORITY, 'NOT_APPLICABLE', expression, expression, ['PAYLOAD_CHILDREN_REDUCED'], 'localReducer.sp2.noExactFactorMatch');
       return freeze({ kind: 'REDUCED', expression });
     }
