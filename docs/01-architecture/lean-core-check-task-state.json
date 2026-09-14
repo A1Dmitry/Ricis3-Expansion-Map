@@ -1,0 +1,87 @@
+{
+  "task": "LEAN-CORE-CHECK-COVERAGE — ядерная проверка Lean 4.33.1 самодостаточных производных неизменяемых артефактов artifacts/proofs и закрытие дрейфа статусов TRUSTED_AXIOM / LEAN_VERIFIED фактическим evidence",
+  "branch": "arena/01a0a04c-ricis3-expansion-map",
+  "pullRequest": 37,
+  "resume": [
+    "npm run bootstrap (если node_modules пуст — он не переносится между сеансами)",
+    "npx tsx scripts/generateLeanCoreChecks.ts --check (дрейф производных = exit 1)",
+    "npx vitest run tools/leanKernelCoreChecks.test.ts (15 стражей неизменяемости и согласованности)",
+    "git push origin arena/01a0a04c-ricis3-expansion-map — ОБЯЗАТЕЛЬНО: 3 последних коммита (d3a3ba5, 66b7d2d и этот) не запушены, GitHub-аутентификация среды оборвалась (401 Bad credentials на api.github.com и 'Invalid username or token' на git push)",
+    "gh run list --branch arena/01a0a04c-ricis3-expansion-map (дождаться Lean Artifact Kernel Check)",
+    "gh pr view 37 --json comments --jq '.comments[-1].body' — единственный канал evidence: логи раннера и артефакт run из среды агента не читаются",
+    "обновить artifacts/proofs/core-checks/kernel-findings.json и docs/05-evidence/proofs/lean-core-checks-run-2026-09-14.md фактами нового run (реестр — не генерируемый файл, правится по фактическому логу)",
+    "npx tsx scripts/generateLeanCoreChecks.ts (если по итогам run потребовались новые подстановки) && npm run lint && npm test"
+  ],
+  "updatedAt": "2026-09-14T16:20:00.000Z",
+  "evidence": {
+    "completedRun": {
+      "runId": 34858902595,
+      "runUrl": "https://github.com/A1Dmitry/Ricis3-Expansion-Map/actions/runs/34858902595",
+      "toolchain": "Lean 4.33.1, commit 819816b2e0a3bf405af45ae5c7af2491d8f5bee6",
+      "command": "lean +4.33.1 <artifact>",
+      "rawLog": "docs/05-evidence/proofs/lean-kernel-run-34858902595.pr-comment.txt",
+      "registry": "artifacts/proofs/core-checks/kernel-findings.json",
+      "report": "docs/05-evidence/proofs/lean-core-checks-run-2026-09-14.md"
+    },
+    "leanVerified": [
+      "ricis-universal-orchestration-template.lean (27 теорем: 3 без аксиом, 24 x propext)",
+      "ricis-chatbot-monetization.lean (2 теоремы)",
+      "ricis-navier-stokes-ast-bridge.standalone.lean (2 теоремы)",
+      "ricis-riemann-zeta-ast-bridge.standalone.lean (2 теоремы)",
+      "database-a6-minimal-core-check.lean (подтверждение run 34851801990)"
+    ]
+  },
+  "steps": [
+    {
+      "id": "L1",
+      "title": "Аудит Md+Lean: найдены заявления TRUSTED_AXIOM/LEAN_VERIFIED без ядерного прогона (5 JSON, 6 записей initialMap)",
+      "verify": "grep -rn 'TRUSTED_AXIOM' artifacts/proofs/*.json src/model/initialMap.ts",
+      "status": "done"
+    },
+    {
+      "id": "L2",
+      "title": "Генератор детерминированных core-check производных (исходник − неиспользуемый import Mathlib + эпилог #print axioms)",
+      "verify": "npx tsx scripts/generateLeanCoreChecks.ts --check",
+      "status": "done"
+    },
+    {
+      "id": "L3",
+      "title": "Workflow: цели = allowlist + каталог производных; исправлен фильтр #print axioms; брак по sorryAx; публикация evidence при падении (if: always())",
+      "verify": "npx vitest run tools/leanKernelCoreChecks.test.ts",
+      "status": "done"
+    },
+    {
+      "id": "L4",
+      "title": "Пакет 1 (7 производных): фактический прогон ядра run 34858902595 — 4 артефакта LEAN_VERIFIED, установлены первопричины отказов",
+      "verify": "gh pr view 37 --json comments",
+      "status": "done"
+    },
+    {
+      "id": "L5",
+      "title": "Пакет 2 (7 производных): ℕ→Nat, ℚ→Rat, partial→partialDeriv, List.mem_of_mem_append_left→List.mem_append.mpr, database×2 без подстановок",
+      "verify": "npx tsx scripts/generateLeanCoreChecks.ts --check",
+      "status": "done",
+      "note": "Производные сгенерированы и закоммичены; прогон ядра не выполнен — нужен push (GitHub-аутентификация среды оборвалась)"
+    },
+    {
+      "id": "L6",
+      "title": "Реестр фактов kernel-findings.json + evidence-документ + kernelCheck-metadata (аддитивно) + README/ACTIVE_TASKS/AXIOMS",
+      "verify": "npx vitest run tools/leanKernelCoreChecks.test.ts",
+      "status": "done"
+    },
+    {
+      "id": "L7",
+      "title": "Прогон ядра по пакету 2 и внесение фактов в реестр (включая ожидаемые отказы SP5/A11/database из-за силы core-simp)",
+      "verify": "gh pr view 37 --json comments --jq '.comments[-1].body'",
+      "status": "blocked",
+      "note": "BLOCKED: git push и gh api возвращают 401 — требуется переподключение GitHub в Arena"
+    },
+    {
+      "id": "L8",
+      "title": "Решение владельца по F-01 (TRUSTED_AXIOM при некомпилируемом ricis-jacobian-conjecture.standalone.lean) и F-05 (семантическая граница узлов карты)",
+      "verify": "artifacts/proofs/core-checks/kernel-findings.json -> findings[F-01], findings[F-05]",
+      "status": "pending",
+      "note": "Молчаливый демонтаж авторизованного результата не выполнялся (C-03); варианты: принять новую версию доказательства либо понизить статус с обновлением QA-контрактов"
+    }
+  ]
+}

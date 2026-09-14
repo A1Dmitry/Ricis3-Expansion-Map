@@ -528,6 +528,7 @@ describe('OIR-03 — audit proof-synthesis containment', () => {
       '?? tools/leanKernelCoreChecks.test.ts',
       '?? docs/05-evidence/proofs/lean-core-checks-run-2026-09-14.md',
       '?? docs/05-evidence/proofs/lean-kernel-run-34858902595.pr-comment.txt',
+      '?? docs/01-architecture/lean-core-check-task-state.json',
 
     ]);
     if (status.length > 0 && status.every(entry => entry.startsWith('?? '))) {
