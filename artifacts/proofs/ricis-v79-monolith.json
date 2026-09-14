@@ -72,24 +72,45 @@
     "addedBy": "AGENTS.md §7 — статус записывается снаружи неизменяемого исходника (присоединение metadata)",
     "registry": "artifacts/proofs/core-checks/kernel-findings.json",
     "evidence": "docs/05-evidence/proofs/lean-core-checks-run-2026-09-14.md",
-    "run": 34858902595,
-    "runUrl": "https://github.com/A1Dmitry/Ricis3-Expansion-Map/actions/runs/34858902595",
+    "rawEvidence": "docs/05-evidence/proofs/lean-kernel-run-34870620154.pr-comment.txt",
+    "run": 34870620154,
+    "runUrl": "https://github.com/A1Dmitry/Ricis3-Expansion-Map/actions/runs/34870620154",
     "toolchain": "Lean 4.33.1, x86_64-unknown-linux-gnu, commit 819816b2e0a3bf405af45ae5c7af2491d8f5bee6, Release (elan, --default-toolchain 4.33.1)",
     "command": "lean +4.33.1 <artifact>",
     "immutableSourceSha256": "fbd99bbdefd05aaff83fe4325377681f7e3b7099a3c9f5234b3ff4def86077e2",
+    "immutableSource": "artifacts/proofs/ricis-v79-monolith.standalone.lean",
     "checkedFile": "artifacts/proofs/core-checks/ricis-v79-monolith.standalone.core-check.lean",
-    "substitutionsApplied": [],
+    "substitutionsApplied": [
+      "ℕ → Nat"
+    ],
     "compilerExit": 1,
-    "compilerErrorCount": 15,
+    "compilerErrorCount": 1,
+    "firstCompilerErrors": [
+      "392:2: error: No goals to be solved"
+    ],
     "theorems": {
       "total": 31,
-      "provenWithoutSorryAx": 28,
-      "withSorryAx": 3,
-      "axiomFree": 2
+      "provenWithoutSorryAx": 31,
+      "withSorryAx": 0,
+      "axiomFree": 3
     },
     "statusAfterKernelRun": "NOT_VERIFIED_CORE_ONLY",
-    "rootCause": "Нотация ℕ (Mathlib) в сигнатурах resolveSteps/resolveError: ядро 4.33.1 без Mathlib elaborирует ℕ как свободную переменную (ℕ : Sort u_1), OfNat ℕ 0/1 не синтезируется (строки 301–315), из-за чего ns_steps_4D, ns_error_zero и RICIS_v79_unified получают sorryAx (15 ошибок компиляции). Контроль: template-артефакт с Nat компилируется тем же ядром с exit 0.",
-    "trustBoundary": "29 из 31 теоремы ядро приняло (propext, без sorryAx) ДО места отказа; заголовочная теорема RICIS_v79_unified в core-only прогоне НЕ доказана. Требуется повторный прогон производной с подстановкой ℕ → Nat (зафиксирована в плане генератора).",
-    "relationToDeclaredTrustStatus": "ВНИМАНИЕ: заявленный trustStatus НЕ подтверждён прогоном ядра run 34858902595. Основание — в реестре и evidence-документе; понижение статуса требует решения владельца (C-03)."
+    "rootCause": "Подстановка ℕ → Nat устранила все 15 ошибок run 34858902595: 31 теорема напечатана #print axioms, sorryAx ОТСУТСТВУЕТ (3 без аксиом, 28 только propext). Единственная оставшаяся ошибка — 392:2 «No goals to be solved»: в доказательстве RICIS_v79_unified после `repeat constructor` идут 8 избыточных буллетов `· rfl`; на ядровой базе `repeat constructor` закрывает все 9 конъюнктов сам (Eq.refl — конструктор Eq), поэтому первый же буллет применяется при отсутствии целей. Это дефект гигиены доказательного скрипта, а не недоказанность утверждения.",
+    "trustBoundary": "Производная с ℕ → Nat: 31 теорема, sorryAx отсутствует, но компилятор вернул exit 1 из-за избыточных буллетов → статус LEAN_VERIFIED НЕ устанавливается (критерий: отсутствие ошибок компилятора). Граница: доказаны структурные тождества редукции RICIS (divSelf, subSelf, A1–A10, SP2/SP4, ns_*), а не разрешимость Навье–Стокса.",
+    "relationToDeclaredTrustStatus": "ВНИМАНИЕ: заявленный trustStatus НЕ подтверждён прогоном ядра run 34870620154 (exit 1, ошибок: 1, sorryAx: 0). Понижение статуса требует решения владельца (C-03); основание и план ремонта — в реестре и evidence-документе.",
+    "priorRun": {
+      "run": 34858902595,
+      "rawEvidence": "docs/05-evidence/proofs/lean-kernel-run-34858902595.pr-comment.txt",
+      "compilerExit": 1,
+      "compilerErrorCount": 15,
+      "theorems": {
+        "total": 31,
+        "provenWithoutSorryAx": 28,
+        "withSorryAx": 3,
+        "axiomFree": 2
+      },
+      "statusAfterKernelRun": "NOT_VERIFIED_CORE_ONLY",
+      "rootCause": "Нотация ℕ (Mathlib) в сигнатурах resolveSteps/resolveError: ядро 4.33.1 без Mathlib elaborирует ℕ как свободную переменную (ℕ : Sort u_1), OfNat ℕ 0/1 не синтезируется (строки 301–315), из-за чего ns_steps_4D, ns_error_zero и RICIS_v79_unified получают sorryAx (15 ошибок компиляции). Контроль: template-артефакт с Nat компилируется тем же ядром с exit 0."
+    }
   }
 }

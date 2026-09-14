@@ -6,29 +6,45 @@
     "npm run bootstrap (если node_modules пуст — он не переносится между сеансами)",
     "npx tsx scripts/generateLeanCoreChecks.ts --check (дрейф производных = exit 1)",
     "npx vitest run tools/leanKernelCoreChecks.test.ts (15 стражей неизменяемости и согласованности)",
-    "git push origin arena/01a0a04c-ricis3-expansion-map — ОБЯЗАТЕЛЬНО: 3 последних коммита (d3a3ba5, 66b7d2d и этот) не запушены, GitHub-аутентификация среды оборвалась (401 Bad credentials на api.github.com и 'Invalid username or token' на git push)",
-    "gh run list --branch arena/01a0a04c-ricis3-expansion-map (дождаться Lean Artifact Kernel Check)",
-    "gh pr view 37 --json comments --jq '.comments[-1].body' — единственный канал evidence: логи раннера и артефакт run из среды агента не читаются",
-    "обновить artifacts/proofs/core-checks/kernel-findings.json и docs/05-evidence/proofs/lean-core-checks-run-2026-09-14.md фактами нового run (реестр — не генерируемый файл, правится по фактическому логу)",
-    "npx tsx scripts/generateLeanCoreChecks.ts (если по итогам run потребовались новые подстановки) && npm run lint && npm test"
+    "ремонт по pendingKernelRun реестра: v79 — убрать 8 избыточных буллетов `· rfl`; sp5 — `deriving DecidableEq` у RExpr; a11 — заменить неприменимую подстановку List.mem_append.mpr на ядровый шаг для цели после induction",
+    "npx tsx scripts/generateLeanCoreChecks.ts && npm run lint && npm test",
+    "git push origin arena/01a0a04c-ricis3-expansion-map",
+    "gh run list --branch <branch> --workflow lean-artifact-kernel-check.yml; затем gh pr view <PR> --json comments --jq '.comments[-1].body' (единственный канал evidence: логи раннера из среды агента не читаются — EOF)",
+    "внести факты нового run в artifacts/proofs/core-checks/kernel-findings.json (реестр правится по фактическому логу, не генерируется), в docs/05-evidence/proofs/lean-core-checks-run-2026-09-14.md и artifacts/proofs/README.md",
+    "F-01: получить решение владельца (новое доказательство тождества 62:2 либо понижение TRUSTED_AXIOM с обновлением initialMap и QA-контрактов jacobianProof)"
   ],
-  "updatedAt": "2026-09-14T16:20:00.000Z",
+  "updatedAt": "2026-09-14T17:55:00.000Z",
   "evidence": {
     "completedRun": {
-      "runId": 34858902595,
-      "runUrl": "https://github.com/A1Dmitry/Ricis3-Expansion-Map/actions/runs/34858902595",
+      "runId": 34870620154,
+      "runUrl": "https://github.com/A1Dmitry/Ricis3-Expansion-Map/actions/runs/34870620154",
       "toolchain": "Lean 4.33.1, commit 819816b2e0a3bf405af45ae5c7af2491d8f5bee6",
       "command": "lean +4.33.1 <artifact>",
-      "rawLog": "docs/05-evidence/proofs/lean-kernel-run-34858902595.pr-comment.txt",
-      "registry": "artifacts/proofs/core-checks/kernel-findings.json",
-      "report": "docs/05-evidence/proofs/lean-core-checks-run-2026-09-14.md"
+      "targets": 12,
+      "rawLog": "docs/05-evidence/proofs/lean-kernel-run-34870620154.pr-comment.txt",
+      "registry": "artifacts/proofs/core-checks/kernel-findings.json (registryVersion 2)",
+      "report": "docs/05-evidence/proofs/lean-core-checks-run-2026-09-14.md (§6)",
+      "priorRun": {
+        "runId": 34858902595,
+        "rawLog": "docs/05-evidence/proofs/lean-kernel-run-34858902595.pr-comment.txt",
+        "scope": "пакет 1: 8 целей"
+      }
     },
     "leanVerified": [
       "ricis-universal-orchestration-template.lean (27 теорем: 3 без аксиом, 24 x propext)",
-      "ricis-chatbot-monetization.lean (2 теоремы)",
-      "ricis-navier-stokes-ast-bridge.standalone.lean (2 теоремы)",
-      "ricis-riemann-zeta-ast-bridge.standalone.lean (2 теоремы)",
-      "database-a6-minimal-core-check.lean (подтверждение run 34851801990)"
+      "ricis-chatbot-monetization.lean (2)",
+      "ricis-navier-stokes-ast-bridge.standalone.lean (2)",
+      "ricis-riemann-zeta-ast-bridge.standalone.lean (2)",
+      "ricis-backend-exact-reduction.standalone.lean (22: 6 без аксиом, 16 x propext) — после подстановки N -> Nat",
+      "database-a6-0_5_inf_3.standalone.lean (19: 16 без аксиом)",
+      "database-registry-120-jacobian.standalone.lean (19: 16 без аксиом)",
+      "database-a6-minimal-core-check.lean (1, без аксиом)"
+    ],
+    "notVerified": [
+      "ricis-v79-monolith.standalone.lean — exit 1 (392:2 No goals to be solved), sorryAx ОТСУТСТВУЕТ, 31 теорема напечатана (F-06)",
+      "ricis-jacobian-conjecture.standalone.lean — exit 1 (62:2 Tactic rfl failed), sorryAx в Jacobian_singularity_resolved (F-01)",
+      "ricis-kernel-ast-sp5.standalone.lean — exit 1 (26:2 Decidable (a = b) не синтезируется), 2 x sorryAx (F-07)",
+      "ricis-seed-expansion-a11.lean — exit 1 (104:4 Type mismatch и др.), 3 x sorryAx из 6 теорем (F-08)"
     ]
   },
   "steps": [
@@ -61,7 +77,7 @@
       "title": "Пакет 2 (7 производных): ℕ→Nat, ℚ→Rat, partial→partialDeriv, List.mem_of_mem_append_left→List.mem_append.mpr, database×2 без подстановок",
       "verify": "npx tsx scripts/generateLeanCoreChecks.ts --check",
       "status": "done",
-      "note": "Производные сгенерированы и закоммичены; прогон ядра не выполнен — нужен push (GitHub-аутентификация среды оборвалась)"
+      "note": "Производные сгенерированы, запушены и проверены ядром в run 34870620154: backend и две записи базы — exit 0; v79 — exit 1 без sorryAx (F-06); jacobian/sp5/a11 — exit 1 с sorryAx (F-01/F-07/F-08)"
     },
     {
       "id": "L6",
@@ -71,17 +87,17 @@
     },
     {
       "id": "L7",
-      "title": "Прогон ядра по пакету 2 и внесение фактов в реестр (включая ожидаемые отказы SP5/A11/database из-за силы core-simp)",
+      "title": "Ремонт 4 красных производных по планам pendingKernelRun и повторный прогон ядра",
       "verify": "gh pr view 37 --json comments --jq '.comments[-1].body'",
-      "status": "blocked",
-      "note": "BLOCKED: git push и gh api возвращают 401 — требуется переподключение GitHub в Arena"
+      "status": "pending",
+      "note": "Планы зафиксированы в реестре (pendingKernelRun): v79 — удалить избыточные буллеты; sp5 — deriving DecidableEq; a11 — корректный ядровый шаг; jacobian — только по решению владельца (F-01)"
     },
     {
       "id": "L8",
       "title": "Решение владельца по F-01 (TRUSTED_AXIOM при некомпилируемом ricis-jacobian-conjecture.standalone.lean) и F-05 (семантическая граница узлов карты)",
       "verify": "artifacts/proofs/core-checks/kernel-findings.json -> findings[F-01], findings[F-05]",
       "status": "pending",
-      "note": "Молчаливый демонтаж авторизованного результата не выполнялся (C-03); варианты: принять новую версию доказательства либо понизить статус с обновлением QA-контрактов"
+      "note": "Run 34870620154 усилил F-01: тождество 62:2 не определительно (rfl failed), поэтому Jacobian_singularity_resolved несёт sorryAx. Молчаливый демонтаж авторизованного результата не выполнялся (C-03)"
     }
   ]
 }

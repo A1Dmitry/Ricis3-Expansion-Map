@@ -3,11 +3,12 @@
 **Дата:** 2026-09-14
 **Версия приложения:** 0.4.182
 **Workflow:** [`lean-artifact-kernel-check.yml`](../../../.github/workflows/lean-artifact-kernel-check.yml)
-**Run:** [34858902595](https://github.com/A1Dmitry/Ricis3-Expansion-Map/actions/runs/34858902595) ([job 104025599997](https://github.com/A1Dmitry/Ricis3-Expansion-Map/actions/runs/34858902595/job/104025599997)), PR #37, ветка `arena/01a0a04c-ricis3-expansion-map`
+**Run 1 (пакет 1, 8 целей):** [34858902595](https://github.com/A1Dmitry/Ricis3-Expansion-Map/actions/runs/34858902595) ([job 104025599997](https://github.com/A1Dmitry/Ricis3-Expansion-Map/actions/runs/34858902595/job/104025599997)), PR #37, ветка `arena/01a0a04c-ricis3-expansion-map`
+**Run 2 (пакет 2, 12 целей):** [34870620154](https://github.com/A1Dmitry/Ricis3-Expansion-Map/actions/runs/34870620154) — результаты в §6, сырое evidence [`lean-kernel-run-34870620154.pr-comment.txt`](lean-kernel-run-34870620154.pr-comment.txt)
 **Ядро:** Lean 4.33.1, x86_64-unknown-linux-gnu, commit `819816b2e0a3bf405af45ae5c7af2491d8f5bee6`, Release (elan, `--default-toolchain 4.33.1`)
 **Команда:** `lean +4.33.1 <artifact>` для каждой цели
 **Хост:** ubuntu-latest (GitHub Actions)
-**Сырое evidence:** [`lean-kernel-run-34858902595.pr-comment.txt`](lean-kernel-run-34858902595.pr-comment.txt) (полный вывод компилятора по каждому файлу, sha256, toolchain)
+**Сырое evidence:** [`lean-kernel-run-34858902595.pr-comment.txt`](lean-kernel-run-34858902595.pr-comment.txt), [`lean-kernel-run-34870620154.pr-comment.txt`](lean-kernel-run-34870620154.pr-comment.txt) (полный вывод компилятора по каждому файлу, sha256, toolchain)
 **Машиночитаемый реестр:** [`artifacts/proofs/core-checks/kernel-findings.json`](../../../artifacts/proofs/core-checks/kernel-findings.json)
 
 > Канал evidence: логи раннера и загруженный артефакт `lean-kernel-evidence` из среды агента не читаются
@@ -145,21 +146,29 @@
 
 | ID | Severity | Суть | Статус |
 | :-- | :-- | :-- | :-- |
-| **F-01** | CRITICAL | `ricis-jacobian-conjecture.standalone.lean` не является валидным Lean-файлом, но заявлен как `TRUSTED_AXIOM` (JSON-метаданные, `initialMap.proofs['registry-120']`, LaTeX-отчёт). QA-тест `src/model/jacobianProof.test.ts` проверяет лишь **текстовое** присутствие строки `theorem Jacobian_singularity_resolved` и утверждает сам статус — классическая подмена основания метрикой. | Факт зафиксирован evidence. Решение за владельцем: (а) принять новую версию доказательства с переименованием конструктора и повторным прогоном, либо (б) понизить статус с обновлением QA-контрактов. Молчаливая демонтажа авторизованного результата не выполнялась (C-03). |
-| **F-02** | HIGH | `LEAN_VERIFIED`/`TRUSTED_AXIOM` в `initialMap` (6 записей) и `TRUSTED_AXIOM` в 5 JSON были выставлены **без** ядерного прогона; evidence 2026-09-14 прямо фиксировало «14 Mathlib-артефактов — `REQUIRES_CORE_LEAN`, статус не повышен». | Частично закрыто: 4 артефакта получили фактический прогон ядра (exit 0, без `sorryAx`). v79 и backend — первопричина устранена, ожидают повторного run. jacobian — см. F-01. |
+| **F-01** | CRITICAL | `ricis-jacobian-conjecture.standalone.lean` не является валидным Lean-файлом, но заявлен как `TRUSTED_AXIOM` (JSON-метаданные, `initialMap.proofs['registry-120']`, LaTeX-отчёт). QA-тест `src/model/jacobianProof.test.ts` проверяет лишь **текстовое** присутствие строки `theorem Jacobian_singularity_resolved` и утверждает сам статус — классическая подмена основания метрикой. | Факт зафиксирован двумя прогонами. Run 34870620154 **усилил** находку: после заявленного переименования `partial → partialDeriv` файл парсится, но `62:2 error: Tactic `rfl` failed: resolveRICIS (F.zeroF.det RExpr.zero RExpr.zero G.infF) is not definitionally equal to (F.mul G).sub RExpr.zero.zeroF`, поэтому `Jacobian_singularity_resolved` зависит от `[propext, sorryAx]`. Тождество не является определительным, а `rfl` — ядровая тактика: Mathlib здесь ни при чём, статус `TRUSTED_AXIOM` необоснован в любой конфигурации. Решение за владельцем: (а) понизить статус с обновлением `initialMap` и QA-контрактов, либо (б) построить новое доказательство. Молчаливый демонтаж авторизованного результата не выполнялся (C-03). |
+| **F-02** | HIGH | `LEAN_VERIFIED`/`TRUSTED_AXIOM` в `initialMap` (6 записей) и `TRUSTED_AXIOM` в 5 JSON были выставлены **без** ядерного прогона; evidence 2026-09-14 прямо фиксировало «14 Mathlib-артефактов — `REQUIRES_CORE_LEAN`, статус не повышен». | Частично закрыто: **5 артефактов** получили фактическое основание (exit 0, `sorryAx` отсутствует) — шаблон оркестрации, монетизация, AST-мосты Навье–Стокса и дзета-функции (run 34858902595) плюс `ricis-backend-exact-reduction` (run 34870620154, после `ℕ → Nat`). Остаются необоснованными: `ricis-v79-monolith` (exit 1, но `sorryAx` отсутствует — см. F-06) и `ricis-jacobian-conjecture` (см. F-01). |
 | **F-03** | MEDIUM | Зависимость от `propext` не фиксировалась: заявление «без аксиом» смешивалось с доказательствами, зависящими от стандартных аксиом Lean. | Закрыто: раздельные классы `LEAN_VERIFIED_AXIOM_FREE` / `LEAN_VERIFIED_WITH_STANDARD_AXIOMS` в реестре и по каждой теореме. |
 | **F-04** | MEDIUM | Дефект workflow: фильтр `grep -E "has (no axioms|axioms)\|^database"` не соответствовал реальной формулировке ядра (`does not depend on any axioms`) — секция «#print axioms output» в run 34851801990 была пустой; шаг публикации комментария PR не имел `if: always()`, из-за чего падение run 34857939167 осталось без evidence. | Закрыто в этом PR: корректный фильтр, брак по `sorryAx`, `if: always()`, диагностика окружения до цикла, материализованный `targets.txt`, исход шага в `GITHUB_OUTPUT`. |
 | **F-05** | HIGH | Семантическая граница: kernel-прогон доказывает структурные AST-теоремы (`ricisReduce (divSelf e) = one`, `mul (zeroF F) (infF G) = mul F G`), тогда как узлы карты и LaTeX-отчёты по тем же хешам формулируют это как доказательство гипотезы Римана / Навье–Стокса / якобиана. | Граница зафиксирована в эпилоге каждой производной, в реестре и в этом документе. Изменение формулировок узлов — отдельное решение владельца (E-03). |
+| **F-06** | MEDIUM | `ricis-v79-monolith`: после устранения `ℕ` все 31 теорема напечатаны `#print axioms` **без `sorryAx`**, но компилятор вернул exit 1 — `392:2 error: No goals to be solved`: в доказательстве `RICIS_v79_unified` после `repeat constructor` стоят 8 избыточных буллетов `· rfl`, а на ядровой базе `repeat constructor` закрывает все 9 конъюнктов сам (`Eq.refl` — конструктор `Eq`). Дефект гигиены доказательного скрипта, а не недоказанность. | Зафиксировано; `LEAN_VERIFIED` **не** устанавливается (критерий — отсутствие ошибок компилятора). Ремонт: новая версия производной без избыточных буллетов, повторный прогон. |
+| **F-07** | HIGH | `ricis-kernel-ast-sp5`: подстановка `ℚ → Rat` устранила ошибку нотации, но вскрыла отсутствие экземпляра — `26:2 error(lean.synthInstanceFailed): failed to synthesize instance of type class Decidable (a = b)` (у индуктива `RExpr` нет `DecidableEq`, в Mathlib-сборке он появлялся через deriving-механизмы). Каскад: `37:35 unsolved goals ⊢ sorry () = RExpr.one`, обе теоремы → `sorryAx`. | Зафиксировано; статус не повышается. Ремонт: `deriving DecidableEq` у `RExpr` в новой версии производной (аддитивно, утверждения не меняются), повторный прогон. |
+| **F-08** | MEDIUM | `ricis-seed-expansion-a11`: **дефект моей собственной подстановки**. Замена Mathlib-леммы `List.mem_of_mem_append_left` на `List.mem_append.mpr (Or.inl hr)` оказалась неприменима: `104:4 error: Type mismatch … has type r ∈ s.rules ++ ?m.77 but is expected to have type r ∈ a✝¹.rules` (после `induction` цель уже не содержит `++`), далее `105:4 Tactic `split` failed`, `156:63`/`165:50`/`176:105 unsolved goals`; 3 из 6 теорем получили `sorryAx`. | Зафиксировано как неудачный ремонт (ANTI-TUKHTA LAW: собственный отказ не замалчивается). Требуется ядровый шаг, соответствующий цели после `induction`, и усиление трёх доказательств; до этого производная не считается ремонтом. |
 
 ---
 
 ## 5. Граница доверия (строго)
 
-* **Доказано ядром Lean 4.33.1 (exit 0, `sorryAx` отсутствует):** структурные теоремы четырёх артефактов
-  (шаблон оркестрации, A6-мост монетизации, AST-мосты Навье–Стокса и дзета-функции) плюс ранее
-  верифицированный A6-минимум. Для части теорем зависимость — `propext` (стандартная аксиома Lean).
-* **Не доказано:** заголовочная `RICIS_v79_unified` и счётчики v79/backend в core-only прогоне
-  (`sorryAx` как каскад от `ℕ`); центральная `Jacobian_singularity_resolved` (декларация не создана);
+* **Доказано ядром Lean 4.33.1 (exit 0, `sorryAx` отсутствует) — 8 целей:** структурные теоремы шаблона
+  оркестрации (27), A6-моста монетизации (2), AST-мостов Навье–Стокса (2) и дзета-функции (2),
+  `ricis-backend-exact-reduction` (22: 6 без аксиом, 16 × `propext`) после подстановки `ℕ → Nat`,
+  двух сгенерированных записей базы — `database-a6-0_5_inf_3` (19: 16 без аксиом) и
+  `database-registry-120-jacobian` (19: 16 без аксиом), плюс ранее верифицированный A6-минимум (1).
+  Для части теорем зависимость — `propext` (стандартная аксиома Lean), для части — аксиом нет вовсе.
+* **Не доказано:** `Jacobian_singularity_resolved` (`rfl` не проходит, `sorryAx` — F-01);
+  обе теоремы SP5 (`Decidable (a = b)` не синтезируется, `sorryAx` — F-07); 3 из 6 теорем A11
+  (`sorryAx`, подстановка неприменима — F-08); `RICIS_v79_unified` формально **доказана без `sorryAx`**,
+  но файл вернул exit 1 из-за избыточных буллетов (F-06), поэтому `LEAN_VERIFIED` не устанавливается;
   всё, что требует Mathlib (`RicisAgiTarget.lean` — `ℝ`+`ring`, `jacobian-counterexample-full.lean` —
   `ℚ`+`ring`/`norm_num`) — статус `REQUIRES_CORE_LEAN` не изменялся.
 * **Не утверждается:** что kernel-прогон структурной AST-теоремы является доказательством эмпирического
@@ -169,22 +178,50 @@
 
 ---
 
-## 6. Ожидает прогона ядра (пакет 2)
+## 6. Пакет 2: результаты прогона run 34870620154 (12 целей)
 
-Зафиксированы в ветке, в allowlist workflow попадают автоматически (каталог `core-checks`):
+Прогон выполнен автоматически после push производных пакета 2. Итог: **8 целей — exit 0 без `sorryAx`,
+4 цели — exit 1**. Все числа и ошибки ниже взяты дословно из
+[`lean-kernel-run-34870620154.pr-comment.txt`](lean-kernel-run-34870620154.pr-comment.txt).
 
-| Производная | Подстановки | Основание |
-| :-- | :-- | :-- |
-| `ricis-v79-monolith.standalone.core-check.lean` | `ℕ → Nat` | §3.1 (run 34858902595) |
-| `ricis-backend-exact-reduction.standalone.core-check.lean` | `ℕ → Nat` | §3.1 (run 34858902595) |
-| `ricis-jacobian-conjecture.standalone.core-check.lean` | `partial → partialDeriv` (неиспользуемый конструктор) | §3.2 (run 34858902595) |
-| `ricis-kernel-ast-sp5.standalone.core-check.lean` | `ℚ → Rat` | §3.3 (аудит ядра 4.33.1) |
-| `ricis-seed-expansion-a11.core-check.lean` | `List.mem_of_mem_append_left → List.mem_append.mpr (Or.inl ·)` | §3.3 (аудит ядра 4.33.1) |
-| `database-a6-0_5_inf_3.standalone.core-check.lean` | нет | тело core-only, `simpa` — core-тактика |
-| `database-registry-120-jacobian.standalone.core-check.lean` | нет | тело core-only, `simpa` — core-тактика |
+| Цель (производная) | Подстановки | Exit | Ошибок | Теорем | Без аксиом | `propext` | `sorryAx` | Исход |
+| :-- | :-- | :-- | :-- | :-- | :-- | :-- | :-- | :-- |
+| `database-a6-minimal-core-check.lean` | — | 0 | 0 | 1 | 1 | 0 | 0 | `LEAN_VERIFIED_AXIOM_FREE` |
+| `ricis-universal-orchestration-template.core-check` | — | 0 | 0 | 27 | 3 | 24 | 0 | `LEAN_VERIFIED` |
+| `ricis-chatbot-monetization.core-check` | — | 0 | 0 | 2 | 1 | 1 | 0 | `LEAN_VERIFIED` |
+| `ricis-navier-stokes-ast-bridge.standalone.core-check` | — | 0 | 0 | 2 | 0 | 2 | 0 | `LEAN_VERIFIED` |
+| `ricis-riemann-zeta-ast-bridge.standalone.core-check` | — | 0 | 0 | 2 | 0 | 2 | 0 | `LEAN_VERIFIED` |
+| `ricis-backend-exact-reduction.standalone.core-check` | `ℕ → Nat` | 0 | 0 | 22 | 6 | 16 | 0 | **`LEAN_VERIFIED` (ремонт подтверждён)** |
+| `database-a6-0_5_inf_3.standalone.core-check` | — | 0 | 0 | 19 | 16 | 3 | 0 | `LEAN_VERIFIED` |
+| `database-registry-120-jacobian.standalone.core-check` | — | 0 | 0 | 19 | 16 | 3 | 0 | `LEAN_VERIFIED` |
+| `ricis-v79-monolith.standalone.core-check` | `ℕ → Nat` | 1 | 1 | 31 | 3 | 28 | **0** | `NOT_VERIFIED_CORE_ONLY` (F-06) |
+| `ricis-jacobian-conjecture.standalone.core-check` | `partial → partialDeriv` | 1 | 1 | 2 | 1 | 0 | **1** | `NOT_VERIFIED_CORE_ONLY` (F-01) |
+| `ricis-kernel-ast-sp5.standalone.core-check` | `ℚ → Rat` | 1 | 2 | 2 | 0 | 0 | **2** | `NOT_VERIFIED_CORE_ONLY` (F-07) |
+| `ricis-seed-expansion-a11.core-check` | `List.mem_append.mpr (Or.inl ·)` | 1 | 5 | 6 | 0 | 3 | **3** | `NOT_VERIFIED_CORE_ONLY` (F-08) |
 
-Прогон выполняется автоматически при push в `artifacts/proofs/**` (триггеры `pull_request`/`push`/
-`workflow_dispatch`). До получения зелёного run статусы этих артефактов **не повышаются**.
+### 6.1 Подтверждённые первопричины и состояние ремонтов
+
+* **`ℕ → Nat` — подтверждено прогоном.** `ricis-backend-exact-reduction`: было 22 ошибки и 8 × `sorryAx`
+  (run 34858902595) → стало exit 0, 0 ошибок, 22 теоремы без `sorryAx`. `ricis-v79-monolith`: было
+  15 ошибок и 3 × `sorryAx` → стало 0 × `sorryAx` и 31 напечатанная теорема; единственная ошибка —
+  `392:2 No goals to be solved` (избыточные буллеты, F-06).
+* **`partial → partialDeriv` — парсинг восстановлен, утверждение не доказано.** `62:2 Tactic `rfl` failed`
+  (F-01): тождество не определительно, ремонт невозможен подстановкой.
+* **`ℚ → Rat` — нотация устранена, вскрылась нехватка экземпляра.** `26:2 failed to synthesize … Decidable (a = b)` (F-07).
+* **Замена Mathlib-леммы в A11 — неверна.** `104:4 Type mismatch` (F-08): цель после `induction` не содержит `++`.
+
+### 6.2 Осталось выполнить (план ремонта, зафиксирован в `pendingKernelRun` реестра)
+
+1. v79: новая версия производной без 8 избыточных буллетов `· rfl` → ожидается exit 0 и `LEAN_VERIFIED` (F-06).
+2. SP5: `deriving DecidableEq` у `RExpr` (аддитивно) → перепроверить (F-07).
+3. A11: заменить подстановку на ядровый шаг, соответствующий цели после `induction`, усилить доказательства
+   в точках 156/165/176 (F-08).
+4. jacobian: **не автоматический** ремонт — требуется решение владельца по F-01 (новое доказательство либо понижение статуса).
+5. `RicisAgiTarget.lean` и `jacobian-counterexample-full.lean` остаются `REQUIRES_CORE_LEAN`: core-only производная
+   для них невозможна по существу (`ℝ`/`ℚ` + `ring`/`norm_num`).
+
+До получения exit 0 статусы соответствующих артефактов **не повышаются** (страж в
+`tools/leanKernelCoreChecks.test.ts`: `LEAN_VERIFIED` только при exit 0, 0 ошибок и отсутствии `sorryAx`).
 
 ---
 
@@ -193,7 +230,7 @@
 ```bash
 npm run bootstrap
 npx tsx scripts/generateLeanCoreChecks.ts --check   # дрейф производных = exit 1
-npx vitest run tools/leanKernelCoreChecks.test.ts   # 10 стражей неизменяемости и согласованности
+npx vitest run tools/leanKernelCoreChecks.test.ts   # 15 стражей неизменяемости и согласованности
 gh workflow run lean-artifact-kernel-check.yml      # повторный прогон ядра (или push в artifacts/proofs/**)
 ```
 

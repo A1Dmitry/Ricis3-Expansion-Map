@@ -8,7 +8,7 @@ Included files:
 
 **Specification Lean 4 DOI:** 10.5281/zenodo.22124493
 
-## Kernel verification status (2026-09-14, обновлено прогоном run 34858902595)
+## Kernel verification status (2026-09-14, обновлено прогоном run 34870620154 — 12 целей)
 
 Reproducible Lean 4.33.1 kernel runs for the self-contained artifacts are provided by the
 `Lean Artifact Kernel Check` workflow (`.github/workflows/lean-artifact-kernel-check.yml`).
@@ -30,21 +30,27 @@ Evidence: [`docs/05-evidence/proofs/lean-core-checks-run-2026-09-14.md`](../../d
 (сырой лог: [`lean-kernel-run-34858902595.pr-comment.txt`](../../docs/05-evidence/proofs/lean-kernel-run-34858902595.pr-comment.txt),
 машиночитаемый реестр: [`core-checks/kernel-findings.json`](core-checks/kernel-findings.json)).
 
-| Артефакт | Статус после run 34858902595 | Основание |
+| Артефакт | Статус после run 34870620154 | Основание |
 | :--- | :--- | :--- |
-| `database-a6-minimal-core-check.lean` | `LEAN_VERIFIED` (без аксиом) | exit 0; `'…database_a6_bridge' does not depend on any axioms` (run 34851801990, подтверждён) |
+| `database-a6-minimal-core-check.lean` | `LEAN_VERIFIED_AXIOM_FREE` | exit 0; `'…database_a6_bridge' does not depend on any axioms` (подтверждён повторно) |
 | `ricis-universal-orchestration-template.lean` | `LEAN_VERIFIED` (27 теорем: 3 без аксиом, 24 × `propext`) | производная, exit 0, `sorryAx` отсутствует |
 | `ricis-chatbot-monetization.lean` | `LEAN_VERIFIED` (2 теоремы: 1 без аксиом, 1 × `propext`) | производная, exit 0 |
 | `ricis-navier-stokes-ast-bridge.standalone.lean` | `LEAN_VERIFIED` (2 теоремы × `propext`) | производная, exit 0 |
 | `ricis-riemann-zeta-ast-bridge.standalone.lean` | `LEAN_VERIFIED` (2 теоремы × `propext`) | производная, exit 0 |
-| `ricis-v79-monolith.standalone.lean` | `NOT_VERIFIED_CORE_ONLY` | 15 ошибок: нотация `ℕ` (Mathlib) без Mathlib elaborируется как свободная переменная → `RICIS_v79_unified`, `ns_steps_4D`, `ns_error_zero` получили `sorryAx`. Ремонт (`ℕ → Nat`) зафиксирован, ожидает прогона |
-| `ricis-backend-exact-reduction.standalone.lean` | `NOT_VERIFIED_CORE_ONLY` | та же первопричина `ℕ`: 22 ошибки, 8 × `sorryAx`, две декларации не созданы. Ремонт зафиксирован, ожидает прогона |
-| `ricis-jacobian-conjecture.standalone.lean` | **`SOURCE_REJECTED_BY_KERNEL`** | исходник не парсится: конструктор `partial` — зарезервированное слово Lean (`24:12 expected token`), `Jacobian_singularity_resolved` — `Unknown constant`. Файл никогда не проверялся ядром, несмотря на `trustStatus: TRUSTED_AXIOM` в метаданных (F-01) |
-| `ricis-kernel-ast-sp5.standalone.lean` | `REQUIRES_CORE_LEAN` → ожидает прогона | производная с подстановкой `ℚ → Rat` (нотация `ℚ` объявлена в Mathlib) |
-| `ricis-seed-expansion-a11.lean` | `REQUIRES_CORE_LEAN` → ожидает прогона | производная с подстановкой Mathlib-леммы `List.mem_of_mem_append_left` на ядровой эквивалент `List.mem_append.mpr (Or.inl ·)`; формулировки теорем не изменены |
-| `database-a6-0_5_inf_3.standalone.lean`, `database-registry-120-jacobian.standalone.lean` | `REQUIRES_CORE_LEAN` → ожидают прогона | тело core-only (`simpa` — core-тактика 4.33.1), производные без подстановок |
+| `ricis-backend-exact-reduction.standalone.lean` | **`LEAN_VERIFIED`** (22 теоремы: 6 без аксиом, 16 × `propext`) | подстановка `ℕ → Nat` подтверждена прогоном: exit 0, 0 ошибок, `sorryAx` отсутствует (в run 34858902595 было 22 ошибки и 8 × `sorryAx`) |
+| `database-a6-0_5_inf_3.standalone.lean` | `LEAN_VERIFIED` (19 теорем: 16 без аксиом, 3 × `propext`) | производная без подстановок, exit 0 |
+| `database-registry-120-jacobian.standalone.lean` | `LEAN_VERIFIED` (19 теорем: 16 без аксиом, 3 × `propext`) | производная без подстановок, exit 0. Граница: доказан сгенерированный мост записи реестра, **не** гипотеза Якоби (F-05) |
+| `ricis-v79-monolith.standalone.lean` | `NOT_VERIFIED_CORE_ONLY` (F-06) | `ℕ → Nat` устранил все 15 ошибок и весь `sorryAx`: 31 теорема напечатана (3 без аксиом, 28 × `propext`), **но** exit 1 — `392:2 No goals to be solved` (8 избыточных буллетов `· rfl` после `repeat constructor`). По критерию «нет ошибок компилятора» `LEAN_VERIFIED` не устанавливается |
+| `ricis-jacobian-conjecture.standalone.lean` | **`SOURCE_REJECTED_BY_KERNEL`** (исходник) → `NOT_VERIFIED_CORE_ONLY` (производная), F-01 | исходник не парсится: конструктор `partial` — зарезервированное слово Lean (`24:12 expected token`). После заявленного переименования `partial → partialDeriv` файл парсится, но `62:2 Tactic `rfl` failed: resolveRICIS (…) is not definitionally equal to (F.mul G).sub RExpr.zero.zeroF` → `Jacobian_singularity_resolved` несёт `sorryAx`. `trustStatus: TRUSTED_AXIOM` в метаданных необоснован |
+| `ricis-kernel-ast-sp5.standalone.lean` | `NOT_VERIFIED_CORE_ONLY` (F-07) | `ℚ → Rat` устранило нотацию, но `26:2 error(lean.synthInstanceFailed): failed to synthesize instance of type class Decidable (a = b)` → обе теоремы (`singular_div_identity`, `ricis_reduce_divself`) с `sorryAx`. Ремонт: `deriving DecidableEq` у `RExpr` |
+| `ricis-seed-expansion-a11.lean` | `NOT_VERIFIED_CORE_ONLY` (F-08) | заявленная замена Mathlib-леммы `List.mem_of_mem_append_left` → `List.mem_append.mpr (Or.inl hr)` неприменима: `104:4 Type mismatch` (после `induction` цель `r ∈ a✝¹.rules` не содержит `++`), `105:4 Tactic `split` failed`, `156:63`/`165:50`/`176:105 unsolved goals` → 3 из 6 теорем с `sorryAx`. Это дефект самой подстановки |
 | `RicisAgiTarget.lean`, `jacobian-counterexample-full.lean` | `REQUIRES_CORE_LEAN` | реально требуют Mathlib: `ℝ`/`ℚ` + `ring`/`norm_num`; статус не повышается |
 | `*.generated.lean` (2 файла) | фрагменты | 3-строчные фрагменты без namespace/imports, ссылаются на символы соответствующих `.standalone.lean`; отдельно ядром не проверяются |
+
+Итог run [34870620154](https://github.com/A1Dmitry/Ricis3-Expansion-Map/actions/runs/34870620154): **8 целей exit 0 без `sorryAx`, 4 цели exit 1**
+(v79 — без `sorryAx`, но с ошибкой компилятора; jacobian, sp5, a11 — с `sorryAx`). Детальные первопричины,
+планы ремонта и пофамильный статус каждой теоремы — в [`core-checks/kernel-findings.json`](core-checks/kernel-findings.json)
+и в [`docs/05-evidence/proofs/lean-core-checks-run-2026-09-14.md`](../../docs/05-evidence/proofs/lean-core-checks-run-2026-09-14.md) (§6).
 
 ### Граница доверия
 
