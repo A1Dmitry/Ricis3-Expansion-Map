@@ -42,5 +42,29 @@
     ],
     "contentHash": "f48f78a3021e94314b5e73729b92721ac10d38b867fca6a18d01aa3dac3c1c2a",
     "trustStatus": "TRUSTED_AXIOM"
+  },
+  "kernelCheck": {
+    "addedBy": "AGENTS.md §7 — статус записывается снаружи неизменяемого исходника (присоединение metadata)",
+    "registry": "artifacts/proofs/core-checks/kernel-findings.json",
+    "evidence": "docs/05-evidence/proofs/lean-core-checks-run-2026-09-14.md",
+    "run": 34858902595,
+    "runUrl": "https://github.com/A1Dmitry/Ricis3-Expansion-Map/actions/runs/34858902595",
+    "toolchain": "Lean 4.33.1, x86_64-unknown-linux-gnu, commit 819816b2e0a3bf405af45ae5c7af2491d8f5bee6, Release (elan, --default-toolchain 4.33.1)",
+    "command": "lean +4.33.1 <artifact>",
+    "immutableSourceSha256": "f48f78a3021e94314b5e73729b92721ac10d38b867fca6a18d01aa3dac3c1c2a",
+    "checkedFile": "artifacts/proofs/core-checks/ricis-chatbot-monetization.core-check.lean",
+    "substitutionsApplied": [],
+    "compilerExit": 0,
+    "compilerErrorCount": 0,
+    "theorems": {
+      "total": 2,
+      "provenWithoutSorryAx": 2,
+      "withSorryAx": 0,
+      "axiomFree": 1
+    },
+    "statusAfterKernelRun": "LEAN_VERIFIED",
+    "rootCause": null,
+    "trustBoundary": "Проверено: A6-мост 0_Cost × ∞_N = Cost·N как структурная редукция AST и тождество L1. Не проверено и не утверждается: реальная экономика чат-бота, прогноз выручки V(N).",
+    "relationToDeclaredTrustStatus": "Заявленный trustStatus получил фактическое ядерное основание в пределах trustBoundary (класс: LEAN_VERIFIED_WITH_STANDARD_AXIOMS / LEAN_VERIFIED_AXIOM_FREE)."
   }
 }

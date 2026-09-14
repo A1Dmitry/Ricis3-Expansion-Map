@@ -67,5 +67,29 @@
     ],
     "contentHash": "fbd99bbdefd05aaff83fe4325377681f7e3b7099a3c9f5234b3ff4def86077e2",
     "trustStatus": "TRUSTED_AXIOM"
+  },
+  "kernelCheck": {
+    "addedBy": "AGENTS.md §7 — статус записывается снаружи неизменяемого исходника (присоединение metadata)",
+    "registry": "artifacts/proofs/core-checks/kernel-findings.json",
+    "evidence": "docs/05-evidence/proofs/lean-core-checks-run-2026-09-14.md",
+    "run": 34858902595,
+    "runUrl": "https://github.com/A1Dmitry/Ricis3-Expansion-Map/actions/runs/34858902595",
+    "toolchain": "Lean 4.33.1, x86_64-unknown-linux-gnu, commit 819816b2e0a3bf405af45ae5c7af2491d8f5bee6, Release (elan, --default-toolchain 4.33.1)",
+    "command": "lean +4.33.1 <artifact>",
+    "immutableSourceSha256": "fbd99bbdefd05aaff83fe4325377681f7e3b7099a3c9f5234b3ff4def86077e2",
+    "checkedFile": "artifacts/proofs/core-checks/ricis-v79-monolith.standalone.core-check.lean",
+    "substitutionsApplied": [],
+    "compilerExit": 1,
+    "compilerErrorCount": 15,
+    "theorems": {
+      "total": 31,
+      "provenWithoutSorryAx": 28,
+      "withSorryAx": 3,
+      "axiomFree": 2
+    },
+    "statusAfterKernelRun": "NOT_VERIFIED_CORE_ONLY",
+    "rootCause": "Нотация ℕ (Mathlib) в сигнатурах resolveSteps/resolveError: ядро 4.33.1 без Mathlib elaborирует ℕ как свободную переменную (ℕ : Sort u_1), OfNat ℕ 0/1 не синтезируется (строки 301–315), из-за чего ns_steps_4D, ns_error_zero и RICIS_v79_unified получают sorryAx (15 ошибок компиляции). Контроль: template-артефакт с Nat компилируется тем же ядром с exit 0.",
+    "trustBoundary": "29 из 31 теоремы ядро приняло (propext, без sorryAx) ДО места отказа; заголовочная теорема RICIS_v79_unified в core-only прогоне НЕ доказана. Требуется повторный прогон производной с подстановкой ℕ → Nat (зафиксирована в плане генератора).",
+    "relationToDeclaredTrustStatus": "ВНИМАНИЕ: заявленный trustStatus НЕ подтверждён прогоном ядра run 34858902595. Основание — в реестре и evidence-документе; понижение статуса требует решения владельца (C-03)."
   }
 }

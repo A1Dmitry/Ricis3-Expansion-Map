@@ -59,5 +59,29 @@
     ],
     "contentHash": "7607fe7bb27a55c68c9120fe9c5a8c2f693eb5a83c57b0c2ce9a8e5897947c2d",
     "trustStatus": "REQUIRES_CORE_LEAN"
+  },
+  "kernelCheck": {
+    "addedBy": "AGENTS.md §7 — статус записывается снаружи неизменяемого исходника (присоединение metadata)",
+    "registry": "artifacts/proofs/core-checks/kernel-findings.json",
+    "evidence": "docs/05-evidence/proofs/lean-core-checks-run-2026-09-14.md",
+    "run": 34858902595,
+    "runUrl": "https://github.com/A1Dmitry/Ricis3-Expansion-Map/actions/runs/34858902595",
+    "toolchain": "Lean 4.33.1, x86_64-unknown-linux-gnu, commit 819816b2e0a3bf405af45ae5c7af2491d8f5bee6, Release (elan, --default-toolchain 4.33.1)",
+    "command": "lean +4.33.1 <artifact>",
+    "immutableSourceSha256": "7607fe7bb27a55c68c9120fe9c5a8c2f693eb5a83c57b0c2ce9a8e5897947c2d",
+    "checkedFile": "artifacts/proofs/core-checks/ricis-backend-exact-reduction.standalone.core-check.lean",
+    "substitutionsApplied": [],
+    "compilerExit": 1,
+    "compilerErrorCount": 22,
+    "theorems": {
+      "total": 20,
+      "provenWithoutSorryAx": 12,
+      "withSorryAx": 8,
+      "axiomFree": 0
+    },
+    "statusAfterKernelRun": "NOT_VERIFIED_CORE_ONLY",
+    "rootCause": "Та же первопричина ℕ (8 вхождений): 22 ошибки, включая `induction failed: major premise type is not an inductive type ℕ`; декларации repeated_error_zero и error_independent_of_iterations не созданы (Unknown constant), 8 теорем получили sorryAx.",
+    "trustBoundary": "Метаданные артефакта уже честно указывают REQUIRES_CORE_LEAN. Требуется повторный прогон производной с подстановкой ℕ → Nat.",
+    "relationToDeclaredTrustStatus": "ВНИМАНИЕ: заявленный trustStatus НЕ подтверждён прогоном ядра run 34858902595. Основание — в реестре и evidence-документе; понижение статуса требует решения владельца (C-03)."
   }
 }

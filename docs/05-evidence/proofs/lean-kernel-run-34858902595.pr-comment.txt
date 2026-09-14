@@ -1,0 +1,680 @@
+### Lean kernel evidence — run `34858902595`
+
+Kernel outcome: `FAILED (exit 1; see results summary)`
+
+Toolchain: Lean 4.33.1 (pinned via elan). Command: `lean +4.33.1 <artifact>` for every self-contained artifact.
+
+```text
+--- toolchain.txt ---
+Lean kernel run — 2026-09-14T14:57:11Z
+Lean (version 4.33.1, x86_64-unknown-linux-gnu, commit 819816b2e0a3bf405af45ae5c7af2491d8f5bee6, Release)
+toolchain: lean 4.33.1 (pinned via elan, default-toolchain)
+host: ubuntu-latest (GitHub Actions)
+--- summary.txt ---
+--- environment diagnostics ---
+pwd: /home/runner/work/Ricis3-Expansion-Map/Ricis3-Expansion-Map
+NO_MATHLIB_ARTIFACTS: artifacts/proofs/database-a6-minimal-core-check.lean
+CORE_CHECK_DIR: artifacts/proofs/core-checks
+which lean: /home/runner/.elan/bin/lean
+Lean (version 4.33.1, x86_64-unknown-linux-gnu, commit 819816b2e0a3bf405af45ae5c7af2491d8f5bee6, Release)
+leanprover/lean4:v4.33.1
+allowlist files:
+  present: artifacts/proofs/database-a6-minimal-core-check.lean
+core-check files:
+  artifacts/proofs/core-checks/ricis-backend-exact-reduction.standalone.core-check.lean
+  artifacts/proofs/core-checks/ricis-chatbot-monetization.core-check.lean
+  artifacts/proofs/core-checks/ricis-jacobian-conjecture.standalone.core-check.lean
+  artifacts/proofs/core-checks/ricis-navier-stokes-ast-bridge.standalone.core-check.lean
+  artifacts/proofs/core-checks/ricis-riemann-zeta-ast-bridge.standalone.core-check.lean
+  artifacts/proofs/core-checks/ricis-universal-orchestration-template.core-check.lean
+  artifacts/proofs/core-checks/ricis-v79-monolith.standalone.core-check.lean
+kernel targets: 8 file(s)
+  artifacts/proofs/core-checks/ricis-backend-exact-reduction.standalone.core-check.lean
+  artifacts/proofs/core-checks/ricis-chatbot-monetization.core-check.lean
+  artifacts/proofs/core-checks/ricis-jacobian-conjecture.standalone.core-check.lean
+  artifacts/proofs/core-checks/ricis-navier-stokes-ast-bridge.standalone.core-check.lean
+  artifacts/proofs/core-checks/ricis-riemann-zeta-ast-bridge.standalone.core-check.lean
+  artifacts/proofs/core-checks/ricis-universal-orchestration-template.core-check.lean
+  artifacts/proofs/core-checks/ricis-v79-monolith.standalone.core-check.lean
+  artifacts/proofs/database-a6-minimal-core-check.lean
+=== ricis-backend-exact-reduction.standalone.core-check: lean +4.33.1 artifacts/proofs/core-checks/ricis-backend-exact-reduction.standalone.core-check.lean
+    result: FAILED (compiler exit 1) — SORRY_DETECTED (8 hit(s))
+--- #print axioms output (ricis-backend-exact-reduction.standalone.core-check) ---
+'RICIS.identity' depends on axioms: [propext]
+'RICIS.structure_irrelevant' depends on axioms: [propext]
+'RICIS.selfDivision_one_step' depends on axioms: [propext, sorryAx]
+'RICIS.reduction_independent_of_size' depends on axioms: [propext, sorryAx]
+'RICIS.selfDivision_eliminated' depends on axioms: [propext]
+'RICIS.eliminated_error_zero' depends on axioms: [sorryAx]
+'RICIS.eliminated_error_independent_of_size' depends on axioms: [sorryAx]
+'RICIS.complex_selfDivision' depends on axioms: [propext]
+'RICIS.complex_eliminated_error' depends on axioms: [sorryAx]
+'RICIS.repeated_selfDivision' depends on axioms: [sorryAx]
+'RICIS.billion_iterations_zero_error' depends on axioms: [sorryAx]
+'RICIS.prepare_selfDivision' depends on axioms: [propext]
+'RICIS.execute_prepared_selfDivision' depends on axioms: [propext]
+'RICIS.CPU_correct' depends on axioms: [propext]
+'RICIS.CUDA_correct' depends on axioms: [propext]
+'RICIS.CPU_CUDA_same_semantics' depends on axioms: [propext]
+'RICIS.selfDivision_CPU' depends on axioms: [propext]
+'RICIS.selfDivision_CUDA' depends on axioms: [propext]
+'RICIS.selfDivision_all_backends' depends on axioms: [propext]
+'RICIS.RICIS_exact_structural_reduction' depends on axioms: [propext, sorryAx]
+--- compiler output tail (ricis-backend-exact-reduction.standalone.core-check) ---
+'RICIS.selfDivision_one_step' depends on axioms: [propext, sorryAx]
+'RICIS.reduction_independent_of_size' depends on axioms: [propext, sorryAx]
+'RICIS.selfDivision_eliminated' depends on axioms: [propext]
+'RICIS.eliminated_error_zero' depends on axioms: [sorryAx]
+'RICIS.eliminated_error_independent_of_size' depends on axioms: [sorryAx]
+'RICIS.complex_selfDivision' depends on axioms: [propext]
+'RICIS.complex_eliminated_error' depends on axioms: [sorryAx]
+'RICIS.repeated_selfDivision' depends on axioms: [sorryAx]
+artifacts/proofs/core-checks/ricis-backend-exact-reduction.standalone.core-check.lean:457:14: error(lean.unknownIdentifier): Unknown constant `RICIS.repeated_error_zero`
+'RICIS.billion_iterations_zero_error' depends on axioms: [sorryAx]
+artifacts/proofs/core-checks/ricis-backend-exact-reduction.standalone.core-check.lean:459:14: error(lean.unknownIdentifier): Unknown constant `RICIS.error_independent_of_iterations`
+'RICIS.prepare_selfDivision' depends on axioms: [propext]
+'RICIS.execute_prepared_selfDivision' depends on axioms: [propext]
+'RICIS.CPU_correct' depends on axioms: [propext]
+'RICIS.CUDA_correct' depends on axioms: [propext]
+'RICIS.CPU_CUDA_same_semantics' depends on axioms: [propext]
+'RICIS.selfDivision_CPU' depends on axioms: [propext]
+'RICIS.selfDivision_CUDA' depends on axioms: [propext]
+'RICIS.selfDivision_all_backends' depends on axioms: [propext]
+'RICIS.RICIS_exact_structural_reduction' depends on axioms: [propext, sorryAx]
+
+=== ricis-chatbot-monetization.core-check: lean +4.33.1 artifacts/proofs/core-checks/ricis-chatbot-monetization.core-check.lean
+    result: OK (compiler exit 0, no compiler errors)
+--- #print axioms output (ricis-chatbot-monetization.core-check) ---
+'RICIS_Monetization.Chatbot_Monetization_Resolution' depends on axioms: [propext]
+'RICIS_Monetization.L1_identity' does not depend on any axioms
+--- compiler output tail (ricis-chatbot-monetization.core-check) ---
+'RICIS_Monetization.Chatbot_Monetization_Resolution' depends on axioms: [propext]
+'RICIS_Monetization.L1_identity' does not depend on any axioms
+
+=== ricis-jacobian-conjecture.standalone.core-check: lean +4.33.1 artifacts/proofs/core-checks/ricis-jacobian-conjecture.standalone.core-check.lean
+    result: FAILED (compiler exit 1)
+--- #print axioms output (ricis-jacobian-conjecture.standalone.core-check) ---
+'RICIS_Jacobian.Jacobian_L1_identity' does not depend on any axioms
+--- compiler output tail (ricis-jacobian-conjecture.standalone.core-check) ---
+artifacts/proofs/core-checks/ricis-jacobian-conjecture.standalone.core-check.lean:24:12: error: expected token
+artifacts/proofs/core-checks/ricis-jacobian-conjecture.standalone.core-check.lean:29:4: error: Invalid pattern variable: Variable name must be atomic, but `RExpr.zero` has multiple components
+artifacts/proofs/core-checks/ricis-jacobian-conjecture.standalone.core-check.lean:40:4: error: Invalid pattern: Expected a constructor or constant marked with `[match_pattern]`
+artifacts/proofs/core-checks/ricis-jacobian-conjecture.standalone.core-check.lean:48:4: error: Invalid pattern: Expected a constructor or constant marked with `[match_pattern]`
+artifacts/proofs/core-checks/ricis-jacobian-conjecture.standalone.core-check.lean:60:18: error(lean.invalidField): Invalid field notation: Field projection operates on types of the form `C ...` where C is a constant. The expression
+  RExpr
+has type `Sort ?u.2` which does not have the necessary form.
+artifacts/proofs/core-checks/ricis-jacobian-conjecture.standalone.core-check.lean:61:6: error(lean.invalidField): Invalid field notation: Field projection operates on types of the form `C ...` where C is a constant. The expression
+  RExpr
+has type `Sort ?u.2` which does not have the necessary form.
+artifacts/proofs/core-checks/ricis-jacobian-conjecture.standalone.core-check.lean:92:14: error(lean.unknownIdentifier): Unknown constant `RICIS_Jacobian.Jacobian_singularity_resolved`
+'RICIS_Jacobian.Jacobian_L1_identity' does not depend on any axioms
+
+=== ricis-navier-stokes-ast-bridge.standalone.core-check: lean +4.33.1 artifacts/proofs/core-checks/ricis-navier-stokes-ast-bridge.standalone.core-check.lean
+    result: OK (compiler exit 0, no compiler errors)
+--- #print axioms output (ricis-navier-stokes-ast-bridge.standalone.core-check) ---
+'RICIS.NavierStokes.singularEnergyBridge_reduced' depends on axioms: [propext]
+'RICIS.NavierStokes.bridge_independent_of_complexity' depends on axioms: [propext]
+--- compiler output tail (ricis-navier-stokes-ast-bridge.standalone.core-check) ---
+'RICIS.NavierStokes.singularEnergyBridge_reduced' depends on axioms: [propext]
+'RICIS.NavierStokes.bridge_independent_of_complexity' depends on axioms: [propext]
+
+=== ricis-riemann-zeta-ast-bridge.standalone.core-check: lean +4.33.1 artifacts/proofs/core-checks/ricis-riemann-zeta-ast-bridge.standalone.core-check.lean
+    result: OK (compiler exit 0, no compiler errors)
+--- #print axioms output (ricis-riemann-zeta-ast-bridge.standalone.core-check) ---
+'RICIS.RiemannZeta.riemann_bridge_reduced' depends on axioms: [propext]
+'RICIS.RiemannZeta.riemann_bridge_independent_of_complexity' depends on axioms: [propext]
+--- compiler output tail (ricis-riemann-zeta-ast-bridge.standalone.core-check) ---
+'RICIS.RiemannZeta.riemann_bridge_reduced' depends on axioms: [propext]
+'RICIS.RiemannZeta.riemann_bridge_independent_of_complexity' depends on axioms: [propext]
+
+=== ricis-universal-orchestration-template.core-check: lean +4.33.1 artifacts/proofs/core-checks/ricis-universal-orchestration-template.core-check.lean
+    result: OK (compiler exit 0, no compiler errors)
+--- #print axioms output (ricis-universal-orchestration-template.core-check) ---
+'RICIS_Template.L1_identity' does not depend on any axioms
+'RICIS_Template.divSelf_one' depends on axioms: [propext]
+'RICIS_Template.SP2_subSelf_zero' depends on axioms: [propext]
+'RICIS_Template.A1_div_zero' depends on axioms: [propext]
+'RICIS_Template.A2_inf_zero_one' depends on axioms: [propext]
+'RICIS_Template.zero_div_zero_step1' depends on axioms: [propext]
+'RICIS_Template.zero_div_zero_step2' depends on axioms: [propext]
+'RICIS_Template.zero_div_zero_one' depends on axioms: [propext]
+'RICIS_Template.A4_indexed_zero_div' depends on axioms: [propext]
+'RICIS_Template.A5_inf_div' depends on axioms: [propext]
+'RICIS_Template.A6_geometric_realization' depends on axioms: [propext]
+'RICIS_Template.A7_inf_sub' depends on axioms: [propext]
+'RICIS_Template.A10_mul_zero' depends on axioms: [propext]
+'RICIS_Template.A10_zero_mul' depends on axioms: [propext]
+'RICIS_Template.L0_continuity_divSelf' depends on axioms: [propext]
+'RICIS_Template.L0_continuity_subSelf' depends on axioms: [propext]
+'RICIS_Template.L0_continuity_A6_rect' depends on axioms: [propext]
+'RICIS_Template.L0_continuity_A6_measure' depends on axioms: [propext]
+'RICIS_Template.SP4_preserves_parent' does not depend on any axioms
+'RICIS_Template.mySystem_4D_resolved' depends on axioms: [propext]
+'RICIS_Template.L0_mySystem_no_discontinuity' depends on axioms: [propext]
+'RICIS_Template.mySystem_steps_4D' depends on axioms: [propext]
+'RICIS_Template.mySystem_error_zero' does not depend on any axioms
+'RICIS_Template.CPU_CUDA_same' depends on axioms: [propext]
+'RICIS_Template.complex_divSelf_one' depends on axioms: [propext]
+'RICIS_Template.complex_subSelf_zero' depends on axioms: [propext]
+'RICIS_Template.RICIS_unified' depends on axioms: [propext]
+--- compiler output tail (ricis-universal-orchestration-template.core-check) ---
+'RICIS_Template.zero_div_zero_one' depends on axioms: [propext]
+'RICIS_Template.A4_indexed_zero_div' depends on axioms: [propext]
+'RICIS_Template.A5_inf_div' depends on axioms: [propext]
+'RICIS_Template.A6_geometric_realization' depends on axioms: [propext]
+'RICIS_Template.A7_inf_sub' depends on axioms: [propext]
+'RICIS_Template.A10_mul_zero' depends on axioms: [propext]
+'RICIS_Template.A10_zero_mul' depends on axioms: [propext]
+'RICIS_Template.L0_continuity_divSelf' depends on axioms: [propext]
+'RICIS_Template.L0_continuity_subSelf' depends on axioms: [propext]
+'RICIS_Template.L0_continuity_A6_rect' depends on axioms: [propext]
+'RICIS_Template.L0_continuity_A6_measure' depends on axioms: [propext]
+'RICIS_Template.SP4_preserves_parent' does not depend on any axioms
+'RICIS_Template.mySystem_4D_resolved' depends on axioms: [propext]
+'RICIS_Template.L0_mySystem_no_discontinuity' depends on axioms: [propext]
+'RICIS_Template.mySystem_steps_4D' depends on axioms: [propext]
+'RICIS_Template.mySystem_error_zero' does not depend on any axioms
+'RICIS_Template.CPU_CUDA_same' depends on axioms: [propext]
+'RICIS_Template.complex_divSelf_one' depends on axioms: [propext]
+'RICIS_Template.complex_subSelf_zero' depends on axioms: [propext]
+'RICIS_Template.RICIS_unified' depends on axioms: [propext]
+
+=== ricis-v79-monolith.standalone.core-check: lean +4.33.1 artifacts/proofs/core-checks/ricis-v79-monolith.standalone.core-check.lean
+    result: FAILED (compiler exit 1) — SORRY_DETECTED (3 hit(s))
+--- #print axioms output (ricis-v79-monolith.standalone.core-check) ---
+'RICIS_v79.L1_identity' does not depend on any axioms
+'RICIS_v79.divSelf_one' depends on axioms: [propext]
+'RICIS_v79.SP2_subSelf_zero' depends on axioms: [propext]
+'RICIS_v79.A1_div_zero' depends on axioms: [propext]
+'RICIS_v79.A2_inf_zero_one' depends on axioms: [propext]
+'RICIS_v79.zero_div_zero_step1' depends on axioms: [propext]
+'RICIS_v79.zero_div_zero_step2' depends on axioms: [propext]
+'RICIS_v79.zero_div_zero_one' depends on axioms: [propext]
+'RICIS_v79.A4_indexed_zero_div' depends on axioms: [propext]
+'RICIS_v79.A5_inf_div' depends on axioms: [propext]
+'RICIS_v79.A6_geometric_realization' depends on axioms: [propext]
+'RICIS_v79.A7_inf_sub' depends on axioms: [propext]
+'RICIS_v79.A10_mul_zero' depends on axioms: [propext]
+'RICIS_v79.A10_zero_mul' depends on axioms: [propext]
+'RICIS_v79.L0_continuity_divSelf' depends on axioms: [propext]
+'RICIS_v79.L0_continuity_subSelf' depends on axioms: [propext]
+'RICIS_v79.L0_continuity_A6_rect' depends on axioms: [propext]
+'RICIS_v79.L0_continuity_A6_measure' depends on axioms: [propext]
+'RICIS_v79.SP4_preserves_parent' does not depend on any axioms
+'RICIS_v79.ns_R1_resolved' depends on axioms: [propext]
+'RICIS_v79.ns_R2_resolved' depends on axioms: [propext]
+'RICIS_v79.ns_R3_resolved' depends on axioms: [propext]
+'RICIS_v79.ns_Rt_resolved' depends on axioms: [propext]
+'RICIS_v79.ns_4D_resolved' depends on axioms: [propext]
+'RICIS_v79.L0_4D_no_discontinuity' depends on axioms: [propext]
+'RICIS_v79.ns_steps_4D' depends on axioms: [propext, sorryAx]
+'RICIS_v79.ns_error_zero' depends on axioms: [sorryAx]
+'RICIS_v79.CPU_CUDA_same' depends on axioms: [propext]
+'RICIS_v79.complex_divSelf_one' depends on axioms: [propext]
+'RICIS_v79.complex_subSelf_zero' depends on axioms: [propext]
+'RICIS_v79.RICIS_v79_unified' depends on axioms: [propext, sorryAx]
+--- compiler output tail (ricis-v79-monolith.standalone.core-check) ---
+'RICIS_v79.A7_inf_sub' depends on axioms: [propext]
+'RICIS_v79.A10_mul_zero' depends on axioms: [propext]
+'RICIS_v79.A10_zero_mul' depends on axioms: [propext]
+'RICIS_v79.L0_continuity_divSelf' depends on axioms: [propext]
+'RICIS_v79.L0_continuity_subSelf' depends on axioms: [propext]
+'RICIS_v79.L0_continuity_A6_rect' depends on axioms: [propext]
+'RICIS_v79.L0_continuity_A6_measure' depends on axioms: [propext]
+'RICIS_v79.SP4_preserves_parent' does not depend on any axioms
+'RICIS_v79.ns_R1_resolved' depends on axioms: [propext]
+'RICIS_v79.ns_R2_resolved' depends on axioms: [propext]
+'RICIS_v79.ns_R3_resolved' depends on axioms: [propext]
+'RICIS_v79.ns_Rt_resolved' depends on axioms: [propext]
+'RICIS_v79.ns_4D_resolved' depends on axioms: [propext]
+'RICIS_v79.L0_4D_no_discontinuity' depends on axioms: [propext]
+'RICIS_v79.ns_steps_4D' depends on axioms: [propext, sorryAx]
+'RICIS_v79.ns_error_zero' depends on axioms: [sorryAx]
+'RICIS_v79.CPU_CUDA_same' depends on axioms: [propext]
+'RICIS_v79.complex_divSelf_one' depends on axioms: [propext]
+'RICIS_v79.complex_subSelf_zero' depends on axioms: [propext]
+'RICIS_v79.RICIS_v79_unified' depends on axioms: [propext, sorryAx]
+
+=== database-a6-minimal-core-check: lean +4.33.1 artifacts/proofs/database-a6-minimal-core-check.lean
+    result: OK (compiler exit 0, no compiler errors)
+--- #print axioms output (database-a6-minimal-core-check) ---
+'RICIS3.MinimalA6Check.Regression.database_a6_bridge' does not depend on any axioms
+--- compiler output tail (database-a6-minimal-core-check) ---
+'RICIS3.MinimalA6Check.Regression.database_a6_bridge' does not depend on any axioms
+
+--- not checked (require a Mathlib build; remain REQUIRES_CORE_LEAN) ---
+  RicisAgiTarget.lean: import(s) present — no pinned Mathlib build available on this runner
+  database-a6-0_5_inf_3.standalone.lean: import(s) present — no pinned Mathlib build available on this runner
+  database-registry-120-jacobian.standalone.lean: import(s) present — no pinned Mathlib build available on this runner
+  jacobian-counterexample-full.lean: import(s) present — no pinned Mathlib build available on this runner
+  ricis-backend-exact-reduction.standalone.lean: import(s) present — no pinned Mathlib build available on this runner
+  ricis-chatbot-monetization.lean: import(s) present — no pinned Mathlib build available on this runner
+  ricis-jacobian-conjecture.standalone.lean: import(s) present — no pinned Mathlib build available on this runner
+  ricis-kernel-ast-sp5.standalone.lean: import(s) present — no pinned Mathlib build available on this runner
+  ricis-navier-stokes-ast-bridge.standalone.lean: import(s) present — no pinned Mathlib build available on this runner
+  ricis-riemann-zeta-ast-bridge.standalone.lean: import(s) present — no pinned Mathlib build available on this runner
+  ricis-seed-expansion-a11.lean: import(s) present — no pinned Mathlib build available on this runner
+  ricis-universal-orchestration-template.lean: import(s) present — no pinned Mathlib build available on this runner
+  ricis-v79-monolith.standalone.lean: import(s) present — no pinned Mathlib build available on this runner
+--- sha256.txt ---
+4002d1c900271d7526f8b455c277f32a91ac99a613e55d8d25f09edcd7860073  artifacts/proofs/RicisAgiTarget.lean
+cc4097efd4aca8aea0061738fd02078ea87d91af0a59726e03baaf7612245e62  artifacts/proofs/database-a6-0_5-inf_3.generated.lean
+963f701f3c87f7994f3784944250b46df5026e71be4ae8279bf41cf4d4e99d2c  artifacts/proofs/database-a6-0_5_inf_3.standalone.lean
+502e8a3852dae2e7aa78a92157be031f120c7f22fc4a01daf87ca83fe9f2d5c2  artifacts/proofs/database-a6-minimal-core-check.lean
+adde2c29a7ac44592a611678f1e1a9630fc73f131ac3663b5e7eb219bd64bbde  artifacts/proofs/database-registry-120-jacobian.generated.lean
+4d974e643b4480169897685d21254e10ca607416912e43275491c6dd3cdd1617  artifacts/proofs/database-registry-120-jacobian.standalone.lean
+e6ab1b1db54ff04cdc3fb5a647cb6beedd7daba84bcd1272b51123519244339a  artifacts/proofs/jacobian-counterexample-full.lean
+7607fe7bb27a55c68c9120fe9c5a8c2f693eb5a83c57b0c2ce9a8e5897947c2d  artifacts/proofs/ricis-backend-exact-reduction.standalone.lean
+f48f78a3021e94314b5e73729b92721ac10d38b867fca6a18d01aa3dac3c1c2a  artifacts/proofs/ricis-chatbot-monetization.lean
+2e043f2738df8d8b02754aebb5fa93580fb87e6cc71733557c620c463c4de56b  artifacts/proofs/ricis-jacobian-conjecture.standalone.lean
+6ee144b7e438a112b1590c65625da5b88baf615cb53315f52b6935d91cacda57  artifacts/proofs/ricis-kernel-ast-sp5.standalone.lean
+85edafc2dd5fdcd3fc694cd246f8faf9337e9b036fe05f9fcd105b95cc6cc77a  artifacts/proofs/ricis-navier-stokes-ast-bridge.standalone.lean
+85fd84aca47bf193245a65617c64a5d5b47c101863e868d3260b1e71e4c9798b  artifacts/proofs/ricis-riemann-zeta-ast-bridge.standalone.lean
+368dc0359e3f37391e3e830fc1abf9107b8e3f1f37d0a7f3ac6d2b3bc36839f2  artifacts/proofs/ricis-seed-expansion-a11.lean
+cebe44f3e058d6d68b9b6df267300162aa53d4ce5730e3e98d623991a4363849  artifacts/proofs/ricis-universal-orchestration-template.lean
+fbd99bbdefd05aaff83fe4325377681f7e3b7099a3c9f5234b3ff4def86077e2  artifacts/proofs/ricis-v79-monolith.standalone.lean
+88ebbaae52d60dbb50919a3027d347eb8c395bd8fcc18b6f8dff059dee7e43e2  artifacts/proofs/core-checks/ricis-backend-exact-reduction.standalone.core-check.lean
+df53ed6fed0e787faf0520daad3ac501c328f96f3628853bdb1ae41027647285  artifacts/proofs/core-checks/ricis-chatbot-monetization.core-check.lean
+401b824c054f0805bf57672edad949b3438b6db881cd670dab2bb42e365c0a28  artifacts/proofs/core-checks/ricis-jacobian-conjecture.standalone.core-check.lean
+d97909ad9202c37ad506ff1b881c7185a36efef53caeabc985f603ef2259d27a  artifacts/proofs/core-checks/ricis-navier-stokes-ast-bridge.standalone.core-check.lean
+46c3dbded380e65df609625585b1bc1337f66ffb6503c384f4ed86c6a7ba5e85  artifacts/proofs/core-checks/ricis-riemann-zeta-ast-bridge.standalone.core-check.lean
+3e7658503cf2515151a601228e653f2141fe4c925f19276865301ccbebfb6cda  artifacts/proofs/core-checks/ricis-universal-orchestration-template.core-check.lean
+6e3c8950ce91e42e6a564635eb9b37c1dd054e0d352a74530e39254e7e817e31  artifacts/proofs/core-checks/ricis-v79-monolith.standalone.core-check.lean
+--- full compiler log: ricis-backend-exact-reduction.standalone.core-check ---
+artifacts/proofs/core-checks/ricis-backend-exact-reduction.standalone.core-check.lean:74:23: error(lean.synthInstanceFailed): failed to synthesize instance of type class
+  OfNat ℕ 1
+numerals are polymorphic in Lean, but the numeral `1` cannot be used in a context where the expected type is
+  ℕ
+due to the absence of the instance above
+
+Hint: Type class instance resolution failures can be inspected with the `set_option trace.Meta.synthInstance true` command.
+artifacts/proofs/core-checks/ricis-backend-exact-reduction.standalone.core-check.lean:75:9: error(lean.synthInstanceFailed): failed to synthesize instance of type class
+  OfNat ℕ 0
+numerals are polymorphic in Lean, but the numeral `0` cannot be used in a context where the expected type is
+  ℕ
+due to the absence of the instance above
+
+Hint: Type class instance resolution failures can be inspected with the `set_option trace.Meta.synthInstance true` command.
+artifacts/proofs/core-checks/ricis-backend-exact-reduction.standalone.core-check.lean:80:2: error: Tactic `rfl` failed: The left-hand side
+  reductionSteps e.divSelf
+is not definitionally equal to the right-hand side
+  1
+
+e : RExpr
+⊢ reductionSteps e.divSelf = 1
+artifacts/proofs/core-checks/ricis-backend-exact-reduction.standalone.core-check.lean:90:18: error(lean.synthInstanceFailed): failed to synthesize instance of type class
+  OfNat ℕ 1
+numerals are polymorphic in Lean, but the numeral `1` cannot be used in a context where the expected type is
+  ℕ
+due to the absence of the instance above
+
+Hint: Type class instance resolution failures can be inspected with the `set_option trace.Meta.synthInstance true` command.
+artifacts/proofs/core-checks/ricis-backend-exact-reduction.standalone.core-check.lean:91:17: error(lean.synthInstanceFailed): failed to synthesize instance of type class
+  OfNat ℕ 1
+numerals are polymorphic in Lean, but the numeral `1` cannot be used in a context where the expected type is
+  ℕ
+due to the absence of the instance above
+
+Hint: Type class instance resolution failures can be inspected with the `set_option trace.Meta.synthInstance true` command.
+artifacts/proofs/core-checks/ricis-backend-exact-reduction.standalone.core-check.lean:92:22: error(lean.synthInstanceFailed): failed to synthesize instance of type class
+  OfNat ℕ 1
+numerals are polymorphic in Lean, but the numeral `1` cannot be used in a context where the expected type is
+  ℕ
+due to the absence of the instance above
+
+Hint: Type class instance resolution failures can be inspected with the `set_option trace.Meta.synthInstance true` command.
+artifacts/proofs/core-checks/ricis-backend-exact-reduction.standalone.core-check.lean:108:2: error: Tactic `rfl` failed: The left-hand side
+  reductionSteps e.divSelf
+is not definitionally equal to the right-hand side
+  1
+
+e : RExpr
+⊢ reductionSteps e.divSelf = 1
+artifacts/proofs/core-checks/ricis-backend-exact-reduction.standalone.core-check.lean:140:2: error(lean.synthInstanceFailed): failed to synthesize instance of type class
+  OfNat ℕ 0
+numerals are polymorphic in Lean, but the numeral `0` cannot be used in a context where the expected type is
+  ℕ
+due to the absence of the instance above
+
+Hint: Type class instance resolution failures can be inspected with the `set_option trace.Meta.synthInstance true` command.
+artifacts/proofs/core-checks/ricis-backend-exact-reduction.standalone.core-check.lean:145:2: error: Tactic `rfl` failed: The left-hand side
+  eliminatedError e
+is not definitionally equal to the right-hand side
+  0
+
+e : RExpr
+⊢ eliminatedError e = 0
+artifacts/proofs/core-checks/ricis-backend-exact-reduction.standalone.core-check.lean:156:2: error: Tactic `rfl` failed: The left-hand side
+  eliminatedError e
+is not definitionally equal to the right-hand side
+  0
+
+e : RExpr
+⊢ eliminatedError e = 0
+artifacts/proofs/core-checks/ricis-backend-exact-reduction.standalone.core-check.lean:185:2: error: Tactic `rfl` failed: The left-hand side
+  eliminatedError (complex e)
+is not definitionally equal to the right-hand side
+  0
+
+e : RExpr
+⊢ eliminatedError (complex e) = 0
+artifacts/proofs/core-checks/ricis-backend-exact-reduction.standalone.core-check.lean:195:7: error(lean.synthInstanceFailed): failed to synthesize instance of type class
+  OfNat ℕ 0
+numerals are polymorphic in Lean, but the numeral `0` cannot be used in a context where the expected type is
+  ℕ
+due to the absence of the instance above
+
+Hint: Type class instance resolution failures can be inspected with the `set_option trace.Meta.synthInstance true` command.
+artifacts/proofs/core-checks/ricis-backend-exact-reduction.standalone.core-check.lean:203:2: error: Tactic `induction` failed: major premise type is not an inductive type
+  ℕ
+
+Explanation: the `induction` tactic is for constructor-based reasoning as well as for applying custom induction principles with a 'using' clause or a registered '@[induction_eliminator]' theorem. The above type neither is an inductive type nor has a registered theorem.
+
+ℕ : Sort u_1
+e : RExpr
+n : ℕ
+⊢ runReduced e.divSelf n = RExpr.one
+artifacts/proofs/core-checks/ricis-backend-exact-reduction.standalone.core-check.lean:217:2: error(lean.synthInstanceFailed): failed to synthesize instance of type class
+  OfNat ℕ 0
+numerals are polymorphic in Lean, but the numeral `0` cannot be used in a context where the expected type is
+  ℕ
+due to the absence of the instance above
+
+Hint: Type class instance resolution failures can be inspected with the `set_option trace.Meta.synthInstance true` command.
+artifacts/proofs/core-checks/ricis-backend-exact-reduction.standalone.core-check.lean:222:24: error(lean.synthInstanceFailed): failed to synthesize instance of type class
+  OfNat ℕ 0
+numerals are polymorphic in Lean, but the numeral `0` cannot be used in a context where the expected type is
+  ℕ
+due to the absence of the instance above
+
+Hint: Type class instance resolution failures can be inspected with the `set_option trace.Meta.synthInstance true` command.
+artifacts/proofs/core-checks/ricis-backend-exact-reduction.standalone.core-check.lean:223:2: error: Tactic `rfl` failed: The left-hand side
+  repeatedError e n
+is not definitionally equal to the right-hand side
+  0
+
+ℕ : Type u_1
+e : RExpr
+n : ℕ
+⊢ repeatedError e n = 0
+artifacts/proofs/core-checks/ricis-backend-exact-reduction.standalone.core-check.lean:229:2: error: Tactic `rfl` failed: The left-hand side
+  repeatedError e 1000000000
+is not definitionally equal to the right-hand side
+  0
+
+e : RExpr
+⊢ repeatedError e 1000000000 = 0
+artifacts/proofs/core-checks/ricis-backend-exact-reduction.standalone.core-check.lean:234:33: error(lean.synthInstanceFailed): failed to synthesize instance of type class
+  OfNat ℕ 0
+numerals are polymorphic in Lean, but the numeral `0` cannot be used in a context where the expected type is
+  ℕ
+due to the absence of the instance above
+
+Hint: Type class instance resolution failures can be inspected with the `set_option trace.Meta.synthInstance true` command.
+artifacts/proofs/core-checks/ricis-backend-exact-reduction.standalone.core-check.lean:236:2: error: Tactic `rfl` failed: The left-hand side
+  repeatedError e n
+is not definitionally equal to the right-hand side
+  0
+
+ℕ : Type u_1
+e : RExpr
+n : ℕ
+⊢ repeatedError e n = 0
+artifacts/proofs/core-checks/ricis-backend-exact-reduction.standalone.core-check.lean:418:4: error: Tactic `rfl` failed: The left-hand side
+  eliminatedError e
+is not definitionally equal to the right-hand side
+  0
+
+case right.left
+e : RExpr
+⊢ eliminatedError e = 0
+'RICIS.identity' depends on axioms: [propext]
+'RICIS.structure_irrelevant' depends on axioms: [propext]
+'RICIS.selfDivision_one_step' depends on axioms: [propext, sorryAx]
+'RICIS.reduction_independent_of_size' depends on axioms: [propext, sorryAx]
+'RICIS.selfDivision_eliminated' depends on axioms: [propext]
+'RICIS.eliminated_error_zero' depends on axioms: [sorryAx]
+'RICIS.eliminated_error_independent_of_size' depends on axioms: [sorryAx]
+'RICIS.complex_selfDivision' depends on axioms: [propext]
+'RICIS.complex_eliminated_error' depends on axioms: [sorryAx]
+'RICIS.repeated_selfDivision' depends on axioms: [sorryAx]
+artifacts/proofs/core-checks/ricis-backend-exact-reduction.standalone.core-check.lean:457:14: error(lean.unknownIdentifier): Unknown constant `RICIS.repeated_error_zero`
+'RICIS.billion_iterations_zero_error' depends on axioms: [sorryAx]
+artifacts/proofs/core-checks/ricis-backend-exact-reduction.standalone.core-check.lean:459:14: error(lean.unknownIdentifier): Unknown constant `RICIS.error_independent_of_iterations`
+'RICIS.prepare_selfDivision' depends on axioms: [propext]
+'RICIS.execute_prepared_selfDivision' depends on axioms: [propext]
+'RICIS.CPU_correct' depends on axioms: [propext]
+'RICIS.CUDA_correct' depends on axioms: [propext]
+'RICIS.CPU_CUDA_same_semantics' depends on axioms: [propext]
+'RICIS.selfDivision_CPU' depends on axioms: [propext]
+'RICIS.selfDivision_CUDA' depends on axioms: [propext]
+'RICIS.selfDivision_all_backends' depends on axioms: [propext]
+'RICIS.RICIS_exact_structural_reduction' depends on axioms: [propext, sorryAx]
+--- full compiler log: ricis-chatbot-monetization.core-check ---
+'RICIS_Monetization.Chatbot_Monetization_Resolution' depends on axioms: [propext]
+'RICIS_Monetization.L1_identity' does not depend on any axioms
+--- full compiler log: ricis-jacobian-conjecture.standalone.core-check ---
+artifacts/proofs/core-checks/ricis-jacobian-conjecture.standalone.core-check.lean:24:12: error: expected token
+artifacts/proofs/core-checks/ricis-jacobian-conjecture.standalone.core-check.lean:29:4: error: Invalid pattern variable: Variable name must be atomic, but `RExpr.zero` has multiple components
+artifacts/proofs/core-checks/ricis-jacobian-conjecture.standalone.core-check.lean:40:4: error: Invalid pattern: Expected a constructor or constant marked with `[match_pattern]`
+artifacts/proofs/core-checks/ricis-jacobian-conjecture.standalone.core-check.lean:48:4: error: Invalid pattern: Expected a constructor or constant marked with `[match_pattern]`
+artifacts/proofs/core-checks/ricis-jacobian-conjecture.standalone.core-check.lean:60:18: error(lean.invalidField): Invalid field notation: Field projection operates on types of the form `C ...` where C is a constant. The expression
+  RExpr
+has type `Sort ?u.2` which does not have the necessary form.
+artifacts/proofs/core-checks/ricis-jacobian-conjecture.standalone.core-check.lean:61:6: error(lean.invalidField): Invalid field notation: Field projection operates on types of the form `C ...` where C is a constant. The expression
+  RExpr
+has type `Sort ?u.2` which does not have the necessary form.
+artifacts/proofs/core-checks/ricis-jacobian-conjecture.standalone.core-check.lean:92:14: error(lean.unknownIdentifier): Unknown constant `RICIS_Jacobian.Jacobian_singularity_resolved`
+'RICIS_Jacobian.Jacobian_L1_identity' does not depend on any axioms
+--- full compiler log: ricis-navier-stokes-ast-bridge.standalone.core-check ---
+'RICIS.NavierStokes.singularEnergyBridge_reduced' depends on axioms: [propext]
+'RICIS.NavierStokes.bridge_independent_of_complexity' depends on axioms: [propext]
+--- full compiler log: ricis-riemann-zeta-ast-bridge.standalone.core-check ---
+'RICIS.RiemannZeta.riemann_bridge_reduced' depends on axioms: [propext]
+'RICIS.RiemannZeta.riemann_bridge_independent_of_complexity' depends on axioms: [propext]
+--- full compiler log: ricis-universal-orchestration-template.core-check ---
+'RICIS_Template.L1_identity' does not depend on any axioms
+'RICIS_Template.divSelf_one' depends on axioms: [propext]
+'RICIS_Template.SP2_subSelf_zero' depends on axioms: [propext]
+'RICIS_Template.A1_div_zero' depends on axioms: [propext]
+'RICIS_Template.A2_inf_zero_one' depends on axioms: [propext]
+'RICIS_Template.zero_div_zero_step1' depends on axioms: [propext]
+'RICIS_Template.zero_div_zero_step2' depends on axioms: [propext]
+'RICIS_Template.zero_div_zero_one' depends on axioms: [propext]
+'RICIS_Template.A4_indexed_zero_div' depends on axioms: [propext]
+'RICIS_Template.A5_inf_div' depends on axioms: [propext]
+'RICIS_Template.A6_geometric_realization' depends on axioms: [propext]
+'RICIS_Template.A7_inf_sub' depends on axioms: [propext]
+'RICIS_Template.A10_mul_zero' depends on axioms: [propext]
+'RICIS_Template.A10_zero_mul' depends on axioms: [propext]
+'RICIS_Template.L0_continuity_divSelf' depends on axioms: [propext]
+'RICIS_Template.L0_continuity_subSelf' depends on axioms: [propext]
+'RICIS_Template.L0_continuity_A6_rect' depends on axioms: [propext]
+'RICIS_Template.L0_continuity_A6_measure' depends on axioms: [propext]
+'RICIS_Template.SP4_preserves_parent' does not depend on any axioms
+'RICIS_Template.mySystem_4D_resolved' depends on axioms: [propext]
+'RICIS_Template.L0_mySystem_no_discontinuity' depends on axioms: [propext]
+'RICIS_Template.mySystem_steps_4D' depends on axioms: [propext]
+'RICIS_Template.mySystem_error_zero' does not depend on any axioms
+'RICIS_Template.CPU_CUDA_same' depends on axioms: [propext]
+'RICIS_Template.complex_divSelf_one' depends on axioms: [propext]
+'RICIS_Template.complex_subSelf_zero' depends on axioms: [propext]
+'RICIS_Template.RICIS_unified' depends on axioms: [propext]
+--- full compiler log: ricis-v79-monolith.standalone.core-check ---
+artifacts/proofs/core-checks/ricis-v79-monolith.standalone.core-check.lean:191:17: warning: Variable name `p` is not explicitly referenced.
+
+Hint: The binding can be removed (if unused) or named `_` (if used implicitly). Alternatively, prefix the name with `_` to silence this warning:
+  [apply] _p
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+artifacts/proofs/core-checks/ricis-v79-monolith.standalone.core-check.lean:212:36: warning: Variable name `p` is not explicitly referenced.
+
+Hint: The binding can be removed (if unused) or named `_` (if used implicitly). Alternatively, prefix the name with `_` to silence this warning:
+  [apply] _p
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+artifacts/proofs/core-checks/ricis-v79-monolith.standalone.core-check.lean:223:36: warning: Variable name `p` is not explicitly referenced.
+
+Hint: The binding can be removed (if unused) or named `_` (if used implicitly). Alternatively, prefix the name with `_` to silence this warning:
+  [apply] _p
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+artifacts/proofs/core-checks/ricis-v79-monolith.standalone.core-check.lean:234:36: warning: Variable name `p` is not explicitly referenced.
+
+Hint: The binding can be removed (if unused) or named `_` (if used implicitly). Alternatively, prefix the name with `_` to silence this warning:
+  [apply] _p
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+artifacts/proofs/core-checks/ricis-v79-monolith.standalone.core-check.lean:245:28: warning: Variable name `u_y` is not explicitly referenced.
+
+Hint: The binding can be removed (if unused) or named `_` (if used implicitly). Alternatively, prefix the name with `_` to silence this warning:
+  [apply] _u_y
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+artifacts/proofs/core-checks/ricis-v79-monolith.standalone.core-check.lean:245:32: warning: Variable name `u_z` is not explicitly referenced.
+
+Hint: The binding can be removed (if unused) or named `_` (if used implicitly). Alternatively, prefix the name with `_` to silence this warning:
+  [apply] _u_z
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+artifacts/proofs/core-checks/ricis-v79-monolith.standalone.core-check.lean:245:36: warning: Variable name `p` is not explicitly referenced.
+
+Hint: The binding can be removed (if unused) or named `_` (if used implicitly). Alternatively, prefix the name with `_` to silence this warning:
+  [apply] _p
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+artifacts/proofs/core-checks/ricis-v79-monolith.standalone.core-check.lean:245:48: warning: Variable name `nu` is not explicitly referenced.
+
+Hint: The binding can be removed (if unused) or named `_` (if used implicitly). Alternatively, prefix the name with `_` to silence this warning:
+  [apply] _nu
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+artifacts/proofs/core-checks/ricis-v79-monolith.standalone.core-check.lean:301:26: error(lean.synthInstanceFailed): failed to synthesize instance of type class
+  OfNat ℕ 1
+numerals are polymorphic in Lean, but the numeral `1` cannot be used in a context where the expected type is
+  ℕ
+due to the absence of the instance above
+
+Hint: Type class instance resolution failures can be inspected with the `set_option trace.Meta.synthInstance true` command.
+artifacts/proofs/core-checks/ricis-v79-monolith.standalone.core-check.lean:302:26: error(lean.synthInstanceFailed): failed to synthesize instance of type class
+  OfNat ℕ 1
+numerals are polymorphic in Lean, but the numeral `1` cannot be used in a context where the expected type is
+  ℕ
+due to the absence of the instance above
+
+Hint: Type class instance resolution failures can be inspected with the `set_option trace.Meta.synthInstance true` command.
+artifacts/proofs/core-checks/ricis-v79-monolith.standalone.core-check.lean:303:26: error(lean.synthInstanceFailed): failed to synthesize instance of type class
+  OfNat ℕ 1
+numerals are polymorphic in Lean, but the numeral `1` cannot be used in a context where the expected type is
+  ℕ
+due to the absence of the instance above
+
+Hint: Type class instance resolution failures can be inspected with the `set_option trace.Meta.synthInstance true` command.
+artifacts/proofs/core-checks/ricis-v79-monolith.standalone.core-check.lean:304:26: error(lean.synthInstanceFailed): failed to synthesize instance of type class
+  OfNat ℕ 1
+numerals are polymorphic in Lean, but the numeral `1` cannot be used in a context where the expected type is
+  ℕ
+due to the absence of the instance above
+
+Hint: Type class instance resolution failures can be inspected with the `set_option trace.Meta.synthInstance true` command.
+artifacts/proofs/core-checks/ricis-v79-monolith.standalone.core-check.lean:305:26: error(lean.synthInstanceFailed): failed to synthesize instance of type class
+  OfNat ℕ 1
+numerals are polymorphic in Lean, but the numeral `1` cannot be used in a context where the expected type is
+  ℕ
+due to the absence of the instance above
+
+Hint: Type class instance resolution failures can be inspected with the `set_option trace.Meta.synthInstance true` command.
+artifacts/proofs/core-checks/ricis-v79-monolith.standalone.core-check.lean:306:26: error(lean.synthInstanceFailed): failed to synthesize instance of type class
+  OfNat ℕ 4
+numerals are polymorphic in Lean, but the numeral `4` cannot be used in a context where the expected type is
+  ℕ
+due to the absence of the instance above
+
+Hint: Type class instance resolution failures can be inspected with the `set_option trace.Meta.synthInstance true` command.
+artifacts/proofs/core-checks/ricis-v79-monolith.standalone.core-check.lean:307:26: error(lean.synthInstanceFailed): failed to synthesize instance of type class
+  OfNat ℕ 0
+numerals are polymorphic in Lean, but the numeral `0` cannot be used in a context where the expected type is
+  ℕ
+due to the absence of the instance above
+
+Hint: Type class instance resolution failures can be inspected with the `set_option trace.Meta.synthInstance true` command.
+artifacts/proofs/core-checks/ricis-v79-monolith.standalone.core-check.lean:309:0: error: Not a definitional equality: the left-hand side
+  resolveSteps (ns_residual4 u_x u_y u_z p nu)
+is not definitionally equal to the right-hand side
+  4
+artifacts/proofs/core-checks/ricis-v79-monolith.standalone.core-check.lean:310:56: error: Type mismatch
+  rfl
+has type
+  ?m.7 = ?m.7
+but is expected to have type
+  resolveSteps (ns_residual4 u_x u_y u_z p nu) = 4
+artifacts/proofs/core-checks/ricis-v79-monolith.standalone.core-check.lean:312:36: error(lean.synthInstanceFailed): failed to synthesize instance of type class
+  OfNat ℕ 0
+numerals are polymorphic in Lean, but the numeral `0` cannot be used in a context where the expected type is
+  ℕ
+due to the absence of the instance above
+
+Hint: Type class instance resolution failures can be inspected with the `set_option trace.Meta.synthInstance true` command.
+artifacts/proofs/core-checks/ricis-v79-monolith.standalone.core-check.lean:314:0: error: Not a definitional equality: the left-hand side
+  resolveError (ns_residual4 u_x u_y u_z p nu)
+is not definitionally equal to the right-hand side
+  0
+artifacts/proofs/core-checks/ricis-v79-monolith.standalone.core-check.lean:315:56: error: Type mismatch
+  rfl
+has type
+  ?m.7 = ?m.7
+but is expected to have type
+  resolveError (ns_residual4 u_x u_y u_z p nu) = 0
+artifacts/proofs/core-checks/ricis-v79-monolith.standalone.core-check.lean:392:4: error: Tactic `rfl` failed: The left-hand side
+  resolveError (ns_residual4 u_x u_y u_z p nu)
+is not definitionally equal to the right-hand side
+  0
+
+case right.right.right.right.right.left
+e u_x u_y u_z p nu : RExpr
+⊢ resolveError (ns_residual4 u_x u_y u_z p nu) = 0
+artifacts/proofs/core-checks/ricis-v79-monolith.standalone.core-check.lean:393:4: error: Tactic `rfl` failed: The left-hand side
+  resolveSteps (ns_residual4 u_x u_y u_z p nu) = 4
+is not definitionally equal to the right-hand side
+  executeCPU (prepareCPU e.divSelf) = executeCUDA (prepareCUDA e.divSelf)
+
+case right.right.right.right.right.right
+e u_x u_y u_z p nu : RExpr
+⊢ resolveSteps (ns_residual4 u_x u_y u_z p nu) = 4 ∧
+    executeCPU (prepareCPU e.divSelf) = executeCUDA (prepareCUDA e.divSelf)
+artifacts/proofs/core-checks/ricis-v79-monolith.standalone.core-check.lean:394:2: error: No goals to be solved
+'RICIS_v79.L1_identity' does not depend on any axioms
+'RICIS_v79.divSelf_one' depends on axioms: [propext]
+'RICIS_v79.SP2_subSelf_zero' depends on axioms: [propext]
+'RICIS_v79.A1_div_zero' depends on axioms: [propext]
+'RICIS_v79.A2_inf_zero_one' depends on axioms: [propext]
+'RICIS_v79.zero_div_zero_step1' depends on axioms: [propext]
+'RICIS_v79.zero_div_zero_step2' depends on axioms: [propext]
+'RICIS_v79.zero_div_zero_one' depends on axioms: [propext]
+'RICIS_v79.A4_indexed_zero_div' depends on axioms: [propext]
+'RICIS_v79.A5_inf_div' depends on axioms: [propext]
+'RICIS_v79.A6_geometric_realization' depends on axioms: [propext]
+'RICIS_v79.A7_inf_sub' depends on axioms: [propext]
+'RICIS_v79.A10_mul_zero' depends on axioms: [propext]
+'RICIS_v79.A10_zero_mul' depends on axioms: [propext]
+'RICIS_v79.L0_continuity_divSelf' depends on axioms: [propext]
+'RICIS_v79.L0_continuity_subSelf' depends on axioms: [propext]
+'RICIS_v79.L0_continuity_A6_rect' depends on axioms: [propext]
+'RICIS_v79.L0_continuity_A6_measure' depends on axioms: [propext]
+'RICIS_v79.SP4_preserves_parent' does not depend on any axioms
+'RICIS_v79.ns_R1_resolved' depends on axioms: [propext]
+'RICIS_v79.ns_R2_resolved' depends on axioms: [propext]
+'RICIS_v79.ns_R3_resolved' depends on axioms: [propext]
+'RICIS_v79.ns_Rt_resolved' depends on axioms: [propext]
+'RICIS_v79.ns_4D_resolved' depends on axioms: [propext]
+'RICIS_v79.L0_4D_no_discontinuity' depends on axioms: [propext]
+'RICIS_v79.ns_steps_4D' depends on axioms: [propext, sorryAx]
+'RICIS_v79.ns_error_zero' depends on axioms: [sorryAx]
+'RICIS_v79.CPU_CUDA_same' depends on axioms: [propext]
+'RICIS_v79.complex_divSelf_one' depends on axioms: [propext]
+'RICIS_v79.complex_subSelf_zero' depends on axioms: [propext]
+'RICIS_v79.RICIS_v79_unified' depends on axioms: [propext, sorryAx]
+--- full compiler log: database-a6-minimal-core-check ---
+'RICIS3.MinimalA6Check.Regression.database_a6_bridge' does not depend on any axioms
+```
+

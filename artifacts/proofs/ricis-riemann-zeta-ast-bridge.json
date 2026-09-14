@@ -60,5 +60,29 @@
     ],
     "contentHash": "85fd84aca47bf193245a65617c64a5d5b47c101863e868d3260b1e71e4c9798b",
     "trustStatus": "TRUSTED_AXIOM"
+  },
+  "kernelCheck": {
+    "addedBy": "AGENTS.md §7 — статус записывается снаружи неизменяемого исходника (присоединение metadata)",
+    "registry": "artifacts/proofs/core-checks/kernel-findings.json",
+    "evidence": "docs/05-evidence/proofs/lean-core-checks-run-2026-09-14.md",
+    "run": 34858902595,
+    "runUrl": "https://github.com/A1Dmitry/Ricis3-Expansion-Map/actions/runs/34858902595",
+    "toolchain": "Lean 4.33.1, x86_64-unknown-linux-gnu, commit 819816b2e0a3bf405af45ae5c7af2491d8f5bee6, Release (elan, --default-toolchain 4.33.1)",
+    "command": "lean +4.33.1 <artifact>",
+    "immutableSourceSha256": "85fd84aca47bf193245a65617c64a5d5b47c101863e868d3260b1e71e4c9798b",
+    "checkedFile": "artifacts/proofs/core-checks/ricis-riemann-zeta-ast-bridge.standalone.core-check.lean",
+    "substitutionsApplied": [],
+    "compilerExit": 0,
+    "compilerErrorCount": 0,
+    "theorems": {
+      "total": 2,
+      "provenWithoutSorryAx": 2,
+      "withSorryAx": 0,
+      "axiomFree": 0
+    },
+    "statusAfterKernelRun": "LEAN_VERIFIED",
+    "rootCause": null,
+    "trustBoundary": "Проверено: структурная редукция E/E → one в AST дзета-выражений. Не проверено и не утверждается: гипотеза Римана (Clay). Узел карты, ссылающийся на этот артефакт как на доказательство гипотезы, kernel-evidence не имеет.",
+    "relationToDeclaredTrustStatus": "Заявленный trustStatus получил фактическое ядерное основание в пределах trustBoundary (класс: LEAN_VERIFIED_WITH_STANDARD_AXIOMS / LEAN_VERIFIED_AXIOM_FREE)."
   }
 }

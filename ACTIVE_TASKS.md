@@ -31,6 +31,26 @@
   * `database-a6-minimal-core-check.lean` повышен до `LEAN_VERIFIED`: run 34851801990, exit 0, без `sorryAx`, `#print axioms`: «does not depend on any axioms».
   * Evidence: [`docs/05-evidence/proofs/lean-kernel-run-2026-09-14.md`](docs/05-evidence/proofs/lean-kernel-run-2026-09-14.md); байты исходников не изменялись (AGENTS.md §7).
 
+### **[LEAN-CORE-CHECK-COVERAGE] Ядерная проверка Lean 4.33.1 для Mathlib-свободных артефактов и закрытие дрейфа статусов `TRUSTED_AXIOM` / `LEAN_VERIFIED`**
+* **Статус:** `PARTIALLY_COMPLETED` (4 артефакта верифицированы ядром; 7 производных ожидают повторного прогона; F-01 требует решения владельца)
+* **Основание задачи (аудит Md + Lean):** метаданные `artifacts/proofs/*.json` (5 файлов) заявляли `TRUSTED_AXIOM`, а `src/model/initialMap.ts` (6 записей, включая LaTeX «Axiom Status: LEAN_VERIFIED») — `LEAN_VERIFIED`, тогда как AGENTS.md §7 / E-03 / E-04 требуют для этих статусов фактический ядерный прогон. Единственный прогон (run 34851801990) покрывал один файл, потому что остальные 14 начинаются с `import Mathlib`.
+* **Результаты (run [34858902595](https://github.com/A1Dmitry/Ricis3-Expansion-Map/actions/runs/34858902595), Lean 4.33.1, `lean +4.33.1 <artifact>`):**
+  * Генератор [`scripts/generateLeanCoreChecks.ts`](scripts/generateLeanCoreChecks.ts) создаёт **новые версии доказательства** (`artifacts/proofs/core-checks/*.core-check.lean`) из неизменённых исходников: `производная = (исходник − неиспользуемая строка import Mathlib) [+ заявленные точечные подстановки] + добавленный эпилог #print axioms`. Исходники не переписаны (§7), sha256 зафиксированы в `core-checks/manifest.json`.
+  * **`LEAN_VERIFIED`** (exit 0, `sorryAx` отсутствует): `ricis-universal-orchestration-template.lean` (27 теорем: 3 без аксиом, 24 × `propext`), `ricis-chatbot-monetization.lean` (2), `ricis-navier-stokes-ast-bridge.standalone.lean` (2), `ricis-riemann-zeta-ast-bridge.standalone.lean` (2); подтверждён `database-a6-minimal-core-check.lean`.
+  * **Первопричины отказов установлены дословными ошибками ядра:** `ℕ` — нотация Mathlib, без Mathlib elaborируется как свободная переменная (`ℕ : Sort u_1`, `OfNat ℕ 1` не синтезируется) → `ricis-v79-monolith` (15 ошибок, `RICIS_v79_unified` получил `sorryAx`) и `ricis-backend-exact-reduction` (22 ошибки, 8 × `sorryAx`); контроль — template-артефакт с `Nat` компилируется с exit 0. Ремонт (`ℕ → Nat`) зафиксирован в производных и ожидает прогона.
+  * **`SOURCE_REJECTED_BY_KERNEL`:** `ricis-jacobian-conjecture.standalone.lean` не парсится — конструктор `| partial (F x : RExpr)` использует зарезервированное слово Lean (`24:12 expected token`), `Jacobian_singularity_resolved` — `Unknown constant`. Файл никогда не проверялся ни одним ядром Lean.
+  * Стражи: `tools/leanKernelCoreChecks.test.ts` — 15 тестов (побайтовая перегенерация, префиксное равенство исходнику, неизменность sha256, подстановка только с установленной первопричиной, запрет повышения статуса по красному прогону, согласованность реестра/метаданных/документации).
+  * Workflow: цели = явный allowlist + каталог производных; исправлен фильтр вывода `#print axioms` (прежний шаблон не совпадал с формулировкой ядра — секция evidence была пустой); добавлен брак по `sorryAx`; публикация evidence переведена на `if: always()`.
+  * Evidence: [`docs/05-evidence/proofs/lean-core-checks-run-2026-09-14.md`](docs/05-evidence/proofs/lean-core-checks-run-2026-09-14.md), сырой лог [`…34858902595.pr-comment.txt`](docs/05-evidence/proofs/lean-kernel-run-34858902595.pr-comment.txt), реестр [`artifacts/proofs/core-checks/kernel-findings.json`](artifacts/proofs/core-checks/kernel-findings.json).
+* **Найденная ТУФТА (зафиксирована, не замалчивается):**
+  * **F-01 (CRITICAL):** `TRUSTED_AXIOM` для `ricis-jacobian-conjecture` при некомпилируемом исходнике; `src/model/jacobianProof.test.ts` QA-1 проверяет лишь **текстовое** присутствие строки `theorem Jacobian_singularity_resolved` — подмена основания метрикой. Требуется решение владельца: принять новую версию доказательства (переименование неиспользуемого конструктора `partial → partialDeriv`) либо понизить статус с обновлением QA-контрактов. Молчаливый демонтаж авторизованного результата не выполнялся (C-03).
+  * **F-02 (HIGH):** статусы `LEAN_VERIFIED`/`TRUSTED_AXIOM` в `initialMap` и JSON были выставлены без прогона ядра — частично закрыто фактическим прогоном для 4 артефактов.
+  * **F-03 (MEDIUM):** зависимость от `propext` не фиксировалась; введены классы `LEAN_VERIFIED_AXIOM_FREE` и `LEAN_VERIFIED_WITH_STANDARD_AXIOMS`.
+  * **F-04 (MEDIUM):** дефект workflow — пустая секция `#print axioms` и отсутствие evidence при падении; исправлено.
+  * **F-05 (HIGH):** семантическая граница — прогон доказывает структурные AST-теоремы (`ricisReduce (divSelf e) = one`), а не гипотезу Римана / Навье–Стокса / якобиан, как формулируют узлы карты по тем же хешам.
+* **Осталось (не закрыто):** повторный прогон 7 производных пакета 2 (v79 и backend с `ℕ → Nat`, jacobian с переименованием конструктора, SP5 с `ℚ → Rat`, модель семени A11 с ядровым эквивалентом Mathlib-леммы, два `database-*.standalone`); решение владельца по F-01 и F-05; `RicisAgiTarget.lean` и `jacobian-counterexample-full.lean` остаются `REQUIRES_CORE_LEAN` (реально требуют Mathlib: `ℝ`/`ℚ` + `ring`/`norm_num`).
+* **Граница доверия:** статусы записаны снаружи исходников; байты артефактов не изменялись; kernel-прогон не является подтверждением эмпирических утверждений узлов карты.
+
 ---
 
 ## 2. Приоритетный план работ (Dependency-Ordered Roadmap)
@@ -50,6 +70,7 @@
 | **P8** | **DOCUMENTATION DRIFT** | Все выше | Синхронизация `README.md`, `ACTIVE_TASKS.md` с фактическим статусом кодовой базы и отсутствием generic-замен. | `G4_DEVELOPMENT_COMPLETED` |
 | **P9** | **SCIENTIFIC CLAIMS** | P8 | Строгое разделение FACT / HYPOTHESIS / CLAIM в публичной документации и Lean-артефактах. | `G4_DEVELOPMENT_COMPLETED` |
 | **P10** | **PRODUCT PRIORITY** | P4, P5 | Позиционирование продукта как универсального символьного/структурного движка (робототехника — тестовый кейс). | `G4_DEVELOPMENT_COMPLETED` |
+| **P11** | **LEAN-CORE-CHECK-COVERAGE** | P9 | Ядерная проверка Lean 4.33.1 самодостаточных производных неизменяемых артефактов; закрытие дрейфа `TRUSTED_AXIOM`/`LEAN_VERIFIED` фактическим evidence. | `PARTIALLY_COMPLETED` |
 
 ### **[RICIS-SEED-A11] RICIS как СЕМЯ: протокол саморасширения (мета-аксиома A11) и выращенные правила A12–A14**
 * **Статус:** `G4_DEVELOPMENT_COMPLETED` (верифицировано 48 unit-тестами модуля + 6 тестами страницы)

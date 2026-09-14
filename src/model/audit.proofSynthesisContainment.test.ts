@@ -507,6 +507,27 @@ describe('OIR-03 — audit proof-synthesis containment', () => {
       ' M src/model/audit.ts',
       ' M src/model/types.ts',
       ' M src/ui/Map3D.tsx',
+      // LEAN-CORE-CHECK-COVERAGE (2026-09-14): core-check производные неизменяемых
+      // Lean-артефактов, реестр фактов ядрового прогона и evidence run 34858902595.
+      ' M .github/workflows/lean-artifact-kernel-check.yml',
+      ' M ACTIVE_TASKS.md',
+      ' M AXIOMS_AND_TEST_FAILURES.md',
+      ' M artifacts/proofs/README.md',
+      ' M artifacts/proofs/ricis-backend-exact-reduction.json',
+      ' M artifacts/proofs/ricis-chatbot-monetization.json',
+      ' M artifacts/proofs/ricis-jacobian-conjecture.json',
+      ' M artifacts/proofs/ricis-navier-stokes-ast-bridge.json',
+      ' M artifacts/proofs/ricis-riemann-zeta-ast-bridge.json',
+      ' M artifacts/proofs/ricis-v79-monolith.json',
+      ' M src/model/audit.proofSynthesisContainment.test.ts',
+      ' M tools/leanKernelCoreChecks.test.ts',
+      '?? artifacts/proofs/core-checks/',
+      '?? artifacts/proofs/core-checks/kernel-findings.json',
+      '?? artifacts/proofs/core-checks/manifest.json',
+      '?? scripts/generateLeanCoreChecks.ts',
+      '?? tools/leanKernelCoreChecks.test.ts',
+      '?? docs/05-evidence/proofs/lean-core-checks-run-2026-09-14.md',
+      '?? docs/05-evidence/proofs/lean-kernel-run-34858902595.pr-comment.txt',
 
     ]);
     if (status.length > 0 && status.every(entry => entry.startsWith('?? '))) {

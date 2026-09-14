@@ -244,3 +244,130 @@ describe('Lean Artifact Kernel Check workflow', () => {
     expect(workflow).toContain('artifacts/proofs/core-checks/*.lean');
   });
 });
+
+interface RegistryTheorem {
+  readonly name: string;
+  readonly status: 'LEAN_VERIFIED_AXIOM_FREE' | 'LEAN_VERIFIED_WITH_STANDARD_AXIOMS' | 'REJECTED_SORRYAX';
+  readonly axioms: readonly string[];
+}
+
+interface RegistryArtifact {
+  readonly artifactId: string;
+  readonly immutableSource: string;
+  readonly sourceSha256: string;
+  readonly checkedFile: string;
+  readonly compilerExit: number;
+  readonly compilerErrorCount: number;
+  readonly theorems: readonly RegistryTheorem[];
+  readonly outcome: string;
+  readonly rootCause: string | null;
+  readonly trustBoundary: string;
+}
+
+const findingsRegistry = JSON.parse(
+  readText(join(CORE_CHECK_DIRECTORY, 'kernel-findings.json')),
+) as {
+  readonly generatedFrom: { readonly runId: number; readonly rawEvidence: string };
+  readonly artifacts: readonly RegistryArtifact[];
+  readonly findings: readonly { readonly id: string; readonly severity: string; readonly evidence: string }[];
+};
+
+describe('Реестр фактов ядрового прогона (kernel-findings.json)', () => {
+  it('ссылается на реально существующие файлы и фактические sha256 исходников', () => {
+    expect(findingsRegistry.artifacts.length).toBeGreaterThanOrEqual(8);
+    expect(existsSync(join(repositoryRoot, findingsRegistry.generatedFrom.rawEvidence))).toBe(true);
+
+    for (const item of findingsRegistry.artifacts) {
+      expect(existsSync(join(repositoryRoot, item.immutableSource)), item.immutableSource).toBe(true);
+      expect(sha256(readText(item.immutableSource)), `${item.immutableSource}: исходник изменён`).toBe(
+        item.sourceSha256,
+      );
+      if (item.checkedFile !== item.immutableSource) {
+        expect(existsSync(join(repositoryRoot, item.checkedFile)), item.checkedFile).toBe(true);
+      }
+      expect(item.trustBoundary.length, item.artifactId).toBeGreaterThan(40);
+    }
+  });
+
+  it('не повышает статус по красному прогону: LEAN_VERIFIED только при exit 0 и отсутствии sorryAx', () => {
+    for (const item of findingsRegistry.artifacts) {
+      const sorry = item.theorems.filter((theorem) => theorem.status === 'REJECTED_SORRYAX');
+      if (item.outcome === 'LEAN_VERIFIED') {
+        expect(item.compilerExit, `${item.artifactId}: LEAN_VERIFIED при ненулевом exit`).toBe(0);
+        expect(item.compilerErrorCount, `${item.artifactId}: LEAN_VERIFIED при ошибках компилятора`).toBe(0);
+        expect(sorry, `${item.artifactId}: LEAN_VERIFIED при sorryAx`).toHaveLength(0);
+        expect(
+          item.theorems.every((theorem) => theorem.axioms.every((axiom) => axiom !== 'sorryAx')),
+          item.artifactId,
+        ).toBe(true);
+      }
+      if (item.outcome === 'SOURCE_REJECTED_BY_KERNEL' || item.outcome === 'NOT_VERIFIED_CORE_ONLY') {
+        expect(item.compilerErrorCount, `${item.artifactId}: отказ ядра без зафиксированных ошибок`).toBeGreaterThan(0);
+        expect(item.rootCause, `${item.artifactId}: отказ ядра без первопричины`).not.toBeNull();
+        expect((item.rootCause ?? '').length, item.artifactId).toBeGreaterThan(40);
+      }
+      // «Без аксиом» — только для теорем, которые ядро так и назвало.
+      for (const theorem of item.theorems) {
+        if (theorem.status === 'LEAN_VERIFIED_AXIOM_FREE') {
+          expect(theorem.axioms, `${item.artifactId}.${theorem.name}`).toHaveLength(0);
+        }
+      }
+    }
+  });
+
+  it('каждый заявленный TRUSTED_AXIOM сопровождается фактическим исходом прогона ядра', () => {
+    const registryIds = new Set(findingsRegistry.artifacts.map((item) => item.artifactId));
+    for (const fileName of readdirSync(proofsDirectory).filter((name) => name.endsWith('.json'))) {
+      const metadata = readMetadata(fileName);
+      if (metadata.verification?.trustStatus !== 'TRUSTED_AXIOM') continue;
+      const artifactId = fileName.replace(/\.json$/u, '');
+      expect(registryIds.has(artifactId), `${fileName}: TRUSTED_AXIOM без записи в реестре прогона`).toBe(true);
+    }
+  });
+
+  it('присоединённые kernelCheck-метаданные согласованы с реестром и не подменяют заявленный статус', () => {
+    const registryById = new Map(findingsRegistry.artifacts.map((item) => [item.artifactId, item]));
+    let checked = 0;
+    for (const fileName of readdirSync(proofsDirectory).filter((name) => name.endsWith('.json'))) {
+      const raw = JSON.parse(readText(`artifacts/proofs/${fileName}`)) as {
+        readonly kernelCheck?: {
+          readonly statusAfterKernelRun: string;
+          readonly immutableSourceSha256: string;
+          readonly run: number;
+          readonly evidence: string;
+          readonly registry: string;
+        };
+        readonly verification?: { readonly contentHash?: string };
+      };
+      if (!raw.kernelCheck) continue;
+      const artifactId = fileName.replace(/\.json$/u, '');
+      const entry = registryById.get(artifactId);
+      expect(entry, `${fileName}: kernelCheck без записи в реестре`).toBeDefined();
+      expect(raw.kernelCheck.statusAfterKernelRun, fileName).toBe(entry?.outcome);
+      expect(raw.kernelCheck.immutableSourceSha256, fileName).toBe(raw.verification?.contentHash);
+      expect(raw.kernelCheck.run, fileName).toBe(findingsRegistry.generatedFrom.runId);
+      expect(existsSync(join(repositoryRoot, raw.kernelCheck.evidence)), `${fileName}: evidence не найден`).toBe(true);
+      expect(existsSync(join(repositoryRoot, raw.kernelCheck.registry)), `${fileName}: реестр не найден`).toBe(true);
+      checked += 1;
+    }
+    expect(checked).toBeGreaterThanOrEqual(6);
+  });
+
+  it('найденные нарушения зафиксированы с evidence и не потеряны', () => {
+    const ids = findingsRegistry.findings.map((finding) => finding.id);
+    expect(ids).toContain('F-01');
+    expect(ids).toContain('F-02');
+    for (const finding of findingsRegistry.findings) {
+      expect(finding.evidence.length, finding.id).toBeGreaterThan(30);
+      expect(finding.severity, finding.id).toMatch(/^(CRITICAL|HIGH|MEDIUM|LOW)$/u);
+    }
+    // Документация обязана отражать реестр, а не существовать отдельно от него.
+    const readme = readText('artifacts/proofs/README.md');
+    expect(readme).toContain('SOURCE_REJECTED_BY_KERNEL');
+    expect(readme).toContain('kernel-findings.json');
+    const evidenceDoc = readText('docs/05-evidence/proofs/lean-core-checks-run-2026-09-14.md');
+    for (const finding of findingsRegistry.findings) {
+      expect(evidenceDoc, `evidence-документ не упоминает ${finding.id}`).toContain(finding.id);
+    }
+  });
+});
