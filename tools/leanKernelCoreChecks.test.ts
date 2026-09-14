@@ -96,17 +96,54 @@ describe('Lean kernel core-check derivatives', () => {
     }
   });
 
-  it('каждая цель #print axioms — реальная теорема производной, а не выдуманное имя', () => {
+  it('каждая цель #print axioms в эпилоге — реальная теорема производной, а не выдуманное имя', () => {
     for (const entry of LEAN_CORE_CHECK_PLAN) {
       const committed = readText(entry.output);
+      const epilogue = committed.slice(committed.indexOf(EPILOGUE_MARKER));
       const declared = collectTheoremNames(coreCheckBody(readText(entry.source), entry));
-      const printed = committed
+      const printed = epilogue
         .split('\n')
         .filter((line) => line.startsWith('#print axioms '))
         .map((line) => line.replace('#print axioms ', '').trim());
 
       expect(printed.length, entry.output).toBeGreaterThan(0);
       expect(printed, entry.output).toEqual([...declared]);
+      // Имя обязано быть полным: эпилог стоит после `end <namespace>`.
+      expect(
+        printed.every((name) => !name.includes(' ') && name.length > 0),
+        `${entry.output}: некорректное имя теоремы в эпилоге`,
+      ).toBe(true);
+    }
+  });
+
+  it('подстановка в производной допускается только вместе с установленной первопричиной', () => {
+    for (const entry of LEAN_CORE_CHECK_PLAN) {
+      if (entry.substitutions.length === 0) continue;
+      // Подгонка байтов под желаемый зелёный прогон — ТУФТА: каждая замена обязана
+      // опираться на факт, установленный прогоном ядра или аудитом исходников ядра Lean.
+      expect(entry.sourceFindings.length, `${entry.artifactId}: подстановка без первопричины`).toBeGreaterThan(0);
+      for (const substitution of entry.substitutions) {
+        expect(substitution.reason.length, `${entry.artifactId}: пустая причина замены`).toBeGreaterThan(20);
+        expect(readText(entry.source), `${entry.artifactId}: заявленная замена не найдена в исходнике`).toContain(
+          substitution.from,
+        );
+      }
+      // Замена обязана быть точечной и полной в ТЕЛЕ (эпилог legitimately цитирует
+      // и исходный, и заменённый текст как документацию подстановки).
+      const source = readText(entry.source);
+      const derivative = readText(entry.output);
+      const derivativeBody = derivative.slice(0, derivative.indexOf(EPILOGUE_MARKER));
+      for (const substitution of entry.substitutions) {
+        const before = source.split(substitution.from).length - 1;
+        const after = derivativeBody.split(substitution.to).length - 1;
+        expect(after, `${entry.artifactId}: замена «${substitution.from}» не прослеживается`).toBeGreaterThanOrEqual(
+          before,
+        );
+        expect(
+          derivativeBody,
+          `${entry.artifactId}: «${substitution.from}» осталось в теле производной`,
+        ).not.toContain(substitution.from);
+      }
     }
   });
 
@@ -164,14 +201,8 @@ describe('Lean kernel core-check derivatives', () => {
   it('каждый артефакт со статусом TRUSTED_AXIOM имеет путь ядерной проверки или явное основание', () => {
     // Артефакты, которым для проверки нужна сборка Mathlib (ℝ/ℚ + ring/norm_num):
     // статус не повышается, основание зафиксировано в evidence-документе.
-    const mathlibRequired: readonly string[] = [
-      'RicisAgiTarget.lean',
-      'jacobian-counterexample-full.lean',
-      'database-a6-0_5_inf_3.standalone.lean',
-      'database-registry-120-jacobian.standalone.lean',
-      'ricis-kernel-ast-sp5.standalone.lean',
-      'ricis-seed-expansion-a11.lean',
-    ];
+    // Реально требуют сборки Mathlib: числовые типы (ℝ/ℚ) и тактики ring/norm_num.
+    const mathlibRequired: readonly string[] = ['RicisAgiTarget.lean', 'jacobian-counterexample-full.lean'];
     const coveredSources = new Set(LEAN_CORE_CHECK_PLAN.map((entry) => entry.source.split('/').pop()));
 
     for (const fileName of readdirSync(proofsDirectory).filter((name) => name.endsWith('.json'))) {

@@ -51,7 +51,7 @@ end RICIS.RiemannZeta
                 Подстановок нет: тело скопировано байт-в-байт.
                 Префикс этого файла байт-в-байт равен исходнику: ни одна
                 декларация не переписана и не удалена (AGENTS.md §7).
-  Basis       : Тело: ZetaExpr-AST (pole/analyticContinuation) и E/E → one; доказательства rfl. Mathlib-символов нет.
+  Basis       : Тело: ZetaExpr-AST (pole/analyticContinuation) и E/E → one; доказательства rfl. Проверено фактическим прогоном ядра (run 34858902595, exit 0).
   Purpose     : сделать артефакт самодостаточным, чтобы зафиксированное ядро
                 Lean 4.33.1 проверило его и вывело #print axioms
                 (.github/workflows/lean-artifact-kernel-check.yml).

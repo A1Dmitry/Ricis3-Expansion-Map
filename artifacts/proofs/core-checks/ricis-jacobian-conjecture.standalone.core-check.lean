@@ -21,7 +21,7 @@ inductive RExpr : Type where
   | infF  (F : RExpr)
   | rect  (F G : RExpr)
   | mu    (R : RExpr)
-  | partial (F x : RExpr)
+  | partialDeriv (F x : RExpr)
   | det   (m11 m12 m21 m22 : RExpr)
 
 def ricisResolveMul (a b : RExpr) : RExpr :=
@@ -76,10 +76,10 @@ end RICIS_Jacobian
   Source      : artifacts/proofs/ricis-jacobian-conjecture.standalone.lean
   Source hash : sha256 2e043f2738df8d8b02754aebb5fa93580fb87e6cc71733557c620c463c4de56b
   Transform   : удалена неиспользуемая строка import Mathlib.
-                Подстановок нет: тело скопировано байт-в-байт.
+                Заявленные подстановки: «  | partial (F x : RExpr)» → «  | partialDeriv (F x : RExpr)» (`partial` — зарезервированное ключевое слово Lean 4 (модификатор определений), поэтому исходник не парсится. Конструктор переименован; в артефакте он больше нигде не используется (единственное вхождение — строка 25) и ни одна из двух теорем его не упоминает.).
                 Префикс этого файла байт-в-байт равен исходнику: ни одна
                 декларация не переписана и не удалена (AGENTS.md §7).
-  Basis       : Тело: структурный детерминант det(m11,m12,m21,m22) как AST-узел; доказательства rfl. Mathlib-символов нет.
+  Basis       : Тело: структурный детерминант det(m11,m12,m21,m22) как AST-узел; обе теоремы закрыты rfl.
   Purpose     : сделать артефакт самодостаточным, чтобы зафиксированное ядро
                 Lean 4.33.1 проверило его и вывело #print axioms
                 (.github/workflows/lean-artifact-kernel-check.yml).

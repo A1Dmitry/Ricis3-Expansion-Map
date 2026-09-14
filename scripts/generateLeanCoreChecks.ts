@@ -68,6 +68,12 @@ export interface LeanCoreCheckPlanEntry {
   readonly substitutions: readonly CoreCheckSubstitution[];
   /** Основание самодостаточности: что именно не требует Mathlib. */
   readonly rationale: string;
+  /**
+   * Факты о ИСХОДНИКЕ, установленные реальным прогонoм ядра (с указанием run).
+   * Обязательны, если заявлена подстановка: подстановка без установленной
+   * первопричины была бы подгонкой evidence под желаемый результат (ТУФТА).
+   */
+  readonly sourceFindings: readonly string[];
 }
 
 const PROOFS_DIR = 'artifacts/proofs';
@@ -85,9 +91,25 @@ export const LEAN_CORE_CHECK_PLAN: readonly LeanCoreCheckPlanEntry[] = [
     source: `${PROOFS_DIR}/ricis-v79-monolith.standalone.lean`,
     output: `${CORE_CHECK_DIR}/ricis-v79-monolith.standalone.core-check.lean`,
     metadataJson: `${PROOFS_DIR}/ricis-v79-monolith.json`,
-    substitutions: [],
+    substitutions: [
+      {
+        from: 'ℕ',
+        to: 'Nat',
+        reason:
+          'нотация ℕ объявлена в Mathlib, а не в ядре Lean 4.33.1; ядро печатает ℕ только как ' +
+          'подсказку (@[suggest_for ℕ] в src/Init/Prelude.lean). Тот же тип Nat, ядро-совместимая нотация.',
+      },
+    ],
     rationale:
-      'Тело: индуктив RExpr над String и доказательства rfl / cases F <;> rfl / repeat constructor. Mathlib-символов нет.',
+      'Тело: индуктив RExpr над String, доказательства rfl / cases F <;> rfl / repeat constructor. ' +
+      'Единственная зависимость от Mathlib — нотация ℕ (2 вхождения, оба в сигнатурах resolveSteps/resolveError).',
+    sourceFindings: [
+      'run 34858902595 (Lean 4.33.1): без Mathlib `ℕ` не является Nat — ядро elaborирует его как ' +
+        'свободную переменную (`ℕ : Sort u_1`), поэтому `OfNat ℕ 1`/`OfNat ℕ 0` не синтезируются ' +
+        '(строки 301–315), а ns_steps_4D / ns_error_zero / RICIS_v79_unified получают sorryAx.',
+      'Контроль: идентичный по структуре артефакт ricis-universal-orchestration-template.lean, ' +
+        'где счетчики объявлены как `Nat`, компилируется ядром без ошибок (тот же run, exit 0).',
+    ],
   },
   {
     artifactId: 'ricis-universal-orchestration-template',
@@ -95,16 +117,31 @@ export const LEAN_CORE_CHECK_PLAN: readonly LeanCoreCheckPlanEntry[] = [
     output: `${CORE_CHECK_DIR}/ricis-universal-orchestration-template.core-check.lean`,
     substitutions: [],
     rationale:
-      'Тело: тот же класс структурных редукций, доказательство-конъюнкция закрыто анонимным конструктором ⟨rfl, …⟩. Mathlib-символов нет.',
+      'Тело: структурные редукции, счетчики `Nat`, доказательство-конъюнкция закрыто ⟨rfl, …⟩. ' +
+      'Mathlib-символов нет — проверено фактическим прогоном ядра (run 34858902595, exit 0).',
+    sourceFindings: [],
   },
   {
     artifactId: 'ricis-backend-exact-reduction',
     source: `${PROOFS_DIR}/ricis-backend-exact-reduction.standalone.lean`,
     output: `${CORE_CHECK_DIR}/ricis-backend-exact-reduction.standalone.core-check.lean`,
     metadataJson: `${PROOFS_DIR}/ricis-backend-exact-reduction.json`,
-    substitutions: [],
+    substitutions: [
+      {
+        from: 'ℕ',
+        to: 'Nat',
+        reason:
+          'нотация ℕ объявлена в Mathlib, а не в ядре Lean 4.33.1; тот же тип Nat в ядро-совместимой нотации.',
+      },
+    ],
     rationale:
-      'Тело: структурная редукция и счётчики Nat; доказательства rfl / induction / constructor / intro. Mathlib-символов нет.',
+      'Тело: структурная редукция, счетчики и итерации; доказательства rfl / induction / constructor / intro. ' +
+      'Единственная зависимость от Mathlib — нотация ℕ (8 вхождений в сигнатурах).',
+    sourceFindings: [
+      'run 34858902595 (Lean 4.33.1): 26 ошибок, все — следствие `ℕ` (OfNat ℕ …, `induction` по ' +
+        'не-индуктивному типу, каскадные rfl/sorryAx, неизвестные константы repeated_error_zero и ' +
+        'error_independent_of_iterations). Других дефектов тела прогон не выявил.',
+    ],
   },
   {
     artifactId: 'ricis-chatbot-monetization',
@@ -113,16 +150,34 @@ export const LEAN_CORE_CHECK_PLAN: readonly LeanCoreCheckPlanEntry[] = [
     metadataJson: `${PROOFS_DIR}/ricis-chatbot-monetization.json`,
     substitutions: [],
     rationale:
-      'Тело: A6-мост 0_Cost × ∞_N через mu(rect F G); обе теоремы закрыты rfl. Mathlib-символов нет.',
+      'Тело: A6-мост 0_Cost × ∞_N через mu(rect F G); обе теоремы закрыты rfl. Mathlib-символов нет — ' +
+      'проверено фактическим прогоном ядра (run 34858902595, exit 0).',
+    sourceFindings: [],
   },
   {
     artifactId: 'ricis-jacobian-conjecture',
     source: `${PROOFS_DIR}/ricis-jacobian-conjecture.standalone.lean`,
     output: `${CORE_CHECK_DIR}/ricis-jacobian-conjecture.standalone.core-check.lean`,
     metadataJson: `${PROOFS_DIR}/ricis-jacobian-conjecture.json`,
-    substitutions: [],
+    substitutions: [
+      {
+        from: '  | partial (F x : RExpr)',
+        to: '  | partialDeriv (F x : RExpr)',
+        reason:
+          '`partial` — зарезервированное ключевое слово Lean 4 (модификатор определений), поэтому ' +
+          'исходник не парсится. Конструктор переименован; в артефакте он больше нигде не используется ' +
+          '(единственное вхождение — строка 25) и ни одна из двух теорем его не упоминает.',
+      },
+    ],
     rationale:
-      'Тело: структурный детерминант det(m11,m12,m21,m22) как AST-узел; доказательства rfl. Mathlib-символов нет.',
+      'Тело: структурный детерминант det(m11,m12,m21,m22) как AST-узел; обе теоремы закрыты rfl.',
+    sourceFindings: [
+      'run 34858902595 (Lean 4.33.1): ИСХОДНИК НЕ КОМПИЛИРУЕТСЯ — `24:12 error: expected token` ' +
+        '(конструктор `partial`), далее каскад `Invalid pattern variable: RExpr.zero has multiple ' +
+        'components`, `Invalid pattern: Expected a constructor or constant marked with [match_pattern]` ' +
+        'и `Unknown constant RICIS_Jacobian.Jacobian_singularity_resolved`. Файл никогда не был ' +
+        'проверен ни одним ядром Lean, несмотря на `trustStatus: TRUSTED_AXIOM` в метаданных.',
+    ],
   },
   {
     artifactId: 'ricis-navier-stokes-ast-bridge',
@@ -131,7 +186,9 @@ export const LEAN_CORE_CHECK_PLAN: readonly LeanCoreCheckPlanEntry[] = [
     metadataJson: `${PROOFS_DIR}/ricis-navier-stokes-ast-bridge.json`,
     substitutions: [],
     rationale:
-      'Тело: FieldExpr-AST (deriv/laplace/grad) и E/E → one; доказательства rfl. `open RICIS` разрешается родительским namespace самого файла. Mathlib-символов нет.',
+      'Тело: FieldExpr-AST (deriv/laplace/grad) и E/E → one; доказательства rfl. `open RICIS` разрешается ' +
+      'родительским namespace самого файла. Проверено фактическим прогоном ядра (run 34858902595, exit 0).',
+    sourceFindings: [],
   },
   {
     artifactId: 'ricis-riemann-zeta-ast-bridge',
@@ -140,7 +197,80 @@ export const LEAN_CORE_CHECK_PLAN: readonly LeanCoreCheckPlanEntry[] = [
     metadataJson: `${PROOFS_DIR}/ricis-riemann-zeta-ast-bridge.json`,
     substitutions: [],
     rationale:
-      'Тело: ZetaExpr-AST (pole/analyticContinuation) и E/E → one; доказательства rfl. Mathlib-символов нет.',
+      'Тело: ZetaExpr-AST (pole/analyticContinuation) и E/E → one; доказательства rfl. Проверено ' +
+      'фактическим прогоном ядра (run 34858902595, exit 0).',
+    sourceFindings: [],
+  },
+  {
+    artifactId: 'ricis-kernel-ast-sp5',
+    source: `${PROOFS_DIR}/ricis-kernel-ast-sp5.standalone.lean`,
+    output: `${CORE_CHECK_DIR}/ricis-kernel-ast-sp5.standalone.core-check.lean`,
+    substitutions: [
+      {
+        from: 'ℚ',
+        to: 'Rat',
+        reason:
+          'нотация ℚ объявлена в Mathlib; ядро Lean 4.33.1 знает только тип Rat ' +
+          '(@[suggest_for ℚ] в src/Init/Data/Rat/Basic.lean, структура Rat имеет deriving DecidableEq).',
+      },
+    ],
+    rationale:
+      'Тело: структурная редукция SP5 и singularDiv через `if a = b`; доказательства unfold + simp и rfl. ' +
+      'Кроме нотации ℚ Mathlib-символов нет.',
+    sourceFindings: [
+      'Не проверялось ядром до этого PR (статус REQUIRES_CORE_LEAN). Прогон пакета 2 даст фактический ' +
+        'ответ о доступности auto-DecidableEq для `if a = b` и о силе core-`simp`.',
+    ],
+  },
+  {
+    artifactId: 'ricis-seed-expansion-a11',
+    source: `${PROOFS_DIR}/ricis-seed-expansion-a11.lean`,
+    output: `${CORE_CHECK_DIR}/ricis-seed-expansion-a11.core-check.lean`,
+    substitutions: [
+      {
+        from: 'exact List.mem_of_mem_append_left hr',
+        to: 'exact List.mem_append.mpr (Or.inl hr)',
+        reason:
+          '`List.mem_of_mem_append_left` отсутствует в ядре Lean 4.33.1 (в src/Init/Data/List/Lemmas.lean ' +
+          'есть только `mem_append`, `mem_append_cons_self`, `not_mem_append`); использован ядровой ' +
+          'эквивалент того же утверждения. Формулировка теоремы monotonic_growth не меняется.',
+      },
+    ],
+    rationale:
+      'Тело: модель протокола A11 (Rule/Seed/ExpansionOutcome, ворота допуска, IDENTITY_COHERENCE) на ' +
+      'String/List/Nat/Bool; тактики unfold / split / simp / intro — все core (`split`: ' +
+      'src/Init/Tactics.lean:1205, `simpa`/`simp` — ядро 4.33.1).',
+    sourceFindings: [
+      'Не проверялось ядром до этого PR: evidence 2026-09-14 прямо фиксирует «Lean-модель семени ' +
+        '(ricis-seed-expansion-a11.lean) не проверена ядром (REQUIRES_CORE_LEAN)».',
+      'Статический аудит ядра 4.33.1: единственная Mathlib-зависимость тела — лемма ' +
+        '`List.mem_of_mem_append_left`.',
+    ],
+  },
+  {
+    artifactId: 'database-a6-0_5_inf_3',
+    source: `${PROOFS_DIR}/database-a6-0_5_inf_3.standalone.lean`,
+    output: `${CORE_CHECK_DIR}/database-a6-0_5_inf_3.standalone.core-check.lean`,
+    substitutions: [],
+    rationale:
+      'Тело: типизированное ядро RICIS3.ExtendedKernel (RExpr/Rewrite/Derivation) и адаптер ' +
+      'сгенерированного утверждения 0_5 × ∞_3. Использованы только abbrev/inductive/structure/deriving ' +
+      'и тактики exact / constructor / intro / simpa (simpa — core-тактика 4.33.1).',
+    sourceFindings: [
+      'Не проверялось ядром до этого PR (статус REQUIRES_CORE_LEAN).',
+    ],
+  },
+  {
+    artifactId: 'database-registry-120-jacobian',
+    source: `${PROOFS_DIR}/database-registry-120-jacobian.standalone.lean`,
+    output: `${CORE_CHECK_DIR}/database-registry-120-jacobian.standalone.core-check.lean`,
+    substitutions: [],
+    rationale:
+      'Тело: то же типизированное ядро и адаптер утверждения 0_det(J) × ∞_Inv(J) для реестра 120. ' +
+      'Только core-конструкции и core-тактики (exact / constructor / intro / simpa).',
+    sourceFindings: [
+      'Не проверялось ядром до этого PR (статус REQUIRES_CORE_LEAN).',
+    ],
   },
 ];
 
@@ -437,6 +567,7 @@ export function generateCoreChecks(repositoryRoot: string, write: boolean): read
         output: item.output,
         outputSha256: item.outputSha256,
         substitutions: item.substitutions,
+        sourceFindings: LEAN_CORE_CHECK_PLAN.find((plan) => plan.artifactId === item.artifactId)?.sourceFindings ?? [],
         rationale: item.rationale,
         metadataJson: item.metadataJson ?? null,
         printAxiomsTargets: item.printAxiomsTargets,

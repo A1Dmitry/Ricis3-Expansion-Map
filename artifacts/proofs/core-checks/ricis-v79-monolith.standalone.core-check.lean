@@ -297,7 +297,7 @@ theorem L0_4D_no_discontinuity (u_x u_y u_z p : RExpr) (nu : RExpr) :
 -- STEP COUNT AND ERROR
 -- ================================================================
 
-def resolveSteps : RExpr → ℕ
+def resolveSteps : RExpr → Nat
   | RExpr.divSelf _    => 1
   | RExpr.subSelf _    => 1
   | RExpr.div _ _      => 1
@@ -309,7 +309,7 @@ def resolveSteps : RExpr → ℕ
 theorem ns_steps_4D (u_x u_y u_z p : RExpr) (nu : RExpr) :
     resolveSteps (ns_residual4 u_x u_y u_z p nu) = 4 := rfl
 
-def resolveError (_ : RExpr) : ℕ := 0
+def resolveError (_ : RExpr) : Nat := 0
 
 theorem ns_error_zero (u_x u_y u_z p : RExpr) (nu : RExpr) :
     resolveError (ns_residual4 u_x u_y u_z p nu) = 0 := rfl
@@ -408,10 +408,10 @@ end RICIS_v79
   Source      : artifacts/proofs/ricis-v79-monolith.standalone.lean
   Source hash : sha256 fbd99bbdefd05aaff83fe4325377681f7e3b7099a3c9f5234b3ff4def86077e2
   Transform   : удалена неиспользуемая строка import Mathlib.
-                Подстановок нет: тело скопировано байт-в-байт.
+                Заявленные подстановки: «ℕ» → «Nat» (нотация ℕ объявлена в Mathlib, а не в ядре Lean 4.33.1; ядро печатает ℕ только как подсказку (@[suggest_for ℕ] в src/Init/Prelude.lean). Тот же тип Nat, ядро-совместимая нотация.).
                 Префикс этого файла байт-в-байт равен исходнику: ни одна
                 декларация не переписана и не удалена (AGENTS.md §7).
-  Basis       : Тело: индуктив RExpr над String и доказательства rfl / cases F <;> rfl / repeat constructor. Mathlib-символов нет.
+  Basis       : Тело: индуктив RExpr над String, доказательства rfl / cases F <;> rfl / repeat constructor. Единственная зависимость от Mathlib — нотация ℕ (2 вхождения, оба в сигнатурах resolveSteps/resolveError).
   Purpose     : сделать артефакт самодостаточным, чтобы зафиксированное ядро
                 Lean 4.33.1 проверило его и вывело #print axioms
                 (.github/workflows/lean-artifact-kernel-check.yml).

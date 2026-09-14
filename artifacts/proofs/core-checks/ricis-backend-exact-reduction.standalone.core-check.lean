@@ -70,7 +70,7 @@ theorem structure_irrelevant (e : RExpr) :
   ================================================================
 -/
 
-def reductionSteps : RExpr → ℕ
+def reductionSteps : RExpr → Nat
   | RExpr.divSelf _ => 1
   | _ => 0
 
@@ -86,7 +86,7 @@ theorem selfDivision_one_step (e : RExpr) :
   ================================================================
 -/
 
-def exprSize : RExpr → ℕ
+def exprSize : RExpr → Nat
   | RExpr.zero => 1
   | RExpr.one => 1
   | RExpr.variable => 1
@@ -136,7 +136,7 @@ theorem selfDivision_eliminated (e : RExpr) :
       → его вклад в накопленную ошибку = 0
 -/
 
-def eliminatedError (_ : RExpr) : ℕ :=
+def eliminatedError (_ : RExpr) : Nat :=
   0
 
 
@@ -191,13 +191,13 @@ theorem complex_eliminated_error (e : RExpr) :
   ================================================================
 -/
 
-def runReduced : RExpr → ℕ → RExpr
+def runReduced : RExpr → Nat → RExpr
   | e, 0 => ricisReduce e
   | e, n + 1 => runReduced e n
 
 
 theorem repeated_selfDivision
-    (e : RExpr) (n : ℕ) :
+    (e : RExpr) (n : Nat) :
     runReduced (RExpr.divSelf e) n =
       RExpr.one := by
   induction n with
@@ -213,12 +213,12 @@ theorem repeated_selfDivision
   ================================================================
 -/
 
-def repeatedError (_ : RExpr) (_ : ℕ) : ℕ :=
+def repeatedError (_ : RExpr) (_ : Nat) : Nat :=
   0
 
 
 theorem repeated_error_zero
-    (e : RExpr) (n : ℕ) :
+    (e : RExpr) (n : Nat) :
     repeatedError e n = 0 := by
   rfl
 
@@ -231,7 +231,7 @@ theorem billion_iterations_zero_error
 
 theorem error_independent_of_iterations
     (e : RExpr) :
-    ∀ n : ℕ, repeatedError e n = 0 := by
+    ∀ n : Nat, repeatedError e n = 0 := by
   intro n
   rfl
 
@@ -431,10 +431,10 @@ end RICIS
   Source      : artifacts/proofs/ricis-backend-exact-reduction.standalone.lean
   Source hash : sha256 7607fe7bb27a55c68c9120fe9c5a8c2f693eb5a83c57b0c2ce9a8e5897947c2d
   Transform   : удалена неиспользуемая строка import Mathlib.
-                Подстановок нет: тело скопировано байт-в-байт.
+                Заявленные подстановки: «ℕ» → «Nat» (нотация ℕ объявлена в Mathlib, а не в ядре Lean 4.33.1; тот же тип Nat в ядро-совместимой нотации.).
                 Префикс этого файла байт-в-байт равен исходнику: ни одна
                 декларация не переписана и не удалена (AGENTS.md §7).
-  Basis       : Тело: структурная редукция и счётчики Nat; доказательства rfl / induction / constructor / intro. Mathlib-символов нет.
+  Basis       : Тело: структурная редукция, счетчики и итерации; доказательства rfl / induction / constructor / intro. Единственная зависимость от Mathlib — нотация ℕ (8 вхождений в сигнатурах).
   Purpose     : сделать артефакт самодостаточным, чтобы зафиксированное ядро
                 Lean 4.33.1 проверило его и вывело #print axioms
                 (.github/workflows/lean-artifact-kernel-check.yml).

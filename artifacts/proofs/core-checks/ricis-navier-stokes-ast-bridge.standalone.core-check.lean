@@ -63,7 +63,7 @@ end RICIS.NavierStokes
                 Подстановок нет: тело скопировано байт-в-байт.
                 Префикс этого файла байт-в-байт равен исходнику: ни одна
                 декларация не переписана и не удалена (AGENTS.md §7).
-  Basis       : Тело: FieldExpr-AST (deriv/laplace/grad) и E/E → one; доказательства rfl. `open RICIS` разрешается родительским namespace самого файла. Mathlib-символов нет.
+  Basis       : Тело: FieldExpr-AST (deriv/laplace/grad) и E/E → one; доказательства rfl. `open RICIS` разрешается родительским namespace самого файла. Проверено фактическим прогоном ядра (run 34858902595, exit 0).
   Purpose     : сделать артефакт самодостаточным, чтобы зафиксированное ядро
                 Lean 4.33.1 проверило его и вывело #print axioms
                 (.github/workflows/lean-artifact-kernel-check.yml).
