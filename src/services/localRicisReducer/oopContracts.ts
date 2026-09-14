@@ -292,12 +292,39 @@ export interface IStructuralExpressionFactory {
 }
 
 /**
- * Сервис структурного равенства по аксиоме L1.
- * Приоритет совпадения семантических индексов (SP4) над численным сравнением.
+ * Сервис структурного/графового равенства по аксиоме L1.
+ * Выполняет изоморфное сопоставление вычислительных графов (AST)
+ * с приоритетом SP4 над численным сравнением и устранением мусорных дубликатов.
  */
 export interface IStructuralEqualityService {
+  /**
+   * Графовое структурное сравнение выражений по аксиоме L1.
+   * Выполняет изоморфное сопоставление вычислительных графов (AST)
+   * с учетом типов L1C2, коммутативности сложения/умножения и точных значений литералов.
+   * НЕ зависит от текстовых представлений, sourceHash, спанов и скобок.
+   */
   areStructurallyEqual(a: StructuralExpression, b: StructuralExpression): boolean;
-  haveEqualSemanticIndices(a: StructuralIndex, b: StructuralIndex): boolean;
+
+  /**
+   * Сравнение семантических индексов (SP4) по их графовой структуре и базису.
+   */
+  haveEqualSemanticIndices(
+    a: StructuralIndex,
+    b: StructuralIndex,
+    aPayload?: StructuralExpression,
+    bPayload?: StructuralExpression
+  ): boolean;
+
+  /**
+   * Вычисление детерминированного канонического графового отпечатка (Graph Fingerprint).
+   * Инвариантен к текстовому представлению, порядку коммутативных операндов и sourceHash.
+   */
+  getGraphFingerprint(expression: StructuralExpression): string;
+
+  /**
+   * Проверка изоморфизма графов двух выражений.
+   */
+  areGraphIsomorphic(a: StructuralExpression, b: StructuralExpression): boolean;
 }
 
 /**

@@ -255,6 +255,10 @@ export function parseCanonicalStringToAst(input: string): SymbolicAstNode | unde
 
 export function structuralToSymbolicAst(expr: StructuralExpression): SymbolicAstNode {
   if (expr.kind === 'FINITE_LITERAL') {
+    if (expr.identity?.canonical && expr.identity.canonical !== expr.lexeme) {
+      const parsedCanonical = parseCanonicalStringToAst(expr.identity.canonical.trim());
+      if (parsedCanonical) return parsedCanonical;
+    }
     const text = expr.lexeme.trim();
     const parsed = parseCanonicalStringToAst(text);
     if (parsed) return parsed;
@@ -628,5 +632,102 @@ export class SymbolicSeriesEngine {
     }
 
     return res;
+  }
+}
+
+function collectAssociativeChildren(node: SymbolicAstNode, kind: 'ADD' | 'MUL'): SymbolicAstNode[] {
+  const result: SymbolicAstNode[] = [];
+  function recurse(n: SymbolicAstNode) {
+    if (n.kind === kind) {
+      recurse(n.left);
+      recurse(n.right);
+    } else {
+      result.push(n);
+    }
+  }
+  recurse(node);
+  return result;
+}
+
+/**
+ * Computes a deterministic canonical graph fingerprint of a symbolic AST node.
+ * Associative and commutative operations (ADD, MUL) are flattened and sorted,
+ * ensuring graph isomorphism yields identical string fingerprints without garbage duplicates.
+ */
+export function computeSymbolicAstFingerprint(node: SymbolicAstNode): string {
+  switch (node.kind) {
+    case 'CONST':
+      return `C(${node.value.num}/${node.value.den})`;
+    case 'VAR':
+      return `V(${node.name.toLowerCase()})`;
+    case 'ADD': {
+      const terms = collectAssociativeChildren(node, 'ADD');
+      const fps = terms.map(t => computeSymbolicAstFingerprint(t)).sort();
+      return `ADD(${fps.join(',')})`;
+    }
+    case 'MUL': {
+      const factors = collectAssociativeChildren(node, 'MUL');
+      const fps = factors.map(f => computeSymbolicAstFingerprint(f)).sort();
+      return `MUL(${fps.join(',')})`;
+    }
+    case 'SUB':
+      return `SUB(${computeSymbolicAstFingerprint(node.left)},${computeSymbolicAstFingerprint(node.right)})`;
+    case 'DIV':
+      return `DIV(${computeSymbolicAstFingerprint(node.left)},${computeSymbolicAstFingerprint(node.right)})`;
+    case 'POW':
+      return `POW(${computeSymbolicAstFingerprint(node.base)},${node.exp})`;
+    case 'FN':
+      return `FN:${node.name.toLowerCase()}(${computeSymbolicAstFingerprint(node.arg)})`;
+  }
+}
+
+/**
+ * Checks whether two symbolic AST nodes represent isomorphic computational graphs.
+ * Takes into account associativity and commutativity of ADD and MUL, and exact rational identity for CONST.
+ */
+export function areSymbolicAstsIsomorphic(a: SymbolicAstNode, b: SymbolicAstNode): boolean {
+  if (a === b) return true;
+  if (a.kind !== b.kind) return false;
+  switch (a.kind) {
+    case 'CONST': {
+      const bConst = b as Extract<SymbolicAstNode, { kind: 'CONST' }>;
+      return a.value.num === bConst.value.num && a.value.den === bConst.value.den;
+    }
+    case 'VAR': {
+      const bVar = b as Extract<SymbolicAstNode, { kind: 'VAR' }>;
+      return a.name.toLowerCase() === bVar.name.toLowerCase();
+    }
+    case 'ADD': {
+      const termsA = collectAssociativeChildren(a, 'ADD');
+      const termsB = collectAssociativeChildren(b, 'ADD');
+      if (termsA.length !== termsB.length) return false;
+      const fpsA = termsA.map(t => computeSymbolicAstFingerprint(t)).sort();
+      const fpsB = termsB.map(t => computeSymbolicAstFingerprint(t)).sort();
+      return fpsA.every((fp, idx) => fp === fpsB[idx]);
+    }
+    case 'MUL': {
+      const factorsA = collectAssociativeChildren(a, 'MUL');
+      const factorsB = collectAssociativeChildren(b, 'MUL');
+      if (factorsA.length !== factorsB.length) return false;
+      const fpsA = factorsA.map(f => computeSymbolicAstFingerprint(f)).sort();
+      const fpsB = factorsB.map(f => computeSymbolicAstFingerprint(f)).sort();
+      return fpsA.every((fp, idx) => fp === fpsB[idx]);
+    }
+    case 'SUB': {
+      const bSub = b as Extract<SymbolicAstNode, { kind: 'SUB' }>;
+      return areSymbolicAstsIsomorphic(a.left, bSub.left) && areSymbolicAstsIsomorphic(a.right, bSub.right);
+    }
+    case 'DIV': {
+      const bDiv = b as Extract<SymbolicAstNode, { kind: 'DIV' }>;
+      return areSymbolicAstsIsomorphic(a.left, bDiv.left) && areSymbolicAstsIsomorphic(a.right, bDiv.right);
+    }
+    case 'POW': {
+      const bPow = b as Extract<SymbolicAstNode, { kind: 'POW' }>;
+      return a.exp === bPow.exp && areSymbolicAstsIsomorphic(a.base, bPow.base);
+    }
+    case 'FN': {
+      const bFn = b as Extract<SymbolicAstNode, { kind: 'FN' }>;
+      return a.name.toLowerCase() === bFn.name.toLowerCase() && areSymbolicAstsIsomorphic(a.arg, bFn.arg);
+    }
   }
 }

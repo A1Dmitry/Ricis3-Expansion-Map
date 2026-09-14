@@ -48,6 +48,7 @@ import {
   A10FiniteTimesZeroRule,
   A15EqualOrderRule,
 } from './oopRules';
+import { StructuralEqualityService } from './oopDomainServices';
 
 const RICIS_AUTHORITY: StructuralRuleAuthority = 'RICIS_III_EXPLICIT';
 const INHERITED_AUTHORITY: StructuralRuleAuthority = 'INHERITED_CLASSICAL_STRUCTURAL_ALGEBRA_GEOMETRY';
@@ -211,24 +212,10 @@ function hasIndexedExpression(expression: StructuralExpression): boolean {
   }
 }
 
+const defaultEqualityService = new StructuralEqualityService();
+
 function structuralEqual(left: StructuralExpression, right: StructuralExpression): boolean {
-  if (left.kind !== right.kind || left.identity.typeTag !== right.identity.typeTag || left.identity.structuralHash !== right.identity.structuralHash) return false;
-  switch (left.kind) {
-    case 'IDENTIFIER':
-      return right.kind === 'IDENTIFIER' && left.name === right.name;
-    case 'FINITE_LITERAL':
-      return right.kind === 'FINITE_LITERAL' && left.lexeme === right.lexeme;
-    case 'UNARY':
-      return right.kind === 'UNARY' && left.operator === right.operator && structuralEqual(left.operand, right.operand);
-    case 'BINARY':
-      return right.kind === 'BINARY' && left.operator === right.operator && structuralEqual(left.left, right.left) && structuralEqual(left.right, right.right);
-    case 'INDEXED_ZERO':
-    case 'INDEXED_INFINITY':
-      return right.kind === left.kind && structuralEqual(left.payload, right.payload) &&
-        left.index.payloadHash === right.index.payloadHash &&
-        left.index.payloadTypeTag === right.index.payloadTypeTag &&
-        left.index.sourceHash === right.index.sourceHash;
-  }
+  return defaultEqualityService.areStructurallyEqual(left, right);
 }
 
 function flattenProduct(expression: StructuralExpression): readonly StructuralExpression[] {
