@@ -46,6 +46,8 @@ jobs:
           # Note: the elan installer accepts -y, --default-toolchain, --no-modify-path only.
           sh elan-init.sh -y --default-toolchain 4.33.1
           echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+          # GITHUB_PATH applies to subsequent steps only; extend the current PATH explicitly.
+          export PATH="$HOME/.elan/bin:$PATH"
           elan toolchain install 4.33.1
           elan toolchain list
           lean --version
