@@ -21,6 +21,7 @@ inductive RExpr where
   | divSelf (e : RExpr)
   | indexedZero (e : RExpr)
   | indexedInf (e : RExpr)
+  deriving DecidableEq, Repr
 
 def singularDiv (a b : RExpr) : RExpr :=
   if a = b then
@@ -52,7 +53,7 @@ end RICIS.KernelAST.SP5
   Source      : artifacts/proofs/ricis-kernel-ast-sp5.standalone.lean
   Source hash : sha256 6ee144b7e438a112b1590c65625da5b88baf615cb53315f52b6935d91cacda57
   Transform   : удалена неиспользуемая строка import Mathlib.
-                Заявленные подстановки: «ℚ» → «Rat» (нотация ℚ объявлена в Mathlib; ядро Lean 4.33.1 знает только тип Rat (@[suggest_for ℚ] в src/Init/Data/Rat/Basic.lean, структура Rat имеет deriving DecidableEq).).
+                Заявленные подстановки: «ℚ» → «Rat» (нотация ℚ объявлена в Mathlib; ядро Lean 4.33.1 знает только тип Rat (@[suggest_for ℚ] в src/Init/Data/Rat/Basic.lean, структура Rat имеет deriving DecidableEq).); к индуктиву RExpr добавлена строка «  deriving DecidableEq, Repr» после последнего конструктора «| indexedInf (e : RExpr)» (run 34870620154 (Lean 4.33.1): 26:2 error(lean.synthInstanceFailed): failed to synthesize instance of type class Decidable (a = b) — у RExpr нет DecidableEq, поэтому singularDiv через `if a = b` не elaborируется и обе теоремы получают sorryAx (F-07). Ремонт предложен владельцем в main (commit 8665a06 «derive DecidableEq for RExpr») и принят здесь как заявленная подстановка: deriving-строка аддитивна, формулировки теорем и тело не изменены.).
                 Префикс этого файла байт-в-байт равен исходнику: ни одна
                 декларация не переписана и не удалена (AGENTS.md §7).
   Basis       : Тело: структурная редукция SP5 и singularDiv через `if a = b`; доказательства unfold + simp и rfl. Кроме нотации ℚ Mathlib-символов нет.

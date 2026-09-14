@@ -82,7 +82,6 @@ function parse(tokens: readonly string[]): Node {
     const left = parseFactor();
     if (peek() === '^') {
       position += 1;
-      // Правоассоциативность степени: a^b^c = a^(b^c).
       const right = parsePower();
       return { kind: 'pow', base: left, exponent: right };
     }

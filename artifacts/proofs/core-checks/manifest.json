@@ -218,16 +218,24 @@
       "source": "artifacts/proofs/ricis-kernel-ast-sp5.standalone.lean",
       "sourceSha256": "6ee144b7e438a112b1590c65625da5b88baf615cb53315f52b6935d91cacda57",
       "output": "artifacts/proofs/core-checks/ricis-kernel-ast-sp5.standalone.core-check.lean",
-      "outputSha256": "584c7bfb82aa48c5cc8b0d37853e940affec9c3129c751c8b337adf59eb09cf4",
+      "outputSha256": "5fa1b73f0ac96be1d2569c6acadcbf8b09d855a7ef1af0689f1e2ab4023689ac",
       "substitutions": [
         {
           "from": "ℚ",
           "to": "Rat",
           "reason": "нотация ℚ объявлена в Mathlib; ядро Lean 4.33.1 знает только тип Rat (@[suggest_for ℚ] в src/Init/Data/Rat/Basic.lean, структура Rat имеет deriving DecidableEq)."
+        },
+        {
+          "from": "  | indexedInf (e : RExpr)\n\ndef singularDiv (a b : RExpr) : RExpr :=",
+          "to": "  | indexedInf (e : RExpr)\n  deriving DecidableEq, Repr\n\ndef singularDiv (a b : RExpr) : RExpr :=",
+          "note": "к индуктиву RExpr добавлена строка «  deriving DecidableEq, Repr» после последнего конструктора «| indexedInf (e : RExpr)»",
+          "reason": "run 34870620154 (Lean 4.33.1): 26:2 error(lean.synthInstanceFailed): failed to synthesize instance of type class Decidable (a = b) — у RExpr нет DecidableEq, поэтому singularDiv через `if a = b` не elaborируется и обе теоремы получают sorryAx (F-07). Ремонт предложен владельцем в main (commit 8665a06 «derive DecidableEq for RExpr») и принят здесь как заявленная подстановка: deriving-строка аддитивна, формулировки теорем и тело не изменены."
         }
       ],
       "sourceFindings": [
-        "Не проверялось ядром до этого PR (статус REQUIRES_CORE_LEAN). Прогон пакета 2 даст фактический ответ о доступности auto-DecidableEq для `if a = b` и о силе core-`simp`."
+        "run 34858902595: не проверялось (статус REQUIRES_CORE_LEAN).",
+        "run 34870620154: 26:2 error(lean.synthInstanceFailed): failed to synthesize instance of type class Decidable (a = b); каскад 37:35 unsolved goals «⊢ sorry () = RExpr.one»; обе теоремы (singular_div_identity, ricis_reduce_divself) получили sorryAx.",
+        "Ремонт F-07: deriving DecidableEq, Repr у RExpr (предложен владельцем в main, commit 8665a06) — принят как заявленная подстановка; требует повторного прогона ядром."
       ],
       "rationale": "Тело: структурная редукция SP5 и singularDiv через `if a = b`; доказательства unfold + simp и rfl. Кроме нотации ℚ Mathlib-символов нет.",
       "metadataJson": null,

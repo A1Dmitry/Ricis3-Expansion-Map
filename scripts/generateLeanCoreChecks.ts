@@ -50,6 +50,12 @@ export interface CoreCheckSubstitution {
   readonly from: string;
   readonly to: string;
   readonly reason: string;
+  /**
+   * Короткая человекочитаемая форма замены для эпилога. Нужна, когда `from`/`to`
+   * многострочные: вставлять их в строку комментария дословно нельзя.
+   * Если поле не задано, эпилог цитирует `from` и `to` как раньше.
+   */
+  readonly note?: string;
 }
 
 export interface LeanCoreCheckPlanEntry {
@@ -213,13 +219,34 @@ export const LEAN_CORE_CHECK_PLAN: readonly LeanCoreCheckPlanEntry[] = [
           'нотация ℚ объявлена в Mathlib; ядро Lean 4.33.1 знает только тип Rat ' +
           '(@[suggest_for ℚ] в src/Init/Data/Rat/Basic.lean, структура Rat имеет deriving DecidableEq).',
       },
+      {
+        // F-07: ремонт, предложенный владельцем в main (commit 8665a06), принят как заявленная
+        // подстановка, чтобы производная оставалась воспроизводимой генератором и защищённой тестами.
+        from: '  | indexedInf (e : RExpr)\n\ndef singularDiv (a b : RExpr) : RExpr :=',
+        to:
+          '  | indexedInf (e : RExpr)\n  deriving DecidableEq, Repr\n\n' +
+          'def singularDiv (a b : RExpr) : RExpr :=',
+        note:
+          'к индуктиву RExpr добавлена строка «  deriving DecidableEq, Repr» после последнего ' +
+          'конструктора «| indexedInf (e : RExpr)»',
+        reason:
+          'run 34870620154 (Lean 4.33.1): 26:2 error(lean.synthInstanceFailed): failed to synthesize ' +
+          'instance of type class Decidable (a = b) — у RExpr нет DecidableEq, поэтому singularDiv через ' +
+          '`if a = b` не elaborируется и обе теоремы получают sorryAx (F-07). Ремонт предложен владельцем ' +
+          'в main (commit 8665a06 «derive DecidableEq for RExpr») и принят здесь как заявленная ' +
+          'подстановка: deriving-строка аддитивна, формулировки теорем и тело не изменены.',
+      },
     ],
     rationale:
       'Тело: структурная редукция SP5 и singularDiv через `if a = b`; доказательства unfold + simp и rfl. ' +
       'Кроме нотации ℚ Mathlib-символов нет.',
     sourceFindings: [
-      'Не проверялось ядром до этого PR (статус REQUIRES_CORE_LEAN). Прогон пакета 2 даст фактический ' +
-        'ответ о доступности auto-DecidableEq для `if a = b` и о силе core-`simp`.',
+      'run 34858902595: не проверялось (статус REQUIRES_CORE_LEAN).',
+      'run 34870620154: 26:2 error(lean.synthInstanceFailed): failed to synthesize instance of type class ' +
+        'Decidable (a = b); каскад 37:35 unsolved goals «⊢ sorry () = RExpr.one»; обе теоремы ' +
+        '(singular_div_identity, ricis_reduce_divself) получили sorryAx.',
+      'Ремонт F-07: deriving DecidableEq, Repr у RExpr (предложен владельцем в main, commit 8665a06) — ' +
+        'принят как заявленная подстановка; требует повторного прогона ядром.',
     ],
   },
   {
@@ -465,7 +492,7 @@ function epilogue(entry: LeanCoreCheckPlanEntry, source: string, theorems: reado
     entry.substitutions.length === 0
       ? 'Подстановок нет: тело скопировано байт-в-байт.'
       : `Заявленные подстановки: ${entry.substitutions
-          .map((item) => `«${item.from}» → «${item.to}» (${item.reason})`)
+          .map((item) => `${item.note ?? `«${item.from}» → «${item.to}»`} (${item.reason})`)
           .join('; ')}.`;
 
   const lines = [
