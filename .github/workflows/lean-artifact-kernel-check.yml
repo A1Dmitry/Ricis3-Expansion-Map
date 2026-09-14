@@ -100,6 +100,20 @@ jobs:
           } >> lean-kernel-evidence/summary.txt
           cat lean-kernel-evidence/summary.txt
 
+          # Publish the evidence in the job step summary (viewable in the run page).
+          {
+            echo "## Lean kernel evidence (pinned toolchain run)"
+            echo '```text'
+            cat lean-kernel-evidence/toolchain.txt
+            echo "--- sha256 of artifacts ---"
+            cat lean-kernel-evidence/sha256.txt
+            for f in $NO_MATHLIB_ARTIFACTS; do
+              echo "--- full compiler log: $(basename "$f") ---"
+              cat "lean-kernel-evidence/$(basename "$f" .lean).log"
+            done
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
           if [ "$overall" -ne 0 ]; then
             echo "Kernel run failed for at least one self-contained artifact. Evidence uploaded for inspection."
             exit 1
