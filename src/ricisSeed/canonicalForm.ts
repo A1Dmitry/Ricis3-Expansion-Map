@@ -14,12 +14,15 @@
  * Никакой арифметики чисел, никаких пределов, никаких приближений: только структура.
  */
 
-type Node =
+export type FormNode =
   | { readonly kind: 'id'; readonly name: string }
-  | { readonly kind: 'call'; readonly name: string; readonly arg: Node }
-  | { readonly kind: 'bin'; readonly op: '+' | '-' | '*' | '/'; readonly left: Node; readonly right: Node };
+  | { readonly kind: 'call'; readonly name: string; readonly arg: FormNode }
+  | { readonly kind: 'pow'; readonly base: FormNode; readonly exponent: FormNode }
+  | { readonly kind: 'bin'; readonly op: '+' | '-' | '*' | '/'; readonly left: FormNode; readonly right: FormNode };
 
-const OPERATORS = new Set(['+', '-', '*', '/']);
+type Node = FormNode;
+
+const OPERATORS = new Set(['+', '-', '*', '/', '^']);
 
 function tokenize(form: string): string[] {
   const tokens: string[] = [];
@@ -75,12 +78,23 @@ function parse(tokens: readonly string[]): Node {
     return { kind: 'id', name: token };
   };
 
+  const parsePower = (): Node => {
+    const left = parseFactor();
+    if (peek() === '^') {
+      position += 1;
+      // Правоассоциативность степени: a^b^c = a^(b^c).
+      const right = parsePower();
+      return { kind: 'pow', base: left, exponent: right };
+    }
+    return left;
+  };
+
   const parseTerm = (): Node => {
-    let left = parseFactor();
+    let left = parsePower();
     while (peek() === '*' || peek() === '/') {
       const op = tokens[position] as '*' | '/';
       position += 1;
-      const right = parseFactor();
+      const right = parsePower();
       left = { kind: 'bin', op, left, right };
     }
     return left;
@@ -102,8 +116,19 @@ function parse(tokens: readonly string[]): Node {
   return root;
 }
 
-function precedence(op: '+' | '-' | '*' | '/'): number {
-  return op === '*' || op === '/' ? 2 : 1;
+function precedence(op: '+' | '-' | '*' | '/' | '^'): number {
+  switch (op) {
+    case '^':
+      return 3;
+    case '*':
+    case '/':
+      return 2;
+    case '+':
+    case '-':
+      return 1;
+    default:
+      return 0;
+  }
 }
 
 function render(node: Node): string {
@@ -112,6 +137,15 @@ function render(node: Node): string {
       return node.name;
     case 'call':
       return `${node.name}(${render(node.arg)})`;
+    case 'pow': {
+      const baseText = render(node.base);
+      const expText = render(node.exponent);
+      const baseNeedsParens = node.base.kind === 'bin' || node.base.kind === 'pow';
+      const expNeedsParens = node.exponent.kind === 'bin';
+      const safeBase = baseNeedsParens ? `(${baseText})` : baseText;
+      const safeExp = expNeedsParens ? `(${expText})` : expText;
+      return `${safeBase}^${safeExp}`;
+    }
     case 'bin': {
       const own = precedence(node.op);
       const renderChild = (child: Node, side: 'left' | 'right'): string => {
@@ -141,6 +175,9 @@ function flatten(node: Node, op: '*' | '+'): Node[] {
 function canonicalNode(node: Node): Node {
   if (node.kind === 'id') return node;
   if (node.kind === 'call') return { kind: 'call', name: node.name, arg: canonicalNode(node.arg) };
+  if (node.kind === 'pow') {
+    return { kind: 'pow', base: canonicalNode(node.base), exponent: canonicalNode(node.exponent) };
+  }
 
   const left = canonicalNode(node.left);
   const right = canonicalNode(node.right);
@@ -162,6 +199,11 @@ function canonicalNode(node: Node): Node {
   }
 
   return { kind: 'bin', op: node.op, left, right };
+}
+
+/** Разбор строки формы в AST-дерево. Бросает ошибку при некорректном синтаксисе. */
+export function parseForm(form: string): FormNode {
+  return parse(tokenize(form));
 }
 
 /**

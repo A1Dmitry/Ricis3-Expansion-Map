@@ -184,7 +184,7 @@ export interface ISingularityOperandExtractor {
   extractA1Pair(expression: StructuralBinaryExpression): A1OperandPair | undefined;
   extractA10Pair(expression: StructuralBinaryExpression): A10OperandPair | undefined;
   extractA8Pair(expression: StructuralBinaryExpression): A8OperandPair | undefined;
-  extractA15Pair(expression: StructuralBinaryExpression): A15OperandPair | undefined;
+  extractA15Pair(expression: StructuralBinaryExpression, evaluationPoint?: number): A15OperandPair | undefined;
 }
 
 /**

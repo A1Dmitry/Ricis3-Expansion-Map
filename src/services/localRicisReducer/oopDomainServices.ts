@@ -193,7 +193,7 @@ export class SingularityOperandExtractor implements ISingularityOperandExtractor
     return undefined;
   }
 
-  extractA15Pair(expression: StructuralBinaryExpression): A15OperandPair | undefined {
+  extractA15Pair(expression: StructuralBinaryExpression, evaluationPoint = 0): A15OperandPair | undefined {
     if (expression.kind !== 'BINARY' || expression.operator !== 'DIVIDE') {
       return undefined;
     }
@@ -225,8 +225,8 @@ export class SingularityOperandExtractor implements ISingularityOperandExtractor
     const numPayload = left.kind === 'INDEXED_ZERO' ? left.payload : left;
     const denPayload = right.kind === 'INDEXED_ZERO' ? right.payload : right;
 
-    const numProfile = OrderProfileCalculator.computeOrderAndDerivative(numPayload, 0);
-    const denProfile = OrderProfileCalculator.computeOrderAndDerivative(denPayload, 0);
+    const numProfile = OrderProfileCalculator.computeOrderAndDerivative(numPayload, evaluationPoint);
+    const denProfile = OrderProfileCalculator.computeOrderAndDerivative(denPayload, evaluationPoint);
 
     if (
       numProfile.isResolved &&

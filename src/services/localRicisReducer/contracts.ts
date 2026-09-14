@@ -248,6 +248,7 @@ export type StructuralMappingResult =
 export interface StructuralReductionRequest {
   readonly source: SourceExpression;
   readonly input: StructuralExpression;
+  readonly enableA15?: boolean;
 }
 
 export interface IStructuralExpressionMapper {
@@ -266,6 +267,7 @@ export interface LocalStructuralReductionCommand extends Pick<LocalAnalysisComma
   'rawText' | 'requestedLocale' | 'correlationId'> {
   readonly origin: 'explicit_user_action';
   readonly coreRecovery: CoreExecutionFailure;
+  readonly enableA15?: boolean;
 }
 
 export interface ILocalStructuralReductionApplicationService {
