@@ -139,8 +139,10 @@ function render(node: Node): string {
     case 'pow': {
       const baseText = render(node.base);
       const expText = render(node.exponent);
-      const safeBase = `(${baseText})`;
-      const safeExp = `(${expText})`;
+      const baseNeedsParens = node.base.kind === 'bin' || node.base.kind === 'pow';
+      const expNeedsParens = node.exponent.kind === 'bin';
+      const safeBase = baseNeedsParens ? `(${baseText})` : baseText;
+      const safeExp = expNeedsParens ? `(${expText})` : expText;
       return `${safeBase}^${safeExp}`;
     }
     case 'bin': {
