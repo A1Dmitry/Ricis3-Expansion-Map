@@ -8,7 +8,11 @@ name: Lean Artifact Kernel Check
 #   remain `REQUIRES_CORE_LEAN`: a from-scratch Mathlib build does not fit on a
 #   standard GitHub runner (disk), and no pinned prebuilt Mathlib artifact exists.
 # - The allowlist below is explicit on purpose: a file is checked only after it has
-#   been made self-contained. Adding a file = one line in NO_MATHLIB_ARTIFACTS.
+#   been made self-contained. Adding a hand-written file = one line in
+#   NO_MATHLIB_ARTIFACTS. Generated derivatives live in $CORE_CHECK_DIR and are
+#   reproducible from the immutable sources (see scripts/generateLeanCoreChecks.ts);
+#   the directory is checked for drift by tools/leanKernelCoreChecks.test.ts, so a
+#   hand-edited derivative fails CI instead of pretending to be evidence.
 # - Artifacts are never modified by this workflow; it records source hashes,
 #   compiler output and `#print axioms` output as evidence.
 
@@ -35,9 +39,15 @@ jobs:
     name: Lean 4.33.1 kernel run (self-contained artifacts)
     runs-on: ubuntu-latest
     env:
-      # Explicit allowlist of artifacts that are checked without Mathlib.
+      # Explicit allowlist of hand-reviewed artifacts that are checked without Mathlib.
       NO_MATHLIB_ARTIFACTS: >-
         artifacts/proofs/database-a6-minimal-core-check.lean
+      # Generated self-contained derivatives of artifacts whose bodies do not use
+      # Mathlib (scripts/generateLeanCoreChecks.ts). Sources stay immutable
+      # (AGENTS.md §7): a derivative is the source minus its unused
+      # `import Mathlib` line plus an additive `#print axioms` epilogue, and
+      # tools/leanKernelCoreChecks.test.ts asserts byte-level regeneration.
+      CORE_CHECK_DIR: artifacts/proofs/core-checks
     steps:
       - name: Checkout
         uses: actions/checkout@v7.0.1
@@ -62,34 +72,65 @@ jobs:
           set -uo pipefail
           mkdir -p lean-kernel-evidence
           : > lean-kernel-evidence/summary.txt
-          echo "Lean kernel run — $(date -u +%Y-%m-%dT%H:%M:%SZ)" > lean-kernel-evidence/toolchain.txt
-          lean --version >> lean-kernel-evidence/toolchain.txt
-          echo "toolchain: lean 4.33.1 (pinned via elan, default-toolchain)" >> lean-kernel-evidence/toolchain.txt
-          echo "host: ubuntu-latest (GitHub Actions)" >> lean-kernel-evidence/toolchain.txt
-          sha256sum artifacts/proofs/*.lean > lean-kernel-evidence/sha256.txt
+          {
+            echo "Lean kernel run — $(date -u +%Y-%m-%dT%H:%M:%SZ)"
+            lean --version
+            echo "toolchain: lean 4.33.1 (pinned via elan, default-toolchain)"
+            echo "host: ubuntu-latest (GitHub Actions)"
+          } > lean-kernel-evidence/toolchain.txt
+          sha256sum artifacts/proofs/*.lean artifacts/proofs/core-checks/*.lean > lean-kernel-evidence/sha256.txt
+
+          # Target list = explicit allowlist + every generated core-check derivative.
+          # The list is materialised so that the evidence steps publish exactly the
+          # same set of logs that was checked (no silent drift between steps).
+          : > lean-kernel-evidence/targets.txt
+          for f in $NO_MATHLIB_ARTIFACTS; do
+            [ -e "$f" ] || continue
+            echo "$f" >> lean-kernel-evidence/targets.txt
+          done
+          for f in "$CORE_CHECK_DIR"/*.lean; do
+            [ -e "$f" ] || continue
+            echo "$f" >> lean-kernel-evidence/targets.txt
+          done
+          sort -u -o lean-kernel-evidence/targets.txt lean-kernel-evidence/targets.txt
+          {
+            echo "kernel targets: $(wc -l < lean-kernel-evidence/targets.txt) file(s)"
+            sed 's/^/  /' lean-kernel-evidence/targets.txt
+          } | tee -a lean-kernel-evidence/summary.txt
 
           overall=0
-          for f in $NO_MATHLIB_ARTIFACTS; do
+          while IFS= read -r f; do
             name=$(basename "$f" .lean)
             log="lean-kernel-evidence/${name}.log"
             echo "=== ${name}: lean +4.33.1 ${f}" | tee -a lean-kernel-evidence/summary.txt
             if lean +4.33.1 "$f" > "$log" 2>&1; then
               rc=0
-              echo "    result: OK (compiler exit 0, no compiler errors)" | tee -a lean-kernel-evidence/summary.txt
             else
               rc=$?
-              echo "    result: FAILED (compiler exit ${rc})" | tee -a lean-kernel-evidence/summary.txt
             fi
-            # Record the #print axioms lines of this file in the summary.
+            result="OK (compiler exit 0, no compiler errors)"
+            if [ "$rc" -ne 0 ]; then
+              result="FAILED (compiler exit ${rc})"
+            fi
+            # sorryAx in any output means an unfinished proof: never evidence.
+            sorry_hits=$(grep -c "sorryAx" "$log" || true)
+            if [ "$sorry_hits" -gt 0 ]; then
+              result="${result} — SORRY_DETECTED (${sorry_hits} hit(s))"
+              rc=1
+            fi
+            echo "    result: ${result}" | tee -a lean-kernel-evidence/summary.txt
             {
               echo "--- #print axioms output (${name}) ---"
-              grep -E "has (no axioms|axioms)|^database" "$log" | head -20 || true
+              # Real kernel wording: "'N' does not depend on any axioms"
+              # or "'N' depends on axioms: [...]".
+              grep -E "does not depend on any axioms|depends on axioms" "$log" \
+                || echo "  (no #print axioms output captured)"
               echo "--- compiler output tail (${name}) ---"
               tail -n 20 "$log"
               echo
             } >> lean-kernel-evidence/summary.txt
             overall=$(( overall | rc ))
-          done
+          done < lean-kernel-evidence/targets.txt
 
           {
             echo "--- not checked (require a Mathlib build; remain REQUIRES_CORE_LEAN) ---"
@@ -106,12 +147,14 @@ jobs:
             echo "## Lean kernel evidence (pinned toolchain run)"
             echo '```text'
             cat lean-kernel-evidence/toolchain.txt
+            echo "--- results summary ---"
+            cat lean-kernel-evidence/summary.txt
             echo "--- sha256 of artifacts ---"
             cat lean-kernel-evidence/sha256.txt
-            for f in $NO_MATHLIB_ARTIFACTS; do
-              echo "--- full compiler log: $(basename "$f") ---"
+            while IFS= read -r f; do
+              echo "--- full compiler log: $(basename "$f" .lean) ---"
               cat "lean-kernel-evidence/$(basename "$f" .lean).log"
-            done
+            done < lean-kernel-evidence/targets.txt
             echo '```'
           } >> "$GITHUB_STEP_SUMMARY"
 
@@ -145,12 +188,14 @@ jobs:
             echo ""
             echo '```text'
             cat lean-kernel-evidence/toolchain.txt
-            echo "--- sha256 (artifacts/proofs/*.lean) ---"
+            echo "--- results summary ---"
+            cat lean-kernel-evidence/summary.txt
+            echo "--- sha256 (artifacts/proofs/*.lean + core-checks) ---"
             cat lean-kernel-evidence/sha256.txt
-            for f in $NO_MATHLIB_ARTIFACTS; do
-              echo "--- full compiler log: $(basename "$f") ---"
+            while IFS= read -r f; do
+              echo "--- full compiler log: $(basename "$f" .lean) ---"
               cat "lean-kernel-evidence/$(basename "$f" .lean).log"
-            done
+            done < lean-kernel-evidence/targets.txt
             echo '```'
           } > "$body_file"
           gh pr comment "${{ github.event.pull_request.number }}" --repo "${{ github.repository }}" --body-file "$body_file"
