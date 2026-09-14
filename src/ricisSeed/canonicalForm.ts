@@ -82,7 +82,6 @@ function parse(tokens: readonly string[]): Node {
     const left = parseFactor();
     if (peek() === '^') {
       position += 1;
-      // Правоассоциативность степени: a^b^c = a^(b^c).
       const right = parsePower();
       return { kind: 'pow', base: left, exponent: right };
     }
@@ -140,10 +139,8 @@ function render(node: Node): string {
     case 'pow': {
       const baseText = render(node.base);
       const expText = render(node.exponent);
-      const baseNeedsParens = node.base.kind === 'bin' || node.base.kind === 'pow';
-      const expNeedsParens = node.exponent.kind === 'bin';
-      const safeBase = baseNeedsParens ? `(${baseText})` : baseText;
-      const safeExp = expNeedsParens ? `(${expText})` : expText;
+      const safeBase = `(${baseText})`;
+      const safeExp = `(${expText})`;
       return `${safeBase}^${safeExp}`;
     }
     case 'bin': {
