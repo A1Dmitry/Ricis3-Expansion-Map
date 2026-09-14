@@ -68,10 +68,32 @@ jobs:
           lean --version
 
       - name: Run kernel on self-contained artifacts
+        id: kernel-run
         run: |
           set -uo pipefail
+          # GITHUB_PATH applies to later steps, but do not depend on that: an absent
+          # `lean` on PATH would silently fail every target with "command not found".
+          export PATH="$HOME/.elan/bin:$PATH"
           mkdir -p lean-kernel-evidence
           : > lean-kernel-evidence/summary.txt
+          # Diagnostics first: runner logs and uploaded artifacts are not always
+          # retrievable, so everything needed to explain a failure must reach the
+          # PR comment published by the final step.
+          {
+            echo "--- environment diagnostics ---"
+            echo "pwd: $(pwd)"
+            echo "NO_MATHLIB_ARTIFACTS: ${NO_MATHLIB_ARTIFACTS:-<unset>}"
+            echo "CORE_CHECK_DIR: ${CORE_CHECK_DIR:-<unset>}"
+            echo "which lean: $(command -v lean || echo '<lean NOT FOUND on PATH>')"
+            lean --version 2>&1 || echo "lean --version failed (exit $?)"
+            elan toolchain list 2>&1 || echo "elan toolchain list failed"
+            echo "allowlist files:"
+            for f in ${NO_MATHLIB_ARTIFACTS:-}; do
+              if [ -e "$f" ]; then echo "  present: $f"; else echo "  MISSING: $f"; fi
+            done
+            echo "core-check files:"
+            ls -1 "${CORE_CHECK_DIR:-artifacts/proofs/core-checks}"/*.lean 2>&1 | sed 's/^/  /' || true
+          } | tee -a lean-kernel-evidence/summary.txt
           {
             echo "Lean kernel run — $(date -u +%Y-%m-%dT%H:%M:%SZ)"
             lean --version
@@ -84,11 +106,11 @@ jobs:
           # The list is materialised so that the evidence steps publish exactly the
           # same set of logs that was checked (no silent drift between steps).
           : > lean-kernel-evidence/targets.txt
-          for f in $NO_MATHLIB_ARTIFACTS; do
+          for f in ${NO_MATHLIB_ARTIFACTS:-}; do
             [ -e "$f" ] || continue
             echo "$f" >> lean-kernel-evidence/targets.txt
           done
-          for f in "$CORE_CHECK_DIR"/*.lean; do
+          for f in "${CORE_CHECK_DIR:-artifacts/proofs/core-checks}"/*.lean; do
             [ -e "$f" ] || continue
             echo "$f" >> lean-kernel-evidence/targets.txt
           done
@@ -158,7 +180,10 @@ jobs:
             echo '```'
           } >> "$GITHUB_STEP_SUMMARY"
 
-          if [ "$overall" -ne 0 ]; then
+          if [ "$overall" -eq 0 ]; then
+            echo "outcome=OK (all targets compiled, no sorryAx)" >> "$GITHUB_OUTPUT"
+          else
+            echo "outcome=FAILED (exit ${overall}; see results summary)" >> "$GITHUB_OUTPUT"
             echo "Kernel run failed for at least one self-contained artifact. Evidence uploaded for inspection."
             exit 1
           fi
@@ -174,28 +199,37 @@ jobs:
 
       - name: Post kernel evidence to the pull request
         # Durable, readable copy of the run evidence (logs and artifacts are
-        # not always retrievable from restricted environments).
-        if: github.event_name == 'pull_request'
+        # not always retrievable from restricted environments). Runs on failure
+        # too: a red kernel run without published evidence is undiagnosable.
+        if: always() && github.event_name == 'pull_request'
         env:
           GITHUB_TOKEN: ${{ github.token }}
         run: |
           set -uo pipefail
+          mkdir -p lean-kernel-evidence
           body_file=lean-kernel-evidence/pr-comment.md
           {
             echo "### Lean kernel evidence — run \`${{ github.run_id }}\`"
             echo ""
+            echo "Kernel outcome: \`${{ steps.kernel-run.outputs.outcome }}\`"
+            echo ""
             echo "Toolchain: Lean 4.33.1 (pinned via elan). Command: \`lean +4.33.1 <artifact>\` for every self-contained artifact."
             echo ""
             echo '```text'
-            cat lean-kernel-evidence/toolchain.txt
-            echo "--- results summary ---"
-            cat lean-kernel-evidence/summary.txt
-            echo "--- sha256 (artifacts/proofs/*.lean + core-checks) ---"
-            cat lean-kernel-evidence/sha256.txt
-            while IFS= read -r f; do
-              echo "--- full compiler log: $(basename "$f" .lean) ---"
-              cat "lean-kernel-evidence/$(basename "$f" .lean).log"
-            done < lean-kernel-evidence/targets.txt
+            for evidence in toolchain.txt summary.txt sha256.txt; do
+              echo "--- ${evidence} ---"
+              cat "lean-kernel-evidence/${evidence}" 2>/dev/null || echo "  (${evidence} was not produced)"
+            done
+            if [ -f lean-kernel-evidence/targets.txt ]; then
+              while IFS= read -r f; do
+                echo "--- full compiler log: $(basename "$f" .lean) ---"
+                cat "lean-kernel-evidence/$(basename "$f" .lean).log" 2>/dev/null \
+                  || echo "  (log was not produced)"
+              done < lean-kernel-evidence/targets.txt
+            else
+              echo "--- targets.txt was not produced: the kernel step aborted before building the target list ---"
+            fi
             echo '```'
           } > "$body_file"
+          wc -c "$body_file"
           gh pr comment "${{ github.event.pull_request.number }}" --repo "${{ github.repository }}" --body-file "$body_file"
