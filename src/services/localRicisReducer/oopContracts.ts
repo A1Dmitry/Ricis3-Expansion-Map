@@ -96,6 +96,8 @@ export interface A6OperandPair {
   readonly infinity: StructuralIndexedInfinity;
 }
 
+import type { ExactRational } from './a15EqualOrderProfile';
+
 /**
  * Извлеченная пара операндов для профиля равных порядков A15 (Resolve([F/G], a) = D^d F(a) / D^d G(a)).
  */
@@ -105,6 +107,8 @@ export interface A15OperandPair {
   readonly order: number;
   readonly numDerivValue: number;
   readonly denDerivValue: number;
+  readonly numProfileCoeff?: ExactRational;
+  readonly denProfileCoeff?: ExactRational;
   readonly evalPoint?: number;
 }
 

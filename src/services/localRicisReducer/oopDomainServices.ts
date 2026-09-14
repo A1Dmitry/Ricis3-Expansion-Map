@@ -200,6 +200,8 @@ export class SingularityOperandExtractor implements ISingularityOperandExtractor
         order: numProfile.order,
         numDerivValue: numProfile.derivValue,
         denDerivValue: denProfile.derivValue,
+        numProfileCoeff: numProfile.coeff,
+        denProfileCoeff: denProfile.coeff,
         evalPoint: 0,
       };
     }
