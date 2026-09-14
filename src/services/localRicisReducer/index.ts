@@ -392,9 +392,11 @@ type NodeReduction =
   | { readonly kind: 'DEFERRED'; readonly requirement: LocalStructuralExternalRequirement; readonly expression: StructuralExpression };
 
 export class StructuralReducer implements ILocalStructuralReducer {
+  private enableA15 = false;
   public constructor(private readonly limits: LocalStructuralReducerLimits) {}
 
-  public reduce(input: { readonly source: SourceExpression; readonly input: StructuralExpression }): LocalStructuralReductionResult {
+  public reduce(input: { readonly source: SourceExpression; readonly input: StructuralExpression; enableA15?: boolean }): LocalStructuralReductionResult {
+    this.enableA15 = input.enableA15 || false;
     const journal = new DerivationJournal(this.limits);
     const baseProvenance = provenance(input.source.sourceHash);
     if (input.input.identity.source.sourceHash !== input.source.sourceHash) {
@@ -615,7 +617,7 @@ export class StructuralReducer implements ILocalStructuralReducer {
       remainingDenominator.splice(index, 1);
       cancelled += 1;
     }
-    if (cancelled === 0) {
+    if (cancelled === 0 && this.enableA15) {
       const a15Rule = new A15EqualOrderRule();
       const typeValidator = new TypeConsistencyValidator();
       const indexValidator = new SemanticIndexValidator();
@@ -638,10 +640,9 @@ export class StructuralReducer implements ILocalStructuralReducer {
     const output = isOrdinaryOne(denominator)
       ? numerator
       : makeBinary('DIVIDE', numerator, denominator, inheritedSource(expression, expression.identity.canonical), expression.identity.typeTag);
-    const applied = journal.add('SP2', 'SP2_ASSOCIATIVE_FACTOR_CANCELLATION', INHERITED_AUTHORITY, 'APPLIED', expression, output, ['PAYLOAD_CHILDREN_REDUCED', 'EXACT_STRUCTURAL_IDENTITY'], 'localReducer.sp2.exactFactorCancellation');
-    return applied
-      ? freeze({ kind: 'REDUCED', expression: output })
-      : freeze({ kind: 'NON_APPLICABLE', reason: 'STRUCTURAL_LIMIT_REACHED', expression });
+    const applied = journal.add('SP2', 'SP2_ASSOCIATIVE_FACTOR_CANCELLATION', INHERITED_AUTHORITY, cancelled > 0 ? 'APPLIED' : 'NOT_APPLICABLE', expression, output, ['PAYLOAD_CHILDREN_REDUCED', 'EXACT_STRUCTURAL_IDENTITY'], cancelled > 0 ? 'localReducer.sp2.exactFactorCancellation' : 'localReducer.sp2.noExactFactorMatch');
+    if (!applied) return freeze({ kind: 'NON_APPLICABLE', reason: 'STRUCTURAL_LIMIT_REACHED', expression });
+    return cancelled > 0 ? freeze({ kind: 'REDUCED', expression: output }) : freeze({ kind: 'REDUCED', expression });
   }
 }
 
@@ -698,6 +699,6 @@ export class LocalStructuralReductionApplicationService implements ILocalStructu
       semanticIndex: analysis.semanticIndex,
     });
     if (mapped.status !== 'MAPPED') return nonApplicableFromAnalysis(analysis, mapped.reason);
-    return this.dependencies.reducer.reduce({ source: analysis.source, input: mapped.expression });
+    return this.dependencies.reducer.reduce({ source: analysis.source, input: mapped.expression, enableA15: command.enableA15 });
   }
 }

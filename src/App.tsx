@@ -193,15 +193,19 @@ export default function App() {
             onBackToMap={() => handleSelectApplet('map')}
           />
         );
-      case 'roadmap':
+      case 'roadmap': {
         const roadmapParams = new URLSearchParams(locationSearch);
-        return (
-          <RoadmapPage
-            contextNodeId={roadmapParams.get('node')}
-            initialRootNodeId={roadmapParams.get('root')}
-            onBackToMap={() => handleSelectApplet('map')}
-          />
-        );
+        if (roadmapParams.get('view') === 'roadmap' || currentApplet === 'roadmap') {
+          return (
+            <RoadmapPage
+              contextNodeId={roadmapParams.get('node')}
+              initialRootNodeId={roadmapParams.get('root')}
+              onBackToMap={() => handleSelectApplet('map')}
+            />
+          );
+        }
+        return <Map3D />;
+      }
       case 'voynich':
         return (
           <div className="w-full h-full overflow-y-auto p-4 bg-[#070b14]">
