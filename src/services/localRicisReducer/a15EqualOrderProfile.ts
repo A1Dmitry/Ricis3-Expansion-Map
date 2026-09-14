@@ -730,15 +730,13 @@ export class A15EqualOrderRule extends BaseSingularityRule {
     }
 
     const defaultSource = this.getDefaultSource(expression);
-    let canonicalStr: string;
 
-    if (pair.numProfileCoeff && pair.denProfileCoeff) {
-      const ratioCoeff = divRational(pair.numProfileCoeff, pair.denProfileCoeff);
-      canonicalStr = formatRational(ratioCoeff);
-    } else {
-      const ratio = pair.numDerivValue / pair.denDerivValue;
-      canonicalStr = toCanonicalRationalString(ratio);
+    if (!pair.numProfileCoeff || !pair.denProfileCoeff || pair.denProfileCoeff.num === ZERO_BI) {
+      return { success: false, reason: 'Exact rational profile coefficients required for A15 reduction' };
     }
+
+    const ratioCoeff = divRational(pair.numProfileCoeff, pair.denProfileCoeff);
+    const canonicalStr = formatRational(ratioCoeff);
 
     return {
       success: true,
