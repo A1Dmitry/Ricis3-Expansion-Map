@@ -8,10 +8,28 @@ name: Lean Artifact Kernel Check
 #   remain `REQUIRES_CORE_LEAN`: a from-scratch Mathlib build does not fit on a
 #   standard GitHub runner (disk), and no pinned prebuilt Mathlib artifact exists.
 # - The allowlist below is explicit on purpose: a file is checked only after it has
-#   been made self-contained. Adding a file = one line in NO_MATHLIB_ARTIFACTS.
+#   been made self-contained. Adding a hand-written file = one line in
+#   NO_MATHLIB_ARTIFACTS. Generated derivatives live in $CORE_CHECK_DIR and are
+#   reproducible from the immutable sources (see scripts/generateLeanCoreChecks.ts);
+#   the directory is checked for drift by tools/leanKernelCoreChecks.test.ts, so a
+#   hand-edited derivative fails CI instead of pretending to be evidence.
 # - Artifacts are never modified by this workflow; it records source hashes,
 #   compiler output and `#print axioms` output as evidence.
-
+#
+# ciPolicy (expected failures, anti-tukhta):
+# - The ONLY source of "expected to fail" targets is the ciPolicy.expectedFailures
+#   list in artifacts/proofs/core-checks/kernel-findings.json. The list is extracted
+#   with jq at run start and materialised into expected-failures.txt.
+# - A target on that list that fails to compile is reported as EXPECTED_FAIL and does
+#   NOT break the run: its root cause/prediction basis is recorded in the registry,
+#   and the full compiler log is still published.
+# - A target on that list that COMPILES (exit 0, no sorryAx) is reported OK with an
+#   explicit NOTE that the registry must be updated and the status promotion
+#   evaluated — the run stays green (progress is not a failure).
+# - sorryAx in a COMPILED file (exit 0) is a new fact and ALWAYS breaks the run,
+#   even for a registered expected failure (stop-the-line: an unfinished proof is
+#   never evidence).
+# - Any failure of a target NOT on the list breaks the run.
 on:
   workflow_dispatch:
   pull_request:
@@ -35,9 +53,15 @@ jobs:
     name: Lean 4.33.1 kernel run (self-contained artifacts)
     runs-on: ubuntu-latest
     env:
-      # Explicit allowlist of artifacts that are checked without Mathlib.
+      # Explicit allowlist of hand-reviewed artifacts that are checked without Mathlib.
       NO_MATHLIB_ARTIFACTS: >-
         artifacts/proofs/database-a6-minimal-core-check.lean
+      # Generated self-contained derivatives of artifacts whose bodies do not use
+      # Mathlib (scripts/generateLeanCoreChecks.ts). Sources stay immutable
+      # (AGENTS.md §7): a derivative is the source minus its unused
+      # `import Mathlib` line plus an additive `#print axioms` epilogue, and
+      # tools/leanKernelCoreChecks.test.ts asserts byte-level regeneration.
+      CORE_CHECK_DIR: artifacts/proofs/core-checks
     steps:
       - name: Checkout
         uses: actions/checkout@v7.0.1
@@ -58,38 +82,115 @@ jobs:
           lean --version
 
       - name: Run kernel on self-contained artifacts
+        id: kernel-run
         run: |
           set -uo pipefail
+          # GITHUB_PATH applies to later steps, but do not depend on that: an absent
+          # `lean` on PATH would silently fail every target with "command not found".
+          export PATH="$HOME/.elan/bin:$PATH"
           mkdir -p lean-kernel-evidence
           : > lean-kernel-evidence/summary.txt
-          echo "Lean kernel run — $(date -u +%Y-%m-%dT%H:%M:%SZ)" > lean-kernel-evidence/toolchain.txt
-          lean --version >> lean-kernel-evidence/toolchain.txt
-          echo "toolchain: lean 4.33.1 (pinned via elan, default-toolchain)" >> lean-kernel-evidence/toolchain.txt
-          echo "host: ubuntu-latest (GitHub Actions)" >> lean-kernel-evidence/toolchain.txt
-          sha256sum artifacts/proofs/*.lean > lean-kernel-evidence/sha256.txt
+          # Diagnostics first: runner logs and uploaded artifacts are not always
+          # retrievable, so everything needed to explain a failure must reach the
+          # PR comment published by the final step.
+          {
+            echo "--- environment diagnostics ---"
+            echo "pwd: $(pwd)"
+            echo "NO_MATHLIB_ARTIFACTS: ${NO_MATHLIB_ARTIFACTS:-<unset>}"
+            echo "CORE_CHECK_DIR: ${CORE_CHECK_DIR:-<unset>}"
+            echo "which lean: $(command -v lean || echo '<lean NOT FOUND on PATH>')"
+            lean --version 2>&1 || echo "lean --version failed (exit $?)"
+            elan toolchain list 2>&1 || echo "elan toolchain list failed"
+            echo "allowlist files:"
+            for f in ${NO_MATHLIB_ARTIFACTS:-}; do
+              if [ -e "$f" ]; then echo "  present: $f"; else echo "  MISSING: $f"; fi
+            done
+            echo "core-check files:"
+            ls -1 "${CORE_CHECK_DIR:-artifacts/proofs/core-checks}"/*.lean 2>&1 | sed 's/^/  /' || true
+          } | tee -a lean-kernel-evidence/summary.txt
+          {
+            echo "Lean kernel run — $(date -u +%Y-%m-%dT%H:%M:%SZ)"
+            lean --version
+            echo "toolchain: lean 4.33.1 (pinned via elan, default-toolchain)"
+            echo "host: ubuntu-latest (GitHub Actions)"
+          } > lean-kernel-evidence/toolchain.txt
+          sha256sum artifacts/proofs/*.lean artifacts/proofs/core-checks/*.lean > lean-kernel-evidence/sha256.txt
+
+          # Target list = explicit allowlist + every generated core-check derivative.
+          # The list is materialised so that the evidence steps publish exactly the
+          # same set of logs that was checked (no silent drift between steps).
+          : > lean-kernel-evidence/targets.txt
+          for f in ${NO_MATHLIB_ARTIFACTS:-}; do
+            [ -e "$f" ] || continue
+            echo "$f" >> lean-kernel-evidence/targets.txt
+          done
+          for f in "${CORE_CHECK_DIR:-artifacts/proofs/core-checks}"/*.lean; do
+            [ -e "$f" ] || continue
+            echo "$f" >> lean-kernel-evidence/targets.txt
+          done
+          sort -u -o lean-kernel-evidence/targets.txt lean-kernel-evidence/targets.txt
+
+          # ciPolicy: the ONLY source of expected-failure targets is the registry.
+          # A missing/empty list means: every failure breaks the run (default).
+          jq -r '.ciPolicy.expectedFailures[].checkedFile' \
+            "${CORE_CHECK_DIR:-artifacts/proofs/core-checks}/kernel-findings.json" \
+            | sort -u > lean-kernel-evidence/expected-failures.txt
+          EXPECTED_FAIL_FILE=lean-kernel-evidence/expected-failures.txt
+          {
+            echo "kernel targets: $(wc -l < lean-kernel-evidence/targets.txt) file(s)"
+            sed 's/^/  /' lean-kernel-evidence/targets.txt
+            echo "expected-failure targets (from kernel-findings.json ciPolicy): $(wc -l < "$EXPECTED_FAIL_FILE") file(s)"
+            sed 's/^/  /' "$EXPECTED_FAIL_FILE"
+          } | tee -a lean-kernel-evidence/summary.txt
 
           overall=0
-          for f in $NO_MATHLIB_ARTIFACTS; do
+          while IFS= read -r f; do
             name=$(basename "$f" .lean)
             log="lean-kernel-evidence/${name}.log"
             echo "=== ${name}: lean +4.33.1 ${f}" | tee -a lean-kernel-evidence/summary.txt
             if lean +4.33.1 "$f" > "$log" 2>&1; then
               rc=0
-              echo "    result: OK (compiler exit 0, no compiler errors)" | tee -a lean-kernel-evidence/summary.txt
             else
               rc=$?
-              echo "    result: FAILED (compiler exit ${rc})" | tee -a lean-kernel-evidence/summary.txt
             fi
-            # Record the #print axioms lines of this file in the summary.
+            # sorryAx in any output means an unfinished proof: never evidence.
+            sorry_hits=$(grep -c "sorryAx" "$log" || true)
+            is_expected=0
+            if grep -Fxq "$f" "$EXPECTED_FAIL_FILE"; then
+              is_expected=1
+            fi
+            overall_fail=0
+            if [ "$rc" -eq 0 ] && [ "$sorry_hits" -gt 0 ]; then
+              # A registered expected failure that instead COMPILED with sorry is a
+              # new fact: stop-the-line, the run breaks (stop-the-line > registry).
+              result="OK (compiler exit 0) — SORRY_DETECTED (${sorry_hits} hit(s)): файл, собранный с sorry, никогда не является evidence"
+              overall_fail=1
+            elif [ "$rc" -ne 0 ] && [ "$is_expected" -eq 1 ]; then
+              # Compiler-level failure with a recorded root cause/prediction basis:
+              # reported as EXPECTED_FAIL, full log still published, run not broken.
+              result="EXPECTED_FAIL (compiler exit ${rc}; первопричина/основание прогноза зафиксированы в core-checks/kernel-findings.json ciPolicy)"
+            elif [ "$rc" -ne 0 ]; then
+              result="FAILED (compiler exit ${rc})"
+              overall_fail=1
+            else
+              result="OK (compiler exit 0, no compiler errors)"
+              if [ "$is_expected" -eq 1 ]; then
+                result="${result} — NOTE: ожидаемый отказ не воспроизведён — обновить реестр (ciPolicy) и рассмотреть повышение статуса"
+              fi
+            fi
+            echo "    result: ${result}" | tee -a lean-kernel-evidence/summary.txt
             {
               echo "--- #print axioms output (${name}) ---"
-              grep -E "has (no axioms|axioms)|^database" "$log" | head -20 || true
+              # Real kernel wording: "'N' does not depend on any axioms"
+              # or "'N' depends on axioms: [...]".
+              grep -E "does not depend on any axioms|depends on axioms" "$log" \
+                || echo "  (no #print axioms output captured)"
               echo "--- compiler output tail (${name}) ---"
               tail -n 20 "$log"
               echo
             } >> lean-kernel-evidence/summary.txt
-            overall=$(( overall | rc ))
-          done
+            overall=$(( overall | overall_fail ))
+          done < lean-kernel-evidence/targets.txt
 
           {
             echo "--- not checked (require a Mathlib build; remain REQUIRES_CORE_LEAN) ---"
@@ -106,16 +207,21 @@ jobs:
             echo "## Lean kernel evidence (pinned toolchain run)"
             echo '```text'
             cat lean-kernel-evidence/toolchain.txt
+            echo "--- results summary ---"
+            cat lean-kernel-evidence/summary.txt
             echo "--- sha256 of artifacts ---"
             cat lean-kernel-evidence/sha256.txt
-            for f in $NO_MATHLIB_ARTIFACTS; do
-              echo "--- full compiler log: $(basename "$f") ---"
+            while IFS= read -r f; do
+              echo "--- full compiler log: $(basename "$f" .lean) ---"
               cat "lean-kernel-evidence/$(basename "$f" .lean).log"
-            done
+            done < lean-kernel-evidence/targets.txt
             echo '```'
           } >> "$GITHUB_STEP_SUMMARY"
 
-          if [ "$overall" -ne 0 ]; then
+          if [ "$overall" -eq 0 ]; then
+            echo "outcome=OK (no unexpected failures; sorryAx-free)" >> "$GITHUB_OUTPUT"
+          else
+            echo "outcome=FAILED (exit ${overall}; see results summary)" >> "$GITHUB_OUTPUT"
             echo "Kernel run failed for at least one self-contained artifact. Evidence uploaded for inspection."
             exit 1
           fi
@@ -131,26 +237,37 @@ jobs:
 
       - name: Post kernel evidence to the pull request
         # Durable, readable copy of the run evidence (logs and artifacts are
-        # not always retrievable from restricted environments).
-        if: github.event_name == 'pull_request'
+        # not always retrievable from restricted environments). Runs on failure
+        # too: a red kernel run without published evidence is undiagnosable.
+        if: always() && github.event_name == 'pull_request'
         env:
           GITHUB_TOKEN: ${{ github.token }}
         run: |
           set -uo pipefail
+          mkdir -p lean-kernel-evidence
           body_file=lean-kernel-evidence/pr-comment.md
           {
             echo "### Lean kernel evidence — run \`${{ github.run_id }}\`"
             echo ""
+            echo "Kernel outcome: \`${{ steps.kernel-run.outputs.outcome }}\`"
+            echo ""
             echo "Toolchain: Lean 4.33.1 (pinned via elan). Command: \`lean +4.33.1 <artifact>\` for every self-contained artifact."
             echo ""
             echo '```text'
-            cat lean-kernel-evidence/toolchain.txt
-            echo "--- sha256 (artifacts/proofs/*.lean) ---"
-            cat lean-kernel-evidence/sha256.txt
-            for f in $NO_MATHLIB_ARTIFACTS; do
-              echo "--- full compiler log: $(basename "$f") ---"
-              cat "lean-kernel-evidence/$(basename "$f" .lean).log"
+            for evidence in toolchain.txt summary.txt sha256.txt; do
+              echo "--- ${evidence} ---"
+              cat "lean-kernel-evidence/${evidence}" 2>/dev/null || echo "  (${evidence} was not produced)"
             done
+            if [ -f lean-kernel-evidence/targets.txt ]; then
+              while IFS= read -r f; do
+                echo "--- full compiler log: $(basename "$f" .lean) ---"
+                cat "lean-kernel-evidence/$(basename "$f" .lean).log" 2>/dev/null \
+                  || echo "  (log was not produced)"
+              done < lean-kernel-evidence/targets.txt
+            else
+              echo "--- targets.txt was not produced: the kernel step aborted before building the target list ---"
+            fi
             echo '```'
           } > "$body_file"
+          wc -c "$body_file"
           gh pr comment "${{ github.event.pull_request.number }}" --repo "${{ github.repository }}" --body-file "$body_file"
