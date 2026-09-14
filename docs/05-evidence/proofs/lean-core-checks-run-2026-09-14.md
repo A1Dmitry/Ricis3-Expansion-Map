@@ -286,3 +286,36 @@ gh workflow run lean-artifact-kernel-check.yml      # повторный про�
    10 целей exit 0 (minimal, template, chatbot, navier-stokes, riemann-zeta, backend, database×2,
    v79 после F-06-ремонта, SP5 после перегенерации) и 2 зарегистрированных `EXPECTED_FAIL`
    (jacobian, A11). Факты нового run вносятся в реестр и этот документ отдельным коммитом.
+
+---
+
+## 9. Прогон run 34891262489 (ветка 0.4.189, PR #38) — факты
+
+**Дата:** 2026-09-14T20:10:25Z, Lean 4.33.1 (commit 819816b2e0a3bf405af45ae5c7af2491d8f5bee6),
+ubuntu-latest. Все 12 целей, ciPolicy — 2 зарегистрированные. Исход:
+**`OK (no unexpected failures; sorryAx-free)`** — прогон зелёный.
+
+| Целевой файл | Исход | Факты |
+| :--- | :--- | :--- |
+| `database-a6-minimal-core-check.lean` | OK (exit 0) | подтверждение (без аксиом) |
+| `ricis-universal-orchestration-template.core-check.lean` | OK (exit 0) | 27 теорем (3 без аксиом, 24 × propext) |
+| `ricis-chatbot-monetization.core-check.lean` | OK (exit 0) | 2 теоремы |
+| `ricis-navier-stokes-ast-bridge.standalone.core-check.lean` | OK (exit 0) | 2 теоремы × propext |
+| `ricis-riemann-zeta-ast-bridge.standalone.core-check.lean` | OK (exit 0) | 2 теоремы × propext |
+| `ricis-backend-exact-reduction.standalone.core-check.lean` | OK (exit 0) | 22 теоремы (после `ℕ → Nat`) |
+| `database-a6-0_5_inf_3.standalone.core-check.lean` | OK (exit 0) | 19 теорем (18 без аксиом, 1 × propext) |
+| `database-registry-120-jacobian.standalone.core-check.lean` | OK (exit 0) | 19 теорем |
+| **`ricis-v79-monolith.standalone.core-check.lean`** | **OK (exit 0)** | **31 теорема: 3 без аксиом (L1_identity, SP4_preserves_parent, ns_error_zero), 28 × propext, включая RICIS_v79_unified — F-06 закрыт прогоном** |
+| **`ricis-kernel-ast-sp5.standalone.core-check.lean`** | **OK (exit 0)** | **2 теоремы × propext — F-07 закрыт прогоном (перегенерированный файл с `deriving DecidableEq, Repr`)** |
+| `ricis-jacobian-conjecture.standalone.core-check.lean` | EXPECTED_FAIL (exit 1) | ciPolicy (F-01): дословная первопричина — run 34870620154; невоспроизведение не ожидалось — отказ воспроизведён, основание актуально |
+| `ricis-seed-expansion-a11.core-check.lean` | EXPECTED_FAIL (exit 1) | ciPolicy (F-08): дословная первопричина — run 34870620154; отказ воспроизведён, основание актуально |
+
+Сырой лог: [`lean-kernel-run-34891262489.pr-comment.txt`](lean-kernel-run-34891262489.pr-comment.txt)
+(комментарий PR #38, step summary + полный вывод по каждой цели).
+
+**Итог LEAN-CORE-CHECK-COVERAGE после run 34891262489:** 10 из 12 самодостаточных целей
+`LEAN_VERIFIED` (exit 0, без `sorryAx`), 2 цели — ожидаемые отказы с установленными
+дословными первопричинами (jacobian — F-01: решение владельца, артефактный уровень
+`STRUCTURALLY_VALIDATED`; A11 — F-08: отдельная задача ядрового ремонта). `RicisAgiTarget.lean`
+и `jacobian-counterexample-full.lean` остаются `REQUIRES_CORE_LEAN` (по существу требуют
+Mathlib: `ℝ`/`ℚ` + `ring`/`norm_num`).

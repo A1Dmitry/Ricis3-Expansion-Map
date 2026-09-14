@@ -514,6 +514,7 @@ describe('OIR-03 — audit proof-synthesis containment', () => {
       ' M ACTIVE_TASKS.md',
       ' M AXIOMS_AND_TEST_FAILURES.md',
       ' M artifacts/proofs/README.md',
+      ' M artifacts/proofs/core-checks/kernel-findings.json',
       ' M artifacts/proofs/core-checks/ricis-kernel-ast-sp5.standalone.core-check.lean',
       ' M artifacts/proofs/ricis-backend-exact-reduction.json',
       ' M artifacts/proofs/ricis-chatbot-monetization.json',
@@ -540,7 +541,10 @@ describe('OIR-03 — audit proof-synthesis containment', () => {
       '?? docs/05-evidence/proofs/lean-core-checks-run-2026-09-14.md',
       '?? docs/05-evidence/proofs/lean-kernel-run-34858902595.pr-comment.txt',
       '?? docs/05-evidence/proofs/lean-kernel-run-34870620154.pr-comment.txt',
+      '?? docs/05-evidence/proofs/lean-kernel-run-34891262489.pr-comment.txt',
       '?? docs/01-architecture/lean-core-check-task-state.json',
+      ' M docs/01-architecture/lean-core-check-task-state.json',
+      ' M docs/05-evidence/proofs/lean-core-checks-run-2026-09-14.md',
       '?? docs/00-governance/PROJECT_STATE_ANALYSIS_2026-09-14.md',
 
     ]);

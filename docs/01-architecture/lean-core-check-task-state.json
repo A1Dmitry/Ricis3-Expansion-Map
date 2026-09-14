@@ -13,22 +13,19 @@
     "L9 — решение владельца: узел registry-120 в initialMap (TRUSTED_AXIOM) и F-05 (формулировки узлов карты)",
     "F-08 — ядровой ремонт A11 (тактические шаги под цели после induction, точки 156/165/176) — отдельная задача"
   ],
-  "updatedAt": "2026-09-14T19:30:00.000Z",
+  "updatedAt": "2026-09-14T20:20:00.000Z",
   "evidence": {
     "completedRun": {
-      "runId": 34870620154,
-      "runUrl": "https://github.com/A1Dmitry/Ricis3-Expansion-Map/actions/runs/34870620154",
+      "runId": 34891262489,
+      "runUrl": "https://github.com/A1Dmitry/Ricis3-Expansion-Map/actions/runs/34891262489",
+      "pullRequest": 38,
+      "branch": "arena/01a0a116-ricis3-expansion-map",
       "toolchain": "Lean 4.33.1, commit 819816b2e0a3bf405af45ae5c7af2491d8f5bee6",
       "command": "lean +4.33.1 <artifact>",
-      "targets": 12,
-      "rawLog": "docs/05-evidence/proofs/lean-kernel-run-34870620154.pr-comment.txt",
-      "registry": "artifacts/proofs/core-checks/kernel-findings.json (registryVersion 2)",
-      "report": "docs/05-evidence/proofs/lean-core-checks-run-2026-09-14.md (§6)",
-      "priorRun": {
-        "runId": 34858902595,
-        "rawLog": "docs/05-evidence/proofs/lean-kernel-run-34858902595.pr-comment.txt",
-        "scope": "пакет 1: 8 целей"
-      }
+      "rawLog": "docs/05-evidence/proofs/lean-kernel-run-34891262489.pr-comment.txt",
+      "registry": "artifacts/proofs/core-checks/kernel-findings.json",
+      "report": "docs/05-evidence/proofs/lean-core-checks-run-2026-09-14.md",
+      "outcome": "OK (no unexpected failures; sorryAx-free): 10/12 exit 0, 2 EXPECTED_FAIL по ciPolicy (jacobian F-01, A11 F-08)"
     },
     "leanVerified": [
       "ricis-universal-orchestration-template.lean (27 теорем: 3 без аксиом, 24 x propext)",
@@ -45,6 +42,12 @@
       "ricis-jacobian-conjecture.standalone.lean — exit 1 (62:2 Tactic rfl failed), sorryAx в Jacobian_singularity_resolved (F-01)",
       "ricis-kernel-ast-sp5.standalone.lean — exit 1 (26:2 Decidable (a = b) не синтезируется), 2 x sorryAx (F-07)",
       "ricis-seed-expansion-a11.lean — exit 1 (104:4 Type mismatch и др.), 3 x sorryAx из 6 теорем (F-08)"
+    ],
+    "previousRuns": [
+      "34858902595 (пакет 1, PR #37)",
+      "34870620154 (пакет 2, PR #37)",
+      "34877214125 (SP5 на main, 8665a06)",
+      "34851801990 (database-a6-minimal-core-check)"
     ]
   },
   "steps": [
@@ -89,8 +92,8 @@
       "id": "L7",
       "title": "Ремонт 4 красных производных по планам pendingKernelRun и повторный прогон ядра",
       "verify": "gh pr view 37 --json comments --jq '.comments[-1].body'",
-      "status": "pending",
-      "note": "Планы зафиксированы в реестре (pendingKernelRun): v79 — удалить избыточные буллеты; sp5 — deriving DecidableEq; a11 — корректный ядровый шаг; jacobian — только по решению владельца (F-01)"
+      "status": "in_progress",
+      "note": "Артефактный уровень закрыт решением владельца 2026-09-14 (README STRUCTURALLY_VALIDATED, trustStatus метаданных, QA-контракт). Остаётся узел-уровень: initialMap registry-120 (TRUSTED_AXIOM)."
     },
     {
       "id": "L8",
@@ -103,8 +106,8 @@
       "id": "L10",
       "title": "Перенос в 0.4.189: reconcile с main, v79/SP5 подстановки, ciPolicy, решение владельца по F-01 (артефакт), 17 стражей",
       "verify": "npx vitest run tools/leanKernelCoreChecks.test.ts && npx tsx scripts/generateLeanCoreChecks.ts --check && npm run lint && npm test && npm run build",
-      "status": "in_progress",
-      "note": "Локальные гейты — в процессе; фактический прогон ядра — в PR-ветке 0.4.189"
+      "status": "done",
+      "note": "Локальные гейты зелёные (1875/1875, lint 0, build). CI PR #38: Lean Artifact Kernel Check run 34891262489 — OK: 10/12 exit 0 (v79 и SP5 после ремонтов), 2 EXPECTED_FAIL (ciPolicy). Факты run внесены в реестр и evidence-документ (§9)."
     }
   ],
   "supersedes": {
