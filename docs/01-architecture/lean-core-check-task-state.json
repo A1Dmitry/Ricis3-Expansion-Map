@@ -13,7 +13,7 @@
     "внести факты нового run в artifacts/proofs/core-checks/kernel-findings.json (реестр правится по фактическому логу, не генерируется), в docs/05-evidence/proofs/lean-core-checks-run-2026-09-14.md и artifacts/proofs/README.md",
     "F-01: получить решение владельца (новое доказательство тождества 62:2 либо понижение TRUSTED_AXIOM с обновлением initialMap и QA-контрактов jacobianProof)"
   ],
-  "updatedAt": "2026-09-14T17:55:00.000Z",
+  "updatedAt": "2026-09-14T19:25:00.000Z",
   "evidence": {
     "completedRun": {
       "runId": 34870620154,
@@ -90,7 +90,7 @@
       "title": "Ремонт 4 красных производных по планам pendingKernelRun и повторный прогон ядра",
       "verify": "gh pr view 37 --json comments --jq '.comments[-1].body'",
       "status": "pending",
-      "note": "Планы зафиксированы в реестре (pendingKernelRun): v79 — удалить избыточные буллеты; sp5 — deriving DecidableEq; a11 — корректный ядровый шаг; jacobian — только по решению владельца (F-01)"
+      "note": "Планы в pendingKernelRun. SP5: ремонт ВЫПОЛНЕН (deriving DecidableEq, Repr — commit 8665a06 владельца в main, принят как заявленная подстановка генератора, производная перегенерирована). Остались: v79 — убрать 8 избыточных буллетов `· rfl`; a11 — корректный ядровый шаг вместо неприменимой подстановки; jacobian — только по решению владельца (F-01)."
     },
     {
       "id": "L8",

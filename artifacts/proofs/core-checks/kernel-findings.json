@@ -1103,7 +1103,8 @@
       "sourceSha256": "6ee144b7e438a112b1590c65625da5b88baf615cb53315f52b6935d91cacda57",
       "checkedFile": "artifacts/proofs/core-checks/ricis-kernel-ast-sp5.standalone.core-check.lean",
       "substitutionsApplied": [
-        "ℚ → Rat"
+        "ℚ → Rat",
+        "| indexedInf (e : RExpr)\\n\\ndef singularDiv … → … + «deriving DecidableEq, Repr» (F-07, commit 8665a06)"
       ],
       "compilerExit": 1,
       "resultLine": "FAILED (compiler exit 1) — SORRY_DETECTED (2 hit(s))",
@@ -1144,7 +1145,8 @@
           "RICIS.KernelAST.SP5.ricis_reduce_divself"
         ],
         "rootCause": "Подстановка ℚ → Rat устранила ошибку нотации, но вскрыла отсутствие экземпляра: 26:2 «error(lean.synthInstanceFailed): failed to synthesize instance of type class Decidable (a = b)» — у индуктива RExpr нет DecidableEq, а Mathlib-сборка давала его через свои deriving-механизмы. Каскад: 37:35 «unsolved goals ⊢ sorry () = RExpr.one», обе теоремы (singular_div_identity, ricis_reduce_divself) получили sorryAx."
-      }
+      },
+      "repairAppliedAfterRun": "F-07 устранён после прогона: `deriving DecidableEq, Repr` добавлен к индуктиву RExpr (ремонт предложен владельцем в main, commit 8665a06; принят как заявленная подстановка генератора). Производная перегенерирована, outputSha256 в manifest.json обновлён, исходник не изменялся. Требуется повторный прогон ядром — до него статус НЕ повышается."
     },
     {
       "artifactId": "ricis-seed-expansion-a11",
@@ -1237,8 +1239,8 @@
     {
       "artifactId": "ricis-kernel-ast-sp5",
       "checkedFile": "artifacts/proofs/core-checks/ricis-kernel-ast-sp5.standalone.core-check.lean",
-      "repair": "добавить `deriving DecidableEq` к индуктиву RExpr (аддитивно, без изменения утверждений)",
-      "basis": "26:2 lean.synthInstanceFailed: Decidable (a = b) (run 34870620154)"
+      "repair": "ВЫПОЛНЕНО в ветке: `deriving DecidableEq, Repr` у RExpr (commit 8665a06 в main принят как заявленная подстановка генератора). Осталось: повторный прогон ядром и внесение фактов в реестр.",
+      "basis": "26:2 lean.synthInstanceFailed: Decidable (a = b) (run 34870620154); ремонт — commit 8665a06 (main)"
     },
     {
       "artifactId": "ricis-seed-expansion-a11",
@@ -1325,7 +1327,7 @@
       "affected": [
         "ricis-kernel-ast-sp5"
       ],
-      "requiredDecision": "Добавить `deriving DecidableEq` к индуктиву RExpr в новой версии производной (аддитивно) и перепроверить ядром."
+      "requiredDecision": "Ремонт принят и встроен в генератор как заявленная подстановка (`deriving DecidableEq, Repr`, commit 8665a06 в main): производная перегенерирована, стражи неизменяемости зелёные (15/15). Осталось получить факт ядра повторным прогоном; до exit 0 статус артефакта не повышается."
     },
     {
       "id": "F-08",
