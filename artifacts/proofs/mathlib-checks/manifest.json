@@ -1,0 +1,40 @@
+{
+  "generator": "scripts/generateLeanMathlibChecks.ts",
+  "policy": [
+    "Исходные артефакты artifacts/proofs/*.lean неизменяемы (AGENTS.md §7).",
+    "Производная = исходник байт-в-байт (импорты Mathlib сохранены) + добавленный эпилог #print axioms.",
+    "Подстановки, удаления и перестановки строк в mathlib-производных запрещены: проверяется формулировка владельца.",
+    "Повторная генерация обязана дать побайтово тот же результат (tools/leanMathlibChecks.test.ts).",
+    "Прогон ядра фиксирует только структурные теоремы артефакта, не эмпирические утверждения узла карты.",
+    "Существование механизма не повышает статус артефактов, для которых прогон не запускался."
+  ],
+  "toolchain": "leanprover/lean4:v4.33.0 (lean-toolchain зафиксированной ревизии Mathlib), Mathlib @ 6f1ef4e5dd604a435bddba4747b13970cd65d2a1",
+  "command": "lake env lean <artifact>",
+  "artifacts": [
+    {
+      "artifactId": "ricis-general-resolution",
+      "source": "artifacts/proofs/ricis-general-resolution.lean",
+      "sourceSha256": "e92ebe52a85af838205a6bdb950ff4517f959cbfc4f38c1d0e7c4cb65cc35db3",
+      "output": "artifacts/proofs/mathlib-checks/ricis-general-resolution.mathlib-check.lean",
+      "outputSha256": "8424eebe279444e4f70c210189783c6fce64809f9b422a637c4568b690707d03",
+      "rationale": "Тело использует ℂ (Mathlib.Data.Complex.Basic), тактики ring/norm_num (Mathlib.Tactic.Ring) и лемму Complex.ext_iff — без Mathlib файл не только не компилируется, но и не содержит корректной формулировки. Проверка возможна только прогоном lake env lean на закреплённом тулчейне Mathlib (oleans из lake exe cache get).",
+      "metadataJson": "artifacts/proofs/ricis-general-resolution.json",
+      "theorems": [
+        "ricis_general_resolution",
+        "ricis_equals_classical_limit",
+        "specific_case_from_general"
+      ],
+      "declaredAxioms": [
+        "ax_A4_general",
+        "ax_SP1_general"
+      ],
+      "printAxiomsTargets": [
+        "ricis_general_resolution",
+        "ricis_equals_classical_limit",
+        "specific_case_from_general",
+        "ax_A4_general",
+        "ax_SP1_general"
+      ]
+    }
+  ]
+}

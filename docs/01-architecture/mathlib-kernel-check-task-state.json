@@ -1,0 +1,80 @@
+{
+  "task": "RICIS-GENERAL-RESOLUTION-VERIFY — верификация внешнего Lean-артефакта «ОБЩАЯ теорема разрешения комплексных сингулярностей (ФИНАЛЬНАЯ ВЕРСИЯ 2)» и создание Mathlib-пути ядровой проверки (F-09…F-12)",
+  "version": "0.4.190",
+  "branch": "arena/01a0a3eb-ricis3-expansion-map",
+  "originalGoal": "Владелец передал Lean-исходник общей теоремы разрешения комплексных сингулярностей с инструкцией «интегрировать в проект». Интеграция = §7-приём неизменяемого внешнего артефакта + верификация заявленного результата, а не молчаливое присвоение статуса.",
+  "resume": [
+    "npm run bootstrap (если node_modules пуст — он не переносится между сеансами)",
+    "npx tsx scripts/generateLeanCoreChecks.ts --check && npx tsx scripts/generateLeanMathlibChecks.ts --check (дрейф производных = exit 1)",
+    "npx vitest run tools/leanKernelCoreChecks.test.ts tools/leanMathlibChecks.test.ts (26 стражей)",
+    "gh pr list --head arena/01a0a3eb-ricis3-expansion-map",
+    "gh run list --branch arena/01a0a3eb-ricis3-expansion-map (дождаться обоих job-ов: kernel-check и mathlib-kernel-check)",
+    "gh pr view <PR> --json comments --jq \".comments[-1].body\" — единственный канал evidence (логи раннера из среды агента не читаются)",
+    "по факту прогона: заполнить/обновить запись ricis-general-resolution в artifacts/proofs/core-checks/kernel-findings.json (outcome, compilerExit, rootCause) и §10 docs/05-evidence/proofs/lean-core-checks-run-2026-09-14.md; при красном исходе — дословные ошибки; ожидаемый отказ регистрировать только по ФАКТУ (ciPolicy.mathlibExpectedFailures)",
+    "решение владельца о статусе артефакта после прогона: зелёный ядро-прогон НЕ снимает F-09/F-10/F-11 (класс заявленного результата)",
+    "расширение allowlist MATHLIB_ARTIFACTS на остальные Mathlib-артефакты — отдельное решение владельца (порядок и бюджет прогонов)"
+  ],
+  "steps": [
+    {
+      "id": "M1",
+      "title": "§7-приём внешнего исходника: байт-в-байт сохранение, sha256, метаданные снаружи",
+      "verify": "sha256sum artifacts/proofs/ricis-general-resolution.lean",
+      "status": "done"
+    },
+    {
+      "id": "M2",
+      "title": "Аудит заявленного результата: определение разворачивается, аксиомы и редукция в доказательствах не участвуют (F-09), доверенные контракты и имя без предельного содержания (F-10), разрыв редукции и вычисления (F-11)",
+      "verify": "artifacts/proofs/ricis-general-resolution.json -> boundary.notProven; docs/05-evidence/proofs/ricis-general-resolution-claim-audit-2026-09-15.md",
+      "status": "done"
+    },
+    {
+      "id": "M3",
+      "title": "Mathlib-путь: job mathlib-kernel-check (pinned Mathlib 4.33.x + oleans), двойной прогон исходника и производной, целостность через cmp + sha256 эпилога, ciPolicy.mathlibExpectedFailures",
+      "verify": "bash -n scripts/mathlibKernelCheck.sh; npx vitest run tools/leanMathlibChecks.test.ts; YAML: jobs = kernel-check + mathlib-kernel-check",
+      "status": "done"
+    },
+    {
+      "id": "M4",
+      "title": "Стражи и документация: 9 тестов mathlib-пути, §10 evidence, README (честная граница Lean), ACTIVE_TASKS (P12), версия 0.4.190",
+      "verify": "npm run lint && npm test && npm run build",
+      "status": "done"
+    },
+    {
+      "id": "M5",
+      "title": "Фактический прогон ядра (PENDING_KERNEL_RUN) и внесение фактов в реестр",
+      "verify": "gh run view 34950902412 --json jobs",
+      "status": "done",
+      "note": "run 34950902412 (PR #40, job mathlib-kernel-check) — success: исходник как предоставлен exit 0, производная exit 0, sorryAx отсутствует, #print axioms напечатан. Факты внесены в kernel-findings.json (mathlibRun, artifacts[ricis-general-resolution]) и в §11 docs/05-evidence/proofs/lean-core-checks-run-2026-09-14.md. Артефактный статус — LEAN_VERIFIED."
+    },
+    {
+      "id": "M6",
+      "title": "Решение владельца по F-09/F-10/F-11: классификация ЗАЯВЛЕНИЯ (артефактный уровень уже LEAN_VERIFIED) и, при необходимости, новая версия доказательства, связывающая редукцию со значением",
+      "verify": "artifacts/proofs/ricis-general-resolution.json -> verification.trustStatus",
+      "status": "owner_decision"
+    },
+    {
+      "id": "M7",
+      "title": "Поправка прогноза (F-13): статический аудит об ошибке `omega` опровергнут ядром; сохранён как свидетельство, а не как статус",
+      "verify": "artifacts/proofs/core-checks/kernel-findings.json -> findings[F-13]; §11.3 evidence-документа",
+      "status": "done"
+    }
+  ],
+  "boundary": {
+    "notClaimedByThisTask": [
+      "что заявленная «общая теорема разрешения сингулярностей» доказана — содержимое артефакта этого не подтверждает (F-09/F-10/F-11);",
+      "что прогон ядра снимет содержательные находки: ядро проверяет только то, что объявлено (две развёрнутые теоремы, арифметика частного случая и два доверенных контракта);",
+      "что остальные Mathlib-артефакты стали проверенными: allowlist явный, статус вне allowlist не повышается.",
+      "что зелёный прогон ядра снимает F-09/F-10/F-11: наоборот, зависимости теорем показали отсутствие объявленных RICIS-контрактов в доказательстве (факт ядра подтверждает находку)."
+    ]
+  },
+  "updatedAt": "2026-09-15T09:30:00.000Z",
+  "provenance": {
+    "mathlibRun": {
+      "runId": 34950902412,
+      "runUrl": "https://github.com/A1Dmitry/Ricis3-Expansion-Map/actions/runs/34950902412",
+      "outcome": "success",
+      "rawEvidence": "docs/05-evidence/proofs/lean-kernel-run-34950902412-mathlib.pr-comment.txt"
+    },
+    "artifactStatusAfterRun": "LEAN_VERIFIED (артефактный уровень); claimLevel = STRUCTURALLY_VALIDATED"
+  }
+}

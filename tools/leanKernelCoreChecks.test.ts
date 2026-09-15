@@ -281,6 +281,12 @@ const findingsRegistry = JSON.parse(
   readonly generatedFrom: { readonly runId: number; readonly rawEvidence: string };
   readonly artifacts: readonly RegistryArtifact[];
   readonly findings: readonly { readonly id: string; readonly severity: string; readonly evidence: string }[];
+  /** Ядровой прогон Mathlib-пути (отдельная цель, отдельный тулчейн) — см. tools/leanMathlibChecks.test.ts. */
+  readonly mathlibRun?: {
+    readonly runId: number;
+    readonly job: string;
+    readonly rawEvidence: string;
+  };
   readonly ciPolicy?: {
     readonly rule: string;
     readonly expectedFailures: readonly {
@@ -364,7 +370,12 @@ describe('Реестр фактов ядрового прогона (kernel-find
       expect(entry, `${fileName}: kernelCheck без записи в реестре`).toBeDefined();
       expect(raw.kernelCheck.statusAfterKernelRun, fileName).toBe(entry?.outcome);
       expect(raw.kernelCheck.immutableSourceSha256, fileName).toBe(raw.verification?.contentHash);
-      expect(raw.kernelCheck.run, fileName).toBe(findingsRegistry.generatedFrom.runId);
+      // Реестр может фиксировать более одного прогона (core-check и mathlib-check):
+      // metadata обязана ссылаться на ОДИН из них, а не на выдуманный номер.
+      const recordedRuns = [findingsRegistry.generatedFrom.runId, findingsRegistry.mathlibRun?.runId].filter(
+        (value): value is number => typeof value === 'number',
+      );
+      expect(recordedRuns, fileName).toContain(raw.kernelCheck.run);
       expect(existsSync(join(repositoryRoot, raw.kernelCheck.evidence)), `${fileName}: evidence не найден`).toBe(true);
       expect(existsSync(join(repositoryRoot, raw.kernelCheck.registry)), `${fileName}: реестр не найден`).toBe(true);
       checked += 1;

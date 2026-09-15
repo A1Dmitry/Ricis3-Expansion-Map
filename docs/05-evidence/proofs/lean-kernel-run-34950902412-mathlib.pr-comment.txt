@@ -1,0 +1,155 @@
+### Lean kernel evidence (pinned Mathlib) — run `34950902412`
+
+Job outcome: `success`
+
+Toolchain: `leanprover/lean4:v4.33.0`, Mathlib @ `6f1ef4e5dd604a435bddba4747b13970cd65d2a1`. Command: `(cd mathlib-check && lake env lean <artifact>)` for the artifact as provided and for its generated `mathlib-check` derivative (byte-identical body + additive `#print axioms` epilogue).
+
+```text
+--- toolchain.txt ---
+Lean kernel run with Mathlib — 2026-09-15T09:10:52Z
+toolchain: leanprover/lean4 (mathlib lean-toolchain)
+command: (cd mathlib-check && lake env lean <file>)
+host: ubuntu-latest (GitHub Actions)
+--- summary.txt ---
+--- environment diagnostics ---
+pwd: /home/runner/work/Ricis3-Expansion-Map/Ricis3-Expansion-Map
+MATHLIB_ARTIFACTS: artifacts/proofs/ricis-general-resolution.lean
+LEAN_PROJECT_DIR: mathlib-check
+MATHLIB_CHECK_DIR: artifacts/proofs/mathlib-checks
+which lean: /home/runner/.elan/bin/lean
+Lean (version 4.33.1, x86_64-unknown-linux-gnu, commit 819816b2e0a3bf405af45ae5c7af2491d8f5bee6, Release)
+disk: /dev/root       145G   72G   73G  50% /
+=== ricis-general-resolution: source as provided + generated mathlib-check derivative
+    integrity: OK (производная побайтово выведена из этого исходника)
+    result: OK (source exit 0, derivative exit 0, no compiler errors)
+--- #print axioms output (ricis-general-resolution) ---
+'ricis_general_resolution' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ricis_equals_classical_limit' depends on axioms: [propext, Classical.choice, Quot.sound]
+'specific_case_from_general' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ax_A4_general' depends on axioms: [ax_A4_general, propext, Classical.choice, Quot.sound]
+'ax_SP1_general' depends on axioms: [ax_SP1_general, propext, Classical.choice, Quot.sound]
+--- compiler output tail (ricis-general-resolution) ---
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+/home/runner/work/Ricis3-Expansion-Map/Ricis3-Expansion-Map/artifacts/proofs/mathlib-checks/ricis-general-resolution.mathlib-check.lean:160:8: warning: this tactic is never executed
+
+Note: This linter can be disabled with `set_option linter.unreachableTactic false`
+/home/runner/work/Ricis3-Expansion-Map/Ricis3-Expansion-Map/artifacts/proofs/mathlib-checks/ricis-general-resolution.mathlib-check.lean:161:8: warning: this tactic is never executed
+
+Note: This linter can be disabled with `set_option linter.unreachableTactic false`
+/home/runner/work/Ricis3-Expansion-Map/Ricis3-Expansion-Map/artifacts/proofs/mathlib-checks/ricis-general-resolution.mathlib-check.lean:138:4: warning: Used `tac1 <;> tac2` where `(tac1; tac2)` would suffice
+
+Note: This linter can be disabled with `set_option linter.unnecessarySeqFocus false`
+/home/runner/work/Ricis3-Expansion-Map/Ricis3-Expansion-Map/artifacts/proofs/mathlib-checks/ricis-general-resolution.mathlib-check.lean:159:4: warning: Used `tac1 <;> tac2` where `(tac1; tac2)` would suffice
+
+Note: This linter can be disabled with `set_option linter.unnecessarySeqFocus false`
+/home/runner/work/Ricis3-Expansion-Map/Ricis3-Expansion-Map/artifacts/proofs/mathlib-checks/ricis-general-resolution.mathlib-check.lean:160:8: warning: Unused tactic linter: `simp [Complex.ext_iff]` does nothing
+
+Note: This linter can be disabled with `set_option linter.unusedTactic false`
+/home/runner/work/Ricis3-Expansion-Map/Ricis3-Expansion-Map/artifacts/proofs/mathlib-checks/ricis-general-resolution.mathlib-check.lean:161:8: warning: Unused tactic linter: `norm_num` does nothing
+
+Note: This linter can be disabled with `set_option linter.unusedTactic false`
+'ricis_general_resolution' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ricis_equals_classical_limit' depends on axioms: [propext, Classical.choice, Quot.sound]
+'specific_case_from_general' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ax_A4_general' depends on axioms: [ax_A4_general, propext, Classical.choice, Quot.sound]
+'ax_SP1_general' depends on axioms: [ax_SP1_general, propext, Classical.choice, Quot.sound]
+
+--- Mathlib artifacts NOT checked by this job (not in the explicit allowlist) ---
+  RicisAgiTarget.lean: вне allowlist — статус не повышается по факту существования механизма
+  database-a6-0_5_inf_3.standalone.lean: вне allowlist — статус не повышается по факту существования механизма
+  database-registry-120-jacobian.standalone.lean: вне allowlist — статус не повышается по факту существования механизма
+  jacobian-counterexample-full.lean: вне allowlist — статус не повышается по факту существования механизма
+  ricis-backend-exact-reduction.standalone.lean: вне allowlist — статус не повышается по факту существования механизма
+  ricis-chatbot-monetization.lean: вне allowlist — статус не повышается по факту существования механизма
+  ricis-jacobian-conjecture.standalone.lean: вне allowlist — статус не повышается по факту существования механизма
+  ricis-kernel-ast-sp5.standalone.lean: вне allowlist — статус не повышается по факту существования механизма
+  ricis-navier-stokes-ast-bridge.standalone.lean: вне allowlist — статус не повышается по факту существования механизма
+  ricis-riemann-zeta-ast-bridge.standalone.lean: вне allowlist — статус не повышается по факту существования механизма
+  ricis-seed-expansion-a11.lean: вне allowlist — статус не повышается по факту существования механизма
+  ricis-universal-orchestration-template.lean: вне allowlist — статус не повышается по факту существования механизма
+  ricis-v79-monolith.standalone.lean: вне allowlist — статус не повышается по факту существования механизма
+--- sha256.txt ---
+e92ebe52a85af838205a6bdb950ff4517f959cbfc4f38c1d0e7c4cb65cc35db3  artifacts/proofs/ricis-general-resolution.lean
+8424eebe279444e4f70c210189783c6fce64809f9b422a637c4568b690707d03  artifacts/proofs/mathlib-checks/ricis-general-resolution.mathlib-check.lean
+--- full compiler log: ricis-general-resolution ---
+--- source (as provided, immutable): artifacts/proofs/ricis-general-resolution.lean
+$ (cd mathlib-check && lake env lean artifacts/proofs/ricis-general-resolution.lean)
+--- declared axiom contracts in the source (trusted, NOT proven by this run) ---
+44:axiom ax_A4_general (F G : IndexSpace) (a : ℂ) (hF : F a ≠ 0) (hG : G a ≠ 0) :
+48:axiom ax_SP1_general (a : ℂ) (k : ℕ) (hk : k > 0) :
+/home/runner/work/Ricis3-Expansion-Map/Ricis3-Expansion-Map/artifacts/proofs/ricis-general-resolution.lean:87:10: warning: This simp argument is unused:
+  h_k_zero
+
+Hint: Omit it from the simp argument list.
+  [apply] simp [h_eq]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+/home/runner/work/Ricis3-Expansion-Map/Ricis3-Expansion-Map/artifacts/proofs/ricis-general-resolution.lean:109:29: warning: Variable name `z` is not explicitly referenced.
+
+Hint: The binding can be removed (if unused) or named `_` (if used implicitly). Alternatively, prefix the name with `_` to silence this warning:
+  [apply] _z
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+/home/runner/work/Ricis3-Expansion-Map/Ricis3-Expansion-Map/artifacts/proofs/ricis-general-resolution.lean:160:8: warning: this tactic is never executed
+
+Note: This linter can be disabled with `set_option linter.unreachableTactic false`
+/home/runner/work/Ricis3-Expansion-Map/Ricis3-Expansion-Map/artifacts/proofs/ricis-general-resolution.lean:161:8: warning: this tactic is never executed
+
+Note: This linter can be disabled with `set_option linter.unreachableTactic false`
+/home/runner/work/Ricis3-Expansion-Map/Ricis3-Expansion-Map/artifacts/proofs/ricis-general-resolution.lean:138:4: warning: Used `tac1 <;> tac2` where `(tac1; tac2)` would suffice
+
+Note: This linter can be disabled with `set_option linter.unnecessarySeqFocus false`
+/home/runner/work/Ricis3-Expansion-Map/Ricis3-Expansion-Map/artifacts/proofs/ricis-general-resolution.lean:159:4: warning: Used `tac1 <;> tac2` where `(tac1; tac2)` would suffice
+
+Note: This linter can be disabled with `set_option linter.unnecessarySeqFocus false`
+/home/runner/work/Ricis3-Expansion-Map/Ricis3-Expansion-Map/artifacts/proofs/ricis-general-resolution.lean:160:8: warning: Unused tactic linter: `simp [Complex.ext_iff]` does nothing
+
+Note: This linter can be disabled with `set_option linter.unusedTactic false`
+/home/runner/work/Ricis3-Expansion-Map/Ricis3-Expansion-Map/artifacts/proofs/ricis-general-resolution.lean:161:8: warning: Unused tactic linter: `norm_num` does nothing
+
+Note: This linter can be disabled with `set_option linter.unusedTactic false`
+--- generated derivative (source + #print axioms epilogue): artifacts/proofs/mathlib-checks/ricis-general-resolution.mathlib-check.lean
+--- integrity: derivative prefix vs immutable source ---
+source sha256            : e92ebe52a85af838205a6bdb950ff4517f959cbfc4f38c1d0e7c4cb65cc35db3
+sha256 recorded in epilogue: e92ebe52a85af838205a6bdb950ff4517f959cbfc4f38c1d0e7c4cb65cc35db3
+byte-for-byte prefix: OK (тело производной = исходник без изменений)
+$ (cd mathlib-check && lake env lean artifacts/proofs/mathlib-checks/ricis-general-resolution.mathlib-check.lean)
+/home/runner/work/Ricis3-Expansion-Map/Ricis3-Expansion-Map/artifacts/proofs/mathlib-checks/ricis-general-resolution.mathlib-check.lean:87:10: warning: This simp argument is unused:
+  h_k_zero
+
+Hint: Omit it from the simp argument list.
+  [apply] simp [h_eq]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+/home/runner/work/Ricis3-Expansion-Map/Ricis3-Expansion-Map/artifacts/proofs/mathlib-checks/ricis-general-resolution.mathlib-check.lean:109:29: warning: Variable name `z` is not explicitly referenced.
+
+Hint: The binding can be removed (if unused) or named `_` (if used implicitly). Alternatively, prefix the name with `_` to silence this warning:
+  [apply] _z
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+/home/runner/work/Ricis3-Expansion-Map/Ricis3-Expansion-Map/artifacts/proofs/mathlib-checks/ricis-general-resolution.mathlib-check.lean:160:8: warning: this tactic is never executed
+
+Note: This linter can be disabled with `set_option linter.unreachableTactic false`
+/home/runner/work/Ricis3-Expansion-Map/Ricis3-Expansion-Map/artifacts/proofs/mathlib-checks/ricis-general-resolution.mathlib-check.lean:161:8: warning: this tactic is never executed
+
+Note: This linter can be disabled with `set_option linter.unreachableTactic false`
+/home/runner/work/Ricis3-Expansion-Map/Ricis3-Expansion-Map/artifacts/proofs/mathlib-checks/ricis-general-resolution.mathlib-check.lean:138:4: warning: Used `tac1 <;> tac2` where `(tac1; tac2)` would suffice
+
+Note: This linter can be disabled with `set_option linter.unnecessarySeqFocus false`
+/home/runner/work/Ricis3-Expansion-Map/Ricis3-Expansion-Map/artifacts/proofs/mathlib-checks/ricis-general-resolution.mathlib-check.lean:159:4: warning: Used `tac1 <;> tac2` where `(tac1; tac2)` would suffice
+
+Note: This linter can be disabled with `set_option linter.unnecessarySeqFocus false`
+/home/runner/work/Ricis3-Expansion-Map/Ricis3-Expansion-Map/artifacts/proofs/mathlib-checks/ricis-general-resolution.mathlib-check.lean:160:8: warning: Unused tactic linter: `simp [Complex.ext_iff]` does nothing
+
+Note: This linter can be disabled with `set_option linter.unusedTactic false`
+/home/runner/work/Ricis3-Expansion-Map/Ricis3-Expansion-Map/artifacts/proofs/mathlib-checks/ricis-general-resolution.mathlib-check.lean:161:8: warning: Unused tactic linter: `norm_num` does nothing
+
+Note: This linter can be disabled with `set_option linter.unusedTactic false`
+'ricis_general_resolution' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ricis_equals_classical_limit' depends on axioms: [propext, Classical.choice, Quot.sound]
+'specific_case_from_general' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ax_A4_general' depends on axioms: [ax_A4_general, propext, Classical.choice, Quot.sound]
+'ax_SP1_general' depends on axioms: [ax_SP1_general, propext, Classical.choice, Quot.sound]
+```
+

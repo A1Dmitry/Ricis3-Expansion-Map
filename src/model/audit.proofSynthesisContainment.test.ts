@@ -543,6 +543,29 @@ describe('OIR-03 — audit proof-synthesis containment', () => {
       ' M docs/01-architecture/lean-core-check-task-state.json',
       ' M docs/05-evidence/proofs/lean-core-checks-run-2026-09-14.md',
       '?? docs/00-governance/PROJECT_STATE_ANALYSIS_2026-09-14.md',
+      // RICIS-GENERAL-RESOLUTION-VERIFY (0.4.190, 2026-09-15): §7-приём внешнего Lean-исходника
+      // «общая теорема разрешения комплексных сингулярностей», Mathlib-путь ядровой проверки
+      // (job mathlib-kernel-check), генератор производных, стражи и evidence-документ аудита.
+      '?? artifacts/proofs/ricis-general-resolution.lean',
+      '?? artifacts/proofs/ricis-general-resolution.json',
+      '?? artifacts/proofs/mathlib-checks/manifest.json',
+      '?? artifacts/proofs/mathlib-checks/ricis-general-resolution.mathlib-check.lean',
+      '?? scripts/generateLeanMathlibChecks.ts',
+      '?? scripts/mathlibKernelCheck.sh',
+      '?? tools/leanMathlibChecks.test.ts',
+      '?? docs/01-architecture/mathlib-kernel-check-task-state.json',
+      '?? docs/05-evidence/proofs/ricis-general-resolution-claim-audit-2026-09-15.md',
+      // Сырое evidence фактического прогона Mathlib-пути (единственный читаемый канал — комментарий PR #40).
+      // Второй коммит PR #40: факты прогона run 34950902412 внесены в реестр, метаданные, evidence,
+      // task-state и стражи; диагностика скрипта различает действующий тулчейн и default раннера.
+      ' M artifacts/proofs/ricis-general-resolution.json',
+      ' M docs/01-architecture/mathlib-kernel-check-task-state.json',
+      ' M docs/05-evidence/proofs/ricis-general-resolution-claim-audit-2026-09-15.md',
+      ' M scripts/mathlibKernelCheck.sh',
+      ' M tools/leanKernelCoreChecks.test.ts',
+      ' M tools/leanMathlibChecks.test.ts',
+      '?? docs/05-evidence/proofs/lean-kernel-run-34950902412-mathlib.pr-comment.txt',
+      '?? docs/05-evidence/proofs/lean-kernel-run-34950902412-mathlib.meta.txt',
 
     ]);
     if (status.length > 0 && status.every(entry => entry.startsWith('?? '))) {
