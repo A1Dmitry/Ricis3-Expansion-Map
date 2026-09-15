@@ -114,7 +114,7 @@ describe('COMMUNITY-READINESS-01 G3 — pure readiness projection', () => {
   });
 
   it('CR01-QA-17: pure projector не имеет transport or service dependency', () => {
-    const importLines = source().split('\n').filter(line => line.startsWith('import')).join('\n');
+    const importLines = source().split(/\r?\n/).filter(line => line.startsWith('import')).join('\n');
     expect(importLines).toBe("import type { CommunityRewardsClientStatus } from '../services/communityRewardsClient';");
     expect(importLines).not.toMatch(/UrlShareService|server\//);
     expect(importLines).not.toMatch(/telegramBot|communityRewardsApplication|ricisCore|Lean/i);

@@ -8,3 +8,4 @@ coverage/
 !.env.example
 temp-ricis-core-2/
 *.tmp
+/.vs

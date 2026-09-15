@@ -11,7 +11,7 @@ describe('App route-level lazy delivery topology', () => {
     const errorBranch = appSource.indexOf('if (error)');
     const hydrationBranch = appSource.indexOf('if (!hydrated)');
     const recoveryBranch = appSource.indexOf('if (isCoreRecoveryRoute(locationSearch))');
-    const roadmapBranch = appSource.indexOf("roadmapParams.get('view') === 'roadmap'");
+    const roadmapBranch = appSource.indexOf("case 'roadmap':");
     const defaultMapBranch = appSource.indexOf('<Map3D />');
 
     expect(errorBranch).toBeGreaterThan(-1);
