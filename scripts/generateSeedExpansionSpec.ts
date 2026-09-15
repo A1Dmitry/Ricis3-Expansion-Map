@@ -231,6 +231,7 @@ const seedProtocol = {
     { gate: 'NO_SELF_CERTIFICATION', rule: 'No proof step may cite the axiom that this proof introduces.', rejection: 'SELF_CERTIFICATION' },
     { gate: 'RULE_SET_CLOSED', rule: 'Every proof step uses an axiom already in R_k, or an explicitly allowed external rule (CLASSICAL under INHERITED_CLASSICAL, LEAN_KERNEL with evidence).', rejection: 'PROOF_RULE_UNKNOWN' },
     { gate: 'PROOF_CHAIN_CONNECTED', rule: 'The chain starts at the problem input form, has no gaps, and ends exactly at the candidate statement.', rejection: 'PROOF_CHAIN_BROKEN / PROOF_CONCLUSION_MISMATCH' },
+    { gate: 'SEMANTIC_RULE_VERIFIED', rule: 'Every proof step is verified by RuleVerifier for semantic correctness of rule application.', rejection: 'SEMANTIC_RULE_INVALID' },
     { gate: 'PROBLEM_OPEN_IN_RICIS', rule: 'The input form is not already resolved by R_k (no axiom inflation).', rejection: 'PROBLEM_ALREADY_COVERED' },
     { gate: 'NO_DUPLICATE_AXIOM', rule: 'Neither the id nor the structural fingerprint of the candidate already exists in R_k.', rejection: 'DUPLICATE_AXIOM' },
     { gate: 'CONSISTENCY_TABLE', rule: 'No input form may receive two different output forms (determinism of the O(1) reduction table).', rejection: 'CONTRADICTS_EXISTING_AXIOM' },

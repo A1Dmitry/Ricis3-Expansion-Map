@@ -41,15 +41,16 @@
       "L0"
     ],
     "contentHash": "2e043f2738df8d8b02754aebb5fa93580fb87e6cc71733557c620c463c4de56b",
-    "trustStatus": "TRUSTED_AXIOM"
+    "trustStatus": "STRUCTURALLY_VALIDATED",
+    "trustStatusNote": "Решение владельца 2026-09-14 (F-01): понижен с TRUSTED_AXIOM. run 34870620154 (Lean 4.33.1): исходник не парсится (конструктор `partial` — зарезервированное слово); производная с partial → partialDeriv парсится, но центральное тождество не определительное (62:2 rfl failed → sorryAx). Основание TRUSTED_AXIOM отсутствует ни в одной конфигурации. Классификация: STRUCTURALLY_VALIDATED (структурная модель; не MATHEMATICALLY_PROVEN — см. README artifacts/proofs). Запись узла registry-120 в initialMap — отдельное решение владельца."
   },
   "kernelCheck": {
     "addedBy": "AGENTS.md §7 — статус записывается снаружи неизменяемого исходника (присоединение metadata)",
     "registry": "artifacts/proofs/core-checks/kernel-findings.json",
     "evidence": "docs/05-evidence/proofs/lean-core-checks-run-2026-09-14.md",
     "rawEvidence": "docs/05-evidence/proofs/lean-kernel-run-34870620154.pr-comment.txt",
-    "run": 34870620154,
-    "runUrl": "https://github.com/A1Dmitry/Ricis3-Expansion-Map/actions/runs/34870620154",
+    "run": 34891262489,
+    "runUrl": "https://github.com/A1Dmitry/Ricis3-Expansion-Map/actions/runs/34891262489",
     "toolchain": "Lean 4.33.1, x86_64-unknown-linux-gnu, commit 819816b2e0a3bf405af45ae5c7af2491d8f5bee6, Release (elan, --default-toolchain 4.33.1)",
     "command": "lean +4.33.1 <artifact>",
     "immutableSourceSha256": "2e043f2738df8d8b02754aebb5fa93580fb87e6cc71733557c620c463c4de56b",

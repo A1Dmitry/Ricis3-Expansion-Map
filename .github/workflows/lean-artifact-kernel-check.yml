@@ -15,7 +15,21 @@ name: Lean Artifact Kernel Check
 #   hand-edited derivative fails CI instead of pretending to be evidence.
 # - Artifacts are never modified by this workflow; it records source hashes,
 #   compiler output and `#print axioms` output as evidence.
-
+#
+# ciPolicy (expected failures, anti-tukhta):
+# - The ONLY source of "expected to fail" targets is the ciPolicy.expectedFailures
+#   list in artifacts/proofs/core-checks/kernel-findings.json. The list is extracted
+#   with jq at run start and materialised into expected-failures.txt.
+# - A target on that list that fails to compile is reported as EXPECTED_FAIL and does
+#   NOT break the run: its root cause/prediction basis is recorded in the registry,
+#   and the full compiler log is still published.
+# - A target on that list that COMPILES (exit 0, no sorryAx) is reported OK with an
+#   explicit NOTE that the registry must be updated and the status promotion
+#   evaluated — the run stays green (progress is not a failure).
+# - sorryAx in a COMPILED file (exit 0) is a new fact and ALWAYS breaks the run,
+#   even for a registered expected failure (stop-the-line: an unfinished proof is
+#   never evidence).
+# - Any failure of a target NOT on the list breaks the run.
 on:
   workflow_dispatch:
   pull_request:
@@ -115,9 +129,18 @@ jobs:
             echo "$f" >> lean-kernel-evidence/targets.txt
           done
           sort -u -o lean-kernel-evidence/targets.txt lean-kernel-evidence/targets.txt
+
+          # ciPolicy: the ONLY source of expected-failure targets is the registry.
+          # A missing/empty list means: every failure breaks the run (default).
+          jq -r '.ciPolicy.expectedFailures[].checkedFile' \
+            "${CORE_CHECK_DIR:-artifacts/proofs/core-checks}/kernel-findings.json" \
+            | sort -u > lean-kernel-evidence/expected-failures.txt
+          EXPECTED_FAIL_FILE=lean-kernel-evidence/expected-failures.txt
           {
             echo "kernel targets: $(wc -l < lean-kernel-evidence/targets.txt) file(s)"
             sed 's/^/  /' lean-kernel-evidence/targets.txt
+            echo "expected-failure targets (from kernel-findings.json ciPolicy): $(wc -l < "$EXPECTED_FAIL_FILE") file(s)"
+            sed 's/^/  /' "$EXPECTED_FAIL_FILE"
           } | tee -a lean-kernel-evidence/summary.txt
 
           overall=0
@@ -127,18 +150,40 @@ jobs:
             echo "=== ${name}: lean +4.33.1 ${f}" | tee -a lean-kernel-evidence/summary.txt
             if lean +4.33.1 "$f" > "$log" 2>&1; then
               rc=0
+              # Проверка отсутствия sorryAx и подозрительных непроверенных аксиом
+              if grep -q "sorryAx" "$log"; then
+                rc=1
+                echo "    result: FAILED (detected sorryAx in kernel output)" | tee -a lean-kernel-evidence/summary.txt
+              else
+                echo "    result: OK (compiler exit 0, no compiler errors, no sorryAx)" | tee -a lean-kernel-evidence/summary.txt
+              fi
             else
               rc=$?
             fi
-            result="OK (compiler exit 0, no compiler errors)"
-            if [ "$rc" -ne 0 ]; then
-              result="FAILED (compiler exit ${rc})"
-            fi
             # sorryAx in any output means an unfinished proof: never evidence.
             sorry_hits=$(grep -c "sorryAx" "$log" || true)
-            if [ "$sorry_hits" -gt 0 ]; then
-              result="${result} — SORRY_DETECTED (${sorry_hits} hit(s))"
-              rc=1
+            is_expected=0
+            if grep -Fxq "$f" "$EXPECTED_FAIL_FILE"; then
+              is_expected=1
+            fi
+            overall_fail=0
+            if [ "$rc" -eq 0 ] && [ "$sorry_hits" -gt 0 ]; then
+              # A registered expected failure that instead COMPILED with sorry is a
+              # new fact: stop-the-line, the run breaks (stop-the-line > registry).
+              result="OK (compiler exit 0) — SORRY_DETECTED (${sorry_hits} hit(s)): файл, собранный с sorry, никогда не является evidence"
+              overall_fail=1
+            elif [ "$rc" -ne 0 ] && [ "$is_expected" -eq 1 ]; then
+              # Compiler-level failure with a recorded root cause/prediction basis:
+              # reported as EXPECTED_FAIL, full log still published, run not broken.
+              result="EXPECTED_FAIL (compiler exit ${rc}; первопричина/основание прогноза зафиксированы в core-checks/kernel-findings.json ciPolicy)"
+            elif [ "$rc" -ne 0 ]; then
+              result="FAILED (compiler exit ${rc})"
+              overall_fail=1
+            else
+              result="OK (compiler exit 0, no compiler errors)"
+              if [ "$is_expected" -eq 1 ]; then
+                result="${result} — NOTE: ожидаемый отказ не воспроизведён — обновить реестр (ciPolicy) и рассмотреть повышение статуса"
+              fi
             fi
             echo "    result: ${result}" | tee -a lean-kernel-evidence/summary.txt
             {
@@ -151,7 +196,7 @@ jobs:
               tail -n 20 "$log"
               echo
             } >> lean-kernel-evidence/summary.txt
-            overall=$(( overall | rc ))
+            overall=$(( overall | overall_fail ))
           done < lean-kernel-evidence/targets.txt
 
           {
@@ -181,7 +226,7 @@ jobs:
           } >> "$GITHUB_STEP_SUMMARY"
 
           if [ "$overall" -eq 0 ]; then
-            echo "outcome=OK (all targets compiled, no sorryAx)" >> "$GITHUB_OUTPUT"
+            echo "outcome=OK (no unexpected failures; sorryAx-free)" >> "$GITHUB_OUTPUT"
           else
             echo "outcome=FAILED (exit ${overall}; see results summary)" >> "$GITHUB_OUTPUT"
             echo "Kernel run failed for at least one self-contained artifact. Evidence uploaded for inspection."

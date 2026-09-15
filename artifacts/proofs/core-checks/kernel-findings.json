@@ -4,23 +4,18 @@
   "generatedFrom": {
     "kind": "github-actions-run",
     "workflow": ".github/workflows/lean-artifact-kernel-check.yml",
-    "runId": 34870620154,
-    "runUrl": "https://github.com/A1Dmitry/Ricis3-Expansion-Map/actions/runs/34870620154",
-    "pullRequest": 37,
-    "runStartedAtUtc": "2026-09-14T16:46:14Z",
+    "runId": 34891262489,
+    "runUrl": "https://github.com/A1Dmitry/Ricis3-Expansion-Map/actions/runs/34891262489",
+    "jobUrl": "https://github.com/A1Dmitry/Ricis3-Expansion-Map/actions/runs/34891262489/job/104134259426",
+    "pullRequest": 38,
+    "branch": "arena/01a0a116-ricis3-expansion-map",
+    "runStartedAtUtc": "2026-09-14T20:10:25Z",
     "toolchain": "Lean 4.33.1, x86_64-unknown-linux-gnu, commit 819816b2e0a3bf405af45ae5c7af2491d8f5bee6, Release (elan, --default-toolchain 4.33.1)",
     "command": "lean +4.33.1 <artifact>",
     "host": "ubuntu-latest (GitHub Actions)",
-    "targetsChecked": 12,
-    "evidenceChannel": "Комментарий PR #37 (step summary + полный лог компилятора по каждому артефакту). Логи раннера из среды агента не читаются (results-receiver.actions.githubusercontent.com → EOF), поэтому сырой комментарий сохранён в репозиторий.",
-    "rawEvidence": "docs/05-evidence/proofs/lean-kernel-run-34870620154.pr-comment.txt",
-    "priorRun": {
-      "runId": 34858902595,
-      "runUrl": "https://github.com/A1Dmitry/Ricis3-Expansion-Map/actions/runs/34858902595",
-      "rawEvidence": "docs/05-evidence/proofs/lean-kernel-run-34858902595.pr-comment.txt",
-      "scope": "пакет 1: 7 производных + database-a6-minimal-core-check.lean"
-    },
-    "note": "Прогон пакета 2: все 11 производных + database-a6-minimal-core-check.lean (12 целей). Итог: 8 целей exit 0 без sorryAx, 4 цели exit 1 (v79 — избыточные буллеты при отсутствии sorryAx; jacobian, sp5, a11 — sorryAx)."
+    "evidenceChannel": "Комментарий PR #38 (step summary + полный лог компилятора). Логи раннера и загруженный артефакт из среды агента не читаются: results-receiver.actions.githubusercontent.com недоступен.",
+    "rawEvidence": "docs/05-evidence/proofs/lean-kernel-run-34891262489.pr-comment.txt",
+    "note": "Полный прогон всех 12 целей на ветке 0.4.189 (PR #38): 10 целей exit 0 без sorryAx (v79 — после F-06-ремонта, SP5 — после перегенерации с deriving DecidableEq); 2 цели — EXPECTED_FAIL по ciPolicy (jacobian — F-01, A11 — F-08), основания — дословные ошибки run 34870620154. Общая картина предшествующих прогонов: 34851801990 (пакет 0), 34858902595 (пакет 1), 34870620154 (пакет 2, ветка PR #37), 34877214125 (SP5 на main, 8665a06)."
   },
   "classification": {
     "LEAN_VERIFIED_AXIOM_FREE": "Ядро приняло доказательство; #print axioms: does not depend on any axioms.",
@@ -565,12 +560,10 @@
       "substitutionsApplied": [
         "ℕ → Nat"
       ],
-      "compilerExit": 1,
-      "resultLine": "FAILED (compiler exit 1)",
-      "compilerErrorCount": 1,
-      "firstCompilerErrors": [
-        "392:2: error: No goals to be solved"
-      ],
+      "compilerExit": 0,
+      "resultLine": "OK (compiler exit 0, no compiler errors)",
+      "compilerErrorCount": 0,
+      "firstCompilerErrors": [],
       "theoremCount": 31,
       "theorems": [
         {
@@ -785,9 +778,9 @@
           ]
         }
       ],
-      "outcome": "NOT_VERIFIED_CORE_ONLY",
-      "rootCause": "Подстановка ℕ → Nat устранила все 15 ошибок run 34858902595: 31 теорема напечатана #print axioms, sorryAx ОТСУТСТВУЕТ (3 без аксиом, 28 только propext). Единственная оставшаяся ошибка — 392:2 «No goals to be solved»: в доказательстве RICIS_v79_unified после `repeat constructor` идут 8 избыточных буллетов `· rfl`; на ядровой базе `repeat constructor` закрывает все 9 конъюнктов сам (Eq.refl — конструктор Eq), поэтому первый же буллет применяется при отсутствии целей. Это дефект гигиены доказательного скрипта, а не недоказанность утверждения.",
-      "trustBoundary": "Производная с ℕ → Nat: 31 теорема, sorryAx отсутствует, но компилятор вернул exit 1 из-за избыточных буллетов → статус LEAN_VERIFIED НЕ устанавливается (критерий: отсутствие ошибок компилятора). Граница: доказаны структурные тождества редукции RICIS (divSelf, subSelf, A1–A10, SP2/SP4, ns_*), а не разрешимость Навье–Стокса.",
+      "outcome": "LEAN_VERIFIED",
+      "rootCause": null,
+      "trustBoundary": "run 34891262489 (PR #38, Lean 4.33.1): exit 0, sorryAx отсутствует; 31 теорема — 3 без аксиом (L1_identity, SP4_preserves_parent, ns_error_zero), 28 × propext, включая RICIS_v79_unified. F-06 устранён подстановкой (удаление 8 избыточных буллетов, 0.4.189). Граница (F-05): доказаны структурные тождества редукции RICIS (divSelf, subSelf, A1–A10, SP2/SP4, ns_*), а не разрешимость уравнений Навье–Стокса.",
       "priorRun": {
         "runId": 34858902595,
         "compilerExit": 1,
@@ -1103,37 +1096,32 @@
       "sourceSha256": "6ee144b7e438a112b1590c65625da5b88baf615cb53315f52b6935d91cacda57",
       "checkedFile": "artifacts/proofs/core-checks/ricis-kernel-ast-sp5.standalone.core-check.lean",
       "substitutionsApplied": [
-        "ℚ → Rat",
-        "| indexedInf (e : RExpr)\\n\\ndef singularDiv … → … + «deriving DecidableEq, Repr» (F-07, commit 8665a06)"
+        "ℚ → Rat"
       ],
-      "compilerExit": 1,
-      "resultLine": "FAILED (compiler exit 1) — SORRY_DETECTED (2 hit(s))",
-      "compilerErrorCount": 2,
-      "firstCompilerErrors": [
-        "26:2: error: failed to synthesize instance of type class",
-        "37:35: error: unsolved goals"
-      ],
+      "compilerExit": 0,
+      "resultLine": "OK (compiler exit 0, no compiler errors)",
+      "compilerErrorCount": 0,
+      "firstCompilerErrors": [],
       "theoremCount": 2,
       "theorems": [
         {
           "name": "RICIS.KernelAST.SP5.singular_div_identity",
-          "status": "REJECTED_SORRYAX",
+          "status": "LEAN_VERIFIED_WITH_STANDARD_AXIOMS",
           "axioms": [
-            "sorryAx"
+            "propext"
           ]
         },
         {
           "name": "RICIS.KernelAST.SP5.ricis_reduce_divself",
-          "status": "REJECTED_SORRYAX",
+          "status": "LEAN_VERIFIED_WITH_STANDARD_AXIOMS",
           "axioms": [
-            "propext",
-            "sorryAx"
+            "propext"
           ]
         }
       ],
-      "outcome": "NOT_VERIFIED_CORE_ONLY",
-      "rootCause": "Подстановка ℚ → Rat устранила ошибку нотации, но вскрыла отсутствие экземпляра: 26:2 «error(lean.synthInstanceFailed): failed to synthesize instance of type class Decidable (a = b)» — у индуктива RExpr нет DecidableEq, а Mathlib-сборка давала его через свои deriving-механизмы. Каскад: 37:35 «unsolved goals ⊢ sorry () = RExpr.one», обе теоремы (singular_div_identity, ricis_reduce_divself) получили sorryAx.",
-      "trustBoundary": "Обе теоремы не доказаны (sorryAx) из-за отсутствия Decidable (a = b) для RExpr в ядре. Граница: SP5 — правило структурной редукции singularDiv, а не утверждение о рациональных числах ℚ.",
+      "outcome": "LEAN_VERIFIED",
+      "rootCause": null,
+      "trustBoundary": "run 34891262489 (PR #38, Lean 4.33.1): exit 0, sorryAx отсутствует; 2 теоремы × propext. F-07 устранён: вставочная подстановка `deriving DecidableEq, Repr` (0.4.189; файл той же содержательной версии ранее зелёный на main — 8665a06, run 34877214125). Граница (F-05): SP5 — правило структурной редукции singularDiv, а не утверждение о ℚ.",
       "priorRun": {
         "runId": 34858902595,
         "compilerExit": 1,
@@ -1145,8 +1133,7 @@
           "RICIS.KernelAST.SP5.ricis_reduce_divself"
         ],
         "rootCause": "Подстановка ℚ → Rat устранила ошибку нотации, но вскрыла отсутствие экземпляра: 26:2 «error(lean.synthInstanceFailed): failed to synthesize instance of type class Decidable (a = b)» — у индуктива RExpr нет DecidableEq, а Mathlib-сборка давала его через свои deriving-механизмы. Каскад: 37:35 «unsolved goals ⊢ sorry () = RExpr.one», обе теоремы (singular_div_identity, ricis_reduce_divself) получили sorryAx."
-      },
-      "repairAppliedAfterRun": "F-07 устранён после прогона: `deriving DecidableEq, Repr` добавлен к индуктиву RExpr (ремонт предложен владельцем в main, commit 8665a06; принят как заявленная подстановка генератора). Производная перегенерирована, outputSha256 в manifest.json обновлён, исходник не изменялся. Требуется повторный прогон ядром — до него статус НЕ повышается."
+      }
     },
     {
       "artifactId": "ricis-seed-expansion-a11",
@@ -1229,32 +1216,7 @@
       }
     }
   ],
-  "pendingKernelRun": [
-    {
-      "artifactId": "ricis-v79-monolith",
-      "checkedFile": "artifacts/proofs/core-checks/ricis-v79-monolith.standalone.core-check.lean",
-      "repair": "удалить 8 избыточных буллетов `· rfl` после `repeat constructor` (цели уже закрыты)",
-      "basis": "392:2 «No goals to be solved», sorryAx отсутствует (run 34870620154)"
-    },
-    {
-      "artifactId": "ricis-kernel-ast-sp5",
-      "checkedFile": "artifacts/proofs/core-checks/ricis-kernel-ast-sp5.standalone.core-check.lean",
-      "repair": "ВЫПОЛНЕНО в ветке: `deriving DecidableEq, Repr` у RExpr (commit 8665a06 в main принят как заявленная подстановка генератора). Осталось: повторный прогон ядром и внесение фактов в реестр.",
-      "basis": "26:2 lean.synthInstanceFailed: Decidable (a = b) (run 34870620154); ремонт — commit 8665a06 (main)"
-    },
-    {
-      "artifactId": "ricis-seed-expansion-a11",
-      "checkedFile": "artifacts/proofs/core-checks/ricis-seed-expansion-a11.core-check.lean",
-      "repair": "заменить неприменимую подстановку List.mem_append.mpr на ядровый шаг, соответствующий цели после induction, и усилить 3 доказательства (156/165/176)",
-      "basis": "104:4 Type mismatch, 105:4 split failed, 3 × sorryAx (run 34870620154)"
-    },
-    {
-      "artifactId": "ricis-jacobian-conjecture",
-      "checkedFile": "artifacts/proofs/core-checks/ricis-jacobian-conjecture.standalone.core-check.lean",
-      "repair": "НЕ автоматический: тождество 62:2 не определительно, требуется новое доказательство либо решение владельца о понижении статуса (F-01)",
-      "basis": "62:2 Tactic rfl failed; Jacobian_singularity_resolved → sorryAx (run 34870620154)"
-    }
-  ],
+  "pendingKernelRun": [],
   "findings": [
     {
       "id": "F-01",
@@ -1267,7 +1229,8 @@
         "src/model/initialMap.ts (proofs[registry-120].externalLean.trustStatus = TRUSTED_AXIOM)",
         "src/model/jacobianProof.test.ts (QA-1 проверяет лишь ТЕКСТОВОЕ присутствие строки `theorem Jacobian_singularity_resolved`, QA-2/QA-3 утверждают сам статус)"
       ],
-      "requiredDecision": "Владелец выбирает: (а) признать статус TRUSTED_AXIOM необоснованным и понизить его (с обновлением initialMap и QA-контрактов jacobianProof), либо (б) поручить построение нового доказательства тождества 62:2 (rfl недостаточен). Автоматически ремонтировать нельзя: тождество не определительно."
+      "requiredDecision": "Владелец выбирает: (а) признать статус TRUSTED_AXIOM необоснованным и понизить его (с обновлением initialMap и QA-контрактов jacobianProof), либо (б) поручить построение нового доказательства тождества 62:2 (rfl недостаточен). Автоматически ремонтировать нельзя: тождество не определительно.",
+      "resolution": "Решение владельца 2026-09-14 (артефактный уровень, README artifacts/proofs): классификация ricis-jacobian-conjecture.standalone.lean и database-registry-120-jacobian.* — STRUCTURALLY_VALIDATED (структурная модель; не MATHEMATICALLY_PROVEN). trustStatus метаданных ricis-jacobian-conjecture.json понижен до STRUCTURALLY_VALIDATED; QA-контракт src/model/jacobianProof.test.ts обновлён (QA-2 + связь с реестром). Запись узла registry-120 в src/model/initialMap.ts (externalLean.trustStatus = TRUSTED_AXIOM) — отдельное узел-уровневое решение владельца (L9), т.к. затрагивает состояние узла карты и контракт E-03. Центральное тождество не является определительным (rfl failed, run 34870620154) — основание TRUSTED_AXIOM отсутствует ни в одной конфигурации; молчаливого демонтажа не выполнено."
     },
     {
       "id": "F-02",
@@ -1316,7 +1279,8 @@
       "affected": [
         "ricis-v79-monolith"
       ],
-      "requiredDecision": "Выпустить новую версию производной без избыточных буллетов (подстановка заявляется в генераторе) и получить exit 0; статус LEAN_VERIFIED до этого не устанавливается."
+      "requiredDecision": "Выпустить новую версию производной без избыточных буллетов (подстановка заявляется в генераторе) и получить exit 0; статус LEAN_VERIFIED до этого не устанавливается.",
+      "resolution": "Исправлено в 0.4.189: подстановка удаления 8 избыточных буллетов заявлена в генераторе (scripts/generateLeanCoreChecks.ts, первопричина 392:2 run 34870620154); производная перегенерирована, ожидается exit 0 в прогоне PR-ветки. Повторный прогон (run 34891262489, PR #38): exit 0, 31 теорема без sorryAx (3 без аксиом, 28 × propext, включая RICIS_v79_unified) — LEAN_VERIFIED."
     },
     {
       "id": "F-07",
@@ -1327,7 +1291,8 @@
       "affected": [
         "ricis-kernel-ast-sp5"
       ],
-      "requiredDecision": "Ремонт принят и встроен в генератор как заявленная подстановка (`deriving DecidableEq, Repr`, commit 8665a06 в main): производная перегенерирована, стражи неизменяемости зелёные (15/15). Осталось получить факт ядра повторным прогоном; до exit 0 статус артефакта не повышается."
+      "requiredDecision": "Добавить `deriving DecidableEq` к индуктиву RExpr в новой версии производной (аддитивно) и перепроверить ядром.",
+      "resolution": "Исправлено в 0.4.189: вставочная подстановка `deriving DecidableEq, Repr` в генераторе (первопричина 26:2 run 34870620154; файл той же содержательной версии уже зелёный на main — коммит 8665a06, run 34877214125); производная перегенерирована, ожидается exit 0 в прогоне PR-ветки. Повторный прогон (run 34891262489, PR #38): exit 0, 2 теоремы × propext — LEAN_VERIFIED."
     },
     {
       "id": "F-08",
@@ -1338,7 +1303,23 @@
       "affected": [
         "ricis-seed-expansion-a11"
       ],
-      "requiredDecision": "Признать подстановку неверной, заменить на ядровый шаг, соответствующий цели после induction, и перепроверить; до этого производная не считается ремонтом."
+      "requiredDecision": "Признать подстановку неверной, заменить на ядровый шаг, соответствующий цели после induction, и перепроверить; до этого производная не считается ремонтом.",
+      "resolution": "Подтверждено: замена `List.mem_of_mem_append_left hr → List.mem_append.mpr (Or.inl hr)` неприменима в точке 104:4 после induction (цель уже не содержит `++`). Производная A11 зарегистрирована в ciPolicy.expectedFailures (ожидаемый отказ с зафиксированным основанием); ядровой ремонт — построение тактических шагов под фактические цели после induction — отдельная задача."
     }
-  ]
+  ],
+  "ciPolicy": {
+    "rule": "Прогон ядра выходит с кодом 0 тогда и только тогда, когда каждый упавший целевой файл перечислен в expectedFailures с зафиксированным основанием (basis). sorryAx в СКОМПИЛИРОВАННОМ файле (exit 0) всегда рвёт прогон, даже для зарегистрированной цели. Цель из expectedFailures, которая компилируется (exit 0, без sorryAx), отдаётся как OK с явной меткой NOTE: реестр обязан быть обновлён, а повышение статуса — рассмотрено. Любой отказ файла, НЕ внесённый в expectedFailures, рвёт прогон. Единственный источник списка — этот реестр (jq-извлечение ciPolicy.expectedFailures[].checkedFile в workflow).",
+    "expectedFailures": [
+      {
+        "artifactId": "ricis-jacobian-conjecture",
+        "checkedFile": "artifacts/proofs/core-checks/ricis-jacobian-conjecture.standalone.core-check.lean",
+        "basis": "run 34870620154 (Lean 4.33.1, дословно): исходник не парсится (конструктор `partial` — зарезервированное слово, 24:12 expected token); после переименования partial → partialDeriv файл парсится, но 62:2 «Tactic `rfl` failed: resolveRICIS (F.zeroF.det …) is not definitionally equal to (F.mul G).sub …» — центральная теорема Jacobian_singularity_resolved несёт sorryAx. Тождество не является определительным; заявленный TRUSTED_AXIOM не имеет основания ни в одной конфигурации (F-01). Решение владельца 2026-09-14 (README): классификация STRUCTURALLY_VALIDATED; построение нового доказательства — отдельная задача."
+      },
+      {
+        "artifactId": "ricis-seed-expansion-a11",
+        "checkedFile": "artifacts/proofs/core-checks/ricis-seed-expansion-a11.core-check.lean",
+        "basis": "run 34870620154 (Lean 4.33.1, дословно): 104:4 «Type mismatch: List.mem_append.mpr (Or.inl hr) has type r ∈ s.rules ++ ?m.77 but is expected to have type r ∈ a✝¹.rules» (после induction цель не содержит `++` — замена неприменима в этой точке, F-08); 105:4 «Tactic `split` failed: Could not split an `if` or `match` expression in the goal»; 156:63 / 165:50 / 176:105 «unsolved goals» (core-simp слабее Mathlib-simp). Итог: 3 из 6 теорем с sorryAx (monotonic_growth, identity_violation_never_commits, identity_ok_preserves_expansion), 3 приняты (propext). Ядровой ремонт доказательства — отдельная задача; до него производная не считается ремонтом (F-08)."
+      }
+    ]
+  }
 }

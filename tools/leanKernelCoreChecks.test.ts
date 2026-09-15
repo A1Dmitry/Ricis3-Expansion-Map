@@ -139,10 +139,21 @@ describe('Lean kernel core-check derivatives', () => {
         expect(after, `${entry.artifactId}: замена «${substitution.from}» не прослеживается`).toBeGreaterThanOrEqual(
           before,
         );
-        expect(
-          derivativeBody,
-          `${entry.artifactId}: «${substitution.from}» осталось в теле производной`,
-        ).not.toContain(substitution.from);
+        if (substitution.to.includes(substitution.from)) {
+          // Паттерн ВСТАВКИ: `to` расширяет `from` (например, добавление клаузы `deriving`
+          // после строки индуктива). Исходный текст обязан остаться ПРЕФИКСОМ каждого
+          // вхождения `to`; число вхождений `to` не меньше исходных `from` (проверено выше).
+          expect(
+            substitution.to.startsWith(substitution.from),
+            `${entry.artifactId}: вставочная подстановка обязана расширять исходный текст`,
+          ).toBe(true);
+        } else {
+          // Паттерн ЗАМЕНЫ: исходный текст не должен остаться в теле производной.
+          expect(
+            derivativeBody,
+            `${entry.artifactId}: «${substitution.from}» осталось в теле производной`,
+          ).not.toContain(substitution.from);
+        }
       }
     }
   });
@@ -270,6 +281,14 @@ const findingsRegistry = JSON.parse(
   readonly generatedFrom: { readonly runId: number; readonly rawEvidence: string };
   readonly artifacts: readonly RegistryArtifact[];
   readonly findings: readonly { readonly id: string; readonly severity: string; readonly evidence: string }[];
+  readonly ciPolicy?: {
+    readonly rule: string;
+    readonly expectedFailures: readonly {
+      readonly artifactId: string;
+      readonly checkedFile: string;
+      readonly basis: string;
+    }[];
+  };
 };
 
 describe('Реестр фактов ядрового прогона (kernel-findings.json)', () => {
@@ -362,12 +381,58 @@ describe('Реестр фактов ядрового прогона (kernel-find
       expect(finding.severity, finding.id).toMatch(/^(CRITICAL|HIGH|MEDIUM|LOW)$/u);
     }
     // Документация обязана отражать реестр, а не существовать отдельно от него.
+    // README (артефактный уровень) фиксирует классификацию и границы; машиночитаемый
+    // реестр kernel-findings.json обязателен для каждого TRUSTED_AXIOM (см. тест выше)
+    // и для ciPolicy (см. тест механизма ожидаемых отказов ниже).
     const readme = readText('artifacts/proofs/README.md');
-    expect(readme).toContain('SOURCE_REJECTED_BY_KERNEL');
-    expect(readme).toContain('kernel-findings.json');
+    expect(readme).toContain('STRUCTURALLY_VALIDATED');
+    expect(readme).toContain('REQUIRES_CORE_LEAN');
+    expect(readme).toContain('lean-artifact-kernel-check.yml');
+    expect(readme).toContain('lean-kernel-run-2026-09-14.md');
+    expect(readme).toContain('immutable');
+    // Решение владельца по F-01: jacobian-артефакты классифицированы STRUCTURALLY_VALIDATED,
+    // а не как Lean-верифицированные/доказанные классические теоремы.
+    expect(readme).toContain('not an arbitrary classical theorem proof');
     const evidenceDoc = readText('docs/05-evidence/proofs/lean-core-checks-run-2026-09-14.md');
     for (const finding of findingsRegistry.findings) {
       expect(evidenceDoc, `evidence-документ не упоминает ${finding.id}`).toContain(finding.id);
     }
+  });
+});
+
+describe('Механизм ciPolicy: ожидаемые отказы без маскировки (anti-tukhta)', () => {
+  const policy = findingsRegistry.ciPolicy;
+
+  it('ciPolicy существует, имеет правило и ссылается только на файлы каталога генератора', () => {
+    expect(policy, 'ciPolicy отсутствует в реестре').toBeDefined();
+    expect((policy?.rule ?? '').length).toBeGreaterThan(60);
+    const catalog = new Set(LEAN_CORE_CHECK_PLAN.map((entry) => entry.output));
+    for (const expected of policy?.expectedFailures ?? []) {
+      expect(
+        catalog.has(expected.checkedFile),
+        `ciPolicy: ${expected.checkedFile} не является производной генератора`,
+      ).toBe(true);
+      // Основание каждого ожидаемого отказа обязано быть зафиксированным фактом
+      // (дословные ошибки реального прогона ядра или документированный прогноз
+      // со ссылкой на первый прогон, который его подтвердит/опровергнет).
+      expect((expected.basis ?? '').length, expected.checkedFile).toBeGreaterThan(80);
+      // Ожидаемый отказ не повышает и не опускает заявленные статусы: повышение
+      // возможно только после фактического зелёного прогона и обновления реестра.
+    }
+  });
+
+  it('workflow читает ожидаемые отказы только из реестра и не шунтирует sorryAx', () => {
+    const workflow = readText('.github/workflows/lean-artifact-kernel-check.yml');
+    // Единственный источник списка — ciPolicy.expectedFailures реестра (jq-извлечение).
+    expect(workflow).toContain('ciPolicy.expectedFailures[].checkedFile');
+    expect(workflow).toContain('expected-failures.txt');
+    // Ожидаемый отказ маркируется, а не молча проглатывается.
+    expect(workflow).toContain('EXPECTED_FAIL');
+    // sorryAx в СКОМПИЛИРОВАННОМ файле — новый факт и всегда рвёт прогон,
+    // даже для зарегистрированного ожидаемого отказа (stop-the-line).
+    expect(workflow).toContain('SORRY_DETECTED');
+    expect(workflow).toMatch(/SORRY_DETECTED[\s\S]{0,400}?overall_fail=1/u);
+    // Цикл обязан сверять каждую цель со списком (grep -Fx по полному пути).
+    expect(workflow).toMatch(/grep -Fxq "\$f" "\$EXPECTED_FAIL_FILE"/u);
   });
 });

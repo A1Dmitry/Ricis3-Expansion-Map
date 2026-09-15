@@ -73,8 +73,8 @@
     "registry": "artifacts/proofs/core-checks/kernel-findings.json",
     "evidence": "docs/05-evidence/proofs/lean-core-checks-run-2026-09-14.md",
     "rawEvidence": "docs/05-evidence/proofs/lean-kernel-run-34870620154.pr-comment.txt",
-    "run": 34870620154,
-    "runUrl": "https://github.com/A1Dmitry/Ricis3-Expansion-Map/actions/runs/34870620154",
+    "run": 34891262489,
+    "runUrl": "https://github.com/A1Dmitry/Ricis3-Expansion-Map/actions/runs/34891262489",
     "toolchain": "Lean 4.33.1, x86_64-unknown-linux-gnu, commit 819816b2e0a3bf405af45ae5c7af2491d8f5bee6, Release (elan, --default-toolchain 4.33.1)",
     "command": "lean +4.33.1 <artifact>",
     "immutableSourceSha256": "fbd99bbdefd05aaff83fe4325377681f7e3b7099a3c9f5234b3ff4def86077e2",
@@ -83,8 +83,8 @@
     "substitutionsApplied": [
       "ℕ → Nat"
     ],
-    "compilerExit": 1,
-    "compilerErrorCount": 1,
+    "compilerExit": 0,
+    "compilerErrorCount": 0,
     "firstCompilerErrors": [
       "392:2: error: No goals to be solved"
     ],
@@ -94,10 +94,10 @@
       "withSorryAx": 0,
       "axiomFree": 3
     },
-    "statusAfterKernelRun": "NOT_VERIFIED_CORE_ONLY",
-    "rootCause": "Подстановка ℕ → Nat устранила все 15 ошибок run 34858902595: 31 теорема напечатана #print axioms, sorryAx ОТСУТСТВУЕТ (3 без аксиом, 28 только propext). Единственная оставшаяся ошибка — 392:2 «No goals to be solved»: в доказательстве RICIS_v79_unified после `repeat constructor` идут 8 избыточных буллетов `· rfl`; на ядровой базе `repeat constructor` закрывает все 9 конъюнктов сам (Eq.refl — конструктор Eq), поэтому первый же буллет применяется при отсутствии целей. Это дефект гигиены доказательного скрипта, а не недоказанность утверждения.",
-    "trustBoundary": "Производная с ℕ → Nat: 31 теорема, sorryAx отсутствует, но компилятор вернул exit 1 из-за избыточных буллетов → статус LEAN_VERIFIED НЕ устанавливается (критерий: отсутствие ошибок компилятора). Граница: доказаны структурные тождества редукции RICIS (divSelf, subSelf, A1–A10, SP2/SP4, ns_*), а не разрешимость Навье–Стокса.",
-    "relationToDeclaredTrustStatus": "ВНИМАНИЕ: заявленный trustStatus НЕ подтверждён прогоном ядра run 34870620154 (exit 1, ошибок: 1, sorryAx: 0). Понижение статуса требует решения владельца (C-03); основание и план ремонта — в реестре и evidence-документе.",
+    "statusAfterKernelRun": "LEAN_VERIFIED",
+    "rootCause": "F-06 устранён в 0.4.189: подстановка, удаляющая 8 избыточных буллетов `· rfl` после `repeat constructor` (первопричина 392:2 «No goals to be solved», run 34870620154). run 34891262489 — exit 0, sorryAx отсутствует.",
+    "trustBoundary": "31 из 31 теоремы доказаны ядром (3 без аксиом, 28 × propext, включая RICIS_v79_unified), exit 0, sorryAx отсутствует (run 34891262489). Граница (F-05): структурные тождества редукции RICIS, а не разрешимость Навье–Стокса.",
+    "relationToDeclaredTrustStatus": "Заявленный trustStatus подтверждён прогоном ядра run 34891262489 (exit 0, без sorryAx); граница доверия — F-05.",
     "priorRun": {
       "run": 34858902595,
       "rawEvidence": "docs/05-evidence/proofs/lean-kernel-run-34858902595.pr-comment.txt",

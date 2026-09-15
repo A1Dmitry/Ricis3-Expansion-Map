@@ -50,12 +50,6 @@ export interface CoreCheckSubstitution {
   readonly from: string;
   readonly to: string;
   readonly reason: string;
-  /**
-   * Короткая человекочитаемая форма замены для эпилога. Нужна, когда `from`/`to`
-   * многострочные: вставлять их в строку комментария дословно нельзя.
-   * Если поле не задано, эпилог цитирует `from` и `to` как раньше.
-   */
-  readonly note?: string;
 }
 
 export interface LeanCoreCheckPlanEntry {
@@ -105,16 +99,34 @@ export const LEAN_CORE_CHECK_PLAN: readonly LeanCoreCheckPlanEntry[] = [
           'нотация ℕ объявлена в Mathlib, а не в ядре Lean 4.33.1; ядро печатает ℕ только как ' +
           'подсказку (@[suggest_for ℕ] в src/Init/Prelude.lean). Тот же тип Nat, ядро-совместимая нотация.',
       },
+      {
+        from:
+          '  repeat constructor\n  · rfl\n  · rfl\n  · rfl\n  · rfl\n  · rfl\n  · rfl\n  · rfl\n  · rfl',
+        to: '  repeat constructor',
+        reason:
+          'run 34870620154 (Lean 4.33.1): после ℕ → Nat все 31 теорема приняты, sorryAx отсутствует, ' +
+          'единственная ошибка — 392:2 «No goals to be solved»: на ядровой базе `repeat constructor` ' +
+          'закрывает все 9 конъюнктов (Eq.refl — конструктор Eq), и 8 буллетов `· rfl` избыточны. ' +
+          'Утверждение теоремы не меняется — удалён только избыточный хвост доказательного скрипта.',
+      },
     ],
     rationale:
       'Тело: индуктив RExpr над String, доказательства rfl / cases F <;> rfl / repeat constructor. ' +
-      'Единственная зависимость от Mathlib — нотация ℕ (2 вхождения, оба в сигнатурах resolveSteps/resolveError).',
+      'Единственная зависимость от Mathlib — нотация ℕ (2 вхождения, оба в сигнатурах resolveSteps/resolveError). ' +
+      'Дополнительно удалён избыточный хвост `· rfl` (8 буллетов) в доказательстве RICIS_v79_unified: ' +
+      'на ядровой базе цели уже закрыты `repeat constructor` (run 34870620154, 392:2).',
     sourceFindings: [
       'run 34858902595 (Lean 4.33.1): без Mathlib `ℕ` не является Nat — ядро elaborирует его как ' +
         'свободную переменную (`ℕ : Sort u_1`), поэтому `OfNat ℕ 1`/`OfNat ℕ 0` не синтезируются ' +
         '(строки 301–315), а ns_steps_4D / ns_error_zero / RICIS_v79_unified получают sorryAx.',
       'Контроль: идентичный по структуре артефакт ricis-universal-orchestration-template.lean, ' +
         'где счетчики объявлены как `Nat`, компилируется ядром без ошибок (тот же run, exit 0).',
+      'run 34870620154 (Lean 4.33.1): подстановка ℕ → Nat устранила все 15 ошибок — 31 теорема ' +
+        'напечатана #print axioms, sorryAx отсутствует (3 без аксиом, 28 × propext, включая ' +
+        'RICIS_v79_unified). Единственная ошибка — 392:2 «No goals to be solved»: после ' +
+        '`repeat constructor` (закрыл все 9 конъюнктов, Eq.refl — конструктор Eq) первый из ' +
+        '8 буллетов `· rfl` применён при отсутствии целей. Дефект гигиены скрипта, а не ' +
+        'недоказанность утверждения (F-06); в производной 0.4.189 буллеты удалены подстановкой.',
     ],
   },
   {
@@ -220,33 +232,26 @@ export const LEAN_CORE_CHECK_PLAN: readonly LeanCoreCheckPlanEntry[] = [
           '(@[suggest_for ℚ] в src/Init/Data/Rat/Basic.lean, структура Rat имеет deriving DecidableEq).',
       },
       {
-        // F-07: ремонт, предложенный владельцем в main (commit 8665a06), принят как заявленная
-        // подстановка, чтобы производная оставалась воспроизводимой генератором и защищённой тестами.
-        from: '  | indexedInf (e : RExpr)\n\ndef singularDiv (a b : RExpr) : RExpr :=',
-        to:
-          '  | indexedInf (e : RExpr)\n  deriving DecidableEq, Repr\n\n' +
-          'def singularDiv (a b : RExpr) : RExpr :=',
-        note:
-          'к индуктиву RExpr добавлена строка «  deriving DecidableEq, Repr» после последнего ' +
-          'конструктора «| indexedInf (e : RExpr)»',
+        from: '| indexedInf (e : RExpr)',
+        to: '| indexedInf (e : RExpr)\n  deriving DecidableEq, Repr',
         reason:
-          'run 34870620154 (Lean 4.33.1): 26:2 error(lean.synthInstanceFailed): failed to synthesize ' +
-          'instance of type class Decidable (a = b) — у RExpr нет DecidableEq, поэтому singularDiv через ' +
-          '`if a = b` не elaborируется и обе теоремы получают sorryAx (F-07). Ремонт предложен владельцем ' +
-          'в main (commit 8665a06 «derive DecidableEq for RExpr») и принят здесь как заявленная ' +
-          'подстановка: deriving-строка аддитивна, формулировки теорем и тело не изменены.',
+          'singularDiv использует `if a = b`; для `if` требуется экземпляр DecidableEq RExpr, а ядро ' +
+          'Lean 4.33.1 не выводит такие экземпляры автоматически (только явный deriving). Клауза введена ' +
+          'вместе с производной коммитом 8665a06 (main); прогон ядра run 34877214125 — exit 0, без sorryAx.',
       },
     ],
     rationale:
       'Тело: структурная редукция SP5 и singularDiv через `if a = b`; доказательства unfold + simp и rfl. ' +
-      'Кроме нотации ℚ Mathlib-символов нет.',
+      'Кроме нотации ℚ Mathlib-символов нет. Клауза `deriving DecidableEq, Repr` добавлена к индуктиву ' +
+      'RExpr: она обязательна для `if a = b` (ядро 4.33.1 не выводит DecidableEq автоматически); ' +
+      'run 34877214125 (Lean 4.33.1) — exit 0.',
     sourceFindings: [
-      'run 34858902595: не проверялось (статус REQUIRES_CORE_LEAN).',
-      'run 34870620154: 26:2 error(lean.synthInstanceFailed): failed to synthesize instance of type class ' +
-        'Decidable (a = b); каскад 37:35 unsolved goals «⊢ sorry () = RExpr.one»; обе теоремы ' +
-        '(singular_div_identity, ricis_reduce_divself) получили sorryAx.',
-      'Ремонт F-07: deriving DecidableEq, Repr у RExpr (предложен владельцем в main, commit 8665a06) — ' +
-        'принят как заявленная подстановка; требует повторного прогона ядром.',
+      'Статический аудит ядра Lean 4.33.1: нотация ℚ объявлена в Mathlib, в ядре только ' +
+        '@[suggest_for ℚ] (src/Init/Data/Rat/Basic.lean).',
+      'Ядро Lean 4.33.1: `if a = b` требует экземпляра DecidableEq RExpr; явные `deriving` — ' +
+        'единственный механизм вывода таких экземпляров (авто-вывода в ядре нет). Клауза ' +
+        '`deriving DecidableEq, Repr` введена коммитом 8665a06 (main) вместе с производной; ' +
+        'прогон ядра run 34877214125 (Lean 4.33.1) — exit 0, sorryAx отсутствует.',
     ],
   },
   {
@@ -492,7 +497,7 @@ function epilogue(entry: LeanCoreCheckPlanEntry, source: string, theorems: reado
     entry.substitutions.length === 0
       ? 'Подстановок нет: тело скопировано байт-в-байт.'
       : `Заявленные подстановки: ${entry.substitutions
-          .map((item) => `${item.note ?? `«${item.from}» → «${item.to}»`} (${item.reason})`)
+          .map((item) => `«${item.from}» → «${item.to}» (${item.reason})`)
           .join('; ')}.`;
 
   const lines = [

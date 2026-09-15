@@ -389,14 +389,6 @@ theorem RICIS_v79_unified
     executeCPU (prepareCPU (RExpr.divSelf e)) =
     executeCUDA (prepareCUDA (RExpr.divSelf e)) := by
   repeat constructor
-  · rfl
-  · rfl
-  · rfl
-  · rfl
-  · rfl
-  · rfl
-  · rfl
-  · rfl
 
 end RICIS_v79
 
@@ -408,10 +400,18 @@ end RICIS_v79
   Source      : artifacts/proofs/ricis-v79-monolith.standalone.lean
   Source hash : sha256 fbd99bbdefd05aaff83fe4325377681f7e3b7099a3c9f5234b3ff4def86077e2
   Transform   : удалена неиспользуемая строка import Mathlib.
-                Заявленные подстановки: «ℕ» → «Nat» (нотация ℕ объявлена в Mathlib, а не в ядре Lean 4.33.1; ядро печатает ℕ только как подсказку (@[suggest_for ℕ] в src/Init/Prelude.lean). Тот же тип Nat, ядро-совместимая нотация.).
+                Заявленные подстановки: «ℕ» → «Nat» (нотация ℕ объявлена в Mathlib, а не в ядре Lean 4.33.1; ядро печатает ℕ только как подсказку (@[suggest_for ℕ] в src/Init/Prelude.lean). Тот же тип Nat, ядро-совместимая нотация.); «  repeat constructor
+  · rfl
+  · rfl
+  · rfl
+  · rfl
+  · rfl
+  · rfl
+  · rfl
+  · rfl» → «  repeat constructor» (run 34870620154 (Lean 4.33.1): после ℕ → Nat все 31 теорема приняты, sorryAx отсутствует, единственная ошибка — 392:2 «No goals to be solved»: на ядровой базе `repeat constructor` закрывает все 9 конъюнктов (Eq.refl — конструктор Eq), и 8 буллетов `· rfl` избыточны. Утверждение теоремы не меняется — удалён только избыточный хвост доказательного скрипта.).
                 Префикс этого файла байт-в-байт равен исходнику: ни одна
                 декларация не переписана и не удалена (AGENTS.md §7).
-  Basis       : Тело: индуктив RExpr над String, доказательства rfl / cases F <;> rfl / repeat constructor. Единственная зависимость от Mathlib — нотация ℕ (2 вхождения, оба в сигнатурах resolveSteps/resolveError).
+  Basis       : Тело: индуктив RExpr над String, доказательства rfl / cases F <;> rfl / repeat constructor. Единственная зависимость от Mathlib — нотация ℕ (2 вхождения, оба в сигнатурах resolveSteps/resolveError). Дополнительно удалён избыточный хвост `· rfl` (8 буллетов) в доказательстве RICIS_v79_unified: на ядровой базе цели уже закрыты `repeat constructor` (run 34870620154, 392:2).
   Purpose     : сделать артефакт самодостаточным, чтобы зафиксированное ядро
                 Lean 4.33.1 проверило его и вывело #print axioms
                 (.github/workflows/lean-artifact-kernel-check.yml).

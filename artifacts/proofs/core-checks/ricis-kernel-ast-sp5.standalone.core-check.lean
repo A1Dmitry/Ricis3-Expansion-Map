@@ -53,10 +53,11 @@ end RICIS.KernelAST.SP5
   Source      : artifacts/proofs/ricis-kernel-ast-sp5.standalone.lean
   Source hash : sha256 6ee144b7e438a112b1590c65625da5b88baf615cb53315f52b6935d91cacda57
   Transform   : удалена неиспользуемая строка import Mathlib.
-                Заявленные подстановки: «ℚ» → «Rat» (нотация ℚ объявлена в Mathlib; ядро Lean 4.33.1 знает только тип Rat (@[suggest_for ℚ] в src/Init/Data/Rat/Basic.lean, структура Rat имеет deriving DecidableEq).); к индуктиву RExpr добавлена строка «  deriving DecidableEq, Repr» после последнего конструктора «| indexedInf (e : RExpr)» (run 34870620154 (Lean 4.33.1): 26:2 error(lean.synthInstanceFailed): failed to synthesize instance of type class Decidable (a = b) — у RExpr нет DecidableEq, поэтому singularDiv через `if a = b` не elaborируется и обе теоремы получают sorryAx (F-07). Ремонт предложен владельцем в main (commit 8665a06 «derive DecidableEq for RExpr») и принят здесь как заявленная подстановка: deriving-строка аддитивна, формулировки теорем и тело не изменены.).
+                Заявленные подстановки: «ℚ» → «Rat» (нотация ℚ объявлена в Mathlib; ядро Lean 4.33.1 знает только тип Rat (@[suggest_for ℚ] в src/Init/Data/Rat/Basic.lean, структура Rat имеет deriving DecidableEq).); «| indexedInf (e : RExpr)» → «| indexedInf (e : RExpr)
+  deriving DecidableEq, Repr» (singularDiv использует `if a = b`; для `if` требуется экземпляр DecidableEq RExpr, а ядро Lean 4.33.1 не выводит такие экземпляры автоматически (только явный deriving). Клауза введена вместе с производной коммитом 8665a06 (main); прогон ядра run 34877214125 — exit 0, без sorryAx.).
                 Префикс этого файла байт-в-байт равен исходнику: ни одна
                 декларация не переписана и не удалена (AGENTS.md §7).
-  Basis       : Тело: структурная редукция SP5 и singularDiv через `if a = b`; доказательства unfold + simp и rfl. Кроме нотации ℚ Mathlib-символов нет.
+  Basis       : Тело: структурная редукция SP5 и singularDiv через `if a = b`; доказательства unfold + simp и rfl. Кроме нотации ℚ Mathlib-символов нет. Клауза `deriving DecidableEq, Repr` добавлена к индуктиву RExpr: она обязательна для `if a = b` (ядро 4.33.1 не выводит DecidableEq автоматически); run 34877214125 (Lean 4.33.1) — exit 0.
   Purpose     : сделать артефакт самодостаточным, чтобы зафиксированное ядро
                 Lean 4.33.1 проверило его и вывело #print axioms
                 (.github/workflows/lean-artifact-kernel-check.yml).
