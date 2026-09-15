@@ -100,9 +100,64 @@ theorem monotonic_growth (s : Seed) (form : String) (resolve : Seed → Option R
            | ExpansionOutcome.rejected s' _ => s'.rules) := by
   intro r hr
   unfold expandTo
-  split
-  · exact List.mem_append.mpr (Or.inl hr)
-  · split <;> simp [hr]
+  let rOpt := resolve s
+  change r ∈ (match (match rOpt with
+                     | none => ExpansionOutcome.rejected s "RESOLUTION_REQUIRED"
+                     | some r0 =>
+                         if !coreProtected r0 then
+                           ExpansionOutcome.rejected s "PROTECTED_CORE_MUTATION"
+                         else if !isOpen s form then
+                           ExpansionOutcome.rejected s "PROBLEM_ALREADY_COVERED"
+                         else if !isNew s r0 then
+                           ExpansionOutcome.rejected s "DUPLICATE_AXIOM"
+                         else
+                           ExpansionOutcome.expanded
+                             { generation := s.generation + 1
+                               rules := s.rules ++ [r0]
+                               ledger := s.ledger ++ [r0.id] }
+                             r0.id)
+                   with | ExpansionOutcome.expanded s' _ => s'.rules
+                        | ExpansionOutcome.rejected s' _ => s'.rules)
+  cases rOpt with
+  | none =>
+    simp
+    exact hr
+  | some r0 =>
+    simp
+    let b1 := coreProtected r0
+    let b2 := isOpen s form
+    let b3 := isNew s r0
+    change r ∈ (match (if b1 = false then
+                         ExpansionOutcome.rejected s "PROTECTED_CORE_MUTATION"
+                       else if b2 = false then
+                         ExpansionOutcome.rejected s "PROBLEM_ALREADY_COVERED"
+                       else if b3 = false then
+                         ExpansionOutcome.rejected s "DUPLICATE_AXIOM"
+                       else
+                         ExpansionOutcome.expanded
+                           { generation := s.generation + 1
+                             rules := s.rules ++ [r0]
+                             ledger := s.ledger ++ [r0.id] }
+                           r0.id)
+                     with | ExpansionOutcome.expanded s' _ => s'.rules
+                          | ExpansionOutcome.rejected s' _ => s'.rules)
+    cases b1 with
+    | true =>
+      cases b2 with
+      | true =>
+        cases b3 with
+        | true =>
+          simp
+          exact Or.inl hr
+        | false =>
+          simp
+          exact hr
+      | false =>
+        simp
+        exact hr
+    | false =>
+      simp
+      exact hr
 
 /-- A rejection never advances the generation: the seed is left untouched. -/
 theorem rejection_preserves_generation (s : Seed) (form : String) (resolve : Seed → Option Rule) :
@@ -155,7 +210,8 @@ theorem identity_violation_never_commits
     admitWithIdentity check inputForm outputForm (ExpansionOutcome.expanded seed axiomId)
       = ExpansionOutcome.rejected seed "IDENTITY_VIOLATION" := by
   unfold admitWithIdentity identityCoherent
-  simp [h]
+  simp
+  assumption
 
 /-- A candidate satisfying the identity law passes the gate unchanged (no false rejections). -/
 theorem identity_ok_preserves_expansion
@@ -164,7 +220,8 @@ theorem identity_ok_preserves_expansion
     admitWithIdentity check inputForm outputForm (ExpansionOutcome.expanded seed axiomId)
       = ExpansionOutcome.expanded seed axiomId := by
   unfold admitWithIdentity identityCoherent
-  simp [h]
+  simp
+  assumption
 
 /-- The recorded A14 case: `inf_F - inf_F` is `X - X`, so the only admissible consequence is `0`.
     The chain A7 → ∞₀ → A2 → 1 satisfies every other gate but is rejected here. -/
@@ -175,7 +232,8 @@ example (check : String → String → Bool)
       (ExpansionOutcome.expanded { generation := 2, rules := [], ledger := [] } "A17")
       = ExpansionOutcome.rejected { generation := 2, rules := [], ledger := [] } "IDENTITY_VIOLATION" := by
   unfold admitWithIdentity identityCoherent
-  simp [hbad]
+  simp
+  assumption
 
 end RICIS.Seed
 
@@ -187,10 +245,79 @@ end RICIS.Seed
   Source      : artifacts/proofs/ricis-seed-expansion-a11.lean
   Source hash : sha256 368dc0359e3f37391e3e830fc1abf9107b8e3f1f37d0a7f3ac6d2b3bc36839f2
   Transform   : удалена неиспользуемая строка import Mathlib.
-                Заявленные подстановки: «exact List.mem_of_mem_append_left hr» → «exact List.mem_append.mpr (Or.inl hr)» (`List.mem_of_mem_append_left` отсутствует в ядре Lean 4.33.1 (в src/Init/Data/List/Lemmas.lean есть только `mem_append`, `mem_append_cons_self`, `not_mem_append`); использован ядровой эквивалент того же утверждения. Формулировка теоремы monotonic_growth не меняется.).
+                Заявленные подстановки: «  intro r hr
+  unfold expandTo
+  split
+  · exact List.mem_of_mem_append_left hr
+  · split <;> simp [hr]» → «  intro r hr
+  unfold expandTo
+  let rOpt := resolve s
+  change r ∈ (match (match rOpt with
+                     | none => ExpansionOutcome.rejected s "RESOLUTION_REQUIRED"
+                     | some r0 =>
+                         if !coreProtected r0 then
+                           ExpansionOutcome.rejected s "PROTECTED_CORE_MUTATION"
+                         else if !isOpen s form then
+                           ExpansionOutcome.rejected s "PROBLEM_ALREADY_COVERED"
+                         else if !isNew s r0 then
+                           ExpansionOutcome.rejected s "DUPLICATE_AXIOM"
+                         else
+                           ExpansionOutcome.expanded
+                             { generation := s.generation + 1
+                               rules := s.rules ++ [r0]
+                               ledger := s.ledger ++ [r0.id] }
+                             r0.id)
+                   with | ExpansionOutcome.expanded s' _ => s'.rules
+                        | ExpansionOutcome.rejected s' _ => s'.rules)
+  cases rOpt with
+  | none =>
+    simp
+    exact hr
+  | some r0 =>
+    simp
+    let b1 := coreProtected r0
+    let b2 := isOpen s form
+    let b3 := isNew s r0
+    change r ∈ (match (if b1 = false then
+                         ExpansionOutcome.rejected s "PROTECTED_CORE_MUTATION"
+                       else if b2 = false then
+                         ExpansionOutcome.rejected s "PROBLEM_ALREADY_COVERED"
+                       else if b3 = false then
+                         ExpansionOutcome.rejected s "DUPLICATE_AXIOM"
+                       else
+                         ExpansionOutcome.expanded
+                           { generation := s.generation + 1
+                             rules := s.rules ++ [r0]
+                             ledger := s.ledger ++ [r0.id] }
+                           r0.id)
+                     with | ExpansionOutcome.expanded s' _ => s'.rules
+                          | ExpansionOutcome.rejected s' _ => s'.rules)
+    cases b1 with
+    | true =>
+      cases b2 with
+      | true =>
+        cases b3 with
+        | true =>
+          simp
+          exact Or.inl hr
+        | false =>
+          simp
+          exact hr
+      | false =>
+        simp
+        exact hr
+    | false =>
+      simp
+      exact hr» (Ф-08 (ремонт ядра A11). Дословные ошибки текущей производной, воспроизведённые прогоном зафиксированного ядра (2026-09-15, Lean 4.33.1, commit 819816b2e0a3bf405af45ae5c7af2491d8f5bee6 — тот же commit, что в CI; evidence: docs/05-evidence/proofs/lean-core-checks-local-run-2026-09-15.md): 104:4 «Type mismatch: List.mem_append.mpr (Or.inl hr) has type r ∈ s.rules ++ ?m.77 but is expected to have type r ∈ a✝¹.rules», 105:4 «Tactic `split` failed: Could not split an `if` or `match` expression in the goal» (диагностика показывает: ядровой `split` расщепляет ВНЕШНИЙ match по ExpansionOutcome и оставляет равенство scrutinee гипотезой `heq✝ : (match resolve s with …) = rejected a✝¹ a✝` — в цели `r ∈ a✝¹.rules` нет ни if, ни match, поэтому второй `split` невозможен; тактика исходника написана под семантику Mathlib-`split`). Новое доказательство: `let` + `change` + `cases` по `resolve s` и по трём Bool-условиям ворот (в ядре 4.33.1 `cases` по непрозрачному терму НЕ подставляет его вхождения в цель — установлено прогоном; подстановка идёт через let-константу, приведённую `change` к целевому терму). Утверждение теоремы не меняется. Прогон: exit 0, ошибок 0, sorryAx отсутствует, все 6 теорем — только propext.); «  unfold admitWithIdentity identityCoherent
+  simp [h]» → «  unfold admitWithIdentity identityCoherent
+  simp
+  assumption» (Ф-08 (доказательства identity-ворот). Прогон ядра 4.33.1 (2026-09-15, evidence: docs/05-evidence/proofs/lean-core-checks-local-run-2026-09-15.md): `simp [h]` после `unfold` оставляет дословно цель `⊢ check inputForm outputForm = false` (лентер ядра: «This simp argument is unused: h»; ядровой simp сводит match/ite к равенству Bool-условия, не дотягивая до `rfl`). Остаток дословно совпадает с гипотезой `h` (после раскрытия `identityCoherent`) — закрыт `assumption`. Прогон: exit 0, sorryAx отсутствует, только propext.); «  unfold admitWithIdentity identityCoherent
+  simp [hbad]» → «  unfold admitWithIdentity identityCoherent
+  simp
+  assumption» (Ф-08 (пример A14). То же, что и для identity-теорем: прогон ядра 4.33.1 (2026-09-15, evidence: docs/05-evidence/proofs/lean-core-checks-local-run-2026-09-15.md) — `simp [hbad]` оставляет дословно `⊢ check "inf_G-inf_G" "1" = false`, что совпадает с `hbad`; закрыто `assumption`. Прогон: exit 0, sorryAx отсутствует. (Лентерное предупреждение о неиспользуемом `hok` имеется и у исходника; на exit-код и sorryAx не влияет.)).
                 Префикс этого файла байт-в-байт равен исходнику: ни одна
                 декларация не переписана и не удалена (AGENTS.md §7).
-  Basis       : Тело: модель протокола A11 (Rule/Seed/ExpansionOutcome, ворота допуска, IDENTITY_COHERENCE) на String/List/Nat/Bool; тактики unfold / split / simp / intro — все core (`split`: src/Init/Tactics.lean:1205, `simpa`/`simp` — ядро 4.33.1).
+  Basis       : Тело: модель протокола A11 (Rule/Seed/ExpansionOutcome, ворота допуска, IDENTITY_COHERENCE) на String/List/Nat/Bool. Все использованные тактики — core 4.33.1: intro, unfold, let, change, cases, simp, exact, assumption (все в src/Init/Tactics.lean; `split` src/Init/Tactics.lean:1205 в финальном доказательстве не используется). Ядровые факты, вынудившие форму доказательств, установлены прогоном ядра и зафиксированы в sourceFindings. Прогон ядра 2026-09-15: exit 0, 6/6 теорем без sorryAx, все — только propext.
   Purpose     : сделать артефакт самодостаточным, чтобы зафиксированное ядро
                 Lean 4.33.1 проверило его и вывело #print axioms
                 (.github/workflows/lean-artifact-kernel-check.yml).

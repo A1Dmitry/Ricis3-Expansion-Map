@@ -620,6 +620,21 @@ describe('OIR-03 — audit proof-synthesis containment', () => {
       ' M src/ui/RicisTerminalModal.tsx',
       ' M src/ui/EditNodeModal.tsx',
 
+      // F-08 A11 KERNEL REPAIR (0.4.196, 2026-09-15): ядровой ремонт производной
+      // ricis-seed-expansion-a11 — тактика monotonic_growth под семантику ядра 4.33.1
+      // (let + change + cases по let-константам), identity-теоремы — simp + assumption;
+      // дефект F-08 воспроизведён и устранён локальным прогоном ядра 4.33.1
+      // (commit 819816b2e0a3bf405af45ae5c7af2491d8f5bee6 — тот же, что в CI):
+      // финальная производная exit 0, 0 ошибок, sorryAx отсутствует, 6/6 — только propext.
+      // A11 исключена из ciPolicy.expectedFailures; исходник не изменён (§7);
+      // evidence: docs/05-evidence/proofs/lean-core-checks-local-run-2026-09-15.md.
+      ' M ACTIVE_TASKS.md',
+      ' M artifacts/proofs/core-checks/kernel-findings.json',
+      ' M artifacts/proofs/core-checks/manifest.json',
+      ' M artifacts/proofs/core-checks/ricis-seed-expansion-a11.core-check.lean',
+      ' M docs/05-evidence/proofs/lean-core-checks-run-2026-09-14.md',
+      ' M scripts/generateLeanCoreChecks.ts',
+      '?? docs/05-evidence/proofs/lean-core-checks-local-run-2026-09-15.md',
     ]);
     if (status.length > 0 && status.every(entry => entry.startsWith('?? '))) {
       // In clean container environments git status may return all files as untracked
