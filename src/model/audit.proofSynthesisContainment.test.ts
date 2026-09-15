@@ -587,6 +587,13 @@ describe('OIR-03 — audit proof-synthesis containment', () => {
       ' M src/model/floodFillProofsCoverage.test.ts',
       ' M src/model/physFieldBridge.test.ts',
       ' M src/model/dependencyGraph.test.ts',
+      // SCHWARZSCHILD-GEOMETRIC-BRIDGE-NODE (0.4.191, 2026-09-15): узел карты «геометрический
+      // мост Шварцшильда» со связями (initialMap: узел, рёбра, зоны, proof — уже ' M'),
+      // неизменяемый Lean-артефакт + метаданные, QA-контракт. Статус артефакта:
+      // REQUIRES_CORE_LEAN (Mathlib-импорты вне allowlist, ядрового прогона нет).
+      '?? artifacts/proofs/Schwarzschild_GeometricBridge.lean',
+      '?? artifacts/proofs/Schwarzschild_GeometricBridge.json',
+      '?? src/model/schwarzschildGeometricBridge.test.ts',
 
     ]);
     if (status.length > 0 && status.every(entry => entry.startsWith('?? '))) {
