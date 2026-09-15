@@ -4,7 +4,7 @@ import * as path from 'path';
 
 describe('RICIS-III Core AGI Target Zenodo Package & Patch Validation', () => {
   const rootDir = process.cwd();
-  const patchPath = path.join(rootDir, 'ricis-map-patch-core-agi-target-PENDING.json');
+  const patchPath = path.join(rootDir, 'import-patches', 'ricis-map-patch-core-agi-target.json');
   const texPath = path.join(rootDir, 'artifacts', 'proofs', 'ricis_agi_target_sp4.tex');
   const leanPath = path.join(rootDir, 'artifacts', 'proofs', 'RicisAgiTarget.lean');
   const readmePath = path.join(rootDir, 'artifacts', 'proofs', 'README.md');
@@ -16,7 +16,10 @@ describe('RICIS-III Core AGI Target Zenodo Package & Patch Validation', () => {
 
     expect(patch['@type']).toBe('RICIS.MapStatePatch');
     expect(patch.meta.method).toBe('resolve_core_agi_target_sp4_l1_a6');
+    expect(patch.meta.sourceSystem).toBe('Zenodo DOI 10.5281/zenodo.22225762');
     expect(patch.meta.trustPolicy).toContain('WORKFLOW_ONLY');
+    expect(patch.meta.trustPolicy).toContain('10.5281/zenodo.22225762');
+    expect(patch.meta.trustPolicy).not.toContain('PENDING_DOI');
     expect(patch.meta.unlocks).toEqual([
       'med-diagnostics',
       'pharm-design',
@@ -30,6 +33,8 @@ describe('RICIS-III Core AGI Target Zenodo Package & Patch Validation', () => {
     expect(patch.proofs['core-agi-target']).toBeDefined();
     expect(patch.proofs['core-agi-target'].axiomsUsed).toContain('A6_GEOMETRIC_BRIDGE');
     expect(patch.proofs['core-agi-target'].axiomsUsed).toContain('SP4');
+    expect(patch.proofs['core-agi-target'].axiomsUsed).toContain('10.5281/zenodo.22225762');
+    expect(JSON.stringify(patch)).not.toContain('PENDING_DOI');
   });
 
   it('scen_2: verifies existence and mathematical content of LaTeX technical note', () => {

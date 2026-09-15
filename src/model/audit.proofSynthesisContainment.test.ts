@@ -635,6 +635,18 @@ describe('OIR-03 — audit proof-synthesis containment', () => {
       ' M docs/05-evidence/proofs/lean-core-checks-run-2026-09-14.md',
       ' M scripts/generateLeanCoreChecks.ts',
       '?? docs/05-evidence/proofs/lean-core-checks-local-run-2026-09-15.md',
+      // CORE-AGI PACKAGE DRIFT + F-02 METADATA SYNC (2026-09-15):
+      // published DOI 22225762 moved to the canonical import-patches path,
+      // PENDING_DOI is forbidden by the regression test, and backend metadata
+      // now matches the existing successful kernel run 34891262489.
+      'RM ricis-map-patch-core-agi-target-PENDING.json -> import-patches/ricis-map-patch-core-agi-target.json',
+      'R  ricis-map-patch-core-agi-target-PENDING.json -> import-patches/ricis-map-patch-core-agi-target.json',
+      ' M src/model/coreAgiTargetZenodoPatch.test.ts',
+      'M  src/model/coreAgiTargetZenodoPatch.test.ts',
+      ' M artifacts/proofs/ricis-backend-exact-reduction.json',
+      'M  artifacts/proofs/ricis-backend-exact-reduction.json',
+      'M  ACTIVE_TASKS.md',
+      'M  src/model/audit.proofSynthesisContainment.test.ts',
     ]);
     if (status.length > 0 && status.every(entry => entry.startsWith('?? '))) {
       // In clean container environments git status may return all files as untracked
