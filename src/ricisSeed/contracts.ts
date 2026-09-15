@@ -101,6 +101,14 @@ export type ProofStrategy =
   /** Кандидат без доказательства. НИКОГДА не проходит ворота допуска. */
   | 'UNPROVEN';
 
+/**
+ * Уровни доверия доказательства (P1):
+ * - GENERATED: эвристически сгенерированный / предложенный LLM или решателем кандидат (НЕ доказательство);
+ * - STRUCTURALLY_VALIDATED: успешно прошел независимый TypeScript RuleVerifier и структурные AST gates;
+ * - FORMALLY_VERIFIED: независимо верифицирован внешним ядром интерактивного прувера (Lean 4 kernel run).
+ */
+export type ProofTrustLevel = 'GENERATED' | 'STRUCTURALLY_VALIDATED' | 'FORMALLY_VERIFIED';
+
 export interface ExternalKernelEvidence {
   readonly toolchain: string;
   readonly command: string;
@@ -240,6 +248,7 @@ export type GateId =
   | 'RULE_SET_CLOSED'
   | 'NO_SELF_CERTIFICATION'
   | 'PROOF_CHAIN_CONNECTED'
+  | 'SEMANTIC_RULE_VERIFIED'
   | 'NO_FORBIDDEN_SEMANTICS'
   | 'PROBLEM_OPEN_IN_RICIS'
   | 'NO_DUPLICATE_AXIOM'
@@ -264,6 +273,7 @@ export type ExpansionRejection =
   | 'PROOF_RULE_UNKNOWN'
   | 'PROOF_CONCLUSION_MISMATCH'
   | 'PROOF_CHAIN_BROKEN'
+  | 'SEMANTIC_RULE_INVALID'
   | 'PROTECTED_CORE_MUTATION'
   | 'CONTRADICTS_EXISTING_AXIOM'
   | 'IDENTITY_VIOLATION'

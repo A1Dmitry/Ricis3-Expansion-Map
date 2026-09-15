@@ -10,7 +10,12 @@ This repository implements **RICIS-III**, not a conventional classical mathemati
 
 When working on any RICIS task, **do not solve the problem by blindly applying classical mathematics first and then adapting the result to RICIS**.
 
-### Mandatory reasoning order
+| Artifact | Status | Classification / Boundary |
+| :--- | :--- | :--- |
+| `database-a6-minimal-core-check.lean` | `LEAN_VERIFIED` | Kernel-verified specification (exit 0, no `sorryAx`, `#print axioms`: "does not depend on any axioms") |
+| `ricis-jacobian-conjecture.standalone.lean` / `database-registry-120-jacobian.*` | `STRUCTURALLY_VALIDATED` | Structural model verification (not an arbitrary classical theorem proof) |
+| 14 files with `import Mathlib` | `REQUIRES_CORE_LEAN` | No pinned prebuilt Mathlib fits a standard runner; status not promoted |
+| `*.generated.lean` (2 files) | Fragments | Fragments of the matching `.standalone.lean` files; not standalone artifacts |
 
 1. **Identify the RICIS object first**
 

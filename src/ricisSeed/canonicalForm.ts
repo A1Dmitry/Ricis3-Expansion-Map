@@ -200,6 +200,49 @@ function canonicalNode(node: Node): Node {
   return { kind: 'bin', op: node.op, left, right };
 }
 
+/** Результат канонизации для строгой верификации доказательств (P2). */
+export type CanonicalResult =
+  | { readonly kind: 'OK'; readonly form: string; readonly ast: FormNode }
+  | { readonly kind: 'ERR'; readonly error: string };
+
+/**
+ * Строгая канонизация для proof-path: не маскирует синтаксические ошибки,
+ * возвращая либо валидный AST и строковую форму, либо явную ошибку (P2).
+ */
+export function canonicalizeForProof(form: string): CanonicalResult {
+  try {
+    const parsed = parse(tokenize(form));
+    const canon = canonicalNode(parsed);
+    return { kind: 'OK', form: render(canon), ast: canon };
+  } catch (error) {
+    return { kind: 'ERR', error: String(error) };
+  }
+}
+
+/** Рендеринг AST обратно в строковую форму. */
+export function renderForm(node: FormNode): string {
+  return render(node);
+}
+
+/** Экспорт внутренней функции канонизации узлов */
+export { canonicalNode };
+
+/** Структурная эквивалентность двух AST узлов. */
+export function equivalentAst(a: FormNode, b: FormNode): boolean {
+  if (a.kind !== b.kind) return false;
+  if (a.kind === 'id' && b.kind === 'id') return a.name === b.name;
+  if (a.kind === 'call' && b.kind === 'call') {
+    return a.name === b.name && equivalentAst(a.arg, b.arg);
+  }
+  if (a.kind === 'pow' && b.kind === 'pow') {
+    return equivalentAst(a.base, b.base) && equivalentAst(a.exponent, b.exponent);
+  }
+  if (a.kind === 'bin' && b.kind === 'bin') {
+    return a.op === b.op && equivalentAst(a.left, b.left) && equivalentAst(a.right, b.right);
+  }
+  return false;
+}
+
 /** Разбор строки формы в AST-дерево. Бросает ошибку при некорректном синтаксисе. */
 export function parseForm(form: string): FormNode {
   return parse(tokenize(form));
@@ -249,4 +292,14 @@ export function indexSymbolsOf(form: string): readonly string[] {
 /** Подстановка индексных символов целиком по токену (не по подстроке). */
 export function substituteSymbol(form: string, from: string, to: string): string {
   return form.replace(new RegExp(`(?<![A-Za-z0-9])${from}(?![A-Za-z0-9_])`, 'gu'), to);
+}
+
+/**
+ * Одновременная подстановка словаря символов (P2), исключающая каскадное F -> G -> H.
+ */
+export function substituteAllSymbols(form: string, substitution: Readonly<Record<string, string>>): string {
+  const keys = Object.keys(substitution).filter(k => k.length > 0 && substitution[k] !== undefined);
+  if (keys.length === 0) return form;
+  const pattern = new RegExp(`(?<![A-Za-z0-9])(${keys.join('|')})(?![A-Za-z0-9_])`, 'gu');
+  return form.replace(pattern, (_, match: string) => substitution[match] ?? match);
 }

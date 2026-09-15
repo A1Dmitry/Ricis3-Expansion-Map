@@ -150,6 +150,13 @@ jobs:
             echo "=== ${name}: lean +4.33.1 ${f}" | tee -a lean-kernel-evidence/summary.txt
             if lean +4.33.1 "$f" > "$log" 2>&1; then
               rc=0
+              # Проверка отсутствия sorryAx и подозрительных непроверенных аксиом
+              if grep -q "sorryAx" "$log"; then
+                rc=1
+                echo "    result: FAILED (detected sorryAx in kernel output)" | tee -a lean-kernel-evidence/summary.txt
+              else
+                echo "    result: OK (compiler exit 0, no compiler errors, no sorryAx)" | tee -a lean-kernel-evidence/summary.txt
+              fi
             else
               rc=$?
             fi
