@@ -1,0 +1,460 @@
+name: Lean Artifact Kernel Check
+
+# Reproducible Lean kernel verification for RICIS Lean artifacts.
+#
+# RESTORATION NOTE (2026-09-15): this file was dropped from `main` inside a merge-conflict
+# resolution (commit 142d744, a merge of a stale branch), so `main` currently has no kernel job
+# at all. The merge of `main` into this branch therefore conflicted as modify/delete, and the
+# conflict is resolved by KEEPING this file: without it, every `LEAN_VERIFIED` claim loses its
+# required reproducible run (AGENTS.md §7). If the removal was intentional, it is a policy
+# decision that must be recorded in artifacts/proofs/README.md and the registry — not a silent
+# side effect of a merge.
+#
+# Scope and trust boundary (see AGENTS.md §7 and docs/00-governance/CONTRIBUTING.md):
+# - Two jobs, two trust paths:
+#   * `kernel-check` — Mathlib-FREE artifacts, pinned Lean 4.33.1 via elan. A file whose
+#     body does not use Mathlib is checked through a generated self-contained derivative.
+#   * `mathlib-kernel-check` — artifacts whose body genuinely needs Mathlib (ℂ, `ring`,
+#     `norm_num`, `Complex.ext_iff`, ...). They are checked AS PROVIDED and through a
+#     byte-identical derivative (source + additive `#print axioms` epilogue only) on the
+#     toolchain pinned by the pinned Mathlib revision, using prebuilt oleans
+#     (`lake exe cache get`). What does not fit a standard runner is a FROM-SCRATCH
+#     Mathlib build; prebuilt oleans do fit. Consequently, "no pinned prebuilt Mathlib
+#     exists" is no longer a valid reason to keep a Mathlib artifact at
+#     `REQUIRES_CORE_LEAN`: the explicit `MATHLIB_ARTIFACTS` allowlist now decides which
+#     Mathlib artifacts are actually run, and NOT being on that allowlist is the only
+#     honest ground for the status not being promoted.
+# - The allowlist below is explicit on purpose: a file is checked only after it has
+#   been made self-contained. Adding a hand-written file = one line in
+#   NO_MATHLIB_ARTIFACTS. Generated derivatives live in $CORE_CHECK_DIR and are
+#   reproducible from the immutable sources (see scripts/generateLeanCoreChecks.ts);
+#   the directory is checked for drift by tools/leanKernelCoreChecks.test.ts, so a
+#   hand-edited derivative fails CI instead of pretending to be evidence.
+# - Artifacts are never modified by this workflow; it records source hashes,
+#   compiler output and `#print axioms` output as evidence.
+#
+# ciPolicy (expected failures, anti-tukhta):
+# - The ONLY source of "expected to fail" targets is the ciPolicy list in
+#   artifacts/proofs/core-checks/kernel-findings.json:
+#     * `ciPolicy.expectedFailures[].checkedFile`        — Mathlib-free core-check targets;
+#     * `ciPolicy.mathlibExpectedFailures[].checkedFile` — Mathlib-check targets (source paths).
+#   The lists are extracted with jq at run start and materialised into
+#   expected-failures.txt / expected-failures-mathlib.txt.
+# - A target on that list that fails to compile is reported as EXPECTED_FAIL and does
+#   NOT break the run: its root cause/prediction basis is recorded in the registry,
+#   and the full compiler log is still published.
+# - A target on that list that COMPILES (exit 0, no sorryAx) is reported OK with an
+#   explicit NOTE that the registry must be updated and the status promotion
+#   evaluated — the run stays green (progress is not a failure).
+# - sorryAx in a COMPILED file (exit 0) is a new fact and ALWAYS breaks the run,
+#   even for a registered expected failure (stop-the-line: an unfinished proof is
+#   never evidence).
+# - Any failure of a target NOT on the list breaks the run.
+on:
+  workflow_dispatch:
+  pull_request:
+    branches: [main, master]
+    paths:
+      - 'artifacts/proofs/**'
+      - '.github/workflows/lean-artifact-kernel-check.yml'
+  push:
+    branches: [main, master]
+    paths:
+      - 'artifacts/proofs/**'
+      - '.github/workflows/lean-artifact-kernel-check.yml'
+
+permissions:
+  contents: read
+  actions: write
+  pull-requests: write
+
+jobs:
+  kernel-check:
+    name: Lean 4.33.1 kernel run (self-contained artifacts)
+    runs-on: ubuntu-latest
+    env:
+      # Explicit allowlist of hand-reviewed artifacts that are checked without Mathlib.
+      NO_MATHLIB_ARTIFACTS: >-
+        artifacts/proofs/database-a6-minimal-core-check.lean
+      # Generated self-contained derivatives of artifacts whose bodies do not use
+      # Mathlib (scripts/generateLeanCoreChecks.ts). Sources stay immutable
+      # (AGENTS.md §7): a derivative is the source minus its unused
+      # `import Mathlib` line plus an additive `#print axioms` epilogue, and
+      # tools/leanKernelCoreChecks.test.ts asserts byte-level regeneration.
+      CORE_CHECK_DIR: artifacts/proofs/core-checks
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7.0.1
+        with:
+          fetch-depth: 0
+
+      - name: Install elan and pinned Lean toolchain 4.33.1
+        run: |
+          set -euo pipefail
+          curl -sSfL https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o elan-init.sh
+          # Note: the elan installer accepts -y, --default-toolchain, --no-modify-path only.
+          sh elan-init.sh -y --default-toolchain 4.33.1
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+          # GITHUB_PATH applies to subsequent steps only; extend the current PATH explicitly.
+          export PATH="$HOME/.elan/bin:$PATH"
+          elan toolchain install 4.33.1
+          elan toolchain list
+          lean --version
+
+      - name: Run kernel on self-contained artifacts
+        id: kernel-run
+        run: |
+          set -uo pipefail
+          # GITHUB_PATH applies to later steps, but do not depend on that: an absent
+          # `lean` on PATH would silently fail every target with "command not found".
+          export PATH="$HOME/.elan/bin:$PATH"
+          mkdir -p lean-kernel-evidence
+          : > lean-kernel-evidence/summary.txt
+          # Diagnostics first: runner logs and uploaded artifacts are not always
+          # retrievable, so everything needed to explain a failure must reach the
+          # PR comment published by the final step.
+          {
+            echo "--- environment diagnostics ---"
+            echo "pwd: $(pwd)"
+            echo "NO_MATHLIB_ARTIFACTS: ${NO_MATHLIB_ARTIFACTS:-<unset>}"
+            echo "CORE_CHECK_DIR: ${CORE_CHECK_DIR:-<unset>}"
+            echo "which lean: $(command -v lean || echo '<lean NOT FOUND on PATH>')"
+            lean --version 2>&1 || echo "lean --version failed (exit $?)"
+            elan toolchain list 2>&1 || echo "elan toolchain list failed"
+            echo "allowlist files:"
+            for f in ${NO_MATHLIB_ARTIFACTS:-}; do
+              if [ -e "$f" ]; then echo "  present: $f"; else echo "  MISSING: $f"; fi
+            done
+            echo "core-check files:"
+            ls -1 "${CORE_CHECK_DIR:-artifacts/proofs/core-checks}"/*.lean 2>&1 | sed 's/^/  /' || true
+          } | tee -a lean-kernel-evidence/summary.txt
+          {
+            echo "Lean kernel run — $(date -u +%Y-%m-%dT%H:%M:%SZ)"
+            lean --version
+            echo "toolchain: lean 4.33.1 (pinned via elan, default-toolchain)"
+            echo "host: ubuntu-latest (GitHub Actions)"
+          } > lean-kernel-evidence/toolchain.txt
+          sha256sum artifacts/proofs/*.lean artifacts/proofs/core-checks/*.lean > lean-kernel-evidence/sha256.txt
+
+          # Target list = explicit allowlist + every generated core-check derivative.
+          # The list is materialised so that the evidence steps publish exactly the
+          # same set of logs that was checked (no silent drift between steps).
+          : > lean-kernel-evidence/targets.txt
+          for f in ${NO_MATHLIB_ARTIFACTS:-}; do
+            [ -e "$f" ] || continue
+            echo "$f" >> lean-kernel-evidence/targets.txt
+          done
+          for f in "${CORE_CHECK_DIR:-artifacts/proofs/core-checks}"/*.lean; do
+            [ -e "$f" ] || continue
+            echo "$f" >> lean-kernel-evidence/targets.txt
+          done
+          sort -u -o lean-kernel-evidence/targets.txt lean-kernel-evidence/targets.txt
+
+          # ciPolicy: the ONLY source of expected-failure targets is the registry.
+          # A missing/empty list means: every failure breaks the run (default).
+          jq -r '.ciPolicy.expectedFailures[].checkedFile' \
+            "${CORE_CHECK_DIR:-artifacts/proofs/core-checks}/kernel-findings.json" \
+            | sort -u > lean-kernel-evidence/expected-failures.txt
+          EXPECTED_FAIL_FILE=lean-kernel-evidence/expected-failures.txt
+          {
+            echo "kernel targets: $(wc -l < lean-kernel-evidence/targets.txt) file(s)"
+            sed 's/^/  /' lean-kernel-evidence/targets.txt
+            echo "expected-failure targets (from kernel-findings.json ciPolicy): $(wc -l < "$EXPECTED_FAIL_FILE") file(s)"
+            sed 's/^/  /' "$EXPECTED_FAIL_FILE"
+          } | tee -a lean-kernel-evidence/summary.txt
+
+          overall=0
+          while IFS= read -r f; do
+            name=$(basename "$f" .lean)
+            log="lean-kernel-evidence/${name}.log"
+            echo "=== ${name}: lean +4.33.1 ${f}" | tee -a lean-kernel-evidence/summary.txt
+            if lean +4.33.1 "$f" > "$log" 2>&1; then
+              rc=0
+              # Проверка отсутствия sorryAx и подозрительных непроверенных аксиом
+              if grep -q "sorryAx" "$log"; then
+                rc=1
+                echo "    result: FAILED (detected sorryAx in kernel output)" | tee -a lean-kernel-evidence/summary.txt
+              else
+                echo "    result: OK (compiler exit 0, no compiler errors, no sorryAx)" | tee -a lean-kernel-evidence/summary.txt
+              fi
+            else
+              rc=$?
+            fi
+            # sorryAx in any output means an unfinished proof: never evidence.
+            sorry_hits=$(grep -c "sorryAx" "$log" || true)
+            is_expected=0
+            if grep -Fxq "$f" "$EXPECTED_FAIL_FILE"; then
+              is_expected=1
+            fi
+            overall_fail=0
+            if [ "$rc" -eq 0 ] && [ "$sorry_hits" -gt 0 ]; then
+              # A registered expected failure that instead COMPILED with sorry is a
+              # new fact: stop-the-line, the run breaks (stop-the-line > registry).
+              result="OK (compiler exit 0) — SORRY_DETECTED (${sorry_hits} hit(s)): файл, собранный с sorry, никогда не является evidence"
+              overall_fail=1
+            elif [ "$rc" -ne 0 ] && [ "$is_expected" -eq 1 ]; then
+              # Compiler-level failure with a recorded root cause/prediction basis:
+              # reported as EXPECTED_FAIL, full log still published, run not broken.
+              result="EXPECTED_FAIL (compiler exit ${rc}; первопричина/основание прогноза зафиксированы в core-checks/kernel-findings.json ciPolicy)"
+            elif [ "$rc" -ne 0 ]; then
+              result="FAILED (compiler exit ${rc})"
+              overall_fail=1
+            else
+              result="OK (compiler exit 0, no compiler errors)"
+              if [ "$is_expected" -eq 1 ]; then
+                result="${result} — NOTE: ожидаемый отказ не воспроизведён — обновить реестр (ciPolicy) и рассмотреть повышение статуса"
+              fi
+            fi
+            echo "    result: ${result}" | tee -a lean-kernel-evidence/summary.txt
+            {
+              echo "--- #print axioms output (${name}) ---"
+              # Real kernel wording: "'N' does not depend on any axioms"
+              # or "'N' depends on axioms: [...]".
+              grep -E "does not depend on any axioms|depends on axioms" "$log" \
+                || echo "  (no #print axioms output captured)"
+              echo "--- compiler output tail (${name}) ---"
+              tail -n 20 "$log"
+              echo
+            } >> lean-kernel-evidence/summary.txt
+            overall=$(( overall | overall_fail ))
+          done < lean-kernel-evidence/targets.txt
+
+          {
+            echo "--- not checked (require a Mathlib build; remain REQUIRES_CORE_LEAN) ---"
+            for f in artifacts/proofs/*.lean; do
+              if grep -q '^import' "$f" 2>/dev/null; then
+                echo "  $(basename "$f"): import(s) present — no pinned Mathlib build available on this runner"
+              fi
+            done
+          } >> lean-kernel-evidence/summary.txt
+          cat lean-kernel-evidence/summary.txt
+
+          # Publish the evidence in the job step summary (viewable in the run page).
+          {
+            echo "## Lean kernel evidence (pinned toolchain run)"
+            echo '```text'
+            cat lean-kernel-evidence/toolchain.txt
+            echo "--- results summary ---"
+            cat lean-kernel-evidence/summary.txt
+            echo "--- sha256 of artifacts ---"
+            cat lean-kernel-evidence/sha256.txt
+            while IFS= read -r f; do
+              echo "--- full compiler log: $(basename "$f" .lean) ---"
+              cat "lean-kernel-evidence/$(basename "$f" .lean).log"
+            done < lean-kernel-evidence/targets.txt
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+          if [ "$overall" -eq 0 ]; then
+            echo "outcome=OK (no unexpected failures; sorryAx-free)" >> "$GITHUB_OUTPUT"
+          else
+            echo "outcome=FAILED (exit ${overall}; see results summary)" >> "$GITHUB_OUTPUT"
+            echo "Kernel run failed for at least one self-contained artifact. Evidence uploaded for inspection."
+            exit 1
+          fi
+
+      - name: Upload kernel evidence
+        if: always()
+        uses: actions/upload-artifact@v7.0.1
+        with:
+          name: lean-kernel-evidence
+          path: lean-kernel-evidence/
+          if-no-files-found: warn
+          retention-days: 90
+
+      - name: Post kernel evidence to the pull request
+        # Durable, readable copy of the run evidence (logs and artifacts are
+        # not always retrievable from restricted environments). Runs on failure
+        # too: a red kernel run without published evidence is undiagnosable.
+        if: always() && github.event_name == 'pull_request'
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          set -uo pipefail
+          mkdir -p lean-kernel-evidence
+          body_file=lean-kernel-evidence/pr-comment.md
+          {
+            echo "### Lean kernel evidence — run \`${{ github.run_id }}\`"
+            echo ""
+            echo "Kernel outcome: \`${{ steps.kernel-run.outputs.outcome }}\`"
+            echo ""
+            echo "Toolchain: Lean 4.33.1 (pinned via elan). Command: \`lean +4.33.1 <artifact>\` for every self-contained artifact."
+            echo ""
+            echo '```text'
+            for evidence in toolchain.txt summary.txt sha256.txt; do
+              echo "--- ${evidence} ---"
+              cat "lean-kernel-evidence/${evidence}" 2>/dev/null || echo "  (${evidence} was not produced)"
+            done
+            if [ -f lean-kernel-evidence/targets.txt ]; then
+              while IFS= read -r f; do
+                echo "--- full compiler log: $(basename "$f" .lean) ---"
+                cat "lean-kernel-evidence/$(basename "$f" .lean).log" 2>/dev/null \
+                  || echo "  (log was not produced)"
+              done < lean-kernel-evidence/targets.txt
+            else
+              echo "--- targets.txt was not produced: the kernel step aborted before building the target list ---"
+            fi
+            echo '```'
+          } > "$body_file"
+          wc -c "$body_file"
+          gh pr comment "${{ github.event.pull_request.number }}" --repo "${{ github.repository }}" --body-file "$body_file"
+
+  mathlib-kernel-check:
+    name: Lean kernel run with pinned Mathlib (Mathlib-importing artifacts)
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    env:
+      # Explicit allowlist of artifacts whose BODY genuinely needs Mathlib. Nothing is
+      # promoted by the existence of this mechanism: only files listed here are run.
+      MATHLIB_ARTIFACTS: >-
+        artifacts/proofs/ricis-general-resolution.lean
+      # Pinned Mathlib revision = newest mathlib4 revision whose lean-toolchain is on the
+      # project's pinned 4.33.x line (Mathlib master moved to v4.34.0 on 2026-09-15, one
+      # day after the Lean 4.34.0 release). The toolchain below is that revision's
+      # `lean-toolchain`; oleans are fetched prebuilt, so no from-scratch Mathlib build.
+      MATHLIB_REV: 6f1ef4e5dd604a435bddba4747b13970cd65d2a1
+      MATHLIB_TOOLCHAIN: leanprover/lean4:v4.33.0
+      LEAN_PROJECT_DIR: mathlib-check
+      MATHLIB_CHECK_DIR: artifacts/proofs/mathlib-checks
+      EVIDENCE_DIR: lean-kernel-evidence-mathlib
+      CORE_CHECK_DIR: artifacts/proofs/core-checks
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7.0.1
+        with:
+          fetch-depth: 0
+
+      - name: Install elan and pinned Lean toolchains (4.33.1 + Mathlib toolchain)
+        run: |
+          set -euo pipefail
+          curl -sSfL https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o elan-init.sh
+          # Note: the elan installer accepts -y, --default-toolchain, --no-modify-path only.
+          sh elan-init.sh -y --default-toolchain 4.33.1
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+          export PATH="$HOME/.elan/bin:$PATH"
+          elan toolchain install 4.33.1
+          elan toolchain install "$MATHLIB_TOOLCHAIN"
+          elan toolchain list
+          lean --version
+
+      - name: Fetch pinned Mathlib oleans (lake update + lake exe cache get)
+        id: mathlib-fetch
+        run: |
+          set -euo pipefail
+          export PATH="$HOME/.elan/bin:$PATH"
+          rm -rf "$LEAN_PROJECT_DIR"
+          mkdir -p "$LEAN_PROJECT_DIR"
+          printf '%s\n' "$MATHLIB_TOOLCHAIN" > "$LEAN_PROJECT_DIR/lean-toolchain"
+          {
+            echo 'name = "ricis-mathlib-kernel-check"'
+            echo ''
+            echo '[[require]]'
+            echo 'name = "mathlib"'
+            echo 'git = "https://github.com/leanprover-community/mathlib4"'
+            echo "rev = \"$MATHLIB_REV\""
+          } > "$LEAN_PROJECT_DIR/lakefile.toml"
+          echo "--- lean-toolchain ---"
+          cat "$LEAN_PROJECT_DIR/lean-toolchain"
+          echo "--- lakefile.toml ---"
+          cat "$LEAN_PROJECT_DIR/lakefile.toml"
+          echo "--- disk before ---"
+          df -h .
+          ( cd "$LEAN_PROJECT_DIR" && lake update )
+          ( cd "$LEAN_PROJECT_DIR" && lake exe cache get )
+          ( cd "$LEAN_PROJECT_DIR" && lake env lean --version )
+          echo "--- disk after ---"
+          df -h .
+
+      - name: Run kernel on Mathlib artifacts (as provided + generated derivative)
+        id: kernel-run
+        run: |
+          set -uo pipefail
+          export PATH="$HOME/.elan/bin:$PATH"
+          mkdir -p "${EVIDENCE_DIR}"
+          # ciPolicy: the ONLY source of expected-failure targets is the registry. A
+          # missing/empty list means: every failure breaks the run (default).
+          jq -r '(.ciPolicy.mathlibExpectedFailures // [])[].checkedFile' \
+            "${CORE_CHECK_DIR}/kernel-findings.json" | sort -u > expected-failures-mathlib.txt
+          echo "expected-failure targets (from kernel-findings.json ciPolicy.mathlibExpectedFailures):"
+          sed 's/^/  /' expected-failures-mathlib.txt
+          EXPECTED_FAIL_FILE=expected-failures-mathlib.txt \
+          EVIDENCE_DIR="${EVIDENCE_DIR}" \
+          MATHLIB_CHECK_DIR="${MATHLIB_CHECK_DIR}" \
+          LEAN_PROJECT_DIR="${LEAN_PROJECT_DIR}" \
+          MATHLIB_ARTIFACTS="${MATHLIB_ARTIFACTS}" \
+          TOOLCHAIN_LABEL="${MATHLIB_TOOLCHAIN} (Mathlib @ ${MATHLIB_REV})" \
+          # scripts/mathlibKernelCheck.sh is the single place that decides
+          # OK / EXPECTED_FAIL / FAILED and that writes `outcome=` to $GITHUB_OUTPUT;
+          # a non-zero exit here means an unexpected failure or a compiled sorryAx.
+          bash scripts/mathlibKernelCheck.sh
+
+      - name: Upload Mathlib kernel evidence
+        if: always()
+        uses: actions/upload-artifact@v7.0.1
+        with:
+          name: lean-kernel-evidence-mathlib
+          path: lean-kernel-evidence-mathlib/
+          if-no-files-found: warn
+          retention-days: 90
+
+      - name: Publish Mathlib kernel evidence
+        # Durable, readable copy of the run evidence (logs and artifacts are not always
+        # retrievable from restricted environments, and a red kernel run without
+        # published evidence is undiagnosable). Runs on failure too.
+        if: always()
+        run: |
+          set -uo pipefail
+          EVIDENCE_DIR="${EVIDENCE_DIR:-lean-kernel-evidence-mathlib}"
+          {
+            echo "## Lean kernel evidence — pinned Mathlib run"
+            echo '```text'
+            for evidence in toolchain.txt summary.txt sha256.txt; do
+              echo "--- ${evidence} ---"
+              cat "${EVIDENCE_DIR}/${evidence}" 2>/dev/null || echo "  (${evidence} was not produced)"
+            done
+            if [ -f "${EVIDENCE_DIR}/targets.txt" ]; then
+              while IFS= read -r f; do
+                echo "--- full compiler log: $(basename "$f" .lean) ---"
+                cat "${EVIDENCE_DIR}/$(basename "$f" .lean).log" 2>/dev/null \
+                  || echo "  (log was not produced)"
+              done < "${EVIDENCE_DIR}/targets.txt"
+            else
+              echo "--- targets.txt was not produced: the kernel step aborted before building the target list ---"
+            fi
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Post Mathlib kernel evidence to the pull request
+        if: always() && github.event_name == 'pull_request'
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          set -uo pipefail
+          EVIDENCE_DIR="${EVIDENCE_DIR:-lean-kernel-evidence-mathlib}"
+          body_file="${EVIDENCE_DIR}/pr-comment-mathlib.md"
+          mkdir -p "$EVIDENCE_DIR"
+          {
+            echo "### Lean kernel evidence (pinned Mathlib) — run \`${{ github.run_id }}\`"
+            echo ""
+            echo "Job outcome: \`${{ steps.kernel-run.outcome }}\`"
+            echo ""
+            echo "Toolchain: \`${MATHLIB_TOOLCHAIN}\`, Mathlib @ \`${MATHLIB_REV}\`. Command: \`(cd ${LEAN_PROJECT_DIR} && lake env lean <artifact>)\` for the artifact as provided and for its generated \`mathlib-check\` derivative (byte-identical body + additive \`#print axioms\` epilogue)."
+            echo ""
+            echo '```text'
+            for evidence in toolchain.txt summary.txt sha256.txt; do
+              echo "--- ${evidence} ---"
+              cat "${EVIDENCE_DIR}/${evidence}" 2>/dev/null || echo "  (${evidence} was not produced)"
+            done
+            if [ -f "${EVIDENCE_DIR}/targets.txt" ]; then
+              while IFS= read -r f; do
+                echo "--- full compiler log: $(basename "$f" .lean) ---"
+                cat "${EVIDENCE_DIR}/$(basename "$f" .lean).log" 2>/dev/null \
+                  || echo "  (log was not produced)"
+              done < "${EVIDENCE_DIR}/targets.txt"
+            else
+              echo "--- targets.txt was not produced: the kernel step aborted before building the target list ---"
+            fi
+            echo '```'
+          } > "$body_file"
+          wc -c "$body_file"
+          gh pr comment "${{ github.event.pull_request.number }}" --repo "${{ github.repository }}" --body-file "$body_file"

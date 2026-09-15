@@ -4,7 +4,7 @@
 [![Formal Verification](https://img.shields.io/badge/Formal%20Verification-Lean%204.33.1-blue.svg)](https://lean-lang.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-**Версия: 0.4.189**
+**Версия: 0.4.190**
 
 Интерактивная исследовательская карта сингулярностей, ориентированный граф доказательств (Blueprint DAG) и аналитический вычислительный движок на базе аксиоматической системы **RICIS-III v7.7** (Recursive Indexed Calculus of Identity and Singularity).
 
@@ -80,10 +80,26 @@ IDENTITY_COHERENCE → MONOTONIC_COMMIT`.
 * Отчёт о прогоне: [`ricis-seed-expansion-run-2026-09-12.md`](docs/05-evidence/proofs/ricis-seed-expansion-run-2026-09-12.md).
 * **Граница доверия:** локальная структурная проверка не является запуском ядра Lean;
   статус Lean для слоя развёртывания — `REQUIRES_CORE_LEAN`. Воспроизводимый зафиксированный
-  прогон ядра Lean 4.33.1 для self-contained артефактов выполняется workflow
-  [`lean-artifact-kernel-check.yml`](.github/workflows/lean-artifact-kernel-check.yml);
-  evidence — [`docs/05-evidence/proofs/lean-kernel-run-2026-09-14.md`](docs/05-evidence/proofs/lean-kernel-run-2026-09-14.md)
-  (`database-a6-minimal-core-check.lean` — `LEAN_VERIFIED`, Mathlib-артефакты — `REQUIRES_CORE_LEAN`).
+  прогон ядра выполняется workflow
+  [`lean-artifact-kernel-check.yml`](.github/workflows/lean-artifact-kernel-check.yml) по двум путям:
+  * job `kernel-check` — Mathlib-свободные артефакты на закреплённом ядре Lean 4.33.1
+    (`lean +4.33.1 <производная>`), evidence — [`docs/05-evidence/proofs/lean-kernel-run-2026-09-14.md`](docs/05-evidence/proofs/lean-kernel-run-2026-09-14.md);
+  * job `mathlib-kernel-check` — артефакты, которым Mathlib действительно нужен, на закреплённой
+    ревизии Mathlib с готовыми oleans (`lake exe cache get`, `lake env lean <артефакт>`): проверяется
+    сам исходник **как предоставлен** и производная, тело которой байт-в-байт равно исходнику
+    (+ только эпилог `#print axioms`). Запускаются только файлы из явного allowlist `MATHLIB_ARTIFACTS`;
+    вне allowlist статус не повышается.
+  * Границы честности: прогон подтверждает **структурные теоремы артефакта**, а не эмпирические
+    утверждения узлов карты; объявленные `axiom`-контракты остаются доверенными входами и печатаются
+    в evidence отдельно. Аудит внешнего артефакта `ricis-general-resolution.lean` — [`docs/05-evidence/proofs/ricis-general-resolution-claim-audit-2026-09-15.md`](docs/05-evidence/proofs/ricis-general-resolution-claim-audit-2026-09-15.md)
+    (F-09/F-10/F-11: заголовок «общая теорема разрешения сингулярностей» содержимым не подтверждается —
+    определения развёртываются, аксиомы и редукция в доказательствах не участвуют).
+  * **Результат первого прогона Mathlib-пути** (run 34950902412, job `mathlib-kernel-check`, `success`):
+    артефакт `ricis-general-resolution.lean` принят ядром и **как предоставлен**, и через производную
+    (exit 0, без `sorryAx`); `#print axioms` показал, что все три теоремы зависят **только** от
+    стандартных аксиом Lean — объявленные RICIS-контракты `ax_A4_general`/`ax_SP1_general` в
+    доказательстве не участвуют. То есть артефактный уровень — `LEAN_VERIFIED`, а уровень заявления —
+    `STRUCTURALLY_VALIDATED`: заголовок прогоном **не** подтверждён, и зелёный прогон его не подтверждает.
 > **Терминология: это RSI, но с доказательной петлёй.** A11 — оператор *рекурсивного
 > самоулучшения* (Recursive Self-Improvement, RSI): система дополняет собственное множество правил.
 > Отличие от «обычного» RSI — самодопущение невозможно: каждое расширение есть **доказанное следствие**
@@ -232,6 +248,13 @@ RICIS Expansion Map — это исследовательская среда и 
 ### Proof workspace и честная граница Lean
 Рабочее пространство формальных доказательств строго разграничивает локальные статические проверки AST и авторитетную верификацию ядром Lean.
 > **Состояние узла карты не равно Lean kernel verification.** Полный статус `LEAN_VERIFIED` присваивается только после верификации независимым ядром Lean.
+
+Дополнительно различаются три уровня заявления (см. [`artifacts/proofs/README.md`](artifacts/proofs/README.md)):
+`LEAN_VERIFIED` (ядро приняло артефакт без `sorryAx`), `REQUIRES_CORE_LEAN` (прогон не выполнялся —
+в том числе для артефактов вне allowlist) и `STRUCTURALLY_VALIDATED` (структурная модель,
+**не** классическая теорема). Принятый без ошибок артефакт, чьё утверждение разворачивает собственное
+определение, не поднимается в статусе «доказанной содержательной теоремы»: уровень заявления
+указывается в метаданных (`boundary`), а не выводится из имени теоремы.
 
 ## SEO и discoverability
 

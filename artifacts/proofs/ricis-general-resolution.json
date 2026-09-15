@@ -1,0 +1,120 @@
+{
+  "source": "Внешний Lean-исходник владельца проекта, передан в сессии Arena 2026-09-15 с заголовком «ОБЩАЯ теорема разрешения комплексных сингулярностей (ФИНАЛЬНАЯ ВЕРСИЯ 2)»; сохранён байт-в-байт в artifacts/proofs/ricis-general-resolution.lean (AGENTS.md §7: нормализация, перегенерация и перезапись запрещены).",
+  "claim": "Общая теорема разрешения комплексных сингулярностей для параметризованной мероморфной сингулярности S = (N, D, a, m, n): при S.m ≥ S.n значение ricis_eval_general S равно N_tilde a / D_tilde a, если m = n, и 0 иначе; частный случай (z²+1)/(z+i) в точке a = -i даёт -2i.",
+  "method": "declared_structural_reduction + classical_tactic_projection",
+  "verification": {
+    "valid": true,
+    "verifiedAxioms": [],
+    "contentHash": "e92ebe52a85af838205a6bdb950ff4517f959cbfc4f38c1d0e7c4cb65cc35db3",
+    "trustStatus": "LEAN_VERIFIED",
+    "claimLevel": "STRUCTURALLY_VALIDATED",
+    "claimLevelNote": "Артефактный уровень: ядро Lean приняло артефакт (exit 0, без sorryAx) — LEAN_VERIFIED. Уровень заявленного результата («ОБЩАЯ теорема разрешения комплексных сингулярностей») — STRUCTURALLY_VALIDATED, НЕ MATHEMATICALLY_PROVEN: см. F-09/F-10/F-11 в реестре и boundary.notProven."
+  },
+  "declaredAxioms": [
+    {
+      "name": "ax_A4_general",
+      "statement": "∀ F G a, F a ≠ 0 → G a ≠ 0 → RicisExpr.div (zero F) (zero G) = RicisExpr.val (F a / G a)",
+      "role": "доверенный RICIS-контракт A4 в приложении к индексированным нулям",
+      "usedByTheorems": false
+    },
+    {
+      "name": "ax_SP1_general",
+      "statement": "∀ a k, k > 0 → RicisExpr.div (zero (fun z => (z - a)^k)) (zero (fun z => (z - a)^k)) = RicisExpr.val 1",
+      "role": "доверенный RICIS-контракт SP1 (сокращение только идентичных нулевых факторов)",
+      "usedByTheorems": false
+    }
+  ],
+  "boundary": {
+    "provenByThisArtifact": "Ничего сверх определительного развёртывания: ricis_eval_general S в ветви S.m ≥ S.n объявлена ровно тем выражением, которое утверждает теорема; доказательство — unfolding (dsimp) + арифметика Nat (omega) + simp.",
+    "notProven": [
+      "Связь декларированных RICIS-аксиом (ax_A4_general, ax_SP1_general) с теоремой: обе аксиомы не используются ни одним доказательством файла — RicisExpr/A4/SP1 в выводе не участвуют.",
+      "Связь редукции с вычислением: ricis_reduce (фактическая структурная редукция) объявлена и нигде не используется; ни одна теорема не утверждает соотношение между ricis_reduce S и ricis_eval_general S (например, что сокращённое выражение определено в точке a или что его значение в a равно ricis_eval_general S).",
+      "Мероморфная структура: поля hN/hD (факторизация N и D) не входят ни в одну теорему, кроме частного случая, где факторизация проверяется тождеством многочленов.",
+      "Классический предел: имя теоремы ricis_equals_classical_limit утверждает совпадение с классическим пределом, но никакое предельное выражение (lim, Лопиталь, Коши) в файле не определено и не выводится; P1 RICIS запрещает пределы внутри Resolve_RICIS.",
+      "Сингулярность как объект: 0/0 в точке a не предъявлено (N a = 0 и D a = 0 не утверждаются ни для общего случая, ни в RicisExpr-форме)."
+    ]
+  },
+  "staticAudit": {
+    "status": "SUPERSEDED_BY_KERNEL_RUN",
+    "method": "чтение исходника без прогона ядра (локальный Lean-тулчейн в среде агента недоступен: каналы elan/GitHub release assets недоступны, см. docs/05-evidence/proofs/ricis-general-resolution-claim-audit-2026-09-15.md)",
+    "findings": [
+      "Тактика `omega` используется в четырёх местах, но ни один из импортов файла (Mathlib.Data.Complex.Basic, Mathlib.Tactic.Ring, Mathlib.Data.Nat.Basic) не объявляет её в области видимости: ожидается ошибка «unknown tactic 'omega'» при первом прогоне ядра.",
+      "specific_case_from_general: цель начинается цепочкой из семи `let`-биндингов, а тактика `intro N D a m n N_tilde D_tilde` вводит семь имён; поведение `intro` на let-биндингах (zeta-редукция вместо введения переменной) определяет, останутся ли в цели конкретные значения 1/1 или произвольные m/n. В последнем случае цели `∀ z, N z = (z - a)^m * N_tilde z`, `m ≥ n` и равенство -2i недоказуемы, а доказательство обрывается на `exact hN`/`omega`.",
+      "Финальный блок `simp [h_mn, N_tilde, D_tilde, a, m, n]` опирается на локальные let-имена как на simp-аргументы; при иной форме цели (свободные переменные вместо let-значений) это недопустимый simp-аргумент.",
+      "`simp [h_k_ne_zero]` в ветви m ≠ n должен закрыть цель целиком; следующий за ним `omega` в этом случае применяется к отсутствующим целям (класс дефекта F-06: «No goals to be solved»).",
+      "Последняя строка файла содержит текст инструкции владельца («интегрировать в проект») внутри строки комментария; байты сохранены без изменений (§7), семантически это комментарий."
+    ],
+    "kernelOutcome": "run 34950902412: exit 0 (исходник и производная), sorryAx отсутствует",
+    "predictionAccuracy": [
+      "ОПРОВЕРГНУТО: предсказание ошибки «unknown tactic 'omega'» — тактика доступна транзитивно через импорты файла; исходник скомпилировался (см. F-13).",
+      "ПОДТВЕРЖДЕНО (как warning, не error): избыточный шаг ветви m = n (87:10 unused simp argument h_k_zero) и неисполняемые хвостовые тактики (160:8/161:8 «this tactic is never executed», «Unused tactic linter»).",
+      "НЕ ПРОВЕРЕНО ЯДРОМ И НЕ МОЖЕТ БЫТЬ: содержательные пункты (связь редукции и значения) — ядру нечего проверять, таких утверждений в файле нет."
+    ]
+  },
+  "verificationPath": {
+    "workflow": ".github/workflows/lean-artifact-kernel-check.yml",
+    "job": "mathlib-kernel-check",
+    "checkedFile": "artifacts/proofs/ricis-general-resolution.lean",
+    "artifactCheckedAsProvided": true,
+    "toolchain": "leanprover/lean4:v4.33.0 (Mathlib @ 6f1ef4e5dd604a435bddba4747b13970cd65d2a1)",
+    "command": "lake env lean artifacts/proofs/ricis-general-resolution.lean",
+    "registry": "artifacts/proofs/core-checks/kernel-findings.json",
+    "evidence": "docs/05-evidence/proofs/ricis-general-resolution-claim-audit-2026-09-15.md",
+    "note": "Прогон выполнен. Повышение статуса ограничено артефактным уровнем: содержательное утверждение заголовка остаётся неподтверждённым (F-09/F-10/F-11); решение владельца — о классификации заявления и, при необходимости, о новой версии доказательства (§7: исходник не перезаписывается).",
+    "status": "COMPLETED",
+    "runId": 34950902412,
+    "outcome": "LEAN_VERIFIED (артефактный уровень); claimLevel = STRUCTURALLY_VALIDATED"
+  },
+  "kernelCheck": {
+    "addedBy": "AGENTS.md §7 — статус записывается снаружи неизменяемого исходника (присоединение metadata)",
+    "registry": "artifacts/proofs/core-checks/kernel-findings.json",
+    "evidence": "docs/05-evidence/proofs/ricis-general-resolution-claim-audit-2026-09-15.md",
+    "rawEvidence": "docs/05-evidence/proofs/lean-kernel-run-34950902412-mathlib.pr-comment.txt",
+    "run": 34950902412,
+    "runUrl": "https://github.com/A1Dmitry/Ricis3-Expansion-Map/actions/runs/34950902412",
+    "job": "mathlib-kernel-check",
+    "toolchain": "leanprover/lean4:v4.33.0 — lean-toolchain закреплённой ревизии Mathlib @ 6f1ef4e5dd604a435bddba4747b13970cd65d2a1 (oleans готовыми, lake exe cache get)",
+    "command": "(cd mathlib-check && lake env lean artifacts/proofs/ricis-general-resolution.lean) — исходник как предоставлен; та же команда для производной artifacts/proofs/mathlib-checks/ricis-general-resolution.mathlib-check.lean",
+    "immutableSource": "artifacts/proofs/ricis-general-resolution.lean",
+    "immutableSourceSha256": "e92ebe52a85af838205a6bdb950ff4517f959cbfc4f38c1d0e7c4cb65cc35db3",
+    "checkedFile": "artifacts/proofs/mathlib-checks/ricis-general-resolution.mathlib-check.lean",
+    "sourceCheckedAsProvided": true,
+    "substitutionsApplied": [],
+    "compilerExit": 0,
+    "compilerErrorCount": 0,
+    "firstCompilerErrors": [],
+    "theorems": {
+      "total": 3,
+      "provenWithoutSorryAx": 3,
+      "withSorryAx": 0,
+      "axiomFree": 0,
+      "withStandardAxiomsOnly": 3
+    },
+    "declaredContracts": [
+      {
+        "name": "ax_A4_general",
+        "kind": "axiom",
+        "printAxiomsLine": "'ax_A4_general' depends on axioms: [ax_A4_general, propext, Classical.choice, Quot.sound]"
+      },
+      {
+        "name": "ax_SP1_general",
+        "kind": "axiom",
+        "printAxiomsLine": "'ax_SP1_general' depends on axioms: [ax_SP1_general, propext, Classical.choice, Quot.sound]"
+      }
+    ],
+    "printAxiomsOutput": [
+      "'ricis_general_resolution' depends on axioms: [propext, Classical.choice, Quot.sound]",
+      "'ricis_equals_classical_limit' depends on axioms: [propext, Classical.choice, Quot.sound]",
+      "'specific_case_from_general' depends on axioms: [propext, Classical.choice, Quot.sound]"
+    ],
+    "warningsObserved": [
+      "87:10 This simp argument is unused: h_k_zero — подтверждает статическую гипотезу об избыточности шага ветви m = n (warning, не error)",
+      "160:8 / 161:8 «this tactic is never executed» и «Unused tactic linter» — хвостовые `<;> simp [Complex.ext_iff]` и `<;> norm_num` после закрывающего `ring` (класс F-06, но warning)",
+      "109:29 Variable name `z` is not explicitly referenced; 138:4 / 159:4 `<;>` вместо `;`"
+    ],
+    "statusAfterKernelRun": "LEAN_VERIFIED",
+    "rootCause": null,
+    "trustBoundary": "Ядро подтвердило: артефакт компилируется как предоставлен и через производную, sorryAx отсутствует; три теоремы зависят только от стандартных аксиом Lean, то есть НЕ используют объявленные RICIS-контракты (факт ядра, подтверждающий F-09). Ядро НЕ подтверждает содержательное утверждение заголовка: сингулярность 0/0 не предъявлена (F-11), редукция ricis_reduce в доказательствах не участвует (F-09/F-11), имя ricis_equals_classical_limit не подтверждено предельным содержанием (F-10; P1 запрещает пределы внутри Resolve_RICIS).",
+    "relationToDeclaredTrustStatus": "Было REQUIRES_CORE_LEAN (0.4.190, первый коммит PR #40) → стало LEAN_VERIFIED по факту run 34950902412 (exit 0 у исходника и производной, sorryAx отсутствует, #print axioms напечатан). Повышение касается ТОЛЬКО артефактного уровня; claimLevel остаётся STRUCTURALLY_VALIDATED."
+  }
+}
