@@ -594,6 +594,31 @@ describe('OIR-03 — audit proof-synthesis containment', () => {
       '?? artifacts/proofs/Schwarzschild_GeometricBridge.lean',
       '?? artifacts/proofs/Schwarzschild_GeometricBridge.json',
       '?? src/model/schwarzschildGeometricBridge.test.ts',
+      // MOBILE-SWIPE-TO-CLOSE-PANELS (0.4.195, 2026-09-15): жест закрытия свайпом
+      // для всех дополнительных панелей апплетов — экраны мобильного шелла (меню/детали),
+      // оверлей-панели и модали карты (настройки, Telegram-бот, Войнич, QA, Auto Prover,
+      // логи агента, импорт патчей, добавление/редактирование узла, готовность сообщества),
+      // песочница RICIS, QA-панель кинематического апплета и вложенный passport-диалог.
+      // Чистая классификация жеста + хук + zero-layout обёртка + стражи топологии.
+      ' M package.json',
+      ' M package-lock.json',
+      ' M index.html',
+      ' M README.md',
+      ' M CITATION.cff',
+      ' M src/version.ts',
+      ' M docs/05-evidence/architecture/structural-hash-report.md',
+      ' M docs/05-evidence/architecture/telegram-tokenpool-remediation-2026-08-18.md',
+      ' M docs/05-evidence/proofs/lean-boundary-audit-2026-08-18.md',
+      ' M src/hooks/mobileGestures.ts',
+      ' M src/hooks/mobileGestures.test.ts',
+      '?? src/hooks/useSwipeToClose.ts',
+      '?? src/hooks/useSwipeToClose.test.tsx',
+      '?? src/ui/components/SwipeDismissable.tsx',
+      '?? src/ui/components/SwipeDismissable.test.tsx',
+      '?? src/ui/swipeDismissWiring.topology.test.ts',
+      ' M src/ui/KinematicEnginePage.tsx',
+      ' M src/ui/RicisTerminalModal.tsx',
+      ' M src/ui/EditNodeModal.tsx',
 
     ]);
     if (status.length > 0 && status.every(entry => entry.startsWith('?? '))) {

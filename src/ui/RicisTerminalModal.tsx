@@ -21,6 +21,9 @@ import { Lean4ReportViewer } from './Lean4ReportViewer';
 import { UrlShareService } from '../services/UrlShareService';
 import { AddNodeModal, AddNodePrefillData } from './AddNodeModal';
 import { useI18nStore } from '../store/useI18nStore';
+import { useMobileLayout } from '../hooks/useMobileLayout';
+import { useSwipeToClose } from '../hooks/useSwipeToClose';
+import { SwipeDismissable } from './components/SwipeDismissable';
 
 export interface SandboxPreset {
   id: string;
@@ -100,6 +103,15 @@ export function RicisTerminalModal() {
   const [showAddModal, setShowAddModal] = useState(false);
   const [copiedLink, setCopiedLink] = useState(false);
 
+  const isMobileLayout = useMobileLayout();
+
+  // Mobile accessibility: swipe the sandbox console overlay down to close it.
+  const terminalSwipeHandlers = useSwipeToClose({
+    direction: 'down',
+    onDismiss: () => toggleTerminal(false),
+    enabled: isMobileLayout,
+  });
+
   const inputRef = React.useRef<HTMLInputElement>(null);
 
   React.useEffect(() => {
@@ -163,7 +175,7 @@ export function RicisTerminalModal() {
   return (
     <>
       {isOpen && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 backdrop-blur-sm p-4" {...terminalSwipeHandlers}>
           <div className="w-full max-w-4xl bg-slate-900 border border-cyan-900/40 rounded-xl shadow-[0_0_50px_rgba(0,0,0,0.5)] flex flex-col max-h-[85vh] overflow-hidden">
             
             {/* Top Bar */}
@@ -384,10 +396,12 @@ export function RicisTerminalModal() {
 
       {/* Modal добавления узла при переносе из Sandbox */}
       {showAddModal && (
-        <AddNodeModal
-          onClose={() => setShowAddModal(false)}
-          initialData={prefillDataForMap || undefined}
-        />
+        <SwipeDismissable direction="down" onDismiss={() => setShowAddModal(false)} enabled={isMobileLayout}>
+          <AddNodeModal
+            onClose={() => setShowAddModal(false)}
+            initialData={prefillDataForMap || undefined}
+          />
+        </SwipeDismissable>
       )}
     </>
   );

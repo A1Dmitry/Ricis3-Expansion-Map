@@ -75,7 +75,9 @@ import { useAdaptiveUI } from '../hooks/useAdaptiveUI';
 import { useMobileLayout } from '../hooks/useMobileLayout';
 import { useMobileViewStack } from '../hooks/useMobileViewStack';
 import { useImmersiveCanvas } from '../hooks/useImmersiveCanvas';
+import { useSwipeToClose } from '../hooks/useSwipeToClose';
 import { isDoubleTap } from '../hooks/mobileGestures';
+import { SwipeDismissable } from './components/SwipeDismissable';
 import {
   alignDeltaToScreen,
   calculateOrientationDelta,
@@ -1217,6 +1219,15 @@ export const Map3D: React.FC = () => {
     }
   };
 
+  // Mobile accessibility: a right-swipe back flick closes the additional
+  // screens of the mobile shell (menu / details) without hunting for the
+  // small header button. Touch pointers only — desktop stays untouched.
+  const mobileBackSwipeHandlers = useSwipeToClose({
+    direction: 'right',
+    onDismiss: handleNavigateBack,
+    enabled: isMobileLayout,
+  });
+
   React.useEffect(() => {
     const pendingNodeId = initialUrlFocusPendingRef.current;
     if (!map.hydrated || !pendingNodeId || !cameraControlsReady) return;
@@ -1556,7 +1567,7 @@ export const Map3D: React.FC = () => {
         )}
 
         {mobileView === 'menu' && !isImmersive && (
-          <main className="min-h-0 flex-1 overflow-y-auto bg-[#070707] p-3 touch-pan-y" data-testid="mobile-menu-screen">
+          <main className="min-h-0 flex-1 overflow-y-auto bg-[#070707] p-3 touch-pan-y" data-testid="mobile-menu-screen" {...mobileBackSwipeHandlers}>
             <div className="space-y-3">
               <label className="flex items-center gap-2 rounded-lg border border-cyan-900/50 bg-[#050810] px-3 py-2.5">
                 <Search size={16} className="shrink-0 text-cyan-400" />
@@ -1648,7 +1659,7 @@ export const Map3D: React.FC = () => {
         )}
 
         {mobileView === 'details' && selectedNode && !isImmersive && (
-          <main className="min-h-0 flex-1 overflow-y-auto bg-[#070707] p-3 touch-pan-y" data-testid="mobile-details-screen">
+          <main className="min-h-0 flex-1 overflow-y-auto bg-[#070707] p-3 touch-pan-y" data-testid="mobile-details-screen" {...mobileBackSwipeHandlers}>
             <article className="rounded-xl border border-cyan-900/60 bg-black/70 p-3 shadow-xl">
               <div className="mb-3 border-b border-cyan-900/30 pb-3">
                 <p className="text-[9px] font-mono text-cyan-500">Key: {getNodeIdentityPresentation(selectedNode).base64Key}</p><p className="text-[9px] font-mono text-slate-500 truncate">Path: {getNodeIdentityPresentation(selectedNode).canonicalPath}</p><h2 className="mt-1 text-sm font-bold leading-tight text-white">{selectedNodePresentation?.title ?? selectedNode.title}</h2>
@@ -2340,56 +2351,70 @@ export const Map3D: React.FC = () => {
       )}
 
       {showAddNode && (
-        <AddNodeModal onClose={() => setShowAddNode(false)} parentId={selectedNodeId || undefined} />
+        <SwipeDismissable direction="down" onDismiss={() => setShowAddNode(false)} enabled={isMobileLayout}>
+          <AddNodeModal onClose={() => setShowAddNode(false)} parentId={selectedNodeId || undefined} />
+        </SwipeDismissable>
       )}
       {showSettings && (
-        <SettingsModal
-          isOpen={showSettings}
-          onClose={closeSettings}
-          currentRoleId={currentRole.id}
-          roles={roles}
-          onSelectRole={switchRole}
-          onCreateRole={createRole}
-          uiElements={UI_ELEMENTS}
-          hiddenElementIds={userDisabledPanelIds}
-          onToggleElement={togglePanelVisibility}
-          physicsParams={physicsParams}
-          onPhysicsChange={setPhysicsParams}
-          adminCoreSnapshot={STATIC_ADMIN_CORE_SNAPSHOT}
-        />
+        <SwipeDismissable direction="right" onDismiss={closeSettings} enabled={isMobileLayout}>
+          <SettingsModal
+            isOpen={showSettings}
+            onClose={closeSettings}
+            currentRoleId={currentRole.id}
+            roles={roles}
+            onSelectRole={switchRole}
+            onCreateRole={createRole}
+            uiElements={UI_ELEMENTS}
+            hiddenElementIds={userDisabledPanelIds}
+            onToggleElement={togglePanelVisibility}
+            physicsParams={physicsParams}
+            onPhysicsChange={setPhysicsParams}
+            adminCoreSnapshot={STATIC_ADMIN_CORE_SNAPSHOT}
+          />
+        </SwipeDismissable>
       )}
       {showTelegramBot && (
-        <TelegramBotPanel onClose={() => setShowTelegramBot(false)} />
+        <SwipeDismissable direction="down" onDismiss={() => setShowTelegramBot(false)} enabled={isMobileLayout}>
+          <TelegramBotPanel onClose={() => setShowTelegramBot(false)} />
+        </SwipeDismissable>
       )}
       {isCommunityReadinessOpen && communityReadinessProjection !== null && (
-        <CommunityReadinessNotice
-          projection={communityReadinessProjection}
-          isCopyingInvitation={isCopyingCommunityInvitation}
-          copyResult={communityInvitationCopyResult}
-          onCopyInvitation={() => { void handleCopyCommunityInvitation(); }}
-          onClose={handleCloseCommunityReadiness}
-        />
+        <SwipeDismissable direction="down" onDismiss={handleCloseCommunityReadiness} enabled={isMobileLayout}>
+          <CommunityReadinessNotice
+            projection={communityReadinessProjection}
+            isCopyingInvitation={isCopyingCommunityInvitation}
+            copyResult={communityInvitationCopyResult}
+            onCopyInvitation={() => { void handleCopyCommunityInvitation(); }}
+            onClose={handleCloseCommunityReadiness}
+          />
+        </SwipeDismissable>
       )}
       {editingNode && (
-        <EditNodeModal
-          node={editingNode}
-          onClose={() => setEditingNode(null)}
-          onSolveAfterSave={() => handleSolve(editingNode.id)}
-        />
+        <SwipeDismissable direction="down" onDismiss={() => setEditingNode(null)} enabled={isMobileLayout}>
+          <EditNodeModal
+            node={editingNode}
+            onClose={() => setEditingNode(null)}
+            onSolveAfterSave={() => handleSolve(editingNode.id)}
+          />
+        </SwipeDismissable>
       )}
       {showAgentLogs && (
-        <AgentLogModal
-          onClose={() => setShowAgentLogs(false)}
-          onSelectNode={setSelectedNodeId}
-        />
+        <SwipeDismissable direction="down" onDismiss={() => setShowAgentLogs(false)} enabled={isMobileLayout}>
+          <AgentLogModal
+            onClose={() => setShowAgentLogs(false)}
+            onSelectNode={setSelectedNodeId}
+          />
+        </SwipeDismissable>
       )}
       {showProofConsole && (
-        <RicisProofConsoleModal
-          isOpen={showProofConsole}
-          onClose={() => setShowProofConsole(false)}
-          initialClaim={selectedNode?.title || '0_5 * inf_3'}
-          initialProblemId={selectedNode?.id}
-        />
+        <SwipeDismissable direction="down" onDismiss={() => setShowProofConsole(false)} enabled={isMobileLayout}>
+          <RicisProofConsoleModal
+            isOpen={showProofConsole}
+            onClose={() => setShowProofConsole(false)}
+            initialClaim={selectedNode?.title || '0_5 * inf_3'}
+            initialProblemId={selectedNode?.id}
+          />
+        </SwipeDismissable>
       )}
       {!isMobileLayout && !isImmersive && (
       <footer data-testid="desktop-status-strip" className="h-10 border-t border-cyan-900/40 bg-[#080808] flex items-center justify-between px-4 shrink-0 z-10 w-full overflow-visible">
@@ -2504,45 +2529,53 @@ export const Map3D: React.FC = () => {
       <RicisTerminalModal />
 
       {showVoynichModal && (
-        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto">
-          <div className="w-full max-w-5xl max-h-[90vh] overflow-y-auto">
-            <VoynichDecryptionPanel
-              onSelectFolioNode={(folioId) => {
-                setSelectedNodeId(folioId);
-                setShowVoynichModal(false);
-              }}
-              onClose={() => setShowVoynichModal(false)}
-            />
+        <SwipeDismissable direction="down" onDismiss={() => setShowVoynichModal(false)} enabled={isMobileLayout}>
+          <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto">
+            <div className="w-full max-w-5xl max-h-[90vh] overflow-y-auto">
+              <VoynichDecryptionPanel
+                onSelectFolioNode={(folioId) => {
+                  setSelectedNodeId(folioId);
+                  setShowVoynichModal(false);
+                }}
+                onClose={() => setShowVoynichModal(false)}
+              />
+            </div>
           </div>
-        </div>
+        </SwipeDismissable>
       )}
 
       {showPatchImportModal && (
-        <MapPatchImportModal onClose={() => setShowPatchImportModal(false)} />
+        <SwipeDismissable direction="down" onDismiss={() => setShowPatchImportModal(false)} enabled={isMobileLayout}>
+          <MapPatchImportModal onClose={() => setShowPatchImportModal(false)} />
+        </SwipeDismissable>
       )}
 
       {showAutomatedTestingModal && (
-        <AutomatedTestingModal
-          isOpen={showAutomatedTestingModal}
-          nodes={map.nodes}
-          proofs={map.proofs || {}}
-          selectedNodeId={selectedNodeId}
-          onSelectNode={handleNavigateToNode}
-          onNavigateToKinematics={() => {
-            setShowAutomatedTestingModal(false);
-            UrlShareService.updateBrowserUrl({ kinematic: true });
-            window.dispatchEvent(new PopStateEvent('popstate'));
-          }}
-          onClose={() => setShowAutomatedTestingModal(false)}
-        />
+        <SwipeDismissable direction="down" onDismiss={() => setShowAutomatedTestingModal(false)} enabled={isMobileLayout}>
+          <AutomatedTestingModal
+            isOpen={showAutomatedTestingModal}
+            nodes={map.nodes}
+            proofs={map.proofs || {}}
+            selectedNodeId={selectedNodeId}
+            onSelectNode={handleNavigateToNode}
+            onNavigateToKinematics={() => {
+              setShowAutomatedTestingModal(false);
+              UrlShareService.updateBrowserUrl({ kinematic: true });
+              window.dispatchEvent(new PopStateEvent('popstate'));
+            }}
+            onClose={() => setShowAutomatedTestingModal(false)}
+          />
+        </SwipeDismissable>
       )}
 
       {showAutoProverModal && (
-        <AutoProverModal
-          isOpen={showAutoProverModal}
-          onClose={() => setShowAutoProverModal(false)}
-          selectedNodeId={selectedNodeId}
-        />
+        <SwipeDismissable direction="down" onDismiss={() => setShowAutoProverModal(false)} enabled={isMobileLayout}>
+          <AutoProverModal
+            isOpen={showAutoProverModal}
+            onClose={() => setShowAutoProverModal(false)}
+            selectedNodeId={selectedNodeId}
+          />
+        </SwipeDismissable>
       )}
     </div>
   );
