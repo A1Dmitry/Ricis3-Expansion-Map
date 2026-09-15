@@ -56,6 +56,22 @@
 
 ---
 
+### **[SCHWARZSCHILD-GEOMETRIC-BRIDGE-NODE] Узел карты «Геометрический мост Шварцшильда» + артефакт `Schwarzschild_GeometricBridge.lean` (регистрация со связями)**
+* **Статус:** `G4_DEVELOPMENT_COMPLETED` (все G1→G4 пройдены последовательно; ядровой прогон Lean НЕ выполнялся — см. границу доверия)
+* **Основание задачи (ORIGINAL_GOAL 2026-09-15):** «обновить или добавить узел в том числе его связи» для артефакта `Schwarzschild_GeometricBridge.lean` (канон L1, SP2, SP4, A6 proxy, P1 no-lim; provenance DOI 10.5281/zenodo.22124493).
+* **Результаты:**
+  * Артефакт-источник внесён байт-в-байт: `artifacts/proofs/Schwarzschild_GeometricBridge.lean` (sha256 `1df6b21df93cf2e5e822156a151929d849dd553979ef32c8992045d2a5b3de63`); после фиксации источник неизменяем (AGENTS.md §7).
+  * Метаданные снаружи источника: `artifacts/proofs/Schwarzschild_GeometricBridge.json` — `verification.contentHash` = фактический sha256, `trustStatus: REQUIRES_CORE_LEAN` (импорты Mathlib вне allowlist `MATHLIB_ARTIFACTS`, ядрового прогона нет); блок `kernelCheck` не присоединён (фактов прогона нет — evidence не синтезируется).
+  * Классификация в каноническом реестре `artifacts/proofs/README.md`: строка артефакта со статусом `REQUIRES_CORE_LEAN` в обеих таблицах; существующие строки не изменены, статусы других артефактов не повышались.
+  * Узел карты `schwarzschild-geometric-bridge` (resolved, scientific_task, зоны `physics` + `astrophysics`, `ricisSolvable: true`) добавлен в `src/model/initialMap.ts`; кальдкуляторный узел `calculator-node-gravitational` (каталожная проекция, read-only) не модифицирован.
+  * **Связи узла:** рёбра `math-singularity → schwarzschild-geometric-bridge`, `phys-unified → schwarzschild-geometric-bridge`, `schwarzschild-geometric-bridge → calculator-node-gravitational`; зеркальные `dependencyIds`/`dependentIds` согласованы (`math-singularity`, `phys-unified` пополнили `dependentIds`).
+  * Proof-запись с L1 → SP4 → A6 шагами и LaTeX (Lean-spec DOI `10.5281/zenodo.21529989` + A6-контент, аудит чистый); `externalLean.trustStatus = REQUIRES_CORE_LEAN`, `sourceHash` = sha256 артефакта, `sourceLocked: true`.
+  * QA-контракт `src/model/schwarzschildGeometricBridge.test.ts` (6 тестов): существование/зоны узла, три связи с проверкой висячих концов и зеркальности, аудит proof (score ≥ 80), декларированные теоремы артефакта + запрет sorry-терма, честность trust boundary (хеш, REQUIRES_CORE_LEAN, отсутствие сфабрикованного kernelCheck), provenance DOI.
+  * Версия 0.4.190 → 0.4.191 (`package.json`; `sync:version` синхронизирует `src/version.ts`, lockfile, README, CITATION и прочие версионируемые документы).
+* **Граница доверия (anti-tukhta):** регистрация узла и артефакта — НЕ ядровая верификация. Артефакт импортирует Mathlib и не входит в allowlist прогонов; статус артефакта и `externalLean` зафиксированы как `REQUIRES_CORE_LEAN` и не повышаются без воспроизводимого прогона workflow `lean-artifact-kernel-check.yml`. Узел НЕ утверждает регулярность метрики Шварцшильда, устранение сингулярности ОТО, физику интерьера чёрной дыры или структуру горизонта событий (физические имена — только метки пути SP4 по канону артефакта).
+* **Проверка:** `npm run sync:version && npm run lint && npm test` (включая новый QA-контракт и существующие стражи: `leanKernelCoreChecks.test.ts`, `auditResolution.test.ts` — «resolved узел без proof» = 0).
+* **AUDITOR: SELF (same-pipeline).**
+
 ## 2. Приоритетный план работ (Dependency-Ordered Roadmap)
 
 Граф зависимостей и порядок выполнения задач, основанный на результатах технического аудита:

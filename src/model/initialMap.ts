@@ -222,7 +222,7 @@ export const initialMap: MapState = {
       sourceUrl: 'https://doi.org/10.5281/zenodo.22124493',
       zoneIds: ['math'],
       dependencyIds: [],
-      dependentIds: ['phys-unified', 'informatics-complexity', 'ai-authorship-provenance'],
+      dependentIds: ['phys-unified', 'informatics-complexity', 'ai-authorship-provenance', 'schwarzschild-geometric-bridge'],
       fractalDepth: 0,
       economic: {
         costUnresolved: 1_000_000_000,
@@ -302,7 +302,7 @@ export const initialMap: MapState = {
       targetFunction: 'UnifiedField(QG)',
       zoneIds: ['physics'],
       dependencyIds: ['core-agi-target', 'math-singularity'],
-      dependentIds: ['calculator-node-gravitational'],
+      dependentIds: ['calculator-node-gravitational', 'schwarzschild-geometric-bridge'],
       fractalDepth: 1,
       economic: {
         costUnresolved: 2_000_000_000,
@@ -1015,6 +1015,28 @@ export const initialMap: MapState = {
       "sourceUrl": "artifacts/proofs/ricis-jacobian-conjecture.standalone.lean",
       "ricisSolvable": true
     },
+    {
+      "id": "schwarzschild-geometric-bridge",
+      "title": "Геометрический мост Шварцшильда: путь-индексированный A6-прокси монолит",
+      "description": "Мост 0_r ⊗ ∞_g ⇒ R(r,g) →_μ r·g как строго структурный прокси: физические имена (r, g_tt, 2GM/rc², радиус Шварцшильда) существуют только как метки пути (SP4), а не как обитатели теории типов. Канон: L1 (абсолютная идентичность), SP2 (чистая идентичность до языка сингулярностей), SP4 (индекс пути phys-schwarzschild/a6-proxy-v1), A6-прокси, P1 (без lim). Скалярный прокси эмитируется только при совпадении путей; чужой путь отклоняется (нет тихого коллапса).\\n\\nГраница доверия: ядровой прогон Lean 4.33.1 для артефакта ещё не выполнен — статус REQUIRES_CORE_LEAN (Mathlib-импорты вне allowlist). НЕ утверждается: регулярность метрики Шварцшильда, устранение сингулярности ОТО, физика интерьера чёрной дыры, структура горизонта событий.",
+      "state": "resolved",
+      "leanErrors": [],
+      "type": "scientific_task",
+      "targetFunction": "0_r ⊗ ∞_g ⇒ μ(R(r,g)) = r · g  [gated: reported = g.path]",
+      "zoneIds": ["physics", "astrophysics"],
+      "dependencyIds": ["math-singularity", "phys-unified"],
+      "dependentIds": ["calculator-node-gravitational"],
+      "fractalDepth": 2,
+      "economic": {
+        "costUnresolved": 250000000,
+        "costToSolve": 6000000,
+        "marketGain": 1200000000,
+        "riskLoss": 600000000
+      },
+      "singularityHint": "Путь-индекс P отделяет монолит от чужих целей; A6-прокси даёт r·g без пределов Коши и без физических обещаний.",
+      "sourceUrl": "https://doi.org/10.5281/zenodo.22124493",
+      "ricisSolvable": true
+    },
 
     ...CALCULATOR_GRAPH_STATIC_SEED.nodes,
     ...VOYNICH_FOLIANT_NODES,
@@ -1036,6 +1058,9 @@ export const initialMap: MapState = {
     { id: 'edge-pattern-to-reg', fromId: 'ricis-ast-reduction-pattern', toId: 'riemann-complex-pole-regularizer', strength: 0.95, stateColor: 'green', economicInfluence: 0.95 },
     { id: 'edge-reg-to-riemann', fromId: 'riemann-complex-pole-regularizer', toId: 'real-catalog-3', strength: 0.95, stateColor: 'green', economicInfluence: 0.95 },
     { id: 'edge-phys-gravitational', fromId: 'phys-unified', toId: 'calculator-node-gravitational', strength: 0.85, stateColor: 'yellow', economicInfluence: 0.8 },
+    { id: 'edge-math-to-schwarzschild-bridge', fromId: 'math-singularity', toId: 'schwarzschild-geometric-bridge', strength: 0.95, stateColor: 'green', economicInfluence: 0.9 },
+    { id: 'edge-phys-to-schwarzschild-bridge', fromId: 'phys-unified', toId: 'schwarzschild-geometric-bridge', strength: 0.9, stateColor: 'yellow', economicInfluence: 0.85 },
+    { id: 'edge-schwarzschild-bridge-to-gravitational', fromId: 'schwarzschild-geometric-bridge', toId: 'calculator-node-gravitational', strength: 0.9, stateColor: 'green', economicInfluence: 0.85 },
     { id: 'edge-kinematic-to-manipulator', fromId: 'calculator-node-kinematic', toId: 'manipulator-core-kinematics', strength: 0.9, stateColor: 'green', economicInfluence: 0.85 },
     { id: 'edge-informatics-to-manipulator', fromId: 'informatics-complexity', toId: 'manipulator-core-kinematics', strength: 0.9, stateColor: 'yellow', economicInfluence: 0.85 },
     { id: 'edge-manipulator-kin-to-ws', fromId: 'manipulator-core-kinematics', toId: 'manipulator-constraints-workspace', strength: 0.95, stateColor: 'green', economicInfluence: 0.8 },
@@ -1081,7 +1106,7 @@ export const initialMap: MapState = {
       id: 'physics',
       name: 'Физика',
       description: 'Квантовая гравитация, энергия.',
-      nodeIds: ['phys-unified', ...CALCULATOR_GRAPH_STATIC_SEED.nodeIdsByZone.physics],
+      nodeIds: ['phys-unified', 'schwarzschild-geometric-bridge', ...CALCULATOR_GRAPH_STATIC_SEED.nodeIdsByZone.physics],
       economicProfile: { costUnresolved: 2000, costToSolve: 500, marketGain: 100000, riskLoss: 10000 }
     },
     {
@@ -1123,7 +1148,7 @@ export const initialMap: MapState = {
       id: 'astrophysics',
       name: 'Астрономия и астрофизика',
       description: 'Космология, черные дыры, темная материя.',
-      nodeIds: [],
+      nodeIds: ['schwarzschild-geometric-bridge'],
       economicProfile: { costUnresolved: 2000, costToSolve: 2000, marketGain: 50000, riskLoss: 5000 }
     },
     {
@@ -1203,6 +1228,39 @@ export const initialMap: MapState = {
       ],
       "finalResult": "Axiom Extracted: math-singularity_resolved",
       "latex": "\\section*{RICIS-III Proof: Разрешение сингулярностей (Деление на ноль)}\n\\textbf{Author:} Dmitry V. Aleinikov (ORCID: 0009-0004-3226-7700)\n\\textbf{Target Function:} $ResolveSingularity(0_F/0_G) = F / G$\n\\subsection*{RICIS Transform & Axiom A6}\n$ 0_F \\times \\infty_G = F \\cdot G $\n\\textbf{Specification Lean 4 DOI:} \\href{https://doi.org/10.5281/zenodo.21529989}{https://doi.org/10.5281/zenodo.21529989} (Master Registry \\href{https://doi.org/10.5281/zenodo.21836220}{10.5281/zenodo.21836220}) (Foundations \\href{https://doi.org/10.5281/zenodo.17872755}{10.5281/zenodo.17872755}) (Math Singularity \\href{https://doi.org/10.5281/zenodo.22124493}{10.5281/zenodo.22124493})\n\\textbf{Final Result:} Axiom Extracted: math-singularity_resolved"
+    },
+    "schwarzschild-geometric-bridge": {
+      "nodeId": "schwarzschild-geometric-bridge",
+      "targetFunction": "0_r ⊗ ∞_g ⇒ μ(R(r,g)) = r · g  [gated: reported = g.path]",
+      "axiomsUsed": ["L1_IDENTITY", "SP2", "SP4", "A6_GEOMETRIC_BRIDGE", "P1_NO_LIMIT", "10.5281/zenodo.22124493"],
+      "steps": [
+        {
+          "phase": -1,
+          "name": "L1_IDENTITY & Ontological Origin",
+          "action": "Verify field monolith identity; payload never appears without path P",
+          "expression": "L1(g) : g = g  [FieldMonolith ⊢ PathIndex]"
+        },
+        {
+          "phase": 0.5,
+          "name": "Semantic Indexing SP4",
+          "action": "Bind payload to PathIndex phys-schwarzschild/a6-proxy-v1; foreign path rejected, no silent collapse",
+          "expression": "g.path ≠ h.path ⇒ g ≠ h  [SP4 preservesPath]"
+        },
+        {
+          "phase": 2,
+          "name": "RICIS transform & Axiom A6",
+          "action": "Apply orthogonal product/ratio proxy on Int strictly under matching path (gated evaluation)",
+          "expression": "0_F \\times \\infty_G = F \\cdot G  [μ⟨a,b⟩ = a · b ; a / b при b ≠ 0]  (Spec: https://doi.org/10.5281/zenodo.22124493)"
+        }
+      ],
+      "finalResult": "Axiom Extracted: schwarzschild-geometric-bridge_resolved",
+      "latex": "\section*{RICIS-III Proof: Геометрический мост Шварцшильда с индексом пути}\n\textbf{Author:} Dmitry V. Aleinikov (ORCID: 0009-0004-3226-7700)\n\textbf{Target Function:} $0_r \otimes \infty_g \Rightarrow R(r,g) \rightarrow_\mu r \cdot g$ — gated by path P (SP4)\n\subsection*{L1, SP2, SP4: гигиена пути до языка сингулярностей}\nМонолит тождественен сам себе: $g = g$ (L1). Различные пути никогда не коллапсируют молча (SP4): $g.path \neq h.path \Rightarrow g \neq h$. Скалярный прокси эмитируется только при reported = g.path; дрейф чужого пути отклоняется с пустым результатом.\n\subsection*{RICIS Transform & Axiom A6}\n$ 0_F \times \infty_G = F \cdot G $ — дискретный прокси на Int: продукт-ветвь $\mu\langle a, b\rangle = a \cdot b$ (проверено: $4 \cdot 3 = 12$); отношение-ветвь $a / b$ при $b \neq 0$ (проверено: $12 / 3 = 4$) — структурное деление, не предел и не $1/g_{tt}$ в $\mathbb{R}$.\n\subsection*{Scope Boundary}\nУстановлены: идентичность пути, запрет тихого коллапса, A6-прокси продукт/отношение на Int, gated evaluation под SP4. Не утверждается: регулярность метрики Шварцшильда, устранение сингулярности ОТО, физика интерьера чёрных дыр, структура горизонта событий, эмпирические тесты гравитации.\n\textbf{Source File:} \texttt{Schwarzschild\_GeometricBridge.lean}\n\textbf{Content Hash:} \texttt{1df6b21df93cf2e5e822156a151929d849dd553979ef32c8992045d2a5b3de63}\n\textbf{Provenance DOI:} \href{https://doi.org/10.5281/zenodo.22124493}{10.5281/zenodo.22124493}\n\textbf{Specification Lean 4 DOI:} \href{https://doi.org/10.5281/zenodo.21529989}{https://doi.org/10.5281/zenodo.21529989}\n\textbf{Final Result:} Axiom Extracted: schwarzschild-geometric-bridge_resolved",
+      "externalLean": {
+        "trustStatus": "REQUIRES_CORE_LEAN",
+        "sourceHash": "1df6b21df93cf2e5e822156a151929d849dd553979ef32c8992045d2a5b3de63",
+        "submittedAt": "2026-09-15",
+        "sourceLocked": true
+      }
     },
     "ricis-chatbot-monetization": {
       "nodeId": "ricis-chatbot-monetization",
