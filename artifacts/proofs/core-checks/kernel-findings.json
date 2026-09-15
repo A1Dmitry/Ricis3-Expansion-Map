@@ -1216,7 +1216,23 @@
       }
     }
   ],
-  "pendingKernelRun": [],
+  "pendingKernelRun": [
+    {
+      "artifactId": "ricis-general-resolution",
+      "immutableSource": "artifacts/proofs/ricis-general-resolution.lean",
+      "sourceSha256": "e92ebe52a85af838205a6bdb950ff4517f959cbfc4f38c1d0e7c4cb65cc35db3",
+      "job": "mathlib-kernel-check",
+      "toolchain": "leanprover/lean4:v4.33.0 (Mathlib @ 6f1ef4e5dd604a435bddba4747b13970cd65d2a1)",
+      "commands": [
+        "(cd mathlib-check && lake env lean artifacts/proofs/ricis-general-resolution.lean)",
+        "(cd mathlib-check && lake env lean artifacts/proofs/mathlib-checks/ricis-general-resolution.mathlib-check.lean)"
+      ],
+      "metadata": "artifacts/proofs/ricis-general-resolution.json",
+      "evidenceTarget": "docs/05-evidence/proofs/ricis-general-resolution-claim-audit-2026-09-15.md",
+      "expectedOutcome": "UNKNOWN — решает ядро. Статический аудит (UNVERIFIED_PREDICTION) предсказывает ошибку области видимости тактики `omega` и ряд рисков на `specific_case_from_general`; прогноз не является статусом и не может заменить прогон.",
+      "status": "PENDING_KERNEL_RUN"
+    }
+  ],
   "findings": [
     {
       "id": "F-01",
@@ -1305,6 +1321,38 @@
       ],
       "requiredDecision": "Признать подстановку неверной, заменить на ядровый шаг, соответствующий цели после induction, и перепроверить; до этого производная не считается ремонтом.",
       "resolution": "Подтверждено: замена `List.mem_of_mem_append_left hr → List.mem_append.mpr (Or.inl hr)` неприменима в точке 104:4 после induction (цель уже не содержит `++`). Производная A11 зарегистрирована в ciPolicy.expectedFailures (ожидаемый отказ с зафиксированным основанием); ядровой ремонт — построение тактических шагов под фактические цели после induction — отдельная задача."
+    },
+    {
+      "id": "F-09",
+      "severity": "HIGH",
+      "title": "«Общая теорема разрешения комплексных сингулярностей» является определительным развёртыванием определения (метрика вместо исходной задачи)",
+      "artifact": "artifacts/proofs/ricis-general-resolution.lean",
+      "evidence": "artifacts/proofs/ricis-general-resolution.lean: ricis_eval_general объявлена ровно тем выражением, которое утверждает ricis_general_resolution (`if S.m ≥ S.n then (let k := S.m - S.n; if k = 0 then S.N_tilde S.a / S.D_tilde S.a else 0) else 0`); доказательство — `dsimp only [ricis_eval_general]` + `by_cases` + `omega`/`simp`. Сверка тел доказательств: ax_A4_general, ax_SP1_general и ricis_reduce не встречаются ни в одном доказательстве (только собственные объявления). Формальная метрика «теорема доказана» выполняется при недоказанной содержательной задаче (связь структурной редукции сингулярности со значением). Ядерный прогон — docs/05-evidence/proofs/ricis-general-resolution-claim-audit-2026-09-15.md.",
+      "status": "Зафиксировано: заголовок «ОБЩАЯ теорема разрешения комплексных сингулярностей» содержимым файла не подтверждается; артефакт классифицируется REQUIRES_CORE_LEAN с зафиксированной границей (artifacts/proofs/ricis-general-resolution.json, boundary.notProven)."
+    },
+    {
+      "id": "F-10",
+      "severity": "HIGH",
+      "title": "Необъявленная граница доверия: две axiom-декларации и имя теоремы, обещающее классический предел",
+      "artifact": "artifacts/proofs/ricis-general-resolution.lean",
+      "evidence": "artifacts/proofs/ricis-general-resolution.lean: `axiom ax_A4_general` и `axiom ax_SP1_general` — доверенные контракты, а не доказательства (AGENTS.md §7 требует видимой границы доверия; в файле нет ни #print axioms, ни маркировки, ни ссылки на evidence). При этом заявленный заголовок «(ФИНАЛЬНАЯ ВЕРСИЯ 2)» и имя теоремы `ricis_equals_classical_limit` создают впечатление доказанного совпадения с классическим пределом, тогда как никакое предельное выражение (lim, Лопиталь, Коши) в файле не определено и не выводится — P1 RICIS прямо запрещает пределы внутри Resolve_RICIS.",
+      "status": "Зафиксировано: контракты перечислены в artifacts/proofs/ricis-general-resolution.json (declaredAxioms, usedByTheorems=false); эпилог mathlib-check прогона печатает #print axioms и для объявленных контрактов, чтобы граница доверия была видна в evidence."
+    },
+    {
+      "id": "F-11",
+      "severity": "MEDIUM",
+      "title": "Разрыв «редукция ↔ вычисление»: объявленная редукция не используется, сингулярность 0/0 не предъявлена",
+      "artifact": "artifacts/proofs/ricis-general-resolution.lean",
+      "evidence": "artifacts/proofs/ricis-general-resolution.lean: функция `ricis_reduce` (единственное место, где выполняется сокращение (z-a)^min(m,n) и строится редуцированное выражение) объявлена и не используется ни одной теоремой; ни одна теорема не связывает ricis_reduce S со значением ricis_eval_general S (например, определённость редуцированного выражения в точке a). Условия сингулярности `N a = 0 ∧ D a = 0` не утверждаются ни для общего случая, ни в форме RicisExpr — то есть объект разрешения в артефакте отсутствует.",
+      "status": "Зафиксировано; содержательный ремонт (новая версия доказательства с фактической связью A4/SP4-редукции и значения) — отдельная задача, требующая решения владельца."
+    },
+    {
+      "id": "F-12",
+      "severity": "MEDIUM",
+      "title": "Граница «Mathlib нельзя проверить на runner» сузила доказательную базу: 14 артефактов оставались REQUIRES_CORE_LEAN по недостоверному основанию",
+      "artifact": "artifacts/proofs/README.md, .github/workflows/lean-artifact-kernel-check.yml",
+      "evidence": "artifacts/proofs/README.md (версия 0.4.189) утверждал «No pinned prebuilt Mathlib fits a standard runner; status not promoted» как основание для REQUIRES_CORE_LEAN у 14 артефактов с `import Mathlib`. Фактически на стандартный runner не влезает только сборка Mathlib из исходников: готовые oleans закреплённой ревизии (`lake exe cache get`) влезают, что подтверждается пилотным job `mathlib-kernel-check` (Lean `v4.33.0` = lean-toolchain Mathlib @ 6f1ef4e5dd604a435bddba4747b13970cd65d2a1). Ни один статус при этом не повышается автоматически: прогон запускается только для артефактов из явного allowlist MATHLIB_ARTIFACTS.",
+      "status": "Частично закрыто: механизм создан и применён к пилотному артефакту ricis-general-resolution; для остальных Mathlib-артефактов статус остаётся REQUIRES_CORE_LEAN до их собственного прогона (отдельная задача, решение владельца)."
     }
   ],
   "ciPolicy": {
@@ -1320,6 +1368,8 @@
         "checkedFile": "artifacts/proofs/core-checks/ricis-seed-expansion-a11.core-check.lean",
         "basis": "run 34870620154 (Lean 4.33.1, дословно): 104:4 «Type mismatch: List.mem_append.mpr (Or.inl hr) has type r ∈ s.rules ++ ?m.77 but is expected to have type r ∈ a✝¹.rules» (после induction цель не содержит `++` — замена неприменима в этой точке, F-08); 105:4 «Tactic `split` failed: Could not split an `if` or `match` expression in the goal»; 156:63 / 165:50 / 176:105 «unsolved goals» (core-simp слабее Mathlib-simp). Итог: 3 из 6 теорем с sorryAx (monotonic_growth, identity_violation_never_commits, identity_ok_preserves_expansion), 3 приняты (propext). Ядровой ремонт доказательства — отдельная задача; до него производная не считается ремонтом (F-08)."
       }
-    ]
+    ],
+    "mathlibRule": "Тот же закон, что и для core-check, отдельный список: единственный источник «ожидаемых отказов» Mathlib-целей — ciPolicy.mathlibExpectedFailures[].checkedFile (workflow извлекает его jq-выражением `(.ciPolicy.mathlibExpectedFailures // [])[].checkedFile`). Цель не из списка, упавшая в прогоне, рвёт прогон; скомпилированный файл с sorryAx рвёт прогон всегда; зарегистрированная цель, которая скомпилировалась, отдаётся как OK с NOTE об обновлении реестра. Список остаётся пустым до первого фактического прогона: прогноз не является основанием для регистрации ожидаемого отказа.",
+    "mathlibExpectedFailures": []
   }
 }

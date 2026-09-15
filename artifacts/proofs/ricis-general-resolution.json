@@ -1,0 +1,57 @@
+{
+  "source": "Внешний Lean-исходник владельца проекта, передан в сессии Arena 2026-09-15 с заголовком «ОБЩАЯ теорема разрешения комплексных сингулярностей (ФИНАЛЬНАЯ ВЕРСИЯ 2)»; сохранён байт-в-байт в artifacts/proofs/ricis-general-resolution.lean (AGENTS.md §7: нормализация, перегенерация и перезапись запрещены).",
+  "claim": "Общая теорема разрешения комплексных сингулярностей для параметризованной мероморфной сингулярности S = (N, D, a, m, n): при S.m ≥ S.n значение ricis_eval_general S равно N_tilde a / D_tilde a, если m = n, и 0 иначе; частный случай (z²+1)/(z+i) в точке a = -i даёт -2i.",
+  "method": "declared_structural_reduction + classical_tactic_projection",
+  "verification": {
+    "valid": false,
+    "verifiedAxioms": [],
+    "contentHash": "e92ebe52a85af838205a6bdb950ff4517f959cbfc4f38c1d0e7c4cb65cc35db3",
+    "trustStatus": "REQUIRES_CORE_LEAN"
+  },
+  "declaredAxioms": [
+    {
+      "name": "ax_A4_general",
+      "statement": "∀ F G a, F a ≠ 0 → G a ≠ 0 → RicisExpr.div (zero F) (zero G) = RicisExpr.val (F a / G a)",
+      "role": "доверенный RICIS-контракт A4 в приложении к индексированным нулям",
+      "usedByTheorems": false
+    },
+    {
+      "name": "ax_SP1_general",
+      "statement": "∀ a k, k > 0 → RicisExpr.div (zero (fun z => (z - a)^k)) (zero (fun z => (z - a)^k)) = RicisExpr.val 1",
+      "role": "доверенный RICIS-контракт SP1 (сокращение только идентичных нулевых факторов)",
+      "usedByTheorems": false
+    }
+  ],
+  "boundary": {
+    "provenByThisArtifact": "Ничего сверх определительного развёртывания: ricis_eval_general S в ветви S.m ≥ S.n объявлена ровно тем выражением, которое утверждает теорема; доказательство — unfolding (dsimp) + арифметика Nat (omega) + simp.",
+    "notProven": [
+      "Связь декларированных RICIS-аксиом (ax_A4_general, ax_SP1_general) с теоремой: обе аксиомы не используются ни одним доказательством файла — RicisExpr/A4/SP1 в выводе не участвуют.",
+      "Связь редукции с вычислением: ricis_reduce (фактическая структурная редукция) объявлена и нигде не используется; ни одна теорема не утверждает соотношение между ricis_reduce S и ricis_eval_general S (например, что сокращённое выражение определено в точке a или что его значение в a равно ricis_eval_general S).",
+      "Мероморфная структура: поля hN/hD (факторизация N и D) не входят ни в одну теорему, кроме частного случая, где факторизация проверяется тождеством многочленов.",
+      "Классический предел: имя теоремы ricis_equals_classical_limit утверждает совпадение с классическим пределом, но никакое предельное выражение (lim, Лопиталь, Коши) в файле не определено и не выводится; P1 RICIS запрещает пределы внутри Resolve_RICIS.",
+      "Сингулярность как объект: 0/0 в точке a не предъявлено (N a = 0 и D a = 0 не утверждаются ни для общего случая, ни в RicisExpr-форме)."
+    ]
+  },
+  "staticAudit": {
+    "status": "UNVERIFIED_PREDICTION",
+    "method": "чтение исходника без прогона ядра (локальный Lean-тулчейн в среде агента недоступен: каналы elan/GitHub release assets недоступны, см. docs/05-evidence/proofs/ricis-general-resolution-claim-audit-2026-09-15.md)",
+    "findings": [
+      "Тактика `omega` используется в четырёх местах, но ни один из импортов файла (Mathlib.Data.Complex.Basic, Mathlib.Tactic.Ring, Mathlib.Data.Nat.Basic) не объявляет её в области видимости: ожидается ошибка «unknown tactic 'omega'» при первом прогоне ядра.",
+      "specific_case_from_general: цель начинается цепочкой из семи `let`-биндингов, а тактика `intro N D a m n N_tilde D_tilde` вводит семь имён; поведение `intro` на let-биндингах (zeta-редукция вместо введения переменной) определяет, останутся ли в цели конкретные значения 1/1 или произвольные m/n. В последнем случае цели `∀ z, N z = (z - a)^m * N_tilde z`, `m ≥ n` и равенство -2i недоказуемы, а доказательство обрывается на `exact hN`/`omega`.",
+      "Финальный блок `simp [h_mn, N_tilde, D_tilde, a, m, n]` опирается на локальные let-имена как на simp-аргументы; при иной форме цели (свободные переменные вместо let-значений) это недопустимый simp-аргумент.",
+      "`simp [h_k_ne_zero]` в ветви m ≠ n должен закрыть цель целиком; следующий за ним `omega` в этом случае применяется к отсутствующим целям (класс дефекта F-06: «No goals to be solved»).",
+      "Последняя строка файла содержит текст инструкции владельца («интегрировать в проект») внутри строки комментария; байты сохранены без изменений (§7), семантически это комментарий."
+    ]
+  },
+  "verificationPath": {
+    "workflow": ".github/workflows/lean-artifact-kernel-check.yml",
+    "job": "mathlib-kernel-check",
+    "checkedFile": "artifacts/proofs/ricis-general-resolution.lean",
+    "artifactCheckedAsProvided": true,
+    "toolchain": "leanprover/lean4:v4.33.0 (Mathlib @ 6f1ef4e5dd604a435bddba4747b13970cd65d2a1)",
+    "command": "lake env lean artifacts/proofs/ricis-general-resolution.lean",
+    "registry": "artifacts/proofs/core-checks/kernel-findings.json",
+    "evidence": "docs/05-evidence/proofs/ricis-general-resolution-claim-audit-2026-09-15.md",
+    "note": "Повышение trustStatus возможно только фактом прогона ядра: exit 0 без sorryAx → LEAN_VERIFIED/TRUSTED_AXIOM по решению владельца; ошибки компилятора → статус остаётся REQUIRES_CORE_LEAN, а артефакт классифицируется REJECTED (запись в реестре + ciPolicy). Прогон проверяет именно предоставленные байты — производная с подстановками для Mathlib-артефакта не создаётся."
+  }
+}
