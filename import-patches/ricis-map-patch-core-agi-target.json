@@ -5,8 +5,8 @@
     "baseSeed": "map_after_geometric_bridge_doi",
     "generated": "2026-08-31T21:50:00Z",
     "author": "Dmitry Aleinikov / package prepared for Zenodo",
-    "sourceSystem": "PENDING_DOI — replace after Zenodo publish",
-    "trustPolicy": "WORKFLOW_ONLY. Marks core-agi-target resolved under SP4 path-indexed Goal_P + L1 + A6 geometric bridge (10.5281/zenodo.22124493). Does NOT claim empirical AGI alignment, Clay status, or full Lean-kernel certification. Replace PENDING_DOI with the new Zenodo DOI before import.",
+    "sourceSystem": "Zenodo DOI 10.5281/zenodo.22225762",
+    "trustPolicy": "WORKFLOW_ONLY. Marks core-agi-target resolved under SP4 path-indexed Goal_P + L1 + A6 geometric bridge (10.5281/zenodo.22124493). Does NOT claim empirical AGI alignment, Clay status, or full Lean-kernel certification. The AGI target package is published at DOI 10.5281/zenodo.22225762; the geometric bridge dependency remains separately attributed to DOI 10.5281/zenodo.22124493.",
     "unlocks": [
       "med-diagnostics",
       "pharm-design",
@@ -22,7 +22,7 @@
       "type": "core_singularity",
       "state": "resolved",
       "targetFunction": "FormalizeAGITarget() = Goal_P  [SP4 path index]; path singularity → SP3/SP4 or A6: det((A,0),(0,B))=A·B",
-      "description": "Path-indexed AGI objective Goal_P under L1 identity. Multi-path divergence 0/0 or 0×∞ reduces via SP3/SP4 or local geometric bridge A6 (DOI 10.5281/zenodo.22124493). Provenance of this formalization: PENDING_DOI. Unlocks applied child frontier on the map. Workflow trust only.",
+      "description": "Path-indexed AGI objective Goal_P under L1 identity. Multi-path divergence 0/0 or 0×∞ reduces via SP3/SP4 or local geometric bridge A6 (DOI 10.5281/zenodo.22124493). Provenance of this formalization: DOI 10.5281/zenodo.22225762. Unlocks applied child frontier on the map. Workflow trust only.",
       "zoneIds": [
         "informatics"
       ],
@@ -62,7 +62,7 @@
           "phase": 4,
           "name": "PROVENANCE_DOI",
           "action": "Cite this formalization record",
-          "expression": "PENDING_DOI"
+          "expression": "10.5281/zenodo.22225762"
         },
         {
           "phase": 5,
@@ -77,14 +77,14 @@
           "expression": "NOT empirical AGI safety certificate; NOT Clay; Lean = prototype"
         }
       ],
-      "finalResult": "core-agi-target workflow-resolved via Goal_P (SP4/L1) and A6 bridge. PENDING_DOI. Child frontier unlocked structurally.",
-      "latex": "\\section*{RICIS-III: AGI Target Formalization}\\textbf{Goal}_P:=\\mathrm{SP4}(\\mathrm{Objective},P).\\quad 0_{\\Delta s}\\times\\infty_{\\Delta\\mathrm{ctx}}=\\det((A,0),(0,B))=A\\cdot B.\\textbf{DOI:} PENDING_DOI. Scope: workflow only.",
+      "finalResult": "core-agi-target workflow-resolved via Goal_P (SP4/L1) and A6 bridge. DOI 10.5281/zenodo.22225762. Child frontier unlocked structurally.",
+      "latex": "\\section*{RICIS-III: AGI Target Formalization}\\textbf{Goal}_P:=\\mathrm{SP4}(\\mathrm{Objective},P).\\quad 0_{\\Delta s}\\times\\infty_{\\Delta\\mathrm{ctx}}=\\det((A,0),(0,B))=A\\cdot B.\\textbf{DOI:} 10.5281/zenodo.22225762. Scope: workflow only.",
       "axiomsUsed": [
         "L1_IDENTITY",
         "SP4",
         "A6_GEOMETRIC_BRIDGE",
         "10.5281/zenodo.22124493",
-        "PENDING_DOI"
+        "10.5281/zenodo.22225762"
       ]
     }
   }
