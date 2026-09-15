@@ -203,7 +203,7 @@ export const initialMap: MapState = {
       sourceUrl: 'https://doi.org/10.5281/zenodo.22225762',
       zoneIds: ['informatics'],
       dependencyIds: [],
-      dependentIds: ['med-diagnostics', 'pharm-design', 'phys-unified', 'econ-value', 'ethic-alignment', 'ai-authorship-provenance'],
+      dependentIds: ['med-diagnostics', 'pharm-design', 'econ-value', 'ethic-alignment', 'ai-authorship-provenance'],
       fractalDepth: 0,
       economic: {
         costUnresolved: 10_000_000_000_000,
@@ -222,7 +222,7 @@ export const initialMap: MapState = {
       sourceUrl: 'https://doi.org/10.5281/zenodo.22124493',
       zoneIds: ['math'],
       dependencyIds: [],
-      dependentIds: ['phys-unified', 'informatics-complexity', 'ai-authorship-provenance', 'phys-field-bridge'],
+      dependentIds: ['phys-unified', 'informatics-complexity', 'ai-authorship-provenance', 'phys-field-bridge', 'contract-sp4-path-index', 'contract-a6-product-proxy', 'phys-field-bridge-contract'],
       fractalDepth: 0,
       economic: {
         costUnresolved: 1_000_000_000,
@@ -294,14 +294,15 @@ export const initialMap: MapState = {
     },
     {
       id: 'phys-unified',
-      title: 'Единая Теория Поля',
-      description: 'Применение монолитов RICIS-III для квантовой гравитации и объединения взаимодействий. Дискретный вычислительный прокси (Int) выделен в узел phys-field-bridge (DOI 10.5281/zenodo.22124493, workflow provenance); continuum-утверждения этим прокси не доказываются.',
-      state: 'resolved',
+      title: 'Единая теория поля (контрактный слой)',
+      description: 'Узел физики: continuum unification QM–GR остаётся OPEN. Ранее ошибочно помечался resolved через один det-proxy. Теперь явно: resolved только dependency contract layers; phys-unified = partial до появления отдельной continuum-математики вне A6 Int-proxy. Provenance bridge DOI 10.5281/zenodo.22124493. WORKFLOW_ONLY; UFT not claimed.',
+      state: 'partial',
       leanErrors: [],
       type: 'scientific_task',
-      targetFunction: 'UnifiedField(QG)',
+      targetFunction: 'UFT continuum: OPEN. Workflow layer: depends on phys-field-bridge-contract (A6+SP4+L1).',
+      sourceUrl: 'https://doi.org/10.5281/zenodo.22124493',
       zoneIds: ['physics'],
-      dependencyIds: ['core-agi-target', 'math-singularity'],
+      dependencyIds: ['phys-field-bridge-contract', 'math-singularity'],
       dependentIds: ['calculator-node-gravitational'],
       fractalDepth: 1,
       economic: {
@@ -330,6 +331,138 @@ export const initialMap: MapState = {
         riskLoss: 2000000000
       },
       singularityHint: 'Дискретный прокси 0_F × ∞_G → a·b (Int) и a/b при b≠0; чужой путь отклоняется (none)',
+      sourceUrl: 'https://doi.org/10.5281/zenodo.22124493',
+      ricisSolvable: true
+    },
+    {
+      id: 'contract-sp4-path-index',
+      title: 'SP4 Path Index (Field Bridge)',
+      description: 'Канон SP4: payload поля не существует без path P. Доказано: various paths yield distinct FieldMonolith (no silent collapse). Lean: UnifiedField_GeometricBridge.lean. WORKFLOW_ONLY.',
+      state: 'resolved',
+      leanErrors: [],
+      type: 'scientific_task',
+      targetFunction: 'PathIndex + FieldMonolith; sp4_no_silent_collapse: path≠ → monolith≠',
+      zoneIds: ['math', 'physics'],
+      dependencyIds: ['math-singularity'],
+      dependentIds: ['contract-l1-field-monolith', 'contract-a6-product-proxy', 'phys-field-bridge-contract'],
+      fractalDepth: 2,
+      economic: {
+        costUnresolved: 500_000_000,
+        costToSolve: 25_000_000,
+        marketGain: 2_500_000_000,
+        riskLoss: 1_000_000_000
+      },
+      singularityHint: 'SP4: path≠ → monolith≠; нет тихого схлопывания путей',
+      sourceUrl: 'https://doi.org/10.5281/zenodo.22124493',
+      ricisSolvable: true
+    },
+    {
+      id: 'contract-l1-field-monolith',
+      title: 'L1 Field Monolith Identity',
+      description: 'L1 на FieldMonolith: тождество монолита и сохранение path. Не физический закон поля — структурный закон идентичности. Lean: UnifiedField_GeometricBridge.lean.',
+      state: 'resolved',
+      leanErrors: [],
+      type: 'scientific_task',
+      targetFunction: 'l1_holds(g): g=g; preservesPath(g,p) ↔ p=g.path',
+      zoneIds: ['math'],
+      dependencyIds: ['contract-sp4-path-index'],
+      dependentIds: ['contract-path-gated-eval', 'phys-field-bridge-contract'],
+      fractalDepth: 2,
+      economic: {
+        costUnresolved: 500_000_000,
+        costToSolve: 25_000_000,
+        marketGain: 2_500_000_000,
+        riskLoss: 1_000_000_000
+      },
+      singularityHint: 'L1: g=g; reported path сохраняется iff равен path монолита',
+      sourceUrl: 'https://doi.org/10.5281/zenodo.22124493',
+      ricisSolvable: true
+    },
+    {
+      id: 'contract-a6-product-proxy',
+      title: 'A6 Product Proxy (μ = a·b)',
+      description: 'A6 computational proxy: orthogonal pair → product. Canon prose 0_F⊗∞_G ⇒ R→μ F·G; здесь discrete Int measure. Не continuum field equations. Lean compiled, 0 sorry.',
+      state: 'resolved',
+      leanErrors: [],
+      type: 'scientific_task',
+      targetFunction: 'a6_product_proxy(a,b) = a*b  [Int; P1, no lim]',
+      zoneIds: ['math'],
+      dependencyIds: ['math-singularity', 'contract-sp4-path-index'],
+      dependentIds: ['contract-a6-ratio-proxy', 'contract-path-gated-eval', 'phys-field-bridge-contract'],
+      fractalDepth: 2,
+      economic: {
+        costUnresolved: 500_000_000,
+        costToSolve: 25_000_000,
+        marketGain: 2_500_000_000,
+        riskLoss: 1_000_000_000
+      },
+      singularityHint: 'A6 product-ветвь: μ(R(a,b)) = a·b на Int, без пределов',
+      sourceUrl: 'https://doi.org/10.5281/zenodo.22124493',
+      ricisSolvable: true
+    },
+    {
+      id: 'contract-a6-ratio-proxy',
+      title: 'A6 Ratio Proxy (a/b, b≠0)',
+      description: 'Ratio-style A6 proxy when reciprocal leg is explicit payload. Не 1/∇\' в ℝ и не предел L_P→0. P1 only.',
+      state: 'resolved',
+      leanErrors: [],
+      type: 'scientific_task',
+      targetFunction: 'a6_ratio_proxy(a,b,h:b≠0) = a/b  [Int div; structural]',
+      zoneIds: ['math'],
+      dependencyIds: ['contract-a6-product-proxy'],
+      dependentIds: ['contract-path-gated-eval', 'phys-field-bridge-contract'],
+      fractalDepth: 2,
+      economic: {
+        costUnresolved: 500_000_000,
+        costToSolve: 25_000_000,
+        marketGain: 2_500_000_000,
+        riskLoss: 1_000_000_000
+      },
+      singularityHint: 'A6 ratio-ветвь: структурное a/b при b≠0, не предел',
+      sourceUrl: 'https://doi.org/10.5281/zenodo.22124493',
+      ricisSolvable: true
+    },
+    {
+      id: 'contract-path-gated-eval',
+      title: 'Path-Gated Evaluation',
+      description: 'SP2+SP4 hygiene: scalar proxy emitted only under matching path; foreign path ⇒ none (drift rejected). Связывает L1/SP4 с A6 proxy без подмены path.',
+      state: 'resolved',
+      leanErrors: [],
+      type: 'scientific_task',
+      targetFunction: 'eval*UnderPath: reported=path → some(proxy); else none',
+      zoneIds: ['math', 'informatics'],
+      dependencyIds: ['contract-l1-field-monolith', 'contract-a6-product-proxy', 'contract-a6-ratio-proxy'],
+      dependentIds: ['phys-field-bridge-contract'],
+      fractalDepth: 2,
+      economic: {
+        costUnresolved: 500_000_000,
+        costToSolve: 25_000_000,
+        marketGain: 2_500_000_000,
+        riskLoss: 1_000_000_000
+      },
+      singularityHint: 'Gated eval: чужой путь отклоняется (none), подмены нет',
+      sourceUrl: 'https://doi.org/10.5281/zenodo.22124493',
+      ricisSolvable: true
+    },
+    {
+      id: 'phys-field-bridge-contract',
+      title: 'Field Bridge Contract (Lean)',
+      description: 'Агрегированный workflow-контракт геометрического моста для полевого узла. Все дочерние contract-* resolved в Lean без sorry. Это НЕ доказательство единой теории поля / КМ+ОТО.',
+      state: 'resolved',
+      leanErrors: [],
+      type: 'scientific_task',
+      targetFunction: 'FieldMonolith + A6 proxies + path gate (UnifiedField_GeometricBridge.lean)',
+      zoneIds: ['physics', 'math'],
+      dependencyIds: ['contract-sp4-path-index', 'contract-l1-field-monolith', 'contract-a6-product-proxy', 'contract-a6-ratio-proxy', 'contract-path-gated-eval', 'math-singularity'],
+      dependentIds: ['phys-unified'],
+      fractalDepth: 1,
+      economic: {
+        costUnresolved: 1000000000,
+        costToSolve: 50000000,
+        marketGain: 5000000000,
+        riskLoss: 2000000000
+      },
+      singularityHint: 'Агрегат SP4+L1+A6+gate; continuum-слой отсутствует (OPEN у phys-unified)',
       sourceUrl: 'https://doi.org/10.5281/zenodo.22124493',
       ricisSolvable: true
     },
@@ -1044,11 +1177,25 @@ export const initialMap: MapState = {
   edges: [
     { id: 'edge-1', fromId: 'core-agi-target', toId: 'med-diagnostics', strength: 0.9, stateColor: 'yellow', economicInfluence: 0.7 },
     { id: 'edge-2', fromId: 'core-agi-target', toId: 'pharm-design', strength: 0.9, stateColor: 'yellow', economicInfluence: 0.8 },
-    { id: 'edge-3', fromId: 'core-agi-target', toId: 'phys-unified', strength: 0.8, stateColor: 'yellow', economicInfluence: 0.9 },
     { id: 'edge-4', fromId: 'core-agi-target', toId: 'econ-value', strength: 0.9, stateColor: 'yellow', economicInfluence: 1.0 },
     { id: 'edge-5', fromId: 'core-agi-target', toId: 'ethic-alignment', strength: 1.0, stateColor: 'yellow', economicInfluence: 1.0 },
     { id: 'edge-6', fromId: 'math-singularity', toId: 'phys-unified', strength: 0.7, stateColor: 'yellow', economicInfluence: 0.8 },
     { id: 'edge-math-to-field-bridge', fromId: 'math-singularity', toId: 'phys-field-bridge', strength: 0.85, stateColor: 'green', economicInfluence: 0.85 },
+    { id: 'edge-math-singularity-contract-sp4-path-index', fromId: 'math-singularity', toId: 'contract-sp4-path-index', strength: 0.85, stateColor: 'green', economicInfluence: 0.85 },
+    { id: 'edge-contract-sp4-path-index-contract-l1-field-monolith', fromId: 'contract-sp4-path-index', toId: 'contract-l1-field-monolith', strength: 0.85, stateColor: 'green', economicInfluence: 0.8 },
+    { id: 'edge-math-singularity-contract-a6-product-proxy', fromId: 'math-singularity', toId: 'contract-a6-product-proxy', strength: 0.85, stateColor: 'green', economicInfluence: 0.85 },
+    { id: 'edge-contract-sp4-path-index-contract-a6-product-proxy', fromId: 'contract-sp4-path-index', toId: 'contract-a6-product-proxy', strength: 0.85, stateColor: 'green', economicInfluence: 0.8 },
+    { id: 'edge-contract-a6-product-proxy-contract-a6-ratio-proxy', fromId: 'contract-a6-product-proxy', toId: 'contract-a6-ratio-proxy', strength: 0.85, stateColor: 'green', economicInfluence: 0.8 },
+    { id: 'edge-contract-l1-field-monolith-contract-path-gated-eval', fromId: 'contract-l1-field-monolith', toId: 'contract-path-gated-eval', strength: 0.85, stateColor: 'green', economicInfluence: 0.8 },
+    { id: 'edge-contract-a6-product-proxy-contract-path-gated-eval', fromId: 'contract-a6-product-proxy', toId: 'contract-path-gated-eval', strength: 0.85, stateColor: 'green', economicInfluence: 0.8 },
+    { id: 'edge-contract-a6-ratio-proxy-contract-path-gated-eval', fromId: 'contract-a6-ratio-proxy', toId: 'contract-path-gated-eval', strength: 0.85, stateColor: 'green', economicInfluence: 0.8 },
+    { id: 'edge-contract-sp4-path-index-phys-field-bridge-contract', fromId: 'contract-sp4-path-index', toId: 'phys-field-bridge-contract', strength: 0.85, stateColor: 'green', economicInfluence: 0.8 },
+    { id: 'edge-contract-l1-field-monolith-phys-field-bridge-contract', fromId: 'contract-l1-field-monolith', toId: 'phys-field-bridge-contract', strength: 0.85, stateColor: 'green', economicInfluence: 0.8 },
+    { id: 'edge-contract-a6-product-proxy-phys-field-bridge-contract', fromId: 'contract-a6-product-proxy', toId: 'phys-field-bridge-contract', strength: 0.85, stateColor: 'green', economicInfluence: 0.8 },
+    { id: 'edge-contract-a6-ratio-proxy-phys-field-bridge-contract', fromId: 'contract-a6-ratio-proxy', toId: 'phys-field-bridge-contract', strength: 0.85, stateColor: 'green', economicInfluence: 0.8 },
+    { id: 'edge-contract-path-gated-eval-phys-field-bridge-contract', fromId: 'contract-path-gated-eval', toId: 'phys-field-bridge-contract', strength: 0.85, stateColor: 'green', economicInfluence: 0.8 },
+    { id: 'edge-math-singularity-phys-field-bridge-contract', fromId: 'math-singularity', toId: 'phys-field-bridge-contract', strength: 0.85, stateColor: 'green', economicInfluence: 0.85 },
+    { id: 'edge-phys-field-bridge-contract-phys-unified', fromId: 'phys-field-bridge-contract', toId: 'phys-unified', strength: 0.8, stateColor: 'yellow', economicInfluence: 0.9 },
     { id: 'edge-7', fromId: 'math-singularity', toId: 'informatics-complexity', strength: 0.8, stateColor: 'yellow', economicInfluence: 0.9 },
     { id: 'edge-agi-provenance', fromId: 'core-agi-target', toId: 'ai-authorship-provenance', strength: 0.9, stateColor: 'yellow', economicInfluence: 0.9 },
     { id: 'edge-math-provenance', fromId: 'math-singularity', toId: 'ai-authorship-provenance', strength: 0.9, stateColor: 'yellow', economicInfluence: 0.9 },
@@ -1076,14 +1223,14 @@ export const initialMap: MapState = {
       id: 'math',
       name: 'Математика',
       description: 'Формальные модели, аксиоматика, сложность.',
-      nodeIds: ['math-singularity', 'ai-authorship-provenance', 'ricis-ast-reduction-pattern', 'riemann-complex-pole-regularizer', 'real-catalog-3', ...CALCULATOR_GRAPH_STATIC_SEED.nodeIdsByZone.math],
+      nodeIds: ['math-singularity', 'ai-authorship-provenance', 'ricis-ast-reduction-pattern', 'riemann-complex-pole-regularizer', 'real-catalog-3', 'contract-sp4-path-index', 'contract-l1-field-monolith', 'contract-a6-product-proxy', 'contract-a6-ratio-proxy', 'contract-path-gated-eval', 'phys-field-bridge-contract', ...CALCULATOR_GRAPH_STATIC_SEED.nodeIdsByZone.math],
       economicProfile: { costUnresolved: 1000, costToSolve: 100, marketGain: 10000, riskLoss: 5000 }
     },
     {
       id: 'informatics',
       name: 'Информатика и ИИ',
       description: 'Вычисления, нейросети, AGI.',
-      nodeIds: ['core-agi-target', 'informatics-complexity', 'ai-authorship-provenance', 'ricis-chatbot-monetization', ...CALCULATOR_GRAPH_STATIC_SEED.nodeIdsByZone.informatics],
+      nodeIds: ['core-agi-target', 'informatics-complexity', 'ai-authorship-provenance', 'ricis-chatbot-monetization', 'contract-path-gated-eval', ...CALCULATOR_GRAPH_STATIC_SEED.nodeIdsByZone.informatics],
       economicProfile: { costUnresolved: 10000, costToSolve: 5000, marketGain: 50000, riskLoss: 100000 }
     },
     {
@@ -1104,7 +1251,7 @@ export const initialMap: MapState = {
       id: 'physics',
       name: 'Физика',
       description: 'Квантовая гравитация, энергия.',
-      nodeIds: ['phys-unified', 'phys-field-bridge', ...CALCULATOR_GRAPH_STATIC_SEED.nodeIdsByZone.physics],
+      nodeIds: ['phys-unified', 'phys-field-bridge', 'contract-sp4-path-index', 'phys-field-bridge-contract', ...CALCULATOR_GRAPH_STATIC_SEED.nodeIdsByZone.physics],
       economicProfile: { costUnresolved: 2000, costToSolve: 500, marketGain: 100000, riskLoss: 10000 }
     },
     {
@@ -1934,41 +2081,42 @@ export const initialMap: MapState = {
     },
     "phys-unified": {
         "nodeId": "phys-unified",
-        "targetFunction": "UnifiedField(QG)",
+        "targetFunction": "Continuum UFT OPEN; contract layer via phys-field-bridge-contract",
+        "axiomsUsed": ["SP4", "A6_GEOMETRIC_BRIDGE", "10.5281/zenodo.22124493"],
         "steps": [
             {
-                "phase": -1,
-                "name": "L1_IDENTITY & Ontological Origin Check",
-                "action": "Verification of ontological identity for Единая Теория Поля (Квантовая гравитация)",
-                "expression": "L_1(X) = X \\implies T(phys-unified)"
-            },
-            {
-                "phase": 0.5,
-                "name": "Semantic Vector Indexing (SP4)",
-                "action": "Construct 2D orthogonal degenerate monolith vectors u = (g_{\\mu\\nu}, 0) and v = (0, R_{\\text{Riemann}})",
-                "expression": "\\vec{u} = (g_{\\mu\\nu}, 0)^T, \\quad \\vec{v} = (0, R_{\\text{Riemann}})^T \\in \\mathbb{R}_{\\text{RICIS}}^2"
+                "phase": 1,
+                "name": "DEPEND",
+                "action": "Require field-bridge contract",
+                "expression": "dependencyIds ⊇ phys-field-bridge-contract"
             },
             {
                 "phase": 2,
-                "name": "Axiom A6 Geometric Bridge Execution",
-                "action": "Exact skew product determinant calculation yielding structural invariant in O(1)",
-                "expression": "0_F \\times \\infty_G = \\det(\\vec{u}, \\vec{v}) = g_{\\mu\\nu} \\cdot R_{\\text{Riemann}} - 0 = \\hbar c"
+                "name": "CONTRACT_OK",
+                "action": "Contract layers resolved in Lean",
+                "expression": "phys-field-bridge-contract = resolved"
+            },
+            {
+                "phase": 3,
+                "name": "CONTINUUM",
+                "action": "QM–GR / metric–Hilbert layer absent",
+                "expression": "OPEN"
             },
             {
                 "phase": 4,
-                "name": "Type Consistency Protocol (TCP) & Preservation (L1C1)",
-                "action": "Validate dimension conservation across monolith transition",
-                "expression": "T(\\text{Result}) = \\text{MonolithOrder2} \\quad [L1C1 \\text{ Preserved}]"
+                "name": "STATE",
+                "action": "Mark partial (not full resolved)",
+                "expression": "state=partial"
             },
             {
                 "phase": 6,
-                "name": "Final Verification & Authorial Provenance Binding",
-                "action": "Binding to official registries: Zenodo DOI 10.5281/zenodo.17872755, 10.5281/zenodo.21529989, 10.5281/zenodo.21836220",
-                "expression": "\\text{Result} = \\hbar c \\quad [O(1)]"
+                "name": "SCOPE",
+                "action": "Correct prior overclaim from det-only resolution",
+                "expression": "UFT NOT_CLAIMED"
             }
         ],
-        "finalResult": "\\hbar c",
-        "latex": "\\section*{RICIS-III Proof: Единая Теория Поля (Квантовая гравитация)}\n\\textbf{Author:} Dmitry V. Aleinikov (ORCID: 0009-0004-3226-7700)\n\\textbf{Target Function:} $f(x) = UnifiedField(QG) \\quad [0_F \\times \\infty_G = F \\cdot G]$\n\\subsection*{RICIS Transform & Axiom A6 Geometric Bridge}\n$ 0_F \\times \\infty_G = \\det(u, v) = u_x v_y - u_y v_x = g_{\\mu\\nu} \\cdot R_{\\text{Riemann}} - 0 = \\hbar c $\n\\subsection*{Semantic Indexing SP4 & Reduction}\nСингулярность кривизны пространства-времени на планковских масштабах при метрическом сжатии.\nRepresented in $\\mathbb{R}_{RICIS}^2$: $u = (g_{\\mu\\nu}, 0)$, $v = (0, R_{\\text{Riemann}})$.\n\\subsection*{Verification & DOI Specification}\nLean 4 Specification: \\href{https://doi.org/10.5281/zenodo.21529989}{DOI: 10.5281/zenodo.21529989} (Master Registry \\href{https://doi.org/10.5281/zenodo.21836220}{10.5281/zenodo.21836220}). Foundations: \\href{https://doi.org/10.5281/zenodo.17872755}{DOI: 10.5281/zenodo.17872755}.\nScope note: discrete Int proxy lives in node phys-field-bridge (geometric-bridge package DOI 10.5281/zenodo.22124493, workflow provenance only); continuum claims are not established by that proxy.\n\\textbf{Final Result:} \\hbar c"
+        "finalResult": "phys-unified set to partial: workflow dependencies expanded and resolved; continuum unified field remains OPEN.",
+        "latex": "\\section*{RICIS-III Proof: Единая теория поля (контрактный слой)}\n\\textbf{Author:} Dmitry V. Aleinikov (ORCID: 0009-0004-3226-7700)\n\\textbf{Target Function:} UFT continuum: OPEN. Workflow layer depends on phys-field-bridge-contract (A6+SP4+L1).\n\\subsection*{Contract Dependencies & Continuum Status}\nContinuum unification QM–GR remains OPEN: no metric–Hilbert layer is formalized, so the node state is partial by design. All workflow dependencies are resolved through phys-field-bridge-contract (SP4 path index, L1 identity, A6 Int proxies, path gate). A previous det-only resolution is corrected here: a single determinant proxy never established continuum unification, and that overclaim is withdrawn.\nScope note: discrete Int proxy layers live under node phys-field-bridge-contract (geometric-bridge package DOI 10.5281/zenodo.22124493, workflow provenance only); continuum claims are not established by those proxies.\n\\subsection*{Verification & DOI Specification}\nLean 4 Specification: \\href{https://doi.org/10.5281/zenodo.21529989}{DOI: 10.5281/zenodo.21529989} (Master Registry \\href{https://doi.org/10.5281/zenodo.21836220}{10.5281/zenodo.21836220}). Foundations: \\href{https://doi.org/10.5281/zenodo.17872755}{DOI: 10.5281/zenodo.17872755}. Workflow provenance (geometric-bridge package): \\href{https://doi.org/10.5281/zenodo.22124493}{10.5281/zenodo.22124493}.\n\\textbf{Final Result:} partial: workflow dependencies resolved; continuum unified field remains OPEN."
     },
     "phys-field-bridge": {
         "nodeId": "phys-field-bridge",
@@ -2014,6 +2162,210 @@ export const initialMap: MapState = {
             "sourceLocked": true,
             "trustStatus": "REQUIRES_CORE_LEAN"
         }
+    },
+    "contract-sp4-path-index": {
+        "nodeId": "contract-sp4-path-index",
+        "targetFunction": "sp4_no_silent_collapse",
+        "axiomsUsed": ["L1_IDENTITY", "SP4"],
+        "steps": [
+            {
+                "phase": -1,
+                "name": "L1_IDENTITY",
+                "action": "Monolith equality is reflexive",
+                "expression": "g=g"
+            },
+            {
+                "phase": 1,
+                "name": "SP4_PATH_INDEX",
+                "action": "Define PathIndex and FieldMonolith",
+                "expression": "FieldMonolith.path : PathIndex"
+            },
+            {
+                "phase": 2,
+                "name": "NON_COLLAPSE",
+                "action": "Prove path≠ ⇒ monolith≠",
+                "expression": "sp4_no_silent_collapse"
+            },
+            {
+                "phase": 6,
+                "name": "SCOPE",
+                "action": "Structural only",
+                "expression": "NOT continuum physics"
+            }
+        ],
+        "finalResult": "SP4 path non-collapse compiled in UnifiedField_GeometricBridge.lean.",
+        "latex": "\\section*{RICIS-III Proof: SP4 Path Index (Field Bridge)}\n\\textbf{Author:} Dmitry V. Aleinikov (ORCID: 0009-0004-3226-7700)\n\\textbf{Target Function:} $sp4\\_no\\_silent\\_collapse: g.path \\ne h.path \\implies g \\ne h$\n\\subsection*{Path Index & Non-Collapse}\nFieldMonolith payload never appears without path index $P$: distinct path indices yield distinct monoliths ($g.path \\ne h.path \\implies g \\ne h$), so no silent collapse is possible. Structural identity only: this layer states path discipline, not field dynamics.\n\\subsection*{Verification & DOI Specification}\nLean 4 Specification: \\href{https://doi.org/10.5281/zenodo.21529989}{DOI: 10.5281/zenodo.21529989} (Master Registry \\href{https://doi.org/10.5281/zenodo.21836220}{10.5281/zenodo.21836220}). Foundations: \\href{https://doi.org/10.5281/zenodo.17872755}{DOI: 10.5281/zenodo.17872755}. Workflow provenance (geometric-bridge package): \\href{https://doi.org/10.5281/zenodo.22124493}{10.5281/zenodo.22124493}. Source: \\texttt{artifacts/proofs/lean/UnifiedField\\_GeometricBridge.lean}.\n\\textbf{Final Result:} SP4 path non-collapse compiled in UnifiedField\\_GeometricBridge.lean. NOT CLAIMED: continuum physics."
+    },
+    "contract-l1-field-monolith": {
+        "nodeId": "contract-l1-field-monolith",
+        "targetFunction": "preservesPath ↔ reported = g.path",
+        "axiomsUsed": ["L1_IDENTITY", "SP4"],
+        "steps": [
+            {
+                "phase": -1,
+                "name": "L1_IDENTITY",
+                "action": "l1_holds",
+                "expression": "g=g"
+            },
+            {
+                "phase": 1,
+                "name": "PRESERVE",
+                "action": "Define preservesPath",
+                "expression": "reported = g.path"
+            },
+            {
+                "phase": 6,
+                "name": "SCOPE",
+                "action": "Identity law only",
+                "expression": "NOT field equations"
+            }
+        ],
+        "finalResult": "L1 monolith identity + preservesPath.",
+        "latex": "\\section*{RICIS-III Proof: L1 Field Monolith Identity}\n\\textbf{Author:} Dmitry V. Aleinikov (ORCID: 0009-0004-3226-7700)\n\\textbf{Target Function:} $l1\\_holds(g): g = g$; $preservesPath(g,p) \\iff p = g.path$\n\\subsection*{Monolith Identity & Path Preservation}\nAbsolute identity $l1\\_holds(g) := (g = g)$ holds by reflexivity; a reported path preserves the monolith objective iff it equals the monolith path ($preservesPath(g,p) \\iff p = g.path$). This is a structural law of identity, not a physical law of fields.\n\\subsection*{Verification & DOI Specification}\nLean 4 Specification: \\href{https://doi.org/10.5281/zenodo.21529989}{DOI: 10.5281/zenodo.21529989} (Master Registry \\href{https://doi.org/10.5281/zenodo.21836220}{10.5281/zenodo.21836220}). Foundations: \\href{https://doi.org/10.5281/zenodo.17872755}{DOI: 10.5281/zenodo.17872755}. Workflow provenance (geometric-bridge package): \\href{https://doi.org/10.5281/zenodo.22124493}{10.5281/zenodo.22124493}. Source: \\texttt{artifacts/proofs/lean/UnifiedField\\_GeometricBridge.lean}.\n\\textbf{Final Result:} L1 monolith identity + preservesPath. NOT CLAIMED: field equations."
+    },
+    "contract-a6-product-proxy": {
+        "nodeId": "contract-a6-product-proxy",
+        "targetFunction": "measure⟨a,b⟩ = a*b",
+        "axiomsUsed": ["A6_GEOMETRIC_BRIDGE", "P1", "10.5281/zenodo.22124493"],
+        "steps": [
+            {
+                "phase": 1,
+                "name": "REPRESENTATION",
+                "action": "OrthoPair a b",
+                "expression": "R(a,b)"
+            },
+            {
+                "phase": 2,
+                "name": "A6_PROXY",
+                "action": "μ product on Int",
+                "expression": "a*b"
+            },
+            {
+                "phase": 4,
+                "name": "P1",
+                "action": "No lim / L'Hôpital / Taylor",
+                "expression": "rfl"
+            },
+            {
+                "phase": 6,
+                "name": "SCOPE",
+                "action": "Proxy not UFT",
+                "expression": "WORKFLOW_ONLY"
+            }
+        ],
+        "finalResult": "A6 product proxy a*b.",
+        "latex": "\\section*{RICIS-III Proof: A6 Product Proxy (Field Bridge)}\n\\textbf{Author:} Dmitry V. Aleinikov (ORCID: 0009-0004-3226-7700)\n\\textbf{Target Function:} $a6\\_product\\_proxy(a,b) = a \\cdot b$ on Int (P1, no classical limits)\n\\subsection*{A6 Computational Proxy (Product Branch)}\nCanon prose $0_F \\otimes \\infty_G \\Rightarrow R(F,G) \\to\\mu F\\cdot G$ is realized here as a discrete measure: for the orthogonal pair $R(a,b)$, $\\mu(R(a,b)) = a \\cdot b$ on Int, so $a6\\_product\\_proxy(a,b) = a \\cdot b$ by $rfl$. Product-type singularity reduced in $O(1)$ without limits, L'Hôpital, or Taylor.\n\\subsection*{Verification & DOI Specification}\nLean 4 Specification: \\href{https://doi.org/10.5281/zenodo.21529989}{DOI: 10.5281/zenodo.21529989} (Master Registry \\href{https://doi.org/10.5281/zenodo.21836220}{10.5281/zenodo.21836220}). Foundations: \\href{https://doi.org/10.5281/zenodo.17872755}{DOI: 10.5281/zenodo.17872755}. Workflow provenance (geometric-bridge package): \\href{https://doi.org/10.5281/zenodo.22124493}{10.5281/zenodo.22124493}. Source: \\texttt{artifacts/proofs/lean/UnifiedField\\_GeometricBridge.lean}.\n\\textbf{Final Result:} A6 product proxy $a \\cdot b$ on Int. NOT CLAIMED: continuum field equations, unified field theory."
+    },
+    "contract-a6-ratio-proxy": {
+        "nodeId": "contract-a6-ratio-proxy",
+        "targetFunction": "a6_ratio_proxy a b h = a/b",
+        "axiomsUsed": ["A6_GEOMETRIC_BRIDGE", "P1"],
+        "steps": [
+            {
+                "phase": 1,
+                "name": "GUARD",
+                "action": "Require b≠0",
+                "expression": "h : b≠0"
+            },
+            {
+                "phase": 2,
+                "name": "A6_RATIO",
+                "action": "Int div structural",
+                "expression": "a/b"
+            },
+            {
+                "phase": 6,
+                "name": "SCOPE",
+                "action": "Not Planck limit",
+                "expression": "P1 only"
+            }
+        ],
+        "finalResult": "A6 ratio proxy under b≠0.",
+        "latex": "\\section*{RICIS-III Proof: A6 Ratio Proxy (Field Bridge)}\n\\textbf{Author:} Dmitry V. Aleinikov (ORCID: 0009-0004-3226-7700)\n\\textbf{Target Function:} $a6\\_ratio\\_proxy(a,b,h:b \\ne 0) = a / b$ (Int div, structural)\n\\subsection*{A6 Computational Proxy (Ratio Branch)}\nWhen the bridge stores the reciprocal leg explicitly as an integer payload $b \\ne 0$, the structural proxy is $a6\\_ratio\\_proxy(a,b,h) = a / b$ in Int division. This is not $1/\\nabla'$ in $\\mathbb{R}$ and not a Planck-scale limit: P1 direct resolution only.\n\\subsection*{Verification & DOI Specification}\nLean 4 Specification: \\href{https://doi.org/10.5281/zenodo.21529989}{DOI: 10.5281/zenodo.21529989} (Master Registry \\href{https://doi.org/10.5281/zenodo.21836220}{10.5281/zenodo.21836220}). Foundations: \\href{https://doi.org/10.5281/zenodo.17872755}{DOI: 10.5281/zenodo.17872755}. Workflow provenance (geometric-bridge package): \\href{https://doi.org/10.5281/zenodo.22124493}{10.5281/zenodo.22124493}. Source: \\texttt{artifacts/proofs/lean/UnifiedField\\_GeometricBridge.lean}.\n\\textbf{Final Result:} A6 ratio proxy $a / b$ under $b \\ne 0$. NOT CLAIMED: Planck-scale physics."
+    },
+    "contract-path-gated-eval": {
+        "nodeId": "contract-path-gated-eval",
+        "targetFunction": "evalUnderPath gated by path equality",
+        "axiomsUsed": ["L1_IDENTITY", "SP2", "SP4", "A6_GEOMETRIC_BRIDGE"],
+        "steps": [
+            {
+                "phase": 1,
+                "name": "SP2_CLEAN",
+                "action": "Path lists aligned or drift",
+                "expression": "isPathAligned / hasPathDrift"
+            },
+            {
+                "phase": 2,
+                "name": "GATE",
+                "action": "Match path → some proxy; else none",
+                "expression": "evalProductUnderPath / evalRatioUnderPath"
+            },
+            {
+                "phase": 3,
+                "name": "L1_SP4",
+                "action": "Reject foreign path",
+                "expression": "none on drift"
+            },
+            {
+                "phase": 6,
+                "name": "SCOPE",
+                "action": "Workflow gate",
+                "expression": "NOT empirical safety"
+            }
+        ],
+        "finalResult": "Path-gated A6 evaluation.",
+        "latex": "\\section*{RICIS-III Proof: Path-Gated Evaluation (Field Bridge)}\n\\textbf{Author:} Dmitry V. Aleinikov (ORCID: 0009-0004-3226-7700)\n\\textbf{Target Function:} $evalProductUnderPath$ / $evalRatioUnderPath$: matching path $\\to$ some(proxy); foreign path $\\to$ none\n\\subsection*{SP2 Hygiene & Path Gate}\nScalar proxies are emitted only under a matching reported path: $evalProductUnderPath(g, g.path, a, b) = some(a \\cdot b)$, while a foreign path yields none (drift rejected). Path lists stay clean first via $isPathAligned$ / $hasPathDrift$ (SP2 hygiene), binding L1/SP4 identity to the A6 proxies without path substitution.\n\\subsection*{Verification & DOI Specification}\nLean 4 Specification: \\href{https://doi.org/10.5281/zenodo.21529989}{DOI: 10.5281/zenodo.21529989} (Master Registry \\href{https://doi.org/10.5281/zenodo.21836220}{10.5281/zenodo.21836220}). Foundations: \\href{https://doi.org/10.5281/zenodo.17872755}{DOI: 10.5281/zenodo.17872755}. Workflow provenance (geometric-bridge package): \\href{https://doi.org/10.5281/zenodo.22124493}{10.5281/zenodo.22124493}. Source: \\texttt{artifacts/proofs/lean/UnifiedField\\_GeometricBridge.lean}.\n\\textbf{Final Result:} Path-gated A6 evaluation. NOT CLAIMED: empirical safety, alignment-as-policy."
+    },
+    "phys-field-bridge-contract": {
+        "nodeId": "phys-field-bridge-contract",
+        "targetFunction": "Aggregate Lean field-bridge contract",
+        "axiomsUsed": ["L1_IDENTITY", "SP2", "SP4", "A6_GEOMETRIC_BRIDGE", "P1", "10.5281/zenodo.22124493"],
+        "steps": [
+            {
+                "phase": -1,
+                "name": "L1_IDENTITY",
+                "action": "Inherit monolith identity",
+                "expression": "contract-l1-field-monolith"
+            },
+            {
+                "phase": 1,
+                "name": "SP4",
+                "action": "Inherit path index",
+                "expression": "contract-sp4-path-index"
+            },
+            {
+                "phase": 2,
+                "name": "A6_PRODUCT",
+                "action": "Inherit product proxy",
+                "expression": "contract-a6-product-proxy"
+            },
+            {
+                "phase": 3,
+                "name": "A6_RATIO",
+                "action": "Inherit ratio proxy",
+                "expression": "contract-a6-ratio-proxy"
+            },
+            {
+                "phase": 4,
+                "name": "GATE",
+                "action": "Inherit path gate",
+                "expression": "contract-path-gated-eval"
+            },
+            {
+                "phase": 5,
+                "name": "PROVENANCE",
+                "action": "DOI geometric bridge",
+                "expression": "10.5281/zenodo.22124493"
+            },
+            {
+                "phase": 6,
+                "name": "SCOPE",
+                "action": "Contract complete; UFT not claimed",
+                "expression": "WORKFLOW_ONLY"
+            }
+        ],
+        "finalResult": "phys-field-bridge-contract resolved as Lean workflow package. UnifiedField_GeometricBridge.lean compiles without sorry.",
+        "latex": "\\section*{RICIS-III Proof: Field Bridge Contract (Lean)}\n\\textbf{Author:} Dmitry V. Aleinikov (ORCID: 0009-0004-3226-7700)\n\\textbf{Target Function:} $FieldMonolith$ + A6 proxies + path gate (UnifiedField\\_GeometricBridge.lean)\n\\subsection*{Aggregate Workflow Contract}\nThe contract aggregates five resolved layers: SP4 path index (contract-sp4-path-index), L1 monolith identity (contract-l1-field-monolith), A6 product proxy (contract-a6-product-proxy), A6 ratio proxy (contract-a6-ratio-proxy), and the path gate (contract-path-gated-eval), all formalized in UnifiedField\\_GeometricBridge.lean. Workflow package only: this aggregate is NOT a proof of unified field theory or QM–GR merger.\n\\subsection*{Verification & DOI Specification}\nLean 4 Specification: \\href{https://doi.org/10.5281/zenodo.21529989}{DOI: 10.5281/zenodo.21529989} (Master Registry \\href{https://doi.org/10.5281/zenodo.21836220}{10.5281/zenodo.21836220}). Foundations: \\href{https://doi.org/10.5281/zenodo.17872755}{DOI: 10.5281/zenodo.17872755}. Workflow provenance (geometric-bridge package): \\href{https://doi.org/10.5281/zenodo.22124493}{10.5281/zenodo.22124493}. Source: \\texttt{artifacts/proofs/lean/UnifiedField\\_GeometricBridge.lean}.\n\\textbf{Final Result:} phys-field-bridge-contract resolved as Lean workflow package. NOT CLAIMED: unified field theory."
     },
     "econ-value": {
         "nodeId": "econ-value",

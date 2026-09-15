@@ -30,8 +30,18 @@ describe('RICIS-III Singularity Resolution & Graph Completion Verification', () 
     expect(proof.axiomsUsed).toContain('10.5281/zenodo.22225762');
   });
 
-  it('scen_3: verifies 100% resolution of all core research nodes in initialMap', () => {
+  // Contract-layers merge (expand_phys_field_bridge_contract_layers, 0.4.193):
+  // phys-unified is partial BY DESIGN — the prior det-only resolved marking was an
+  // overclaim (continuum QM–GR unification was never established). Owner-authorized
+  // correction; every other seed node must remain resolved.
+  it('scen_3: verifies 100% resolution of all core research nodes except documented partial-by-design', () => {
     const unresolved = initialMap.nodes.filter(n => n.state !== 'resolved');
-    expect(unresolved.length).toBe(0);
+    expect(unresolved.map(n => n.id).sort()).toEqual(['phys-unified']);
+  });
+
+  it('scen_3b: phys-unified stays partial (never unresolved) with OPEN continuum proof', () => {
+    const node = initialMap.nodes.find(n => n.id === 'phys-unified');
+    expect(node?.state).toBe('partial');
+    expect(initialMap.proofs['phys-unified'].finalResult).toContain('OPEN');
   });
 });

@@ -185,12 +185,16 @@ describe('RICIS-III Field-Bridge (phys-field-bridge) map integration', () => {
   });
 
   it('updates phys-unified with an explicit scope boundary and no inherited kernel claim', () => {
+    // Superseded by contract layers (0.4.193): phys-unified is partial by design,
+    // workflow-resolved only through phys-field-bridge-contract; continuum stays OPEN.
     const node = initialMap.nodes.find(n => n.id === 'phys-unified');
-    expect(node?.description).toContain('phys-field-bridge');
+    expect(node?.state).toBe('partial');
+    expect(node?.description).toContain('partial');
     expect(node?.description).toContain(GEOMETRIC_BRIDGE_DOI);
+    expect(node?.dependencyIds).toContain('phys-field-bridge-contract');
 
     const proof = initialMap.proofs['phys-unified'];
-    expect(proof.latex).toContain('phys-field-bridge');
+    expect(proof.latex).toContain('phys-field-bridge-contract');
     expect(proof.latex).toContain('Scope note');
     // The discrete proxy never certifies the continuum node: no externalLean may appear here.
     expect(proof.externalLean).toBeUndefined();

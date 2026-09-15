@@ -578,6 +578,15 @@ describe('OIR-03 — audit proof-synthesis containment', () => {
       ' M docs/russian-resource-manifest.json',
       ' M src/model/coreAgiTargetProof.test.ts',
       '?? tools/jsonValidity.test.ts',
+      // FIELD-BRIDGE-CONTRACT-LAYERS (0.4.193, 2026-09-15): вливание патча
+      // expand_phys_field_bridge_contract_layers: 6 contract-узлов + 7 пруфов + 15 рёбер,
+      // phys-unified переведён в partial (коррекция оверклейма), guard-тесты.
+      '?? import-patches/ricis-map-patch-phys-field-bridge-contract-layers.json',
+      '?? src/model/physFieldBridgeContracts.test.ts',
+      ' M src/model/singularityResolution.test.ts',
+      ' M src/model/floodFillProofsCoverage.test.ts',
+      ' M src/model/physFieldBridge.test.ts',
+      ' M src/model/dependencyGraph.test.ts',
 
     ]);
     if (status.length > 0 && status.every(entry => entry.startsWith('?? '))) {
