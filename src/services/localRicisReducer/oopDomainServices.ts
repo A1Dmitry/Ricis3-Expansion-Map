@@ -25,11 +25,26 @@ import type {
 } from './oopContracts';
 import { HOMOGENEOUS_SCALAR_PRECONDITIONS } from './a6A7Homogeneous';
 import { OrderProfileCalculator } from './orderProfileCalculator';
+import {
+  structuralToSymbolicAst,
+  parseCanonicalStringToAst,
+  computeSymbolicAstFingerprint,
+  areSymbolicAstsIsomorphic,
+} from './a15SeriesEngine';
 
 /**
  * Доменный сервис извлечения операндов из бинарных выражений (DRY).
  */
 export class SingularityOperandExtractor implements ISingularityOperandExtractor {
+  private _defaultEquality?: IStructuralEqualityService;
+
+  constructor(private readonly equalityService?: IStructuralEqualityService) {}
+
+  private get equality(): IStructuralEqualityService {
+    if (this.equalityService) return this.equalityService;
+    if (!this._defaultEquality) this._defaultEquality = new StructuralEqualityService();
+    return this._defaultEquality;
+  }
   extractA4Pair(expression: StructuralBinaryExpression): A4OperandPair | undefined {
     if (expression.kind !== 'BINARY' || expression.operator !== 'DIVIDE') {
       return undefined;
@@ -178,7 +193,7 @@ export class SingularityOperandExtractor implements ISingularityOperandExtractor
     return undefined;
   }
 
-  extractA15Pair(expression: StructuralBinaryExpression): A15OperandPair | undefined {
+  extractA15Pair(expression: StructuralBinaryExpression, evaluationPoint = 0): A15OperandPair | undefined {
     if (expression.kind !== 'BINARY' || expression.operator !== 'DIVIDE') {
       return undefined;
     }
@@ -191,16 +206,18 @@ export class SingularityOperandExtractor implements ISingularityOperandExtractor
     if (
       left.kind === 'INDEXED_ZERO' &&
       right.kind === 'INDEXED_ZERO' &&
-      left.payload?.identity?.canonical &&
-      left.payload.identity.canonical === right.payload?.identity?.canonical
+      left.payload &&
+      right.payload &&
+      this.equality.areStructurallyEqual(left.payload, right.payload)
     ) {
       return undefined;
     }
     if (
       left.kind === 'INDEXED_INFINITY' &&
       right.kind === 'INDEXED_INFINITY' &&
-      left.payload?.identity?.canonical &&
-      left.payload.identity.canonical === right.payload?.identity?.canonical
+      left.payload &&
+      right.payload &&
+      this.equality.areStructurallyEqual(left.payload, right.payload)
     ) {
       return undefined;
     }
@@ -208,8 +225,8 @@ export class SingularityOperandExtractor implements ISingularityOperandExtractor
     const numPayload = left.kind === 'INDEXED_ZERO' ? left.payload : left;
     const denPayload = right.kind === 'INDEXED_ZERO' ? right.payload : right;
 
-    const numProfile = OrderProfileCalculator.computeOrderAndDerivative(numPayload, 0);
-    const denProfile = OrderProfileCalculator.computeOrderAndDerivative(denPayload, 0);
+    const numProfile = OrderProfileCalculator.computeOrderAndDerivative(numPayload, evaluationPoint);
+    const denProfile = OrderProfileCalculator.computeOrderAndDerivative(denPayload, evaluationPoint);
 
     if (
       numProfile.isResolved &&
@@ -869,30 +886,136 @@ export class StructuralExpressionFactory implements IStructuralExpressionFactory
 }
 
 /**
- * Сервис структурного равенства по аксиоме L1 с приоритетом SP4 над числовым сравнением.
+ * Сервис структурного/графового равенства по аксиоме L1.
+ * Выполняет изоморфное сопоставление вычислительных графов (AST)
+ * с учетом типов L1C2, коммутативности сложения/умножения и точных значений литералов.
+ * Приоритет SP4 над числовым сравнением. Устраняет появление мусорных дубликатов.
  */
 export class StructuralEqualityService implements IStructuralEqualityService {
   areStructurallyEqual(a: StructuralExpression, b: StructuralExpression): boolean {
     if (a === b) return true;
-    if (a.kind !== b.kind) return false;
-    if (a.identity.typeTag !== b.identity.typeTag) return false;
-    if (a.identity.structuralHash !== b.identity.structuralHash) return false;
 
-    // Проверка SP4 для индексированных объектов
-    if ((a.kind === 'INDEXED_ZERO' || a.kind === 'INDEXED_INFINITY') &&
-        (b.kind === 'INDEXED_ZERO' || b.kind === 'INDEXED_INFINITY')) {
-      if (!this.haveEqualSemanticIndices(a.index, b.index)) {
-        return false;
+    // L1C2: Проверка совместимости типов
+    if (a.identity.typeTag !== b.identity.typeTag) return false;
+
+    // Проверка сингулярных узлов (INDEXED_ZERO, INDEXED_INFINITY)
+    const aIsSingular = a.kind === 'INDEXED_ZERO' || a.kind === 'INDEXED_INFINITY';
+    const bIsSingular = b.kind === 'INDEXED_ZERO' || b.kind === 'INDEXED_INFINITY';
+    if (aIsSingular || bIsSingular) {
+      if (a.kind !== b.kind) return false;
+      const aSing = a as Extract<StructuralExpression, { kind: 'INDEXED_ZERO' | 'INDEXED_INFINITY' }>;
+      const bSing = b as Extract<StructuralExpression, { kind: 'INDEXED_ZERO' | 'INDEXED_INFINITY' }>;
+      if (!this.areStructurallyEqual(aSing.payload, bSing.payload)) return false;
+      return this.haveEqualSemanticIndices(aSing.index, bSing.index, aSing.payload, bSing.payload);
+    }
+
+    // Быстрый структурный проход по StructuralExpression
+    if (a.kind === b.kind) {
+      switch (a.kind) {
+        case 'IDENTIFIER': {
+          const bId = b as Extract<StructuralExpression, { kind: 'IDENTIFIER' }>;
+          return a.name === bId.name;
+        }
+        case 'FINITE_LITERAL': {
+          const bLit = b as Extract<StructuralExpression, { kind: 'FINITE_LITERAL' }>;
+          if (a.lexeme === bLit.lexeme && a.identity.canonical === bLit.identity.canonical) {
+            return true;
+          }
+          if (a.identity.canonical && bLit.identity.canonical && a.identity.canonical !== bLit.identity.canonical) {
+            const astA = parseCanonicalStringToAst(a.identity.canonical);
+            const astB = parseCanonicalStringToAst(bLit.identity.canonical);
+            if (astA && astB) {
+              return areSymbolicAstsIsomorphic(astA, astB);
+            }
+            return false;
+          }
+          const numA = Number(a.lexeme);
+          const numB = Number(bLit.lexeme);
+          if (!Number.isNaN(numA) && !Number.isNaN(numB)) {
+            const aIsPlainNum = !a.identity.canonical || a.identity.canonical === a.lexeme;
+            const bIsPlainNum = !bLit.identity.canonical || bLit.identity.canonical === bLit.lexeme;
+            if (numA === numB && aIsPlainNum && bIsPlainNum) {
+              return true;
+            }
+          }
+          break;
+        }
+        case 'UNARY': {
+          const bUn = b as Extract<StructuralExpression, { kind: 'UNARY' }>;
+          if (a.operator === bUn.operator) {
+            return this.areStructurallyEqual(a.operand, bUn.operand);
+          }
+          return false;
+        }
+        case 'BINARY': {
+          const bBin = b as Extract<StructuralExpression, { kind: 'BINARY' }>;
+          if (a.operator === bBin.operator) {
+            if (a.operator === 'ADD' || a.operator === 'MULTIPLY') {
+              const direct =
+                this.areStructurallyEqual(a.left, bBin.left) &&
+                this.areStructurallyEqual(a.right, bBin.right);
+              if (direct) return true;
+              const swapped =
+                this.areStructurallyEqual(a.left, bBin.right) &&
+                this.areStructurallyEqual(a.right, bBin.left);
+              if (swapped) return true;
+            } else {
+              return (
+                this.areStructurallyEqual(a.left, bBin.left) &&
+                this.areStructurallyEqual(a.right, bBin.right)
+              );
+            }
+          }
+          break;
+        }
       }
     }
 
-    return true;
+    // Полное графовое сопоставление через Symbolic AST граф
+    const astA = structuralToSymbolicAst(a);
+    const astB = structuralToSymbolicAst(b);
+    return areSymbolicAstsIsomorphic(astA, astB);
   }
 
-  haveEqualSemanticIndices(a: StructuralIndex, b: StructuralIndex): boolean {
+  haveEqualSemanticIndices(
+    a: StructuralIndex,
+    b: StructuralIndex,
+    aPayload?: StructuralExpression,
+    bPayload?: StructuralExpression
+  ): boolean {
     if (a === b) return true;
-    return a.basis === b.basis &&
-      a.payloadHash === b.payloadHash &&
-      a.payloadCanonical === b.payloadCanonical;
+    if (a.basis !== b.basis) return false;
+    if (a.payloadTypeTag !== b.payloadTypeTag) return false;
+
+    if (aPayload && bPayload) {
+      return this.areStructurallyEqual(aPayload, bPayload);
+    }
+
+    if (a.payloadCanonical && b.payloadCanonical) {
+      if (a.payloadCanonical === b.payloadCanonical) return true;
+      const astA = parseCanonicalStringToAst(a.payloadCanonical);
+      const astB = parseCanonicalStringToAst(b.payloadCanonical);
+      if (astA && astB) {
+        return areSymbolicAstsIsomorphic(astA, astB);
+      }
+      return false;
+    }
+
+    return a.payloadHash === b.payloadHash && a.payloadCanonical === b.payloadCanonical;
+  }
+
+  getGraphFingerprint(expression: StructuralExpression): string {
+    if (expression.kind === 'INDEXED_ZERO') {
+      return `0_{${this.getGraphFingerprint(expression.payload)}}`;
+    }
+    if (expression.kind === 'INDEXED_INFINITY') {
+      return `inf_{${this.getGraphFingerprint(expression.payload)}}`;
+    }
+    const ast = structuralToSymbolicAst(expression);
+    return computeSymbolicAstFingerprint(ast);
+  }
+
+  areGraphIsomorphic(a: StructuralExpression, b: StructuralExpression): boolean {
+    return this.areStructurallyEqual(a, b);
   }
 }

@@ -1,0 +1,348 @@
+{
+  "generator": "scripts/generateLeanCoreChecks.ts",
+  "policy": [
+    "Исходные артефакты artifacts/proofs/*.lean неизменяемы (AGENTS.md §7).",
+    "Производная = исходник − неиспользуемая строка import Mathlib [+ заявленные подстановки] + добавленный эпилог #print axioms.",
+    "Повторная генерация обязана дать побайтово тот же результат (tools/leanKernelCoreChecks.test.ts).",
+    "Прогон ядра фиксирует только структурные теоремы артефакта, не эмпирические утверждения узла карты."
+  ],
+  "toolchain": "lean 4.33.1 (pinned via elan, GitHub Actions ubuntu-latest)",
+  "command": "lean +4.33.1 <artifact>",
+  "artifacts": [
+    {
+      "artifactId": "ricis-v79-monolith",
+      "source": "artifacts/proofs/ricis-v79-monolith.standalone.lean",
+      "sourceSha256": "fbd99bbdefd05aaff83fe4325377681f7e3b7099a3c9f5234b3ff4def86077e2",
+      "output": "artifacts/proofs/core-checks/ricis-v79-monolith.standalone.core-check.lean",
+      "outputSha256": "f8d7487b79e8557534c0f50fb2654e3a6578644b70375b38a4b145b4461600dd",
+      "substitutions": [
+        {
+          "from": "ℕ",
+          "to": "Nat",
+          "reason": "нотация ℕ объявлена в Mathlib, а не в ядре Lean 4.33.1; ядро печатает ℕ только как подсказку (@[suggest_for ℕ] в src/Init/Prelude.lean). Тот же тип Nat, ядро-совместимая нотация."
+        },
+        {
+          "from": "  repeat constructor\n  · rfl\n  · rfl\n  · rfl\n  · rfl\n  · rfl\n  · rfl\n  · rfl\n  · rfl",
+          "to": "  repeat constructor",
+          "reason": "run 34870620154 (Lean 4.33.1): после ℕ → Nat все 31 теорема приняты, sorryAx отсутствует, единственная ошибка — 392:2 «No goals to be solved»: на ядровой базе `repeat constructor` закрывает все 9 конъюнктов (Eq.refl — конструктор Eq), и 8 буллетов `· rfl` избыточны. Утверждение теоремы не меняется — удалён только избыточный хвост доказательного скрипта."
+        }
+      ],
+      "sourceFindings": [
+        "run 34858902595 (Lean 4.33.1): без Mathlib `ℕ` не является Nat — ядро elaborирует его как свободную переменную (`ℕ : Sort u_1`), поэтому `OfNat ℕ 1`/`OfNat ℕ 0` не синтезируются (строки 301–315), а ns_steps_4D / ns_error_zero / RICIS_v79_unified получают sorryAx.",
+        "Контроль: идентичный по структуре артефакт ricis-universal-orchestration-template.lean, где счетчики объявлены как `Nat`, компилируется ядром без ошибок (тот же run, exit 0).",
+        "run 34870620154 (Lean 4.33.1): подстановка ℕ → Nat устранила все 15 ошибок — 31 теорема напечатана #print axioms, sorryAx отсутствует (3 без аксиом, 28 × propext, включая RICIS_v79_unified). Единственная ошибка — 392:2 «No goals to be solved»: после `repeat constructor` (закрыл все 9 конъюнктов, Eq.refl — конструктор Eq) первый из 8 буллетов `· rfl` применён при отсутствии целей. Дефект гигиены скрипта, а не недоказанность утверждения (F-06); в производной 0.4.189 буллеты удалены подстановкой."
+      ],
+      "rationale": "Тело: индуктив RExpr над String, доказательства rfl / cases F <;> rfl / repeat constructor. Единственная зависимость от Mathlib — нотация ℕ (2 вхождения, оба в сигнатурах resolveSteps/resolveError). Дополнительно удалён избыточный хвост `· rfl` (8 буллетов) в доказательстве RICIS_v79_unified: на ядровой базе цели уже закрыты `repeat constructor` (run 34870620154, 392:2).",
+      "metadataJson": "artifacts/proofs/ricis-v79-monolith.json",
+      "printAxiomsTargets": [
+        "RICIS_v79.L1_identity",
+        "RICIS_v79.divSelf_one",
+        "RICIS_v79.SP2_subSelf_zero",
+        "RICIS_v79.A1_div_zero",
+        "RICIS_v79.A2_inf_zero_one",
+        "RICIS_v79.zero_div_zero_step1",
+        "RICIS_v79.zero_div_zero_step2",
+        "RICIS_v79.zero_div_zero_one",
+        "RICIS_v79.A4_indexed_zero_div",
+        "RICIS_v79.A5_inf_div",
+        "RICIS_v79.A6_geometric_realization",
+        "RICIS_v79.A7_inf_sub",
+        "RICIS_v79.A10_mul_zero",
+        "RICIS_v79.A10_zero_mul",
+        "RICIS_v79.L0_continuity_divSelf",
+        "RICIS_v79.L0_continuity_subSelf",
+        "RICIS_v79.L0_continuity_A6_rect",
+        "RICIS_v79.L0_continuity_A6_measure",
+        "RICIS_v79.SP4_preserves_parent",
+        "RICIS_v79.ns_R1_resolved",
+        "RICIS_v79.ns_R2_resolved",
+        "RICIS_v79.ns_R3_resolved",
+        "RICIS_v79.ns_Rt_resolved",
+        "RICIS_v79.ns_4D_resolved",
+        "RICIS_v79.L0_4D_no_discontinuity",
+        "RICIS_v79.ns_steps_4D",
+        "RICIS_v79.ns_error_zero",
+        "RICIS_v79.CPU_CUDA_same",
+        "RICIS_v79.complex_divSelf_one",
+        "RICIS_v79.complex_subSelf_zero",
+        "RICIS_v79.RICIS_v79_unified"
+      ]
+    },
+    {
+      "artifactId": "ricis-universal-orchestration-template",
+      "source": "artifacts/proofs/ricis-universal-orchestration-template.lean",
+      "sourceSha256": "cebe44f3e058d6d68b9b6df267300162aa53d4ce5730e3e98d623991a4363849",
+      "output": "artifacts/proofs/core-checks/ricis-universal-orchestration-template.core-check.lean",
+      "outputSha256": "fa6eb66d90b5202a7fbd1920c784585b1cf408634564f6b6faf3e0e271654195",
+      "substitutions": [],
+      "sourceFindings": [],
+      "rationale": "Тело: структурные редукции, счетчики `Nat`, доказательство-конъюнкция закрыто ⟨rfl, …⟩. Mathlib-символов нет — проверено фактическим прогоном ядра (run 34858902595, exit 0).",
+      "metadataJson": null,
+      "printAxiomsTargets": [
+        "RICIS_Template.L1_identity",
+        "RICIS_Template.divSelf_one",
+        "RICIS_Template.SP2_subSelf_zero",
+        "RICIS_Template.A1_div_zero",
+        "RICIS_Template.A2_inf_zero_one",
+        "RICIS_Template.zero_div_zero_step1",
+        "RICIS_Template.zero_div_zero_step2",
+        "RICIS_Template.zero_div_zero_one",
+        "RICIS_Template.A4_indexed_zero_div",
+        "RICIS_Template.A5_inf_div",
+        "RICIS_Template.A6_geometric_realization",
+        "RICIS_Template.A7_inf_sub",
+        "RICIS_Template.A10_mul_zero",
+        "RICIS_Template.A10_zero_mul",
+        "RICIS_Template.L0_continuity_divSelf",
+        "RICIS_Template.L0_continuity_subSelf",
+        "RICIS_Template.L0_continuity_A6_rect",
+        "RICIS_Template.L0_continuity_A6_measure",
+        "RICIS_Template.SP4_preserves_parent",
+        "RICIS_Template.mySystem_4D_resolved",
+        "RICIS_Template.L0_mySystem_no_discontinuity",
+        "RICIS_Template.mySystem_steps_4D",
+        "RICIS_Template.mySystem_error_zero",
+        "RICIS_Template.CPU_CUDA_same",
+        "RICIS_Template.complex_divSelf_one",
+        "RICIS_Template.complex_subSelf_zero",
+        "RICIS_Template.RICIS_unified"
+      ]
+    },
+    {
+      "artifactId": "ricis-backend-exact-reduction",
+      "source": "artifacts/proofs/ricis-backend-exact-reduction.standalone.lean",
+      "sourceSha256": "7607fe7bb27a55c68c9120fe9c5a8c2f693eb5a83c57b0c2ce9a8e5897947c2d",
+      "output": "artifacts/proofs/core-checks/ricis-backend-exact-reduction.standalone.core-check.lean",
+      "outputSha256": "25bbc11959ca575e3edc344990685f8e2e50821aa2d45f9301fb28cac3fd3994",
+      "substitutions": [
+        {
+          "from": "ℕ",
+          "to": "Nat",
+          "reason": "нотация ℕ объявлена в Mathlib, а не в ядре Lean 4.33.1; тот же тип Nat в ядро-совместимой нотации."
+        }
+      ],
+      "sourceFindings": [
+        "run 34858902595 (Lean 4.33.1): 26 ошибок, все — следствие `ℕ` (OfNat ℕ …, `induction` по не-индуктивному типу, каскадные rfl/sorryAx, неизвестные константы repeated_error_zero и error_independent_of_iterations). Других дефектов тела прогон не выявил."
+      ],
+      "rationale": "Тело: структурная редукция, счетчики и итерации; доказательства rfl / induction / constructor / intro. Единственная зависимость от Mathlib — нотация ℕ (8 вхождений в сигнатурах).",
+      "metadataJson": "artifacts/proofs/ricis-backend-exact-reduction.json",
+      "printAxiomsTargets": [
+        "RICIS.identity",
+        "RICIS.structure_irrelevant",
+        "RICIS.selfDivision_one_step",
+        "RICIS.reduction_independent_of_size",
+        "RICIS.selfDivision_eliminated",
+        "RICIS.eliminated_error_zero",
+        "RICIS.eliminated_error_independent_of_size",
+        "RICIS.complex_selfDivision",
+        "RICIS.complex_eliminated_error",
+        "RICIS.repeated_selfDivision",
+        "RICIS.repeated_error_zero",
+        "RICIS.billion_iterations_zero_error",
+        "RICIS.error_independent_of_iterations",
+        "RICIS.prepare_selfDivision",
+        "RICIS.execute_prepared_selfDivision",
+        "RICIS.CPU_correct",
+        "RICIS.CUDA_correct",
+        "RICIS.CPU_CUDA_same_semantics",
+        "RICIS.selfDivision_CPU",
+        "RICIS.selfDivision_CUDA",
+        "RICIS.selfDivision_all_backends",
+        "RICIS.RICIS_exact_structural_reduction"
+      ]
+    },
+    {
+      "artifactId": "ricis-chatbot-monetization",
+      "source": "artifacts/proofs/ricis-chatbot-monetization.lean",
+      "sourceSha256": "f48f78a3021e94314b5e73729b92721ac10d38b867fca6a18d01aa3dac3c1c2a",
+      "output": "artifacts/proofs/core-checks/ricis-chatbot-monetization.core-check.lean",
+      "outputSha256": "af73d37fb95d78711601fa1e41463e8001ac10d72284d0a72ad1f6a256a25c6c",
+      "substitutions": [],
+      "sourceFindings": [],
+      "rationale": "Тело: A6-мост 0_Cost × ∞_N через mu(rect F G); обе теоремы закрыты rfl. Mathlib-символов нет — проверено фактическим прогоном ядра (run 34858902595, exit 0).",
+      "metadataJson": "artifacts/proofs/ricis-chatbot-monetization.json",
+      "printAxiomsTargets": [
+        "RICIS_Monetization.Chatbot_Monetization_Resolution",
+        "RICIS_Monetization.L1_identity"
+      ]
+    },
+    {
+      "artifactId": "ricis-jacobian-conjecture",
+      "source": "artifacts/proofs/ricis-jacobian-conjecture.standalone.lean",
+      "sourceSha256": "2e043f2738df8d8b02754aebb5fa93580fb87e6cc71733557c620c463c4de56b",
+      "output": "artifacts/proofs/core-checks/ricis-jacobian-conjecture.standalone.core-check.lean",
+      "outputSha256": "31d5c137f4b738460e43ef3b7dc9627c3be92c91a9f275ee4015f87642ed8fd8",
+      "substitutions": [
+        {
+          "from": "  | partial (F x : RExpr)",
+          "to": "  | partialDeriv (F x : RExpr)",
+          "reason": "`partial` — зарезервированное ключевое слово Lean 4 (модификатор определений), поэтому исходник не парсится. Конструктор переименован; в артефакте он больше нигде не используется (единственное вхождение — строка 25) и ни одна из двух теорем его не упоминает."
+        }
+      ],
+      "sourceFindings": [
+        "run 34858902595 (Lean 4.33.1): ИСХОДНИК НЕ КОМПИЛИРУЕТСЯ — `24:12 error: expected token` (конструктор `partial`), далее каскад `Invalid pattern variable: RExpr.zero has multiple components`, `Invalid pattern: Expected a constructor or constant marked with [match_pattern]` и `Unknown constant RICIS_Jacobian.Jacobian_singularity_resolved`. Файл никогда не был проверен ни одним ядром Lean, несмотря на `trustStatus: TRUSTED_AXIOM` в метаданных."
+      ],
+      "rationale": "Тело: структурный детерминант det(m11,m12,m21,m22) как AST-узел; обе теоремы закрыты rfl.",
+      "metadataJson": "artifacts/proofs/ricis-jacobian-conjecture.json",
+      "printAxiomsTargets": [
+        "RICIS_Jacobian.Jacobian_singularity_resolved",
+        "RICIS_Jacobian.Jacobian_L1_identity"
+      ]
+    },
+    {
+      "artifactId": "ricis-navier-stokes-ast-bridge",
+      "source": "artifacts/proofs/ricis-navier-stokes-ast-bridge.standalone.lean",
+      "sourceSha256": "85edafc2dd5fdcd3fc694cd246f8faf9337e9b036fe05f9fcd105b95cc6cc77a",
+      "output": "artifacts/proofs/core-checks/ricis-navier-stokes-ast-bridge.standalone.core-check.lean",
+      "outputSha256": "2dad043dcd107e389609accddea30422cb98607d016d654b2d834829d03b026a",
+      "substitutions": [],
+      "sourceFindings": [],
+      "rationale": "Тело: FieldExpr-AST (deriv/laplace/grad) и E/E → one; доказательства rfl. `open RICIS` разрешается родительским namespace самого файла. Проверено фактическим прогоном ядра (run 34858902595, exit 0).",
+      "metadataJson": "artifacts/proofs/ricis-navier-stokes-ast-bridge.json",
+      "printAxiomsTargets": [
+        "RICIS.NavierStokes.singularEnergyBridge_reduced",
+        "RICIS.NavierStokes.bridge_independent_of_complexity"
+      ]
+    },
+    {
+      "artifactId": "ricis-riemann-zeta-ast-bridge",
+      "source": "artifacts/proofs/ricis-riemann-zeta-ast-bridge.standalone.lean",
+      "sourceSha256": "85fd84aca47bf193245a65617c64a5d5b47c101863e868d3260b1e71e4c9798b",
+      "output": "artifacts/proofs/core-checks/ricis-riemann-zeta-ast-bridge.standalone.core-check.lean",
+      "outputSha256": "c2b705e97d019630dd1becb7691583a693fbd56862fa9e038970f60310a16cec",
+      "substitutions": [],
+      "sourceFindings": [],
+      "rationale": "Тело: ZetaExpr-AST (pole/analyticContinuation) и E/E → one; доказательства rfl. Проверено фактическим прогоном ядра (run 34858902595, exit 0).",
+      "metadataJson": "artifacts/proofs/ricis-riemann-zeta-ast-bridge.json",
+      "printAxiomsTargets": [
+        "RICIS.RiemannZeta.riemann_bridge_reduced",
+        "RICIS.RiemannZeta.riemann_bridge_independent_of_complexity"
+      ]
+    },
+    {
+      "artifactId": "ricis-kernel-ast-sp5",
+      "source": "artifacts/proofs/ricis-kernel-ast-sp5.standalone.lean",
+      "sourceSha256": "6ee144b7e438a112b1590c65625da5b88baf615cb53315f52b6935d91cacda57",
+      "output": "artifacts/proofs/core-checks/ricis-kernel-ast-sp5.standalone.core-check.lean",
+      "outputSha256": "894d8278d035a8fc123b7c3d7719db6b4d947ea44ef6623c548579a05361b129",
+      "substitutions": [
+        {
+          "from": "ℚ",
+          "to": "Rat",
+          "reason": "нотация ℚ объявлена в Mathlib; ядро Lean 4.33.1 знает только тип Rat (@[suggest_for ℚ] в src/Init/Data/Rat/Basic.lean, структура Rat имеет deriving DecidableEq)."
+        },
+        {
+          "from": "| indexedInf (e : RExpr)",
+          "to": "| indexedInf (e : RExpr)\n  deriving DecidableEq, Repr",
+          "reason": "singularDiv использует `if a = b`; для `if` требуется экземпляр DecidableEq RExpr, а ядро Lean 4.33.1 не выводит такие экземпляры автоматически (только явный deriving). Клауза введена вместе с производной коммитом 8665a06 (main); прогон ядра run 34877214125 — exit 0, без sorryAx."
+        }
+      ],
+      "sourceFindings": [
+        "Статический аудит ядра Lean 4.33.1: нотация ℚ объявлена в Mathlib, в ядре только @[suggest_for ℚ] (src/Init/Data/Rat/Basic.lean).",
+        "Ядро Lean 4.33.1: `if a = b` требует экземпляра DecidableEq RExpr; явные `deriving` — единственный механизм вывода таких экземпляров (авто-вывода в ядре нет). Клауза `deriving DecidableEq, Repr` введена коммитом 8665a06 (main) вместе с производной; прогон ядра run 34877214125 (Lean 4.33.1) — exit 0, sorryAx отсутствует."
+      ],
+      "rationale": "Тело: структурная редукция SP5 и singularDiv через `if a = b`; доказательства unfold + simp и rfl. Кроме нотации ℚ Mathlib-символов нет. Клауза `deriving DecidableEq, Repr` добавлена к индуктиву RExpr: она обязательна для `if a = b` (ядро 4.33.1 не выводит DecidableEq автоматически); run 34877214125 (Lean 4.33.1) — exit 0.",
+      "metadataJson": null,
+      "printAxiomsTargets": [
+        "RICIS.KernelAST.SP5.singular_div_identity",
+        "RICIS.KernelAST.SP5.ricis_reduce_divself"
+      ]
+    },
+    {
+      "artifactId": "ricis-seed-expansion-a11",
+      "source": "artifacts/proofs/ricis-seed-expansion-a11.lean",
+      "sourceSha256": "368dc0359e3f37391e3e830fc1abf9107b8e3f1f37d0a7f3ac6d2b3bc36839f2",
+      "output": "artifacts/proofs/core-checks/ricis-seed-expansion-a11.core-check.lean",
+      "outputSha256": "bca7a71a5d03b67786a2d8c7d0825097f597028b55c4945f7c04089686a33584",
+      "substitutions": [
+        {
+          "from": "exact List.mem_of_mem_append_left hr",
+          "to": "exact List.mem_append.mpr (Or.inl hr)",
+          "reason": "`List.mem_of_mem_append_left` отсутствует в ядре Lean 4.33.1 (в src/Init/Data/List/Lemmas.lean есть только `mem_append`, `mem_append_cons_self`, `not_mem_append`); использован ядровой эквивалент того же утверждения. Формулировка теоремы monotonic_growth не меняется."
+        }
+      ],
+      "sourceFindings": [
+        "Не проверялось ядром до этого PR: evidence 2026-09-14 прямо фиксирует «Lean-модель семени (ricis-seed-expansion-a11.lean) не проверена ядром (REQUIRES_CORE_LEAN)».",
+        "Статический аудит ядра 4.33.1: единственная Mathlib-зависимость тела — лемма `List.mem_of_mem_append_left`."
+      ],
+      "rationale": "Тело: модель протокола A11 (Rule/Seed/ExpansionOutcome, ворота допуска, IDENTITY_COHERENCE) на String/List/Nat/Bool; тактики unfold / split / simp / intro — все core (`split`: src/Init/Tactics.lean:1205, `simpa`/`simp` — ядро 4.33.1).",
+      "metadataJson": null,
+      "printAxiomsTargets": [
+        "RICIS.Seed.monotonic_growth",
+        "RICIS.Seed.rejection_preserves_generation",
+        "RICIS.Seed.no_commit_without_proof",
+        "RICIS.Seed.core_rule_never_commits",
+        "RICIS.Seed.identity_violation_never_commits",
+        "RICIS.Seed.identity_ok_preserves_expansion"
+      ]
+    },
+    {
+      "artifactId": "database-a6-0_5_inf_3",
+      "source": "artifacts/proofs/database-a6-0_5_inf_3.standalone.lean",
+      "sourceSha256": "963f701f3c87f7994f3784944250b46df5026e71be4ae8279bf41cf4d4e99d2c",
+      "output": "artifacts/proofs/core-checks/database-a6-0_5_inf_3.standalone.core-check.lean",
+      "outputSha256": "6492bb813a4d70b49b5b6af7c82ed178fcf55de5de5bd4e7993ae97de276813d",
+      "substitutions": [],
+      "sourceFindings": [
+        "Не проверялось ядром до этого PR (статус REQUIRES_CORE_LEAN)."
+      ],
+      "rationale": "Тело: типизированное ядро RICIS3.ExtendedKernel (RExpr/Rewrite/Derivation) и адаптер сгенерированного утверждения 0_5 × ∞_3. Использованы только abbrev/inductive/structure/deriving и тактики exact / constructor / intro / simpa (simpa — core-тактика 4.33.1).",
+      "metadataJson": null,
+      "printAxiomsTargets": [
+        "RICIS3.ExtendedKernel.RExpr.sp3_zero_valid",
+        "RICIS3.ExtendedKernel.RExpr.sp3_inf_valid",
+        "RICIS3.ExtendedKernel.RExpr.l0_payload_preserved",
+        "RICIS3.ExtendedKernel.RExpr.l1_identity",
+        "RICIS3.ExtendedKernel.RExpr.sp2_common_right",
+        "RICIS3.ExtendedKernel.RExpr.sp2_common_left",
+        "RICIS3.ExtendedKernel.RExpr.o1_bridge_mul_zero",
+        "RICIS3.ExtendedKernel.RExpr.o1_bridge_div_zero",
+        "RICIS3.ExtendedKernel.RExpr.a1_indexed_infinity",
+        "RICIS3.ExtendedKernel.RExpr.a4_distinct_payload",
+        "RICIS3.ExtendedKernel.RExpr.a4_same_identity",
+        "RICIS3.ExtendedKernel.RExpr.sp4_retains_source",
+        "RICIS3.ExtendedKernel.RExpr.a5_distinct_payload",
+        "RICIS3.ExtendedKernel.RExpr.a6_geometric_bridge",
+        "RICIS3.ExtendedKernel.RExpr.a6_coupled_reciprocal",
+        "RICIS3.ExtendedKernel.RExpr.fallback_requires_gate",
+        "RICIS3.ExtendedKernel.RExpr.priority_blocks_fallback",
+        "RICIS3.GeneratedDatabaseProof.generated_claim_is_a6_bridge",
+        "RICIS3.GeneratedDatabaseProof.generated_claim_indices_are_finite"
+      ]
+    },
+    {
+      "artifactId": "database-registry-120-jacobian",
+      "source": "artifacts/proofs/database-registry-120-jacobian.standalone.lean",
+      "sourceSha256": "4d974e643b4480169897685d21254e10ca607416912e43275491c6dd3cdd1617",
+      "output": "artifacts/proofs/core-checks/database-registry-120-jacobian.standalone.core-check.lean",
+      "outputSha256": "90af6930a987316c331a0f5b0e4e15e07650a1d489dacc91073c330803816c9e",
+      "substitutions": [],
+      "sourceFindings": [
+        "Не проверялось ядром до этого PR (статус REQUIRES_CORE_LEAN)."
+      ],
+      "rationale": "Тело: то же типизированное ядро и адаптер утверждения 0_det(J) × ∞_Inv(J) для реестра 120. Только core-конструкции и core-тактики (exact / constructor / intro / simpa).",
+      "metadataJson": null,
+      "printAxiomsTargets": [
+        "RICIS3.ExtendedKernel.RExpr.sp3_zero_valid",
+        "RICIS3.ExtendedKernel.RExpr.sp3_inf_valid",
+        "RICIS3.ExtendedKernel.RExpr.l0_payload_preserved",
+        "RICIS3.ExtendedKernel.RExpr.l1_identity",
+        "RICIS3.ExtendedKernel.RExpr.sp2_common_right",
+        "RICIS3.ExtendedKernel.RExpr.sp2_common_left",
+        "RICIS3.ExtendedKernel.RExpr.o1_bridge_mul_zero",
+        "RICIS3.ExtendedKernel.RExpr.o1_bridge_div_zero",
+        "RICIS3.ExtendedKernel.RExpr.a1_indexed_infinity",
+        "RICIS3.ExtendedKernel.RExpr.a4_distinct_payload",
+        "RICIS3.ExtendedKernel.RExpr.a4_same_identity",
+        "RICIS3.ExtendedKernel.RExpr.sp4_retains_source",
+        "RICIS3.ExtendedKernel.RExpr.a5_distinct_payload",
+        "RICIS3.ExtendedKernel.RExpr.a6_geometric_bridge",
+        "RICIS3.ExtendedKernel.RExpr.a6_coupled_reciprocal",
+        "RICIS3.ExtendedKernel.RExpr.fallback_requires_gate",
+        "RICIS3.ExtendedKernel.RExpr.priority_blocks_fallback",
+        "RICIS3.GeneratedJacobianRegistry120.jacobian_registry120_a6_bridge",
+        "RICIS3.GeneratedJacobianRegistry120.jacobian_registry120_indices_valid"
+      ]
+    }
+  ]
+}

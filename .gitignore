@@ -9,3 +9,4 @@ coverage/
 temp-ricis-core-2/
 *.tmp
 /.vs
+/.github/workflows/lean-artifact-kernel-check.yml

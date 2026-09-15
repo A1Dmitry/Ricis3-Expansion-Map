@@ -14,12 +14,15 @@
  * Никакой арифметики чисел, никаких пределов, никаких приближений: только структура.
  */
 
-type Node =
+export type FormNode =
   | { readonly kind: 'id'; readonly name: string }
-  | { readonly kind: 'call'; readonly name: string; readonly arg: Node }
-  | { readonly kind: 'bin'; readonly op: '+' | '-' | '*' | '/'; readonly left: Node; readonly right: Node };
+  | { readonly kind: 'call'; readonly name: string; readonly arg: FormNode }
+  | { readonly kind: 'pow'; readonly base: FormNode; readonly exponent: FormNode }
+  | { readonly kind: 'bin'; readonly op: '+' | '-' | '*' | '/'; readonly left: FormNode; readonly right: FormNode };
 
-const OPERATORS = new Set(['+', '-', '*', '/']);
+type Node = FormNode;
+
+const OPERATORS = new Set(['+', '-', '*', '/', '^']);
 
 function tokenize(form: string): string[] {
   const tokens: string[] = [];
@@ -75,12 +78,22 @@ function parse(tokens: readonly string[]): Node {
     return { kind: 'id', name: token };
   };
 
+  const parsePower = (): Node => {
+    const left = parseFactor();
+    if (peek() === '^') {
+      position += 1;
+      const right = parsePower();
+      return { kind: 'pow', base: left, exponent: right };
+    }
+    return left;
+  };
+
   const parseTerm = (): Node => {
-    let left = parseFactor();
+    let left = parsePower();
     while (peek() === '*' || peek() === '/') {
       const op = tokens[position] as '*' | '/';
       position += 1;
-      const right = parseFactor();
+      const right = parsePower();
       left = { kind: 'bin', op, left, right };
     }
     return left;
@@ -102,8 +115,19 @@ function parse(tokens: readonly string[]): Node {
   return root;
 }
 
-function precedence(op: '+' | '-' | '*' | '/'): number {
-  return op === '*' || op === '/' ? 2 : 1;
+function precedence(op: '+' | '-' | '*' | '/' | '^'): number {
+  switch (op) {
+    case '^':
+      return 3;
+    case '*':
+    case '/':
+      return 2;
+    case '+':
+    case '-':
+      return 1;
+    default:
+      return 0;
+  }
 }
 
 function render(node: Node): string {
@@ -112,6 +136,15 @@ function render(node: Node): string {
       return node.name;
     case 'call':
       return `${node.name}(${render(node.arg)})`;
+    case 'pow': {
+      const baseText = render(node.base);
+      const expText = render(node.exponent);
+      const baseNeedsParens = node.base.kind === 'bin' || node.base.kind === 'pow';
+      const expNeedsParens = node.exponent.kind === 'bin';
+      const safeBase = baseNeedsParens ? `(${baseText})` : baseText;
+      const safeExp = expNeedsParens ? `(${expText})` : expText;
+      return `${safeBase}^${safeExp}`;
+    }
     case 'bin': {
       const own = precedence(node.op);
       const renderChild = (child: Node, side: 'left' | 'right'): string => {
@@ -141,6 +174,9 @@ function flatten(node: Node, op: '*' | '+'): Node[] {
 function canonicalNode(node: Node): Node {
   if (node.kind === 'id') return node;
   if (node.kind === 'call') return { kind: 'call', name: node.name, arg: canonicalNode(node.arg) };
+  if (node.kind === 'pow') {
+    return { kind: 'pow', base: canonicalNode(node.base), exponent: canonicalNode(node.exponent) };
+  }
 
   const left = canonicalNode(node.left);
   const right = canonicalNode(node.right);
@@ -162,6 +198,54 @@ function canonicalNode(node: Node): Node {
   }
 
   return { kind: 'bin', op: node.op, left, right };
+}
+
+/** Результат канонизации для строгой верификации доказательств (P2). */
+export type CanonicalResult =
+  | { readonly kind: 'OK'; readonly form: string; readonly ast: FormNode }
+  | { readonly kind: 'ERR'; readonly error: string };
+
+/**
+ * Строгая канонизация для proof-path: не маскирует синтаксические ошибки,
+ * возвращая либо валидный AST и строковую форму, либо явную ошибку (P2).
+ */
+export function canonicalizeForProof(form: string): CanonicalResult {
+  try {
+    const parsed = parse(tokenize(form));
+    const canon = canonicalNode(parsed);
+    return { kind: 'OK', form: render(canon), ast: canon };
+  } catch (error) {
+    return { kind: 'ERR', error: String(error) };
+  }
+}
+
+/** Рендеринг AST обратно в строковую форму. */
+export function renderForm(node: FormNode): string {
+  return render(node);
+}
+
+/** Экспорт внутренней функции канонизации узлов */
+export { canonicalNode };
+
+/** Структурная эквивалентность двух AST узлов. */
+export function equivalentAst(a: FormNode, b: FormNode): boolean {
+  if (a.kind !== b.kind) return false;
+  if (a.kind === 'id' && b.kind === 'id') return a.name === b.name;
+  if (a.kind === 'call' && b.kind === 'call') {
+    return a.name === b.name && equivalentAst(a.arg, b.arg);
+  }
+  if (a.kind === 'pow' && b.kind === 'pow') {
+    return equivalentAst(a.base, b.base) && equivalentAst(a.exponent, b.exponent);
+  }
+  if (a.kind === 'bin' && b.kind === 'bin') {
+    return a.op === b.op && equivalentAst(a.left, b.left) && equivalentAst(a.right, b.right);
+  }
+  return false;
+}
+
+/** Разбор строки формы в AST-дерево. Бросает ошибку при некорректном синтаксисе. */
+export function parseForm(form: string): FormNode {
+  return parse(tokenize(form));
 }
 
 /**
@@ -208,4 +292,14 @@ export function indexSymbolsOf(form: string): readonly string[] {
 /** Подстановка индексных символов целиком по токену (не по подстроке). */
 export function substituteSymbol(form: string, from: string, to: string): string {
   return form.replace(new RegExp(`(?<![A-Za-z0-9])${from}(?![A-Za-z0-9_])`, 'gu'), to);
+}
+
+/**
+ * Одновременная подстановка словаря символов (P2), исключающая каскадное F -> G -> H.
+ */
+export function substituteAllSymbols(form: string, substitution: Readonly<Record<string, string>>): string {
+  const keys = Object.keys(substitution).filter(k => k.length > 0 && substitution[k] !== undefined);
+  if (keys.length === 0) return form;
+  const pattern = new RegExp(`(?<![A-Za-z0-9])(${keys.join('|')})(?![A-Za-z0-9_])`, 'gu');
+  return form.replace(pattern, (_, match: string) => substitution[match] ?? match);
 }

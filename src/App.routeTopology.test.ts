@@ -11,8 +11,13 @@ describe('App route-level lazy delivery topology', () => {
     const errorBranch = appSource.indexOf('if (error)');
     const hydrationBranch = appSource.indexOf('if (!hydrated)');
     const recoveryBranch = appSource.indexOf('if (isCoreRecoveryRoute(locationSearch))');
+    // The roadmap route is an applet branch of the central workspace switch
+    // (deep-link contract `?view=roadmap` / `?applet=roadmap` → AppletNavigationService),
+    // not a top-level `if` on the view parameter. The priority order is unchanged:
+    // the error / hydration / recovery early returns still precede applet selection,
+    // and the map default still follows every explicit applet branch.
     const roadmapBranch = appSource.indexOf("case 'roadmap':");
-    const defaultMapBranch = appSource.indexOf('<Map3D />');
+    const defaultMapBranch = appSource.indexOf("case 'map':");
 
     expect(errorBranch).toBeGreaterThan(-1);
     expect(hydrationBranch).toBeGreaterThan(errorBranch);

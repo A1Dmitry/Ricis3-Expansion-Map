@@ -34,7 +34,8 @@ import {
   type UnsolvedProblemResolver,
   type UnsolvedSingularProblem,
 } from './contracts';
-import { canonicalizeForm, identityExpectation, indexSymbolsOf, substituteSymbol } from './canonicalForm';
+import { canonicalizeForm, identityExpectation, indexSymbolsOf, substituteAllSymbols } from './canonicalForm';
+import { verifyProofChain } from './ruleVerifier';
 import { axiomFingerprint, seedFingerprint, type SeedFingerprint } from './fingerprint';
 import { SEED_AXIOM_TABLE, type SeedAxiomDefinition } from './seedTable';
 
@@ -286,7 +287,7 @@ interface GateRun {
 
 class GateRunner {
   private readonly checks: GateCheck[] = [];
-  private rejection: { readonly reason: ExpansionRejection; readonly detail: string } | null = null;
+  private readonly failures: { readonly gate: GateId; readonly reason: ExpansionRejection; readonly detail: string }[] = [];
   private readonly failedGates = new Set<GateId>();
 
   pass(gate: GateId, detail: string): void {
@@ -300,7 +301,7 @@ class GateRunner {
   fail(gate: GateId, reason: ExpansionRejection, detail: string): void {
     this.failedGates.add(gate);
     this.checks.push({ gate, outcome: 'FAIL', detail });
-    if (!this.rejection) this.rejection = { reason, detail: `${gate}: ${detail}` };
+    this.failures.push({ gate, reason, detail: `${gate}: ${detail}` });
   }
 
   hasFailed(gate: GateId): boolean {
@@ -311,7 +312,16 @@ class GateRunner {
     for (const gate of remaining) {
       if (!this.checks.some(check => check.gate === gate)) this.skip(gate, 'не выполнено: предыдущие ворота закрыты');
     }
-    return Object.freeze({ trace: Object.freeze(this.checks), rejection: this.rejection });
+    // Выбираем ошибку согласно порядку прохождения ворот в remaining (ALL_GATES)
+    let selectedRejection = null;
+    for (const gate of remaining) {
+      const failure = this.failures.find(f => f.gate === gate);
+      if (failure) {
+        selectedRejection = { reason: failure.reason, detail: failure.detail };
+        break;
+      }
+    }
+    return Object.freeze({ trace: Object.freeze(this.checks), rejection: selectedRejection });
   }
 }
 
@@ -322,6 +332,7 @@ const ALL_GATES: readonly GateId[] = Object.freeze([
   'NO_SELF_CERTIFICATION',
   'RULE_SET_CLOSED',
   'PROOF_CHAIN_CONNECTED',
+  'SEMANTIC_RULE_VERIFIED',
   'PROBLEM_OPEN_IN_RICIS',
   'NO_DUPLICATE_AXIOM',
   'CONSISTENCY_TABLE',
@@ -415,13 +426,14 @@ function identityInstantiations(symbols: readonly string[]): readonly (readonly 
 }
 
 function applyInstantiation(form: string, symbols: readonly string[], targets: readonly string[]): string {
-  let result = form;
+  const dict: Record<string, string> = {};
   for (const [index, symbol] of symbols.entries()) {
     const target = targets[index];
-    if (!target || target === symbol) continue;
-    result = substituteSymbol(result, symbol, target);
+    if (target && target !== symbol) {
+      dict[symbol] = target;
+    }
   }
-  return result;
+  return substituteAllSymbols(form, dict);
 }
 
 /**
@@ -572,6 +584,24 @@ export function expandTo(seed: RicisSeedState, state: RicisState, program: Expan
   if (chainProblem) gates.fail('PROOF_CHAIN_CONNECTED', chainProblem.reason, chainProblem.detail);
   else if (!gates.hasFailed('RESOLUTION_PRESENT')) gates.pass('PROOF_CHAIN_CONNECTED', 'цепочка связана и завершается формулировкой кандидата');
   else gates.skip('PROOF_CHAIN_CONNECTED', 'нет доказательства для проверки');
+
+  // Семантическая валидация каждого шага доказательства через RuleVerifier (P0 / P3).
+  if (proof.steps.length > 0) {
+    const semanticVerification = verifyProofChain(proof.steps);
+    if (!semanticVerification.valid) {
+      gates.fail(
+        'SEMANTIC_RULE_VERIFIED',
+        'SEMANTIC_RULE_INVALID',
+        semanticVerification.reason ?? 'ошибка семантической валидации шагов доказательства'
+      );
+    } else {
+      gates.pass('SEMANTIC_RULE_VERIFIED', 'все шаги доказательства семантически корректны и проверены RuleVerifier');
+    }
+  } else if (!gates.hasFailed('RESOLUTION_PRESENT')) {
+    gates.pass('SEMANTIC_RULE_VERIFIED', 'нет шагов для семантической проверки');
+  } else {
+    gates.skip('SEMANTIC_RULE_VERIFIED', 'нет доказательства для проверки');
+  }
 
   // Открытость проблемы: нельзя вводить аксиому там, где R(n) уже разрешает форму.
   if (state.covers(problem)) {

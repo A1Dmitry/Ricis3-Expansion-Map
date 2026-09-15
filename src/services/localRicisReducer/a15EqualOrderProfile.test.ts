@@ -79,6 +79,44 @@ describe('A15 Rational Converter & Order Profile Calculator', () => {
   });
 });
 
+describe('RCVAP: A15 Point-Indexed Structural Profile (P3)', () => {
+  it('computes correct order and ratio for (x-a)^2 at a=3', () => {
+    const exprF = makeMockExpression('(x-3)^2');
+    const exprG = makeMockExpression('(x-3)^2');
+    
+    // Pass evaluation point 3 explicitly
+    const profileF = OrderProfileCalculator.computeOrderAndDerivative(exprF, 3);
+    const profileG = OrderProfileCalculator.computeOrderAndDerivative(exprG, 3);
+    
+    expect(profileF.isResolved).toBe(true);
+    expect(profileG.isResolved).toBe(true);
+    if (profileF.isResolved && profileG.isResolved) {
+      expect(profileF.order).toBe(2);
+      expect(profileG.order).toBe(2);
+      expect(profileF.derivValue).toBe(profileG.derivValue); // 1 / 1
+    }
+  });
+
+  it('computes correct order and ratio for 3(x-a)^2 / 5(x-a)^2 at a=7', () => {
+    const exprF = makeMockExpression('3*(x-7)^2');
+    const exprG = makeMockExpression('5*(x-7)^2');
+    
+    // Pass evaluation point 7 explicitly
+    const profileF = OrderProfileCalculator.computeOrderAndDerivative(exprF, 7);
+    const profileG = OrderProfileCalculator.computeOrderAndDerivative(exprG, 7);
+    
+    expect(profileF.isResolved).toBe(true);
+    expect(profileG.isResolved).toBe(true);
+    if (profileF.isResolved && profileG.isResolved) {
+      expect(profileF.order).toBe(2);
+      expect(profileG.order).toBe(2);
+      
+      const ratio = profileF.derivValue! / profileG.derivValue!;
+      expect(toCanonicalRationalString(ratio)).toBe('3 / 5');
+    }
+  });
+});
+
 describe('A15EqualOrderRule Execution', () => {
   it('successfully reduces (t - sin(t)) / t^3 to 1 / 6', () => {
     const num = makeMockExpression('t - sin(t)');

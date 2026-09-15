@@ -4,7 +4,7 @@
 [![Formal Verification](https://img.shields.io/badge/Formal%20Verification-Lean%204.33.1-blue.svg)](https://lean-lang.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-**Версия: 0.4.180**
+**Версия: 0.4.189**
 
 Интерактивная исследовательская карта сингулярностей, ориентированный граф доказательств (Blueprint DAG) и аналитический вычислительный движок на базе аксиоматической системы **RICIS-III v7.7** (Recursive Indexed Calculus of Identity and Singularity).
 
@@ -79,7 +79,11 @@ IDENTITY_COHERENCE → MONOTONIC_COMMIT`.
 * Единый документ: [`ricis-unified-complete-document-8.0-seed-expansion.json`](docs/01-architecture/ricis-unified-complete-document-8.0-seed-expansion.json).
 * Отчёт о прогоне: [`ricis-seed-expansion-run-2026-09-12.md`](docs/05-evidence/proofs/ricis-seed-expansion-run-2026-09-12.md).
 * **Граница доверия:** локальная структурная проверка не является запуском ядра Lean;
-  статус Lean для слоя развёртывания — `REQUIRES_CORE_LEAN`.
+  статус Lean для слоя развёртывания — `REQUIRES_CORE_LEAN`. Воспроизводимый зафиксированный
+  прогон ядра Lean 4.33.1 для self-contained артефактов выполняется workflow
+  [`lean-artifact-kernel-check.yml`](.github/workflows/lean-artifact-kernel-check.yml);
+  evidence — [`docs/05-evidence/proofs/lean-kernel-run-2026-09-14.md`](docs/05-evidence/proofs/lean-kernel-run-2026-09-14.md)
+  (`database-a6-minimal-core-check.lean` — `LEAN_VERIFIED`, Mathlib-артефакты — `REQUIRES_CORE_LEAN`).
 > **Терминология: это RSI, но с доказательной петлёй.** A11 — оператор *рекурсивного
 > самоулучшения* (Recursive Self-Improvement, RSI): система дополняет собственное множество правил.
 > Отличие от «обычного» RSI — самодопущение невозможно: каждое расширение есть **доказанное следствие**

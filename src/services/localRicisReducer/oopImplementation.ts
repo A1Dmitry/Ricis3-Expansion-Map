@@ -37,7 +37,7 @@ export class SemanticIndexValidator implements ISemanticIndexValidator {
   }
 
   hasValidFiniteKeys(expression: StructuralExpression): boolean {
-    if (expression.semanticKeys.length === 0 || !expression.semanticKeys.every(k => this.isKeyValid(k))) return false;
+    if (!expression.semanticKeys || !expression.semanticKeys.every(k => this.isKeyValid(k))) return false;
     
     switch (expression.kind) {
       case 'UNARY':

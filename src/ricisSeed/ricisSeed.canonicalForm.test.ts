@@ -25,7 +25,7 @@ describe('RICIS SEED — каноническая форма и тождеств
   });
 
   it('не маскирует неподдерживаемый синтаксис «успешной» нормализацией', () => {
-    expect(canonicalizeForm('(0_F)^(inf_G)')).toBe('(0_F)^(inf_G)');
+    expect(canonicalizeForm('(0_F)^(inf_G)')).toBe('0_F^inf_G');
     expect(identityExpectation('(0_F)^(inf_G)')).toBeNull();
   });
 

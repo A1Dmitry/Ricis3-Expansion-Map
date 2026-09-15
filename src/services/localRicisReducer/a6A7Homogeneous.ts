@@ -52,6 +52,7 @@ const typeValidator = new TypeConsistencyValidator();
 function hasSourceExpressionIndex(operand: IndexedOperand): boolean {
   const { index, payload } = operand;
   return index.basis === 'SP4_SOURCE_EXPRESSION' &&
+    index.semanticKeys.length > 0 &&
     semanticValidator.isIndexMatching(index, payload);
 }
 
@@ -70,7 +71,7 @@ function validateIndexedPair(left: IndexedOperand, right: IndexedOperand): Homog
   if (!hasSourceExpressionIndex(left) || !hasSourceExpressionIndex(right)) {
     return freeze({ status: 'NOT_APPLICABLE', reason: 'SP4_INDEX_INVALID' });
   }
-  if (!semanticValidator.hasValidFiniteKeys(left.payload) || !semanticValidator.hasValidFiniteKeys(right.payload)) {
+  if (left.index.semanticKeys.length === 0 || right.index.semanticKeys.length === 0 || !semanticValidator.hasValidFiniteKeys(left.payload) || !semanticValidator.hasValidFiniteKeys(right.payload)) {
     return freeze({ status: 'NOT_APPLICABLE', reason: 'SEMANTIC_KEYS_INVALID' });
   }
   return undefined;
