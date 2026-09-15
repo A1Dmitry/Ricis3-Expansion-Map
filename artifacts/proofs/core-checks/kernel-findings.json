@@ -1141,23 +1141,22 @@
       "sourceSha256": "368dc0359e3f37391e3e830fc1abf9107b8e3f1f37d0a7f3ac6d2b3bc36839f2",
       "checkedFile": "artifacts/proofs/core-checks/ricis-seed-expansion-a11.core-check.lean",
       "substitutionsApplied": [
-        "exact List.mem_of_mem_append_left hr → exact List.mem_append.mpr (Or.inl hr)"
+        "доказательство monotonic_growth: тактика `intro r hr; unfold expandTo; split; · exact List.mem_of_mem_append_left hr; · split <;> simp [hr]` → ядровое доказательство `intro r hr; unfold expandTo; let rOpt := resolve s; change …; cases rOpt with | none => simp; exact hr | some r0 => simp; let b1 := coreProtected r0; let b2 := isOpen s form; let b3 := isNew s r0; change …; cases b1/b2/b3` (ветви: simp; exact hr ×4; финальная — simp; exact Or.inl hr)",
+        "identity_violation_never_commits: `unfold admitWithIdentity identityCoherent; simp [h]` → `unfold admitWithIdentity identityCoherent; simp; assumption`",
+        "identity_ok_preserves_expansion: `unfold admitWithIdentity identityCoherent; simp [h]` → `unfold admitWithIdentity identityCoherent; simp; assumption`",
+        "пример A14: `unfold admitWithIdentity identityCoherent; simp [hbad]` → `unfold admitWithIdentity identityCoherent; simp; assumption`"
       ],
-      "compilerExit": 1,
-      "resultLine": "FAILED (compiler exit 1) — SORRY_DETECTED (3 hit(s))",
-      "compilerErrorCount": 5,
-      "firstCompilerErrors": [
-        "104:4: error: Type mismatch",
-        "105:4: error: Tactic `split` failed: Could not split an `if` or `match` expression in the goal",
-        "156:63: error: unsolved goals"
-      ],
+      "compilerExit": 0,
+      "resultLine": "OK (compiler exit 0, no compiler errors)",
+      "compilerErrorCount": 0,
+      "firstCompilerErrors": [],
       "theoremCount": 6,
       "theorems": [
         {
           "name": "RICIS.Seed.monotonic_growth",
-          "status": "REJECTED_SORRYAX",
+          "status": "LEAN_VERIFIED_WITH_STANDARD_AXIOMS",
           "axioms": [
-            "sorryAx"
+            "propext"
           ]
         },
         {
@@ -1183,36 +1182,62 @@
         },
         {
           "name": "RICIS.Seed.identity_violation_never_commits",
-          "status": "REJECTED_SORRYAX",
+          "status": "LEAN_VERIFIED_WITH_STANDARD_AXIOMS",
           "axioms": [
-            "propext",
-            "sorryAx"
+            "propext"
           ]
         },
         {
           "name": "RICIS.Seed.identity_ok_preserves_expansion",
-          "status": "REJECTED_SORRYAX",
+          "status": "LEAN_VERIFIED_WITH_STANDARD_AXIOMS",
           "axioms": [
-            "propext",
-            "sorryAx"
+            "propext"
           ]
         }
       ],
-      "outcome": "NOT_VERIFIED_CORE_ONLY",
-      "rootCause": "Заявленная мной замена Mathlib-леммы оказалась недостаточной: 104:4 «Type mismatch: List.mem_append.mpr (Or.inl hr) has type r ∈ s.rules ++ ?m.77 but is expected to have type r ∈ a✝¹.rules» — после `induction` цель уже не содержит `++`, поэтому ядровый эквивалент неприменим в этой точке; 105:4 «Tactic `split` failed: Could not split an `if` or `match` expression in the goal»; далее 156:63, 165:50, 176:105 «unsolved goals» (core-simp слабее Mathlib-simp). Итог: 3 из 6 теорем с sorryAx (monotonic_growth, identity_violation_never_commits, identity_ok_preserves_expansion). Это дефект МОЕЙ подстановки, а не только границы ядра.",
-      "trustBoundary": "3 из 6 теорем приняты ядром (только propext), 3 получили sorryAx; моя замена леммы неприменима в точке 104. Граница: A11 — свойство монотонного роста списка правил семенного расширения, а не утверждение о сходимости обучения.",
+      "outcome": "LEAN_VERIFIED",
+      "rootCause": null,
+      "trustBoundary": "Прогон ядра 2026-09-15 (Lean 4.33.1, commit 819816b2e0a3bf405af45ae5c7af2491d8f5bee6 — тот же commit, что в CI; локальный прогон, evidence: docs/05-evidence/proofs/lean-core-checks-local-run-2026-09-15.md): exit 0, ошибок 0, sorryAx отсутствует; 6/6 теорем — только propext (все 4 подстановки — ядровые тактики intro/unfold/let/change/cases/simp/exact/assumption). F-08 устранён. Граница: доказаны структурные инварианты протокола A11 (монотонность R_k ⊆ R_(k+1), сохранение генерации при отказе, запрет коммита без доказательства, защита ядра, identity-ворота), а не эмпирические утверждения узлов карты. Повторный прогон в CI ожидается: соединение с GitHub в среде сессии было потеряно (истёк токен) — пуш/PR и workflow-прогон на закреплённом тулчейне последуют после восстановления подключения.",
+      "run": {
+        "kind": "local-kernel-run",
+        "dateUtc": "2026-09-15",
+        "toolchain": "Lean 4.33.1, x86_64-unknown-linux-gnu, commit 819816b2e0a3bf405af45ae5c7af2491d8f5bee6, Release (собран из официального исходного тега v4.33.1; USE_GMP=OFF, LLVM=OFF, USE_MIMALLOC=OFF; OpenSSL — заглушка, символы не используются ядром; подробности и обоснование — в evidence)",
+        "command": "lean artifacts/proofs/core-checks/ricis-seed-expansion-a11.core-check.lean",
+        "host": "среда выполнения сессии (Linux x86_64, не GitHub Actions)",
+        "evidence": "docs/05-evidence/proofs/lean-core-checks-local-run-2026-09-15.md",
+        "note": "Локальный прогон, а не CI: elan/CDN релизов GitHub недоступны из среды. Commit тулчейна идентичен CI-закреплённому; производная детерминирована генератором (drift 0). Повторный CI-прогон — после восстановления подключения к GitHub."
+      },
       "priorRun": {
-        "runId": 34858902595,
+        "runId": 34870620154,
         "compilerExit": 1,
         "resultLine": "FAILED (compiler exit 1) — SORRY_DETECTED (3 hit(s))",
         "compilerErrorCount": 5,
+        "firstCompilerErrors": [
+          "104:4: error: Type mismatch",
+          "105:4: error: Tactic `split` failed: Could not split an `if` or `match` expression in the goal",
+          "156:63: error: unsolved goals"
+        ],
         "outcome": "NOT_VERIFIED_CORE_ONLY",
         "sorryAxTheorems": [
           "RICIS.Seed.monotonic_growth",
           "RICIS.Seed.identity_violation_never_commits",
           "RICIS.Seed.identity_ok_preserves_expansion"
         ],
-        "rootCause": "Заявленная мной замена Mathlib-леммы оказалась недостаточной: 104:4 «Type mismatch: List.mem_append.mpr (Or.inl hr) has type r ∈ s.rules ++ ?m.77 but is expected to have type r ∈ a✝¹.rules» — после `induction` цель уже не содержит `++`, поэтому ядровый эквивалент неприменим в этой точке; 105:4 «Tactic `split` failed: Could not split an `if` or `match` expression in the goal»; далее 156:63, 165:50, 176:105 «unsolved goals» (core-simp слабее Mathlib-simp). Итог: 3 из 6 теорем с sorryAx (monotonic_growth, identity_violation_never_commits, identity_ok_preserves_expansion). Это дефект МОЕЙ подстановки, а не только границы ядра."
+        "rootCause": "Заявленная мной замена Mathlib-леммы оказалась недостаточной: 104:4 «Type mismatch: List.mem_append.mpr (Or.inl hr) has type r ∈ s.rules ++ ?m.77 but is expected to have type r ∈ a✝¹.rules» — после `induction` цель уже не содержит `++`, поэтому ядровый эквивалент неприменим в этой точке; 105:4 «Tactic `split` failed: Could not split an `if` or `match` expression in the goal»; далее 156:63, 165:50, 176:105 «unsolved goals» (core-simp слабее Mathlib-simp). Итог: 3 из 6 теорем с sorryAx (monotonic_growth, identity_violation_never_commits, identity_ok_preserves_expansion). Это дефект МОЕЙ подстановки, а не только границы ядра.",
+        "note": "Факты run 34870620154 (CI, ветка PR #37, производная 0.4.188/0.4.189); дословно воспроизведены локальным прогоном 2026-09-15 (docs/05-evidence/proofs/lean-core-checks-local-run-2026-09-15.md, Факт 1) до ремонта.",
+        "earlierRun": {
+          "runId": 34858902595,
+          "compilerExit": 1,
+          "resultLine": "FAILED (compiler exit 1) — SORRY_DETECTED (3 hit(s))",
+          "compilerErrorCount": 5,
+          "outcome": "NOT_VERIFIED_CORE_ONLY",
+          "sorryAxTheorems": [
+            "RICIS.Seed.monotonic_growth",
+            "RICIS.Seed.identity_violation_never_commits",
+            "RICIS.Seed.identity_ok_preserves_expansion"
+          ],
+          "rootCause": "Заявленная мной замена Mathlib-леммы оказалась недостаточной: 104:4 «Type mismatch: List.mem_append.mpr (Or.inl hr) has type r ∈ s.rules ++ ?m.77 but is expected to have type r ∈ a✝¹.rules» — после `induction` цель уже не содержит `++`, поэтому ядровый эквивалент неприменим в этой точке; 105:4 «Tactic `split` failed: Could not split an `if` or `match` expression in the goal»; далее 156:63, 165:50, 176:105 «unsolved goals» (core-simp слабее Mathlib-simp). Итог: 3 из 6 теорем с sorryAx (monotonic_growth, identity_violation_never_commits, identity_ok_preserves_expansion). Это дефект МОЕЙ подстановки, а не только границы ядра."
+        }
       }
     },
     {
@@ -1396,7 +1421,7 @@
         "ricis-seed-expansion-a11"
       ],
       "requiredDecision": "Признать подстановку неверной, заменить на ядровый шаг, соответствующий цели после induction, и перепроверить; до этого производная не считается ремонтом.",
-      "resolution": "Подтверждено: замена `List.mem_of_mem_append_left hr → List.mem_append.mpr (Or.inl hr)` неприменима в точке 104:4 после induction (цель уже не содержит `++`). Производная A11 зарегистрирована в ciPolicy.expectedFailures (ожидаемый отказ с зафиксированным основанием); ядровой ремонт — построение тактических шагов под фактические цели после induction — отдельная задача."
+      "resolution": "РЕШЁНО (2026-09-15, локальный прогон ядра 4.33.1, commit 819816b2e0a3bf405af45ae5c7af2491d8f5bee6 — тот же commit, что в CI; evidence: docs/05-evidence/proofs/lean-core-checks-local-run-2026-09-15.md). (1) Дефект воспроизведён дословно на турящейся производной (104:4 Type mismatch / 105:4 split failed / 156:63 unsolved goals, exit 1). (2) Перепричина установлена экспериментально: ядровой `split` расщепляет внешний match и оставляет равенство scrutinee гипотезой — тактика исходника несовместима с ядром. (3) Построено и принято ядром доказательство на ядровых тактиках (let + change + cases по let-константам; identity-теоремы: simp + assumption). (4) Финальная производная: exit 0, 0 ошибок, sorryAx отсутствует, 6/6 теорем — только propext. A11 исключена из ciPolicy.expectedFailures, запись реестра — LEAN_VERIFIED. Повторный прогон в CI ожидается (соединение с GitHub в среде сессии потеряно — пуш/PR после восстановления)."
     },
     {
       "id": "F-09",
@@ -1454,11 +1479,6 @@
         "artifactId": "ricis-jacobian-conjecture",
         "checkedFile": "artifacts/proofs/core-checks/ricis-jacobian-conjecture.standalone.core-check.lean",
         "basis": "run 34870620154 (Lean 4.33.1, дословно): исходник не парсится (конструктор `partial` — зарезервированное слово, 24:12 expected token); после переименования partial → partialDeriv файл парсится, но 62:2 «Tactic `rfl` failed: resolveRICIS (F.zeroF.det …) is not definitionally equal to (F.mul G).sub …» — центральная теорема Jacobian_singularity_resolved несёт sorryAx. Тождество не является определительным; заявленный TRUSTED_AXIOM не имеет основания ни в одной конфигурации (F-01). Решение владельца 2026-09-14 (README): классификация STRUCTURALLY_VALIDATED; построение нового доказательства — отдельная задача."
-      },
-      {
-        "artifactId": "ricis-seed-expansion-a11",
-        "checkedFile": "artifacts/proofs/core-checks/ricis-seed-expansion-a11.core-check.lean",
-        "basis": "run 34870620154 (Lean 4.33.1, дословно): 104:4 «Type mismatch: List.mem_append.mpr (Or.inl hr) has type r ∈ s.rules ++ ?m.77 but is expected to have type r ∈ a✝¹.rules» (после induction цель не содержит `++` — замена неприменима в этой точке, F-08); 105:4 «Tactic `split` failed: Could not split an `if` or `match` expression in the goal»; 156:63 / 165:50 / 176:105 «unsolved goals» (core-simp слабее Mathlib-simp). Итог: 3 из 6 теорем с sorryAx (monotonic_growth, identity_violation_never_commits, identity_ok_preserves_expansion), 3 приняты (propext). Ядровой ремонт доказательства — отдельная задача; до него производная не считается ремонтом (F-08)."
       }
     ],
     "mathlibRule": "Тот же закон, что и для core-check, отдельный список: единственный источник «ожидаемых отказов» Mathlib-целей — ciPolicy.mathlibExpectedFailures[].checkedFile (workflow извлекает его jq-выражением `(.ciPolicy.mathlibExpectedFailures // [])[].checkedFile`). Цель не из списка, упавшая в прогоне, рвёт прогон; скомпилированный файл с sorryAx рвёт прогон всегда; зарегистрированная цель, которая скомпилировалась, отдаётся как OK с NOTE об обновлении реестра. Список остаётся пустым до первого фактического прогона: прогноз не является основанием для регистрации ожидаемого отказа.",
