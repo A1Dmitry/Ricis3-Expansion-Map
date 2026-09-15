@@ -1,0 +1,10 @@
+# Метаданные канала evidence
+
+Источник: комментарий PR #40 (первый комментарий workflow-шага
+«Post Mathlib kernel evidence to the pull request»).
+Run: https://github.com/A1Dmitry/Ricis3-Expansion-Map/actions/runs/34950902412
+Job: mathlib-kernel-check (Lean kernel run with pinned Mathlib)
+Дата: 2026-09-15T09:10:52Z (UTC)
+Причина сохранения файла: логи раннера и загруженный artifact из среды агента не читаются
+(results-receiver.actions.githubusercontent.com недоступен), поэтому единственный достоверный
+канал — комментарий PR.

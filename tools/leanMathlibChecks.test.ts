@@ -36,15 +36,29 @@ function readMetadata(fileName: string): ProofMetadata {
   return JSON.parse(readFileSync(join(proofsDirectory, fileName), 'utf8')) as ProofMetadata;
 }
 
+interface RegistryTheorem {
+  readonly name: string;
+  readonly status:
+    | 'LEAN_VERIFIED_AXIOM_FREE'
+    | 'LEAN_VERIFIED_WITH_STANDARD_AXIOMS'
+    | 'REJECTED_SORRYAX'
+    | 'DECLARED_CONTRACT';
+  readonly axioms: readonly string[];
+}
+
 interface RegistryArtifact {
   readonly artifactId: string;
   readonly outcome: string;
   readonly compilerExit: number;
+  readonly compilerErrorCount?: number;
   readonly rootCause: string | null;
+  readonly theorems: readonly RegistryTheorem[];
 }
 
 const registry = JSON.parse(readText('artifacts/proofs/core-checks/kernel-findings.json')) as {
   readonly artifacts: readonly RegistryArtifact[];
+  readonly generatedFrom?: { readonly runId: number };
+  readonly mathlibRun?: { readonly runId: number; readonly job: string; readonly rawEvidence: string };
   readonly pendingKernelRun: readonly {
     readonly artifactId: string;
     readonly immutableSource: string;
@@ -231,16 +245,16 @@ describe('Lean kernel mathlib-check derivatives', () => {
     }
   });
 
-  it('реестр не повышает статус без прогона и фиксирует ожидающий прогон честно', () => {
+  it('реестр не повышает статус без прогона, а после прогона фиксирует факты и границу claimLevel', () => {
     const registryById = new Map(registry.artifacts.map((item) => [item.artifactId, item]));
 
+    // Ожидающий прогон фиксируется честно: только UNKNOWN, никогда — прогноз статуса.
     for (const pending of registry.pendingKernelRun) {
       expect(pending.status, pending.artifactId).toBe('PENDING_KERNEL_RUN');
       expect(existsSync(join(repositoryRoot, pending.immutableSource)), pending.immutableSource).toBe(true);
       expect(sha256(readText(pending.immutableSource)), `${pending.immutableSource}: исходник изменён`).toBe(
         pending.sourceSha256,
       );
-      // Пока прогон не выполнен, «ожидаемый исход» обязан быть честным UNKNOWN, а не прогнозом статуса.
       expect(pending.expectedOutcome.toUpperCase(), pending.artifactId).toContain('UNKNOWN');
       expect(
         registryById.has(pending.artifactId),
@@ -249,12 +263,33 @@ describe('Lean kernel mathlib-check derivatives', () => {
     }
 
     for (const entry of LEAN_MATHLIB_CHECK_PLAN) {
-      const metadata = readMetadata(`${entry.artifactId}.json`);
+      const metadata = readMetadata(`${entry.artifactId}.json`) as ProofMetadata & {
+        readonly verification?: { readonly trustStatus?: string; readonly claimLevel?: string };
+        readonly kernelCheck?: { readonly run?: number; readonly job?: string };
+      };
       const status = metadata.verification?.trustStatus;
-      const fact = registryById.get(entry.artifactId);
+      const fact = registryById.get(entry.artifactId) as (RegistryArtifact & { readonly claimLevel?: string }) | undefined;
+
       if (status === 'LEAN_VERIFIED' || status === 'TRUSTED_AXIOM') {
+        // Факт обязателен и обязан быть полным: exit 0, без sorryAx, со ссылкой на прогон реестра.
         expect(fact?.outcome, `${entry.artifactId}: ${status} без фактического прогона`).toBe('LEAN_VERIFIED');
         expect(fact?.compilerExit, entry.artifactId).toBe(0);
+        expect(
+          fact?.theorems.some((theorem) => theorem.status === 'REJECTED_SORRYAX'),
+          `${entry.artifactId}: LEAN_VERIFIED при sorryAx`,
+        ).toBe(false);
+        expect(
+          [registry.mathlibRun?.runId, registry.generatedFrom?.runId],
+          `${entry.artifactId}: kernelCheck.run не совпадает ни с одним прогоном реестра`,
+        ).toContain(metadata.kernelCheck?.run);
+        // Артефактный уровень не подменяет уровень заявления: компилируемость не делает
+        // содержательное утверждение доказанным (F-09/F-10/F-11).
+        expect(metadata.verification?.claimLevel, `${entry.artifactId}: не зафиксирован claimLevel`).toBe(
+          'STRUCTURALLY_VALIDATED',
+        );
+        expect(fact?.claimLevel, `${entry.artifactId}: claimLevel отсутствует в реестре`).toBe(
+          'STRUCTURALLY_VALIDATED',
+        );
       }
       if (status === 'REJECTED') {
         expect(fact?.outcome, `${entry.artifactId}: REJECTED без записи об отказе ядра`).toBe(
@@ -268,6 +303,43 @@ describe('Lean kernel mathlib-check derivatives', () => {
           registry.pendingKernelRun.some((pending) => pending.artifactId === entry.artifactId),
           `${entry.artifactId}: REQUIRES_CORE_LEAN без зафиксированного ожидающего прогона`,
         ).toBe(true);
+      }
+    }
+  });
+
+  it('факт ядра виден в реестре: исходник как предоставлен, стандартные аксиомы, никаких объявленных контрактов в теоремах', () => {
+    expect(registry.mathlibRun, 'реестр не содержит раздела mathlibRun').toBeDefined();
+    expect(registry.mathlibRun?.job).toBe('mathlib-kernel-check');
+    expect(existsSync(join(repositoryRoot, registry.mathlibRun?.rawEvidence ?? '')), 'сырое evidence не сохранено').toBe(
+      true,
+    );
+
+    for (const entry of LEAN_MATHLIB_CHECK_PLAN) {
+      const fact = registry.artifacts.find((item) => item.artifactId === entry.artifactId) as
+        | (RegistryArtifact & {
+            readonly declaredContracts?: readonly string[];
+            readonly substitutionsApplied?: readonly unknown[];
+            readonly sourceCheckedAsProvided?: string;
+          })
+        | undefined;
+      if (!fact || fact.outcome !== 'LEAN_VERIFIED') continue;
+
+      // §7: проверялся сам предоставленный исходник, подстановок нет.
+      expect(fact.sourceCheckedAsProvided, `${entry.artifactId}: исходник не проверялся как предоставлен`).toBe(
+        entry.source,
+      );
+      expect(fact.substitutionsApplied ?? [], `${entry.artifactId}: Mathlib-производная не должна иметь подстановок`).toEqual(
+        [],
+      );
+
+      const declared = fact.declaredContracts ?? [];
+      const theorems = fact.theorems.filter((theorem) => !declared.includes(theorem.name));
+      expect(theorems.length, `${entry.artifactId}: в реестре нет теорем`).toBeGreaterThan(0);
+      // Ключевой факт F-09: теоремы НЕ зависят от объявленных контрактов.
+      for (const theorem of theorems) {
+        for (const contract of declared) {
+          expect(theorem.axioms, `${entry.artifactId}.${theorem.name}`).not.toContain(contract);
+        }
       }
     }
   });

@@ -1214,25 +1214,85 @@
         ],
         "rootCause": "Заявленная мной замена Mathlib-леммы оказалась недостаточной: 104:4 «Type mismatch: List.mem_append.mpr (Or.inl hr) has type r ∈ s.rules ++ ?m.77 but is expected to have type r ∈ a✝¹.rules» — после `induction` цель уже не содержит `++`, поэтому ядровый эквивалент неприменим в этой точке; 105:4 «Tactic `split` failed: Could not split an `if` or `match` expression in the goal»; далее 156:63, 165:50, 176:105 «unsolved goals» (core-simp слабее Mathlib-simp). Итог: 3 из 6 теорем с sorryAx (monotonic_growth, identity_violation_never_commits, identity_ok_preserves_expansion). Это дефект МОЕЙ подстановки, а не только границы ядра."
       }
-    }
-  ],
-  "pendingKernelRun": [
+    },
     {
       "artifactId": "ricis-general-resolution",
       "immutableSource": "artifacts/proofs/ricis-general-resolution.lean",
       "sourceSha256": "e92ebe52a85af838205a6bdb950ff4517f959cbfc4f38c1d0e7c4cb65cc35db3",
-      "job": "mathlib-kernel-check",
-      "toolchain": "leanprover/lean4:v4.33.0 (Mathlib @ 6f1ef4e5dd604a435bddba4747b13970cd65d2a1)",
-      "commands": [
-        "(cd mathlib-check && lake env lean artifacts/proofs/ricis-general-resolution.lean)",
-        "(cd mathlib-check && lake env lean artifacts/proofs/mathlib-checks/ricis-general-resolution.mathlib-check.lean)"
+      "checkedFile": "artifacts/proofs/mathlib-checks/ricis-general-resolution.mathlib-check.lean",
+      "sourceCheckedAsProvided": "artifacts/proofs/ricis-general-resolution.lean",
+      "substitutionsApplied": [],
+      "compilerExit": 0,
+      "resultLine": "OK (source exit 0, derivative exit 0, no compiler errors)",
+      "compilerErrorCount": 0,
+      "firstCompilerErrors": [],
+      "theoremCount": 3,
+      "theorems": [
+        {
+          "name": "ricis_general_resolution",
+          "status": "LEAN_VERIFIED_WITH_STANDARD_AXIOMS",
+          "axioms": [
+            "propext",
+            "Classical.choice",
+            "Quot.sound"
+          ]
+        },
+        {
+          "name": "ricis_equals_classical_limit",
+          "status": "LEAN_VERIFIED_WITH_STANDARD_AXIOMS",
+          "axioms": [
+            "propext",
+            "Classical.choice",
+            "Quot.sound"
+          ]
+        },
+        {
+          "name": "specific_case_from_general",
+          "status": "LEAN_VERIFIED_WITH_STANDARD_AXIOMS",
+          "axioms": [
+            "propext",
+            "Classical.choice",
+            "Quot.sound"
+          ]
+        },
+        {
+          "name": "ax_A4_general",
+          "status": "DECLARED_CONTRACT",
+          "axioms": [
+            "ax_A4_general",
+            "propext",
+            "Classical.choice",
+            "Quot.sound"
+          ]
+        },
+        {
+          "name": "ax_SP1_general",
+          "status": "DECLARED_CONTRACT",
+          "axioms": [
+            "ax_SP1_general",
+            "propext",
+            "Classical.choice",
+            "Quot.sound"
+          ]
+        }
       ],
-      "metadata": "artifacts/proofs/ricis-general-resolution.json",
-      "evidenceTarget": "docs/05-evidence/proofs/ricis-general-resolution-claim-audit-2026-09-15.md",
-      "expectedOutcome": "UNKNOWN — решает ядро. Статический аудит (UNVERIFIED_PREDICTION) предсказывает ошибку области видимости тактики `omega` и ряд рисков на `specific_case_from_general`; прогноз не является статусом и не может заменить прогон.",
-      "status": "PENDING_KERNEL_RUN"
+      "declaredContracts": [
+        "ax_A4_general",
+        "ax_SP1_general"
+      ],
+      "warningsObserved": [
+        "87:10 This simp argument is unused: h_k_zero (подтверждает статическую гипотезу об избыточности шага ветви m = n — предупреждение, не ошибка)",
+        "160:8 / 161:8 «this tactic is never executed» и 160:8/161:8 «Unused tactic linter» — хвостовые `<;> simp [Complex.ext_iff]` и `<;> norm_num` после закрывающего `ring` не исполняются (класс F-06, но как warning)",
+        "109:29 Variable name `z` is not explicitly referenced; 138:4 / 159:4 `<;>` вместо `;`"
+      ],
+      "outcome": "LEAN_VERIFIED",
+      "rootCause": null,
+      "trustBoundary": "run 34950902412 (Lean 4.33.0 + Mathlib, PR #40): исходник как предоставлен — exit 0, производная — exit 0, sorryAx отсутствует. #print axioms: три теоремы зависят только от стандартных аксиом (propext, Classical.choice, Quot.sound), то есть НЕ используют объявленные RICIS-контракты ax_A4_general/ax_SP1_general — это факт ядра, подтверждающий F-09. Объявленные контракты напечатаны отдельно и зависят от самих себя (DECLARED_CONTRACT, не доказательство). Граница (F-09/F-10/F-11): ядро подтвердило компилируемость и состав зависимостей, а НЕ содержательное утверждение заголовка «общая теорема разрешения сингулярностей»; сингулярность не предъявлена, редукция ricis_reduce не используется, имя ricis_equals_classical_limit не подтверждено предельным содержанием (P1).",
+      "claimLevel": "STRUCTURALLY_VALIDATED",
+      "claimLevelNote": "Артефактный уровень (ядро приняло артефакт) — LEAN_VERIFIED. Уровень заявленного результата («общая теорема разрешения комплексных сингулярностей») — НЕ доказан: см. F-09/F-10/F-11. Разделение введено решением владельца по F-01 (README artifacts/proofs)."
     }
   ],
+  "pendingKernelRun": [],
   "findings": [
     {
       "id": "F-01",
@@ -1328,7 +1388,7 @@
       "title": "«Общая теорема разрешения комплексных сингулярностей» является определительным развёртыванием определения (метрика вместо исходной задачи)",
       "artifact": "artifacts/proofs/ricis-general-resolution.lean",
       "evidence": "artifacts/proofs/ricis-general-resolution.lean: ricis_eval_general объявлена ровно тем выражением, которое утверждает ricis_general_resolution (`if S.m ≥ S.n then (let k := S.m - S.n; if k = 0 then S.N_tilde S.a / S.D_tilde S.a else 0) else 0`); доказательство — `dsimp only [ricis_eval_general]` + `by_cases` + `omega`/`simp`. Сверка тел доказательств: ax_A4_general, ax_SP1_general и ricis_reduce не встречаются ни в одном доказательстве (только собственные объявления). Формальная метрика «теорема доказана» выполняется при недоказанной содержательной задаче (связь структурной редукции сингулярности со значением). Ядерный прогон — docs/05-evidence/proofs/ricis-general-resolution-claim-audit-2026-09-15.md.",
-      "status": "Зафиксировано: заголовок «ОБЩАЯ теорема разрешения комплексных сингулярностей» содержимым файла не подтверждается; артефакт классифицируется REQUIRES_CORE_LEAN с зафиксированной границей (artifacts/proofs/ricis-general-resolution.json, boundary.notProven)."
+      "status": "ПОДТВЕРЖДЕНО ЯДРОМ и остаётся открытым: run 34950902412 — три теоремы зависят только от стандартных аксиом (propext, Classical.choice, Quot.sound); ни ax_A4_general, ни ax_SP1_general в зависимости теорем не входят, то есть RICIS-контракты в доказательстве не участвуют. Компилируемость не превращает развёртывание определения в содержательную теорему; класс заявленного результата — решение владельца."
     },
     {
       "id": "F-10",
@@ -1336,7 +1396,7 @@
       "title": "Необъявленная граница доверия: две axiom-декларации и имя теоремы, обещающее классический предел",
       "artifact": "artifacts/proofs/ricis-general-resolution.lean",
       "evidence": "artifacts/proofs/ricis-general-resolution.lean: `axiom ax_A4_general` и `axiom ax_SP1_general` — доверенные контракты, а не доказательства (AGENTS.md §7 требует видимой границы доверия; в файле нет ни #print axioms, ни маркировки, ни ссылки на evidence). При этом заявленный заголовок «(ФИНАЛЬНАЯ ВЕРСИЯ 2)» и имя теоремы `ricis_equals_classical_limit` создают впечатление доказанного совпадения с классическим пределом, тогда как никакое предельное выражение (lim, Лопиталь, Коши) в файле не определено и не выводится — P1 RICIS прямо запрещает пределы внутри Resolve_RICIS.",
-      "status": "Зафиксировано: контракты перечислены в artifacts/proofs/ricis-general-resolution.json (declaredAxioms, usedByTheorems=false); эпилог mathlib-check прогона печатает #print axioms и для объявленных контрактов, чтобы граница доверия была видна в evidence."
+      "status": "Подтверждено и вынесено в evidence: run 34950902412 печатает #print axioms для объявленных контрактов отдельно от теорем (ax_A4_general/ax_SP1_general зависят от самих себя). Граница доверия теперь видна в самом прогоне, а не только в тексте аудита."
     },
     {
       "id": "F-11",
@@ -1344,7 +1404,7 @@
       "title": "Разрыв «редукция ↔ вычисление»: объявленная редукция не используется, сингулярность 0/0 не предъявлена",
       "artifact": "artifacts/proofs/ricis-general-resolution.lean",
       "evidence": "artifacts/proofs/ricis-general-resolution.lean: функция `ricis_reduce` (единственное место, где выполняется сокращение (z-a)^min(m,n) и строится редуцированное выражение) объявлена и не используется ни одной теоремой; ни одна теорема не связывает ricis_reduce S со значением ricis_eval_general S (например, определённость редуцированного выражения в точке a). Условия сингулярности `N a = 0 ∧ D a = 0` не утверждаются ни для общего случая, ни в форме RicisExpr — то есть объект разрешения в артефакте отсутствует.",
-      "status": "Зафиксировано; содержательный ремонт (новая версия доказательства с фактической связью A4/SP4-редукции и значения) — отдельная задача, требующая решения владельца."
+      "status": "Открыто без изменений: прогон ядра не проверяет связь ricis_reduce со значением — такой теоремы в артефакте нет, поэтому ядру нечего подтверждать."
     },
     {
       "id": "F-12",
@@ -1352,7 +1412,15 @@
       "title": "Граница «Mathlib нельзя проверить на runner» сузила доказательную базу: 14 артефактов оставались REQUIRES_CORE_LEAN по недостоверному основанию",
       "artifact": "artifacts/proofs/README.md, .github/workflows/lean-artifact-kernel-check.yml",
       "evidence": "artifacts/proofs/README.md (версия 0.4.189) утверждал «No pinned prebuilt Mathlib fits a standard runner; status not promoted» как основание для REQUIRES_CORE_LEAN у 14 артефактов с `import Mathlib`. Фактически на стандартный runner не влезает только сборка Mathlib из исходников: готовые oleans закреплённой ревизии (`lake exe cache get`) влезают, что подтверждается пилотным job `mathlib-kernel-check` (Lean `v4.33.0` = lean-toolchain Mathlib @ 6f1ef4e5dd604a435bddba4747b13970cd65d2a1). Ни один статус при этом не повышается автоматически: прогон запускается только для артефактов из явного allowlist MATHLIB_ARTIFACTS.",
-      "status": "Частично закрыто: механизм создан и применён к пилотному артефакту ricis-general-resolution; для остальных Mathlib-артефактов статус остаётся REQUIRES_CORE_LEAN до их собственного прогона (отдельная задача, решение владельца)."
+      "status": "ЗАКРЫТО ФАКТИЧЕСКИМ ПРОГОНОМ (артефактный механизм): run 34950902412 — job mathlib-kernel-check зелёный, oleans закреплённой Mathlib получены готовыми, прогон исходника и производной выполнен. Прежнее основание REQUIRES_CORE_LEAN («prebuilt Mathlib не влезает на runner») опровергнуто фактом. Расширение allowlist MATHLIB_ARTIFACTS на остальные Mathlib-артефакты — отдельное решение владельца."
+    },
+    {
+      "id": "F-13",
+      "severity": "MEDIUM",
+      "title": "Статическая экспертиза Lean-кода без компилятора систематически ненадёжна: прогноз об `omega` опровергнут ядром",
+      "artifact": "artifacts/proofs/ricis-general-resolution.lean",
+      "evidence": "Прогноз статического аудита (docs/05-evidence/proofs/ricis-general-resolution-claim-audit-2026-09-15.md, §4) объявлял вероятной ошибку «unknown tactic 'omega'» из-за отсутствия тактики в трёх импортах файла — run 34950902412 скомпилировал исходник как предоставлен (exit 0) и вывел предупреждения, а не ошибки: `Mathlib.Data.Nat.Basic`/`Mathlib.Tactic.Ring` транзитивно дают `omega`. Верными оказались предсказания об избыточных шагах (87:10 unused simp argument h_k_zero; 160/161 «this tactic is never executed» / «Unused tactic linter»), но точность предсказаний в целом — недостаточная для статуса.",
+      "status": "Зафиксировано как урок: предсказание без компилятора не является статусом (поэтому оно и было помечено UNVERIFIED_PREDICTION, а ciPolicy.mathlibExpectedFailures оставался пустым — прогноз не превратился в политику). Практическое следствие: заявление «файл не скомпилируется» без прогона ядра не должно попадать в реестр как факт."
     }
   ],
   "ciPolicy": {
@@ -1371,5 +1439,21 @@
     ],
     "mathlibRule": "Тот же закон, что и для core-check, отдельный список: единственный источник «ожидаемых отказов» Mathlib-целей — ciPolicy.mathlibExpectedFailures[].checkedFile (workflow извлекает его jq-выражением `(.ciPolicy.mathlibExpectedFailures // [])[].checkedFile`). Цель не из списка, упавшая в прогоне, рвёт прогон; скомпилированный файл с sorryAx рвёт прогон всегда; зарегистрированная цель, которая скомпилировалась, отдаётся как OK с NOTE об обновлении реестра. Список остаётся пустым до первого фактического прогона: прогноз не является основанием для регистрации ожидаемого отказа.",
     "mathlibExpectedFailures": []
+  },
+  "mathlibRun": {
+    "kind": "github-actions-run",
+    "workflow": ".github/workflows/lean-artifact-kernel-check.yml",
+    "job": "mathlib-kernel-check",
+    "runId": 34950902412,
+    "runUrl": "https://github.com/A1Dmitry/Ricis3-Expansion-Map/actions/runs/34950902412",
+    "pullRequest": 40,
+    "branch": "arena/01a0a3eb-ricis3-expansion-map",
+    "runStartedAtUtc": "2026-09-15T09:10:52Z",
+    "toolchain": "leanprover/lean4:v4.33.0 (lean-toolchain закреплённой ревизии Mathlib); global default на раннере — 4.33.1, для компиляции не использовался",
+    "command": "(cd mathlib-check && lake env lean <artifact>)",
+    "host": "ubuntu-latest (GitHub Actions)",
+    "evidenceChannel": "Комментарий PR #40 (step summary + полный лог компилятора). Логи раннера и загруженный артефакт из среды агента не читаются: results-receiver.actions.githubusercontent.com недоступен.",
+    "rawEvidence": "docs/05-evidence/proofs/lean-kernel-run-34950902412-mathlib.pr-comment.txt",
+    "note": "MATHLIB_REV 6f1ef4e5dd604a435bddba4747b13970cd65d2a1 — новейшая ревизия mathlib4 на линии 4.33.x (2026-09-15 master перешёл на v4.34.0). Oleans получены готовыми (lake exe cache get), сборка Mathlib из исходников не выполнялась. Прогон выполнен ДВАЖДЫ для одной цели: (1) исходник как предоставлен владельцем, (2) производная mathlib-check (тело байт-в-байт равно исходнику, добавлен только эпилог #print axioms). Целостность производной подтверждена в самом логе: source sha256 == sha256 в эпилоге, побайтовый префикс совпал (cmp)."
   }
 }

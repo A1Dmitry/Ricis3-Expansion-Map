@@ -61,7 +61,16 @@ mkdir -p "$EVIDENCE_DIR"
   echo "LEAN_PROJECT_DIR: ${LEAN_PROJECT_DIR}"
   echo "MATHLIB_CHECK_DIR: ${MATHLIB_CHECK_DIR}"
   echo "which lean: $(command -v lean || echo '<lean NOT FOUND on PATH>')"
-  lean --version 2>&1 || echo "lean --version failed"
+  # ВАЖНО: компиляция идёт через `lake env lean` внутри lake-проекта, поэтому
+  # действующий тулчейн берётся из его lean-toolchain, а НЕ из глобального
+  # `lean` (тот показывает default-toolchain раннера). Диагностика ниже
+  # различает эти два факта, чтобы evidence не приписывало компиляцию
+  # не тому тулчейну.
+  echo "global default toolchain (NOT used for compilation):"
+  lean --version 2>&1 | sed 's/^/    /' || echo "    lean --version failed"
+  echo "effective toolchain in ${LEAN_PROJECT_DIR} (used for compilation):"
+  echo "    lean-toolchain file: $(cat "${LEAN_PROJECT_DIR}/lean-toolchain" 2>/dev/null || echo '<missing>')"
+  ( cd "$LEAN_PROJECT_DIR" && lake env lean --version 2>&1 | sed 's/^/    /' ) || echo "    lake env lean --version failed"
   echo "disk: $(df -h . | tail -n 1)"
 } | tee -a "$EVIDENCE_DIR/summary.txt"
 

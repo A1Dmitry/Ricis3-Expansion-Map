@@ -42,23 +42,39 @@
     {
       "id": "M5",
       "title": "Фактический прогон ядра (PENDING_KERNEL_RUN) и внесение фактов в реестр",
-      "verify": "gh pr view <PR> --json comments --jq '.comments[-1].body'",
-      "status": "pending_kernel_run",
-      "note": "Артефакт: artifacts/proofs/ricis-general-resolution.lean (sha256 e92ebe52a85af838205a6bdb950ff4517f959cbfc4f38c1d0e7c4cb65cc35db3). Тулчейн: leanprover/lean4:v4.33.0 (Mathlib @ 6f1ef4e5dd604a435bddba4747b13970cd65d2a1). Команды: (cd mathlib-check && lake env lean <исходник>) и (<производная>). Ожидаемый исход: UNKNOWN — решает ядро; прогноз не является статусом."
+      "verify": "gh run view 34950902412 --json jobs",
+      "status": "done",
+      "note": "run 34950902412 (PR #40, job mathlib-kernel-check) — success: исходник как предоставлен exit 0, производная exit 0, sorryAx отсутствует, #print axioms напечатан. Факты внесены в kernel-findings.json (mathlibRun, artifacts[ricis-general-resolution]) и в §11 docs/05-evidence/proofs/lean-core-checks-run-2026-09-14.md. Артефактный статус — LEAN_VERIFIED."
     },
     {
       "id": "M6",
-      "title": "Решение владельца по F-09/F-10/F-11: классификация артефакта и (при необходимости) новая версия доказательства, связывающая редукцию со значением",
+      "title": "Решение владельца по F-09/F-10/F-11: классификация ЗАЯВЛЕНИЯ (артефактный уровень уже LEAN_VERIFIED) и, при необходимости, новая версия доказательства, связывающая редукцию со значением",
       "verify": "artifacts/proofs/ricis-general-resolution.json -> verification.trustStatus",
       "status": "owner_decision"
+    },
+    {
+      "id": "M7",
+      "title": "Поправка прогноза (F-13): статический аудит об ошибке `omega` опровергнут ядром; сохранён как свидетельство, а не как статус",
+      "verify": "artifacts/proofs/core-checks/kernel-findings.json -> findings[F-13]; §11.3 evidence-документа",
+      "status": "done"
     }
   ],
   "boundary": {
     "notClaimedByThisTask": [
       "что заявленная «общая теорема разрешения сингулярностей» доказана — содержимое артефакта этого не подтверждает (F-09/F-10/F-11);",
       "что прогон ядра снимет содержательные находки: ядро проверяет только то, что объявлено (две развёрнутые теоремы, арифметика частного случая и два доверенных контракта);",
-      "что остальные Mathlib-артефакты стали проверенными: allowlist явный, статус вне allowlist не повышается."
+      "что остальные Mathlib-артефакты стали проверенными: allowlist явный, статус вне allowlist не повышается.",
+      "что зелёный прогон ядра снимает F-09/F-10/F-11: наоборот, зависимости теорем показали отсутствие объявленных RICIS-контрактов в доказательстве (факт ядра подтверждает находку)."
     ]
   },
-  "updatedAt": "2026-09-15T00:00:00.000Z"
+  "updatedAt": "2026-09-15T09:30:00.000Z",
+  "provenance": {
+    "mathlibRun": {
+      "runId": 34950902412,
+      "runUrl": "https://github.com/A1Dmitry/Ricis3-Expansion-Map/actions/runs/34950902412",
+      "outcome": "success",
+      "rawEvidence": "docs/05-evidence/proofs/lean-kernel-run-34950902412-mathlib.pr-comment.txt"
+    },
+    "artifactStatusAfterRun": "LEAN_VERIFIED (артефактный уровень); claimLevel = STRUCTURALLY_VALIDATED"
+  }
 }

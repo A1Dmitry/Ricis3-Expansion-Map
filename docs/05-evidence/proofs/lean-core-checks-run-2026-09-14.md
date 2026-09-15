@@ -394,3 +394,68 @@ sha256 `e92ebe52a85af838205a6bdb950ff4517f959cbfc4f38c1d0e7c4cb65cc35db3`), ст
    без изменений, за владельцем.
 4. §7-граница: прогон ядра подтверждает только структурные теоремы артефакта, но не эмпирические
    утверждения узлов карты.
+
+---
+
+## 11. Фактический прогон Mathlib-пути (2026-09-15, run 34950902412, PR #40) — факты и поправка прогноза
+
+**AUDITOR: EXTERNAL (Lean kernel)** — источник факта: ядро Lean в GitHub Actions.
+**Run:** [34950902412](https://github.com/A1Dmitry/Ricis3-Expansion-Map/actions/runs/34950902412) ·
+job `mathlib-kernel-check` · **outcome: `success`** (зелёный).
+**Тулчейн:** `leanprover/lean4:v4.33.0` (это `lean-toolchain` закреплённой ревизии Mathlib
+`6f1ef4e5dd604a435bddba4747b13970cd65d2a1`; глобальный default на раннере — 4.33.1, для компиляции
+не использовался) · oleans получены готовыми (`lake exe cache get`), сборка Mathlib из исходников не
+выполнялась.
+**Команда:** `(cd mathlib-check && lake env lean <файл>)` — дважды: для **исходника как предоставлен** и
+для **производной** (тело байт-в-байт равно исходнику + эпилог `#print axioms`).
+**Сырое evidence:** [`lean-kernel-run-34950902412-mathlib.pr-comment.txt`](lean-kernel-run-34950902412-mathlib.pr-comment.txt)
+(комментарий PR #40, полный вывод компилятора, sha256, toolchain).
+
+### 11.1 Результат
+
+| Цель | Exit | Теорем | Аксиомы теорем | Исход |
+| :--- | :-: | :-: | :--- | :--- |
+| `artifacts/proofs/ricis-general-resolution.lean` (**как предоставлен**) | 0 | 3 | только стандартные (`propext`, `Classical.choice`, `Quot.sound`) | `LEAN_VERIFIED` |
+| `artifacts/proofs/mathlib-checks/ricis-general-resolution.mathlib-check.lean` (производная) | 0 | 3 + 2 контракта | там же; `sorryAx` отсутствует | `LEAN_VERIFIED` |
+
+Дословный вывод `#print axioms` из прогона:
+
+```text
+'ricis_general_resolution' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ricis_equals_classical_limit' depends on axioms: [propext, Classical.choice, Quot.sound]
+'specific_case_from_general' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ax_A4_general' depends on axioms: [ax_A4_general, propext, Classical.choice, Quot.sound]
+'ax_SP1_general' depends on axioms: [ax_SP1_general, propext, Classical.choice, Quot.sound]
+```
+
+Целостность производной подтверждена **внутри самого прогона**:
+`source sha256 == sha256 в эпилоге` (`e92ebe52…35db3`) и побайтовый префикс совпал (`cmp`).
+
+### 11.2 Что этот результат означает (и чего не означает)
+
+* **Артефактный уровень:** артефакт `LEAN_VERIFIED` — ядро приняло его и как предоставлен, и через
+  производную, `sorryAx` отсутствует, `#print axioms` опубликован. Прежнее основание
+  `REQUIRES_CORE_LEAN` («prebuilt Mathlib не влезает на runner») **опровергнуто фактом** —
+  механизм F-12 закрыт.
+* **Ключевой факт по F-09:** ни одна из трёх теорем **не зависит** от объявленных RICIS-контрактов
+  `ax_A4_general` / `ax_SP1_general` (их зависимости — только стандартные аксиомы Lean). Ядро
+  независимо подтверждает находку: A4/SP1 в доказательстве не участвуют, то есть артефакт доказывает
+  развёртывание собственного определения, а не содержательное разрешение сингулярности.
+* **Что НЕ подтверждено:** заголовок «ОБЩАЯ теорема разрешения комплексных сингулярностей». Ядру
+  нечего подтверждать: сингулярность `N a = 0 ∧ D a = 0` не предъявлена (F-11), редукция
+  `ricis_reduce` в теоремах не участвует (F-09/F-11), имя `ricis_equals_classical_limit` не
+  подтверждено предельным содержанием (F-10; P1 запрещает пределы внутри `Resolve_RICIS`).
+  Поэтому `claimLevel = STRUCTURALLY_VALIDATED`, а не MATHEMATICALLY_PROVEN.
+
+### 11.3 Поправка собственного прогноза (F-13)
+
+Статический аудит (этот же документ, §10.2 и evidence-документ аудита) предсказывал ошибку
+«unknown tactic `omega`» — **прогноз опровергнут ядром**: тактика доступна транзитивно через
+`Mathlib.Data.Nat.Basic` / `Mathlib.Tactic.Ring`, исходник скомпилировался с первого раза.
+Подтвердились только предсказания ранга «warning»: избыточный шаг ветви `m = n`
+(`87:10 unused simp argument h_k_zero`), неисполняемые хвостовые тактики
+(`160:8`, `161:8` «this tactic is never executed», «Unused tactic linter») — класс F-06, но как
+предупреждения. Зафиксировано находкой **F-13**: экспертиза Lean-кода без компилятора систематически
+ненадёжна, поэтому предсказание было помечено `UNVERIFIED_PREDICTION`, а `ciPolicy` оставался пустым —
+прогноз не превратился в политику ожидаемых отказов. Это и есть причина, по которой статус нельзя
+присваивать без прогона.
