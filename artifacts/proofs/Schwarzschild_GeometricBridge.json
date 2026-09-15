@@ -1,0 +1,62 @@
+{
+  "source": "Dmitry V. Aleinikov & User Verification",
+  "claim": "Schwarzschild_GeometricBridge [Path-indexed L1 + SP4 + A6 proxy on Int]",
+  "method": "exact_ast_reduction",
+  "proof": {
+    "id": "proof_schwarzschild_geometric_bridge",
+    "targetClaim": "PathIndexedSchwarzschildBridge (P : PathIndex) (G : FieldMonolith)",
+    "problemId": "schwarzschild-geometric-bridge",
+    "method": "exact_ast_reduction",
+    "theoremTitle": "Теорема о путь-индексированном A6-прокси монолита моста Шварцшильда",
+    "hypothesis": "Полезная нагрузка поля никогда не появляется без пути P (SP4); тождество L1 проверяется до языка сингулярностей (SP2)",
+    "conclusionInvariant": "measure(OrthoPair a b) = a * b; ratio gated b != 0; foreign path rejected",
+    "steps": [
+      {
+        "stepNumber": 1,
+        "phase": "L1 Identity",
+        "statement": "Абсолютная идентичность монолита поля",
+        "mathematicalForm": "l1_trivial (g : FieldMonolith) : l1_holds g := rfl",
+        "justificationAxiom": "L1",
+        "notation": "lean4"
+      },
+      {
+        "stepNumber": 2,
+        "phase": "SP2 / SP4 Path Hygiene",
+        "statement": "Различные пути не дают тихого коллапса монолитов; гигиена пути до языка сингулярностей",
+        "mathematicalForm": "sp4_no_silent_collapse : g.path != h.path -> g != h",
+        "justificationAxiom": "SP4",
+        "notation": "lean4"
+      },
+      {
+        "stepNumber": 3,
+        "phase": "RICIS Transforms & Axiom A6",
+        "statement": "Ортогональный продукт/отношение как структурный прокси на Int; скаляр эмитируется только при совпадении пути",
+        "mathematicalForm": "a6_product_proxy a b = a * b; evalProductUnderPath g foreign a b = none",
+        "justificationAxiom": "A6",
+        "notation": "lean4"
+      }
+    ],
+    "lean4CodeSnippet": "theorem eval_product_ok (g : FieldMonolith) (a b : Int) : evalProductUnderPath g g.path a b = some (a * b) := by simp",
+    "complexity": "O(1) заявляется только для локального прокси-шага (продукт/отношение на Int); обход путей, gated evaluation и генерация Lean-сертификата O(1) не объявляются",
+    "isVerified": false,
+    "timestamp": 1789430400000
+  },
+  "verification": {
+    "valid": true,
+    "verifiedAxioms": [
+      "L1",
+      "SP2",
+      "SP4",
+      "A6",
+      "P1"
+    ],
+    "contentHash": "1df6b21df93cf2e5e822156a151929d849dd553979ef32c8992045d2a5b3de63",
+    "trustStatus": "REQUIRES_CORE_LEAN"
+  },
+  "trustBoundary": {
+    "facts": "Структурная идентичность пути, запрет тихого коллапса, A6 продукт/отношение прокси на Int, gated evaluation под SP4.",
+    "notClaimed": "Регулярность метрики Шварцшильда, устранение сингулярности ОТО, физика интерьера чёрной дыры, структура горизонта событий, эмпирические тесты гравитации.",
+    "kernelRun": "Отсутствует: артефакт импортирует Mathlib и не входит в явный allowlist MATHLIB_ARTIFACTS; статус REQUIRES_CORE_LEAN не повышается без воспроизводимого прогона ядра Lean 4.33.1.",
+    "auditor": "AUDITOR: SELF (same-pipeline)"
+  }
+}
