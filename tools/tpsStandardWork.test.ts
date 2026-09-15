@@ -1,0 +1,327 @@
+// @vitest-environment node
+/**
+ * Guards for the TPS standard-work layer (docs/00-governance/TOYOTA_TPS_WORKING_SYSTEM.md).
+ *
+ * Two halves, both mandatory:
+ * 1. Positive: the real board, the documentation tree and the generated showcase are consistent.
+ * 2. Mutation: every rule is proven falsifiable by corrupting the board in memory and requiring
+ *    exactly the code that must fire. RCVAP forbids a verifier that cannot fail — a green guard
+ *    nobody can redden is decoration, not evidence.
+ */
+
+import { mkdtempSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { describe, expect, it } from 'vitest';
+
+import {
+  BOARD_MARKDOWN_PATH,
+  REQUIRED_WORKFLOWS,
+  CATALOG_PATH,
+  loadBoard,
+  renderBoard,
+  validateBoard,
+  validateBoardAndLine,
+  validateDocumentationConsistency,
+  validateCiAssets,
+  type TpsAndonEvent,
+  type TpsBoard,
+  type TpsCard,
+  type TpsViolation,
+} from './tpsStandardWork';
+
+const repositoryRoot = join(dirname(fileURLToPath(import.meta.url)), '..');
+
+const { board, error } = loadBoard(repositoryRoot);
+
+function codesOf(violations: TpsViolation[]): string[] {
+  return violations.map((violation) => violation.code);
+}
+
+function clone(source: TpsBoard): TpsBoard {
+  return structuredClone(source) as TpsBoard;
+}
+
+function mapCard(source: TpsBoard, cardId: string, patch: Partial<TpsCard>): TpsBoard {
+  const draft = clone(source);
+  const cards = draft.cards.map((card) => (card.id === cardId ? { ...card, ...patch } : card));
+  return { ...draft, cards } as TpsBoard;
+}
+
+function mapAndon(source: TpsBoard, andonId: string, patch: Partial<TpsAndonEvent>): TpsBoard {
+  const draft = clone(source);
+  const andon = draft.andon.map((event) => (event.id === andonId ? { ...event, ...patch } : event));
+  return { ...draft, andon } as TpsBoard;
+}
+
+function expectCode(source: TpsBoard, code: string): void {
+  const violations = validateBoard(source, repositoryRoot);
+  expect(codesOf(violations), `expected ${code}; got ${JSON.stringify(codesOf(violations))}`).toContain(code);
+}
+
+const validBoard = () => {
+  if (board === null) throw new Error(`board unavailable: ${error}`);
+  return board as TpsBoard;
+};
+
+describe('TPS board — actual state of the line', () => {
+  it('loads a strict-parseable board', () => {
+    expect(error, String(error)).toBeNull();
+    expect(board).not.toBeNull();
+  });
+
+  it('passes the poka-yoke gate with zero violations (the line must actually run)', () => {
+    expect(validateBoard(validBoard(), repositoryRoot)).toEqual([]);
+  });
+
+  it('mirrors reality: every open item of the registries has a place on the board', () => {
+    const subject = validBoard();
+    const registry = JSON.parse(
+      readFileSync(join(repositoryRoot, 'artifacts/proofs/core-checks/kernel-findings.json'), 'utf8'),
+    ) as { findings: { id: string }[] };
+    const titles = subject.cards.map((card) => JSON.stringify(card)).join(' ');
+    // Findings that are closed by owner decision or by a factual run need no card; these four
+    // are recorded in ACTIVE_TASKS.md as still unresolved and must appear on the board.
+    for (const id of ['F-05', 'F-08', 'F-09', 'F-14']) {
+      expect(registry.findings.map((finding) => finding.id)).toContain(id);
+      expect(titles).toContain(id);
+    }
+  });
+
+  it('has no invented work: every card sourceRef resolves inside this repository', () => {
+    for (const card of validBoard().cards) {
+      expect(card.sourceRef, card.id).toMatch(/^[A-Za-z0-9./_-]+(#.*)?$/u);
+    }
+  });
+
+  it('keeps the generated showcase in sync with the board (no hand-edited kanban)', () => {
+    const rendered = renderBoard(validBoard());
+    expect(readFileSync(join(repositoryRoot, BOARD_MARKDOWN_PATH), 'utf8')).toBe(rendered);
+  });
+
+  it('documents the takt with real measurements, not estimates', () => {
+    const samples = validBoard().takt.samples;
+    expect(samples.some((sample) => sample.step === 'test')).toBe(true);
+    for (const sample of samples) {
+      expect(sample.sampleSize).toBeGreaterThanOrEqual(1);
+      expect(sample.measuredMs).toBeGreaterThan(0);
+    }
+  });
+});
+
+describe('TPS poka-yoke is falsifiable', () => {
+  it('stops the line on an open high-severity andon', () => {
+    const mutated = mapAndon(validBoard(), 'A-0001', { state: 'OPEN' });
+    expectCode(mutated, 'ANDON_OPEN_BLOCKER');
+  });
+
+  it('refuses a done card whose andon is still open', () => {
+    const mutated = mapAndon(validBoard(), 'A-0002', { state: 'OPEN' });
+    expectCode(mutated, 'DONE_WITH_OPEN_ANDON');
+  });
+
+  it('refuses to close an andon without root cause depth', () => {
+    expectCode(mapAndon(validBoard(), 'A-0001', { whys: ['потому что'] }), 'ANDON_ROOT_CAUSE_SHALLOW');
+  });
+
+  it('refuses to close an andon without horizontal deployment (yokoten)', () => {
+    expectCode(mapAndon(validBoard(), 'A-0001', { yokoten: [] }), 'ANDON_YOKOTEN_MISSING');
+    expectCode(
+      mapAndon(validBoard(), 'A-0001', { yokoten: [{ target: 'docs/nope.md', checkedOutcome: 'проверено' }] }),
+      'ANDON_YOKOTEN_TARGET_MISSING',
+    );
+  });
+
+  it('refuses a done card without a recorded run (narration is not verification)', () => {
+    expectCode(mapCard(validBoard(), 'TPS-0001', { verification: undefined }), 'DONE_NO_VERIFICATION');
+  });
+
+  it('refuses a recorded command that did not pass', () => {
+    const subject = validBoard();
+    const commands = subject.cards
+      .find((card) => card.id === 'TPS-0001')!
+      .verification!.commands.map((record, index) => (index === 0 ? { ...record, exitCode: 1 } : record));
+    expectCode(mapCard(subject, 'TPS-0001', { verification: { ...subject.cards[0]!.verification!, commands } }), 'DONE_COMMAND_FAILED');
+  });
+
+  it('refuses self-certification wording on a closed card, even with no commands at all', () => {
+    const subject = validBoard();
+    const verification = subject.cards.find((card) => card.id === 'TPS-0001')!.verification!;
+    expectCode(
+      mapCard(subject, 'TPS-0001', { verification: { ...verification, auditor: 'независимо верифицировано мной' } }),
+      'DONE_SELF_CERTIFICATION',
+    );
+    expectCode(mapCard(subject, 'TPS-0001', { verification: { auditor: '', commands: [] } }), 'DONE_SELF_CERTIFICATION');
+  });
+
+  it('requires the declared end-of-line standard checks', () => {
+    const subject = validBoard();
+    const verification = subject.cards.find((card) => card.id === 'TPS-0001')!.verification!;
+    const trimmed = { ...verification, commands: verification.commands.filter((record) => !record.command.includes('npm test')) };
+    expectCode(mapCard(subject, 'TPS-0001', { verification: trimmed }), 'DONE_MISSING_STANDARD_CHECK');
+  });
+
+  it('catches a declared cycle time that contradicts its own timestamps', () => {
+    expectCode(mapCard(validBoard(), 'TPS-0001', { cycleTimeMs: 1 }), 'CYCLE_TIME_MISMATCH');
+  });
+
+  it('requires the attack on the own result before done', () => {
+    expectCode(mapCard(validBoard(), 'TPS-0001', { challenger: undefined }), 'ATTACK_NOT_RECORDED');
+  });
+
+  it('requires every closed card to feed kaizen or justify why not', () => {
+    expectCode(mapCard(validBoard(), 'TPS-0001', { kaizenIds: [] }), 'KAIZEN_UNLINKED');
+  });
+
+  it('keeps one-piece flow (max one card in progress) and WIP limits', () => {
+    const subject = validBoard();
+    const extras: TpsCard[] = ['TPS-9001', 'TPS-9002'].map((id) => ({
+      ...subject.cards[1]!,
+      id,
+      lane: 'in_progress',
+      status: 'IN_PROGRESS' as const,
+    }));
+    const mutated = { ...clone(subject), cards: [...subject.cards, ...extras] } as TpsBoard;
+    expectCode(mutated, 'ONE_PIECE_FLOW');
+    expectCode(mutated, 'LANE_WIP_LIMIT');
+  });
+
+  it('levels the queue instead of piling one class (heijunka)', () => {
+    const subject = validBoard();
+    const extras: TpsCard[] = [
+      { ...subject.cards[1]!, id: 'TPS-9101', lane: 'ready' },
+      { ...subject.cards[1]!, id: 'TPS-9102', lane: 'ready' },
+    ];
+    expectCode({ ...clone(subject), cards: [...subject.cards, ...extras] } as TpsBoard, 'HEIJUNKKA_PILING');
+  });
+
+  it('flags overlong single-card cycles as muri', () => {
+    expectCode(
+      mapCard(validBoard(), 'TPS-0001', {
+        startedAt: '2026-09-15T00:00:00Z',
+        closedAt: '2026-09-15T18:00:00Z',
+        cycleTimeMs: 64800000,
+      }),
+      'MURI_CYCLE_OVERFLOW',
+    );
+  });
+
+  it('refuses a done card whose status is not COMPLETED', () => {
+    expectCode(mapCard(validBoard(), 'TPS-0001', { status: 'PARTIALLY_COMPLETED' }), 'DONE_STATUS_NOT_COMPLETED');
+  });
+
+  it('refuses cards without a measurable goal or without a resolvable source', () => {
+    const subject = validBoard();
+    const first = subject.cards[0]!;
+    expectCode(mapCard(subject, first.id, { originalGoal: 'сделать хорошо' }), 'CARD_GOAL_TOO_SHORT');
+    expectCode(mapCard(subject, first.id, { sourceRef: 'docs/definitely-missing.md' }), 'CARD_SOURCE_MISSING');
+    expectCode(mapCard(subject, first.id, { acceptanceCriteria: [] }), 'CARD_NO_ACCEPTANCE');
+    expectCode(mapCard(subject, first.id, { lane: 'nope' }), 'LANE_ID_UNKNOWN');
+  });
+
+  it('requires the owner-waiting lane to name the decision it waits for', () => {
+    const subject = validBoard();
+    const waiting = subject.cards.find((card) => card.lane === 'waiting_owner')!;
+    expectCode(mapCard(subject, waiting.id, { blockedOn: '' }), 'WAITING_OWNER_NO_DECISION');
+  });
+
+  it('demands an unmeasured bottleneck to stay a violation', () => {
+    const subject = validBoard();
+    const samples = subject.takt.samples.filter((sample) => sample.step !== 'test');
+    expectCode({ ...clone(subject), takt: { ...subject.takt, samples } } as TpsBoard, 'TAKT_TEST_UNMEASURED');
+  });
+
+  it('requires kaizen marked DONE to carry a passing check', () => {
+    const subject = validBoard();
+    const kaizen = subject.kaizen.map((item) => (item.id === 'K-0001' ? { ...item, verificationCommand: '' } : item));
+    expectCode({ ...clone(subject), kaizen } as TpsBoard, 'KAIZEN_DONE_UNVERIFIED');
+  });
+
+  it('requires the defects waste to be pulled from an andon event', () => {
+    const subject = validBoard();
+    const muda = subject.muda.map((entry) => (entry.id === 'M-0003' ? { ...entry, linkedAndonId: undefined } : entry));
+    expectCode({ ...clone(subject), muda } as TpsBoard, 'MUDA_DEFECT_WITHOUT_ANDON');
+  });
+
+  it('requires the canonical lanes to exist', () => {
+    const subject = validBoard();
+    const lanes = subject.lanes.filter((lane) => lane.id !== 'verify');
+    expectCode({ ...clone(subject), lanes } as TpsBoard, 'LANE_MISSING');
+  });
+});
+
+describe('documentation declared-vs-actual guard', () => {
+  it('the repository tree currently satisfies the catalog and every markdown link', () => {
+    expect(validateDocumentationConsistency(repositoryRoot)).toEqual([]);
+  });
+
+  it('keeps required CI assets present and unshadowed by .gitignore', () => {
+    expect(validateCiAssets(repositoryRoot, validBoard())).toEqual([]);
+    expect(REQUIRED_WORKFLOWS).toContain('.github/workflows/lean-artifact-kernel-check.yml');
+  });
+
+  it('rejects a .gitignore pattern that shadows a required CI workflow', () => {
+    const dir = mkdtempSync(join(tmpdir(), 'tps-ci-'));
+    try {
+      for (const asset of REQUIRED_WORKFLOWS) {
+        mkdirSync(join(dir, dirname(asset)), { recursive: true });
+        writeFileSync(join(dir, asset), 'name: fixture\n', 'utf8');
+      }
+      writeFileSync(join(dir, '.gitignore'), 'node_modules/\n/.github/workflows/lean-artifact-kernel-check.yml\n', 'utf8');
+      expect(codesOf(validateCiAssets(dir))).toContain('CI_WORKFLOW_IGNORED');
+
+      writeFileSync(join(dir, '.gitignore'), 'node_modules/\n*.yml\n', 'utf8');
+      expect(codesOf(validateCiAssets(dir))).toContain('CI_WORKFLOW_IGNORED');
+
+      writeFileSync(join(dir, '.gitignore'), '#/.github/workflows/lean-artifact-kernel-check.yml\nnode_modules/\n', 'utf8');
+      expect(codesOf(validateCiAssets(dir))).toEqual([]);
+
+      rmSync(join(dir, '.github/workflows/lean-artifact-kernel-check.yml'), { force: true });
+      writeFileSync(join(dir, '.gitignore'), 'node_modules/\n', 'utf8');
+      expect(codesOf(validateCiAssets(dir))).toContain('CI_WORKFLOW_MISSING');
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  });
+
+  it('the line gate as a whole stays green on the real repository (board + docs + CI assets)', () => {
+    expect(validateBoardAndLine(validBoard(), repositoryRoot)).toEqual([]);
+  });
+
+  it('a catalog row pointing at a missing directory is rejected unless marked as a target structure', () => {
+    const dir = mkdtempSync(join(tmpdir(), 'tps-catalog-'));
+    try {
+      mkdirSync(join(dir, 'docs', '00-governance'), { recursive: true });
+      writeFileSync(
+        join(dir, CATALOG_PATH),
+        '| Каталог | Содержимое |\n|---|---|\n| `docs/does-not-exist/` | что-то |\n',
+        'utf8',
+      );
+      expect(codesOf(validateDocumentationConsistency(dir))).toContain('CATALOG_PATH_MISSING');
+
+      writeFileSync(
+        join(dir, CATALOG_PATH),
+        '| Каталог | Содержимое |\n|---|---|\n| `docs/does-not-exist/` | ЦЕЛЕВАЯ СТРУКТУРА (в дереве отсутствует) |\n',
+        'utf8',
+      );
+      expect(codesOf(validateDocumentationConsistency(dir))).not.toContain('CATALOG_PATH_MISSING');
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  });
+
+  it('a relative markdown link into nowhere is rejected', () => {
+    const dir = mkdtempSync(join(tmpdir(), 'tps-links-'));
+    try {
+      writeFileSync(join(dir, 'README.md'), '[текст](missing/file.md)\n', 'utf8');
+      expect(codesOf(validateDocumentationConsistency(dir))).toContain('DOC_LINK_BROKEN');
+      writeFileSync(join(dir, 'README.md'), '[текст](exists/file.md)\n', 'utf8');
+      mkdirSync(join(dir, 'exists'));
+      writeFileSync(join(dir, 'exists', 'file.md'), '# ok\n', 'utf8');
+      expect(codesOf(validateDocumentationConsistency(dir))).not.toContain('DOC_LINK_BROKEN');
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  });
+});
