@@ -1,25 +1,177 @@
 # RICIS-III Core AGI Target Boundary Note
 
-This directory contains artifacts for the RICIS-III core AGI target patch resolution.
+This directory contains artifacts for the **RICIS-III Core AGI Target** patch resolution.
 
-Included files:
-- `ricis_agi_target_sp4.tex`
-- `RicisAgiTarget.lean`
+The artifacts define and demonstrate parts of the RICIS-III structural reasoning and verification boundary.
 
-**Specification Lean 4 DOI:** 10.5281/zenodo.22124493
+## ⚠️ ARENA AGENT POLICY — RICIS-FIRST REASONING
 
-## Kernel verification status (2026-09-14)
+This repository implements **RICIS-III**, not a conventional classical mathematics solver.
 
-Reproducible Lean 4.33.1 kernel runs for the self-contained artifacts are provided by the
-`Lean Artifact Kernel Check` workflow (`.github/workflows/lean-artifact-kernel-check.yml`);
-evidence (toolchain, sha256, compiler output, `#print axioms`) is recorded in
-[`docs/05-evidence/proofs/lean-kernel-run-2026-09-14.md`](../../docs/05-evidence/proofs/lean-kernel-run-2026-09-14.md).
+When working on any RICIS task, **do not solve the problem by blindly applying classical mathematics first and then adapting the result to RICIS**.
 
-| Artifact | Status |
-| :--- | :--- |
-| `database-a6-minimal-core-check.lean` | `LEAN_VERIFIED` — Lean 4.33.1 run 34851801990: exit 0, no `sorryAx`, `#print axioms`: "does not depend on any axioms" |
-| 14 files with `import Mathlib` | `REQUIRES_CORE_LEAN` — no pinned prebuilt Mathlib fits a standard runner; status not promoted |
-| `*.generated.lean` (2 files) | fragments of the matching `.standalone.lean` files; not standalone artifacts |
+| Artifact | Status | Classification / Boundary |
+| :--- | :--- | :--- |
+| `database-a6-minimal-core-check.lean` | `LEAN_VERIFIED` | Kernel-verified specification (exit 0, no `sorryAx`, `#print axioms`: "does not depend on any axioms") |
+| `ricis-jacobian-conjecture.standalone.lean` / `database-registry-120-jacobian.*` | `STRUCTURALLY_VALIDATED` | Structural model verification (not an arbitrary classical theorem proof) |
+| 14 files with `import Mathlib` | `REQUIRES_CORE_LEAN` | No pinned prebuilt Mathlib fits a standard runner; status not promoted |
+| `*.generated.lean` (2 files) | Fragments | Fragments of the matching `.standalone.lean` files; not standalone artifacts |
 
-Per AGENTS.md §7, artifact sources are immutable; status metadata is recorded here and in
-the evidence document, never by rewriting the sources.
+1. **Identify the RICIS object first**
+
+   * expression / AST;
+   * type and identity;
+   * function / observer context;
+   * zero-coordinate or singularity;
+   * applicable protocols SP1–SP5;
+   * applicable RICIS axioms/rules.
+
+2. **Apply RICIS structural semantics before classical reduction.**
+
+3. Classical mathematics may be used as a **known special-case projection, reference, or compatibility check**, but it must not silently replace RICIS semantics.
+
+4. In particular:
+
+   * Do not replace `F` by an ordinary numeric value when its structural identity matters.
+   * Do not treat `0` as untyped absence when the RICIS context distinguishes `0_F`, `0_G`, etc.
+   * Do not directly evaluate a singular expression when RICIS specifies deferred structural reduction.
+   * Do not introduce limits, L'Hôpital, numerical approximation, or iterative numerical recovery where the RICIS protocol forbids them.
+   * Do not assume that a classically undefined expression is automatically an invalid RICIS expression.
+   * Do not assume that a classical identity remains valid after changing the observer/function context.
+
+### Division by zero
+
+`Evaluate(8 / 0)` is **not** the intended RICIS processing model.
+
+Conceptually:
+
+```text
+8 / 0
+  ↓
+LazyDiv(8, 0)
+  ↓
+structural indexing
+  ↓
+applicable RICIS rule
+  ↓
+Resolve
+```
+
+The original expression must remain available for semantic inspection before reduction.
+
+### Core principle
+
+> **RICIS-first, classical-second.**
+
+Classical mathematics is treated as a projection that may be used for comparison or compatibility analysis. It is not the default solver that defines the RICIS result.
+
+When uncertain, inspect the RICIS protocols, canonical AST, rule definitions, proof contracts, and existing artifacts before introducing a classical solution.
+
+---
+
+## 🤖 Agent / Resolver Trust Boundary
+
+An LLM, Arena agent, or resolver is a **candidate generator, not a proof authority**.
+
+A generated result must not be considered proven merely because:
+
+* the derivation looks mathematically plausible;
+* the `from → to` chain is syntactically connected;
+* a model reproduces its own claimed result;
+* a Lean theorem is proved by `rfl` because the resolver itself defines the result;
+* a structural model successfully reproduces a specified RICIS rule.
+
+The intended verification pipeline is:
+
+```text
+LLM / Resolver
+      ↓
+Candidate AST
+      ↓
+RuleVerifier
+      ↓
+Semantic Derivation
+      ↓
+RICIS admissibility gates
+      ↓
+Lean certificate (where applicable)
+      ↓
+COMMIT
+```
+
+A resolver result must never bypass semantic verification merely because it was generated by an AI system.
+
+---
+
+## Included Files
+
+* `ricis_agi_target_sp4.tex`
+* `RicisAgiTarget.lean`
+
+**Specification Lean 4 DOI:** `10.5281/zenodo.22124493`
+
+---
+
+## Kernel Verification Status — 2026-09-14
+
+Reproducible Lean 4.33.1 kernel runs for the self-contained artifacts are provided by the:
+
+`Lean Artifact Kernel Check`
+
+workflow:
+
+`.github/workflows/lean-artifact-kernel-check.yml`
+
+Evidence including toolchain, SHA-256, compiler output, and `#print axioms` is recorded in:
+
+`docs/05-evidence/proofs/lean-kernel-run-2026-09-14.md`
+
+### Verification classification
+
+| Artifact                                                                         | Status                   | Classification / Boundary                                                                           |
+| :------------------------------------------------------------------------------- | :----------------------- | :-------------------------------------------------------------------------------------------------- |
+| `database-a6-minimal-core-check.lean`                                            | `LEAN_VERIFIED`          | Kernel-verified specification: exit 0, no `sorryAx`, `#print axioms`: does not depend on any axioms |
+| `ricis-jacobian-conjecture.standalone.lean` / `database-registry-120-jacobian.*` | `STRUCTURALLY_VALIDATED` | Structural model verification; **not an arbitrary classical theorem proof**                         |
+| 14 files with `import Mathlib`                                                   | `REQUIRES_CORE_LEAN`     | No pinned prebuilt Mathlib fits a standard runner; status not promoted                              |
+| `*.generated.lean` (2 files)                                                     | `Fragments`              | Fragments of matching `.standalone.lean` files; not standalone artifacts                            |
+
+### Important boundary
+
+`LEAN_VERIFIED` means that the specified Lean artifact was successfully checked by the Lean kernel under the stated conditions.
+
+It does **not automatically mean** that the underlying mathematical proposition has been independently derived from classical mathematics or from more primitive RICIS semantics.
+
+In particular:
+
+* a kernel-verified rewrite specification verifies the formal rule encoded in that specification;
+* a structural model verifies the behavior of the model;
+* a self-definitional theorem does not become an independent proof merely because Lean accepts `rfl`;
+* `STRUCTURALLY_VALIDATED` must not be presented as `MATHEMATICALLY_PROVEN`.
+
+---
+
+## Artifact Immutability
+
+Per `AGENTS.md §7`, artifact sources are immutable.
+
+Verification status and classification metadata are recorded in this README and in the evidence document; they must **not** be established by rewriting the artifact source itself.
+
+---
+
+## Development Rule
+
+When extending this directory:
+
+1. Preserve the RICIS-first reasoning boundary.
+2. Keep candidate generation separate from proof verification.
+3. Prefer structural AST transformations over uncontrolled string rewriting.
+4. Do not silently introduce classical limits, L'Hôpital, numerical approximation, or other prohibited mechanisms.
+5. Do not promote an artifact's verification status without reproducible evidence.
+6. Distinguish clearly between:
+
+   * generated;
+   * structurally validated;
+   * formally/kernel verified;
+   * independently mathematically proven.
+
+The repository's strongest claim is always the **strongest claim actually supported by the verification evidence**, not the strongest claim suggested by the artifact's name.

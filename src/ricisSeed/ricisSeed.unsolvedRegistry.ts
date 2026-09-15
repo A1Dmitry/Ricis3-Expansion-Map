@@ -325,8 +325,8 @@ const adversarialResolver: UnsolvedProblemResolver = Object.freeze({
             ]),
             proof: certificate('RICIS_STRUCTURAL', [
               { rule: 'A7', from: 'inf_G-inf_G', to: 'inf_(G-G)' },
-              { rule: 'LOCAL_STRUCTURAL_REDUCTION', from: 'inf_(G-G)', to: 'inf_0' },
-              { rule: 'A2', from: 'inf_0', to: '1' },
+              { rule: 'LOCAL_STRUCTURAL_REDUCTION', from: 'inf_(G-G)', to: 'inf_(0)' },
+              { rule: 'A2', from: 'inf_(0)', to: '1' },
             ], conclusion),
           },
         };

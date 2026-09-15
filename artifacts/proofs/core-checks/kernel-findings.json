@@ -1,0 +1,1325 @@
+{
+  "registryVersion": 2,
+  "title": "Реестр фактов ядрового прогона Lean 4.33.1 по core-check производным",
+  "generatedFrom": {
+    "kind": "github-actions-run",
+    "workflow": ".github/workflows/lean-artifact-kernel-check.yml",
+    "runId": 34891262489,
+    "runUrl": "https://github.com/A1Dmitry/Ricis3-Expansion-Map/actions/runs/34891262489",
+    "jobUrl": "https://github.com/A1Dmitry/Ricis3-Expansion-Map/actions/runs/34891262489/job/104134259426",
+    "pullRequest": 38,
+    "branch": "arena/01a0a116-ricis3-expansion-map",
+    "runStartedAtUtc": "2026-09-14T20:10:25Z",
+    "toolchain": "Lean 4.33.1, x86_64-unknown-linux-gnu, commit 819816b2e0a3bf405af45ae5c7af2491d8f5bee6, Release (elan, --default-toolchain 4.33.1)",
+    "command": "lean +4.33.1 <artifact>",
+    "host": "ubuntu-latest (GitHub Actions)",
+    "evidenceChannel": "Комментарий PR #38 (step summary + полный лог компилятора). Логи раннера и загруженный артефакт из среды агента не читаются: results-receiver.actions.githubusercontent.com недоступен.",
+    "rawEvidence": "docs/05-evidence/proofs/lean-kernel-run-34891262489.pr-comment.txt",
+    "note": "Полный прогон всех 12 целей на ветке 0.4.189 (PR #38): 10 целей exit 0 без sorryAx (v79 — после F-06-ремонта, SP5 — после перегенерации с deriving DecidableEq); 2 цели — EXPECTED_FAIL по ciPolicy (jacobian — F-01, A11 — F-08), основания — дословные ошибки run 34870620154. Общая картина предшествующих прогонов: 34851801990 (пакет 0), 34858902595 (пакет 1), 34870620154 (пакет 2, ветка PR #37), 34877214125 (SP5 на main, 8665a06)."
+  },
+  "classification": {
+    "LEAN_VERIFIED_AXIOM_FREE": "Ядро приняло доказательство; #print axioms: does not depend on any axioms.",
+    "LEAN_VERIFIED_WITH_STANDARD_AXIOMS": "Ядро приняло доказательство; зависимость только от стандартных аксиом Lean (propext / Classical.choice / Quot.sound), sorryAx отсутствует.",
+    "REJECTED_SORRYAX": "В доказательстве присутствует sorryAx — утверждение НЕ доказано. Обычно это каскад: декларация не elaborировалась из-за более ранней ошибки.",
+    "COMPILED_WITH_ERRORS": "Файл компилировался с ошибками: часть деклараций не создана. Теоремы такого файла не могут считаться проверенными, даже если #print axioms для других имён успешен."
+  },
+  "artifacts": [
+    {
+      "artifactId": "database-a6-minimal-core-check",
+      "immutableSource": "artifacts/proofs/database-a6-minimal-core-check.lean",
+      "sourceSha256": "502e8a3852dae2e7aa78a92157be031f120c7f22fc4a01daf87ca83fe9f2d5c2",
+      "checkedFile": "artifacts/proofs/database-a6-minimal-core-check.lean",
+      "substitutionsApplied": [],
+      "compilerExit": 0,
+      "resultLine": "OK (compiler exit 0, no compiler errors)",
+      "compilerErrorCount": 0,
+      "firstCompilerErrors": [],
+      "theoremCount": 1,
+      "theorems": [
+        {
+          "name": "RICIS3.MinimalA6Check.Regression.database_a6_bridge",
+          "status": "LEAN_VERIFIED_AXIOM_FREE",
+          "axioms": []
+        }
+      ],
+      "outcome": "LEAN_VERIFIED",
+      "rootCause": null,
+      "trustBoundary": "Проверяется сам неизменяемый исходник (импортов нет). Нормативная структурная перепись A6-моста; подтверждение ранее зафиксированного статуса (run 34851801990).",
+      "priorRun": {
+        "runId": 34858902595,
+        "compilerExit": 0,
+        "resultLine": "OK (compiler exit 0, no compiler errors)",
+        "compilerErrorCount": 0,
+        "outcome": "LEAN_VERIFIED",
+        "sorryAxTheorems": [],
+        "rootCause": null
+      }
+    },
+    {
+      "artifactId": "ricis-universal-orchestration-template",
+      "immutableSource": "artifacts/proofs/ricis-universal-orchestration-template.lean",
+      "sourceSha256": "cebe44f3e058d6d68b9b6df267300162aa53d4ce5730e3e98d623991a4363849",
+      "checkedFile": "artifacts/proofs/core-checks/ricis-universal-orchestration-template.core-check.lean",
+      "substitutionsApplied": [],
+      "compilerExit": 0,
+      "resultLine": "OK (compiler exit 0, no compiler errors)",
+      "compilerErrorCount": 0,
+      "firstCompilerErrors": [],
+      "theoremCount": 27,
+      "theorems": [
+        {
+          "name": "RICIS_Template.L1_identity",
+          "status": "LEAN_VERIFIED_AXIOM_FREE",
+          "axioms": []
+        },
+        {
+          "name": "RICIS_Template.divSelf_one",
+          "status": "LEAN_VERIFIED_WITH_STANDARD_AXIOMS",
+          "axioms": [
+            "propext"
+          ]
+        },
+        {
+          "name": "RICIS_Template.SP2_subSelf_zero",
+          "status": "LEAN_VERIFIED_WITH_STANDARD_AXIOMS",
+          "axioms": [
+            "propext"
+          ]
+        },
+        {
+          "name": "RICIS_Template.A1_div_zero",
+          "status": "LEAN_VERIFIED_WITH_STANDARD_AXIOMS",
+          "axioms": [
+            "propext"
+          ]
+        },
+        {
+          "name": "RICIS_Template.A2_inf_zero_one",
+          "status": "LEAN_VERIFIED_WITH_STANDARD_AXIOMS",
+          "axioms": [
+            "propext"
+          ]
+        },
+        {
+          "name": "RICIS_Template.zero_div_zero_step1",
+          "status": "LEAN_VERIFIED_WITH_STANDARD_AXIOMS",
+          "axioms": [
+            "propext"
+          ]
+        },
+        {
+          "name": "RICIS_Template.zero_div_zero_step2",
+          "status": "LEAN_VERIFIED_WITH_STANDARD_AXIOMS",
+          "axioms": [
+            "propext"
+          ]
+        },
+        {
+          "name": "RICIS_Template.zero_div_zero_one",
+          "status": "LEAN_VERIFIED_WITH_STANDARD_AXIOMS",
+          "axioms": [
+            "propext"
+          ]
+        },
+        {
+          "name": "RICIS_Template.A4_indexed_zero_div",
+          "status": "LEAN_VERIFIED_WITH_STANDARD_AXIOMS",
+          "axioms": [
+            "propext"
+          ]
+        },
+        {
+          "name": "RICIS_Template.A5_inf_div",
+          "status": "LEAN_VERIFIED_WITH_STANDARD_AXIOMS",
+          "axioms": [
+            "propext"
+          ]
+        },
+        {
+          "name": "RICIS_Template.A6_geometric_realization",
+          "status": "LEAN_VERIFIED_WITH_STANDARD_AXIOMS",
+          "axioms": [
+            "propext"
+          ]
+        },
+        {
+          "name": "RICIS_Template.A7_inf_sub",
+          "status": "LEAN_VERIFIED_WITH_STANDARD_AXIOMS",
+          "axioms": [
+            "propext"
+          ]
+        },
+        {
+          "name": "RICIS_Template.A10_mul_zero",
+          "status": "LEAN_VERIFIED_WITH_STANDARD_AXIOMS",
+          "axioms": [
+            "propext"
+          ]
+        },
+        {
+          "name": "RICIS_Template.A10_zero_mul",
+          "status": "LEAN_VERIFIED_WITH_STANDARD_AXIOMS",
+          "axioms": [
+            "propext"
+          ]
+        },
+        {
+          "name": "RICIS_Template.L0_continuity_divSelf",
+          "status": "LEAN_VERIFIED_WITH_STANDARD_AXIOMS",
+          "axioms": [
+            "propext"
+          ]
+        },
+        {
+          "name": "RICIS_Template.L0_continuity_subSelf",
+          "status": "LEAN_VERIFIED_WITH_STANDARD_AXIOMS",
+          "axioms": [
+            "propext"
+          ]
+        },
+        {
+          "name": "RICIS_Template.L0_continuity_A6_rect",
+          "status": "LEAN_VERIFIED_WITH_STANDARD_AXIOMS",
+          "axioms": [
+            "propext"
+          ]
+        },
+        {
+          "name": "RICIS_Template.L0_continuity_A6_measure",
+          "status": "LEAN_VERIFIED_WITH_STANDARD_AXIOMS",
+          "axioms": [
+            "propext"
+          ]
+        },
+        {
+          "name": "RICIS_Template.SP4_preserves_parent",
+          "status": "LEAN_VERIFIED_AXIOM_FREE",
+          "axioms": []
+        },
+        {
+          "name": "RICIS_Template.mySystem_4D_resolved",
+          "status": "LEAN_VERIFIED_WITH_STANDARD_AXIOMS",
+          "axioms": [
+            "propext"
+          ]
+        },
+        {
+          "name": "RICIS_Template.L0_mySystem_no_discontinuity",
+          "status": "LEAN_VERIFIED_WITH_STANDARD_AXIOMS",
+          "axioms": [
+            "propext"
+          ]
+        },
+        {
+          "name": "RICIS_Template.mySystem_steps_4D",
+          "status": "LEAN_VERIFIED_WITH_STANDARD_AXIOMS",
+          "axioms": [
+            "propext"
+          ]
+        },
+        {
+          "name": "RICIS_Template.mySystem_error_zero",
+          "status": "LEAN_VERIFIED_AXIOM_FREE",
+          "axioms": []
+        },
+        {
+          "name": "RICIS_Template.CPU_CUDA_same",
+          "status": "LEAN_VERIFIED_WITH_STANDARD_AXIOMS",
+          "axioms": [
+            "propext"
+          ]
+        },
+        {
+          "name": "RICIS_Template.complex_divSelf_one",
+          "status": "LEAN_VERIFIED_WITH_STANDARD_AXIOMS",
+          "axioms": [
+            "propext"
+          ]
+        },
+        {
+          "name": "RICIS_Template.complex_subSelf_zero",
+          "status": "LEAN_VERIFIED_WITH_STANDARD_AXIOMS",
+          "axioms": [
+            "propext"
+          ]
+        },
+        {
+          "name": "RICIS_Template.RICIS_unified",
+          "status": "LEAN_VERIFIED_WITH_STANDARD_AXIOMS",
+          "axioms": [
+            "propext"
+          ]
+        }
+      ],
+      "outcome": "LEAN_VERIFIED",
+      "rootCause": null,
+      "trustBoundary": "Проверено: весь набор структурных редукций шаблона (A1,A2,A4,A5,A6,A7,A10,L0,L1,SP2,SP4), 4D-остаток, счетчики шагов/ошибок, эквивалентность CPU/CUDA-представлений — все 27 напечатанных теорем (3 без аксиом, 24 × propext), sorryAx отсутствует. Не проверено: семантика привязки этих редукций к физическим задачам.",
+      "priorRun": {
+        "runId": 34858902595,
+        "compilerExit": 0,
+        "resultLine": "OK (compiler exit 0, no compiler errors)",
+        "compilerErrorCount": 0,
+        "outcome": "LEAN_VERIFIED",
+        "sorryAxTheorems": [],
+        "rootCause": null
+      }
+    },
+    {
+      "artifactId": "ricis-chatbot-monetization",
+      "immutableSource": "artifacts/proofs/ricis-chatbot-monetization.lean",
+      "sourceSha256": "f48f78a3021e94314b5e73729b92721ac10d38b867fca6a18d01aa3dac3c1c2a",
+      "checkedFile": "artifacts/proofs/core-checks/ricis-chatbot-monetization.core-check.lean",
+      "substitutionsApplied": [],
+      "compilerExit": 0,
+      "resultLine": "OK (compiler exit 0, no compiler errors)",
+      "compilerErrorCount": 0,
+      "firstCompilerErrors": [],
+      "theoremCount": 2,
+      "theorems": [
+        {
+          "name": "RICIS_Monetization.Chatbot_Monetization_Resolution",
+          "status": "LEAN_VERIFIED_WITH_STANDARD_AXIOMS",
+          "axioms": [
+            "propext"
+          ]
+        },
+        {
+          "name": "RICIS_Monetization.L1_identity",
+          "status": "LEAN_VERIFIED_AXIOM_FREE",
+          "axioms": []
+        }
+      ],
+      "outcome": "LEAN_VERIFIED",
+      "rootCause": null,
+      "trustBoundary": "Проверено: A6-мост 0_Cost × ∞_N = Cost·N как структурная редукция AST и тождество L1. Не проверено и не утверждается: реальная экономика чат-бота, прогноз выручки V(N).",
+      "priorRun": {
+        "runId": 34858902595,
+        "compilerExit": 0,
+        "resultLine": "OK (compiler exit 0, no compiler errors)",
+        "compilerErrorCount": 0,
+        "outcome": "LEAN_VERIFIED",
+        "sorryAxTheorems": [],
+        "rootCause": null
+      }
+    },
+    {
+      "artifactId": "ricis-navier-stokes-ast-bridge",
+      "immutableSource": "artifacts/proofs/ricis-navier-stokes-ast-bridge.standalone.lean",
+      "sourceSha256": "85edafc2dd5fdcd3fc694cd246f8faf9337e9b036fe05f9fcd105b95cc6cc77a",
+      "checkedFile": "artifacts/proofs/core-checks/ricis-navier-stokes-ast-bridge.standalone.core-check.lean",
+      "substitutionsApplied": [],
+      "compilerExit": 0,
+      "resultLine": "OK (compiler exit 0, no compiler errors)",
+      "compilerErrorCount": 0,
+      "firstCompilerErrors": [],
+      "theoremCount": 2,
+      "theorems": [
+        {
+          "name": "RICIS.NavierStokes.singularEnergyBridge_reduced",
+          "status": "LEAN_VERIFIED_WITH_STANDARD_AXIOMS",
+          "axioms": [
+            "propext"
+          ]
+        },
+        {
+          "name": "RICIS.NavierStokes.bridge_independent_of_complexity",
+          "status": "LEAN_VERIFIED_WITH_STANDARD_AXIOMS",
+          "axioms": [
+            "propext"
+          ]
+        }
+      ],
+      "outcome": "LEAN_VERIFIED",
+      "rootCause": null,
+      "trustBoundary": "Проверено: структурная редукция E/E → one в AST поля, независимость редукции от вложенности laplace/deriv. Не проверено и не утверждается: разрешимость уравнений Навье–Стокса (Clay).",
+      "priorRun": {
+        "runId": 34858902595,
+        "compilerExit": 0,
+        "resultLine": "OK (compiler exit 0, no compiler errors)",
+        "compilerErrorCount": 0,
+        "outcome": "LEAN_VERIFIED",
+        "sorryAxTheorems": [],
+        "rootCause": null
+      }
+    },
+    {
+      "artifactId": "ricis-riemann-zeta-ast-bridge",
+      "immutableSource": "artifacts/proofs/ricis-riemann-zeta-ast-bridge.standalone.lean",
+      "sourceSha256": "85fd84aca47bf193245a65617c64a5d5b47c101863e868d3260b1e71e4c9798b",
+      "checkedFile": "artifacts/proofs/core-checks/ricis-riemann-zeta-ast-bridge.standalone.core-check.lean",
+      "substitutionsApplied": [],
+      "compilerExit": 0,
+      "resultLine": "OK (compiler exit 0, no compiler errors)",
+      "compilerErrorCount": 0,
+      "firstCompilerErrors": [],
+      "theoremCount": 2,
+      "theorems": [
+        {
+          "name": "RICIS.RiemannZeta.riemann_bridge_reduced",
+          "status": "LEAN_VERIFIED_WITH_STANDARD_AXIOMS",
+          "axioms": [
+            "propext"
+          ]
+        },
+        {
+          "name": "RICIS.RiemannZeta.riemann_bridge_independent_of_complexity",
+          "status": "LEAN_VERIFIED_WITH_STANDARD_AXIOMS",
+          "axioms": [
+            "propext"
+          ]
+        }
+      ],
+      "outcome": "LEAN_VERIFIED",
+      "rootCause": null,
+      "trustBoundary": "Проверено: структурная редукция E/E → one в AST дзета-выражений. Не проверено и не утверждается: гипотеза Римана (Clay). Узел карты, ссылающийся на этот артефакт как на доказательство гипотезы, kernel-evidence не имеет.",
+      "priorRun": {
+        "runId": 34858902595,
+        "compilerExit": 0,
+        "resultLine": "OK (compiler exit 0, no compiler errors)",
+        "compilerErrorCount": 0,
+        "outcome": "LEAN_VERIFIED",
+        "sorryAxTheorems": [],
+        "rootCause": null
+      }
+    },
+    {
+      "artifactId": "ricis-backend-exact-reduction",
+      "immutableSource": "artifacts/proofs/ricis-backend-exact-reduction.standalone.lean",
+      "sourceSha256": "7607fe7bb27a55c68c9120fe9c5a8c2f693eb5a83c57b0c2ce9a8e5897947c2d",
+      "checkedFile": "artifacts/proofs/core-checks/ricis-backend-exact-reduction.standalone.core-check.lean",
+      "substitutionsApplied": [
+        "ℕ → Nat"
+      ],
+      "compilerExit": 0,
+      "resultLine": "OK (compiler exit 0, no compiler errors)",
+      "compilerErrorCount": 0,
+      "firstCompilerErrors": [],
+      "theoremCount": 22,
+      "theorems": [
+        {
+          "name": "RICIS.identity",
+          "status": "LEAN_VERIFIED_WITH_STANDARD_AXIOMS",
+          "axioms": [
+            "propext"
+          ]
+        },
+        {
+          "name": "RICIS.structure_irrelevant",
+          "status": "LEAN_VERIFIED_WITH_STANDARD_AXIOMS",
+          "axioms": [
+            "propext"
+          ]
+        },
+        {
+          "name": "RICIS.selfDivision_one_step",
+          "status": "LEAN_VERIFIED_WITH_STANDARD_AXIOMS",
+          "axioms": [
+            "propext"
+          ]
+        },
+        {
+          "name": "RICIS.reduction_independent_of_size",
+          "status": "LEAN_VERIFIED_WITH_STANDARD_AXIOMS",
+          "axioms": [
+            "propext"
+          ]
+        },
+        {
+          "name": "RICIS.selfDivision_eliminated",
+          "status": "LEAN_VERIFIED_WITH_STANDARD_AXIOMS",
+          "axioms": [
+            "propext"
+          ]
+        },
+        {
+          "name": "RICIS.eliminated_error_zero",
+          "status": "LEAN_VERIFIED_AXIOM_FREE",
+          "axioms": []
+        },
+        {
+          "name": "RICIS.eliminated_error_independent_of_size",
+          "status": "LEAN_VERIFIED_AXIOM_FREE",
+          "axioms": []
+        },
+        {
+          "name": "RICIS.complex_selfDivision",
+          "status": "LEAN_VERIFIED_WITH_STANDARD_AXIOMS",
+          "axioms": [
+            "propext"
+          ]
+        },
+        {
+          "name": "RICIS.complex_eliminated_error",
+          "status": "LEAN_VERIFIED_AXIOM_FREE",
+          "axioms": []
+        },
+        {
+          "name": "RICIS.repeated_selfDivision",
+          "status": "LEAN_VERIFIED_WITH_STANDARD_AXIOMS",
+          "axioms": [
+            "propext"
+          ]
+        },
+        {
+          "name": "RICIS.repeated_error_zero",
+          "status": "LEAN_VERIFIED_AXIOM_FREE",
+          "axioms": []
+        },
+        {
+          "name": "RICIS.billion_iterations_zero_error",
+          "status": "LEAN_VERIFIED_AXIOM_FREE",
+          "axioms": []
+        },
+        {
+          "name": "RICIS.error_independent_of_iterations",
+          "status": "LEAN_VERIFIED_AXIOM_FREE",
+          "axioms": []
+        },
+        {
+          "name": "RICIS.prepare_selfDivision",
+          "status": "LEAN_VERIFIED_WITH_STANDARD_AXIOMS",
+          "axioms": [
+            "propext"
+          ]
+        },
+        {
+          "name": "RICIS.execute_prepared_selfDivision",
+          "status": "LEAN_VERIFIED_WITH_STANDARD_AXIOMS",
+          "axioms": [
+            "propext"
+          ]
+        },
+        {
+          "name": "RICIS.CPU_correct",
+          "status": "LEAN_VERIFIED_WITH_STANDARD_AXIOMS",
+          "axioms": [
+            "propext"
+          ]
+        },
+        {
+          "name": "RICIS.CUDA_correct",
+          "status": "LEAN_VERIFIED_WITH_STANDARD_AXIOMS",
+          "axioms": [
+            "propext"
+          ]
+        },
+        {
+          "name": "RICIS.CPU_CUDA_same_semantics",
+          "status": "LEAN_VERIFIED_WITH_STANDARD_AXIOMS",
+          "axioms": [
+            "propext"
+          ]
+        },
+        {
+          "name": "RICIS.selfDivision_CPU",
+          "status": "LEAN_VERIFIED_WITH_STANDARD_AXIOMS",
+          "axioms": [
+            "propext"
+          ]
+        },
+        {
+          "name": "RICIS.selfDivision_CUDA",
+          "status": "LEAN_VERIFIED_WITH_STANDARD_AXIOMS",
+          "axioms": [
+            "propext"
+          ]
+        },
+        {
+          "name": "RICIS.selfDivision_all_backends",
+          "status": "LEAN_VERIFIED_WITH_STANDARD_AXIOMS",
+          "axioms": [
+            "propext"
+          ]
+        },
+        {
+          "name": "RICIS.RICIS_exact_structural_reduction",
+          "status": "LEAN_VERIFIED_WITH_STANDARD_AXIOMS",
+          "axioms": [
+            "propext"
+          ]
+        }
+      ],
+      "outcome": "LEAN_VERIFIED",
+      "rootCause": "Подстановка ℕ → Nat подтверждена прогоном: exit 0, 0 ошибок, 22 теоремы (6 «does not depend on any axioms», 16 только propext), sorryAx отсутствует. Все 8 sorryAx и 22 ошибки run 34858902595 устранены.",
+      "trustBoundary": "Производная с ℕ → Nat проверена ядром полностью: 22 теоремы, sorryAx отсутствует. Граница: доказана структурная точность редукции backend-выражений (CPU/CUDA/GPU-семантика совпадает на уровне AST), а не численная корректность решателей Навье–Стокса.",
+      "priorRun": {
+        "runId": 34858902595,
+        "compilerExit": 0,
+        "resultLine": "OK (compiler exit 0, no compiler errors)",
+        "compilerErrorCount": 0,
+        "outcome": "LEAN_VERIFIED",
+        "sorryAxTheorems": [],
+        "rootCause": "Подстановка ℕ → Nat подтверждена прогоном: exit 0, 0 ошибок, 22 теоремы (6 «does not depend on any axioms», 16 только propext), sorryAx отсутствует. Все 8 sorryAx и 22 ошибки run 34858902595 устранены."
+      }
+    },
+    {
+      "artifactId": "ricis-v79-monolith",
+      "immutableSource": "artifacts/proofs/ricis-v79-monolith.standalone.lean",
+      "sourceSha256": "fbd99bbdefd05aaff83fe4325377681f7e3b7099a3c9f5234b3ff4def86077e2",
+      "checkedFile": "artifacts/proofs/core-checks/ricis-v79-monolith.standalone.core-check.lean",
+      "substitutionsApplied": [
+        "ℕ → Nat"
+      ],
+      "compilerExit": 0,
+      "resultLine": "OK (compiler exit 0, no compiler errors)",
+      "compilerErrorCount": 0,
+      "firstCompilerErrors": [],
+      "theoremCount": 31,
+      "theorems": [
+        {
+          "name": "RICIS_v79.L1_identity",
+          "status": "LEAN_VERIFIED_AXIOM_FREE",
+          "axioms": []
+        },
+        {
+          "name": "RICIS_v79.divSelf_one",
+          "status": "LEAN_VERIFIED_WITH_STANDARD_AXIOMS",
+          "axioms": [
+            "propext"
+          ]
+        },
+        {
+          "name": "RICIS_v79.SP2_subSelf_zero",
+          "status": "LEAN_VERIFIED_WITH_STANDARD_AXIOMS",
+          "axioms": [
+            "propext"
+          ]
+        },
+        {
+          "name": "RICIS_v79.A1_div_zero",
+          "status": "LEAN_VERIFIED_WITH_STANDARD_AXIOMS",
+          "axioms": [
+            "propext"
+          ]
+        },
+        {
+          "name": "RICIS_v79.A2_inf_zero_one",
+          "status": "LEAN_VERIFIED_WITH_STANDARD_AXIOMS",
+          "axioms": [
+            "propext"
+          ]
+        },
+        {
+          "name": "RICIS_v79.zero_div_zero_step1",
+          "status": "LEAN_VERIFIED_WITH_STANDARD_AXIOMS",
+          "axioms": [
+            "propext"
+          ]
+        },
+        {
+          "name": "RICIS_v79.zero_div_zero_step2",
+          "status": "LEAN_VERIFIED_WITH_STANDARD_AXIOMS",
+          "axioms": [
+            "propext"
+          ]
+        },
+        {
+          "name": "RICIS_v79.zero_div_zero_one",
+          "status": "LEAN_VERIFIED_WITH_STANDARD_AXIOMS",
+          "axioms": [
+            "propext"
+          ]
+        },
+        {
+          "name": "RICIS_v79.A4_indexed_zero_div",
+          "status": "LEAN_VERIFIED_WITH_STANDARD_AXIOMS",
+          "axioms": [
+            "propext"
+          ]
+        },
+        {
+          "name": "RICIS_v79.A5_inf_div",
+          "status": "LEAN_VERIFIED_WITH_STANDARD_AXIOMS",
+          "axioms": [
+            "propext"
+          ]
+        },
+        {
+          "name": "RICIS_v79.A6_geometric_realization",
+          "status": "LEAN_VERIFIED_WITH_STANDARD_AXIOMS",
+          "axioms": [
+            "propext"
+          ]
+        },
+        {
+          "name": "RICIS_v79.A7_inf_sub",
+          "status": "LEAN_VERIFIED_WITH_STANDARD_AXIOMS",
+          "axioms": [
+            "propext"
+          ]
+        },
+        {
+          "name": "RICIS_v79.A10_mul_zero",
+          "status": "LEAN_VERIFIED_WITH_STANDARD_AXIOMS",
+          "axioms": [
+            "propext"
+          ]
+        },
+        {
+          "name": "RICIS_v79.A10_zero_mul",
+          "status": "LEAN_VERIFIED_WITH_STANDARD_AXIOMS",
+          "axioms": [
+            "propext"
+          ]
+        },
+        {
+          "name": "RICIS_v79.L0_continuity_divSelf",
+          "status": "LEAN_VERIFIED_WITH_STANDARD_AXIOMS",
+          "axioms": [
+            "propext"
+          ]
+        },
+        {
+          "name": "RICIS_v79.L0_continuity_subSelf",
+          "status": "LEAN_VERIFIED_WITH_STANDARD_AXIOMS",
+          "axioms": [
+            "propext"
+          ]
+        },
+        {
+          "name": "RICIS_v79.L0_continuity_A6_rect",
+          "status": "LEAN_VERIFIED_WITH_STANDARD_AXIOMS",
+          "axioms": [
+            "propext"
+          ]
+        },
+        {
+          "name": "RICIS_v79.L0_continuity_A6_measure",
+          "status": "LEAN_VERIFIED_WITH_STANDARD_AXIOMS",
+          "axioms": [
+            "propext"
+          ]
+        },
+        {
+          "name": "RICIS_v79.SP4_preserves_parent",
+          "status": "LEAN_VERIFIED_AXIOM_FREE",
+          "axioms": []
+        },
+        {
+          "name": "RICIS_v79.ns_R1_resolved",
+          "status": "LEAN_VERIFIED_WITH_STANDARD_AXIOMS",
+          "axioms": [
+            "propext"
+          ]
+        },
+        {
+          "name": "RICIS_v79.ns_R2_resolved",
+          "status": "LEAN_VERIFIED_WITH_STANDARD_AXIOMS",
+          "axioms": [
+            "propext"
+          ]
+        },
+        {
+          "name": "RICIS_v79.ns_R3_resolved",
+          "status": "LEAN_VERIFIED_WITH_STANDARD_AXIOMS",
+          "axioms": [
+            "propext"
+          ]
+        },
+        {
+          "name": "RICIS_v79.ns_Rt_resolved",
+          "status": "LEAN_VERIFIED_WITH_STANDARD_AXIOMS",
+          "axioms": [
+            "propext"
+          ]
+        },
+        {
+          "name": "RICIS_v79.ns_4D_resolved",
+          "status": "LEAN_VERIFIED_WITH_STANDARD_AXIOMS",
+          "axioms": [
+            "propext"
+          ]
+        },
+        {
+          "name": "RICIS_v79.L0_4D_no_discontinuity",
+          "status": "LEAN_VERIFIED_WITH_STANDARD_AXIOMS",
+          "axioms": [
+            "propext"
+          ]
+        },
+        {
+          "name": "RICIS_v79.ns_steps_4D",
+          "status": "LEAN_VERIFIED_WITH_STANDARD_AXIOMS",
+          "axioms": [
+            "propext"
+          ]
+        },
+        {
+          "name": "RICIS_v79.ns_error_zero",
+          "status": "LEAN_VERIFIED_AXIOM_FREE",
+          "axioms": []
+        },
+        {
+          "name": "RICIS_v79.CPU_CUDA_same",
+          "status": "LEAN_VERIFIED_WITH_STANDARD_AXIOMS",
+          "axioms": [
+            "propext"
+          ]
+        },
+        {
+          "name": "RICIS_v79.complex_divSelf_one",
+          "status": "LEAN_VERIFIED_WITH_STANDARD_AXIOMS",
+          "axioms": [
+            "propext"
+          ]
+        },
+        {
+          "name": "RICIS_v79.complex_subSelf_zero",
+          "status": "LEAN_VERIFIED_WITH_STANDARD_AXIOMS",
+          "axioms": [
+            "propext"
+          ]
+        },
+        {
+          "name": "RICIS_v79.RICIS_v79_unified",
+          "status": "LEAN_VERIFIED_WITH_STANDARD_AXIOMS",
+          "axioms": [
+            "propext"
+          ]
+        }
+      ],
+      "outcome": "LEAN_VERIFIED",
+      "rootCause": null,
+      "trustBoundary": "run 34891262489 (PR #38, Lean 4.33.1): exit 0, sorryAx отсутствует; 31 теорема — 3 без аксиом (L1_identity, SP4_preserves_parent, ns_error_zero), 28 × propext, включая RICIS_v79_unified. F-06 устранён подстановкой (удаление 8 избыточных буллетов, 0.4.189). Граница (F-05): доказаны структурные тождества редукции RICIS (divSelf, subSelf, A1–A10, SP2/SP4, ns_*), а не разрешимость уравнений Навье–Стокса.",
+      "priorRun": {
+        "runId": 34858902595,
+        "compilerExit": 1,
+        "resultLine": "FAILED (compiler exit 1)",
+        "compilerErrorCount": 1,
+        "outcome": "NOT_VERIFIED_CORE_ONLY",
+        "sorryAxTheorems": [],
+        "rootCause": "Подстановка ℕ → Nat устранила все 15 ошибок run 34858902595: 31 теорема напечатана #print axioms, sorryAx ОТСУТСТВУЕТ (3 без аксиом, 28 только propext). Единственная оставшаяся ошибка — 392:2 «No goals to be solved»: в доказательстве RICIS_v79_unified после `repeat constructor` идут 8 избыточных буллетов `· rfl`; на ядровой базе `repeat constructor` закрывает все 9 конъюнктов сам (Eq.refl — конструктор Eq), поэтому первый же буллет применяется при отсутствии целей. Это дефект гигиены доказательного скрипта, а не недоказанность утверждения."
+      }
+    },
+    {
+      "artifactId": "database-a6-0_5_inf_3",
+      "immutableSource": "artifacts/proofs/database-a6-0_5_inf_3.standalone.lean",
+      "sourceSha256": "963f701f3c87f7994f3784944250b46df5026e71be4ae8279bf41cf4d4e99d2c",
+      "checkedFile": "artifacts/proofs/core-checks/database-a6-0_5_inf_3.standalone.core-check.lean",
+      "substitutionsApplied": [],
+      "compilerExit": 0,
+      "resultLine": "OK (compiler exit 0, no compiler errors)",
+      "compilerErrorCount": 0,
+      "firstCompilerErrors": [],
+      "theoremCount": 19,
+      "theorems": [
+        {
+          "name": "RICIS3.GeneratedDatabaseProof.generated_claim_is_a6_bridge",
+          "status": "LEAN_VERIFIED_AXIOM_FREE",
+          "axioms": []
+        },
+        {
+          "name": "RICIS3.GeneratedDatabaseProof.generated_claim_indices_are_finite",
+          "status": "LEAN_VERIFIED_WITH_STANDARD_AXIOMS",
+          "axioms": [
+            "propext"
+          ]
+        },
+        {
+          "name": "RICIS3.ExtendedKernel.RExpr.sp3_zero_valid",
+          "status": "LEAN_VERIFIED_WITH_STANDARD_AXIOMS",
+          "axioms": [
+            "propext"
+          ]
+        },
+        {
+          "name": "RICIS3.ExtendedKernel.RExpr.sp3_inf_valid",
+          "status": "LEAN_VERIFIED_WITH_STANDARD_AXIOMS",
+          "axioms": [
+            "propext"
+          ]
+        },
+        {
+          "name": "RICIS3.ExtendedKernel.RExpr.l0_payload_preserved",
+          "status": "LEAN_VERIFIED_AXIOM_FREE",
+          "axioms": []
+        },
+        {
+          "name": "RICIS3.ExtendedKernel.RExpr.l1_identity",
+          "status": "LEAN_VERIFIED_AXIOM_FREE",
+          "axioms": []
+        },
+        {
+          "name": "RICIS3.ExtendedKernel.RExpr.sp2_common_right",
+          "status": "LEAN_VERIFIED_AXIOM_FREE",
+          "axioms": []
+        },
+        {
+          "name": "RICIS3.ExtendedKernel.RExpr.sp2_common_left",
+          "status": "LEAN_VERIFIED_AXIOM_FREE",
+          "axioms": []
+        },
+        {
+          "name": "RICIS3.ExtendedKernel.RExpr.o1_bridge_mul_zero",
+          "status": "LEAN_VERIFIED_AXIOM_FREE",
+          "axioms": []
+        },
+        {
+          "name": "RICIS3.ExtendedKernel.RExpr.o1_bridge_div_zero",
+          "status": "LEAN_VERIFIED_AXIOM_FREE",
+          "axioms": []
+        },
+        {
+          "name": "RICIS3.ExtendedKernel.RExpr.a1_indexed_infinity",
+          "status": "LEAN_VERIFIED_AXIOM_FREE",
+          "axioms": []
+        },
+        {
+          "name": "RICIS3.ExtendedKernel.RExpr.a4_distinct_payload",
+          "status": "LEAN_VERIFIED_AXIOM_FREE",
+          "axioms": []
+        },
+        {
+          "name": "RICIS3.ExtendedKernel.RExpr.a4_same_identity",
+          "status": "LEAN_VERIFIED_AXIOM_FREE",
+          "axioms": []
+        },
+        {
+          "name": "RICIS3.ExtendedKernel.RExpr.sp4_retains_source",
+          "status": "LEAN_VERIFIED_AXIOM_FREE",
+          "axioms": []
+        },
+        {
+          "name": "RICIS3.ExtendedKernel.RExpr.a5_distinct_payload",
+          "status": "LEAN_VERIFIED_AXIOM_FREE",
+          "axioms": []
+        },
+        {
+          "name": "RICIS3.ExtendedKernel.RExpr.a6_geometric_bridge",
+          "status": "LEAN_VERIFIED_AXIOM_FREE",
+          "axioms": []
+        },
+        {
+          "name": "RICIS3.ExtendedKernel.RExpr.a6_coupled_reciprocal",
+          "status": "LEAN_VERIFIED_AXIOM_FREE",
+          "axioms": []
+        },
+        {
+          "name": "RICIS3.ExtendedKernel.RExpr.fallback_requires_gate",
+          "status": "LEAN_VERIFIED_AXIOM_FREE",
+          "axioms": []
+        },
+        {
+          "name": "RICIS3.ExtendedKernel.RExpr.priority_blocks_fallback",
+          "status": "LEAN_VERIFIED_AXIOM_FREE",
+          "axioms": []
+        }
+      ],
+      "outcome": "LEAN_VERIFIED",
+      "rootCause": "Отказов нет: exit 0, 0 ошибок, 19 теорем (16 «does not depend on any axioms», 3 только propext), sorryAx отсутствует. Единственная зависимость от Mathlib в исходнике — неиспользуемая строка import, удалённая в производной без подстановок.",
+      "trustBoundary": "Проверено ядром: 19 теорем, sorryAx отсутствует, 16 из них не зависят от аксиом вовсе. Граница: доказана корректность сгенерированного моста A6/L0/L1/SP4 для конкретной записи базы (0_5_inf_3), а не полнота базы доказательств.",
+      "priorRun": {
+        "runId": 34858902595,
+        "compilerExit": 0,
+        "resultLine": "OK (compiler exit 0, no compiler errors)",
+        "compilerErrorCount": 0,
+        "outcome": "LEAN_VERIFIED",
+        "sorryAxTheorems": [],
+        "rootCause": "Отказов нет: exit 0, 0 ошибок, 19 теорем (16 «does not depend on any axioms», 3 только propext), sorryAx отсутствует. Единственная зависимость от Mathlib в исходнике — неиспользуемая строка import, удалённая в производной без подстановок."
+      }
+    },
+    {
+      "artifactId": "database-registry-120-jacobian",
+      "immutableSource": "artifacts/proofs/database-registry-120-jacobian.standalone.lean",
+      "sourceSha256": "4d974e643b4480169897685d21254e10ca607416912e43275491c6dd3cdd1617",
+      "checkedFile": "artifacts/proofs/core-checks/database-registry-120-jacobian.standalone.core-check.lean",
+      "substitutionsApplied": [],
+      "compilerExit": 0,
+      "resultLine": "OK (compiler exit 0, no compiler errors)",
+      "compilerErrorCount": 0,
+      "firstCompilerErrors": [],
+      "theoremCount": 19,
+      "theorems": [
+        {
+          "name": "RICIS3.GeneratedJacobianRegistry120.jacobian_registry120_a6_bridge",
+          "status": "LEAN_VERIFIED_AXIOM_FREE",
+          "axioms": []
+        },
+        {
+          "name": "RICIS3.GeneratedJacobianRegistry120.jacobian_registry120_indices_valid",
+          "status": "LEAN_VERIFIED_WITH_STANDARD_AXIOMS",
+          "axioms": [
+            "propext"
+          ]
+        },
+        {
+          "name": "RICIS3.ExtendedKernel.RExpr.sp3_zero_valid",
+          "status": "LEAN_VERIFIED_WITH_STANDARD_AXIOMS",
+          "axioms": [
+            "propext"
+          ]
+        },
+        {
+          "name": "RICIS3.ExtendedKernel.RExpr.sp3_inf_valid",
+          "status": "LEAN_VERIFIED_WITH_STANDARD_AXIOMS",
+          "axioms": [
+            "propext"
+          ]
+        },
+        {
+          "name": "RICIS3.ExtendedKernel.RExpr.l0_payload_preserved",
+          "status": "LEAN_VERIFIED_AXIOM_FREE",
+          "axioms": []
+        },
+        {
+          "name": "RICIS3.ExtendedKernel.RExpr.l1_identity",
+          "status": "LEAN_VERIFIED_AXIOM_FREE",
+          "axioms": []
+        },
+        {
+          "name": "RICIS3.ExtendedKernel.RExpr.sp2_common_right",
+          "status": "LEAN_VERIFIED_AXIOM_FREE",
+          "axioms": []
+        },
+        {
+          "name": "RICIS3.ExtendedKernel.RExpr.sp2_common_left",
+          "status": "LEAN_VERIFIED_AXIOM_FREE",
+          "axioms": []
+        },
+        {
+          "name": "RICIS3.ExtendedKernel.RExpr.o1_bridge_mul_zero",
+          "status": "LEAN_VERIFIED_AXIOM_FREE",
+          "axioms": []
+        },
+        {
+          "name": "RICIS3.ExtendedKernel.RExpr.o1_bridge_div_zero",
+          "status": "LEAN_VERIFIED_AXIOM_FREE",
+          "axioms": []
+        },
+        {
+          "name": "RICIS3.ExtendedKernel.RExpr.a1_indexed_infinity",
+          "status": "LEAN_VERIFIED_AXIOM_FREE",
+          "axioms": []
+        },
+        {
+          "name": "RICIS3.ExtendedKernel.RExpr.a4_distinct_payload",
+          "status": "LEAN_VERIFIED_AXIOM_FREE",
+          "axioms": []
+        },
+        {
+          "name": "RICIS3.ExtendedKernel.RExpr.a4_same_identity",
+          "status": "LEAN_VERIFIED_AXIOM_FREE",
+          "axioms": []
+        },
+        {
+          "name": "RICIS3.ExtendedKernel.RExpr.sp4_retains_source",
+          "status": "LEAN_VERIFIED_AXIOM_FREE",
+          "axioms": []
+        },
+        {
+          "name": "RICIS3.ExtendedKernel.RExpr.a5_distinct_payload",
+          "status": "LEAN_VERIFIED_AXIOM_FREE",
+          "axioms": []
+        },
+        {
+          "name": "RICIS3.ExtendedKernel.RExpr.a6_geometric_bridge",
+          "status": "LEAN_VERIFIED_AXIOM_FREE",
+          "axioms": []
+        },
+        {
+          "name": "RICIS3.ExtendedKernel.RExpr.a6_coupled_reciprocal",
+          "status": "LEAN_VERIFIED_AXIOM_FREE",
+          "axioms": []
+        },
+        {
+          "name": "RICIS3.ExtendedKernel.RExpr.fallback_requires_gate",
+          "status": "LEAN_VERIFIED_AXIOM_FREE",
+          "axioms": []
+        },
+        {
+          "name": "RICIS3.ExtendedKernel.RExpr.priority_blocks_fallback",
+          "status": "LEAN_VERIFIED_AXIOM_FREE",
+          "axioms": []
+        }
+      ],
+      "outcome": "LEAN_VERIFIED",
+      "rootCause": "Отказов нет: exit 0, 0 ошибок, 19 теорем (16 «does not depend on any axioms», 3 только propext), sorryAx отсутствует. Подстановки не потребовались.",
+      "trustBoundary": "Проверено ядром: 19 теорем, sorryAx отсутствует, 16 без аксиом. Граница: доказан сгенерированный мост записи реестра №120, а не гипотеза Якоби, упомянутая в имени записи.",
+      "priorRun": {
+        "runId": 34858902595,
+        "compilerExit": 0,
+        "resultLine": "OK (compiler exit 0, no compiler errors)",
+        "compilerErrorCount": 0,
+        "outcome": "LEAN_VERIFIED",
+        "sorryAxTheorems": [],
+        "rootCause": "Отказов нет: exit 0, 0 ошибок, 19 теорем (16 «does not depend on any axioms», 3 только propext), sorryAx отсутствует. Подстановки не потребовались."
+      }
+    },
+    {
+      "artifactId": "ricis-jacobian-conjecture",
+      "immutableSource": "artifacts/proofs/ricis-jacobian-conjecture.standalone.lean",
+      "sourceSha256": "2e043f2738df8d8b02754aebb5fa93580fb87e6cc71733557c620c463c4de56b",
+      "checkedFile": "artifacts/proofs/core-checks/ricis-jacobian-conjecture.standalone.core-check.lean",
+      "substitutionsApplied": [
+        "| partial (F x : RExpr) → | partialDeriv (F x : RExpr)"
+      ],
+      "compilerExit": 1,
+      "resultLine": "FAILED (compiler exit 1) — SORRY_DETECTED (1 hit(s))",
+      "compilerErrorCount": 1,
+      "firstCompilerErrors": [
+        "62:2: error: Tactic `rfl` failed: The left-hand side"
+      ],
+      "theoremCount": 2,
+      "theorems": [
+        {
+          "name": "RICIS_Jacobian.Jacobian_singularity_resolved",
+          "status": "REJECTED_SORRYAX",
+          "axioms": [
+            "propext",
+            "sorryAx"
+          ]
+        },
+        {
+          "name": "RICIS_Jacobian.Jacobian_L1_identity",
+          "status": "LEAN_VERIFIED_AXIOM_FREE",
+          "axioms": []
+        }
+      ],
+      "outcome": "NOT_VERIFIED_CORE_ONLY",
+      "rootCause": "Двухуровневый отказ. (1) Неизменяемый исходник не парсится: конструктор `| partial (F x : RExpr)` использует зарезервированное слово Lean (24:12 expected token). (2) После заявленного переименования неиспользуемого конструктора (partial → partialDeriv) файл парсится, но центральное утверждение не доказывается: 62:2 «Tactic `rfl` failed: resolveRICIS (F.zeroF.det RExpr.zero RExpr.zero G.infF) is not definitionally equal to (F.mul G).sub RExpr.zero.zeroF» → Jacobian_singularity_resolved несёт sorryAx. Тождество не является определительным (rfl — ядровая тактика, Mathlib здесь ни при чём), поэтому заявленный TRUSTED_AXIOM не имеет основания ни в одной конфигурации.",
+      "trustBoundary": "Ни исходник (не парсится), ни производная с минимальным ремонтом (rfl не проходит, sorryAx) не дают основания для TRUSTED_AXIOM. Граница: даже после ремонта речь идёт о структурном тождестве resolveRICIS на AST, а не о гипотезе Якоби для полиномиальных отображений C^n → C^n.",
+      "priorRun": {
+        "runId": 34858902595,
+        "compilerExit": 1,
+        "resultLine": "FAILED (compiler exit 1) — SORRY_DETECTED (1 hit(s))",
+        "compilerErrorCount": 1,
+        "outcome": "NOT_VERIFIED_CORE_ONLY",
+        "sorryAxTheorems": [
+          "RICIS_Jacobian.Jacobian_singularity_resolved"
+        ],
+        "rootCause": "Двухуровневый отказ. (1) Неизменяемый исходник не парсится: конструктор `| partial (F x : RExpr)` использует зарезервированное слово Lean (24:12 expected token). (2) После заявленного переименования неиспользуемого конструктора (partial → partialDeriv) файл парсится, но центральное утверждение не доказывается: 62:2 «Tactic `rfl` failed: resolveRICIS (F.zeroF.det RExpr.zero RExpr.zero G.infF) is not definitionally equal to (F.mul G).sub RExpr.zero.zeroF» → Jacobian_singularity_resolved несёт sorryAx. Тождество не является определительным (rfl — ядровая тактика, Mathlib здесь ни при чём), поэтому заявленный TRUSTED_AXIOM не имеет основания ни в одной конфигурации."
+      }
+    },
+    {
+      "artifactId": "ricis-kernel-ast-sp5",
+      "immutableSource": "artifacts/proofs/ricis-kernel-ast-sp5.standalone.lean",
+      "sourceSha256": "6ee144b7e438a112b1590c65625da5b88baf615cb53315f52b6935d91cacda57",
+      "checkedFile": "artifacts/proofs/core-checks/ricis-kernel-ast-sp5.standalone.core-check.lean",
+      "substitutionsApplied": [
+        "ℚ → Rat"
+      ],
+      "compilerExit": 0,
+      "resultLine": "OK (compiler exit 0, no compiler errors)",
+      "compilerErrorCount": 0,
+      "firstCompilerErrors": [],
+      "theoremCount": 2,
+      "theorems": [
+        {
+          "name": "RICIS.KernelAST.SP5.singular_div_identity",
+          "status": "LEAN_VERIFIED_WITH_STANDARD_AXIOMS",
+          "axioms": [
+            "propext"
+          ]
+        },
+        {
+          "name": "RICIS.KernelAST.SP5.ricis_reduce_divself",
+          "status": "LEAN_VERIFIED_WITH_STANDARD_AXIOMS",
+          "axioms": [
+            "propext"
+          ]
+        }
+      ],
+      "outcome": "LEAN_VERIFIED",
+      "rootCause": null,
+      "trustBoundary": "run 34891262489 (PR #38, Lean 4.33.1): exit 0, sorryAx отсутствует; 2 теоремы × propext. F-07 устранён: вставочная подстановка `deriving DecidableEq, Repr` (0.4.189; файл той же содержательной версии ранее зелёный на main — 8665a06, run 34877214125). Граница (F-05): SP5 — правило структурной редукции singularDiv, а не утверждение о ℚ.",
+      "priorRun": {
+        "runId": 34858902595,
+        "compilerExit": 1,
+        "resultLine": "FAILED (compiler exit 1) — SORRY_DETECTED (2 hit(s))",
+        "compilerErrorCount": 1,
+        "outcome": "NOT_VERIFIED_CORE_ONLY",
+        "sorryAxTheorems": [
+          "RICIS.KernelAST.SP5.singular_div_identity",
+          "RICIS.KernelAST.SP5.ricis_reduce_divself"
+        ],
+        "rootCause": "Подстановка ℚ → Rat устранила ошибку нотации, но вскрыла отсутствие экземпляра: 26:2 «error(lean.synthInstanceFailed): failed to synthesize instance of type class Decidable (a = b)» — у индуктива RExpr нет DecidableEq, а Mathlib-сборка давала его через свои deriving-механизмы. Каскад: 37:35 «unsolved goals ⊢ sorry () = RExpr.one», обе теоремы (singular_div_identity, ricis_reduce_divself) получили sorryAx."
+      }
+    },
+    {
+      "artifactId": "ricis-seed-expansion-a11",
+      "immutableSource": "artifacts/proofs/ricis-seed-expansion-a11.lean",
+      "sourceSha256": "368dc0359e3f37391e3e830fc1abf9107b8e3f1f37d0a7f3ac6d2b3bc36839f2",
+      "checkedFile": "artifacts/proofs/core-checks/ricis-seed-expansion-a11.core-check.lean",
+      "substitutionsApplied": [
+        "exact List.mem_of_mem_append_left hr → exact List.mem_append.mpr (Or.inl hr)"
+      ],
+      "compilerExit": 1,
+      "resultLine": "FAILED (compiler exit 1) — SORRY_DETECTED (3 hit(s))",
+      "compilerErrorCount": 5,
+      "firstCompilerErrors": [
+        "104:4: error: Type mismatch",
+        "105:4: error: Tactic `split` failed: Could not split an `if` or `match` expression in the goal",
+        "156:63: error: unsolved goals"
+      ],
+      "theoremCount": 6,
+      "theorems": [
+        {
+          "name": "RICIS.Seed.monotonic_growth",
+          "status": "REJECTED_SORRYAX",
+          "axioms": [
+            "sorryAx"
+          ]
+        },
+        {
+          "name": "RICIS.Seed.rejection_preserves_generation",
+          "status": "LEAN_VERIFIED_WITH_STANDARD_AXIOMS",
+          "axioms": [
+            "propext"
+          ]
+        },
+        {
+          "name": "RICIS.Seed.no_commit_without_proof",
+          "status": "LEAN_VERIFIED_WITH_STANDARD_AXIOMS",
+          "axioms": [
+            "propext"
+          ]
+        },
+        {
+          "name": "RICIS.Seed.core_rule_never_commits",
+          "status": "LEAN_VERIFIED_WITH_STANDARD_AXIOMS",
+          "axioms": [
+            "propext"
+          ]
+        },
+        {
+          "name": "RICIS.Seed.identity_violation_never_commits",
+          "status": "REJECTED_SORRYAX",
+          "axioms": [
+            "propext",
+            "sorryAx"
+          ]
+        },
+        {
+          "name": "RICIS.Seed.identity_ok_preserves_expansion",
+          "status": "REJECTED_SORRYAX",
+          "axioms": [
+            "propext",
+            "sorryAx"
+          ]
+        }
+      ],
+      "outcome": "NOT_VERIFIED_CORE_ONLY",
+      "rootCause": "Заявленная мной замена Mathlib-леммы оказалась недостаточной: 104:4 «Type mismatch: List.mem_append.mpr (Or.inl hr) has type r ∈ s.rules ++ ?m.77 but is expected to have type r ∈ a✝¹.rules» — после `induction` цель уже не содержит `++`, поэтому ядровый эквивалент неприменим в этой точке; 105:4 «Tactic `split` failed: Could not split an `if` or `match` expression in the goal»; далее 156:63, 165:50, 176:105 «unsolved goals» (core-simp слабее Mathlib-simp). Итог: 3 из 6 теорем с sorryAx (monotonic_growth, identity_violation_never_commits, identity_ok_preserves_expansion). Это дефект МОЕЙ подстановки, а не только границы ядра.",
+      "trustBoundary": "3 из 6 теорем приняты ядром (только propext), 3 получили sorryAx; моя замена леммы неприменима в точке 104. Граница: A11 — свойство монотонного роста списка правил семенного расширения, а не утверждение о сходимости обучения.",
+      "priorRun": {
+        "runId": 34858902595,
+        "compilerExit": 1,
+        "resultLine": "FAILED (compiler exit 1) — SORRY_DETECTED (3 hit(s))",
+        "compilerErrorCount": 5,
+        "outcome": "NOT_VERIFIED_CORE_ONLY",
+        "sorryAxTheorems": [
+          "RICIS.Seed.monotonic_growth",
+          "RICIS.Seed.identity_violation_never_commits",
+          "RICIS.Seed.identity_ok_preserves_expansion"
+        ],
+        "rootCause": "Заявленная мной замена Mathlib-леммы оказалась недостаточной: 104:4 «Type mismatch: List.mem_append.mpr (Or.inl hr) has type r ∈ s.rules ++ ?m.77 but is expected to have type r ∈ a✝¹.rules» — после `induction` цель уже не содержит `++`, поэтому ядровый эквивалент неприменим в этой точке; 105:4 «Tactic `split` failed: Could not split an `if` or `match` expression in the goal»; далее 156:63, 165:50, 176:105 «unsolved goals» (core-simp слабее Mathlib-simp). Итог: 3 из 6 теорем с sorryAx (monotonic_growth, identity_violation_never_commits, identity_ok_preserves_expansion). Это дефект МОЕЙ подстановки, а не только границы ядра."
+      }
+    }
+  ],
+  "pendingKernelRun": [],
+  "findings": [
+    {
+      "id": "F-01",
+      "severity": "CRITICAL",
+      "kind": "TUKHTA",
+      "title": "ricis-jacobian-conjecture.standalone.lean не является валидным Lean-файлом, но заявлен как TRUSTED_AXIOM",
+      "evidence": "run 34858902595: исходник не парсится (24:12 expected token — конструктор `partial`). run 34870620154: после заявленного переименования partial → partialDeriv файл парсится, но 62:2 «Tactic `rfl` failed: resolveRICIS (F.zeroF.det RExpr.zero RExpr.zero G.infF) is not definitionally equal to (F.mul G).sub RExpr.zero.zeroF», поэтому Jacobian_singularity_resolved зависит от [propext, sorryAx]. src/model/jacobianProof.test.ts QA-1 проверяет текстовое присутствие строки теоремы, а не её доказуемость.",
+      "affected": [
+        "artifacts/proofs/ricis-jacobian-conjecture.json (verification.trustStatus = TRUSTED_AXIOM)",
+        "src/model/initialMap.ts (proofs[registry-120].externalLean.trustStatus = TRUSTED_AXIOM)",
+        "src/model/jacobianProof.test.ts (QA-1 проверяет лишь ТЕКСТОВОЕ присутствие строки `theorem Jacobian_singularity_resolved`, QA-2/QA-3 утверждают сам статус)"
+      ],
+      "requiredDecision": "Владелец выбирает: (а) признать статус TRUSTED_AXIOM необоснованным и понизить его (с обновлением initialMap и QA-контрактов jacobianProof), либо (б) поручить построение нового доказательства тождества 62:2 (rfl недостаточен). Автоматически ремонтировать нельзя: тождество не определительно.",
+      "resolution": "Решение владельца 2026-09-14 (артефактный уровень, README artifacts/proofs): классификация ricis-jacobian-conjecture.standalone.lean и database-registry-120-jacobian.* — STRUCTURALLY_VALIDATED (структурная модель; не MATHEMATICALLY_PROVEN). trustStatus метаданных ricis-jacobian-conjecture.json понижен до STRUCTURALLY_VALIDATED; QA-контракт src/model/jacobianProof.test.ts обновлён (QA-2 + связь с реестром). Запись узла registry-120 в src/model/initialMap.ts (externalLean.trustStatus = TRUSTED_AXIOM) — отдельное узел-уровневое решение владельца (L9), т.к. затрагивает состояние узла карты и контракт E-03. Центральное тождество не является определительным (rfl failed, run 34870620154) — основание TRUSTED_AXIOM отсутствует ни в одной конфигурации; молчаливого демонтажа не выполнено."
+    },
+    {
+      "id": "F-02",
+      "severity": "HIGH",
+      "kind": "TUKHTA",
+      "title": "LEAN_VERIFIED/TRUSTED_AXIOM в initialMap и метаданных выставлены без ядерного прогона",
+      "evidence": "6 записей initialMap и 5 JSON заявляли LEAN_VERIFIED/TRUSTED_AXIOM без прогона. После run 34858902595 и run 34870620154 фактическое основание получили: universal-orchestration-template, chatbot-monetization, navier-stokes-ast-bridge, riemann-zeta-ast-bridge, backend-exact-reduction (exit 0, sorryAx отсутствует). Остаются необоснованными: v79-monolith (exit 1, но sorryAx отсутствует) и jacobian-conjecture (sorryAx).",
+      "affected": [
+        "src/model/initialMap.ts",
+        "artifacts/proofs/*.json",
+        "src/model/ricisV79Monolith.test.ts",
+        "src/model/riemannZetaProof.test.ts"
+      ],
+      "resolution": "Частично закрыто этим PR: для chatbot-monetization, navier-stokes, riemann-zeta, universal-orchestration-template получен фактический прогон ядра (exit 0, без sorryAx). Для v79-monolith и backend-exact-reduction прогон выявил первопричину (ℕ) и требует повторного run с подстановкой; для jacobian-conjecture — см. F-01."
+    },
+    {
+      "id": "F-03",
+      "severity": "MEDIUM",
+      "kind": "PRECISION",
+      "title": "Зависимость от propext не фиксировалась в статусах",
+      "evidence": "run 34858902595: например RICIS_Monetization.Chatbot_Monetization_Resolution и обе теоремы navier-stokes/riemann-zeta зависят от [propext]; при этом RICIS_Template.L1_identity, SP4_preserves_parent, mySystem_error_zero и RICIS3.MinimalA6Check.Regression.database_a6_bridge — «does not depend on any axioms»",
+      "resolution": "Реестр вводит раздельные статусы LEAN_VERIFIED_AXIOM_FREE и LEAN_VERIFIED_WITH_STANDARD_AXIOMS: propext — стандартная аксиома Lean (не sorryAx), но заявление «без аксиом» допустимо только для первого класса."
+    },
+    {
+      "id": "F-04",
+      "severity": "MEDIUM",
+      "kind": "EVIDENCE_DEFECT",
+      "title": "Workflow терял вывод #print axioms и не публиковал evidence при падении",
+      "evidence": "Фильтр `grep -E \"has (no axioms|axioms)|^database\"` не соответствует реальной формулировке ядра (`does not depend on any axioms`), поэтому секция «#print axioms output» в run 34851801990 была пустой; шаг публикации комментария PR не имел `if: always()` и в run 34857939167 был пропущен — красная проверка осталась без доказательств",
+      "resolution": "Исправлено в этом PR: корректный фильтр, брак по sorryAx, `if: always()` на публикации, диагностика окружения до цикла, материализованный targets.txt, outcome шага в GITHUB_OUTPUT."
+    },
+    {
+      "id": "F-05",
+      "severity": "HIGH",
+      "kind": "SEMANTIC_BOUNDARY",
+      "title": "Kernel-прогон структурных AST-теорем не доказывает заявленные узлами карты результаты",
+      "evidence": "Проверенные теоремы имеют вид `ricisReduce (divSelf e) = one`, `resolveRICIS (mul (zeroF F) (infG G)) = mul F G`; узлы карты и LaTeX-отчёты по тем же хешам формулируют это как доказательство гипотезы Римана / Навье–Стокса / якобиана",
+      "resolution": "Граница доверия зафиксирована в эпилоге каждой производной, в этом реестре и в evidence-документе. Изменение формулировок узлов карты — отдельное решение владельца (E-03: resolved только при kernel-backed LEAN_VERIFIED для самого утверждения)."
+    },
+    {
+      "id": "F-06",
+      "severity": "MEDIUM",
+      "kind": "PROOF_SCRIPT_DEFECT",
+      "title": "v79: избыточные тактические буллеты дают exit 1 при полностью доказанных 31 теоремах",
+      "evidence": "run 34870620154, ricis-v79-monolith.standalone.core-check.lean:392:2 «error: No goals to be solved» после `repeat constructor`; #print axioms напечатал все 31 теорему, sorryAx отсутствует (3 без аксиом, 28 × propext).",
+      "affected": [
+        "ricis-v79-monolith"
+      ],
+      "requiredDecision": "Выпустить новую версию производной без избыточных буллетов (подстановка заявляется в генераторе) и получить exit 0; статус LEAN_VERIFIED до этого не устанавливается.",
+      "resolution": "Исправлено в 0.4.189: подстановка удаления 8 избыточных буллетов заявлена в генераторе (scripts/generateLeanCoreChecks.ts, первопричина 392:2 run 34870620154); производная перегенерирована, ожидается exit 0 в прогоне PR-ветки. Повторный прогон (run 34891262489, PR #38): exit 0, 31 теорема без sorryAx (3 без аксиом, 28 × propext, включая RICIS_v79_unified) — LEAN_VERIFIED."
+    },
+    {
+      "id": "F-07",
+      "severity": "HIGH",
+      "kind": "MISSING_INSTANCE",
+      "title": "SP5: в ядре не синтезируется Decidable (a = b) для RExpr",
+      "evidence": "run 34870620154, ricis-kernel-ast-sp5.standalone.core-check.lean:26:2 «error(lean.synthInstanceFailed): failed to synthesize instance of type class Decidable (a = b)», каскад 37:35 «unsolved goals ⊢ sorry () = RExpr.one», обе теоремы → sorryAx.",
+      "affected": [
+        "ricis-kernel-ast-sp5"
+      ],
+      "requiredDecision": "Добавить `deriving DecidableEq` к индуктиву RExpr в новой версии производной (аддитивно) и перепроверить ядром.",
+      "resolution": "Исправлено в 0.4.189: вставочная подстановка `deriving DecidableEq, Repr` в генераторе (первопричина 26:2 run 34870620154; файл той же содержательной версии уже зелёный на main — коммит 8665a06, run 34877214125); производная перегенерирована, ожидается exit 0 в прогоне PR-ветки. Повторный прогон (run 34891262489, PR #38): exit 0, 2 теоремы × propext — LEAN_VERIFIED."
+    },
+    {
+      "id": "F-08",
+      "severity": "MEDIUM",
+      "kind": "REPAIR_DEFECT",
+      "title": "A11: заявленная мной замена Mathlib-леммы неприменима — дефект собственного ремонта",
+      "evidence": "run 34870620154, ricis-seed-expansion-a11.core-check.lean:104:4 «Type mismatch: List.mem_append.mpr (Or.inl hr) has type r ∈ s.rules ++ ?m.77 but is expected to have type r ∈ a✝¹.rules», 105:4 «Tactic `split` failed», 156:63/165:50/176:105 «unsolved goals», 3 из 6 теорем → sorryAx.",
+      "affected": [
+        "ricis-seed-expansion-a11"
+      ],
+      "requiredDecision": "Признать подстановку неверной, заменить на ядровый шаг, соответствующий цели после induction, и перепроверить; до этого производная не считается ремонтом.",
+      "resolution": "Подтверждено: замена `List.mem_of_mem_append_left hr → List.mem_append.mpr (Or.inl hr)` неприменима в точке 104:4 после induction (цель уже не содержит `++`). Производная A11 зарегистрирована в ciPolicy.expectedFailures (ожидаемый отказ с зафиксированным основанием); ядровой ремонт — построение тактических шагов под фактические цели после induction — отдельная задача."
+    }
+  ],
+  "ciPolicy": {
+    "rule": "Прогон ядра выходит с кодом 0 тогда и только тогда, когда каждый упавший целевой файл перечислен в expectedFailures с зафиксированным основанием (basis). sorryAx в СКОМПИЛИРОВАННОМ файле (exit 0) всегда рвёт прогон, даже для зарегистрированной цели. Цель из expectedFailures, которая компилируется (exit 0, без sorryAx), отдаётся как OK с явной меткой NOTE: реестр обязан быть обновлён, а повышение статуса — рассмотрено. Любой отказ файла, НЕ внесённый в expectedFailures, рвёт прогон. Единственный источник списка — этот реестр (jq-извлечение ciPolicy.expectedFailures[].checkedFile в workflow).",
+    "expectedFailures": [
+      {
+        "artifactId": "ricis-jacobian-conjecture",
+        "checkedFile": "artifacts/proofs/core-checks/ricis-jacobian-conjecture.standalone.core-check.lean",
+        "basis": "run 34870620154 (Lean 4.33.1, дословно): исходник не парсится (конструктор `partial` — зарезервированное слово, 24:12 expected token); после переименования partial → partialDeriv файл парсится, но 62:2 «Tactic `rfl` failed: resolveRICIS (F.zeroF.det …) is not definitionally equal to (F.mul G).sub …» — центральная теорема Jacobian_singularity_resolved несёт sorryAx. Тождество не является определительным; заявленный TRUSTED_AXIOM не имеет основания ни в одной конфигурации (F-01). Решение владельца 2026-09-14 (README): классификация STRUCTURALLY_VALIDATED; построение нового доказательства — отдельная задача."
+      },
+      {
+        "artifactId": "ricis-seed-expansion-a11",
+        "checkedFile": "artifacts/proofs/core-checks/ricis-seed-expansion-a11.core-check.lean",
+        "basis": "run 34870620154 (Lean 4.33.1, дословно): 104:4 «Type mismatch: List.mem_append.mpr (Or.inl hr) has type r ∈ s.rules ++ ?m.77 but is expected to have type r ∈ a✝¹.rules» (после induction цель не содержит `++` — замена неприменима в этой точке, F-08); 105:4 «Tactic `split` failed: Could not split an `if` or `match` expression in the goal»; 156:63 / 165:50 / 176:105 «unsolved goals» (core-simp слабее Mathlib-simp). Итог: 3 из 6 теорем с sorryAx (monotonic_growth, identity_violation_never_commits, identity_ok_preserves_expansion), 3 приняты (propext). Ядровой ремонт доказательства — отдельная задача; до него производная не считается ремонтом (F-08)."
+      }
+    ]
+  }
+}
