@@ -728,14 +728,23 @@ export function renderBoard(board: TpsBoard): string {
   lines.push(`**Версия доски:** ${board.boardVersion} · **Снимок:** ${board.generatedAt}`);
   lines.push('');
   const openAndon = board.andon.filter((event) => event.state === 'OPEN');
+  const blocking = openAndon.filter((event) => event.severity === 'blocker' || event.severity === 'high');
   lines.push('## Andon (состояние линии)');
   lines.push('');
   if (openAndon.length === 0) {
-    lines.push('**ЛИНИЯ ИДЁТ** — открытых андон-событий нет (стоп-линия не активна).');
+    lines.push('**ЛИНИЯ ИДЁТ** — открытых андон-событий нет.');
   } else {
-    lines.push(`**СТОП-ЛИНИЯ** — открыто событий: ${openAndon.length}`);
+    // Только blocker/high останавливают тягу (правило ANDON_OPEN_BLOCKER); рисовать
+    // показывать «СТОП-ЛИНИЯ» из-за medium-события — та же подмена, что и раздувать статус:
+    // витрина обязана отражать фактическую тяжесть, а не максимальную из мыслимых.
+    lines.push(
+      blocking.length > 0
+        ? `**СТОП-ЛИНИЯ** — блокирующих событий: ${blocking.length} (${blocking.map((event) => event.id).join(', ')}); открыто всего: ${openAndon.length}`
+        : `**ЛИНИЯ ИДЁТ** — блокирующих событий нет; открыто неблокирующих: ${openAndon.length} (тягу не останавливают, но видны в каждом прогоне)`,
+    );
     for (const event of openAndon) {
-      lines.push(`- \`${event.id}\` (${event.severity}) — ${event.title}`);
+      const effect = blocking.includes(event) ? 'блокирует тягу' : 'не блокирует линию';
+      lines.push(`- \`${event.id}\` (${event.severity}, ${effect}) — ${event.title}`);
     }
   }
   lines.push('');
