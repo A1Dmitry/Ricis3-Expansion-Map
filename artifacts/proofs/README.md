@@ -15,6 +15,8 @@ When working on any RICIS task, **do not solve the problem by blindly applying c
 | `database-a6-minimal-core-check.lean` | `LEAN_VERIFIED` | Kernel-verified specification (exit 0, no `sorryAx`, `#print axioms`: "does not depend on any axioms") |
 | `ricis-jacobian-conjecture.standalone.lean` / `database-registry-120-jacobian.*` | `STRUCTURALLY_VALIDATED` | Structural model verification (not an arbitrary classical theorem proof) |
 | 14 files with `import Mathlib` | `REQUIRES_CORE_LEAN` | Outside the explicit `MATHLIB_ARTIFACTS` allowlist; a from-scratch Mathlib build is what does not fit a runner — prebuilt oleans do (see `mathlib-kernel-check`) |
+| `ricis-general-resolution.lean` | `LEAN_VERIFIED` (artifact) / `STRUCTURALLY_VALIDATED` (claim) | Kernel run 34950902412: source as provided exit 0, derivative exit 0, no `sorryAx`; the headline "general theorem of resolution" is not proven (F-09/F-10/F-11) |
+| `ricis-yang-mills.lean` | `REQUIRES_CORE_LEAN` | Added to `main` on 2026-09-15 without metadata, status or verification path; its header claims full compilation, but the imported module `Mathlib.Basic.Real.Basic` does not exist in the pinned Mathlib revision (F-14) |
 | `*.generated.lean` (2 files) | Fragments | Fragments of the matching `.standalone.lean` files; not standalone artifacts |
 
 1. **Identify the RICIS object first**
@@ -135,6 +137,7 @@ Evidence including toolchain, SHA-256, compiler output, and `#print axioms` is r
 | 14 files with `import Mathlib`                                                   | `REQUIRES_CORE_LEAN`     | Outside the explicit `MATHLIB_ARTIFACTS` allowlist of the `mathlib-kernel-check` job; status not promoted |
 | `ricis-general-resolution.lean` (2026-09-15)                                     | `LEAN_VERIFIED`          | kernel run 34950902412: source as provided exit 0 + generated derivative exit 0, no `sorryAx`; theorems depend only on standard Lean axioms |
 | `ricis-general-resolution.lean` — **claim level**                                | `STRUCTURALLY_VALIDATED` | The kernel verified compilation and axiom dependencies; the headline claim ("general theorem of resolution of complex singularities") is **not** proven: declared RICIS contracts are unused by the theorems, the singularity is never presented, and `ricis_reduce` is unused (F-09/F-10/F-11) |
+| `ricis-yang-mills.lean` (2026-09-15, from `main`)                                | `REQUIRES_CORE_LEAN`     | No metadata JSON, no status, no kernel run. Static evidence (F-14): `import Mathlib.Basic.Real.Basic` — the module tree of the pinned Mathlib revision (`6f1ef4e5dd604a435bddba4747b13970cd65d2a1`) has no `Mathlib/Basic.lean` and no `Mathlib/Basic/Real/`, so the file cannot elaborate as provided; the header claim "100% compiles, 0% sorry" is therefore unverified and currently unsupported |
 | `*.generated.lean` (2 files)                                                     | `Fragments`              | Fragments of matching `.standalone.lean` files; not standalone artifacts                            |
 
 ### Important boundary
@@ -173,6 +176,10 @@ from-scratch build; prebuilt oleans of a pinned revision do.
   kernel run is not evidence for the headline claim — see the audit document.
 * Only files listed in the explicit `MATHLIB_ARTIFACTS` allowlist are checked; existing statuses are
   never promoted by the mere existence of this mechanism.
+* `ricis-yang-mills.lean` is **not** in the allowlist. Whether to run it (which yields either a
+  `LEAN_VERIFIED` record or the kernel's verbatim error, to be registered in
+  `ciPolicy.mathlibExpectedFailures`) is the owner's decision — the import defect F-14 is reported
+  first, because a run whose target module does not exist cannot produce evidence about the theorems.
 
 ---
 

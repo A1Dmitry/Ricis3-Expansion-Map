@@ -1292,7 +1292,23 @@
       "claimLevelNote": "Артефактный уровень (ядро приняло артефакт) — LEAN_VERIFIED. Уровень заявленного результата («общая теорема разрешения комплексных сингулярностей») — НЕ доказан: см. F-09/F-10/F-11. Разделение введено решением владельца по F-01 (README artifacts/proofs)."
     }
   ],
-  "pendingKernelRun": [],
+  "pendingKernelRun": [
+    {
+      "artifactId": "ricis-yang-mills",
+      "immutableSource": "artifacts/proofs/ricis-yang-mills.lean",
+      "sourceSha256": "a191db2b9195dad0d0610d66fa8eeb5f0179f1166f48c9546c27239c5f273dbe",
+      "job": "mathlib-kernel-check",
+      "toolchain": "leanprover/lean4:v4.33.0 (Mathlib @ 6f1ef4e5dd604a435bddba4747b13970cd65d2a1)",
+      "commands": [
+        "(cd mathlib-check && lake env lean artifacts/proofs/ricis-yang-mills.lean)",
+        "(cd mathlib-check && lake env lean artifacts/proofs/mathlib-checks/ricis-yang-mills.mathlib-check.lean)"
+      ],
+      "metadata": "<нет: артефакт пришёл из main без метаданных>",
+      "evidenceTarget": "artifacts/proofs/README.md (раздел Mathlib Artifacts — Kernel Path), findings[F-14]",
+      "expectedOutcome": "UNKNOWN, но статически установлен дефект импорта F-14 (модуль Mathlib.Basic.Real.Basic отсутствует в закреплённой Mathlib). Прогон не запущен: цель не внесена в allowlist MATHLIB_ARTIFACTS — решение владельца.",
+      "status": "PENDING_KERNEL_RUN"
+    }
+  ],
   "findings": [
     {
       "id": "F-01",
@@ -1421,6 +1437,14 @@
       "artifact": "artifacts/proofs/ricis-general-resolution.lean",
       "evidence": "Прогноз статического аудита (docs/05-evidence/proofs/ricis-general-resolution-claim-audit-2026-09-15.md, §4) объявлял вероятной ошибку «unknown tactic 'omega'» из-за отсутствия тактики в трёх импортах файла — run 34950902412 скомпилировал исходник как предоставлен (exit 0) и вывел предупреждения, а не ошибки: `Mathlib.Data.Nat.Basic`/`Mathlib.Tactic.Ring` транзитивно дают `omega`. Верными оказались предсказания об избыточных шагах (87:10 unused simp argument h_k_zero; 160/161 «this tactic is never executed» / «Unused tactic linter»), но точность предсказаний в целом — недостаточная для статуса.",
       "status": "Зафиксировано как урок: предсказание без компилятора не является статусом (поэтому оно и было помечено UNVERIFIED_PREDICTION, а ciPolicy.mathlibExpectedFailures оставался пустым — прогноз не превратился в политику). Практическое следствие: заявление «файл не скомпилируется» без прогона ядра не должно попадать в реестр как факт."
+    },
+    {
+      "id": "F-14",
+      "severity": "HIGH",
+      "title": "Артефакт ricis-yang-mills.lean (пришёл из main) заявляет полную компилируемость, но импортирует несуществующий модуль Mathlib; метаданных, статуса и пути проверки нет",
+      "artifact": "artifacts/proofs/ricis-yang-mills.lean",
+      "evidence": "artifacts/proofs/ricis-yang-mills.lean, строки 11-12: `import  Mathlib.Basic.Real.Basic` и `import Mathlib.Tactic.Ring`; строка 4 (комментарий-шапка): «Статус: 100% компилируется, 0% sorry, строго по каноническому шаблону RICIS-III». Проверка дерева закреплённой ревизии Mathlib 6f1ef4e5dd604a435bddba4747b13970cd65d2a1 (GitHub contents API): Mathlib/Basic.lean — отсутствует, Mathlib/Basic/Real/Basic.lean — отсутствует, Mathlib/Real/Basic.lean — отсутствует; существуют Mathlib/Tactic/Ring.lean и Mathlib/Data/Real/Basic.lean. Т. к. Lean отображает имя модуля Mathlib.Basic.Real.Basic в файл Mathlib/Basic/Real/Basic.lean, файл в предоставленном виде не элаборируется: заявление шапки не подтверждено и на текущем дереве невыполнимо. Дополнительно: у артефакта нет метаданных (нет ricis-yang-mills.json), нет trustStatus, нет записи в прогонах — то есть нет и границы доверия, которую требует §7.",
+      "status": "Зафиксировано без изменения чужих байтов (§7): артефакт внесён как REQUIRES_CORE_LEAN, в реестр добавлен pendingKernelRun с expectedOutcome UNKNOWN. В allowlist MATHLIB_ARTIFACTS не внесён сознательно: запуск цели, у которой не существует целевого модуля, не даёт evidence о теоремах, а решение о расширении allowlist и о регистрации ожидаемого отказа — за владельцем. Ремонт (исправление импорта на существующий модуль) возможен только как НОВАЯ версия доказательства, а не правка предоставленных байтов."
     }
   ],
   "ciPolicy": {

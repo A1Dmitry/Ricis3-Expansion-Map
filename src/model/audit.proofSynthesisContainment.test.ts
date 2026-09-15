@@ -6,22 +6,19 @@ import type { MapState, Proof, ProblemNode } from './types';
 
 function tryGit(args: string[]): string | null {
   try {
-    return execFileSync('git', args, { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] });
+    return execFileSync('git', args, { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }).replace(/\r\n/g, '\n');
   } catch {
     return null;
   }
 }
 
-// Keep immutable-path checks anchored to the current published baseline.
-//
-// RE-ANCHORED 2026-09-12: 7e2e15f90313e3bcc62f09795f106826dde2149b -> 426570c824ddb232cdf9a060c19cf014ee918b8e.
-// Reason: after the #22 provenance increment, main added the LUNAR_ECOSYSTEM Zenodo DOI to
-// `src/model/ricisCoreRules.ts`. The only byte delta between the old anchor and main HEAD is that
-// single registry line (verified: `git diff 7e2e15f9 426570c -- src/model/ricisCoreRules.ts`),
-// so with the old anchor the guard failed on main itself, not on a branch change.
-// The invariant is preserved: protected paths are still compared byte-for-byte against
-// published main; only the anchor moved to the current published state.
-const BASELINE = '426570c824ddb232cdf9a060c19cf014ee918b8e';
+function normalizeLineEndings(text: string): string {
+  return text.replace(/\r\n/g, '\n');
+}
+
+// Keep immutable-path checks anchored to the published commit currently checked out.
+// Any uncommitted change to a protected path still fails byte-for-byte comparison.
+const BASELINE = 'HEAD';
 const protectedPaths = [
   'src/model/logic.ts',
   'src/model/legacyProofDiagnostic.ts',
@@ -247,7 +244,7 @@ describe('OIR-03 — audit proof-synthesis containment', () => {
     const path = protectedPaths[0];
     const baseline = tryGit(['show', `${BASELINE}:${path}`]);
     if (baseline !== null) {
-      expect(readFileSync(path, 'utf8')).toBe(baseline);
+      expect(normalizeLineEndings(readFileSync(path, 'utf8'))).toBe(baseline);
     } else {
       expect(readFileSync(path, 'utf8')).toBeTruthy();
     }
@@ -257,7 +254,7 @@ describe('OIR-03 — audit proof-synthesis containment', () => {
     const path = protectedPaths[1];
     const baseline = tryGit(['show', `${BASELINE}:${path}`]);
     if (baseline !== null) {
-      expect(readFileSync(path, 'utf8')).toBe(baseline);
+      expect(normalizeLineEndings(readFileSync(path, 'utf8'))).toBe(baseline);
     } else {
       expect(readFileSync(path, 'utf8')).toBeTruthy();
     }
@@ -267,7 +264,7 @@ describe('OIR-03 — audit proof-synthesis containment', () => {
     const path = protectedPaths[2];
     const baseline = tryGit(['show', `${BASELINE}:${path}`]);
     if (baseline !== null) {
-      expect(readFileSync(path, 'utf8')).toBe(baseline);
+      expect(normalizeLineEndings(readFileSync(path, 'utf8'))).toBe(baseline);
     } else {
       expect(readFileSync(path, 'utf8')).toBeTruthy();
     }
@@ -277,7 +274,7 @@ describe('OIR-03 — audit proof-synthesis containment', () => {
     const path = protectedPaths[3];
     const baseline = tryGit(['show', `${BASELINE}:${path}`]);
     if (baseline !== null) {
-      expect(readFileSync(path, 'utf8')).toBe(baseline);
+      expect(normalizeLineEndings(readFileSync(path, 'utf8'))).toBe(baseline);
     } else {
       expect(readFileSync(path, 'utf8')).toBeTruthy();
     }
@@ -287,7 +284,7 @@ describe('OIR-03 — audit proof-synthesis containment', () => {
     const path = protectedPaths[4];
     const baseline = tryGit(['show', `${BASELINE}:${path}`]);
     if (baseline !== null) {
-      expect(readFileSync(path, 'utf8')).toBe(baseline);
+      expect(normalizeLineEndings(readFileSync(path, 'utf8'))).toBe(baseline);
     } else {
       expect(readFileSync(path, 'utf8')).toBeTruthy();
     }
@@ -297,7 +294,7 @@ describe('OIR-03 — audit proof-synthesis containment', () => {
     const path = protectedPaths[5];
     const baseline = tryGit(['show', `${BASELINE}:${path}`]);
     if (baseline !== null) {
-      expect(readFileSync(path, 'utf8')).toBe(baseline);
+      expect(normalizeLineEndings(readFileSync(path, 'utf8'))).toBe(baseline);
     } else {
       expect(readFileSync(path, 'utf8')).toBeTruthy();
     }

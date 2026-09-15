@@ -2,6 +2,14 @@ name: Lean Artifact Kernel Check
 
 # Reproducible Lean kernel verification for RICIS Lean artifacts.
 #
+# RESTORATION NOTE (2026-09-15): this file was dropped from `main` inside a merge-conflict
+# resolution (commit 142d744, a merge of a stale branch), so `main` currently has no kernel job
+# at all. The merge of `main` into this branch therefore conflicted as modify/delete, and the
+# conflict is resolved by KEEPING this file: without it, every `LEAN_VERIFIED` claim loses its
+# required reproducible run (AGENTS.md §7). If the removal was intentional, it is a policy
+# decision that must be recorded in artifacts/proofs/README.md and the registry — not a silent
+# side effect of a merge.
+#
 # Scope and trust boundary (see AGENTS.md §7 and docs/00-governance/CONTRIBUTING.md):
 # - Two jobs, two trust paths:
 #   * `kernel-check` — Mathlib-FREE artifacts, pinned Lean 4.33.1 via elan. A file whose

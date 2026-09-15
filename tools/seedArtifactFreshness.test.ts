@@ -22,13 +22,13 @@ describe('свежесть сгенерированного документа �
     const generatedPath = join(directory, 'seed-expansion.json');
 
     execFileSync(
-      'npx',
+      process.platform === 'win32' ? 'npx.cmd' : 'npx',
       ['tsx', 'scripts/generateSeedExpansionSpec.ts', '--out', generatedPath],
       { cwd: repositoryRoot, encoding: 'utf8', stdio: ['ignore', 'ignore', 'pipe'] },
     );
 
-    const generated = readFileSync(generatedPath, 'utf8');
-    const committed = readFileSync(committedDocumentPath, 'utf8');
+    const generated = readFileSync(generatedPath, 'utf8').replace(/\r\n/g, '\n');
+    const committed = readFileSync(committedDocumentPath, 'utf8').replace(/\r\n/g, '\n');
 
     expect(generated).toBe(committed);
   }, 120_000);

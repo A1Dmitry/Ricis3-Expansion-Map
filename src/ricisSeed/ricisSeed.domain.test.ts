@@ -156,9 +156,9 @@ describe('RICIS SEED — ворота допуска отказывают там
         const candidate: CandidateAxiom = Object.freeze({
           id: 'A6',
           layer: 'AXIOM',
-          statement: 'inf_F/inf_G = F/G',
+          statement: 'inf_T/inf_S = T/S',
           covers: [] as const,
-          consequences: [Object.freeze({ inputForm: 'inf_F/inf_G', outputForm: 'F/G' })] as const,
+          consequences: [Object.freeze({ inputForm: 'inf_T/inf_S', outputForm: 'T/S' })] as const,
         });
         return {
           kind: 'RESOLVED',
@@ -167,8 +167,8 @@ describe('RICIS SEED — ворота допуска отказывают там
             candidate,
             proof: Object.freeze({
               strategy: 'RICIS_STRUCTURAL',
-              steps: [Object.freeze({ rule: 'A5', from: 'inf_F/inf_G', to: 'F/G' })] as const,
-              conclusion: 'F/G',
+              steps: [Object.freeze({ rule: 'A5', from: 'inf_T/inf_S', to: 'T/S' })] as const,
+              conclusion: 'T/S',
               usesLimits: false,
               usesNumericApproximation: false,
             }),
@@ -179,8 +179,8 @@ describe('RICIS SEED — ворота допуска отказывают там
     const system = createRicisSystem({ resolvers: [duplicateResolver] });
     const problem: UnsolvedSingularProblem = Object.freeze({
       id: 'U-DUPLICATE-ID',
-      statement: 'inf_F/inf_G',
-      inputForm: 'inf_F/inf_G',
+      statement: 'inf_T/inf_S',
+      inputForm: 'inf_T/inf_S',
       singularityClasses: ['INF_OVER_INF'] as const,
       coverageClaim: ['A5'] as const,
     });
