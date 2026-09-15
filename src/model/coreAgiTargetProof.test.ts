@@ -1,3 +1,6 @@
+import { createHash } from 'node:crypto';
+import fs from 'node:fs';
+import path from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { initialMap } from './initialMap';
 import { auditProofContent } from './ricisCoreRules';
@@ -43,5 +46,25 @@ describe('RICIS-III Core AGI Target Proof Integrity Suite', () => {
   it('ensures node in initialMap does not have active leanErrors', () => {
     const node = initialMap.nodes.find((n) => n.id === 'core-agi-target');
     expect(node?.leanErrors || []).toEqual([]);
+  });
+});
+
+describe('RICIS-III Core AGI Target Lean attachment (sync scan 2026-09-15)', () => {
+  const LEAN_REL = 'artifacts/proofs/lean/AGI_TargetFunction.lean';
+
+  it('binds the orphan Lean source as externalLean with REQUIRES_CORE_LEAN', () => {
+    const proof = initialMap.proofs['core-agi-target'];
+    expect(proof?.externalLean).toBeDefined();
+    expect(proof?.externalLean?.trustStatus).toBe('REQUIRES_CORE_LEAN');
+    expect(proof?.externalLean?.sourceLocked).toBe(true);
+    expect(proof?.externalLean?.kernelEvidence).toBeUndefined();
+  });
+
+  it('pins sourceHash to the exact bytes of AGI_TargetFunction.lean', () => {
+    const proof = initialMap.proofs['core-agi-target'];
+    const leanPath = path.resolve(process.cwd(), LEAN_REL);
+    expect(fs.existsSync(leanPath)).toBe(true);
+    const sha256 = createHash('sha256').update(fs.readFileSync(leanPath)).digest('hex');
+    expect(proof?.externalLean?.sourceHash).toBe(`sha256:${sha256}`);
   });
 });

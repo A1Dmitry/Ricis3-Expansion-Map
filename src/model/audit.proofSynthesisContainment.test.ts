@@ -566,6 +566,27 @@ describe('OIR-03 — audit proof-synthesis containment', () => {
       ' M tools/leanMathlibChecks.test.ts',
       '?? docs/05-evidence/proofs/lean-kernel-run-34950902412-mathlib.pr-comment.txt',
       '?? docs/05-evidence/proofs/lean-kernel-run-34950902412-mathlib.meta.txt',
+      // PHYS-FIELD-BRIDGE-MAP-SYNC (0.4.191, 2026-09-15): §7-приём внешнего Lean-исходника
+      // UnifiedField_GeometricBridge (path-indexed FieldMonolith + A6 Int-прокси),
+      // узел phys-field-bridge и scope-граница phys-unified в initialMap, guard-тест.
+      '?? artifacts/proofs/lean/UnifiedField_GeometricBridge.lean',
+      '?? src/model/physFieldBridge.test.ts',
+      // REPO-SYNC-SCAN (0.4.192, 2026-09-15): ремонт бинарного хвоста
+      // docs/russian-resource-manifest.json (1774 записи сохранены байт-в-байт),
+      // §7-привязка сироты AGI_TargetFunction.lean к core-agi-target,
+      // guard валидности JSON всего репозитория.
+      ' M docs/russian-resource-manifest.json',
+      ' M src/model/coreAgiTargetProof.test.ts',
+      '?? tools/jsonValidity.test.ts',
+      // FIELD-BRIDGE-CONTRACT-LAYERS (0.4.193, 2026-09-15): вливание патча
+      // expand_phys_field_bridge_contract_layers: 6 contract-узлов + 7 пруфов + 15 рёбер,
+      // phys-unified переведён в partial (коррекция оверклейма), guard-тесты.
+      '?? import-patches/ricis-map-patch-phys-field-bridge-contract-layers.json',
+      '?? src/model/physFieldBridgeContracts.test.ts',
+      ' M src/model/singularityResolution.test.ts',
+      ' M src/model/floodFillProofsCoverage.test.ts',
+      ' M src/model/physFieldBridge.test.ts',
+      ' M src/model/dependencyGraph.test.ts',
       // SCHWARZSCHILD-GEOMETRIC-BRIDGE-NODE (0.4.191, 2026-09-15): узел карты «геометрический
       // мост Шварцшильда» со связями (initialMap: узел, рёбра, зоны, proof — уже ' M'),
       // неизменяемый Lean-артефакт + метаданные, QA-контракт. Статус артефакта:

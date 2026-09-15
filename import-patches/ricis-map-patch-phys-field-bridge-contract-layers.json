@@ -19,7 +19,7 @@
       "state": "resolved",
       "targetFunction": "PathIndex + FieldMonolith; sp4_no_silent_collapse: path≠ → monolith≠",
       "description": "Канон SP4: payload поля не существует без path P. Доказано: various paths yield distinct FieldMonolith (no silent collapse). Lean: UnifiedField_GeometricBridge.lean. WORKFLOW_ONLY.",
-      "sourceUrl": "https://doi.org/10.5281/zenodo.22124493",
+      "sourceUrl": "[https://doi.org/10.5281/zenodo.22124493](https://doi.org/10.5281/zenodo.22124493)",
       "zoneIds": [
         "math",
         "physics"
@@ -36,7 +36,7 @@
       "state": "resolved",
       "targetFunction": "l1_holds(g): g=g; preservesPath(g,p) ↔ p=g.path",
       "description": "L1 на FieldMonolith: тождество монолита и сохранение path. Не физический закон поля — структурный закон идентичности. Lean: UnifiedField_GeometricBridge.lean.",
-      "sourceUrl": "https://doi.org/10.5281/zenodo.22124493",
+      "sourceUrl": "[https://doi.org/10.5281/zenodo.22124493](https://doi.org/10.5281/zenodo.22124493)",
       "zoneIds": [
         "math"
       ],
@@ -52,7 +52,7 @@
       "state": "resolved",
       "targetFunction": "a6_product_proxy(a,b) = a*b  [Int; P1, no lim]",
       "description": "A6 computational proxy: orthogonal pair → product. Canon prose 0_F⊗∞_G ⇒ R→μ F·G; здесь discrete Int measure. Не continuum field equations. Lean compiled, 0 sorry.",
-      "sourceUrl": "https://doi.org/10.5281/zenodo.22124493",
+      "sourceUrl": "[https://doi.org/10.5281/zenodo.22124493](https://doi.org/10.5281/zenodo.22124493)",
       "zoneIds": [
         "math"
       ],
@@ -69,7 +69,7 @@
       "state": "resolved",
       "targetFunction": "a6_ratio_proxy(a,b,h:b≠0) = a/b  [Int div; structural]",
       "description": "Ratio-style A6 proxy when reciprocal leg is explicit payload. Не 1/∇' в ℝ и не предел L_P→0. P1 only.",
-      "sourceUrl": "https://doi.org/10.5281/zenodo.22124493",
+      "sourceUrl": "[https://doi.org/10.5281/zenodo.22124493](https://doi.org/10.5281/zenodo.22124493)",
       "zoneIds": [
         "math"
       ],
@@ -85,7 +85,7 @@
       "state": "resolved",
       "targetFunction": "eval*UnderPath: reported=path → some(proxy); else none",
       "description": "SP2+SP4 hygiene: scalar proxy emitted only under matching path; foreign path ⇒ none (drift rejected). Связывает L1/SP4 с A6 proxy без подмены path.",
-      "sourceUrl": "https://doi.org/10.5281/zenodo.22124493",
+      "sourceUrl": "[https://doi.org/10.5281/zenodo.22124493](https://doi.org/10.5281/zenodo.22124493)",
       "zoneIds": [
         "math",
         "informatics"
@@ -104,7 +104,7 @@
       "state": "resolved",
       "targetFunction": "FieldMonolith + A6 proxies + path gate (UnifiedField_GeometricBridge.lean)",
       "description": "Агрегированный workflow-контракт геометрического моста для полевого узла. Все дочерние contract-* resolved в Lean без sorry. Это НЕ доказательство единой теории поля / КМ+ОТО.",
-      "sourceUrl": "https://doi.org/10.5281/zenodo.22124493",
+      "sourceUrl": "[https://doi.org/10.5281/zenodo.22124493](https://doi.org/10.5281/zenodo.22124493)",
       "zoneIds": [
         "physics",
         "math"
@@ -126,7 +126,7 @@
       "state": "partial",
       "targetFunction": "UFT continuum: OPEN. Workflow layer: depends on phys-field-bridge-contract (A6+SP4+L1).",
       "description": "Узел физики: continuum unification QM–GR остаётся OPEN. Ранее ошибочно помечался resolved через один det-proxy. Теперь явно: resolved только dependency contract layers; phys-unified = partial до появления отдельной continuum-математики вне A6 Int-proxy. Provenance bridge DOI 10.5281/zenodo.22124493. WORKFLOW_ONLY; UFT not claimed.",
-      "sourceUrl": "https://doi.org/10.5281/zenodo.22124493",
+      "sourceUrl": "[https://doi.org/10.5281/zenodo.22124493](https://doi.org/10.5281/zenodo.22124493)",
       "zoneIds": [
         "physics"
       ],

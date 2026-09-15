@@ -26,8 +26,13 @@ describe('RICIS-III Flood-Fill Proofs Full Graph Coverage & Audit Verification',
     'calculator-node-kinematic'
   ];
 
-  it('verifies all 20 target nodes exist in the initial map and are in resolved state', () => {
-    for (const nodeId of targetNodeIds) {
+  // Contract-layers merge (0.4.193): phys-unified is partial by design (continuum OPEN),
+  // so it is excluded from the resolved-state assertion but keeps full proof coverage below.
+  const resolvedTargetNodeIds = targetNodeIds.filter(nodeId => nodeId !== 'phys-unified');
+
+  it('verifies all 19 resolved target nodes exist in the initial map and are in resolved state', () => {
+    expect(resolvedTargetNodeIds).toHaveLength(19);
+    for (const nodeId of resolvedTargetNodeIds) {
       const node = initialMap.nodes.find(n => n.id === nodeId);
       expect(node).toBeDefined();
       expect(node!.state).toBe('resolved');
