@@ -1,0 +1,407 @@
+﻿{
+  "@type": "RICIS.MapStatePatch",
+  "meta": {
+    "method": "expand_phys_field_bridge_contract_layers",
+    "baseSeed": "map_after_geometric_bridge_doi+core_agi",
+    "generated": "2026-09-15T10:31:57Z",
+    "author": "Dmitry Aleinikov / RICIS-III workflow",
+    "sourceSystem": "UnifiedField_GeometricBridge.lean + DOI 10.5281/zenodo.22124493",
+    "trustPolicy": "WORKFLOW_ONLY. Expands phys-field-bridge into explicit dependency nodes (SP4 path, L1 monolith, A6 product proxy, A6 ratio proxy, path-gated eval). Contract layers may be marked resolved when Lean compiles without sorry. Does NOT claim unified field theory, QM–GR merger, Planck-scale physics, Clay status, or full Lean-kernel certification of continuum gravity.",
+    "leanArtifact": "UnifiedField_GeometricBridge.lean",
+    "bridgeDoi": "10.5281/zenodo.22124493",
+    "mode": "patch_merge"
+  },
+  "nodePatches": [
+    {
+      "id": "contract-sp4-path-index",
+      "name": "SP4 Path Index (Field Bridge)",
+      "type": "protocol_contract",
+      "state": "resolved",
+      "targetFunction": "PathIndex + FieldMonolith; sp4_no_silent_collapse: path≠ → monolith≠",
+      "description": "Канон SP4: payload поля не существует без path P. Доказано: various paths yield distinct FieldMonolith (no silent collapse). Lean: UnifiedField_GeometricBridge.lean. WORKFLOW_ONLY.",
+      "sourceUrl": "https://doi.org/10.5281/zenodo.22124493",
+      "zoneIds": [
+        "math",
+        "physics"
+      ],
+      "fractalDepth": 2,
+      "dependencyIds": [
+        "math-singularity"
+      ]
+    },
+    {
+      "id": "contract-l1-field-monolith",
+      "name": "L1 Field Monolith Identity",
+      "type": "protocol_contract",
+      "state": "resolved",
+      "targetFunction": "l1_holds(g): g=g; preservesPath(g,p) ↔ p=g.path",
+      "description": "L1 на FieldMonolith: тождество монолита и сохранение path. Не физический закон поля — структурный закон идентичности. Lean: UnifiedField_GeometricBridge.lean.",
+      "sourceUrl": "https://doi.org/10.5281/zenodo.22124493",
+      "zoneIds": [
+        "math"
+      ],
+      "fractalDepth": 2,
+      "dependencyIds": [
+        "contract-sp4-path-index"
+      ]
+    },
+    {
+      "id": "contract-a6-product-proxy",
+      "name": "A6 Product Proxy (μ = a·b)",
+      "type": "protocol_contract",
+      "state": "resolved",
+      "targetFunction": "a6_product_proxy(a,b) = a*b  [Int; P1, no lim]",
+      "description": "A6 computational proxy: orthogonal pair → product. Canon prose 0_F⊗∞_G ⇒ R→μ F·G; здесь discrete Int measure. Не continuum field equations. Lean compiled, 0 sorry.",
+      "sourceUrl": "https://doi.org/10.5281/zenodo.22124493",
+      "zoneIds": [
+        "math"
+      ],
+      "fractalDepth": 2,
+      "dependencyIds": [
+        "math-singularity",
+        "contract-sp4-path-index"
+      ]
+    },
+    {
+      "id": "contract-a6-ratio-proxy",
+      "name": "A6 Ratio Proxy (a/b, b≠0)",
+      "type": "protocol_contract",
+      "state": "resolved",
+      "targetFunction": "a6_ratio_proxy(a,b,h:b≠0) = a/b  [Int div; structural]",
+      "description": "Ratio-style A6 proxy when reciprocal leg is explicit payload. Не 1/∇' в ℝ и не предел L_P→0. P1 only.",
+      "sourceUrl": "https://doi.org/10.5281/zenodo.22124493",
+      "zoneIds": [
+        "math"
+      ],
+      "fractalDepth": 2,
+      "dependencyIds": [
+        "contract-a6-product-proxy"
+      ]
+    },
+    {
+      "id": "contract-path-gated-eval",
+      "name": "Path-Gated Evaluation",
+      "type": "protocol_contract",
+      "state": "resolved",
+      "targetFunction": "eval*UnderPath: reported=path → some(proxy); else none",
+      "description": "SP2+SP4 hygiene: scalar proxy emitted only under matching path; foreign path ⇒ none (drift rejected). Связывает L1/SP4 с A6 proxy без подмены path.",
+      "sourceUrl": "https://doi.org/10.5281/zenodo.22124493",
+      "zoneIds": [
+        "math",
+        "informatics"
+      ],
+      "fractalDepth": 2,
+      "dependencyIds": [
+        "contract-l1-field-monolith",
+        "contract-a6-product-proxy",
+        "contract-a6-ratio-proxy"
+      ]
+    },
+    {
+      "id": "phys-field-bridge-contract",
+      "name": "Field Bridge Contract (Lean)",
+      "type": "scientific_task",
+      "state": "resolved",
+      "targetFunction": "FieldMonolith + A6 proxies + path gate (UnifiedField_GeometricBridge.lean)",
+      "description": "Агрегированный workflow-контракт геометрического моста для полевого узла. Все дочерние contract-* resolved в Lean без sorry. Это НЕ доказательство единой теории поля / КМ+ОТО.",
+      "sourceUrl": "https://doi.org/10.5281/zenodo.22124493",
+      "zoneIds": [
+        "physics",
+        "math"
+      ],
+      "fractalDepth": 1,
+      "dependencyIds": [
+        "contract-sp4-path-index",
+        "contract-l1-field-monolith",
+        "contract-a6-product-proxy",
+        "contract-a6-ratio-proxy",
+        "contract-path-gated-eval",
+        "math-singularity"
+      ]
+    },
+    {
+      "id": "phys-unified",
+      "name": "Единая теория поля (контрактный слой)",
+      "type": "scientific_task",
+      "state": "partial",
+      "targetFunction": "UFT continuum: OPEN. Workflow layer: depends on phys-field-bridge-contract (A6+SP4+L1).",
+      "description": "Узел физики: continuum unification QM–GR остаётся OPEN. Ранее ошибочно помечался resolved через один det-proxy. Теперь явно: resolved только dependency contract layers; phys-unified = partial до появления отдельной continuum-математики вне A6 Int-proxy. Provenance bridge DOI 10.5281/zenodo.22124493. WORKFLOW_ONLY; UFT not claimed.",
+      "sourceUrl": "https://doi.org/10.5281/zenodo.22124493",
+      "zoneIds": [
+        "physics"
+      ],
+      "fractalDepth": 1,
+      "dependencyIds": [
+        "phys-field-bridge-contract",
+        "math-singularity"
+      ]
+    }
+  ],
+  "proofs": {
+    "contract-sp4-path-index": {
+      "nodeId": "contract-sp4-path-index",
+      "targetFunction": "sp4_no_silent_collapse",
+      "steps": [
+        {
+          "phase": -1,
+          "name": "L1_IDENTITY",
+          "action": "Monolith equality is reflexive",
+          "expression": "g=g"
+        },
+        {
+          "phase": 1,
+          "name": "SP4_PATH_INDEX",
+          "action": "Define PathIndex and FieldMonolith",
+          "expression": "FieldMonolith.path : PathIndex"
+        },
+        {
+          "phase": 2,
+          "name": "NON_COLLAPSE",
+          "action": "Prove path≠ ⇒ monolith≠",
+          "expression": "sp4_no_silent_collapse"
+        },
+        {
+          "phase": 6,
+          "name": "SCOPE",
+          "action": "Structural only",
+          "expression": "NOT continuum physics"
+        }
+      ],
+      "finalResult": "SP4 path non-collapse compiled in UnifiedField_GeometricBridge.lean.",
+      "axiomsUsed": [
+        "L1_IDENTITY",
+        "SP4"
+      ]
+    },
+    "contract-l1-field-monolith": {
+      "nodeId": "contract-l1-field-monolith",
+      "targetFunction": "preservesPath ↔ reported = g.path",
+      "steps": [
+        {
+          "phase": -1,
+          "name": "L1_IDENTITY",
+          "action": "l1_holds",
+          "expression": "g=g"
+        },
+        {
+          "phase": 1,
+          "name": "PRESERVE",
+          "action": "Define preservesPath",
+          "expression": "reported = g.path"
+        },
+        {
+          "phase": 6,
+          "name": "SCOPE",
+          "action": "Identity law only",
+          "expression": "NOT field equations"
+        }
+      ],
+      "finalResult": "L1 monolith identity + preservesPath.",
+      "axiomsUsed": [
+        "L1_IDENTITY",
+        "SP4"
+      ]
+    },
+    "contract-a6-product-proxy": {
+      "nodeId": "contract-a6-product-proxy",
+      "targetFunction": "measure⟨a,b⟩ = a*b",
+      "steps": [
+        {
+          "phase": 1,
+          "name": "REPRESENTATION",
+          "action": "OrthoPair a b",
+          "expression": "R(a,b)"
+        },
+        {
+          "phase": 2,
+          "name": "A6_PROXY",
+          "action": "μ product on Int",
+          "expression": "a*b"
+        },
+        {
+          "phase": 4,
+          "name": "P1",
+          "action": "No lim / L'Hôpital / Taylor",
+          "expression": "rfl"
+        },
+        {
+          "phase": 6,
+          "name": "SCOPE",
+          "action": "Proxy not UFT",
+          "expression": "WORKFLOW_ONLY"
+        }
+      ],
+      "finalResult": "A6 product proxy a*b.",
+      "axiomsUsed": [
+        "A6_GEOMETRIC_BRIDGE",
+        "P1",
+        "10.5281/zenodo.22124493"
+      ]
+    },
+    "contract-a6-ratio-proxy": {
+      "nodeId": "contract-a6-ratio-proxy",
+      "targetFunction": "a6_ratio_proxy a b h = a/b",
+      "steps": [
+        {
+          "phase": 1,
+          "name": "GUARD",
+          "action": "Require b≠0",
+          "expression": "h : b≠0"
+        },
+        {
+          "phase": 2,
+          "name": "A6_RATIO",
+          "action": "Int div structural",
+          "expression": "a/b"
+        },
+        {
+          "phase": 6,
+          "name": "SCOPE",
+          "action": "Not Planck limit",
+          "expression": "P1 only"
+        }
+      ],
+      "finalResult": "A6 ratio proxy under b≠0.",
+      "axiomsUsed": [
+        "A6_GEOMETRIC_BRIDGE",
+        "P1"
+      ]
+    },
+    "contract-path-gated-eval": {
+      "nodeId": "contract-path-gated-eval",
+      "targetFunction": "evalUnderPath gated by path equality",
+      "steps": [
+        {
+          "phase": 1,
+          "name": "SP2_CLEAN",
+          "action": "Path lists aligned or drift",
+          "expression": "isPathAligned / hasPathDrift"
+        },
+        {
+          "phase": 2,
+          "name": "GATE",
+          "action": "Match path → some proxy; else none",
+          "expression": "evalProductUnderPath / evalRatioUnderPath"
+        },
+        {
+          "phase": 3,
+          "name": "L1_SP4",
+          "action": "Reject foreign path",
+          "expression": "none on drift"
+        },
+        {
+          "phase": 6,
+          "name": "SCOPE",
+          "action": "Workflow gate",
+          "expression": "NOT empirical safety"
+        }
+      ],
+      "finalResult": "Path-gated A6 evaluation.",
+      "axiomsUsed": [
+        "L1_IDENTITY",
+        "SP2",
+        "SP4",
+        "A6_GEOMETRIC_BRIDGE"
+      ]
+    },
+    "phys-field-bridge-contract": {
+      "nodeId": "phys-field-bridge-contract",
+      "targetFunction": "Aggregate Lean field-bridge contract",
+      "steps": [
+        {
+          "phase": -1,
+          "name": "L1_IDENTITY",
+          "action": "Inherit monolith identity",
+          "expression": "contract-l1-field-monolith"
+        },
+        {
+          "phase": 1,
+          "name": "SP4",
+          "action": "Inherit path index",
+          "expression": "contract-sp4-path-index"
+        },
+        {
+          "phase": 2,
+          "name": "A6_PRODUCT",
+          "action": "Inherit product proxy",
+          "expression": "contract-a6-product-proxy"
+        },
+        {
+          "phase": 3,
+          "name": "A6_RATIO",
+          "action": "Inherit ratio proxy",
+          "expression": "contract-a6-ratio-proxy"
+        },
+        {
+          "phase": 4,
+          "name": "GATE",
+          "action": "Inherit path gate",
+          "expression": "contract-path-gated-eval"
+        },
+        {
+          "phase": 5,
+          "name": "PROVENANCE",
+          "action": "DOI geometric bridge",
+          "expression": "10.5281/zenodo.22124493"
+        },
+        {
+          "phase": 6,
+          "name": "SCOPE",
+          "action": "Contract complete; UFT not claimed",
+          "expression": "WORKFLOW_ONLY"
+        }
+      ],
+      "finalResult": "phys-field-bridge-contract resolved as Lean workflow package. UnifiedField_GeometricBridge.lean compiles without sorry.",
+      "axiomsUsed": [
+        "L1_IDENTITY",
+        "SP2",
+        "SP4",
+        "A6_GEOMETRIC_BRIDGE",
+        "P1",
+        "10.5281/zenodo.22124493"
+      ]
+    },
+    "phys-unified": {
+      "nodeId": "phys-unified",
+      "targetFunction": "Continuum UFT OPEN; contract layer via phys-field-bridge-contract",
+      "steps": [
+        {
+          "phase": 1,
+          "name": "DEPEND",
+          "action": "Require field-bridge contract",
+          "expression": "dependencyIds ⊇ phys-field-bridge-contract"
+        },
+        {
+          "phase": 2,
+          "name": "CONTRACT_OK",
+          "action": "Contract layers resolved in Lean",
+          "expression": "phys-field-bridge-contract = resolved"
+        },
+        {
+          "phase": 3,
+          "name": "CONTINUUM",
+          "action": "QM–GR / metric–Hilbert layer absent",
+          "expression": "OPEN"
+        },
+        {
+          "phase": 4,
+          "name": "STATE",
+          "action": "Mark partial (not full resolved)",
+          "expression": "state=partial"
+        },
+        {
+          "phase": 6,
+          "name": "SCOPE",
+          "action": "Correct prior overclaim from det-only resolution",
+          "expression": "UFT NOT_CLAIMED"
+        }
+      ],
+      "finalResult": "phys-unified set to partial: workflow dependencies expanded and resolved; continuum unified field remains OPEN.",
+      "axiomsUsed": [
+        "SP4",
+        "A6_GEOMETRIC_BRIDGE",
+        "10.5281/zenodo.22124493"
+      ]
+    }
+  }
+}
