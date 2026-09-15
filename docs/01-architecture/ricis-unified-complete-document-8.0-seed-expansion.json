@@ -792,6 +792,11 @@
           "rejection": "PROOF_CHAIN_BROKEN / PROOF_CONCLUSION_MISMATCH"
         },
         {
+          "gate": "SEMANTIC_RULE_VERIFIED",
+          "rule": "Every proof step is verified by RuleVerifier for semantic correctness of rule application.",
+          "rejection": "SEMANTIC_RULE_INVALID"
+        },
+        {
           "gate": "PROBLEM_OPEN_IN_RICIS",
           "rule": "The input form is not already resolved by R_k (no axiom inflation).",
           "rejection": "PROBLEM_ALREADY_COVERED"
