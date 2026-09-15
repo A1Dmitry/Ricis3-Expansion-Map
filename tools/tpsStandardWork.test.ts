@@ -60,6 +60,59 @@ function expectCode(source: TpsBoard, code: string): void {
   expect(codesOf(violations), `expected ${code}; got ${JSON.stringify(codesOf(violations))}`).toContain(code);
 }
 
+/**
+ * The mutation fixtures must not depend on where the live board currently keeps TPS-0001:
+ * the first revision of this file borrowed the real card, and moving that card from `done`
+ * to `verify` (a legal process move — jidoka) silently disabled nine falsifiability tests.
+ * A falsifier that depends on mutable state is not a falsifier, so the tests now build a
+ * canonical `done` baseline themselves and assert that baseline is green before mutating it.
+ */
+function forceClosed(event: TpsAndonEvent): TpsAndonEvent {
+  const whys = [...event.whys];
+  while (whys.length < 3) whys.push('Почему: основание зафиксировано повторным прогоном команды закрытия.');
+  const severityNeedsYokoten = event.severity === 'blocker' || event.severity === 'high';
+  const yokoten = severityNeedsYokoten && (event.yokoten ?? []).length === 0
+    ? [{ target: 'ACTIVE_TASKS.md', checkedOutcome: 'Фикстурная запись: однотипные места сверены.' }]
+    : event.yokoten;
+  return {
+    ...event,
+    state: 'CLOSED',
+    closedAt: event.closedAt ?? new Date(Date.parse(event.openedAt) + 60_000).toISOString(),
+    fact: event.fact?.length >= 40 ? event.fact : `${event.title}: факт зафиксирован дословным выводом инструмента.`,
+    whys,
+    rootCause: event.rootCause?.length >= 40 ? event.rootCause : 'Корень: инвариант не был закреплен машиной, а оставлен текстовым обещанием.',
+    countermeasure: event.countermeasure?.length >= 40
+      ? event.countermeasure
+      : 'Контрмера: проверка добавлена в гейт, который исполняется на каждом PR, а не в рекомендацию.',
+    reverify: event.reverify ?? { command: 'npm run tps:gate', exitCode: 0 },
+    yokoten,
+  };
+}
+
+function doneBaseline(source: TpsBoard): TpsBoard {
+  const subject = clone(source);
+  // Every open andon of the live board is closed in the fixture: the baseline must be green
+  // before it is mutated, otherwise a mutation test could pass for the wrong reason.
+  const closedAndon = subject.andon.map((event) => (event.state === 'OPEN' ? forceClosed(event) : event));
+  const cards = subject.cards.map((card) =>
+    card.id === 'TPS-0001'
+      ? ({ ...card, lane: 'done', status: 'COMPLETED', startedAt: '2026-01-01T00:00:00Z', closedAt: '2026-01-01T01:00:00Z', cycleTimeMs: 3_600_000 } as TpsCard)
+      : card,
+  );
+  return { ...subject, cards, andon: closedAndon } as TpsBoard;
+}
+
+function baseFlowCard(source: TpsBoard, id: string, lane: string): TpsCard {
+  const ready = source.cards.find((card) => card.lane === 'ready') ?? source.cards[0]!;
+  return {
+    ...ready,
+    id,
+    lane,
+    status: lane === 'in_progress' ? 'IN_PROGRESS' : 'READY',
+    originalGoal: 'Фикстурная карточка для проверки лимитов потока: цель сформулирована измеримо и не зависит от живой доски.',
+  } as TpsCard;
+}
+
 const validBoard = () => {
   if (board === null) throw new Error(`board unavailable: ${error}`);
   return board as TpsBoard;
@@ -112,41 +165,42 @@ describe('TPS board — actual state of the line', () => {
 
 describe('TPS poka-yoke is falsifiable', () => {
   it('stops the line on an open high-severity andon', () => {
-    const mutated = mapAndon(validBoard(), 'A-0001', { state: 'OPEN' });
+    const mutated = mapAndon(doneBaseline(validBoard()), 'A-0001', { state: 'OPEN' });
     expectCode(mutated, 'ANDON_OPEN_BLOCKER');
   });
 
   it('refuses a done card whose andon is still open', () => {
-    const mutated = mapAndon(validBoard(), 'A-0002', { state: 'OPEN' });
+    const mutated = mapAndon(doneBaseline(validBoard()), 'A-0002', { state: 'OPEN' });
     expectCode(mutated, 'DONE_WITH_OPEN_ANDON');
   });
 
   it('refuses to close an andon without root cause depth', () => {
-    expectCode(mapAndon(validBoard(), 'A-0001', { whys: ['потому что'] }), 'ANDON_ROOT_CAUSE_SHALLOW');
+    expectCode(mapAndon(doneBaseline(validBoard()), 'A-0001', { whys: ['потому что'] }), 'ANDON_ROOT_CAUSE_SHALLOW');
   });
 
   it('refuses to close an andon without horizontal deployment (yokoten)', () => {
-    expectCode(mapAndon(validBoard(), 'A-0001', { yokoten: [] }), 'ANDON_YOKOTEN_MISSING');
+    expectCode(mapAndon(doneBaseline(validBoard()), 'A-0001', { yokoten: [] }), 'ANDON_YOKOTEN_MISSING');
     expectCode(
-      mapAndon(validBoard(), 'A-0001', { yokoten: [{ target: 'docs/nope.md', checkedOutcome: 'проверено' }] }),
+      mapAndon(doneBaseline(validBoard()), 'A-0001', { yokoten: [{ target: 'docs/nope.md', checkedOutcome: 'проверено' }] }),
       'ANDON_YOKOTEN_TARGET_MISSING',
     );
   });
 
   it('refuses a done card without a recorded run (narration is not verification)', () => {
-    expectCode(mapCard(validBoard(), 'TPS-0001', { verification: undefined }), 'DONE_NO_VERIFICATION');
+    expectCode(mapCard(doneBaseline(validBoard()), 'TPS-0001', { verification: undefined }), 'DONE_NO_VERIFICATION');
   });
 
   it('refuses a recorded command that did not pass', () => {
-    const subject = validBoard();
+    const subject = doneBaseline(validBoard());
     const commands = subject.cards
       .find((card) => card.id === 'TPS-0001')!
       .verification!.commands.map((record, index) => (index === 0 ? { ...record, exitCode: 1 } : record));
-    expectCode(mapCard(subject, 'TPS-0001', { verification: { ...subject.cards[0]!.verification!, commands } }), 'DONE_COMMAND_FAILED');
+    const target = subject.cards.find((card) => card.id === 'TPS-0001')!;
+    expectCode(mapCard(subject, 'TPS-0001', { verification: { ...target.verification!, commands } }), 'DONE_COMMAND_FAILED');
   });
 
   it('refuses self-certification wording on a closed card, even with no commands at all', () => {
-    const subject = validBoard();
+    const subject = doneBaseline(validBoard());
     const verification = subject.cards.find((card) => card.id === 'TPS-0001')!.verification!;
     expectCode(
       mapCard(subject, 'TPS-0001', { verification: { ...verification, auditor: 'независимо верифицировано мной' } }),
@@ -156,49 +210,41 @@ describe('TPS poka-yoke is falsifiable', () => {
   });
 
   it('requires the declared end-of-line standard checks', () => {
-    const subject = validBoard();
+    const subject = doneBaseline(validBoard());
     const verification = subject.cards.find((card) => card.id === 'TPS-0001')!.verification!;
     const trimmed = { ...verification, commands: verification.commands.filter((record) => !record.command.includes('npm test')) };
     expectCode(mapCard(subject, 'TPS-0001', { verification: trimmed }), 'DONE_MISSING_STANDARD_CHECK');
   });
 
   it('catches a declared cycle time that contradicts its own timestamps', () => {
-    expectCode(mapCard(validBoard(), 'TPS-0001', { cycleTimeMs: 1 }), 'CYCLE_TIME_MISMATCH');
+    expectCode(mapCard(doneBaseline(validBoard()), 'TPS-0001', { cycleTimeMs: 1 }), 'CYCLE_TIME_MISMATCH');
   });
 
   it('requires the attack on the own result before done', () => {
-    expectCode(mapCard(validBoard(), 'TPS-0001', { challenger: undefined }), 'ATTACK_NOT_RECORDED');
+    expectCode(mapCard(doneBaseline(validBoard()), 'TPS-0001', { challenger: undefined }), 'ATTACK_NOT_RECORDED');
   });
 
   it('requires every closed card to feed kaizen or justify why not', () => {
-    expectCode(mapCard(validBoard(), 'TPS-0001', { kaizenIds: [] }), 'KAIZEN_UNLINKED');
+    expectCode(mapCard(doneBaseline(validBoard()), 'TPS-0001', { kaizenIds: [] }), 'KAIZEN_UNLINKED');
   });
 
   it('keeps one-piece flow (max one card in progress) and WIP limits', () => {
-    const subject = validBoard();
-    const extras: TpsCard[] = ['TPS-9001', 'TPS-9002'].map((id) => ({
-      ...subject.cards[1]!,
-      id,
-      lane: 'in_progress',
-      status: 'IN_PROGRESS' as const,
-    }));
+    const subject = doneBaseline(validBoard());
+    const extras = ['TPS-9001', 'TPS-9002'].map((id) => baseFlowCard(subject, id, 'in_progress'));
     const mutated = { ...clone(subject), cards: [...subject.cards, ...extras] } as TpsBoard;
     expectCode(mutated, 'ONE_PIECE_FLOW');
     expectCode(mutated, 'LANE_WIP_LIMIT');
   });
 
   it('levels the queue instead of piling one class (heijunka)', () => {
-    const subject = validBoard();
-    const extras: TpsCard[] = [
-      { ...subject.cards[1]!, id: 'TPS-9101', lane: 'ready' },
-      { ...subject.cards[1]!, id: 'TPS-9102', lane: 'ready' },
-    ];
+    const subject = doneBaseline(validBoard());
+    const extras = ['TPS-9101', 'TPS-9102', 'TPS-9103'].map((id) => baseFlowCard(subject, id, 'ready'));
     expectCode({ ...clone(subject), cards: [...subject.cards, ...extras] } as TpsBoard, 'HEIJUNKKA_PILING');
   });
 
   it('flags overlong single-card cycles as muri', () => {
     expectCode(
-      mapCard(validBoard(), 'TPS-0001', {
+      mapCard(doneBaseline(validBoard()), 'TPS-0001', {
         startedAt: '2026-09-15T00:00:00Z',
         closedAt: '2026-09-15T18:00:00Z',
         cycleTimeMs: 64800000,
@@ -208,12 +254,12 @@ describe('TPS poka-yoke is falsifiable', () => {
   });
 
   it('refuses a done card whose status is not COMPLETED', () => {
-    expectCode(mapCard(validBoard(), 'TPS-0001', { status: 'PARTIALLY_COMPLETED' }), 'DONE_STATUS_NOT_COMPLETED');
+    expectCode(mapCard(doneBaseline(validBoard()), 'TPS-0001', { status: 'PARTIALLY_COMPLETED' }), 'DONE_STATUS_NOT_COMPLETED');
   });
 
   it('refuses cards without a measurable goal or without a resolvable source', () => {
-    const subject = validBoard();
-    const first = subject.cards[0]!;
+    const subject = doneBaseline(validBoard());
+    const first = subject.cards.find((card) => card.id === 'TPS-0001')!;
     expectCode(mapCard(subject, first.id, { originalGoal: 'сделать хорошо' }), 'CARD_GOAL_TOO_SHORT');
     expectCode(mapCard(subject, first.id, { sourceRef: 'docs/definitely-missing.md' }), 'CARD_SOURCE_MISSING');
     expectCode(mapCard(subject, first.id, { acceptanceCriteria: [] }), 'CARD_NO_ACCEPTANCE');
@@ -221,33 +267,38 @@ describe('TPS poka-yoke is falsifiable', () => {
   });
 
   it('requires the owner-waiting lane to name the decision it waits for', () => {
-    const subject = validBoard();
+    const subject = doneBaseline(validBoard());
     const waiting = subject.cards.find((card) => card.lane === 'waiting_owner')!;
     expectCode(mapCard(subject, waiting.id, { blockedOn: '' }), 'WAITING_OWNER_NO_DECISION');
+    expectCode(mapCard(subject, waiting.id, { lane: 'done', status: 'COMPLETED' }), 'DONE_NO_VERIFICATION');
   });
 
   it('demands an unmeasured bottleneck to stay a violation', () => {
-    const subject = validBoard();
+    const subject = doneBaseline(validBoard());
     const samples = subject.takt.samples.filter((sample) => sample.step !== 'test');
     expectCode({ ...clone(subject), takt: { ...subject.takt, samples } } as TpsBoard, 'TAKT_TEST_UNMEASURED');
   });
 
   it('requires kaizen marked DONE to carry a passing check', () => {
-    const subject = validBoard();
+    const subject = doneBaseline(validBoard());
     const kaizen = subject.kaizen.map((item) => (item.id === 'K-0001' ? { ...item, verificationCommand: '' } : item));
     expectCode({ ...clone(subject), kaizen } as TpsBoard, 'KAIZEN_DONE_UNVERIFIED');
   });
 
   it('requires the defects waste to be pulled from an andon event', () => {
-    const subject = validBoard();
+    const subject = doneBaseline(validBoard());
     const muda = subject.muda.map((entry) => (entry.id === 'M-0003' ? { ...entry, linkedAndonId: undefined } : entry));
     expectCode({ ...clone(subject), muda } as TpsBoard, 'MUDA_DEFECT_WITHOUT_ANDON');
   });
 
   it('requires the canonical lanes to exist', () => {
-    const subject = validBoard();
+    const subject = doneBaseline(validBoard());
     const lanes = subject.lanes.filter((lane) => lane.id !== 'verify');
     expectCode({ ...clone(subject), lanes } as TpsBoard, 'LANE_MISSING');
+  });
+
+  it('the canonical mutation baseline is itself green (a fixture nobody can validate is not a baseline)', () => {
+    expect(validateBoard(doneBaseline(validBoard()), repositoryRoot)).toEqual([]);
   });
 });
 
