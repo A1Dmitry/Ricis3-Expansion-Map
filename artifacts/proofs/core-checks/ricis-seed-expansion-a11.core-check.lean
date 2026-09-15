@@ -100,9 +100,7 @@ theorem monotonic_growth (s : Seed) (form : String) (resolve : Seed → Option R
            | ExpansionOutcome.rejected s' _ => s'.rules) := by
   intro r hr
   unfold expandTo
-  split
-  · exact List.mem_append.mpr (Or.inl hr)
-  · split <;> simp [hr]
+  repeat split <;> simp_all [List.mem_append]
 
 /-- A rejection never advances the generation: the seed is left untouched. -/
 theorem rejection_preserves_generation (s : Seed) (form : String) (resolve : Seed → Option Rule) :
@@ -154,8 +152,7 @@ theorem identity_violation_never_commits
     (h : identityCoherent check inputForm outputForm = false) :
     admitWithIdentity check inputForm outputForm (ExpansionOutcome.expanded seed axiomId)
       = ExpansionOutcome.rejected seed "IDENTITY_VIOLATION" := by
-  unfold admitWithIdentity identityCoherent
-  simp [h]
+  simp [admitWithIdentity, identityCoherent, h]
 
 /-- A candidate satisfying the identity law passes the gate unchanged (no false rejections). -/
 theorem identity_ok_preserves_expansion
@@ -163,8 +160,7 @@ theorem identity_ok_preserves_expansion
     (h : identityCoherent check inputForm outputForm = true) :
     admitWithIdentity check inputForm outputForm (ExpansionOutcome.expanded seed axiomId)
       = ExpansionOutcome.expanded seed axiomId := by
-  unfold admitWithIdentity identityCoherent
-  simp [h]
+  simp [admitWithIdentity, identityCoherent, h]
 
 /-- The recorded A14 case: `inf_F - inf_F` is `X - X`, so the only admissible consequence is `0`.
     The chain A7 → ∞₀ → A2 → 1 satisfies every other gate but is rejected here. -/
@@ -174,8 +170,7 @@ example (check : String → String → Bool)
     admitWithIdentity check "inf_G-inf_G" "1"
       (ExpansionOutcome.expanded { generation := 2, rules := [], ledger := [] } "A17")
       = ExpansionOutcome.rejected { generation := 2, rules := [], ledger := [] } "IDENTITY_VIOLATION" := by
-  unfold admitWithIdentity identityCoherent
-  simp [hbad]
+  simp [admitWithIdentity, identityCoherent, hbad]
 
 end RICIS.Seed
 
@@ -187,7 +182,11 @@ end RICIS.Seed
   Source      : artifacts/proofs/ricis-seed-expansion-a11.lean
   Source hash : sha256 368dc0359e3f37391e3e830fc1abf9107b8e3f1f37d0a7f3ac6d2b3bc36839f2
   Transform   : удалена неиспользуемая строка import Mathlib.
-                Заявленные подстановки: «exact List.mem_of_mem_append_left hr» → «exact List.mem_append.mpr (Or.inl hr)» (`List.mem_of_mem_append_left` отсутствует в ядре Lean 4.33.1 (в src/Init/Data/List/Lemmas.lean есть только `mem_append`, `mem_append_cons_self`, `not_mem_append`); использован ядровой эквивалент того же утверждения. Формулировка теоремы monotonic_growth не меняется.).
+                Заявленные подстановки: «  split
+  · exact List.mem_of_mem_append_left hr
+  · split <;> simp [hr]» → «  repeat split <;> simp_all [List.mem_append]» (`monotonic_growth` остаётся с sorryAx в двух фактических прогонах ядра: run 34870620154 и run 34891262489 печатают `'RICIS.Seed.monotonic_growth' depends on axioms: [sorryAx]`. Первопричины установлены дословно: (1) `List.mem_of_mem_append_left` отсутствует в ядре 4.33.1 (в src/Init/Data/List/Lemmas.lean есть только `mem_append`, `mem_append_cons_self`, `not_mem_append`); (2) применённая в 0.4.189 точечная замена на `exact List.mem_append.mpr (Or.inl hr)` не закрыла цель — после первого `split` она ещё содержит проекцию структурного поля `( { rules := s.rules ++ [r], … } : Seed).rules` и вложенную цепочку if-ов, то есть `exact` с готовым термином неприменим. Ремонт: `repeat split` раскрывает все ветви после `unfold expandTo`, `simp_all [List.mem_append]` редуцирует проекцию и использует `hr`. Тип теоремы не меняется; все использованные тактики — ядровые (Init/Tactics, Init/Data/List).); «  unfold admitWithIdentity identityCoherent
+  simp [h]» → «  simp [admitWithIdentity, identityCoherent, h]» (Для `identity_violation_never_commits` и `identity_ok_preserves_expansion` прогон run 34891262489 печатает `depends on axioms: [propext, sorryAx]`. Дословная причина видна на однотипном блоке того же файла в run 34870620154: `176:105: error: unsolved goals … ⊢ check "inf_G-inf_G" "1" = false` при гипотезе `hbad : identityCoherent check "inf_G-inf_G" "1" = false` и предупреждении `178:8: This simp argument is unused: hbad`. То есть `unfold … identityCoherent` раскрывает определение только в ЦЕЛИ, гипотеза остаётся нераскрытой, и `simp [h]` не находит совпадения — отсюда и неиспользованный аргумент. Ремонт передаёт оба определения самому `simp`, чтобы цель и гипотеза были приведены к одному виду. Формулировки теорем (их типы) не изменяются.); «  unfold admitWithIdentity identityCoherent
+  simp [hbad]» → «  simp [admitWithIdentity, identityCoherent, hbad]» (Зарегистрированный случай A14 (`U-INF-SELF-DIFF-WRONG-BRANCH`) — тот же дефект, что выше, и он зафиксирован тем же дословным выводом run 34870620154 (`176:105: error: unsolved goals` + `This simp argument is unused: hbad`). Замена симметрична предыдущей; предупреждение об использованном впустую аргументе обязано исчезнуть вместе с причиной, а не вместе с проверкой.).
                 Префикс этого файла байт-в-байт равен исходнику: ни одна
                 декларация не переписана и не удалена (AGENTS.md §7).
   Basis       : Тело: модель протокола A11 (Rule/Seed/ExpansionOutcome, ворота допуска, IDENTITY_COHERENCE) на String/List/Nat/Bool; тактики unfold / split / simp / intro — все core (`split`: src/Init/Tactics.lean:1205, `simpa`/`simp` — ядро 4.33.1).

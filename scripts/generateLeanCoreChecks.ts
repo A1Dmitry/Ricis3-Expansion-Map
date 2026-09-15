@@ -258,14 +258,48 @@ export const LEAN_CORE_CHECK_PLAN: readonly LeanCoreCheckPlanEntry[] = [
     artifactId: 'ricis-seed-expansion-a11',
     source: `${PROOFS_DIR}/ricis-seed-expansion-a11.lean`,
     output: `${CORE_CHECK_DIR}/ricis-seed-expansion-a11.core-check.lean`,
+    // F-08: ядровой ремонт A11. Каждое поле `reason` опирается на дословный вывод фактических
+    // прогонов (run 34870620154, 34891262489), а не на ожидание: прогноз отказом не считается.
     substitutions: [
       {
-        from: 'exact List.mem_of_mem_append_left hr',
-        to: 'exact List.mem_append.mpr (Or.inl hr)',
+        from:
+          '  split\n' +
+          '  · exact List.mem_of_mem_append_left hr\n' +
+          '  · split <;> simp [hr]',
+        to: '  repeat split <;> simp_all [List.mem_append]',
         reason:
-          '`List.mem_of_mem_append_left` отсутствует в ядре Lean 4.33.1 (в src/Init/Data/List/Lemmas.lean ' +
-          'есть только `mem_append`, `mem_append_cons_self`, `not_mem_append`); использован ядровой ' +
-          'эквивалент того же утверждения. Формулировка теоремы monotonic_growth не меняется.',
+          '`monotonic_growth` остаётся с sorryAx в двух фактических прогонах ядра: run 34870620154 и ' +
+          'run 34891262489 печатают `\'RICIS.Seed.monotonic_growth\' depends on axioms: [sorryAx]`. ' +
+          'Первопричины установлены дословно: (1) `List.mem_of_mem_append_left` отсутствует в ядре 4.33.1 ' +
+          '(в src/Init/Data/List/Lemmas.lean есть только `mem_append`, `mem_append_cons_self`, ' +
+          '`not_mem_append`); (2) применённая в 0.4.189 точечная замена на ' +
+          '`exact List.mem_append.mpr (Or.inl hr)` не закрыла цель — после первого `split` она ещё содержит ' +
+          'проекцию структурного поля `( { rules := s.rules ++ [r], … } : Seed).rules` и вложенную цепочку ' +
+          'if-ов, то есть `exact` с готовым термином неприменим. Ремонт: `repeat split` раскрывает все ветви ' +
+          'после `unfold expandTo`, `simp_all [List.mem_append]` редуцирует проекцию и использует `hr`. ' +
+          'Тип теоремы не меняется; все использованные тактики — ядровые (Init/Tactics, Init/Data/List).',
+      },
+      {
+        from: '  unfold admitWithIdentity identityCoherent\n  simp [h]',
+        to: '  simp [admitWithIdentity, identityCoherent, h]',
+        reason:
+          'Для `identity_violation_never_commits` и `identity_ok_preserves_expansion` прогон run 34891262489 ' +
+          'печатает `depends on axioms: [propext, sorryAx]`. Дословная причина видна на однотипном блоке того ' +
+          'же файла в run 34870620154: `176:105: error: unsolved goals … ⊢ check \"inf_G-inf_G\" \"1\" = false` ' +
+          'при гипотезе `hbad : identityCoherent check \"inf_G-inf_G\" \"1\" = false` и предупреждении ' +
+          '`178:8: This simp argument is unused: hbad`. То есть `unfold … identityCoherent` раскрывает ' +
+          'определение только в ЦЕЛИ, гипотеза остаётся нераскрытой, и `simp [h]` не находит совпадения — ' +
+          'отсюда и неиспользованный аргумент. Ремонт передаёт оба определения самому `simp`, чтобы цель и ' +
+          'гипотеза были приведены к одному виду. Формулировки теорем (их типы) не изменяются.',
+      },
+      {
+        from: '  unfold admitWithIdentity identityCoherent\n  simp [hbad]',
+        to: '  simp [admitWithIdentity, identityCoherent, hbad]',
+        reason:
+          'Зарегистрированный случай A14 (`U-INF-SELF-DIFF-WRONG-BRANCH`) — тот же дефект, что выше, и он ' +
+          'зафиксирован тем же дословным выводом run 34870620154 (`176:105: error: unsolved goals` + ' +
+          '`This simp argument is unused: hbad`). Замена симметрична предыдущей; предупреждение об ' +
+          'использованном впустую аргументе обязано исчезнуть вместе с причиной, а не вместе с проверкой.',
       },
     ],
     rationale:
@@ -277,6 +311,11 @@ export const LEAN_CORE_CHECK_PLAN: readonly LeanCoreCheckPlanEntry[] = [
         '(ricis-seed-expansion-a11.lean) не проверена ядром (REQUIRES_CORE_LEAN)».',
       'Статический аудит ядра 4.33.1: единственная Mathlib-зависимость тела — лемма ' +
         '`List.mem_of_mem_append_left`.',
+      'F-08 (установлено прогонами, а не прогнозом): подстановка 0.4.189 ' +
+        '(`List.mem_of_mem_append_left` → `exact List.mem_append.mpr (Or.inl hr)`) не закрыла цель — ' +
+        'run 34891262489 по-прежнему даёт sorryAx для `monotonic_growth`, `identity_violation_never_commits` ' +
+        'и `identity_ok_preserves_expansion`. Ремонт выполнен заменой самих тактических блоков ' +
+        '(см. substitutions); статус не повышен и не может быть повышен этой правкой.',
     ],
   },
   {
