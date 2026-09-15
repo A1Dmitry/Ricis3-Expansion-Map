@@ -41,6 +41,52 @@
       "L0"
     ],
     "contentHash": "2e043f2738df8d8b02754aebb5fa93580fb87e6cc71733557c620c463c4de56b",
-    "trustStatus": "TRUSTED_AXIOM"
+    "trustStatus": "STRUCTURALLY_VALIDATED",
+    "trustStatusNote": "Решение владельца 2026-09-14 (F-01): понижен с TRUSTED_AXIOM. run 34870620154 (Lean 4.33.1): исходник не парсится (конструктор `partial` — зарезервированное слово); производная с partial → partialDeriv парсится, но центральное тождество не определительное (62:2 rfl failed → sorryAx). Основание TRUSTED_AXIOM отсутствует ни в одной конфигурации. Классификация: STRUCTURALLY_VALIDATED (структурная модель; не MATHEMATICALLY_PROVEN — см. README artifacts/proofs). Запись узла registry-120 в initialMap — отдельное решение владельца."
+  },
+  "kernelCheck": {
+    "addedBy": "AGENTS.md §7 — статус записывается снаружи неизменяемого исходника (присоединение metadata)",
+    "registry": "artifacts/proofs/core-checks/kernel-findings.json",
+    "evidence": "docs/05-evidence/proofs/lean-core-checks-run-2026-09-14.md",
+    "rawEvidence": "docs/05-evidence/proofs/lean-kernel-run-34870620154.pr-comment.txt",
+    "run": 34891262489,
+    "runUrl": "https://github.com/A1Dmitry/Ricis3-Expansion-Map/actions/runs/34891262489",
+    "toolchain": "Lean 4.33.1, x86_64-unknown-linux-gnu, commit 819816b2e0a3bf405af45ae5c7af2491d8f5bee6, Release (elan, --default-toolchain 4.33.1)",
+    "command": "lean +4.33.1 <artifact>",
+    "immutableSourceSha256": "2e043f2738df8d8b02754aebb5fa93580fb87e6cc71733557c620c463c4de56b",
+    "immutableSource": "artifacts/proofs/ricis-jacobian-conjecture.standalone.lean",
+    "checkedFile": "artifacts/proofs/core-checks/ricis-jacobian-conjecture.standalone.core-check.lean",
+    "substitutionsApplied": [
+      "| partial (F x : RExpr) → | partialDeriv (F x : RExpr)"
+    ],
+    "compilerExit": 1,
+    "compilerErrorCount": 1,
+    "firstCompilerErrors": [
+      "62:2: error: Tactic `rfl` failed: The left-hand side"
+    ],
+    "theorems": {
+      "total": 2,
+      "provenWithoutSorryAx": 1,
+      "withSorryAx": 1,
+      "axiomFree": 1
+    },
+    "statusAfterKernelRun": "NOT_VERIFIED_CORE_ONLY",
+    "rootCause": "Двухуровневый отказ. (1) Неизменяемый исходник не парсится: конструктор `| partial (F x : RExpr)` использует зарезервированное слово Lean (24:12 expected token). (2) После заявленного переименования неиспользуемого конструктора (partial → partialDeriv) файл парсится, но центральное утверждение не доказывается: 62:2 «Tactic `rfl` failed: resolveRICIS (F.zeroF.det RExpr.zero RExpr.zero G.infF) is not definitionally equal to (F.mul G).sub RExpr.zero.zeroF» → Jacobian_singularity_resolved несёт sorryAx. Тождество не является определительным (rfl — ядровая тактика, Mathlib здесь ни при чём), поэтому заявленный TRUSTED_AXIOM не имеет основания ни в одной конфигурации.",
+    "trustBoundary": "Ни исходник (не парсится), ни производная с минимальным ремонтом (rfl не проходит, sorryAx) не дают основания для TRUSTED_AXIOM. Граница: даже после ремонта речь идёт о структурном тождестве resolveRICIS на AST, а не о гипотезе Якоби для полиномиальных отображений C^n → C^n.",
+    "relationToDeclaredTrustStatus": "ВНИМАНИЕ: заявленный trustStatus НЕ подтверждён прогоном ядра run 34870620154 (exit 1, ошибок: 1, sorryAx: 1). Понижение статуса требует решения владельца (C-03); основание и план ремонта — в реестре и evidence-документе.",
+    "priorRun": {
+      "run": 34858902595,
+      "rawEvidence": "docs/05-evidence/proofs/lean-kernel-run-34858902595.pr-comment.txt",
+      "compilerExit": 1,
+      "compilerErrorCount": 7,
+      "theorems": {
+        "total": 1,
+        "provenWithoutSorryAx": 1,
+        "withSorryAx": 0,
+        "axiomFree": 1
+      },
+      "statusAfterKernelRun": "SOURCE_REJECTED_BY_KERNEL",
+      "rootCause": "ИСХОДНИК НЕ ПАРСИТСЯ: конструктор `| partial (F x : RExpr)` (строка 25) использует зарезервированное ключевое слово Lean 4 `partial` → `24:12 error: expected token`, далее каскад `Invalid pattern variable: RExpr.zero has multiple components`, `Invalid pattern: Expected a constructor or constant marked with [match_pattern]`, и `Unknown constant RICIS_Jacobian.Jacobian_singularity_resolved`. Файл не компилировался ни одним ядром Lean, независимо от Mathlib."
+    }
   }
 }
