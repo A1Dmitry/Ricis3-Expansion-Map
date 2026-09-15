@@ -222,7 +222,7 @@ export const initialMap: MapState = {
       sourceUrl: 'https://doi.org/10.5281/zenodo.22124493',
       zoneIds: ['math'],
       dependencyIds: [],
-      dependentIds: ['phys-unified', 'informatics-complexity', 'ai-authorship-provenance'],
+      dependentIds: ['phys-unified', 'informatics-complexity', 'ai-authorship-provenance', 'phys-field-bridge'],
       fractalDepth: 0,
       economic: {
         costUnresolved: 1_000_000_000,
@@ -295,7 +295,7 @@ export const initialMap: MapState = {
     {
       id: 'phys-unified',
       title: 'Единая Теория Поля',
-      description: 'Применение монолитов RICIS-III для квантовой гравитации и объединения взаимодействий.',
+      description: 'Применение монолитов RICIS-III для квантовой гравитации и объединения взаимодействий. Дискретный вычислительный прокси (Int) выделен в узел phys-field-bridge (DOI 10.5281/zenodo.22124493, workflow provenance); continuum-утверждения этим прокси не доказываются.',
       state: 'resolved',
       leanErrors: [],
       type: 'scientific_task',
@@ -310,6 +310,28 @@ export const initialMap: MapState = {
         marketGain: 100_000_000_000,
         riskLoss: 10_000_000_000
       }
+    },
+    {
+      id: 'phys-field-bridge',
+      title: 'Полевой мост (дискретный A6-прокси)',
+      description: 'Path-indexed монолит FieldMonolith(P) с вычислительным A6-прокси на Int: product-ветвь a*b и ratio-ветвь a/b при b≠0, gated eval только при совпадении reported path. Физические имена — лишь метки пути, не обитатели теории типов. Workflow provenance: DOI 10.5281/zenodo.22124493 (geometric-bridge package). НЕ ЗАЯВЛЕНО: единая теория поля, QM–GR слияние, планковская физика, континуальные полевые уравнения. Continuum-цель см. в узле phys-unified отдельно.',
+      state: 'resolved',
+      leanErrors: [],
+      type: 'scientific_task',
+      targetFunction: 'FieldBridge(P) := gated A6 proxy (a*b, a/b) on Int',
+      zoneIds: ['physics'],
+      dependencyIds: ['math-singularity'],
+      dependentIds: [],
+      fractalDepth: 1,
+      economic: {
+        costUnresolved: 1000000000,
+        costToSolve: 50000000,
+        marketGain: 5000000000,
+        riskLoss: 2000000000
+      },
+      singularityHint: 'Дискретный прокси 0_F × ∞_G → a·b (Int) и a/b при b≠0; чужой путь отклоняется (none)',
+      sourceUrl: 'https://doi.org/10.5281/zenodo.22124493',
+      ricisSolvable: true
     },
     {
       id: 'econ-value',
@@ -1026,6 +1048,7 @@ export const initialMap: MapState = {
     { id: 'edge-4', fromId: 'core-agi-target', toId: 'econ-value', strength: 0.9, stateColor: 'yellow', economicInfluence: 1.0 },
     { id: 'edge-5', fromId: 'core-agi-target', toId: 'ethic-alignment', strength: 1.0, stateColor: 'yellow', economicInfluence: 1.0 },
     { id: 'edge-6', fromId: 'math-singularity', toId: 'phys-unified', strength: 0.7, stateColor: 'yellow', economicInfluence: 0.8 },
+    { id: 'edge-math-to-field-bridge', fromId: 'math-singularity', toId: 'phys-field-bridge', strength: 0.85, stateColor: 'green', economicInfluence: 0.85 },
     { id: 'edge-7', fromId: 'math-singularity', toId: 'informatics-complexity', strength: 0.8, stateColor: 'yellow', economicInfluence: 0.9 },
     { id: 'edge-agi-provenance', fromId: 'core-agi-target', toId: 'ai-authorship-provenance', strength: 0.9, stateColor: 'yellow', economicInfluence: 0.9 },
     { id: 'edge-math-provenance', fromId: 'math-singularity', toId: 'ai-authorship-provenance', strength: 0.9, stateColor: 'yellow', economicInfluence: 0.9 },
@@ -1081,7 +1104,7 @@ export const initialMap: MapState = {
       id: 'physics',
       name: 'Физика',
       description: 'Квантовая гравитация, энергия.',
-      nodeIds: ['phys-unified', ...CALCULATOR_GRAPH_STATIC_SEED.nodeIdsByZone.physics],
+      nodeIds: ['phys-unified', 'phys-field-bridge', ...CALCULATOR_GRAPH_STATIC_SEED.nodeIdsByZone.physics],
       economicProfile: { costUnresolved: 2000, costToSolve: 500, marketGain: 100000, riskLoss: 10000 }
     },
     {
@@ -1939,7 +1962,52 @@ export const initialMap: MapState = {
             }
         ],
         "finalResult": "\\hbar c",
-        "latex": "\\section*{RICIS-III Proof: Единая Теория Поля (Квантовая гравитация)}\n\\textbf{Author:} Dmitry V. Aleinikov (ORCID: 0009-0004-3226-7700)\n\\textbf{Target Function:} $f(x) = UnifiedField(QG) \\quad [0_F \\times \\infty_G = F \\cdot G]$\n\\subsection*{RICIS Transform & Axiom A6 Geometric Bridge}\n$ 0_F \\times \\infty_G = \\det(u, v) = u_x v_y - u_y v_x = g_{\\mu\\nu} \\cdot R_{\\text{Riemann}} - 0 = \\hbar c $\n\\subsection*{Semantic Indexing SP4 & Reduction}\nСингулярность кривизны пространства-времени на планковских масштабах при метрическом сжатии.\nRepresented in $\\mathbb{R}_{RICIS}^2$: $u = (g_{\\mu\\nu}, 0)$, $v = (0, R_{\\text{Riemann}})$.\n\\subsection*{Verification & DOI Specification}\nLean 4 Specification: \\href{https://doi.org/10.5281/zenodo.21529989}{DOI: 10.5281/zenodo.21529989} (Master Registry \\href{https://doi.org/10.5281/zenodo.21836220}{10.5281/zenodo.21836220}). Foundations: \\href{https://doi.org/10.5281/zenodo.17872755}{DOI: 10.5281/zenodo.17872755}.\n\\textbf{Final Result:} \\hbar c"
+        "latex": "\\section*{RICIS-III Proof: Единая Теория Поля (Квантовая гравитация)}\n\\textbf{Author:} Dmitry V. Aleinikov (ORCID: 0009-0004-3226-7700)\n\\textbf{Target Function:} $f(x) = UnifiedField(QG) \\quad [0_F \\times \\infty_G = F \\cdot G]$\n\\subsection*{RICIS Transform & Axiom A6 Geometric Bridge}\n$ 0_F \\times \\infty_G = \\det(u, v) = u_x v_y - u_y v_x = g_{\\mu\\nu} \\cdot R_{\\text{Riemann}} - 0 = \\hbar c $\n\\subsection*{Semantic Indexing SP4 & Reduction}\nСингулярность кривизны пространства-времени на планковских масштабах при метрическом сжатии.\nRepresented in $\\mathbb{R}_{RICIS}^2$: $u = (g_{\\mu\\nu}, 0)$, $v = (0, R_{\\text{Riemann}})$.\n\\subsection*{Verification & DOI Specification}\nLean 4 Specification: \\href{https://doi.org/10.5281/zenodo.21529989}{DOI: 10.5281/zenodo.21529989} (Master Registry \\href{https://doi.org/10.5281/zenodo.21836220}{10.5281/zenodo.21836220}). Foundations: \\href{https://doi.org/10.5281/zenodo.17872755}{DOI: 10.5281/zenodo.17872755}.\nScope note: discrete Int proxy lives in node phys-field-bridge (geometric-bridge package DOI 10.5281/zenodo.22124493, workflow provenance only); continuum claims are not established by that proxy.\n\\textbf{Final Result:} \\hbar c"
+    },
+    "phys-field-bridge": {
+        "nodeId": "phys-field-bridge",
+        "targetFunction": "FieldBridge(P) := gated A6 proxy (a*b, a/b) on Int",
+        "axiomsUsed": ["L1_IDENTITY", "SP2", "SP4", "A6_GEOMETRIC_BRIDGE", "10.5281/zenodo.22124493"],
+        "steps": [
+            {
+                "phase": -1,
+                "name": "L1_IDENTITY & Ontological Origin Check",
+                "action": "Verify field-bridge monolith identity: payload never appears without path P",
+                "expression": "L_1(X) = X \\implies FieldMonolith(P)"
+            },
+            {
+                "phase": 0.5,
+                "name": "Semantic Vector Indexing (SP4)",
+                "action": "Index objective by PathIndex; distinct paths yield distinct monoliths, no silent collapse",
+                "expression": "g.path \\ne h.path \\implies g \\ne h"
+            },
+            {
+                "phase": 2,
+                "name": "Axiom A6 Geometric Bridge Execution (discrete proxy)",
+                "action": "Evaluate orthogonal Int proxies under gated path check; foreign path rejected",
+                "expression": "0_F \\times \\infty_G = a \\cdot b; a/b (b \\ne 0); foreign path \\implies none"
+            },
+            {
+                "phase": 4,
+                "name": "Type Consistency Protocol (TCP) & Preservation (L1C1)",
+                "action": "Validate Int-domain preservation: no real analysis, no Planck numerics",
+                "expression": "T(\\text{Result}) = \\text{MonolithOrder2} \\quad [L1C1 \\text{ Preserved}]"
+            },
+            {
+                "phase": 6,
+                "name": "Final Verification & Authorial Provenance Binding",
+                "action": "Binding to workflow registries: geometric-bridge package DOI 10.5281/zenodo.22124493; scope boundary fixed",
+                "expression": "\\text{Result} = a \\cdot b \\text{ or } a/b \\quad [O(1)]"
+            }
+        ],
+        "finalResult": "FieldMonolith path discipline + A6 Int proxies (a*b, a/b), gated eval; continuum physics NOT claimed",
+        "latex": "\\section*{RICIS-III Proof: Полевой мост (дискретный A6-прокси)}\n\\textbf{Author:} Dmitry V. Aleinikov (ORCID: 0009-0004-3226-7700)\n\\textbf{Target Function:} $f(x) = FieldBridge(P) := gated A6 proxy (a*b, a/b) on Int \\quad [0_F \\times \\infty_G = F \\cdot G]$\n\\subsection*{RICIS Transform & Axiom A6 Geometric Bridge}\n$ 0_F \\times \\infty_G = \\det(u, v) = u_x v_y - u_y v_x = a \\cdot b $, ratio leg $ a / b $ for $ b \\ne 0 $ (Int div, structural)\n\\subsection*{Semantic Indexing SP4 & Reduction}\nPath-indexed monolith: scalar proxy is emitted only when reported path equals monolith path; foreign path yields none (drift rejected).\nRepresented in $\\mathbb{R}_{RICIS}^2$: $u = (a, 0)$, $v = (0, b)$.\n\\subsection*{Verification & DOI Specification}\nLean 4 Specification: \\href{https://doi.org/10.5281/zenodo.21529989}{DOI: 10.5281/zenodo.21529989} (Master Registry \\href{https://doi.org/10.5281/zenodo.21836220}{10.5281/zenodo.21836220}). Foundations: \\href{https://doi.org/10.5281/zenodo.17872755}{DOI: 10.5281/zenodo.17872755}. Workflow provenance (geometric-bridge package): \\href{https://doi.org/10.5281/zenodo.22124493}{10.5281/zenodo.22124493}. Source: \\texttt{artifacts/proofs/lean/UnifiedField\\_GeometricBridge.lean}.\n\\subsection*{Scope boundary}\nFACT: path identity, SP4 non-collapse, A6 product/ratio proxies on Int, gated evaluation. NOT CLAIMED: unified field theory, QM–GR merger, Planck-scale physics, continuum field equations, empirical gravity quantization.\n\\textbf{Final Result:} $ a \\cdot b $ or $ a / b $ (Int), path-gated",
+        "externalLean": {
+            "sourceHash": "sha256:dd25ec66bac19dfccc7ac172109a73192ee09e039dea831dc8c6f6afc4b143fb",
+            "submittedAt": "2026-09-15T12:00:00.000Z",
+            "sourceLocked": true,
+            "trustStatus": "REQUIRES_CORE_LEAN"
+        }
     },
     "econ-value": {
         "nodeId": "econ-value",

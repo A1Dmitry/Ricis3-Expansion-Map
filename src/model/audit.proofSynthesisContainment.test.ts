@@ -566,6 +566,11 @@ describe('OIR-03 — audit proof-synthesis containment', () => {
       ' M tools/leanMathlibChecks.test.ts',
       '?? docs/05-evidence/proofs/lean-kernel-run-34950902412-mathlib.pr-comment.txt',
       '?? docs/05-evidence/proofs/lean-kernel-run-34950902412-mathlib.meta.txt',
+      // PHYS-FIELD-BRIDGE-MAP-SYNC (0.4.191, 2026-09-15): §7-приём внешнего Lean-исходника
+      // UnifiedField_GeometricBridge (path-indexed FieldMonolith + A6 Int-прокси),
+      // узел phys-field-bridge и scope-граница phys-unified в initialMap, guard-тест.
+      '?? artifacts/proofs/lean/UnifiedField_GeometricBridge.lean',
+      '?? src/model/physFieldBridge.test.ts',
 
     ]);
     if (status.length > 0 && status.every(entry => entry.startsWith('?? '))) {
