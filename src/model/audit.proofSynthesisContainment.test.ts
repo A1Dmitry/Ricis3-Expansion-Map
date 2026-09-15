@@ -571,6 +571,13 @@ describe('OIR-03 — audit proof-synthesis containment', () => {
       // узел phys-field-bridge и scope-граница phys-unified в initialMap, guard-тест.
       '?? artifacts/proofs/lean/UnifiedField_GeometricBridge.lean',
       '?? src/model/physFieldBridge.test.ts',
+      // REPO-SYNC-SCAN (0.4.192, 2026-09-15): ремонт бинарного хвоста
+      // docs/russian-resource-manifest.json (1774 записи сохранены байт-в-байт),
+      // §7-привязка сироты AGI_TargetFunction.lean к core-agi-target,
+      // guard валидности JSON всего репозитория.
+      ' M docs/russian-resource-manifest.json',
+      ' M src/model/coreAgiTargetProof.test.ts',
+      '?? tools/jsonValidity.test.ts',
 
     ]);
     if (status.length > 0 && status.every(entry => entry.startsWith('?? '))) {

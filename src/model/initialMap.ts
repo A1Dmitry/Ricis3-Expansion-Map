@@ -1198,7 +1198,13 @@ export const initialMap: MapState = {
         }
       ],
       "finalResult": "Axiom Extracted: core-agi-target_resolved",
-      "latex": "\\section*{RICIS-III Proof: Целевая функция AGI (RICIS Core)}\n\\textbf{Author:} Dmitry V. Aleinikov (ORCID: 0009-0004-3226-7700)\n\\textbf{Target Function:} $FormalizeAGITarget() := Goal_P$\n\\subsection*{RICIS Transform & Axiom A6}\n$ 0_F \\times \\infty_G = F \\cdot G $\n\\textbf{Specification Lean 4 DOI:} \\href{https://doi.org/10.5281/zenodo.21529989}{https://doi.org/10.5281/zenodo.21529989} (Master Registry \\href{https://doi.org/10.5281/zenodo.21836220}{10.5281/zenodo.21836220}) (Foundations \\href{https://doi.org/10.5281/zenodo.17872755}{10.5281/zenodo.17872755}) (AGI Target \\href{https://doi.org/10.5281/zenodo.22225762}{10.5281/zenodo.22225762})\n\\textbf{Final Result:} Axiom Extracted: core-agi-target_resolved"
+      "latex": "\\section*{RICIS-III Proof: Целевая функция AGI (RICIS Core)}\n\\textbf{Author:} Dmitry V. Aleinikov (ORCID: 0009-0004-3226-7700)\n\\textbf{Target Function:} $FormalizeAGITarget() := Goal_P$\n\\subsection*{RICIS Transform & Axiom A6}\n$ 0_F \\times \\infty_G = F \\cdot G $\n\\textbf{Specification Lean 4 DOI:} \\href{https://doi.org/10.5281/zenodo.21529989}{https://doi.org/10.5281/zenodo.21529989} (Master Registry \\href{https://doi.org/10.5281/zenodo.21836220}{10.5281/zenodo.21836220}) (Foundations \\href{https://doi.org/10.5281/zenodo.17872755}{10.5281/zenodo.17872755}) (AGI Target \\href{https://doi.org/10.5281/zenodo.22225762}{10.5281/zenodo.22225762})\n\\textbf{Final Result:} Axiom Extracted: core-agi-target_resolved",
+      "externalLean": {
+        "sourceHash": "sha256:b65bff5c0bba3d36afb8d81d74566235cfeacf5d93d2959c3df8c803475d5a6a",
+        "submittedAt": "2026-09-15T12:00:00.000Z",
+        "sourceLocked": true,
+        "trustStatus": "REQUIRES_CORE_LEAN"
+      }
     },
     "math-singularity": {
       "nodeId": "math-singularity",
