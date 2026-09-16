@@ -17,6 +17,12 @@ import { registerAdminCoreUnavailableRoutes } from "./server/adminCoreUnavailabl
 
 const MODELS_POOL = SERVER_GEMINI_MODEL_POOL;
 
+// Second safety layer: an unexpected rejection must degrade the request,
+// never crash the whole server process (BUG-01 class of failures).
+process.on('unhandledRejection', (reason) => {
+  console.warn('[server] Unhandled promise rejection (contained):', reason);
+});
+
 const delay = (ms: number) => new Promise((res) => setTimeout(res, ms));
 
 async function callAIWithFallback(
