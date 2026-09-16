@@ -3,7 +3,7 @@
 > Сгенерировано из `board.json`: `npm run tps:board`. Правка вручную = дрейф, его ловит `tps:gate`.
 
 **Стандарт:** [`docs/00-governance/TOYOTA_TPS_WORKING_SYSTEM.md`](../TOYOTA_TPS_WORKING_SYSTEM.md)  
-**Версия доски:** 1.0.0 · **Снимок:** 2026-09-16T20:05:00Z
+**Версия доски:** 1.0.0 · **Снимок:** 2026-09-16T20:26:00Z
 
 ## Andon (состояние линии)
 
@@ -19,11 +19,9 @@ _пусто_
 
 _пусто_
 
-## IN PROGRESS (одна деталь) — 1/1
+## IN PROGRESS (одна деталь) — 0/1
 
-| Карточка | Класс | Статус | Владелец | Цикл | Проверка | Anchor |
-|---|---|---|---|---|---|---|
-| `TPS-0012` P12: расширение kernel-покрытия на 3 оставшихся артефакта (RicisAgiTarget, jacobian-counterexample-full → Mathlib-путь; Schwarzschild → core-путь) | ci | IN_PROGRESS | agent:arena (автономный цикл RCVAP, 2026-09-16) | — | — | ACTIVE_TASKS.md |
+_пусто_
 
 ## VERIFY (атака результата) — 0/1
 
@@ -42,7 +40,7 @@ _пусто_
 | `TPS-0006` L9: узел registry-120 в src/model/initialMap.ts остаётся TRUSTED_AXIOM без ядерного основания | docs | PARTIALLY_COMPLETED | владелец проекта | — | — | src/model/initialMap.ts |
 | `TPS-0007` F-14: ricis-yang-mills.lean — ремонт импорта как новая версия доказательства + решение о allowlist MATHLIB_ARTIFACTS | ci | PARTIALLY_COMPLETED | владелец проекта + агент (после решения) | — | — | artifacts/proofs/ricis-yang-mills.lean |
 
-## DONE (годная деталь) — 7/∞
+## DONE (годная деталь) — 8/∞
 
 | Карточка | Класс | Статус | Владелец | Цикл | Проверка | Anchor |
 |---|---|---|---|---|---|---|
@@ -53,6 +51,7 @@ _пусто_
 | `TPS-0009` Реакция на перепроизводство: доска сверяется с реестром находок (CARD_FINDING_ALREADY_CLOSED) и с фактическим наличием оснований (CARD_SOURCE_MISSING) | process | COMPLETED | agent:arena (Autonomous RCVAP cycle, takt 2) | 1812 c | 7 ком. / SELF (same-pipeline) — поток и его правила написаны и проверены этим циклом; закрытие F-08 принадлежит PR #47 и цитируется как чужое доказательство, а не присваивается | docs/00-governance/TOYOTA_TPS_WORKING_SYSTEM.md +A-0008 |
 | `TPS-0010` Слепой страж перепроизводства: fail-safe классификация находок и sweep-тест по всему реестру (A-0009) | process | COMPLETED | agent:arena (Autonomous RCVAP cycle, takt 3) | 604 c | 6 ком. / SELF (same-pipeline) — правило, тесты и A3 написаны и проверены этим циклом; находка F-* упоминаются как примеры формулировок, их substance не тянется | docs/00-governance/tps/A3-ANDON-0009.md +A-0009 |
 | `TPS-0011` Превью не отображается: политика хостов dev-сервера Vite (A-0010) — opt-out вместо мёртвого opt-in | ci | COMPLETED | agent:arena (автономный цикл RCVAP, инцидент 2026-09-16) | 1020 c | 6 ком. / SELF (same-pipeline) — дефект найден и устранён этим циклом; проверка опирается на собственные фактические прогоны, внешние доказательства не присваиваются | docs/05-evidence/architecture/incident-2026-09-16-preview-not-displaying.md +A-0010 |
+| `TPS-0012` P12: расширение kernel-покрытия на 3 оставшихся артефакта (RicisAgiTarget, jacobian-counterexample-full → Mathlib-путь; Schwarzschild → core-путь) | ci | COMPLETED | agent:arena (автономный цикл RCVAP, 2026-09-16) | 1260 c | 6 ком. / SELF (same-pipeline) — подготовка выполнена этим циклом; ядровое свидетельство произведёт только CI, до его прихода статусы не изменены | ACTIVE_TASKS.md |
 
 ## Kайдзен-реестр
 
@@ -71,6 +70,7 @@ _пусто_
 | `K-0011` | Закрытость находки должна быть машиночитаемым полем реестра (status: CLOSED), а не распознаваться по началу строки resolution | PROPOSED | владелец проекта (формат kernel-findings.json — его нормативный артефакт) | — |
 | `K-0012` | Fail-safe классификация находок и запрет самопроверки: непонятное останавливает, sweep покрывает все записи реестра | DONE | agent:arena | npm run tps:gate |
 | `K-0013` | Dev-транспорт под проверкой: единая политика хостов Vite и HTTP-проба через настоящую мидлварь | DONE | agent:arena | npx vitest run server/devHostPolicy.test.ts |
+| `K-0014` | Lean-токен стражи различают код и прозу: поиск sorry/admit по вычищенным комментариям/строкам + мутационная проба | DONE | agent:arena | npx vitest run tools/leanKernelCoreChecks.test.ts |
 
 ## Потери (muda)
 
@@ -99,6 +99,11 @@ _пусто_
 | guardSuite | `npx vitest run tools/tpsStandardWork.test.ts` | 1.05 c | 11 | 2026-09-16T08:54:04Z |
 | guardSuite | `npx vitest run tools/tpsStandardWork.test.ts` | 1.05 c | 11 | 2026-09-16T08:54:04Z |
 | guardSuite | `npx vitest run server/devHostPolicy.test.ts` | 0.72 c | 4 | 2026-09-16T19:22:31Z |
+| release | `npm run release:check` | 0.81 c | 1 | 2026-09-16T20:26:00Z |
+| typecheck | `npm run lint` | 15.90 c | 1 | 2026-09-16T20:26:00Z |
+| test | `npm test` | 185.79 c | 1 | 2026-09-16T20:26:00Z |
+| build | `npm run build` | 2.40 c | 1 | 2026-09-16T20:26:00Z |
+| lineGate | `npm run tps:gate` | 0.68 c | 1 | 2026-09-16T20:26:00Z |
 
 ## Андон-журнал (полный)
 

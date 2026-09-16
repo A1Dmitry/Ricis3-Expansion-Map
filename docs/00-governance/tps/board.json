@@ -2,7 +2,7 @@
   "boardVersion": "1.0.0",
   "system": "RICIS-III Expansion Map",
   "standard": "docs/00-governance/TOYOTA_TPS_WORKING_SYSTEM.md",
-  "generatedAt": "2026-09-16T20:05:00Z",
+  "generatedAt": "2026-09-16T20:26:00Z",
   "lanes": [
     {
       "id": "backlog",
@@ -159,6 +159,46 @@
         "sampleSize": 4,
         "measuredAt": "2026-09-16T19:22:31Z",
         "note": "Инцидентный цикл, новый страж: 10/10 — HTTP-проба через настоящую Vite-мидлварь (200 по умолчанию, 403 в строгом режиме), allowlist, резолвер политики, контракт точек входа."
+      },
+      {
+        "step": "release",
+        "command": "npm run release:check",
+        "measuredMs": 808,
+        "sampleSize": 1,
+        "measuredAt": "2026-09-16T20:26:00Z",
+        "note": "Цикл TPS-0012 (P12): 0.4.200 → 0.4.201, синхронизация по 8 документам/манифестам."
+      },
+      {
+        "step": "typecheck",
+        "command": "npm run lint",
+        "measuredMs": 15897,
+        "sampleSize": 1,
+        "measuredAt": "2026-09-16T20:26:00Z",
+        "note": "Цикл TPS-0012 (P12): полное дерево после правок генераторов/стражей."
+      },
+      {
+        "step": "test",
+        "command": "npm test",
+        "measuredMs": 185787,
+        "sampleSize": 1,
+        "measuredAt": "2026-09-16T20:26:00Z",
+        "note": "Цикл TPS-0012 (P12): 259 файлов / 2072 теста на чистом коммите 610796e (зелёный)."
+      },
+      {
+        "step": "build",
+        "command": "npm run build",
+        "measuredMs": 2395,
+        "sampleSize": 1,
+        "measuredAt": "2026-09-16T20:26:00Z",
+        "note": "Цикл TPS-0012 (P12): vite build + esbuild server.cjs."
+      },
+      {
+        "step": "lineGate",
+        "command": "npm run tps:gate",
+        "measuredMs": 679,
+        "sampleSize": 1,
+        "measuredAt": "2026-09-16T20:26:00Z",
+        "note": "Цикл TPS-0012 (P12): 0 после закрытия карточки; до исправления sourceRef — 1 (CARD_SOURCE_MISSING)."
       }
     ]
   },
@@ -618,6 +658,16 @@
       "verificationCommand": "npx vitest run server/devHostPolicy.test.ts",
       "verificationExitCode": 0,
       "linkedAndonId": "A-0010"
+    },
+    {
+      "id": "K-0014",
+      "title": "Lean-токен стражи различают код и прозу: поиск sorry/admit по вычищенным комментариям/строкам + мутационная проба",
+      "state": "DONE",
+      "owner": "agent:arena",
+      "expectedBenefit": "Класс «док-комментарий 'No sorry.' бракует производную» устранён без ослабления стража: настоящий `by sorry`/`admit` в теле по-прежнему ловится (мутационная проба фиксирует обе стороны), а авторитетная проверка остаётся за `sorryAx` в прогоне ядра.",
+      "verificationCommand": "npx vitest run tools/leanKernelCoreChecks.test.ts",
+      "verificationExitCode": 0,
+      "linkedAndonId": null
     }
   ],
   "muda": [
@@ -1353,8 +1403,8 @@
     {
       "id": "TPS-0012",
       "title": "P12: расширение kernel-покрытия на 3 оставшихся артефакта (RicisAgiTarget, jacobian-counterexample-full → Mathlib-путь; Schwarzschild → core-путь)",
-      "lane": "in_progress",
-      "status": "IN_PROGRESS",
+      "lane": "done",
+      "status": "COMPLETED",
       "taskClass": "ci",
       "owner": "agent:arena (автономный цикл RCVAP, 2026-09-16)",
       "priority": "P0",
@@ -1367,7 +1417,70 @@
         "Полный набор гейтов (lint, test, build, release:check, tps:gate) exit 0 на чистом коммите; фактическое ядровое свидетельство производит только CI (локальный тулчейн недоступен — A-0007)."
       ],
       "sourceRef": "ACTIVE_TASKS.md",
-      "startedAt": "2026-09-16T20:05:00Z"
+      "startedAt": "2026-09-16T20:05:00Z",
+      "closedAt": "2026-09-16T20:26:00Z",
+      "cycleTimeMs": 1260000,
+      "kaizenIds": [
+        "K-0014"
+      ],
+      "challenger": {
+        "attackedSubstitution": "Как этот цикл мог бы выглядеть успешным при нерешённой задаче? Если принять регистрацию в allowlist и генерацию производных за само ядровое свидетельство (статусы тихо повышены до прогона). Контратака: все три артефакта остаются REQUIRES_CORE_LEAN/PENDING_KERNEL_RUN, стражи реестра запрещают повышение без факта (проверено тестом), а ожидаемый исход записан как UNKNOWN без прогноза. Вторая атака: статический вывод «тело Шварцшильда не использует Mathlib» мог быть неверен — тогда джоба kernel-check упадёт в CI; это не маскируется: цель не внесена в expectedFailures, прогон рвётся дословной ошибкой (запроектированный стоп-линия цикл), а не тихим обходом.",
+        "independentFormOfEvidence": "Независимая форма — фактический двойной прогон в джобе mathlib-kernel-check и прогон джобы kernel-check в CI (workflow lean-artifact-kernel-check.yml, PR #59): исходник как предоставлен + байт-в-байт производная, `#print axioms`, sorryAx-стоп. Локально исполнены только байтовые/структурные стражи (перегенерация побайтово, целостность манифестов, согласованность реестра) — они проверяют подготовку, но не заменяют компиляцию (A-0007)."
+      },
+      "verification": {
+        "auditor": "SELF (same-pipeline) — подготовка выполнена этим циклом; ядровое свидетельство произведёт только CI, до его прихода статусы не изменены",
+        "commands": [
+          {
+            "command": "npm run release:check",
+            "exitCode": 0,
+            "measuredAt": "2026-09-16T20:07:10Z",
+            "durationMs": 808,
+            "note": "Версия 0.4.201 синхронизирована (package.json, src/version.ts, lockfile, README, CITATION, index.html, evidence-документы)."
+          },
+          {
+            "command": "npm run lint",
+            "exitCode": 0,
+            "measuredAt": "2026-09-16T20:07:26Z",
+            "durationMs": 15897,
+            "note": "tsc --noEmit (strict) после правок генераторов и стражей; отдельный `npx tsc --noEmit` тоже 0."
+          },
+          {
+            "command": "npm test",
+            "exitCode": 0,
+            "measuredAt": "2026-09-16T20:11:16Z",
+            "durationMs": 185787,
+            "note": "259 файлов / 2072 теста на чистом коммите 610796e (процедура A-0004; до коммита страж OIR03-QA-36 ожидаемо краснеет на грязном дереве)."
+          },
+          {
+            "command": "npm run build",
+            "exitCode": 0,
+            "measuredAt": "2026-09-16T20:07:29Z",
+            "durationMs": 2395,
+            "note": "vite build + esbuild server.cjs, без предупреждений о чанках."
+          },
+          {
+            "command": "npm run tps:gate",
+            "exitCode": 0,
+            "measuredAt": "2026-09-16T20:09:40Z",
+            "durationMs": 679,
+            "note": "Краснел один раз на собственной карточке (CARD_SOURCE_MISSING: sourceRef с текстом вместо пути) — исправлен на разрешимый путь; это срабатывание пока-ёке, а не регрессия."
+          },
+          {
+            "command": "npx vitest run tools/leanKernelCoreChecks.test.ts tools/leanMathlibChecks.test.ts tools/findingsDigest.test.ts tools/releaseConsistency.test.ts",
+            "exitCode": 0,
+            "measuredAt": "2026-09-16T20:06:30Z",
+            "durationMs": 2900,
+            "note": "Целевые стражи контура: 49/49, включая 2 мутационные пробы детектора sorry и сверку перегенерации сводки находок."
+          }
+        ]
+      },
+      "remainingRisks": [
+        "Ядровое свидетельство ещё не получено: локальный тулчейн недоступен (A-0007, сегодня перепроверено — скачивание elan обрывается по SSL при проходящих HEAD-запросах). Если какой-либо из трёх артефактов не скомпилируется в CI, прогон порвётся дословной ошибкой (цели не в expectedFailures) — это запроектированная стоп-линия, а не дефект этого цикла.",
+        "Статический вывод «тело Шварцшильда не использует Mathlib» опирается на пофайловое чтение: тактики `simp`/`native_decide` и производные классы ядро-нативны в 4.33.1 по документации ядра, но окончательный факт — только прогон; при отказе возможен перевод артефакта на Mathlib-путь отдельным решением.",
+        "Джоба mathlib-kernel-check теперь исполняет 4 артефакта (было 2): время CI растёт; 60-минутный лимит джобы не пересматривался.",
+        "Два файла в `artifacts/proofs/lean/` (AGI_TargetFunction.lean, UnifiedField_GeometricBridge.lean) не входят в реестр классификации и в этом цикле не тронуты — их покрытие требует отдельной задачи.",
+        "`ricis-yang-mills.lean` остаётся вне allowlist по решению владельца (TPS-0007, F-14)."
+      ]
     }
   ]
 }
