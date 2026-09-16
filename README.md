@@ -258,6 +258,11 @@ RICIS Expansion Map — это исследовательская среда и 
 Рабочее пространство формальных доказательств строго разграничивает локальные статические проверки AST и авторитетную верификацию ядром Lean.
 > **Состояние узла карты не равно Lean kernel verification.** Полный статус `LEAN_VERIFIED` присваивается только после верификации независимым ядром Lean.
 
+### 📐 Общая оркестрация доказательств: два согласованных слоя
+Любое доказательство в RICIS-III строится по единому каноническому шаблону ([`docs/00-governance/RICIS_PROOF_ORCHESTRATION_TEMPLATE.md`](docs/00-governance/RICIS_PROOF_ORCHESTRATION_TEMPLATE.md)):
+1. **Runtime-пайплайн (TypeScript)** ([`src/model/orchestrationPipeline.ts`](src/model/orchestrationPipeline.ts)): единый контракт `IRicisOrchestratorEngine.executePipeline` из 5 стадий (`PARSING_AND_L1_CHECK` → `AXIOMATIC_REDUCTION` → `LEAN_CODEGEN` → `GATEWAY_DISPATCH` → `TRUST_VALIDATION`) с логом `TransformationLog` и монадой `RicisNumber`.
+2. **Универсальный шаблон редукции (Lean 4)** ([`artifacts/proofs/ricis-universal-orchestration-template.lean`](artifacts/proofs/ricis-universal-orchestration-template.lean)): универсальный двухшаговый алгоритм `fullResolve(e) = resolveRICIS(resolveRICIS(e))` и `resolveRICIS(e) = geometricMeasure(ricisResolve(e))` (шаги $L1/SP2/A1..A10 \to A6 \to \mu(\text{rect}) \to F*G \to \text{fullResolve} \to SP4 \to \text{resolveVec4}$).
+
 Дополнительно различаются три уровня заявления (см. [`artifacts/proofs/README.md`](artifacts/proofs/README.md)):
 `LEAN_VERIFIED` (ядро приняло артефакт без `sorryAx`), `REQUIRES_CORE_LEAN` (прогон не выполнялся —
 в том числе для артефактов вне allowlist) и `STRUCTURALLY_VALIDATED` (структурная модель,
