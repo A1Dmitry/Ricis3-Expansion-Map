@@ -710,6 +710,14 @@ describe('OIR-03 — audit proof-synthesis containment', () => {
       ' M src/ui/SettingsModal.tsx',
       ' M src/ui/TheoremReportViewer.tsx',
       ' M src/ui/components/CompactCommandMenuBar.tsx',
+
+      // AUDIT-2026-09-16 BUG-06: единый контракт деградации AI-эндпоинтов —
+      // 503 + {degraded: no_api_key|ai_unavailable} для expandLeaves (нет
+      // черновика), 200 + {degraded: local_draft} для канонических черновиков.
+      ' M server.ts',
+      ' M src/store/mapStore.ts',
+      '?? server/aiDegradation.ts',
+      '?? server/aiDegradation.test.ts',
     ]);
     if (status.length > 0 && status.every(entry => entry.startsWith('?? '))) {
       // In clean container environments git status may return all files as untracked

@@ -911,7 +911,10 @@ export const useMapStore = create<MapStore>((set, get) => ({
           }
         } catch (e: any) {
           console.error('[expandLeaves AI error]:', e);
-          details.push(`Ошибка при автоматическом поиске зависимых задач по ИИ: ${e.message || e}`);
+          // BUG-06: the server now answers 503 with a machine-readable reason
+          // (no_api_key / ai_unavailable) — surface it verbatim instead of a
+          // silent "0 новых задач".
+          details.push(`Автопоиск зависимых задач по ИИ недоступен: ${e.message || e}`);
         }
       }
 

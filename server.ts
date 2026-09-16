@@ -12,6 +12,7 @@ import {
 } from "./server/ricisCoreSupervisor";
 import { registerCommunityRewardsUnavailableRoutes } from "./server/communityRewardsHttpAdapter";
 import { registerAdminCoreUnavailableRoutes } from "./server/adminCoreUnavailableHttpAdapter";
+import { LOCAL_DRAFT_DEGRADATION, expandLeavesDegradedResponse } from "./server/aiDegradation";
 
 
 
@@ -278,7 +279,7 @@ ${axiomList}
         targetFunction || '',
         id || 'node'
       );
-      res.json({ proof: fallbackProof, proofLatex: fallbackProof, model: "canonical-ricis-engine" });
+      res.json({ proof: fallbackProof, proofLatex: fallbackProof, model: "canonical-ricis-engine", degraded: LOCAL_DRAFT_DEGRADATION });
     }
   });
 
@@ -328,6 +329,7 @@ ${axiomList}
     } catch (e: any) {
       console.warn("[discoverTasks fallback activated]:", e?.message || e);
       res.json({
+        degraded: LOCAL_DRAFT_DEGRADATION,
         tasks: [
           {
             title: "Редукция неопределенности [0/0] через SP1-SP4",
@@ -408,6 +410,7 @@ ${axiomList}
     } catch (e: any) {
       console.warn("[aiAssistantNode fallback activated]:", e?.message || e);
       res.json({
+        degraded: LOCAL_DRAFT_DEGRADATION,
         title: title || "Научная проблема",
         targetFunction: `\\lim_{x \\to 0} \\frac{F(x)}{G(x)} = [0/0] \\xrightarrow{\\text{RICIS}} \\frac{0_F}{0_G} \\quad [O(1)]`,
         normalizedFunction: `\\lim_{x \\to 0} \\frac{F(x)}{G(x)} = [0/0] \\xrightarrow{\\text{RICIS}} \\frac{0_F}{0_G} \\quad [O(1)]`,
@@ -485,8 +488,13 @@ ${leavesStr}
       if (!Array.isArray(tasks)) tasks = [];
       res.json({ tasks, model: response.model });
     } catch (e: any) {
-      console.warn("[expandLeaves fallback activated]:", e?.message || e);
-      res.json({ tasks: [], error: e?.message || e });
+      // BUG-06: no local draft exists for leaf expansion — an AI failure must
+      // be an honest HTTP 503 with a machine-readable reason, not a silent
+      // 200 + empty task list.
+      const message = e?.message || String(e);
+      console.warn("[expandLeaves degradation]:", message);
+      const degraded = expandLeavesDegradedResponse(message);
+      res.status(degraded.status).json(degraded.body);
     }
   });
 
@@ -544,6 +552,7 @@ ${leavesStr}
     } catch (e: any) {
       console.warn("[fillNodeParams fallback activated]:", e?.message || e);
       res.json({
+        degraded: LOCAL_DRAFT_DEGRADATION,
         targetFunction: "\\lim_{x \\to a} \\frac{f(x)}{g(x)} = [0/0] \\xrightarrow{\\text{RICIS}} \\frac{0_f}{0_g} \\quad [O(1)]",
         normalizedFunction: "\\lim_{x \\to a} \\frac{f(x)}{g(x)} = [0/0] \\xrightarrow{\\text{RICIS}} \\frac{0_f}{0_g} \\quad [O(1)]",
         description: "Параметры сгенерированы каноническим движком RICIS-III.",
@@ -596,7 +605,7 @@ ${leavesStr}
       res.json({ hits, model: response.model });
     } catch (e: any) {
       console.warn("[searchDerivatives fallback activated]:", e?.message || e);
-      res.json({ hits: [], model: "canonical-ricis-engine" });
+      res.json({ hits: [], model: "canonical-ricis-engine", degraded: LOCAL_DRAFT_DEGRADATION });
     }
   });
 
