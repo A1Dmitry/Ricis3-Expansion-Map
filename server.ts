@@ -697,9 +697,11 @@ ${leavesStr}
   if (process.env.NODE_ENV !== "production") {
     const { createServer: createViteServer } = await import("vite");
     const vite = await createViteServer({
-      server: { 
+      server: {
         middlewareMode: true,
         hmr: false,
+        // Allow proxied preview hosts (e.g. sandboxes/reverse proxies) in dev.
+        allowedHosts: process.env.VITE_ALLOWED_HOSTS === "true" ? true : undefined,
       },
       appType: "spa",
     });
