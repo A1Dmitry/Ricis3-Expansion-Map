@@ -12,11 +12,13 @@
   },
   "declaredAxioms": [
     {
-      "name": "trusted_full_jacobian_contract",
+      "name": "JacobianCounterexample.trusted_full_jacobian_contract",
+      "unqualifiedName": "trusted_full_jacobian_contract",
       "role": "trusted contract: потребители могут принять проверенный полевой пакет как доверенный вход; #print axioms делает эту зависимость видимой",
       "usedByTheorems": [
         "trusted_contract_no_left_inverse"
-      ]
+      ],
+      "note": "Объявлена внутри `namespace JacobianCounterexample`; эпилог производной печатает квалифицированное имя (A-0011)."
     }
   ],
   "boundary": {

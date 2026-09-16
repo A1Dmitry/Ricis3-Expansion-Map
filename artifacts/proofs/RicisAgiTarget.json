@@ -3,12 +3,12 @@
   "claim": "RicisAgiTarget: структурный A6-мост (детерминант ортогональной пары) на ℝ и путь-индексированная метрика цели (SP4/L1).",
   "method": "geometric_bridge_determinant_on_real",
   "verification": {
-    "valid": false,
+    "valid": true,
     "verifiedAxioms": [],
     "contentHash": "4002d1c900271d7526f8b455c277f32a91ac99a613e55d8d25f09edcd7860073",
-    "trustStatus": "REQUIRES_CORE_LEAN",
-    "claimLevel": "PENDING_KERNEL_RUN",
-    "claimLevelNote": "Статус не повышается до фактического двойного прогона (исходник как предоставлен + байт-в-байт производная с #print axioms) в джобе mathlib-kernel-check. Тело действительно нуждается в Mathlib (тип ℝ и тактика ring), поэтому core-check путь неприменим."
+    "trustStatus": "LEAN_VERIFIED",
+    "claimLevel": "STRUCTURALLY_VALIDATED",
+    "claimLevelNote": "Артефактный уровень: ядро приняло исходник и производную (run 35145205870, exit 0, без sorryAx) — LEAN_VERIFIED. Уровень заявления — STRUCTURALLY_VALIDATED: теоремы фиксируют структурный A6-мост на ℝ и сохранение путь-индекса; никаких эмпирических утверждений об AGI прогон не подтверждает."
   },
   "declaredAxioms": [],
   "declaredAxiomsNote": "Исходник не объявляет ни одной `axiom`: доверенных контрактов нет, все три теоремы доказаны внутри файла (детерминантный мост, сохранение путь-индекса, равенство вычисления произведению весов). Граница доверия фиксируется здесь, вне исходника (§7).",
@@ -29,10 +29,47 @@
     "job": "mathlib-kernel-check",
     "checkedFile": "artifacts/proofs/RicisAgiTarget.lean",
     "artifactCheckedAsProvided": true,
-    "status": "PENDING_KERNEL_RUN"
+    "status": "COMPLETED",
+    "runId": 35145205870,
+    "outcome": "LEAN_VERIFIED (артефактный уровень); claimLevel = STRUCTURALLY_VALIDATED"
   },
   "provenance": {
     "zenodoDoi": "10.5281/zenodo.22225762",
     "note": "Computable Lean 4 prototype for Zenodo deposit; автор указан в заголовке исходника."
+  },
+  "kernelCheck": {
+    "addedBy": "AGENTS.md §7 — статус записывается снаружи неизменяемого исходника (присоединение metadata)",
+    "registry": "artifacts/proofs/core-checks/kernel-findings.json",
+    "evidence": "docs/05-evidence/proofs/lean-kernel-run-35145205870.pr-comment.txt",
+    "rawEvidence": "docs/05-evidence/proofs/lean-kernel-run-35145205870.pr-comment.txt",
+    "run": 35145205870,
+    "runUrl": "https://github.com/A1Dmitry/Ricis3-Expansion-Map/actions/runs/35145205870",
+    "job": "mathlib-kernel-check",
+    "toolchain": "leanprover/lean4:v4.33.0 — lean-toolchain закреплённой ревизии Mathlib @ 6f1ef4e5dd604a435bddba4747b13970cd65d2a1 (oleans готовыми, lake exe cache get)",
+    "command": "(cd mathlib-check && lake env lean artifacts/proofs/RicisAgiTarget.lean) — исходник как предоставлен; та же команда для производной",
+    "immutableSource": "artifacts/proofs/RicisAgiTarget.lean",
+    "immutableSourceSha256": "4002d1c900271d7526f8b455c277f32a91ac99a613e55d8d25f09edcd7860073",
+    "checkedFile": "artifacts/proofs/mathlib-checks/RicisAgiTarget.mathlib-check.lean",
+    "sourceCheckedAsProvided": true,
+    "substitutionsApplied": [],
+    "compilerExit": 0,
+    "compilerErrorCount": 0,
+    "theorems": {
+      "total": 3,
+      "provenWithoutSorryAx": 3,
+      "withSorryAx": 0,
+      "axiomFree": 0,
+      "withStandardAxiomsOnly": 3
+    },
+    "declaredContracts": [],
+    "printAxiomsOutput": [
+      "'RICIS3.AgiTarget.detBridge_eq_mul' depends on axioms: [propext, Classical.choice, Quot.sound]",
+      "'RICIS3.AgiTarget.sp4_no_silent_collapse' depends on axioms: [propext, Classical.choice, Quot.sound]",
+      "'RICIS3.AgiTarget.evaluateGoal_eq_product' depends on axioms: [propext, Classical.choice, Quot.sound]"
+    ],
+    "statusAfterKernelRun": "LEAN_VERIFIED",
+    "rootCause": null,
+    "trustBoundary": "Доверенных контрактов нет; все три теоремы зависят только от стандартных аксиом Lean. Прогон не подтверждает ничего эмпирического об AGI (структурный прототип для Zenodo-депозита).",
+    "relationToDeclaredTrustStatus": "Было REQUIRES_CORE_LEAN/PENDING_KERNEL_RUN (0.4.201) → стало LEAN_VERIFIED по факту run 35145205870. Повышение только артефактного уровня; claimLevel = STRUCTURALLY_VALIDATED."
   }
 }

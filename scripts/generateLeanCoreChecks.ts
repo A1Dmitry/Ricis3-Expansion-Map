@@ -530,11 +530,14 @@ const THEOREM_PATTERN =
   /^(?:(?:private|protected|noncomputable|partial|unsafe)\s+)*theorem\s+([A-Za-z_][A-Za-z0-9_'.]*)/u;
 
 /**
- * Собирает полностью квалифицированные имена всех `theorem` файла — цели
- * инспекционных команд `#print axioms` в эпилоге (эпилог стоит после `end …`,
- * поэтому имена обязаны быть полными).
+ * Собирает полностью квалифицированные имена деклараций, подходящих под
+ * `pattern` (группа 1 — имя), с отслеживанием неймспейсов. Цели инспекционных
+ * команд эпилога (`#print axioms …`) всегда стоят ПОСЛЕ всех `end …`, поэтому
+ * любое имя, объявленное внутри неймспейса, обязано нести его префикс —
+ * иначе ядро ответит `unknown identifier` (A-0011: аксиома внутри
+ * `namespace JacobianCounterexample` была напечатана неквалифицированно).
  */
-export function collectTheoremNames(source: string): readonly string[] {
+export function collectScopedNames(source: string, pattern: RegExp): readonly string[] {
   const scannable = blankCommentsAndStrings(source);
   const scope: ScopeEntry[] = [];
   const names: string[] = [];
@@ -569,17 +572,26 @@ export function collectTheoremNames(source: string): readonly string[] {
       scope.pop();
       continue;
     }
-    const theoremMatch = THEOREM_PATTERN.exec(line);
-    if (theoremMatch) {
+    const declarationMatch = pattern.exec(line);
+    if (declarationMatch && declarationMatch[1]) {
       const prefix = scope
         .filter((entry) => entry.kind === 'namespace')
         .map((entry) => entry.name)
         .join('.');
-      names.push(prefix.length > 0 ? `${prefix}.${theoremMatch[1]}` : theoremMatch[1]);
+      names.push(prefix.length > 0 ? `${prefix}.${declarationMatch[1]}` : declarationMatch[1]);
     }
   }
 
   return [...new Set(names)];
+}
+
+/**
+ * Собирает полностью квалифицированные имена всех `theorem` файла — цели
+ * инспекционных команд `#print axioms` в эпилоге (эпилог стоит после `end …`,
+ * поэтому имена обязаны быть полными).
+ */
+export function collectTheoremNames(source: string): readonly string[] {
+  return collectScopedNames(source, THEOREM_PATTERN);
 }
 
 /** Удаляет строки `import Mathlib…` и гарантирует отсутствие любых других импортов. */

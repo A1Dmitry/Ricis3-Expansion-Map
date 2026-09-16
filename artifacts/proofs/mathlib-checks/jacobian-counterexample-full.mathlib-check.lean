@@ -159,4 +159,4 @@ end JacobianCounterexample
 #print axioms JacobianCounterexample.no_left_inverse
 #print axioms JacobianCounterexample.full_jacobian_counterexample
 #print axioms JacobianCounterexample.trusted_contract_no_left_inverse
-#print axioms trusted_full_jacobian_contract
+#print axioms JacobianCounterexample.trusted_full_jacobian_contract

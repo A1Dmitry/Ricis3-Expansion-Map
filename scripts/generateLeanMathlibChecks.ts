@@ -39,7 +39,7 @@ import { fileURLToPath } from 'node:url';
 
 import {
   EPILOGUE_MARKER,
-  blankCommentsAndStrings,
+  collectScopedNames,
   collectTheoremNames,
   sha256,
 } from './generateLeanCoreChecks';
@@ -115,15 +115,14 @@ export const LEAN_MATHLIB_CHECK_PLAN: readonly LeanMathlibCheckPlanEntry[] = [
 
 const AXIOM_PATTERN = /^\s*axiom\s+([A-Za-z_][A-Za-z0-9_'.]*)/u;
 
-/** Имена аксиом, объявленных в исходнике (доверенные контракты, а не доказательства). */
+/**
+ * Полностью квалифицированные имена аксиом, объявленных в исходнике
+ * (доверенные контракты, а не доказательства). Квалификация обязательна:
+ * эпилог стоит после всех `end …`, и имя, объявленное внутри неймспейса,
+ * без префикса не разрешится (A-0011, run 35145205870: `unknown identifier`).
+ */
 export function collectDeclaredAxioms(source: string): readonly string[] {
-  const scannable = blankCommentsAndStrings(source);
-  const names: string[] = [];
-  for (const rawLine of scannable.split('\n')) {
-    const match = AXIOM_PATTERN.exec(rawLine);
-    if (match?.[1]) names.push(match[1]);
-  }
-  return [...new Set(names)];
+  return collectScopedNames(source, AXIOM_PATTERN);
 }
 
 /** Тело производной: исходник без изменений. Отдельная функция — чтобы это было проверяемо тестом. */

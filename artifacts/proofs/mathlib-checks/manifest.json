@@ -36,7 +36,7 @@
       "source": "artifacts/proofs/jacobian-counterexample-full.lean",
       "sourceSha256": "e6ab1b1db54ff04cdc3fb5a647cb6beedd7daba84bcd1272b51123519244339a",
       "output": "artifacts/proofs/mathlib-checks/jacobian-counterexample-full.mathlib-check.lean",
-      "outputSha256": "4a61fef521c05eac91d74c1f4126631f81321117db889b83c4b552bfa17d9cbf",
+      "outputSha256": "fc98f45b79736318f415de2a9b0830976e0318b2bdfc712c0f0e271128b4c7f3",
       "rationale": "Тело действительно нуждается в Mathlib: полиномиальное поле задано на ℚ (нотация и тип из Mathlib), константность глобального якобиана доказывается тактикой ring, точечные свидетели неинъективности — тактикой norm_num. В исходнике уже есть секция #print axioms внутри неймспейса; производная добавляет только внешний эпилог с квалифицированными именами, включая объявленный доверенный контракт (аксиому) как видимый вход доверия.",
       "metadataJson": "artifacts/proofs/jacobian-counterexample-full.json",
       "theorems": [
@@ -52,7 +52,7 @@
         "JacobianCounterexample.trusted_contract_no_left_inverse"
       ],
       "declaredAxioms": [
-        "trusted_full_jacobian_contract"
+        "JacobianCounterexample.trusted_full_jacobian_contract"
       ],
       "printAxiomsTargets": [
         "JacobianCounterexample.jacobian_entries_match_formal_partials",
@@ -65,7 +65,7 @@
         "JacobianCounterexample.no_left_inverse",
         "JacobianCounterexample.full_jacobian_counterexample",
         "JacobianCounterexample.trusted_contract_no_left_inverse",
-        "trusted_full_jacobian_contract"
+        "JacobianCounterexample.trusted_full_jacobian_contract"
       ]
     },
     {

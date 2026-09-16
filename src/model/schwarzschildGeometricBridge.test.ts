@@ -10,11 +10,13 @@ import { auditProofContent } from './ricisCoreRules';
  *
  * The node is bound to the immutable artifact
  * artifacts/proofs/Schwarzschild_GeometricBridge.lean (path-indexed SP4/L1/A6
- * proxy monolith). The artifact has NO Lean kernel run in this repository, so
- * the node and its metadata must stay at REQUIRES_CORE_LEAN and must never
- * present kernel evidence that does not exist (anti-tukhta: status is stored
- * outside the source, per AGENTS.md §7; node state is never upgraded into
- * Lean kernel verification, per tools/proofTrustBoundary.test.ts).
+ * proxy monolith). The artifact WAS kernel-run (run 35145205870, job
+ * kernel-check, Lean 4.33.1): its derivative without the three unused Mathlib
+ * imports compiled exit 0, no sorryAx — artifact-level LEAN_VERIFIED.
+ * The NODE-level `externalLean` stays REQUIRES_CORE_LEAN on purpose: the
+ * kernel run verified the structural artifact, not a physics claim, and node
+ * state is never upgraded into Lean kernel verification (anti-tukhta:
+ * tools/proofTrustBoundary.test.ts; AGENTS.md §7).
  */
 
 const NODE_ID = 'schwarzschild-geometric-bridge';
@@ -100,10 +102,14 @@ describe('Schwarzschild Geometric Bridge — map node, connections and artifact 
     expect(content).not.toMatch(/:=\s*sorry|\bby\s+sorry\b/u);
   });
 
-  it('QA-5: trust boundary is honest — REQUIRES_CORE_LEAN, hash pinned, scope boundary declared', () => {
+  it('QA-5: trust boundary is honest — artifact LEAN_VERIFIED by a real run, node stays REQUIRES_CORE_LEAN, hash pinned, scope boundary declared', () => {
     const artifact = readFileSync(join(process.cwd(), ARTIFACT_PATH), 'utf8');
     const artifactHash = sha256(artifact);
 
+    // NODE level: the physics claim is NOT what the kernel run verified, so the
+    // node-level externalLean must remain REQUIRES_CORE_LEAN (anti-tukhta:
+    // tools/proofTrustBoundary.test.ts — node state is never upgraded by an
+    // artifact-level structural run).
     const proof = initialMap.proofs[NODE_ID];
     expect(proof?.externalLean).toBeDefined();
     expect(proof!.externalLean!.trustStatus).toBe('REQUIRES_CORE_LEAN');
@@ -112,16 +118,44 @@ describe('Schwarzschild Geometric Bridge — map node, connections and artifact 
 
     const metadata = JSON.parse(readFileSync(join(process.cwd(), METADATA_PATH), 'utf8')) as {
       proof: { problemId: string };
-      verification: { contentHash: string; trustStatus: string };
-      kernelCheck?: unknown;
+      verification: { contentHash: string; trustStatus: string; claimLevel?: string };
+      kernelCheck?: {
+        run: number;
+        job: string;
+        registry: string;
+        rawEvidence: string;
+        compilerExit: number;
+        statusAfterKernelRun: string;
+        immutableSourceSha256: string;
+      };
     };
     expect(metadata.proof.problemId).toBe(NODE_ID);
-    expect(metadata.verification.trustStatus).toBe('REQUIRES_CORE_LEAN');
     expect(metadata.verification.contentHash).toBe(artifactHash);
-    // No kernel run exists in this repo, so no kernelCheck evidence may be fabricated.
-    expect(metadata.kernelCheck).toBeUndefined();
 
-    // Scope boundary: GR-level claims are explicitly refused in the artifact header.
+    // ARTIFACT level: run 35145205870 (job kernel-check, Lean 4.33.1) compiled the
+    // Mathlib-import-free derivative exit 0 with no sorryAx. The evidence is real
+    // and must be present — and it must point at that exact run, not be fabricated.
+    expect(metadata.verification.trustStatus).toBe('LEAN_VERIFIED');
+    expect(metadata.verification.claimLevel).toBe('STRUCTURALLY_VALIDATED');
+    expect(metadata.kernelCheck, 'kernel run exists, evidence must not be dropped').toBeDefined();
+    expect(metadata.kernelCheck!.run).toBe(35145205870);
+    expect(metadata.kernelCheck!.job).toBe('kernel-check');
+    expect(metadata.kernelCheck!.compilerExit).toBe(0);
+    expect(metadata.kernelCheck!.statusAfterKernelRun).toBe('LEAN_VERIFIED');
+    expect(metadata.kernelCheck!.immutableSourceSha256).toBe(artifactHash);
+    expect(existsSync(join(process.cwd(), metadata.kernelCheck!.registry))).toBe(true);
+    expect(existsSync(join(process.cwd(), metadata.kernelCheck!.rawEvidence))).toBe(true);
+    // The registry must agree: no LEAN_VERIFIED without a matching artifact entry.
+    const registry = JSON.parse(readFileSync(join(process.cwd(), metadata.kernelCheck!.registry), 'utf8')) as {
+      artifacts: ReadonlyArray<{ artifactId: string; outcome: string; compilerExit: number }>;
+    };
+    const entry = registry.artifacts.find(a => a.artifactId === 'Schwarzschild_GeometricBridge');
+    expect(entry, 'registry fact for the artifact').toBeDefined();
+    expect(entry!.outcome).toBe('LEAN_VERIFIED');
+    expect(entry!.compilerExit).toBe(0);
+
+    // Scope boundary: GR-level claims are explicitly refused in the artifact header
+    // and were never the subject of the kernel run.
     expect(artifact).toContain('Scope boundary');
     expect(artifact).toContain('NOT CLAIMED');
     const raw = readFileSync(join(process.cwd(), METADATA_PATH), 'utf8');
