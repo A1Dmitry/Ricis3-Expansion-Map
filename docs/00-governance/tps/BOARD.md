@@ -3,7 +3,7 @@
 > Сгенерировано из `board.json`: `npm run tps:board`. Правка вручную = дрейф, его ловит `tps:gate`.
 
 **Стандарт:** [`docs/00-governance/TOYOTA_TPS_WORKING_SYSTEM.md`](../TOYOTA_TPS_WORKING_SYSTEM.md)  
-**Версия доски:** 1.0.0 · **Снимок:** 2026-09-16T00:14:57Z
+**Версия доски:** 1.0.0 · **Снимок:** 2026-09-16T00:23:25Z
 
 ## Andon (состояние линии)
 
@@ -25,11 +25,9 @@ _пусто_
 
 _пусто_
 
-## VERIFY (атака результата) — 1/1
+## VERIFY (атака результата) — 0/1
 
-| Карточка | Класс | Статус | Владелец | Цикл | Проверка | Anchor |
-|---|---|---|---|---|---|---|
-| `TPS-0009` Реакция на перепроизводство: доска сверяется с реестром находок (CARD_FINDING_ALREADY_CLOSED) и с фактическим наличием оснований (CARD_SOURCE_MISSING) | process | IN_PROGRESS | agent:arena (Autonomous RCVAP cycle, takt 2) | — | — | docs/00-governance/TOYOTA_TPS_WORKING_SYSTEM.md +A-0008 |
+_пусто_
 
 ## ANDON (линия остановлена) — 0/3
 
@@ -44,13 +42,14 @@ _пусто_
 | `TPS-0006` L9: узел registry-120 в src/model/initialMap.ts остаётся TRUSTED_AXIOM без ядерного основания | docs | PARTIALLY_COMPLETED | владелец проекта | — | — | src/model/initialMap.ts |
 | `TPS-0007` F-14: ricis-yang-mills.lean — ремонт импорта как новая версия доказательства + решение о allowlist MATHLIB_ARTIFACTS | ci | PARTIALLY_COMPLETED | владелец проекта + агент (после решения) | — | — | artifacts/proofs/ricis-yang-mills.lean |
 
-## DONE (годная деталь) — 3/∞
+## DONE (годная деталь) — 4/∞
 
 | Карточка | Класс | Статус | Владелец | Цикл | Проверка | Anchor |
 |---|---|---|---|---|---|---|
 | `TPS-0001` Запуск рабочего процесса по шаблону Toyota: стандарт потока, канбан-доска, пока-ёке и стоп-линия в CI | process | COMPLETED | agent:arena | 28199 c | 6 ком. / SELF (same-pipeline) — исполнено и проверено одним циклом; внешнего рецензента процесса не было | ACTIVE_TASKS.md +A-0001,A-0002,A-0004,A-0005,A-0006 |
 | `TPS-0002` F-08: ядровой ремонт A11 — закрыт upstream (PR #47, run 35024728967); этот цикл выполняет сверку и подтверждение на мерже | math-proof | COMPLETED | владелец/параллельная сессия (PR #47 = dc09d8b); сверка на мерже — agent:arena | 1355 c | 4 ком. / SELF (same-pipeline) — закрытие выполнено ВЕРХОМ (PR #47 + run 35024728967); этот цикл проверял только связность мержа | docs/05-evidence/proofs/lean-core-checks-run-2026-09-14.md |
 | `TPS-0008` PENDING_DOI: закрыт upstream (PR #48) — DOI 10.5281/zenodo.22225762 внесён, файл перенесён в import-patches/ | docs | COMPLETED | владелец/параллельная сессия (PR #48 = 4985bfe); сверка — agent:arena | 657 c | 2 ком. / SELF (same-pipeline) — закрытие выполнено ВЕРХОМ (PR #48); здесь сверены наличие DOI и перенос файла | import-patches/ricis-map-patch-core-agi-target.json |
+| `TPS-0009` Реакция на перепроизводство: доска сверяется с реестром находок (CARD_FINDING_ALREADY_CLOSED) и с фактическим наличием оснований (CARD_SOURCE_MISSING) | process | COMPLETED | agent:arena (Autonomous RCVAP cycle, takt 2) | 1812 c | 7 ком. / SELF (same-pipeline) — поток и его правила написаны и проверены этим циклом; закрытие F-08 принадлежит PR #47 и цитируется как чужое доказательство, а не присваивается | docs/00-governance/TOYOTA_TPS_WORKING_SYSTEM.md +A-0008 |
 
 ## Kайдзен-реестр
 
@@ -87,11 +86,11 @@ _пусто_
 |---|---|---|---|---|
 | release | `npm run release:check` | 0.89 c | 3 | 2026-09-16T00:07:07Z |
 | typecheck | `npm run lint` | 18.26 c | 4 | 2026-09-16T00:07:26Z |
-| test | `npm test` | 202.23 c | 5 | 2026-09-16T00:10:51Z |
+| test | `npm test` | 203.08 c | 6 | 2026-09-16T00:22:44Z |
 | build | `npm run build` | 2.77 c | 3 | 2026-09-16T00:07:28Z |
-| lineGate | `npm run tps:gate` | 0.81 c | 8 | 2026-09-16T00:14:57Z |
-| guardSuite | `npx vitest run tools/tpsStandardWork.test.ts` | 0.32 c | 5 | 2026-09-15T22:46:27Z |
-| guardSuite | `npx vitest run tools/tpsStandardWork.test.ts` | 0.37 c | 8 | 2026-09-16T00:14:57Z |
+| lineGate | `npm run tps:gate` | 0.78 c | 11 | 2026-09-16T00:23:25Z |
+| guardSuite | `npx vitest run tools/tpsStandardWork.test.ts` | 0.37 c | 10 | 2026-09-16T00:23:25Z |
+| guardSuite | `npx vitest run tools/tpsStandardWork.test.ts` | 0.37 c | 10 | 2026-09-16T00:23:25Z |
 
 ## Андон-журнал (полный)
 

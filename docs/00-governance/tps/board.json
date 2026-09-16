@@ -2,7 +2,7 @@
   "boardVersion": "1.0.0",
   "system": "RICIS-III Expansion Map",
   "standard": "docs/00-governance/TOYOTA_TPS_WORKING_SYSTEM.md",
-  "generatedAt": "2026-09-16T00:14:57Z",
+  "generatedAt": "2026-09-16T00:23:25Z",
   "lanes": [
     {
       "id": "backlog",
@@ -115,10 +115,10 @@
       {
         "step": "test",
         "command": "npm test",
-        "measuredMs": 202230,
-        "sampleSize": 5,
-        "measuredAt": "2026-09-16T00:10:51Z",
-        "note": "203.0 с на слитом дереве во время сверки доски: 6 падений — сам незакрытый момент реконсиляции (пока доска была в середине правки) + OIR03-QA-36 из-за грязного дерева. Финальный зелёный прогон фиксируется в карточке TPS-0009 после коммита."
+        "measuredMs": 203084,
+        "sampleSize": 6,
+        "measuredAt": "2026-09-16T00:22:44Z",
+        "note": "Финальный зелёный прогон на слитом дереве: 2008/2008 (250 файлов). 202.3–213.1 с; горловина — jsdom startup 142.9 с."
       },
       {
         "step": "build",
@@ -131,26 +131,26 @@
       {
         "step": "lineGate",
         "command": "npm run tps:gate",
-        "measuredMs": 812,
-        "sampleSize": 8,
-        "measuredAt": "2026-09-16T00:14:57Z",
+        "measuredMs": 780,
+        "sampleSize": 11,
+        "measuredAt": "2026-09-16T00:23:25Z",
         "note": "0.5–0.9 с; именно этот гейт поймал обе устаревшие карточки до их закрытия."
       },
       {
         "step": "guardSuite",
         "command": "npx vitest run tools/tpsStandardWork.test.ts",
-        "measuredMs": 318,
-        "sampleSize": 5,
-        "measuredAt": "2026-09-15T22:46:27Z",
-        "note": "34 теста пока-ёке за 0.32 с — точечный прогон guard-файла перед коммитом (контрмера M-0006) вместо полного цикла в 204 с."
+        "measuredMs": 370,
+        "sampleSize": 10,
+        "measuredAt": "2026-09-16T00:23:25Z",
+        "note": "37 тестов пока-ёке <0.4 с — точечный прогон перед коммитом (контрмера M-0006)."
       },
       {
         "step": "guardSuite",
         "command": "npx vitest run tools/tpsStandardWork.test.ts",
         "measuredMs": 370,
-        "sampleSize": 8,
-        "measuredAt": "2026-09-16T00:14:57Z",
-        "note": "36 тестов пока-ёке потока (включая новые правила закрытия извне и перепроизводства) за <0.4 с — точечный прогон перед коммитом."
+        "sampleSize": 10,
+        "measuredAt": "2026-09-16T00:23:25Z",
+        "note": "37 тестов пока-ёке <0.4 с — точечный прогон перед коммитом (контрмера M-0006)."
       }
     ]
   },
@@ -880,8 +880,8 @@
     {
       "id": "TPS-0009",
       "title": "Реакция на перепроизводство: доска сверяется с реестром находок (CARD_FINDING_ALREADY_CLOSED) и с фактическим наличием оснований (CARD_SOURCE_MISSING)",
-      "lane": "verify",
-      "status": "IN_PROGRESS",
+      "lane": "done",
+      "status": "COMPLETED",
       "taskClass": "process",
       "owner": "agent:arena (Autonomous RCVAP cycle, takt 2)",
       "priority": "P0",
@@ -910,6 +910,66 @@
           "findingId": "F-08",
           "reason": "F-08 закрыт upstream: PR #47 (dc09d8b), ядерный прогон run 35024728967 — `OK (no unexpected failures; sorryAx-free)`, реестр: A11 LEAN_VERIFIED, 6/6 теорем [propext]. Ссылка в приёмочных критериях контекстная: предмет этой карточки — класс дублей, а не сам ремонт; остатка работы по F-08 нет."
         }
+      ],
+      "startedAt": "2026-09-15T23:53:13Z",
+      "closedAt": "2026-09-16T00:23:25Z",
+      "cycleTimeMs": 1812000,
+      "verification": {
+        "auditor": "SELF (same-pipeline) — поток и его правила написаны и проверены этим циклом; закрытие F-08 принадлежит PR #47 и цитируется как чужое доказательство, а не присваивается",
+        "commands": [
+          {
+            "command": "npm run lint",
+            "exitCode": 0,
+            "measuredAt": "2026-09-16T00:07:26Z",
+            "durationMs": 18260,
+            "note": "tsc --noEmit на слитом дереве."
+          },
+          {
+            "command": "npm test",
+            "exitCode": 0,
+            "measuredAt": "2026-09-16T00:22:44Z",
+            "durationMs": 203084,
+            "note": "2008/2008, 250 файлов — финальный прогон на чистом коммите 6f62536 (после мержа main и снятия собственного кандидата)."
+          },
+          {
+            "command": "npm run build",
+            "exitCode": 0,
+            "measuredAt": "2026-09-16T00:07:28Z",
+            "durationMs": 2769
+          },
+          {
+            "command": "npm run release:check",
+            "exitCode": 0,
+            "measuredAt": "2026-09-16T00:07:07Z",
+            "durationMs": 892,
+            "note": "версия 0.4.197 синхронизирована (main был на 0.4.196)."
+          },
+          {
+            "command": "npm run tps:gate",
+            "exitCode": 0,
+            "measuredAt": "2026-09-16T00:23:25Z",
+            "durationMs": 780,
+            "note": "Чисто после сверки; до сверки падал на CARD_FINDING_ALREADY_CLOSED (TPS-0002), CARD_SOURCE_MISSING (TPS-0008) и CYCLE_TIME_MISMATCH (мой же заявленный цикл)."
+          },
+          {
+            "command": "npx vitest run tools/tpsStandardWork.test.ts",
+            "exitCode": 0,
+            "measuredAt": "2026-09-16T00:23:25Z",
+            "durationMs": 370,
+            "note": "37/37: 3 новых мутационных теста на правила перепроизводства и внешнего закрытия."
+          },
+          {
+            "command": "npx vitest run tools/leanKernelCoreChecks.test.ts",
+            "exitCode": 0,
+            "measuredAt": "2026-09-16T00:23:25Z",
+            "durationMs": 500,
+            "note": "17/17 после мержа: побайтовая перегенерация производной main-версии, sha256 неизменных исходников, трассируемость подстановок."
+          }
+        ]
+      },
+      "remainingRisks": [
+        "Правило распознаёт закрытие находки по началу строки `resolution` реестра; формулировки вне словаря (например «исправлено частично») не будут понята — предложено K-0011 (машиночитаемый status), решение за владельцем формата реестра.",
+        "Сверка с верхом — процедура, а не гарантия: если параллельная сессия закроет находку между `git fetch` и началом работы, дубль возможен снова; смягчение — CI-гейт на самом PR."
       ]
     }
   ]
