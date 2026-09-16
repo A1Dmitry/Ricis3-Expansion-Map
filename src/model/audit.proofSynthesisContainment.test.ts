@@ -695,6 +695,21 @@ describe('OIR-03 — audit proof-synthesis containment', () => {
       // (DoS-защита) + полная проверка multiply-chain (все листья = Parameter(x)).
       ' M packages/ricis-core-ts/src/engine/AlgebraicSimplifier.ts',
       '?? packages/ricis-core-ts/src/engine/AlgebraicSimplifier.test.ts',
+
+      // AUDIT-2026-09-16 BUG-07: все места копирования переведены на единый
+      // copyTextToClipboard (guard не-secure контекста + textarea-fallback).
+      ' M src/services/UrlShareService.ts',
+      ' M src/services/clipboard.ts',
+      '?? src/services/clipboard.test.ts',
+      ' M src/ui/AgentLogModal.tsx',
+      ' M src/ui/CoreRecoveryPage.tsx',
+      ' M src/ui/CoreRecoveryPage.diagnosticsTopology.test.ts',
+      ' M src/ui/KinematicEnginePage.tsx',
+      ' M src/ui/Lean4ReportViewer.tsx',
+      ' M src/ui/PlainTerminalLogViewer.tsx',
+      ' M src/ui/SettingsModal.tsx',
+      ' M src/ui/TheoremReportViewer.tsx',
+      ' M src/ui/components/CompactCommandMenuBar.tsx',
     ]);
     if (status.length > 0 && status.every(entry => entry.startsWith('?? '))) {
       // In clean container environments git status may return all files as untracked

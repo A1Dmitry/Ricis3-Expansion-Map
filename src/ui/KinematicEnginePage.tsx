@@ -47,6 +47,7 @@ import { useMapStore } from '../store/mapStore';
 import { useMobileLayout } from '../hooks/useMobileLayout';
 import { useRicisCommand } from '../hooks/useRicisCommand';
 import { RICIS_COMMAND_EVENTS, dispatchRicisCommand } from '../services/commandBus';
+import { copyTextToClipboard } from '../services/clipboard';
 import { SwipeDismissable } from './components/SwipeDismissable';
 import { AutomatedTestingModal } from './components/testing/AutomatedTestingModal';
 import { RicisAstInspector } from './components/kinematic/RicisAstInspector';
@@ -531,9 +532,9 @@ export const KinematicEnginePage: React.FC<Props> = ({ onBackToMap }) => {
       null,
       2
     );
-    navigator.clipboard.writeText(payload).then(() => {
-      setCopiedTrace(true);
-      setTimeout(() => setCopiedTrace(false), 2000);
+    void copyTextToClipboard(payload).then((copied) => {
+      setCopiedTrace(copied);
+      if (copied) setTimeout(() => setCopiedTrace(false), 2000);
     });
   };
 

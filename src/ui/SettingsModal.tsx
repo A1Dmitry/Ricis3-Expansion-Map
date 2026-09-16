@@ -9,6 +9,7 @@ import type { FreeHostingDatabaseKind } from '../services/calculatorEngine/types
 
 export type { UIElementToggle } from '../domain/ui/uiElement.types';
 import { useI18nStore } from '../store/useI18nStore';
+import { copyTextToClipboard } from '../services/clipboard';
 import { LanguageToggle } from './LanguageToggle';
 import type { AdminCoreFeatureSnapshot } from '../adminCoreConnection/contracts';
 
@@ -55,9 +56,12 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   const activeTemplate = useMemo(() => dbTemplates.find(t => t.kind === selectedDbKind) ?? dbTemplates[0], [dbTemplates, selectedDbKind]);
 
   const handleCopySnippet = (text: string, key: string) => {
-    navigator.clipboard.writeText(text);
-    setCopiedKey(key);
-    setTimeout(() => setCopiedKey(null), 2500);
+    void copyTextToClipboard(text).then((copied) => {
+      if (copied) {
+        setCopiedKey(key);
+        setTimeout(() => setCopiedKey(null), 2500);
+      }
+    });
   };
 
   if (!isOpen) return null;

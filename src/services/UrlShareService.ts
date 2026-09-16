@@ -3,6 +3,8 @@
  * DRY, Pure Functions & Browser History Integration.
  */
 
+import { copyTextToClipboard } from './clipboard';
+
 export interface ShareParams {
   nodeId?: string | null;
   sandboxExpr?: string | null;
@@ -68,20 +70,7 @@ export class UrlShareService {
   public static async copyShareUrlToClipboard(params: ShareParams): Promise<boolean> {
     try {
       const shareUrl = this.generateShareUrl(params);
-      if (navigator.clipboard && navigator.clipboard.writeText) {
-        await navigator.clipboard.writeText(shareUrl);
-        return true;
-      }
-      // Fallback
-      const textArea = document.createElement('textarea');
-      textArea.value = shareUrl;
-      textArea.style.position = 'fixed';
-      textArea.style.opacity = '0';
-      document.body.appendChild(textArea);
-      textArea.select();
-      document.execCommand('copy');
-      document.body.removeChild(textArea);
-      return true;
+      return await copyTextToClipboard(shareUrl);
     } catch (e) {
       console.warn('Failed to copy share url:', e);
       return false;

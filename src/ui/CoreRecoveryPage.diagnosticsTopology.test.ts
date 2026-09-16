@@ -13,7 +13,7 @@ describe('CoreRecoveryPage display-safe diagnostics topology', () => {
     expect(pageSource).toContain('projectRecoveryDiagnostics');
     expect(pageSource).toContain('toHealthProbeViewState');
     expect(pageSource).toContain('const diagnostics = projectRecoveryDiagnostics(recovery);');
-    expect(pageSource).toContain('clipboard.writeText(diagnostics.clipboardText)');
+    expect(pageSource).toContain('copyTextToClipboard(diagnostics.clipboardText)');
     expect(pageSource).toContain('<RecoveryDiagnosticsPanel');
     expect(pageSource).toContain('projection={diagnostics}');
   });

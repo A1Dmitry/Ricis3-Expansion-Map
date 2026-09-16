@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useMapStore } from '../store/mapStore';
 import { useI18nStore } from '../store/useI18nStore';
 import { AgentLogLevel } from '../model/types';
+import { copyTextToClipboard } from '../services/clipboard';
 
 interface AgentLogModalProps {
   onClose: () => void;
@@ -50,9 +51,10 @@ export function AgentLogModal({ onClose, onSelectNode }: AgentLogModalProps) {
     const formatted = filteredLogs
       .map(l => `[${l.timestamp}] [${l.level.toUpperCase()}] ${l.message}${l.details ? `\n  ${t('agentLog.clipboard.details', { details: l.details })}` : ''}`)
       .join('\n');
-    navigator.clipboard.writeText(formatted);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+    void copyTextToClipboard(formatted).then((copied) => {
+      setCopied(copied);
+      if (copied) setTimeout(() => setCopied(false), 2000);
+    });
   };
 
   const getLevelBadgeClass = (level: AgentLogLevel) => {

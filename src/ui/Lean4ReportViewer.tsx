@@ -1,6 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { Copy, Check, Terminal, FileCode2, ShieldCheck } from 'lucide-react';
 import { createTraceDrivenLeanProofGenerator } from '../services/leanCodegen';
+import { copyTextToClipboard } from '../services/clipboard';
 import type { ProofStep } from '../model/types';
 
 interface Lean4ReportViewerProps {
@@ -49,9 +50,9 @@ export function Lean4ReportViewer({ lean4Code, claim, className = '' }: Lean4Rep
   const lineCount = useMemo(() => displayedSource.split('\n').length, [displayedSource]);
 
   const handleCopy = () => {
-    navigator.clipboard.writeText(displayedSource).then(() => {
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
+    void copyTextToClipboard(displayedSource).then((copiedOk) => {
+      setCopied(copiedOk);
+      if (copiedOk) setTimeout(() => setCopied(false), 2000);
     });
   };
 

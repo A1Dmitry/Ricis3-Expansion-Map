@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { RicisFormalProof } from '../services/ricisCore/IRicisCoreEngine';
 import { Award, Copy, Check, BookOpen, CheckCircle2 } from 'lucide-react';
 import { useI18nStore } from '../store/useI18nStore';
+import { copyTextToClipboard } from '../services/clipboard';
 
 interface TheoremReportViewerProps {
   proof: RicisFormalProof;
@@ -25,9 +26,9 @@ export function TheoremReportViewer({ proof, className = '' }: TheoremReportView
       t('theoremReport.copyConclusion', { value: proof.conclusionInvariant })
     ];
 
-    navigator.clipboard.writeText(lines.join('\n')).then(() => {
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
+    void copyTextToClipboard(lines.join('\n')).then((copiedOk) => {
+      setCopied(copiedOk);
+      if (copiedOk) setTimeout(() => setCopied(false), 2000);
     });
   };
 

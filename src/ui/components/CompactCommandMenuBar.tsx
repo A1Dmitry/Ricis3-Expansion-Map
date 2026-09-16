@@ -39,6 +39,7 @@ import type { AppletId } from '../../types/appletRegistry';
 import { APPLET_DEFINITIONS } from '../../types/appletRegistry';
 import { AppletNavigationService } from '../../services/AppletNavigationService';
 import { UrlShareService } from '../../services/UrlShareService';
+import { copyTextToClipboard } from '../../services/clipboard';
 import type { CommandContext } from '../../types/commandTypes';
 import { CommandRegistry } from '../../services/commandRegistry';
 
@@ -83,11 +84,11 @@ export const CompactCommandMenuBar: React.FC<CompactCommandMenuBarProps> = ({
 
   const handleCopyShareLink = () => {
     const shareUrl = UrlShareService.generateShareUrl({ applet: activeApplet });
-    navigator.clipboard.writeText(shareUrl).then(() => {
-      setCopiedLink(true);
-      setTimeout(() => setCopiedLink(false), 2000);
-    }).catch(() => {
-      // fallback
+    void copyTextToClipboard(shareUrl).then((copied) => {
+      if (copied) {
+        setCopiedLink(true);
+        setTimeout(() => setCopiedLink(false), 2000);
+      }
     });
   };
 

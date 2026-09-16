@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { AlgebraicSimplifier, MAX_POLY_EXPANSION_EXPONENT } from './AlgebraicSimplifier';
-import { AST, type Expression } from '../ast/ExpressionTypes';
+import { AST, type BinaryExpression, type Expression } from '../ast/ExpressionTypes';
 
 const x = () => AST.Var('x');
 const y = () => AST.Var('y');
@@ -25,9 +25,9 @@ describe('AlgebraicSimplifier.simplify — factorization correctness (BUG-05)', 
     const result = AlgebraicSimplifier.simplify(input);
     expect(result.nodeType).toBe('Add');
     // x^2 + x + 1 = ((x^2 + x) + 1): the outer Add's right operand is Const(1).
-    const outer = result as { left: unknown; right: { nodeType: string; value?: number } };
+    const outer = result as BinaryExpression;
     expect(outer.right.nodeType).toBe('Constant');
-    expect(outer.right.value).toBe(1);
+    expect((outer.right as { value?: number }).value).toBe(1);
   });
 
   it('BUG-05 case 1: (x*y*x - 1)/(x - 1) must NOT factorize — y must survive', () => {
