@@ -52,6 +52,28 @@ describe('Deep Linking & Share Service Tests', () => {
     expect(clearedParams.get('view')).toBeNull();
     expect(clearedParams.get('root')).toBeNull();
   });
+
+  it('BUG-04: updateBrowserUrl обязан поддерживать флаг seed (симметрично generateShareUrl)', () => {
+    UrlShareService.updateBrowserUrl({ seed: true });
+    const urlParams = new URLSearchParams(window.location.search);
+    expect(urlParams.get('view')).toBe('seed');
+
+    UrlShareService.updateBrowserUrl({ seed: false });
+    const clearedParams = new URLSearchParams(window.location.search);
+    expect(clearedParams.get('view')).toBeNull();
+  });
+
+  it('generateShareUrl и updateBrowserUrl согласованы по всем view-флагам (single source of truth)', () => {
+    const viewFlags = ['roadmap', 'kinematic', 'seed', 'comparison'] as const;
+    for (const flag of viewFlags) {
+      const shareUrl = UrlShareService.generateShareUrl({ [flag]: true });
+      expect(shareUrl).toContain(`view=${flag}`);
+
+      window.history.replaceState({}, '', 'http://localhost:3000/');
+      UrlShareService.updateBrowserUrl({ [flag]: true });
+      expect(new URLSearchParams(window.location.search).get('view')).toBe(flag);
+    }
+  });
 });
 
 describe('Model Pool Configuration Tests', () => {

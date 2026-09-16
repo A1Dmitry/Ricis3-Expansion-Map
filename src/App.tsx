@@ -8,7 +8,6 @@ import React, { useEffect, useState } from 'react';
 import { RouteSurfaceBoundary } from './ui/RouteSurfaceBoundary';
 import { lazyNamedComponent } from './ui/lazyNamedComponent';
 import { isCoreRecoveryRoute } from './services/coreRecovery';
-import { UrlShareService } from './services/UrlShareService';
 import { useMapStore } from './store/mapStore';
 import { CompactCommandMenuBar } from './ui/components/CompactCommandMenuBar';
 import { AppletActionToolbar } from './ui/components/AppletActionToolbar';
@@ -76,8 +75,10 @@ export default function App() {
   const currentApplet = AppletNavigationService.resolveCurrentApplet(locationSearch);
 
   const handleSelectApplet = (applet: AppletId) => {
+    // navigateTo() already syncs the URL (replaceState + popstate) exactly once;
+    // a second URL-sync call from App duplicated history events and re-renders
+    // on every navigation (BUG-09).
     AppletNavigationService.navigateTo(applet);
-    UrlShareService.updateBrowserUrl({ applet: applet === 'map' ? undefined : applet });
     setLocationSearch(window.location.search);
   };
 
@@ -201,6 +202,7 @@ export default function App() {
             <RoadmapPage
               contextNodeId={roadmapParams.get('node')}
               initialRootNodeId={roadmapParams.get('root')}
+              initialMode={roadmapParams.get('mode')}
               onBackToMap={() => handleSelectApplet('map')}
             />
           );

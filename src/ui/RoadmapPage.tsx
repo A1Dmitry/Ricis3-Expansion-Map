@@ -10,6 +10,8 @@ type RoadmapRouteId = 'EXPLORE' | 'VERIFY' | 'CHALLENGE' | 'ROOT_GOAL';
 interface RoadmapPageProps {
   contextNodeId?: string | null;
   initialRootNodeId?: string | null;
+  /** Deep-link mode: 'challenge' opens the open-tasks contour of the context node. */
+  initialMode?: string | null;
   onBackToMap: () => void;
 }
 
@@ -21,11 +23,18 @@ function navigateToMap(nodeId?: string, mode?: string): void {
   window.location.assign(UrlShareService.generateShareUrl({ nodeId, mode, roadmap: false, rootNodeId: null }));
 }
 
-export function RoadmapPage({ contextNodeId, initialRootNodeId, onBackToMap }: RoadmapPageProps) {
+export function RoadmapPage({ contextNodeId, initialRootNodeId, initialMode, onBackToMap }: RoadmapPageProps) {
   const map = useMapStore();
   const contextNode = map.nodes.find(node => node.id === contextNodeId) ?? null;
-  const [activeRoute, setActiveRoute] = useState<RoadmapRouteId | null>(initialRootNodeId ? 'ROOT_GOAL' : null);
-  const [rootNodeId, setRootNodeId] = useState<string | null>(initialRootNodeId ?? null);
+  // mode=challenge (NodeCardDetails "Challenge" action) lands directly in the
+  // open-tasks contour of the challenged node instead of a silent no-op param.
+  const challengeMode = initialMode === 'challenge' && Boolean(contextNodeId);
+  const [activeRoute, setActiveRoute] = useState<RoadmapRouteId | null>(
+    challengeMode || initialRootNodeId ? 'ROOT_GOAL' : null,
+  );
+  const [rootNodeId, setRootNodeId] = useState<string | null>(
+    challengeMode ? (contextNodeId ?? null) : (initialRootNodeId ?? null),
+  );
 
   const rootCandidates = useMemo(() => {
     const candidates = map.nodes.filter(isRootCandidate);
@@ -147,6 +156,11 @@ export function RoadmapPage({ contextNodeId, initialRootNodeId, onBackToMap }: R
                 Использовать как корневую цель
               </button>
             </div>
+            {challengeMode && (
+              <p className="mt-3 rounded-lg border border-amber-700/70 bg-amber-950/25 px-3 py-2 text-xs leading-relaxed text-amber-200">
+                Режим Challenge: ищите контрпримеры, возражения и недостающую формализацию среди открытых задач, связанных с этим узлом.
+              </p>
+            )}
           </section>
         )}
 

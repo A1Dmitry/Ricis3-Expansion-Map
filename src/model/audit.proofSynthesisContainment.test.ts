@@ -676,6 +676,20 @@ describe('OIR-03 — audit proof-synthesis containment', () => {
       '?? src/hooks/useDisabledPanelIds.ts',
       '?? src/ui/SettingsAppletPage.tsx',
       '?? src/ui/SettingsAppletPage.test.tsx',
+
+      // AUDIT-2026-09-16 BUG-04/08/09/10: UrlShareService — ветка seed +
+      // single-source-of-truth для view-флагов; двойной URL-sync убран;
+      // legacy ?view= для всех 9 апплетов; Back/Forward disabled по стекам;
+      // mode=challenge осмысленно обрабатывается RoadmapPage.
+      ' M src/App.tsx',
+      ' M src/services/UrlShareService.ts',
+      ' M src/services/UrlShareService.test.ts',
+      ' M src/services/AppletNavigationService.ts',
+      ' M src/services/appletNavigationService.test.ts',
+      ' M src/ui/components/CompactCommandMenuBar.tsx',
+      ' M src/ui/RoadmapPage.tsx',
+      ' M src/ui/RoadmapPage.test.tsx',
+      ' M src/ui/uiControlWiring.topology.test.ts',
     ]);
     if (status.length > 0 && status.every(entry => entry.startsWith('?? '))) {
       // In clean container environments git status may return all files as untracked

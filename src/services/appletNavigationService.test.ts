@@ -38,6 +38,19 @@ describe('AppletNavigationService', () => {
     expect(AppletNavigationService.resolveCurrentApplet('?view=roadmap')).toBe('roadmap');
   });
 
+  it('supports legacy ?view= for ALL applets (BUG-10: voynich/terminal/qa-tests/settings fell back to map)', () => {
+    expect(AppletNavigationService.resolveCurrentApplet('?view=voynich')).toBe('voynich');
+    expect(AppletNavigationService.resolveCurrentApplet('?view=terminal')).toBe('terminal');
+    expect(AppletNavigationService.resolveCurrentApplet('?view=qa-tests')).toBe('qa-tests');
+    expect(AppletNavigationService.resolveCurrentApplet('?view=settings')).toBe('settings');
+    expect(AppletNavigationService.resolveCurrentApplet('?view=map')).toBe('map');
+  });
+
+  it('falls back to map for unknown ?view= values', () => {
+    expect(AppletNavigationService.resolveCurrentApplet('?view=nonsense')).toBe('map');
+    expect(AppletNavigationService.resolveCurrentApplet('?applet=nonsense')).toBe('map');
+  });
+
   it('handles navigation stack and back/forward operations correctly', () => {
     AppletNavigationService.navigateTo('kinematic');
     expect(AppletNavigationService.getActiveApplet()).toBe('kinematic');
@@ -52,5 +65,30 @@ describe('AppletNavigationService', () => {
 
     const fwd = AppletNavigationService.goForward();
     expect(fwd).toBe('seed');
+  });
+
+  it('navigateTo dispatches exactly one popstate event (BUG-09: no duplicate URL sync)', () => {
+    let popstateCount = 0;
+    const onPopState = () => { popstateCount += 1; };
+    window.addEventListener('popstate', onPopState);
+    try {
+      AppletNavigationService.navigateTo('voynich');
+      expect(popstateCount).toBe(1);
+    } finally {
+      window.removeEventListener('popstate', onPopState);
+    }
+  });
+
+  it('navigateTo to the same applet is a no-op (no events)', () => {
+    AppletNavigationService.navigateTo('settings');
+    let popstateCount = 0;
+    const onPopState = () => { popstateCount += 1; };
+    window.addEventListener('popstate', onPopState);
+    try {
+      AppletNavigationService.navigateTo('settings');
+      expect(popstateCount).toBe(0);
+    } finally {
+      window.removeEventListener('popstate', onPopState);
+    }
   });
 });
