@@ -308,6 +308,7 @@ jobs:
       # promoted by the existence of this mechanism: only files listed here are run.
       MATHLIB_ARTIFACTS: >-
         artifacts/proofs/ricis-general-resolution.lean
+        artifacts/proofs/ricis-general-resolution-v3.lean
       # Pinned Mathlib revision = newest mathlib4 revision whose lean-toolchain is on the
       # project's pinned 4.33.x line (Mathlib master moved to v4.34.0 on 2026-09-15, one
       # day after the Lean 4.34.0 release). The toolchain below is that revision's

@@ -17,6 +17,11 @@
 
 **Запущенная в этой итерации работа:** пакет Core AGI синхронизирован с опубликованным DOI `10.5281/zenodo.22225762`, переименован из misleading `PENDING`-имени в `import-patches/ricis-map-patch-core-agi-target.json`, а regression-тест теперь запрещает `PENDING_DOI`. Это закрывает документированный drift без подмены kernel evidence.
 
+### Продолжение 2026-09-16: P2 и F-09/F-11
+
+* **P2 / code splitting — локально завершено:** `vite.config.ts` использует Rolldown `output.codeSplitting` с отдельными app/vendor-группами и `maxSize: 450_000`. Производственная сборка больше не выдаёт предупреждение о чанках >500 kB; крупнейший фактический chunk — 373.57 kB. Это реальное дробление графа модулей, а не повышение `chunkSizeWarningLimit`.
+* **F-09/F-11 — новая версия подготовлена, ожидает kernel evidence:** внешний v2 (`ricis-general-resolution.lean`) не изменён. Созданы `ricis-general-resolution-v3.lean` и metadata; новая версия явно доказывает `ricis_reduce S S.a = ricis_eval_general S`, предъявляет `N a = 0 ∧ D a = 0` при положительных порядках и собирает bridge theorem с фактическими зависимостями от именованных A4/SP1. A4/SP1 честно остаются trusted contracts. V3 внесена в `MATHLIB_ARTIFACTS`, генератор аддитивной производной и `pendingKernelRun`; статус остаётся `REQUIRES_CORE_LEAN`/`PENDING_KERNEL_RUN` до двойного CI-прогона исходника и производной.
+
 ## 1. Текущие завершённые и верифицированные задачи
 
 ### **[RICIS-7.7-GEOMETRIC-BRIDGE-RUNTIME] Полное расширение 2D Geometric Bridge Runtime ($R^2_{RICIS}$) для $0/0$, $\infty/\infty$, $\infty-\infty$, $0-0$ и косого произведения в $O(1)$**
