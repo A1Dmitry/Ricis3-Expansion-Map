@@ -28,11 +28,11 @@ jobs:
         run: npm ci
       - name: Verify release alignment and TypeScript
         run: npm run release:check && npm run lint
-      - name: Toyota flow poka-yoke gate (TPS standard work) and board drift check
+      - name: Toyota flow poka-yoke gate (TPS standard work), board and digest drift check
         # docs/00-governance/TOYOTA_TPS_WORKING_SYSTEM.md: the line stops when the working
         # process itself is violated (WIP overflow, open andon, "done" without a real run,
-        # declared-vs-actual drift in normative docs, hand-edited board).
-        run: npm run tps:gate && npm run tps:board:check
+        # declared-vs-actual drift in normative docs, hand-edited board, hand-edited digest).
+        run: npm run tps:gate && npm run tps:board:check && npm run tps:digest:check
       - name: Run test suite
         run: npm test
       - name: Build static application without deployment

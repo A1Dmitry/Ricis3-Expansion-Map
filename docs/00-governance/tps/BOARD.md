@@ -15,11 +15,9 @@
 
 _пусто_
 
-## READY (готово к тяге) — 1/3
+## READY (готово к тяге) — 0/3
 
-| Карточка | Класс | Статус | Владелец | Цикл | Проверка | Anchor |
-|---|---|---|---|---|---|---|
-| `TPS-0003` Хансей второго такта: перенести ритуал разбора находок F-* в сгенерированный отчёт и снять ручную сверку ACTIVE_TASKS | docs | READY | агент | — | — | artifacts/proofs/core-checks/kernel-findings.json |
+_пусто_
 
 ## IN PROGRESS (одна деталь) — 0/1
 
@@ -42,12 +40,13 @@ _пусто_
 | `TPS-0006` L9: узел registry-120 в src/model/initialMap.ts остаётся TRUSTED_AXIOM без ядерного основания | docs | PARTIALLY_COMPLETED | владелец проекта | — | — | src/model/initialMap.ts |
 | `TPS-0007` F-14: ricis-yang-mills.lean — ремонт импорта как новая версия доказательства + решение о allowlist MATHLIB_ARTIFACTS | ci | PARTIALLY_COMPLETED | владелец проекта + агент (после решения) | — | — | artifacts/proofs/ricis-yang-mills.lean |
 
-## DONE (годная деталь) — 5/∞
+## DONE (годная деталь) — 6/∞
 
 | Карточка | Класс | Статус | Владелец | Цикл | Проверка | Anchor |
 |---|---|---|---|---|---|---|
 | `TPS-0001` Запуск рабочего процесса по шаблону Toyota: стандарт потока, канбан-доска, пока-ёке и стоп-линия в CI | process | COMPLETED | agent:arena | 28199 c | 6 ком. / SELF (same-pipeline) — исполнено и проверено одним циклом; внешнего рецензента процесса не было | ACTIVE_TASKS.md +A-0001,A-0002,A-0004,A-0005,A-0006 |
 | `TPS-0002` F-08: ядровой ремонт A11 — закрыт upstream (PR #47, run 35024728967); этот цикл выполняет сверку и подтверждение на мерже | math-proof | COMPLETED | владелец/параллельная сессия (PR #47 = dc09d8b); сверка на мерже — agent:arena | 1355 c | 4 ком. / SELF (same-pipeline) — закрытие выполнено ВЕРХОМ (PR #47 + run 35024728967); этот цикл проверял только связность мержа | docs/05-evidence/proofs/lean-core-checks-run-2026-09-14.md |
+| `TPS-0003` Хансей второго такта: перенести ритуал разбора находок F-* в сгенерированный отчёт и снять ручную сверку ACTIVE_TASKS | docs | COMPLETED | agent:arena (Autonomous RCVAP cycle, takt 3) | 1328 c | 5 ком. / SELF (same-pipeline) — генератор, сводка и её стражи написаны и проверены этим циклом; внешнего рецензента отчёт не проходил | artifacts/proofs/core-checks/kernel-findings.json +A-0009 |
 | `TPS-0008` PENDING_DOI: закрыт upstream (PR #48) — DOI 10.5281/zenodo.22225762 внесён, файл перенесён в import-patches/ | docs | COMPLETED | владелец/параллельная сессия (PR #48 = 4985bfe); сверка — agent:arena | 657 c | 2 ком. / SELF (same-pipeline) — закрытие выполнено ВЕРХОМ (PR #48); здесь сверены наличие DOI и перенос файла | import-patches/ricis-map-patch-core-agi-target.json |
 | `TPS-0009` Реакция на перепроизводство: доска сверяется с реестром находок (CARD_FINDING_ALREADY_CLOSED) и с фактическим наличием оснований (CARD_SOURCE_MISSING) | process | COMPLETED | agent:arena (Autonomous RCVAP cycle, takt 2) | 1812 c | 7 ком. / SELF (same-pipeline) — поток и его правила написаны и проверены этим циклом; закрытие F-08 принадлежит PR #47 и цитируется как чужое доказательство, а не присваивается | docs/00-governance/TOYOTA_TPS_WORKING_SYSTEM.md +A-0008 |
 | `TPS-0010` Слепой страж перепроизводства: fail-safe классификация находок и sweep-тест по всему реестру (A-0009) | process | COMPLETED | agent:arena (Autonomous RCVAP cycle, takt 3) | 604 c | 6 ком. / SELF (same-pipeline) — правило, тесты и A3 написаны и проверены этим циклом; находка F-* упоминаются как примеры формулировок, их substance не тянется | docs/00-governance/tps/A3-ANDON-0009.md +A-0009 |

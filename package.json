@@ -19,6 +19,8 @@
     "tps:gate": "tsx scripts/tpsGate.ts",
     "tps:board": "tsx scripts/tpsGate.ts --emit-board",
     "tps:board:check": "tsx scripts/tpsGate.ts --check-board",
+    "tps:digest": "tsx scripts/generateFindingsDigest.ts",
+    "tps:digest:check": "tsx scripts/generateFindingsDigest.ts --check",
     "dev": "tsx server.ts",
     "generate:node-entries": "tsx tools/generateNodeEntries.ts",
     "seed:state": "tsx scripts/seedTaskState.ts",
