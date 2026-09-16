@@ -5,6 +5,7 @@
 **Стандарт:** [`docs/00-governance/TOYOTA_TPS_WORKING_SYSTEM.md`](../TOYOTA_TPS_WORKING_SYSTEM.md)  
 **Версия доски:** 1.0.0 · **Снимок:** 2026-09-16T21:15:00Z
 
+
 ## Andon (состояние линии)
 
 **ЛИНИЯ ИДЁТ** — блокирующих событий нет; открыто неблокирующих: 3 (тягу не останавливают, но видны в каждом прогоне)
@@ -55,6 +56,7 @@ _пусто_
 | `TPS-0010` Слепой страж перепроизводства: fail-safe классификация находок и sweep-тест по всему реестру (A-0009) | process | COMPLETED | agent:arena (Autonomous RCVAP cycle, takt 3) | 604 c | 6 ком. / SELF (same-pipeline) — правило, тесты и A3 написаны и проверены этим циклом; находка F-* упоминаются как примеры формулировок, их substance не тянется | docs/00-governance/tps/A3-ANDON-0009.md +A-0009 |
 | `TPS-0011` Превью не отображается: политика хостов dev-сервера Vite (A-0010) — opt-out вместо мёртвого opt-in | ci | COMPLETED | agent:arena (автономный цикл RCVAP, инцидент 2026-09-16) | 1020 c | 6 ком. / SELF (same-pipeline) — дефект найден и устранён этим циклом; проверка опирается на собственные фактические прогоны, внешние доказательства не присваиваются | docs/05-evidence/architecture/incident-2026-09-16-preview-not-displaying.md +A-0010 |
 | `TPS-0012` P12: расширение kernel-покрытия на 3 оставшихся артефакта (RicisAgiTarget, jacobian-counterexample-full → Mathlib-путь; Schwarzschild → core-путь) | ci | COMPLETED | agent:arena (автономный цикл RCVAP, 2026-09-16) | 1260 c | 6 ком. / SELF (same-pipeline) — подготовка выполнена этим циклом; ядровое свидетельство произведёт только CI, до его прихода статусы не изменены | ACTIVE_TASKS.md |
+| `TPS-0012` Уязвимый lockfile: обновление Vitest/qs и обязательный npm-audit гейт до мержа | ci | COMPLETED | agent:arena (автономный цикл RCVAP, security dependency maintenance) | 889 c | 7 ком. / SELF (same-pipeline) — зависимости и CI-гейт изменены и проверяются этим же циклом; npm advisory registry является внешним источником данных, но не внешним аудитом приложения | ACTIVE_TASKS.md +A-0011 |
 
 ## Kайдзен-реестр
 
@@ -75,6 +77,7 @@ _пусто_
 | `K-0013` | Dev-транспорт под проверкой: единая политика хостов Vite и HTTP-проба через настоящую мидлварь | DONE | agent:arena | npx vitest run server/devHostPolicy.test.ts |
 | `K-0014` | Lean-токен стражи различают код и прозу: поиск sorry/admit по вычищенным комментариям/строкам + мутационная проба | DONE | agent:arena | npx vitest run tools/leanKernelCoreChecks.test.ts |
 | `K-0015` | Имена генератора квалифицируются по скоупу: сбор теорем и аксиом унифицирован на collectScopedNames + независимый страж квалификации эпилога | DONE | agent:arena | npx vitest run tools/leanMathlibChecks.test.ts |
+| `K-0014` | Dependency advisories как PR-стоп: единый security:check после locked install, но вне Pages deployment | DONE | agent:arena | npm run security:check && npx vitest run tools/releaseConsistency.test.ts |
 
 ## Потери (muda)
 
@@ -90,6 +93,7 @@ _пусто_
 | `M-0008` | overproduction | Такт 2 написал и прогнал локальные guard'ы для ремонта F-08, который был закрыт в main за ~40 минут до тяги, и держал карточку PENDING_DOI, закрытую PR #48: произведённая работа не нужна рынку (доказательной базе) проекта. | Сверка с реестром и с верхом до тяги (pull-правило 6) + машиной проверяемые правила CARD_FINDING_ALREADY_CLOSED / CARD_SOURCE_MISSING; сам кандидат-ремонт снят, в PR осталась только реакция на класс дефекта. | TPS-0009 / A-0008 |
 | `M-0009` | defects | Страж перепроизводства 1 такт был слепо-зелёным на 3 из 8 непустых resolution (F-02, F-03, F-05): брак инструмента контроля, дающий ложную уверенность «реестр сверен». Реального дубля по этим находкам не случилось — дефект латентный, пойман измерением до потерь. | Fail-safe классификация с явным стопом (CARD_FINDING_UNCLASSIFIED), sweep-тест по живому реестру и запрет самопроверки в стандарте — та же работа, что закрывает A-0009; остаток (машиночитаемый status) — K-0011 за владельцем. | TPS-0010 / A-0009 |
 | `M-0014` | defects | Канал превью был недоступен с 2026-08-17 (апгрейд `vite ^5.3.4` → `^8.2.1`, появление проверки хоста) и никем не замечен почти месяц: линия `lint`/`test`/`build` и успешный деплой Pages создавали полную видимость работоспособности при пустом экране у пользователя. Отдельная потеря цикла — попытка ремонта в аудите 2026-09-16 (opt-in-гейт `VITE_ALLOWED_HOSTS`), которая была записана мерой, но не включалась ничем и потому не дала эффекта. | Политика хостов вынесена в единый модуль и стала opt-out, покрыта HTTP-пробой через настоящую Vite-мидлварь с контрольной стороной; симптом и способ сужения задокументированы, процессный след — в A-0010/A3-ANDON-0010. Остаток (перенос пробы в CI-шаг, реальный процесс `npm run dev`) — кандидат в кайдзен, пока не сделан. | TPS-0011 / A-0010 |
+| `M-0015` | defects | Четыре advisory-записи жили в воспроизводимом lockfile, но npm ci завершался exit 0, а 2071+ зелёных тестов не пересекали dependency-security слой; предупреждение можно было принять за несущественный шум и смержить. | Исправленные зависимости плюс отдельный PR audit-гейт с release guard. Не добавлять audit в runtime/Pages deployment: качество создаётся до мержа, а не внешней сетевой проверкой при публикации. | TPS-0012 / A-0011 |
 
 ## Тактовое время (замеры, не оценки)
 
@@ -97,9 +101,9 @@ _пусто_
 |---|---|---|---|---|
 | release | `npm run release:check` | 0.96 c | 1 | 2026-09-16T19:24:04Z |
 | typecheck | `npm run lint` | 20.16 c | 2 | 2026-09-16T19:24:24Z |
-| test | `npm test` | 252.07 c | 2 | 2026-09-16T19:33:16Z |
+| test | `npm test` | 243.71 c | 3 | 2026-09-16T20:21:16Z |
 | build | `npm run build` | 3.18 c | 1 | 2026-09-16T19:28:39Z |
-| lineGate | `npm run tps:gate` | 0.35 c | 3 | 2026-09-16T19:34:20Z |
+| lineGate | `npm run tps:gate` | 0.33 c | 4 | 2026-09-16T20:21:46Z |
 | guardSuite | `npx vitest run tools/tpsStandardWork.test.ts` | 1.05 c | 11 | 2026-09-16T08:54:04Z |
 | guardSuite | `npx vitest run tools/tpsStandardWork.test.ts` | 1.05 c | 11 | 2026-09-16T08:54:04Z |
 | guardSuite | `npx vitest run server/devHostPolicy.test.ts` | 0.72 c | 4 | 2026-09-16T19:22:31Z |
@@ -108,6 +112,7 @@ _пусто_
 | test | `npm test` | 185.79 c | 1 | 2026-09-16T20:26:00Z |
 | build | `npm run build` | 2.40 c | 1 | 2026-09-16T20:26:00Z |
 | lineGate | `npm run tps:gate` | 0.68 c | 1 | 2026-09-16T20:26:00Z |
+| security | `npm run security:check` | 1.14 c | 2 | 2026-09-16T20:10:45Z |
 
 ## Андон-журнал (полный)
 
@@ -267,6 +272,21 @@ _пусто_
 - **Корень:** Инвариант генератора «каждая цель #print axioms в эпилоге разрешима из корня файла» не был обеспечен ни структурой кода (два разных сборщика имён), ни стражем; пилотная выборка не покрывала класс неймспейс-скоуп аксиом.
 - **Контрмера:** Единый скоуп-трекер имён для теорем и аксиом (квалификация в обоих) + структурный страж: имя, объявленное внутри неймспейса, обязано нести его префикс в целях эпилога (проверяемо без тулчейна). Факт закрытия — зелёный повторный прогон джобы.
 - **Изменение стандарта:** shared collectScopedNames в scripts/generateLeanCoreChecks.ts; страж в tools/leanMathlibChecks.test.ts.
+### `A-0011` · medium · CLOSED — Чистый npm ci устанавливал четыре moderate-уязвимости, а PR workflow не исполнял обязательный audit-гейт
+
+- **Факт:** `npm ci` завершался сообщением `4 moderate severity vulnerabilities`; `npm audit --audit-level=moderate --json` → exit 1: @vitest/mocker/vitest 4.1.10 (GHSA-82fw-gwwq-j7x9) и qs 6.15.3 (GHSA-x5fp-wj9c-mxmx, GHSA-4mjr-xmp4-gh2g). В `.github/workflows/pr-verify.yml` после `npm ci` сразу шёл release/lint: команды npm audit не было.
+- **Почему 1:** Почему уязвимые версии установились? — lockfile фиксировал Vitest 4.1.10 и qs 6.15.3, попадающие в опубликованные advisory ranges; исправленные версии уже доступны в registry.
+- **Почему 2:** Почему состояние не остановило предыдущий PR? — `npm ci` сообщает vulnerabilities, но возвращает exit 0; CI не запускал `npm audit --audit-level=moderate` отдельной командой.
+- **Почему 3:** Почему обязательное правило AGENTS.md §3 не исполнялось машиной? — Оно было процедурой только для циклов изменения зависимостей, а releaseConsistency проверял npm ci и запрет global install, но не наличие security-гейта.
+- **Почему 4:** Почему одного обновления lockfile недостаточно? — advisory registry меняется независимо от репозитория; без PR-гейта следующий уже известный vulnerable range снова останется лишь предупреждением install-команды.
+- **Корень:** Требование выполнять npm audit после изменения зависимостей существовало только как ручная инструкция, а PR verification принимал `npm ci` exit 0 за достаточную проверку. Install-команда не падает на moderate advisories, поэтому vulnerable lockfile не имел машинного стоп-сигнала.
+- **Контрмера:** Обновить прямые Vitest-пакеты до актуальной совместимой стабильной 5.0.1 и транзитивный qs до 6.16.0; добавить канонический `security:check` и запускать его после npm ci в PR verification; releaseConsistency фиксирует точную команду и порядок, а Pages deployment остаётся без сетевого audit-шага.
+- **Перепроверка:** `npm run security:check` → exit 0
+- **Ёкотэн:** `package.json и packages/ricis-core-ts/package.json` — Обе прямые декларации Vitest переведены на одну major/minor 5.0.1; coverage provider имеет точный совместимый peer.
+- **Ёкотэн:** `package-lock.json` — Проверено `npm ls`: vitest/@vitest/mocker/@vitest/coverage-v8 = 5.0.1, qs = 6.16.0; дубликатов уязвимой линии нет.
+- **Ёкотэн:** `.github/workflows/pr-verify.yml` — Audit стоит после locked install и до тестов; deploy-pages.yml не изменён, уже опубликованный релиз не зависит от доступности advisory registry.
+- **Ёкотэн:** `tools/releaseConsistency.test.ts` — Guard фиксирует script, CI-вызов и относительный порядок; профильный прогон 14/14.
+- **Изменение стандарта:** `security:check` в package.json + обязательный PR-шаг в `.github/workflows/pr-verify.yml` + releaseConsistency guard на точную команду и порядок install → audit → test.
 
 ---
 

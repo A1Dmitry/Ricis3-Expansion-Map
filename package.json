@@ -28,7 +28,8 @@
     "build": "npm run release:check && npm run generate:node-entries && vite build && esbuild server.ts --bundle --platform=node --format=cjs --packages=external --sourcemap --outfile=dist/server.cjs",
     "start": "node dist/server.cjs",
     "lint": "tsc --noEmit",
-    "test": "npm run sync:version && vitest run"
+    "test": "npm run sync:version && vitest run",
+    "security:check": "npm audit --audit-level=moderate"
   },
   "dependencies": {
     "@google/genai": "^2.16.0",
@@ -48,7 +49,7 @@
     "@types/react-dom": "^19.2.4",
     "@types/three": "^0.185.4",
     "@vitejs/plugin-react": "^6.0.5",
-    "@vitest/coverage-v8": "^4.1.10",
+    "@vitest/coverage-v8": "^5.0.1",
     "autoprefixer": "^10.4.20",
     "esbuild": "^0.28.2",
     "jsdom": "^29.1.1",
@@ -57,7 +58,7 @@
     "tsx": "^4.16.5",
     "typescript": "^5.9.3",
     "vite": "^8.2.1",
-    "vitest": "^4.1.10"
+    "vitest": "^5.0.1"
   },
   "license": "MIT",
   "homepage": "https://a1dmitry.github.io/Ricis3-Expansion-Map/",

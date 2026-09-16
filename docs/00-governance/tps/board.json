@@ -115,10 +115,10 @@
       {
         "step": "test",
         "command": "npm test",
-        "measuredMs": 252070,
-        "sampleSize": 2,
-        "measuredAt": "2026-09-16T19:33:16Z",
-        "note": "Инцидентный цикл: 259 файлов / 2071 тест на чистом коммите 1054eea; прогон на незакоммиченном дереве даёт ожидаемый exit 1 на OIR03-QA-36 (A-0004)."
+        "measuredMs": 243708,
+        "sampleSize": 3,
+        "measuredAt": "2026-09-16T20:21:16Z",
+        "note": "Security dependency cycle: Vitest 5.0.1, clean commit c1160d6, 260 файлов / 2076 тестов, exit 0."
       },
       {
         "step": "build",
@@ -131,10 +131,10 @@
       {
         "step": "lineGate",
         "command": "npm run tps:gate",
-        "measuredMs": 348,
-        "sampleSize": 3,
-        "measuredAt": "2026-09-16T19:34:20Z",
-        "note": "Инцидентный цикл: 0 до записи доски, 0 после (витрина и сводка синхронны)."
+        "measuredMs": 329,
+        "sampleSize": 4,
+        "measuredAt": "2026-09-16T20:21:46Z",
+        "note": "Security dependency cycle: карточка в verify, A-0011/K-0014/M-0015 записаны; повтор после done обязателен."
       },
       {
         "step": "guardSuite",
@@ -779,6 +779,15 @@
       "linkedCardId": "TPS-0011",
       "linkedAndonId": "A-0010",
       "resolution": "Устранено инцидентным циклом 0.4.200: превью отвечает 200 на проксированный хост (было 403), обход модулей 208/208 → 200, страж 10/10 зелёный."
+    },
+    {
+      "id": "M-0015",
+      "klass": "defects",
+      "observation": "Четыре advisory-записи жили в воспроизводимом lockfile, но npm ci завершался exit 0, а 2071+ зелёных тестов не пересекали dependency-security слой; предупреждение можно было принять за несущественный шум и смержить.",
+      "eliminationPlan": "Исправленные зависимости плюс отдельный PR audit-гейт с release guard. Не добавлять audit в runtime/Pages deployment: качество создаётся до мержа, а не внешней сетевой проверкой при публикации.",
+      "linkedCardId": "TPS-0012",
+      "linkedAndonId": "A-0011",
+      "resolution": "Vitest/mocker/coverage = 5.0.1, qs = 6.16.0; npm audit --audit-level=moderate → exit 0, 0 vulnerabilities; PR workflow и release guard требуют повторять проверку."
     }
   ],
   "cards": [

@@ -143,7 +143,7 @@
 
 ## 6. ПЕРЕИСПОЛЬЗУЕМЫЕ РАБОЧИЕ ПАТТЕРНЫ
 
-Повторяющиеся операции восстановления контекста, RICIS-шлюза, независимой математической проверки, Lean-верификации, Core-first интеграции, CI/Pages-диагностики, UI-анализа и публикации свёрнуты в [`docs/00-governance/WORK_PATTERNS.md`](docs/00-governance/WORK_PATTERNS.md). Перед новым действием необходимо выбрать применимый паттерн `P-01`–`P-10` и не повторять уже закрытую диагностическую ветвь без изменения входного состояния или нового основания.
+Повторяющиеся операции восстановления контекста, RICIS-шлюза, независимой математической проверки, Lean-верификации, Core-first интеграции, CI/Pages-диагностики, UI-анализа, публикации и общей оркестрации доказательств свёрнуты в [`docs/00-governance/WORK_PATTERNS.md`](docs/00-governance/WORK_PATTERNS.md). Перед новым действием необходимо выбрать применимый паттерн `P-01`–`P-12` и не повторять уже закрытую диагностическую ветвь без изменения входного состояния или нового основания.
 
 Форма потока (канбан-полосы, WIP-лимиты, one-piece flow, такт, андон/дзидока, пока-ёке, кайдзен и ёкотэн) нормирована в [`docs/00-governance/TOYOTA_TPS_WORKING_SYSTEM.md`](docs/00-governance/TOYOTA_TPS_WORKING_SYSTEM.md) и исполняется машиной: состояние — `docs/00-governance/tps/board.json`, гейт — `npm run tps:gate` (шаг CI `pr-verify`). Гейт проверяет только форму потока и не вправе повышать или понижать научные статусы; при конфликте того, что показывает доска, с реестрами доказательств браком считается доска (андон), а не реестр.
 
@@ -197,3 +197,28 @@ map-node) не может в одном объекте одновременно 
 
 Если хотя бы один ответ "нет" — статус не выше `RICIS_CANDIDATE`,
 не `RICIS_CORE`/`COMPLETED`.
+
+
+## 10. ОБЩАЯ ОРКЕСТРАЦИЯ ЛЮБОГО ДОКАЗАТЕЛЬСТВА: ДВА СОГЛАСОВАННЫХ СЛОЯ (P-12)
+
+Любое доказательство, разрешение сингулярности или редукция узла карты в проекте строится строго через **два согласованных слоя** (полная спецификация: [`docs/00-governance/RICIS_PROOF_ORCHESTRATION_TEMPLATE.md`](docs/00-governance/RICIS_PROOF_ORCHESTRATION_TEMPLATE.md)):
+
+1. **Runtime-пайплайн (TypeScript)** — [`src/model/orchestrationPipeline.ts`](src/model/orchestrationPipeline.ts):
+   - Контракт: `IRicisOrchestratorEngine.executePipeline(nodeId, targetExpression, observer?)`
+   - 5 обязательных стадий:
+     1. `PARSING_AND_L1_CHECK` (разбор + $L1\_IDENTITY$ $X=X$ + тип);
+     2. `AXIOMATIC_REDUCTION` (редукция по аксиомам RICIS-III $SP2, A1..A10$);
+     3. `LEAN_CODEGEN` (генерация Lean 4 артефакта);
+     4. `GATEWAY_DISPATCH` (отправка в gateway / ядро / Lean kernel runner);
+     5. `TRUST_VALIDATION` (проверка trust-границ, No Self-Certification).
+   - Сопровождение: `TransformationLog<T>` / `RicisNumber<T>` ($SP4$ индекс, origin, singularity flag), reactive observer по этапам.
+   - Один pipeline на любой `nodeId` и выражение.
+
+2. **Универсальный шаблон редукции (Lean 4)** — [`artifacts/proofs/ricis-universal-orchestration-template.lean`](artifacts/proofs/ricis-universal-orchestration-template.lean):
+   - Канонический алгоритм на любом выражении:
+     `fullResolve(e) = resolveRICIS(resolveRICIS(e))`
+     `resolveRICIS(e) = geometricMeasure(ricisResolve(e))`
+   - 6 шагов: `ricisResolve` (L1/SP2/A1–A5/A7/A10) → `A6` ($0_F * \infty_G \to \mu(\text{rect} F G)$) → `geometricMeasure` ($\mu(\text{rect} F G) \to F*G$) → `fullResolve` (второй проход) → `semanticIndex` / $SP4$ (индекс родителя) → `resolveVec4` (поэлементно для векторных систем).
+   - Теоремы-шаблоны: `divSelf_one`, `SP2_subSelf_zero`, `A1_div_zero`, `A4_indexed_zero_div`, `A5_inf_div`, `A6_geometric_realization`, `A7_inf_sub`, `L0_continuity_*`.
+
+**Инвариант:** Новое доказательство в RICIS-III является **подстановкой в этот единый шаблон**, а не изобретением нового порядка фаз. Сквозной Proof-trace в патчах карты ($\text{phase } -1 \ L1 \to SP4 \to A6 \to \text{provenance} \to \text{scope}$) представляет собой человекочитаемый слепок этой же оркестрации.
