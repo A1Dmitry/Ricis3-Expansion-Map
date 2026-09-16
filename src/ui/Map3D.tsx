@@ -72,6 +72,8 @@ import { TelegramBotPanel } from './TelegramBotPanel';
 import { AgentLogModal } from './AgentLogModal';
 import { LatexRenderer } from './LatexRenderer';
 import { useAdaptiveUI } from '../hooks/useAdaptiveUI';
+import { useRicisCommand } from '../hooks/useRicisCommand';
+import { RICIS_COMMAND_EVENTS, dispatchRicisCommand } from '../services/commandBus';
 import { useMobileLayout } from '../hooks/useMobileLayout';
 import { useMobileViewStack } from '../hooks/useMobileViewStack';
 import { useImmersiveCanvas } from '../hooks/useImmersiveCanvas';
@@ -762,6 +764,45 @@ export const Map3D: React.FC = () => {
       controlsRef.current.reset();
     }
   };
+
+  // --- Command bus wiring (toolbar / menus / shortcuts -> Map3D) ---
+  const searchInputRef = useRef<HTMLInputElement | null>(null);
+
+  useRicisCommand(RICIS_COMMAND_EVENTS.resetCamera, () => {
+    handleResetCamera();
+  });
+
+  useRicisCommand(RICIS_COMMAND_EVENTS.openSearch, () => {
+    setIsSearchFocused(true);
+    const input = searchInputRef.current;
+    if (input) {
+      input.focus();
+      input.select();
+    }
+  });
+
+  useRicisCommand(RICIS_COMMAND_EVENTS.toggle3DPresentation, () => {
+    setMapPresentationMode(prev => {
+      if (prev === 'three_dimensional') {
+        setMapFallbackReason('user_selected');
+        return 'accessible_list';
+      }
+      return 'three_dimensional';
+    });
+  });
+
+  useRicisCommand(RICIS_COMMAND_EVENTS.runDiagnostics, () => {
+    void checkCoreRuntime();
+  });
+
+  // Report the actual presentation mode back to the command bus so the
+  // 3D/2D command indicator reflects real page state (not a stale App flag).
+  useEffect(() => {
+    dispatchRicisCommand(RICIS_COMMAND_EVENTS.presentationModeChanged, {
+      is3D: mapPresentationMode === 'three_dimensional',
+    });
+  }, [mapPresentationMode]);
+
 
   const isDerivativeNode = (n: { type?: string; isDerivativeClaim?: boolean }) =>
     n.type === 'derivative_claim' || n.isDerivativeClaim === true;
@@ -1706,6 +1747,7 @@ export const Map3D: React.FC = () => {
             <Search size={16} className="text-cyan-400 shrink-0" />
             <div className="relative flex-1">
               <input
+                ref={searchInputRef}
                 type="text"
                 placeholder={t('search.placeholder')}
                 value={searchQuery}

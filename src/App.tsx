@@ -16,6 +16,10 @@ import { AppletNavigationService } from './services/AppletNavigationService';
 import type { AppletId } from './types/appletRegistry';
 import type { CommandContext } from './types/commandTypes';
 import { CommandRegistry } from './services/commandRegistry';
+import {
+  RICIS_COMMAND_EVENTS,
+  subscribeRicisCommand,
+} from './services/commandBus';
 import { APP_BUILD_LABEL } from './version';
 
 const Map3D = lazyNamedComponent(() => import('./ui/Map3D'), 'Map3D');
@@ -77,38 +81,35 @@ export default function App() {
     setLocationSearch(window.location.search);
   };
 
+  // Command-bus state feedback: pages report real runtime state so command
+  // indicators (Play/Pause, crawler, 3D/2D) light up from live data.
+  const [isSimulationRunning, setIsSimulationRunning] = useState(false);
+  const [isAutoProverRunning, setIsAutoProverRunning] = useState(false);
+
+  useEffect(() => {
+    const unsubscribers = [
+      subscribeRicisCommand(RICIS_COMMAND_EVENTS.presentationModeChanged, detail => {
+        setIs3DMode(Boolean(detail?.is3D));
+      }),
+      subscribeRicisCommand(RICIS_COMMAND_EVENTS.kinematicRunningChanged, detail => {
+        setIsSimulationRunning(Boolean(detail?.isRunning));
+      }),
+      subscribeRicisCommand(RICIS_COMMAND_EVENTS.qaRunningChanged, detail => {
+        setIsAutoProverRunning(Boolean(detail?.isRunning));
+      }),
+    ];
+    return () => unsubscribers.forEach(unsubscribe => unsubscribe());
+  }, []);
+
+  // Commands dispatch exactly one bus event each (see commandRegistry);
+  // applet pages subscribe via useRicisCommand. Context callbacks are
+  // integration seams only — no duplicate dispatch from App anymore.
   const commandContext: CommandContext = {
     activeApplet: currentApplet,
     is3DMode,
+    isSimulationRunning,
+    isAutoProverRunning,
     onSelectApplet: handleSelectApplet,
-    onToggle3DMode: () => {
-      setIs3DMode(prev => !prev);
-      window.dispatchEvent(new CustomEvent('ricis:toggle-3d-presentation'));
-    },
-    onResetCamera: () => {
-      window.dispatchEvent(new CustomEvent('ricis:reset-camera'));
-    },
-    onSearchNodes: () => {
-      window.dispatchEvent(new CustomEvent('ricis:open-search'));
-    },
-    onToggleSimulation: () => {
-      window.dispatchEvent(new CustomEvent('ricis:kinematic-toggle-play'));
-    },
-    onResetSimulation: () => {
-      window.dispatchEvent(new CustomEvent('ricis:kinematic-reset'));
-    },
-    onStepSimulation: () => {
-      window.dispatchEvent(new CustomEvent('ricis:kinematic-step'));
-    },
-    onClearTerminal: () => {
-      window.dispatchEvent(new CustomEvent('ricis:terminal-clear'));
-    },
-    onRunProver: () => {
-      window.dispatchEvent(new CustomEvent('ricis:qa-run-floodfill'));
-    },
-    onRunDiagnostics: () => {
-      window.dispatchEvent(new CustomEvent('ricis:run-diagnostics'));
-    },
   };
 
   // Global Keyboard Shortcuts (Alt+1..9, Space, etc.)

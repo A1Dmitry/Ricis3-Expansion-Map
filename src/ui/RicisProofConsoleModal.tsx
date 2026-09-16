@@ -15,6 +15,8 @@ import { writeCoreRecovery } from '../services/coreRecovery';
 import { APP_BUILD_LABEL } from '../version';
 import { X, Play, Cpu, BookOpen, Layers, CheckCircle2, Bookmark } from 'lucide-react';
 import { RICIS_EXAMPLE_CATALOG } from '../data/exampleCatalogData';
+import { useRicisCommand } from '../hooks/useRicisCommand';
+import { RICIS_COMMAND_EVENTS } from '../services/commandBus';
 
 interface RicisProofConsoleModalProps {
   isOpen: boolean;
@@ -63,8 +65,6 @@ export const RicisProofConsoleModal: React.FC<RicisProofConsoleModalProps> = ({
       }
     }
   }, [isOpen, initialClaim, engine]);
-
-  if (!isOpen) return null;
 
   const handleRunEvaluation = async () => {
     if (!expression.trim()) return;
@@ -119,6 +119,24 @@ export const RicisProofConsoleModal: React.FC<RicisProofConsoleModalProps> = ({
     setProofClaim(expr);
     setProofExpected(expr);
   };
+
+  // --- Command bus wiring (toolbar / menu / shortcuts -> REPL console) ---
+  // Hooks must run unconditionally (hooks-order safety), so the early return
+  // below stays after them; handlers no-op while the console is closed.
+  useRicisCommand(RICIS_COMMAND_EVENTS.terminalClear, () => {
+    if (!isOpen) return;
+    setEvalResult(null);
+    setProofRun(null);
+    setProofRecoveryResourceKey(null);
+  });
+
+  useRicisCommand(RICIS_COMMAND_EVENTS.terminalLeanVerify, () => {
+    if (!isOpen) return;
+    setActiveTab('prove');
+    void handleGenerateProof();
+  });
+
+  if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4 animate-in fade-in duration-200">

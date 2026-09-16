@@ -647,6 +647,25 @@ describe('OIR-03 — audit proof-synthesis containment', () => {
       'M  artifacts/proofs/ricis-backend-exact-reduction.json',
       'M  ACTIVE_TASKS.md',
       'M  src/model/audit.proofSynthesisContainment.test.ts',
+
+      // AUDIT-2026-09-16 BUGFIX CAMPAIGN (FULL_AUDIT_REPORT_2026-09-16.md, §5):
+      // оживление командной шины BUG-02 (подписчики ricis:* в целевых страницах,
+      // state-feedback события, единая точка диспатча в commandRegistry) +
+      // DRY clipboard-хелпер (часть BUG-07, используется commandRegistry).
+      ' M src/App.tsx',
+      ' M src/services/commandRegistry.ts',
+      ' M src/ui/AutoProverModal.tsx',
+      ' M src/ui/KinematicEnginePage.tsx',
+      ' M src/ui/KinematicEnginePage.test.tsx',
+      ' M src/ui/Map3D.tsx',
+      ' M src/ui/RicisProofConsoleModal.tsx',
+      ' M src/ui/RicisSeedPage.tsx',
+      ' M src/ui/RicisSeedPage.test.tsx',
+      '?? src/hooks/useRicisCommand.ts',
+      '?? src/services/clipboard.ts',
+      '?? src/services/commandBus.ts',
+      '?? src/services/commandBus.test.ts',
+      '?? src/services/commandBus.wiring.topology.test.ts',
     ]);
     if (status.length > 0 && status.every(entry => entry.startsWith('?? '))) {
       // In clean container environments git status may return all files as untracked
