@@ -1,7 +1,7 @@
 {
   "name": "ricis3-expansion",
   "private": false,
-  "version": "0.4.196",
+  "version": "0.4.197",
   "description": "Interactive RICIS-III singularity research map with explicit proof-trust boundaries",
   "type": "module",
   "workspaces": [
@@ -16,6 +16,9 @@
     "sync:version": "tsx tools/syncVersion.ts",
     "bootstrap": "node -e \"require('node:fs').existsSync('node_modules/typescript') || require('node:child_process').execFileSync(process.platform==='win32'?'npm.cmd':'npm',['ci'],{stdio:'inherit'})\"",
     "release:check": "npm run sync:version && vitest run tools/releaseConsistency.test.ts",
+    "tps:gate": "tsx scripts/tpsGate.ts",
+    "tps:board": "tsx scripts/tpsGate.ts --emit-board",
+    "tps:board:check": "tsx scripts/tpsGate.ts --check-board",
     "dev": "tsx server.ts",
     "generate:node-entries": "tsx tools/generateNodeEntries.ts",
     "seed:state": "tsx scripts/seedTaskState.ts",

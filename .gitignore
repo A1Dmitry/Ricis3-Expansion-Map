@@ -9,4 +9,10 @@ coverage/
 temp-ricis-core-2/
 *.tmp
 /.vs
-/.github/workflows/lean-artifact-kernel-check.yml
+
+# NOTE (2026-09-15, TPS andon A-0005): путь `.github/workflows/lean-artifact-kernel-check.yml`
+# игнорироваться НЕ должен. Этот workflow — единственный воспроизводимый источник evidence для
+# статусов LEAN_VERIFIED/TRUSTED_AXIOM (AGENTS.md §7). Для отслеживаемого файла правило игнорирования
+# не видно в моменте, но после случайного удаления `git add -A` молча пропустит восстановленную копию
+# (класс инцидента F-07/F-14: workflow уже терялся при разрешении конфликта мержа 142d744).
+# Возврат строки роняет `npm run tps:gate` (правило CI_WORKFLOW_IGNORED).

@@ -12,7 +12,7 @@ The mandatory target cultures are `en-US`, `fr-CA`, `de-DE`, `hi-IN` and `ms-MY`
 
 ## Generated inventory
 
-The complete scanner output is stored at [`russian-resource-manifest.json`](russian-resource-manifest.json). It contains repository, source file, line, category, original literal and a stable generated resource key for every match.
+The complete scanner output is stored at [`russian-resource-manifest.json`](../russian-resource-manifest.json). It contains repository, source file, line, category, original literal and a stable generated resource key for every match.
 
 The current eligible inventory contains **1,775 unique resource candidates**: 1,132 Expansion candidates and 643 Core candidates. Test fixtures and formal source data are recorded by the scanner but are excluded from the resource candidate catalogs because they are verification inputs, not user-facing copy.
 
