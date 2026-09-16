@@ -1332,6 +1332,21 @@
       "evidenceTarget": "artifacts/proofs/README.md (раздел Mathlib Artifacts — Kernel Path), findings[F-14]",
       "expectedOutcome": "UNKNOWN, но статически установлен дефект импорта F-14 (модуль Mathlib.Basic.Real.Basic отсутствует в закреплённой Mathlib). Прогон не запущен: цель не внесена в allowlist MATHLIB_ARTIFACTS — решение владельца.",
       "status": "PENDING_KERNEL_RUN"
+    },
+    {
+      "artifactId": "ricis-general-resolution-v3",
+      "immutableSource": "artifacts/proofs/ricis-general-resolution-v3.lean",
+      "sourceSha256": "fb792af15e8d4f2c090940a5430a26a0c696ad028200d8c2c6a4b8771058b44a",
+      "job": "mathlib-kernel-check",
+      "toolchain": "leanprover/lean4:v4.33.0 (Mathlib @ 6f1ef4e5dd604a435bddba4747b13970cd65d2a1)",
+      "commands": [
+        "(cd mathlib-check && lake env lean artifacts/proofs/ricis-general-resolution-v3.lean)",
+        "(cd mathlib-check && lake env lean artifacts/proofs/mathlib-checks/ricis-general-resolution-v3.mathlib-check.lean)"
+      ],
+      "metadata": "artifacts/proofs/ricis-general-resolution-v3.json",
+      "evidenceTarget": "docs/05-evidence/proofs/ricis-general-resolution-v3-kernel-run.md",
+      "expectedOutcome": "UNKNOWN до фактического двойного прогона; статический анализ не является evidence.",
+      "status": "PENDING_KERNEL_RUN"
     }
   ],
   "findings": [

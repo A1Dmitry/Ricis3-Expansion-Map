@@ -1,0 +1,50 @@
+{
+  "source": "Новая версия доказательства, созданная отдельно для закрытия F-09/F-11; внешний artifacts/proofs/ricis-general-resolution.lean (v2) не изменён.",
+  "claim": "Для параметризованной сингулярности положительных порядков явно доказаны 0/0 в центре, равенство значения ricis_reduce в центре и ricis_eval_general, а A4/SP1 включены как именованные trusted dependencies структурного bridge theorem.",
+  "method": "explicit_reduction_evaluation_bridge_with_named_trusted_contracts",
+  "verification": {
+    "valid": false,
+    "verifiedAxioms": [],
+    "contentHash": "fb792af15e8d4f2c090940a5430a26a0c696ad028200d8c2c6a4b8771058b44a",
+    "trustStatus": "REQUIRES_CORE_LEAN",
+    "claimLevel": "PENDING_KERNEL_RUN",
+    "claimLevelNote": "Статус не повышается до двойного фактического Mathlib kernel run исходника и аддитивной производной. A4/SP1 остаются явно объявленными trusted contracts, а не доказанными леммами."
+  },
+  "declaredAxioms": [
+    {
+      "name": "ax_A4_general",
+      "role": "trusted contract for the regular-factor quotient",
+      "usedByTheorems": [
+        "regular_factor_quotient_uses_A4",
+        "ricis_resolution_bridge"
+      ]
+    },
+    {
+      "name": "ax_SP1_general",
+      "role": "trusted contract for cancellation of an identical positive-order zero factor",
+      "usedByTheorems": [
+        "common_zero_factor_uses_SP1",
+        "ricis_resolution_bridge"
+      ]
+    }
+  ],
+  "boundary": {
+    "provenIfKernelAccepts": [
+      "ricis_reduce S S.a = ricis_eval_general S при m ≥ n",
+      "N a = 0 и D a = 0 при положительных m и n",
+      "единый bridge theorem, в котором A4 и SP1 являются фактическими зависимостями"
+    ],
+    "notProven": [
+      "A4 и SP1 не выводятся: это видимые доверенные контракты.",
+      "Теорема не заявляет аналитический предел и не использует предел внутри Resolve_RICIS.",
+      "До CI-прогона компилируемость и отсутствие sorryAx не считаются подтверждёнными."
+    ]
+  },
+  "verificationPath": {
+    "workflow": ".github/workflows/lean-artifact-kernel-check.yml",
+    "job": "mathlib-kernel-check",
+    "checkedFile": "artifacts/proofs/ricis-general-resolution-v3.lean",
+    "artifactCheckedAsProvided": true,
+    "status": "PENDING_KERNEL_RUN"
+  }
+}
