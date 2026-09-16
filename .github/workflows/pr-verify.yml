@@ -26,6 +26,10 @@ jobs:
         run: npm --version
       - name: Install locked dependencies
         run: npm ci
+      - name: Reject moderate-or-higher dependency vulnerabilities
+        # Keep the audit on PR verification rather than the Pages deployment path: vulnerable
+        # lockfiles stop before merge without turning an already-built release into an outage.
+        run: npm run security:check
       - name: Verify release alignment and TypeScript
         run: npm run release:check && npm run lint
       - name: Toyota flow poka-yoke gate (TPS standard work), board and digest drift check
