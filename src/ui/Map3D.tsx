@@ -133,6 +133,36 @@ function getZoneColor(id: string) {
   return '#' + '00000'.substring(0, 6 - c.length) + c;
 }
 
+/**
+ * BUG-12: accessible dismiss control for chips inside accordion-header buttons.
+ * A raw <span onClick> is invisible to keyboard and screen readers; this control
+ * exposes role="button", focus, an aria-label and Enter/Space activation while
+ * stopping propagation so the parent accordion header is not toggled.
+ */
+function ChipDismissControl({ ariaLabel, onDismiss, className = '' }: {
+  ariaLabel: string;
+  onDismiss: () => void;
+  className?: string;
+}) {
+  const activate = (e: React.MouseEvent | React.KeyboardEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    onDismiss();
+  };
+  return (
+    <span
+      role="button"
+      tabIndex={0}
+      aria-label={ariaLabel}
+      onClick={activate}
+      onKeyDown={e => {
+        if (e.key === 'Enter' || e.key === ' ') activate(e);
+      }}
+      className={`text-slate-400 hover:text-rose-400 font-bold cursor-pointer ${className}`}
+    >✕</span>
+  );
+}
+
 const zoneColors: Record<string, string> = {
   math: '#3b82f6',
   informatics: '#06b6d4',
@@ -917,15 +947,38 @@ export const Map3D: React.FC = () => {
     }
   }, [map.hydrated, deepLinkFocusOutcome, initialUrlParams.initialMode]);
 
+  // BUG-13: the ?mode= parameter must be honored on SPA navigation too, not
+  // only on first mount — a fresh ?mode=verify/proof deep link re-opens the
+  // proof panel without a full page reload. Unrelated popstate events with an
+  // unchanged mode never clobber a user-closed panel.
+  const lastSyncedModeRef = useRef<string | null>(initialUrlParams.initialMode);
+  useEffect(() => {
+    const syncModeFromUrl = () => {
+      const mode = new URLSearchParams(window.location.search).get('mode');
+      if (mode === lastSyncedModeRef.current) return;
+      lastSyncedModeRef.current = mode;
+      if (mode === 'verify' || mode === 'proof') {
+        setShowProof(true);
+      } else {
+        setShowProof(false);
+      }
+    };
+    syncModeFromUrl();
+    window.addEventListener('popstate', syncModeFromUrl);
+    return () => window.removeEventListener('popstate', syncModeFromUrl);
+  }, []);
+
   // Preserve an unknown shared-link target and mode parameter in the address bar.
+  // The URL ?mode= mirrors the actual proof-panel state (single source of truth:
+  // popstate -> panel above, panel -> URL here — no ping-pong, BUG-13).
   useEffect(() => {
     if (!map.hydrated) return;
     if (deepLinkFocusOutcome.kind === 'unknown_deep_link_target' && selectedNodeId === null) return;
     UrlShareService.updateBrowserUrl({
       nodeId: selectedNodeId,
-      mode: showProof ? 'verify' : (initialUrlParams.initialMode === 'verify' || initialUrlParams.initialMode === 'proof' ? initialUrlParams.initialMode : null),
+      mode: showProof ? 'verify' : null,
     });
-  }, [selectedNodeId, showProof, map.hydrated, deepLinkFocusOutcome, initialUrlParams.initialMode]);
+  }, [selectedNodeId, showProof, map.hydrated, deepLinkFocusOutcome]);
 
   useEffect(() => {
     if (selectedNodeId) setTaskPanelMode('open');
@@ -1837,7 +1890,11 @@ export const Map3D: React.FC = () => {
                             <span key={z.id} className="inline-flex items-center gap-1.5 bg-neutral-900 border border-neutral-700/80 px-2 py-0.5 rounded-full text-xs text-slate-200">
                               <span className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: getZoneColor(z.id) }} />
                               <span className="truncate max-w-[130px] font-medium">{z.name}</span>
-                              <span onClick={(e) => { e.preventDefault(); e.stopPropagation(); setHiddenZones(prev => new Set(prev).add(z.id)); }} className="text-slate-400 hover:text-rose-400 font-bold ml-0.5 cursor-pointer">✕</span>
+                              <ChipDismissControl
+                                ariaLabel={`Скрыть сферу ${z.name}`}
+                                onDismiss={() => setHiddenZones(prev => new Set(prev).add(z.id))}
+                                className="ml-0.5"
+                              />
                             </span>
                           ))
                         )}
@@ -1847,7 +1904,10 @@ export const Map3D: React.FC = () => {
                       selectedNode ? (
                         <span className="bg-emerald-950/80 border border-emerald-700/80 px-2.5 py-0.5 rounded-full text-emerald-200 inline-flex items-center gap-1.5 max-w-full font-medium">
                           <span className="truncate">🎯 {selectedNodePresentation?.title ?? selectedNode.title}</span>
-                          <span onClick={(e) => { e.preventDefault(); e.stopPropagation(); setSelectedNodeId(null); }} className="text-slate-400 hover:text-rose-400 font-bold cursor-pointer">✕</span>
+                          <ChipDismissControl
+                            ariaLabel="Снять выбор задачи"
+                            onDismiss={() => setSelectedNodeId(null)}
+                          />
                         </span>
                       ) : availableNodes.length > 0 ? (
                         <span className="bg-neutral-900 border border-neutral-800 px-2 py-0.5 rounded text-slate-300 truncate max-w-full">

@@ -718,6 +718,22 @@ describe('OIR-03 — audit proof-synthesis containment', () => {
       ' M src/store/mapStore.ts',
       '?? server/aiDegradation.ts',
       '?? server/aiDegradation.test.ts',
+
+      // AUDIT-2026-09-16 BUG-11/12/13 + release 0.4.199: доступные
+      // dismiss-контролы (ChipDismissControl), реакция ?mode= на SPA-навигацию,
+      // AUDITOR-маркер в QA-отчёте, актуальные числа тестов в README,
+      // синхронизация версии 0.4.198 -> 0.4.199.
+      ' M src/ui/Map3D.tsx',
+      ' M README.md',
+      ' M QA_RECURSIVE_AUDIT_REPORT.md',
+      ' M CITATION.cff',
+      ' M index.html',
+      ' M package.json',
+      ' M package-lock.json',
+      ' M src/version.ts',
+      ' M docs/05-evidence/architecture/structural-hash-report.md',
+      ' M docs/05-evidence/architecture/telegram-tokenpool-remediation-2026-08-18.md',
+      ' M docs/05-evidence/proofs/lean-boundary-audit-2026-08-18.md',
     ]);
     if (status.length > 0 && status.every(entry => entry.startsWith('?? '))) {
       // In clean container environments git status may return all files as untracked
