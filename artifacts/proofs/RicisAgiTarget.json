@@ -1,0 +1,38 @@
+{
+  "source": "Внешний артефакт из пакета Core AGI (DOI 10.5281/zenodo.22225762); байты неизменяемы (AGENTS.md §7).",
+  "claim": "RicisAgiTarget: структурный A6-мост (детерминант ортогональной пары) на ℝ и путь-индексированная метрика цели (SP4/L1).",
+  "method": "geometric_bridge_determinant_on_real",
+  "verification": {
+    "valid": false,
+    "verifiedAxioms": [],
+    "contentHash": "4002d1c900271d7526f8b455c277f32a91ac99a613e55d8d25f09edcd7860073",
+    "trustStatus": "REQUIRES_CORE_LEAN",
+    "claimLevel": "PENDING_KERNEL_RUN",
+    "claimLevelNote": "Статус не повышается до фактического двойного прогона (исходник как предоставлен + байт-в-байт производная с #print axioms) в джобе mathlib-kernel-check. Тело действительно нуждается в Mathlib (тип ℝ и тактика ring), поэтому core-check путь неприменим."
+  },
+  "declaredAxioms": [],
+  "declaredAxiomsNote": "Исходник не объявляет ни одной `axiom`: доверенных контрактов нет, все три теоремы доказаны внутри файла (детерминантный мост, сохранение путь-индекса, равенство вычисления произведению весов). Граница доверия фиксируется здесь, вне исходника (§7).",
+  "boundary": {
+    "provenIfKernelAccepts": [
+      "det2x2 A B = A * B — детерминант ортогональной пары (A,0),(0,B) равен произведению (A6-прокси на ℝ)",
+      "сохранение путь-индекса: протокол цели не допускает тихого структурного коллапса (SP4)",
+      "reducePipeline g = g.weightA * g.weightB — вычисление цели совпадает с произведением весов"
+    ],
+    "notProven": [
+      "Ничего об эмпирических свойствах AGI: артефакт — структурный прототип для Zenodo-депозита, не метрика интеллекта и не сертификат безопасности.",
+      "Компилируемость и отсутствие sorryAx не считаются подтверждёнными до CI-прогона (локальный тулчейн недоступен — A-0007).",
+      "Прогон ядра фиксирует только структурные теоремы артефакта, не заявления узла карты об AGI-цели."
+    ]
+  },
+  "verificationPath": {
+    "workflow": ".github/workflows/lean-artifact-kernel-check.yml",
+    "job": "mathlib-kernel-check",
+    "checkedFile": "artifacts/proofs/RicisAgiTarget.lean",
+    "artifactCheckedAsProvided": true,
+    "status": "PENDING_KERNEL_RUN"
+  },
+  "provenance": {
+    "zenodoDoi": "10.5281/zenodo.22225762",
+    "note": "Computable Lean 4 prototype for Zenodo deposit; автор указан в заголовке исходника."
+  }
+}

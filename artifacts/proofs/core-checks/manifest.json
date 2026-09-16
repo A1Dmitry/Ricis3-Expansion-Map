@@ -354,6 +354,32 @@
         "RICIS3.GeneratedJacobianRegistry120.jacobian_registry120_a6_bridge",
         "RICIS3.GeneratedJacobianRegistry120.jacobian_registry120_indices_valid"
       ]
+    },
+    {
+      "artifactId": "Schwarzschild_GeometricBridge",
+      "source": "artifacts/proofs/Schwarzschild_GeometricBridge.lean",
+      "sourceSha256": "1df6b21df93cf2e5e822156a151929d849dd553979ef32c8992045d2a5b3de63",
+      "output": "artifacts/proofs/core-checks/Schwarzschild_GeometricBridge.core-check.lean",
+      "outputSha256": "721b505ef6cbdc39e3c2e5e14935db2267fe33ce75dd3fed8e70e4acd1f63679",
+      "substitutions": [],
+      "sourceFindings": [
+        "Не проверялось ядром до этого цикла (статус REQUIRES_CORE_LEAN; вне allowlist MATHLIB_ARTIFACTS)."
+      ],
+      "rationale": "Тело использует только ядро-нативные примитивы: структуры над Nat/Int/String с deriving DecidableEq/Repr/Hashable, доказательства rfl / congrArg / simp / native_decide, дискретный A6-прокси на Int (продукт и gated-отношение). Ни ℝ/ℚ/ℂ, ни ring/norm_num, ни других Mathlib-символов в теле нет — установлено пофайловым чтением (локальный тулчейн недоступен, A-0007); три строки импорта Mathlib телом не используются и удаляются в производной. Фактическим основанием самодостаточности станет прогон джобы kernel-check.",
+      "metadataJson": "artifacts/proofs/Schwarzschild_GeometricBridge.json",
+      "printAxiomsTargets": [
+        "RICIS3.SchwarzschildBridge.l1_trivial",
+        "RICIS3.SchwarzschildBridge.sp4_no_silent_collapse",
+        "RICIS3.SchwarzschildBridge.preservesPath_iff",
+        "RICIS3.SchwarzschildBridge.measure_eq_mul",
+        "RICIS3.SchwarzschildBridge.a6_product_eq_mul",
+        "RICIS3.SchwarzschildBridge.a6_product_self",
+        "RICIS3.SchwarzschildBridge.a6_ratio_proxy_def",
+        "RICIS3.SchwarzschildBridge.eval_product_ok",
+        "RICIS3.SchwarzschildBridge.eval_product_none_foreign",
+        "RICIS3.SchwarzschildBridge.eval_ratio_ok",
+        "RICIS3.SchwarzschildBridge.eval_ratio_none_foreign"
+      ]
     }
   ]
 }

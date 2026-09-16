@@ -68,6 +68,29 @@ const MATHLIB_CHECK_DIR = `${PROOFS_DIR}/mathlib-checks`;
  */
 export const LEAN_MATHLIB_CHECK_PLAN: readonly LeanMathlibCheckPlanEntry[] = [
   {
+    artifactId: 'RicisAgiTarget',
+    source: `${PROOFS_DIR}/RicisAgiTarget.lean`,
+    output: `${MATHLIB_CHECK_DIR}/RicisAgiTarget.mathlib-check.lean`,
+    metadataJson: `${PROOFS_DIR}/RicisAgiTarget.json`,
+    rationale:
+      'Тело действительно нуждается в Mathlib: определитель ортогонального моста и метрика цели ' +
+      'объявлены на ℝ (тип, отсутствующий в ядре), доказательство detBridge_eq_mul использует ' +
+      'тактику ring. Проверка возможна только прогоном lake env lean на закреплённом тулчейне ' +
+      'зафиксированной ревизии Mathlib (предустановленные oleans).',
+  },
+  {
+    artifactId: 'jacobian-counterexample-full',
+    source: `${PROOFS_DIR}/jacobian-counterexample-full.lean`,
+    output: `${MATHLIB_CHECK_DIR}/jacobian-counterexample-full.mathlib-check.lean`,
+    metadataJson: `${PROOFS_DIR}/jacobian-counterexample-full.json`,
+    rationale:
+      'Тело действительно нуждается в Mathlib: полиномиальное поле задано на ℚ (нотация и тип из ' +
+      'Mathlib), константность глобального якобиана доказывается тактикой ring, точечные свидетели ' +
+      'неинъективности — тактикой norm_num. В исходнике уже есть секция #print axioms внутри ' +
+      'неймспейса; производная добавляет только внешний эпилог с квалифицированными именами, ' +
+      'включая объявленный доверенный контракт (аксиому) как видимый вход доверия.',
+  },
+  {
     artifactId: 'ricis-general-resolution-v3',
     source: `${PROOFS_DIR}/ricis-general-resolution-v3.lean`,
     output: `${MATHLIB_CHECK_DIR}/ricis-general-resolution-v3.mathlib-check.lean`,

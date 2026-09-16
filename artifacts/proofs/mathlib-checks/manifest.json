@@ -12,6 +12,63 @@
   "command": "lake env lean <artifact>",
   "artifacts": [
     {
+      "artifactId": "RicisAgiTarget",
+      "source": "artifacts/proofs/RicisAgiTarget.lean",
+      "sourceSha256": "4002d1c900271d7526f8b455c277f32a91ac99a613e55d8d25f09edcd7860073",
+      "output": "artifacts/proofs/mathlib-checks/RicisAgiTarget.mathlib-check.lean",
+      "outputSha256": "692ab0bf841859127a0831446993b49ac357272e1012443efc2dcbc1d84465f2",
+      "rationale": "Тело действительно нуждается в Mathlib: определитель ортогонального моста и метрика цели объявлены на ℝ (тип, отсутствующий в ядре), доказательство detBridge_eq_mul использует тактику ring. Проверка возможна только прогоном lake env lean на закреплённом тулчейне зафиксированной ревизии Mathlib (предустановленные oleans).",
+      "metadataJson": "artifacts/proofs/RicisAgiTarget.json",
+      "theorems": [
+        "RICIS3.AgiTarget.detBridge_eq_mul",
+        "RICIS3.AgiTarget.sp4_no_silent_collapse",
+        "RICIS3.AgiTarget.evaluateGoal_eq_product"
+      ],
+      "declaredAxioms": [],
+      "printAxiomsTargets": [
+        "RICIS3.AgiTarget.detBridge_eq_mul",
+        "RICIS3.AgiTarget.sp4_no_silent_collapse",
+        "RICIS3.AgiTarget.evaluateGoal_eq_product"
+      ]
+    },
+    {
+      "artifactId": "jacobian-counterexample-full",
+      "source": "artifacts/proofs/jacobian-counterexample-full.lean",
+      "sourceSha256": "e6ab1b1db54ff04cdc3fb5a647cb6beedd7daba84bcd1272b51123519244339a",
+      "output": "artifacts/proofs/mathlib-checks/jacobian-counterexample-full.mathlib-check.lean",
+      "outputSha256": "4a61fef521c05eac91d74c1f4126631f81321117db889b83c4b552bfa17d9cbf",
+      "rationale": "Тело действительно нуждается в Mathlib: полиномиальное поле задано на ℚ (нотация и тип из Mathlib), константность глобального якобиана доказывается тактикой ring, точечные свидетели неинъективности — тактикой norm_num. В исходнике уже есть секция #print axioms внутри неймспейса; производная добавляет только внешний эпилог с квалифицированными именами, включая объявленный доверенный контракт (аксиому) как видимый вход доверия.",
+      "metadataJson": "artifacts/proofs/jacobian-counterexample-full.json",
+      "theorems": [
+        "JacobianCounterexample.jacobian_entries_match_formal_partials",
+        "JacobianCounterexample.jacobian_det_is_constant",
+        "JacobianCounterexample.point_a_maps_to",
+        "JacobianCounterexample.point_b_maps_to",
+        "JacobianCounterexample.point_c_maps_to",
+        "JacobianCounterexample.points_are_distinct",
+        "JacobianCounterexample.field_is_noninjective",
+        "JacobianCounterexample.no_left_inverse",
+        "JacobianCounterexample.full_jacobian_counterexample",
+        "JacobianCounterexample.trusted_contract_no_left_inverse"
+      ],
+      "declaredAxioms": [
+        "trusted_full_jacobian_contract"
+      ],
+      "printAxiomsTargets": [
+        "JacobianCounterexample.jacobian_entries_match_formal_partials",
+        "JacobianCounterexample.jacobian_det_is_constant",
+        "JacobianCounterexample.point_a_maps_to",
+        "JacobianCounterexample.point_b_maps_to",
+        "JacobianCounterexample.point_c_maps_to",
+        "JacobianCounterexample.points_are_distinct",
+        "JacobianCounterexample.field_is_noninjective",
+        "JacobianCounterexample.no_left_inverse",
+        "JacobianCounterexample.full_jacobian_counterexample",
+        "JacobianCounterexample.trusted_contract_no_left_inverse",
+        "trusted_full_jacobian_contract"
+      ]
+    },
+    {
       "artifactId": "ricis-general-resolution-v3",
       "source": "artifacts/proofs/ricis-general-resolution-v3.lean",
       "sourceSha256": "fb792af15e8d4f2c090940a5430a26a0c696ad028200d8c2c6a4b8771058b44a",

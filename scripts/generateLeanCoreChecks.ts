@@ -416,6 +416,23 @@ export const LEAN_CORE_CHECK_PLAN: readonly LeanCoreCheckPlanEntry[] = [
       'Не проверялось ядром до этого PR (статус REQUIRES_CORE_LEAN).',
     ],
   },
+  {
+    artifactId: 'Schwarzschild_GeometricBridge',
+    source: `${PROOFS_DIR}/Schwarzschild_GeometricBridge.lean`,
+    output: `${CORE_CHECK_DIR}/Schwarzschild_GeometricBridge.core-check.lean`,
+    metadataJson: `${PROOFS_DIR}/Schwarzschild_GeometricBridge.json`,
+    substitutions: [],
+    rationale:
+      'Тело использует только ядро-нативные примитивы: структуры над Nat/Int/String с ' +
+      'deriving DecidableEq/Repr/Hashable, доказательства rfl / congrArg / simp / native_decide, ' +
+      'дискретный A6-прокси на Int (продукт и gated-отношение). Ни ℝ/ℚ/ℂ, ни ring/norm_num, ни ' +
+      'других Mathlib-символов в теле нет — установлено пофайловым чтением (локальный тулчейн ' +
+      'недоступен, A-0007); три строки импорта Mathlib телом не используются и удаляются в ' +
+      'производной. Фактическим основанием самодостаточности станет прогон джобы kernel-check.',
+    sourceFindings: [
+      'Не проверялось ядром до этого цикла (статус REQUIRES_CORE_LEAN; вне allowlist MATHLIB_ARTIFACTS).',
+    ],
+  },
 ];
 
 /** Маркер начала добавленного эпилога: по нему тест отсекает эпилог и сверяет префикс. */
