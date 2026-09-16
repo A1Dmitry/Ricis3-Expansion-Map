@@ -184,7 +184,7 @@ npm ci
 # Проверка согласованности релизных контрактов
 npm run release:check
 
-# Запуск полного набора тестов (1500+ unit-тестов Vitest)
+# Запуск полного набора тестов (2069 unit-тестов в 259 файлах, Vitest; точные числа — snapshot v0.4.199 в `tools/testCountSnapshot.json`, сверяется в `tools/docConsistency.test.ts`)
 npm test
 
 # Статическая проверка типов TypeScript (strict: true)

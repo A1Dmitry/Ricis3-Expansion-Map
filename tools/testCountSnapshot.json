@@ -1,0 +1,6 @@
+{
+  "version": "0.4.199",
+  "testFiles": 259,
+  "testCount": 2069,
+  "note": "BUG-11 (anti-tuhta): точные числа полного прогона `npx vitest run`, зафиксированные на версию. Обновлять при каждом изменении числа тестов; сверяется в tools/docConsistency.test.ts."
+}
