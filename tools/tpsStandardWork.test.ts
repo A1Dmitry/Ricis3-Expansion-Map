@@ -19,6 +19,8 @@ import {
   BOARD_MARKDOWN_PATH,
   REQUIRED_WORKFLOWS,
   CATALOG_PATH,
+  classifyFindingResolution,
+  isLineStoppingEvent,
   loadBoard,
   renderBoard,
   validateBoard,
@@ -316,6 +318,144 @@ describe('TPS poka-yoke is falsifiable', () => {
       ),
     } as TpsBoard;
     expectCode(lazy, 'CARD_FINDING_ALREADY_CLOSED');
+  });
+
+  it('classifies finding resolutions fail-safe: unseen wording is unclassified, never silently open', () => {
+    expect(classifyFindingResolution(undefined)).toBe('OPEN');
+    expect(classifyFindingResolution('')).toBe('OPEN');
+    expect(classifyFindingResolution('   ')).toBe('OPEN');
+    // Every closure marker of the vocabulary, in both cases and with leading space.
+    expect(classifyFindingResolution('РЕШЁНО (2026-09-15, run 1)')).toBe('CLOSED');
+    expect(classifyFindingResolution('решено строчными буквами')).toBe('CLOSED');
+    expect(classifyFindingResolution('  Исправлено в этом PR: фильтр')).toBe('CLOSED');
+    expect(classifyFindingResolution('Решение владельца 2026-09-14: понизить статус')).toBe('CLOSED');
+    expect(classifyFindingResolution('CLOSED by upstream kernel run')).toBe('CLOSED');
+    expect(classifyFindingResolution('Fixed in 0.4.189')).toBe('CLOSED');
+    expect(classifyFindingResolution('ЗАКРЫТО выше по потоку')).toBe('CLOSED');
+    // The three live blind spots (A-0009): non-empty, previously invisible, now unclassified.
+    expect(classifyFindingResolution('Частично закрыто этим PR: остаток — повторный run')).toBe('UNCLASSIFIED');
+    expect(classifyFindingResolution('Реестр вводит раздельные статусы для propext')).toBe('UNCLASSIFIED');
+    expect(classifyFindingResolution('Граница доверия зафиксирована; формулировки — решение владельца')).toBe('UNCLASSIFIED');
+    // A closure word in the middle is not a closure claim at the start.
+    expect(classifyFindingResolution('Вопрос закрыт не будет: ждём ядро')).toBe('UNCLASSIFIED');
+  });
+
+  it('sees every registry finding: no non-empty resolution stays invisible to the pull check (A-0009 sweep)', () => {
+    const registry = JSON.parse(
+      readFileSync(join(repositoryRoot, 'artifacts/proofs/core-checks/kernel-findings.json'), 'utf8'),
+    ) as { findings: { id: string; resolution?: string }[] };
+    expect(registry.findings.length).toBeGreaterThan(0);
+    // The pre-A-0009 mutation test was built on F-08 alone — the same example the rule was
+    // derived from (self-cycling). This sweep derives expectations from the live registry, so
+    // any future wording the vocabulary cannot parse fails loudly instead of passing silently.
+    const seenClasses = new Set<string>();
+    for (const finding of registry.findings) {
+      const closure = classifyFindingResolution(finding.resolution);
+      seenClasses.add(closure);
+      const subject = doneBaseline(validBoard());
+      const waiting = subject.cards.find((card) => card.lane === 'waiting_owner')!;
+      const pulled: TpsCard = {
+        ...waiting,
+        id: `TPS-SWEEP-${finding.id.replace('-', '')}`,
+        lane: 'ready',
+        status: 'READY',
+        taskClass: 'math-proof',
+        title: `${finding.id}: демонстрационная тяга для проверки видимости`,
+        originalGoal: `Измерить видимость находки ${finding.id} для правила перепроизводства: карточка обязана либо пройти (открытая), либо упасть (закрытая/неклассифицированная).`,
+      };
+      const codes = codesOf(validateBoard({ ...clone(subject), cards: [...subject.cards, pulled] } as TpsBoard, repositoryRoot));
+      if (closure === 'CLOSED') {
+        expect(codes, `${finding.id} must be flagged as already closed`).toContain('CARD_FINDING_ALREADY_CLOSED');
+      } else if (closure === 'UNCLASSIFIED') {
+        expect(codes, `${finding.id} must be flagged as unclassified, never silently green`).toContain('CARD_FINDING_UNCLASSIFIED');
+      } else {
+        expect(codes, `${finding.id} is open and must stay pullable`).not.toContain('CARD_FINDING_ALREADY_CLOSED');
+        expect(codes, `${finding.id} is open and must stay pullable`).not.toContain('CARD_FINDING_UNCLASSIFIED');
+      }
+      expect(codes, `${finding.id} exists in the registry`).not.toContain('CARD_FINDING_UNKNOWN');
+    }
+    // The sweep is vacuous if the registry has only one class; today all three are live.
+    expect([...seenClasses].sort()).toEqual(['CLOSED', 'OPEN', 'UNCLASSIFIED']);
+  });
+
+  it('stops unclassified and unknown findings with the same explicit waiver exit (typos are never waivable)', () => {
+    const subject = doneBaseline(validBoard());
+    const waiting = subject.cards.find((card) => card.lane === 'waiting_owner')!;
+    const registry = JSON.parse(
+      readFileSync(join(repositoryRoot, 'artifacts/proofs/core-checks/kernel-findings.json'), 'utf8'),
+    ) as { findings: { id: string; resolution?: string }[] };
+    const unclassified = registry.findings.find((finding) => classifyFindingResolution(finding.resolution) === 'UNCLASSIFIED')!;
+    expect(unclassified).toBeDefined();
+
+    const pulled: TpsCard = {
+      ...waiting,
+      id: 'TPS-9202',
+      lane: 'ready',
+      status: 'READY',
+      taskClass: 'math-proof',
+      title: `${unclassified.id}: тяга находки с нераспознанной формулировкой`,
+      originalGoal: 'Потянуть находку, чьё resolution не входит в словарь закрытия, и получить явный стоп вместо слепой зелени.',
+    };
+    const mutated = { ...clone(subject), cards: [...subject.cards, pulled] } as TpsBoard;
+    expectCode(mutated, 'CARD_FINDING_UNCLASSIFIED');
+
+    const waived = {
+      ...mutated,
+      cards: mutated.cards.map((card) =>
+        card.id === 'TPS-9202'
+          ? { ...card, findingReferenceWaivers: [{ findingId: unclassified.id, reason: 'Прочитал resolution целиком: закрыта только фиксация границы, остаток — формулировки узлов карты за владельцем.' }] }
+          : card,
+      ),
+    } as TpsBoard;
+    expect(codesOf(validateBoard(waived, repositoryRoot))).not.toContain('CARD_FINDING_UNCLASSIFIED');
+
+    const typo: TpsCard = {
+      ...waiting,
+      id: 'TPS-9203',
+      lane: 'ready',
+      status: 'READY',
+      taskClass: 'math-proof',
+      title: 'F-99: тяга по несуществующему идентификатору',
+      originalGoal: 'Потянуть находку с идентификатором, которого нет в реестре: обязана сработать защита от опечатки.',
+    };
+    const typoBoard = { ...clone(subject), cards: [...subject.cards, typo] } as TpsBoard;
+    expectCode(typoBoard, 'CARD_FINDING_UNKNOWN');
+
+    const badWaiver = {
+      ...clone(subject),
+      cards: [
+        ...subject.cards,
+        { ...typo, id: 'TPS-9204', findingReferenceWaivers: [{ findingId: 'F-99', reason: 'Попытка освободить опечатку осмысленной по длине, но бессмысленной по существу отговоркой.' }] },
+      ],
+    } as TpsBoard;
+    // Unknown ids are never waivable: both the typo and the dangling waiver must fire.
+    expectCode(badWaiver, 'CARD_FINDING_UNKNOWN');
+    expectCode(badWaiver, 'CARD_WAIVER_UNKNOWN_FINDING');
+  });
+
+  it('renders the line summary from the same predicate the gate enforces (measured agreement)', () => {
+    // Three fixture states, one predicate: the rendered header must say СТОП-ЛИНИЯ iff
+    // isLineStoppingEvent holds for at least one open event. This is a measured comparison
+    // of the summary against the gate predicate — not a claim about what any past version printed.
+    const subject = doneBaseline(validBoard());
+    const closedOnly = renderBoard(subject);
+    expect(closedOnly).toContain('ЛИНИЯ ИДЁТ');
+    expect(closedOnly).not.toContain('СТОП-ЛИНИЯ');
+
+    const mediumOnly = mapAndon(subject, 'A-0001', { state: 'OPEN', severity: 'medium' });
+    expect(isLineStoppingEvent({ severity: 'medium' })).toBe(false);
+    const mediumRendered = renderBoard(mediumOnly);
+    expect(mediumRendered).toContain('ЛИНИЯ ИДЁТ');
+    expect(mediumRendered).toContain('не блокирует линию');
+    expect(mediumRendered).not.toContain('СТОП-ЛИНИЯ');
+
+    const highOpen = mapAndon(subject, 'A-0001', { state: 'OPEN', severity: 'high' });
+    expect(isLineStoppingEvent({ severity: 'high' })).toBe(true);
+    const highRendered = renderBoard(highOpen);
+    expect(highRendered).toContain('СТОП-ЛИНИЯ');
+    expect(highRendered).toContain('блокирует тягу');
+    expect(codesOf(validateBoard(highOpen, repositoryRoot))).toContain('ANDON_OPEN_BLOCKER');
+    expect(codesOf(validateBoard(mediumOnly, repositoryRoot))).not.toContain('ANDON_OPEN_BLOCKER');
   });
 
   it('allows an externally closed card only with a traceable source and its own check set', () => {

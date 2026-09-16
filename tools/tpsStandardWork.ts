@@ -43,6 +43,42 @@ export const CLOSED_FINDING_VOCABULARY = [
   'РЕШЕНИЕ ВЛАДЕЛЬЦА',
 ] as const;
 
+/**
+ * Closure of a single findings-registry entry as seen by the overproduction guard.
+ *
+ * - `CLOSED`: the resolution matches a known closure marker (starts-with vocabulary).
+ * - `OPEN`: the resolution is empty — no closure claim exists, the finding may be pulled.
+ * - `UNCLASSIFIED`: the resolution is non-empty but matches no known marker. The guard
+ *   cannot see this entry as closed — and must say so loudly instead of staying green.
+ *   Silent green on unseen wording is exactly the blind-guard failure (A-0009): the rule
+ *   was derived from the shape of the first records seen (F-08 «РЕШЁНО…»), so F-02
+ *   («Частично закрыто…»), F-03 («Реестр вводит…») and F-05 («Граница доверия…»)
+ *   passed through invisible. Full machine-readability needs a registry `status` field
+ *   (K-0011, owner decision); until then, unclassified is a stop, not a pass.
+ */
+export type FindingClosure = 'CLOSED' | 'OPEN' | 'UNCLASSIFIED';
+
+export function classifyFindingResolution(resolution: string | undefined): FindingClosure {
+  const text = (resolution ?? '').trim();
+  if (text.length === 0) return 'OPEN';
+  // Russian Ё/Е are orthographic variants («РЕШЁНО» vs «РЕШЕНО»): the guard must not depend
+  // on whether the author dotted the Ё. Both sides are normalised before the starts-with check.
+  const folded = text.toUpperCase().replace(/Ё/gu, 'Е');
+  if (CLOSED_FINDING_VOCABULARY.some((marker) => folded.startsWith(marker.replace(/Ё/gu, 'Е')))) return 'CLOSED';
+  return 'UNCLASSIFIED';
+}
+
+/**
+ * Single predicate for «this andon event stops the line». Used by the gate
+ * (`ANDON_OPEN_BLOCKER`), the generated showcase (`renderBoard`) and the console
+ * summary (`scripts/tpsGate.ts`): three renderings of one predicate, so the summary
+ * cannot drift from the gate. Only `blocker`/`high` stop the pull; `medium`/`low`
+ * stay visible in every run without stopping it.
+ */
+export function isLineStoppingEvent(event: { readonly severity: string }): boolean {
+  return event.severity === 'blocker' || event.severity === 'high';
+}
+
 export const BOARD_PATH = 'docs/00-governance/tps/board.json';
 export const BOARD_MARKDOWN_PATH = 'docs/00-governance/tps/BOARD.md';
 export const CATALOG_PATH = 'docs/00-governance/DOCUMENTATION_CATALOG.md';
@@ -512,7 +548,7 @@ function validateAndon(board: TpsBoard, repositoryRoot: string, out: TpsViolatio
     if (!ANDON_SEVERITIES.includes(event.severity)) {
       push(out, 'ANDON_SEVERITY_INVALID', `andon ${event.id} has severity "${event.severity}"`);
     }
-    if (event.state === 'OPEN' && (event.severity === 'blocker' || event.severity === 'high')) {
+    if (event.state === 'OPEN' && isLineStoppingEvent(event)) {
       push(out, 'ANDON_OPEN_BLOCKER', `stop the line: andon ${event.id} (${event.severity}) is open — "${event.title}"`);
     }
     if ((event.fact ?? '').trim().length < MIN_REASON_LENGTH) {
@@ -540,7 +576,7 @@ function validateAndon(board: TpsBoard, repositoryRoot: string, out: TpsViolatio
     if (closed === null || (opened !== null && closed < opened)) {
       push(out, 'ANDON_TIME_ORDER', `andon ${event.id} needs closedAt not earlier than openedAt`);
     }
-    if (event.severity === 'blocker' || event.severity === 'high') {
+    if (isLineStoppingEvent(event)) {
       const yokoten = event.yokoten ?? [];
       if (yokoten.length === 0) {
         push(out, 'ANDON_YOKOTEN_MISSING', `andon ${event.id} (${event.severity}) closed without yokoten — the same defect class must be swept horizontally`);
@@ -649,17 +685,27 @@ export function isFindingRecordedClosed(finding: RegistryFinding): boolean {
  * not target a finding the registry already records as resolved. This is the overproduction guard —
  * the process caught a real duplicate here (takt 2 started an F-08 repair that upstream PR #47 had
  * already verified with a kernel run), and the rule now prevents the class instead of the instance.
+ *
+ * Fail-safe classification (A-0009): a referenced finding whose resolution the guard cannot
+ * parse as closed or open (`UNCLASSIFIED`) stops the card with `CARD_FINDING_UNCLASSIFIED`
+ * instead of passing silently, and a referenced id absent from the registry stops it with
+ * `CARD_FINDING_UNKNOWN` (probable typo or stale reference). Both keep the same explicit
+ * waiver exit as the closed case; an unknown id is never waivable — the reference must be fixed.
  */
 function validateFindingClosureAgainstRegistry(board: TpsBoard, repositoryRoot: string, out: TpsViolation[]): void {
   const registryPath = join(repositoryRoot, FINDINGS_REGISTRY_PATH);
   if (!existsSync(registryPath)) return; // absent registry is an infrastructure state, not a licence to skip
 
-  let resolved: Set<string>;
+  let closureById: Map<string, FindingClosure>;
   try {
-    const parsed = JSON.parse(readFileSync(registryPath, 'utf8')) as FindingsRegistry;
-    resolved = new Set<string>();
+    const parsed = JSON.parse(readFileSync(registryPath, 'utf8')) as {
+      readonly findings?: readonly { readonly id?: string; readonly resolution?: string }[];
+    };
+    closureById = new Map<string, FindingClosure>();
     for (const finding of parsed.findings ?? []) {
-      if (isFindingRecordedClosed(finding)) resolved.add(finding.id ?? '');
+      const id = (finding.id ?? '').trim();
+      if (id.length === 0) continue;
+      closureById.set(id, classifyFindingResolution(finding.resolution));
     }
   } catch {
     push(out, 'FINDINGS_REGISTRY_UNPARSEABLE', `${FINDINGS_REGISTRY_PATH} is not readable JSON — the pull check is blind`);
@@ -671,18 +717,48 @@ function validateFindingClosureAgainstRegistry(board: TpsBoard, repositoryRoot: 
     if (!flowLanes.has(card.lane)) continue;
     const haystack = [card.title, card.originalGoal, ...(card.acceptanceCriteria ?? [])].join(' ');
     const referenced = [...haystack.matchAll(/\bF-\d{2}\b/gu)].map((match) => match[0]);
+    const waivers = card.findingReferenceWaivers ?? [];
+    for (const waiver of waivers) {
+      if (!closureById.has(waiver.findingId)) {
+        push(
+          out,
+          'CARD_WAIVER_UNKNOWN_FINDING',
+          `waiver references ${waiver.findingId}, which is absent from ${FINDINGS_REGISTRY_PATH} — a waiver for a nonexistent finding is a silently useless exception; fix the id`,
+          card.id,
+        );
+      }
+    }
     for (const findingId of new Set(referenced)) {
-      if (!resolved.has(findingId)) continue;
-      const waived = (card.findingReferenceWaivers ?? []).some(
+      const closure = closureById.get(findingId);
+      if (closure === undefined) {
+        push(
+          out,
+          'CARD_FINDING_UNKNOWN',
+          `card references ${findingId}, which is absent from ${FINDINGS_REGISTRY_PATH} — probable typo or stale reference; fix the reference (unknown ids are never waivable)`,
+          card.id,
+        );
+        continue;
+      }
+      if (closure === 'OPEN') continue;
+      const waived = waivers.some(
         (waiver) => waiver.findingId === findingId && (waiver.reason ?? '').trim().length >= MIN_REASON_LENGTH,
       );
       if (waived) continue;
-      push(
-        out,
-        'CARD_FINDING_ALREADY_CLOSED',
-        `card pulls ${findingId}, but ${FINDINGS_REGISTRY_PATH} already records it as resolved — this is overproduction; close the card upstream or declare findingReferenceWaivers with the remaining scope`,
-        card.id,
-      );
+      if (closure === 'CLOSED') {
+        push(
+          out,
+          'CARD_FINDING_ALREADY_CLOSED',
+          `card pulls ${findingId}, but ${FINDINGS_REGISTRY_PATH} already records it as resolved — this is overproduction; close the card upstream or declare findingReferenceWaivers with the remaining scope`,
+          card.id,
+        );
+      } else {
+        push(
+          out,
+          'CARD_FINDING_UNCLASSIFIED',
+          `card pulls ${findingId}, but its registry resolution matches no known closure pattern and is not empty — the guard cannot tell closed from open here (see K-0011); state the remaining scope in findingReferenceWaivers or get the finding classified`,
+          card.id,
+        );
+      }
     }
   }
 }
@@ -865,15 +941,16 @@ export function renderBoard(board: TpsBoard): string {
   lines.push(`**Версия доски:** ${board.boardVersion} · **Снимок:** ${board.generatedAt}`);
   lines.push('');
   const openAndon = board.andon.filter((event) => event.state === 'OPEN');
-  const blocking = openAndon.filter((event) => event.severity === 'blocker' || event.severity === 'high');
+  const blocking = openAndon.filter(isLineStoppingEvent);
   lines.push('## Andon (состояние линии)');
   lines.push('');
   if (openAndon.length === 0) {
     lines.push('**ЛИНИЯ ИДЁТ** — открытых андон-событий нет.');
   } else {
-    // Только blocker/high останавливают тягу (правило ANDON_OPEN_BLOCKER); рисовать
-    // показывать «СТОП-ЛИНИЯ» из-за medium-события — та же подмена, что и раздувать статус:
-    // витрина обязана отражать фактическую тяжесть, а не максимальную из мыслимых.
+    // Только blocker/high останавливают тягу (единый предикат isLineStoppingEvent,
+    // он же в ANDON_OPEN_BLOCKER и в консольной сводке tpsGate): показывать
+    // «СТОП-ЛИНИЯ» из-за medium-события — та же подмена, что и раздувать статус.
+    // Витрина обязана отражать фактическую тяжесть, а не максимальную из мыслимых.
     lines.push(
       blocking.length > 0
         ? `**СТОП-ЛИНИЯ** — блокирующих событий: ${blocking.length} (${blocking.map((event) => event.id).join(', ')}); открыто всего: ${openAndon.length}`

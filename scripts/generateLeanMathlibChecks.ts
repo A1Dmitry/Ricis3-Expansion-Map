@@ -68,6 +68,16 @@ const MATHLIB_CHECK_DIR = `${PROOFS_DIR}/mathlib-checks`;
  */
 export const LEAN_MATHLIB_CHECK_PLAN: readonly LeanMathlibCheckPlanEntry[] = [
   {
+    artifactId: 'ricis-general-resolution-v3',
+    source: `${PROOFS_DIR}/ricis-general-resolution-v3.lean`,
+    output: `${MATHLIB_CHECK_DIR}/ricis-general-resolution-v3.mathlib-check.lean`,
+    metadataJson: `${PROOFS_DIR}/ricis-general-resolution-v3.json`,
+    rationale:
+      'Новая содержательная версия F-09/F-11 использует ℂ, арифметику Nat и omega. ' +
+      'Двойной прогон проверяет исходник как предоставлен и байт-в-байт производную с #print axioms; ' +
+      'A4/SP1 должны оставаться видимыми trusted dependencies bridge-теоремы.',
+  },
+  {
     artifactId: 'ricis-general-resolution',
     source: `${PROOFS_DIR}/ricis-general-resolution.lean`,
     output: `${MATHLIB_CHECK_DIR}/ricis-general-resolution.mathlib-check.lean`,

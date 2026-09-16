@@ -12,6 +12,35 @@
   "command": "lake env lean <artifact>",
   "artifacts": [
     {
+      "artifactId": "ricis-general-resolution-v3",
+      "source": "artifacts/proofs/ricis-general-resolution-v3.lean",
+      "sourceSha256": "fb792af15e8d4f2c090940a5430a26a0c696ad028200d8c2c6a4b8771058b44a",
+      "output": "artifacts/proofs/mathlib-checks/ricis-general-resolution-v3.mathlib-check.lean",
+      "outputSha256": "e27fede8381d91f4efe267414039ddf5229a2d457abaf85ef199c37df238aeda",
+      "rationale": "Новая содержательная версия F-09/F-11 использует ℂ, арифметику Nat и omega. Двойной прогон проверяет исходник как предоставлен и байт-в-байт производную с #print axioms; A4/SP1 должны оставаться видимыми trusted dependencies bridge-теоремы.",
+      "metadataJson": "artifacts/proofs/ricis-general-resolution-v3.json",
+      "theorems": [
+        "ricis_reduce_at_center_eq_eval",
+        "regular_factor_quotient_uses_A4",
+        "common_zero_factor_uses_SP1",
+        "singularity_is_zero_over_zero",
+        "ricis_resolution_bridge"
+      ],
+      "declaredAxioms": [
+        "ax_A4_general",
+        "ax_SP1_general"
+      ],
+      "printAxiomsTargets": [
+        "ricis_reduce_at_center_eq_eval",
+        "regular_factor_quotient_uses_A4",
+        "common_zero_factor_uses_SP1",
+        "singularity_is_zero_over_zero",
+        "ricis_resolution_bridge",
+        "ax_A4_general",
+        "ax_SP1_general"
+      ]
+    },
+    {
       "artifactId": "ricis-general-resolution",
       "source": "artifacts/proofs/ricis-general-resolution.lean",
       "sourceSha256": "e92ebe52a85af838205a6bdb950ff4517f959cbfc4f38c1d0e7c4cb65cc35db3",

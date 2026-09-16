@@ -17,6 +17,7 @@ import { fileURLToPath } from 'node:url';
 
 import {
   BOARD_MARKDOWN_PATH,
+  isLineStoppingEvent,
   loadBoard,
   renderBoard,
   validateBoardAndLine,
@@ -62,7 +63,8 @@ const typed = board as TpsBoard;
 const boardViolations = validateBoardAndLine(typed, repositoryRoot);
 const docViolations = validateDocumentationConsistency(repositoryRoot);
 const openAndon = typed.andon.filter((event) => event.state === 'OPEN');
-const lineStopping = openAndon.filter((event) => event.severity === 'blocker' || event.severity === 'high');
+// Same predicate as renderBoard and ANDON_OPEN_BLOCKER: the console summary cannot drift from the gate.
+const lineStopping = openAndon.filter(isLineStoppingEvent);
 const blockedByOwner = typed.cards.filter((card) => card.lane === 'waiting_owner').length;
 const flowing = typed.cards.filter((card) => ['ready', 'in_progress', 'verify'].includes(card.lane)).length;
 
