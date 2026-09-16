@@ -1366,7 +1366,7 @@
         "Стражи байтовой регенерации (`tools/leanKernelCoreChecks.test.ts`, `tools/leanMathlibChecks.test.ts`) зелёные; `pendingKernelRun` содержит честные записи со статусом ожидающего прогона.",
         "Полный набор гейтов (lint, test, build, release:check, tps:gate) exit 0 на чистом коммите; фактическое ядровое свидетельство производит только CI (локальный тулчейн недоступен — A-0007)."
       ],
-      "sourceRef": "ACTIVE_TASKS.md §0 пункт 1 (P12 / Mathlib kernel coverage)",
+      "sourceRef": "ACTIVE_TASKS.md",
       "startedAt": "2026-09-16T20:05:00Z"
     }
   ]

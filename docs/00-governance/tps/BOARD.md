@@ -3,7 +3,7 @@
 > Сгенерировано из `board.json`: `npm run tps:board`. Правка вручную = дрейф, его ловит `tps:gate`.
 
 **Стандарт:** [`docs/00-governance/TOYOTA_TPS_WORKING_SYSTEM.md`](../TOYOTA_TPS_WORKING_SYSTEM.md)  
-**Версия доски:** 1.0.0 · **Снимок:** 2026-09-16T19:34:00Z
+**Версия доски:** 1.0.0 · **Снимок:** 2026-09-16T20:05:00Z
 
 ## Andon (состояние линии)
 
@@ -19,9 +19,11 @@ _пусто_
 
 _пусто_
 
-## IN PROGRESS (одна деталь) — 0/1
+## IN PROGRESS (одна деталь) — 1/1
 
-_пусто_
+| Карточка | Класс | Статус | Владелец | Цикл | Проверка | Anchor |
+|---|---|---|---|---|---|---|
+| `TPS-0012` P12: расширение kernel-покрытия на 3 оставшихся артефакта (RicisAgiTarget, jacobian-counterexample-full → Mathlib-путь; Schwarzschild → core-путь) | ci | IN_PROGRESS | agent:arena (автономный цикл RCVAP, 2026-09-16) | — | — | ACTIVE_TASKS.md |
 
 ## VERIFY (атака результата) — 0/1
 
