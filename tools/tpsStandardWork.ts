@@ -604,6 +604,46 @@ function validateKaizenAndMuda(board: TpsBoard, out: TpsViolation[]): void {
   }
 }
 
+/** The registry document shape the guards depend on (prose lives in two different fields). */
+export interface RegistryFinding {
+  readonly id?: string;
+  readonly severity?: string;
+  readonly kind?: string;
+  readonly title?: string;
+  readonly resolution?: string;
+  readonly status?: string;
+  readonly affected?: readonly string[];
+}
+
+export interface FindingsRegistry {
+  readonly registryVersion?: string;
+  readonly title?: string;
+  readonly classification?: Readonly<Record<string, string>>;
+  readonly findings?: readonly RegistryFinding[];
+  readonly artifacts?: readonly Record<string, unknown>[];
+  readonly ciPolicy?: { readonly expectedFailures?: readonly { readonly artifactId?: string }[] };
+  readonly pendingKernelRun?: readonly { readonly artifactId?: string; readonly status?: string; readonly job?: string }[];
+}
+
+/**
+ * Single source of truth for "is this finding recorded as closed?" — shared by the pull guard and
+ * by the generated findings digest, so the report can never disagree with the gate.
+ *
+ * The registry keeps closure wording in TWO prose fields, depending on when the finding was added:
+ * `resolution` (F-01…F-08) and `status` (F-09…F-14, e.g. F-12 "ЗАКРЫТО ФАКТИЧЕСКИМ ПРОГОНОМ").
+ * Reading only one of them makes the guard blind for half the repository's own data — that gap was
+ * found while building the digest and is recorded as andon A-0009. A poka-yoke has to cover every
+ * shape in which the fact is actually stored, not the one that was convenient to write.
+ */
+export function isFindingRecordedClosed(finding: RegistryFinding): boolean {
+  return [finding.resolution ?? '', finding.status ?? ''].some((text) => {
+    const trimmed = text.trim();
+    return (
+      trimmed.length > 0 && CLOSED_FINDING_VOCABULARY.some((marker) => trimmed.toUpperCase().startsWith(marker))
+    );
+  });
+}
+
 /**
  * Pull-side cross-check against the findings registry: a card that is being actively worked on must
  * not target a finding the registry already records as resolved. This is the overproduction guard —
@@ -616,16 +656,10 @@ function validateFindingClosureAgainstRegistry(board: TpsBoard, repositoryRoot: 
 
   let resolved: Set<string>;
   try {
-    const parsed = JSON.parse(readFileSync(registryPath, 'utf8')) as {
-      readonly findings?: readonly { readonly id?: string; readonly resolution?: string }[];
-    };
+    const parsed = JSON.parse(readFileSync(registryPath, 'utf8')) as FindingsRegistry;
     resolved = new Set<string>();
     for (const finding of parsed.findings ?? []) {
-      const text = (finding.resolution ?? '').trim();
-      if (text.length === 0) continue;
-      if (CLOSED_FINDING_VOCABULARY.some((marker) => text.toUpperCase().startsWith(marker))) {
-        resolved.add(finding.id ?? '');
-      }
+      if (isFindingRecordedClosed(finding)) resolved.add(finding.id ?? '');
     }
   } catch {
     push(out, 'FINDINGS_REGISTRY_UNPARSEABLE', `${FINDINGS_REGISTRY_PATH} is not readable JSON — the pull check is blind`);
