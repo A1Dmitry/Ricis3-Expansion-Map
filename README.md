@@ -4,7 +4,7 @@
 [![Formal Verification](https://img.shields.io/badge/Formal%20Verification-Lean%204.33.1-blue.svg)](https://lean-lang.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-**Версия: 0.4.199**
+**Версия: 0.4.200**
 
 Интерактивная исследовательская карта сингулярностей, ориентированный граф доказательств (Blueprint DAG) и аналитический вычислительный движок на базе аксиоматической системы **RICIS-III v7.7** (Recursive Indexed Calculus of Identity and Singularity).
 
@@ -184,7 +184,7 @@ npm ci
 # Проверка согласованности релизных контрактов
 npm run release:check
 
-# Запуск полного набора тестов (2061 unit-тест Vitest, 258 тест-файлов — v0.4.199)
+# Запуск полного набора тестов (2071 unit-тест Vitest, 259 тест-файлов — v0.4.200)
 npm test
 
 # Статическая проверка типов TypeScript (strict: true)
@@ -196,6 +196,12 @@ npm run build
 # Состояние рабочего процесса (Toyota/TPS: WIP, андон, пока-ёке)
 npm run tps:gate
 ```
+
+> **Превью не отображается (пустой экран)?** Симптом `403 Blocked request. This host (…) is not allowed.`
+> означает, что сработала защита dev-сервера Vite от DNS-rebinding: проксированный хост площадки не входит
+> в `server.allowedHosts`. Штатный `npm run dev` разрешает проксированные хосты по умолчанию; сузить политику
+> можно переменной `VITE_ALLOWED_HOSTS` (`false` — только localhost/IP, список — явные суффиксы).
+> Разбор инцидента 2026-09-16: [`docs/05-evidence/architecture/incident-2026-09-16-preview-not-displaying.md`](docs/05-evidence/architecture/incident-2026-09-16-preview-not-displaying.md).
 
 ## 🏭 Рабочий процесс: шаблон Toyota (TPS)
 

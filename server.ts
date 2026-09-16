@@ -12,6 +12,11 @@ import {
 } from "./server/ricisCoreSupervisor";
 import { registerCommunityRewardsUnavailableRoutes } from "./server/communityRewardsHttpAdapter";
 import { registerAdminCoreUnavailableRoutes } from "./server/adminCoreUnavailableHttpAdapter";
+import {
+  DEV_ALLOWED_HOSTS_ENV,
+  describeDevAllowedHosts,
+  resolveDevAllowedHosts,
+} from "./server/devHostPolicy";
 import { LOCAL_DRAFT_DEGRADATION, expandLeavesDegradedResponse } from "./server/aiDegradation";
 
 
@@ -711,12 +716,22 @@ ${leavesStr}
 
   if (process.env.NODE_ENV !== "production") {
     const { createServer: createViteServer } = await import("vite");
+    // Incident 2026-09-16: Vite's host check (DNS-rebinding protection) rejected the
+    // proxied preview host with `403 Blocked request…` before any app code ran, so the
+    // preview showed an empty screen. The policy is shared with vite.config.ts and is
+    // opt-OUT, because every supported runtime (sandbox preview, AI Studio, Cloud Run)
+    // reaches this process through a reverse proxy. See server/devHostPolicy.ts.
+    const allowedHosts = resolveDevAllowedHosts(process.env[DEV_ALLOWED_HOSTS_ENV]);
+    console.log(
+      `Dev server allowed hosts: ${describeDevAllowedHosts(allowedHosts)}` +
+        ` (override with ${DEV_ALLOWED_HOSTS_ENV})`,
+    );
+
     const vite = await createViteServer({
       server: {
         middlewareMode: true,
         hmr: false,
-        // Allow proxied preview hosts (e.g. sandboxes/reverse proxies) in dev.
-        allowedHosts: process.env.VITE_ALLOWED_HOSTS === "true" ? true : undefined,
+        allowedHosts,
       },
       appType: "spa",
     });
