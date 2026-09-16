@@ -44,6 +44,8 @@ import { PickAndPlaceController } from '../services/kinematic/pickAndPlaceContro
 import { KinematicTelemetryLogger } from '../services/kinematic/kinematicLogger';
 import { forwardKinematics3D, computeJacobianDeterminant3D } from '../services/kinematic/kinematicMath';
 import { useMapStore } from '../store/mapStore';
+import { useMobileLayout } from '../hooks/useMobileLayout';
+import { SwipeDismissable } from './components/SwipeDismissable';
 import { AutomatedTestingModal } from './components/testing/AutomatedTestingModal';
 import { RicisAstInspector } from './components/kinematic/RicisAstInspector';
 import { RicisSymbolicJacobianEngine } from '../services/kinematic/ricisSymbolicJacobian';
@@ -131,6 +133,9 @@ export const KinematicEnginePage: React.FC<Props> = ({ onBackToMap }) => {
   // Dual Solvers & Engine
   const dualEngine = useMemo(() => new KinematicDualDebuggerEngine(), []);
   const telemetryLogger = useMemo(() => new KinematicTelemetryLogger(100), []);
+
+  // Mobile layout drives the swipe-to-close gesture on additional panels.
+  const isMobileLayout = useMobileLayout();
 
   // Mode: 'PICK_AND_PLACE' | 'SINGULAR_ORBIT' | 'MANUAL'
   const [simMode, setSimMode] = useState<'PICK_AND_PLACE' | 'SINGULAR_ORBIT' | 'MANUAL'>('PICK_AND_PLACE');
@@ -1379,12 +1384,14 @@ export const KinematicEnginePage: React.FC<Props> = ({ onBackToMap }) => {
       </div>
 
       {showTestingModal && (
-        <AutomatedTestingModal
-          isOpen={showTestingModal}
-          nodes={mapStore.nodes}
-          proofs={mapStore.proofs || {}}
-          onClose={() => setShowTestingModal(false)}
-        />
+        <SwipeDismissable direction="down" onDismiss={() => setShowTestingModal(false)} enabled={isMobileLayout}>
+          <AutomatedTestingModal
+            isOpen={showTestingModal}
+            nodes={mapStore.nodes}
+            proofs={mapStore.proofs || {}}
+            onClose={() => setShowTestingModal(false)}
+          />
+        </SwipeDismissable>
       )}
     </div>
   );

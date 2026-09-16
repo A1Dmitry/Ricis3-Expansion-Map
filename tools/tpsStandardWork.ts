@@ -26,6 +26,23 @@ export const REQUIRED_WORKFLOWS = [
 
 export const GITIGNORE_PATH = '.gitignore';
 
+/** Registry of proof-layer findings whose closure must stop the board from re-pulling the work. */
+export const FINDINGS_REGISTRY_PATH = 'artifacts/proofs/core-checks/kernel-findings.json';
+
+/**
+ * Vocabulary that marks a finding as closed in its own `resolution` field. Owned by the code (not
+ * by the board) so a card cannot relax it. Ambiguous wordings are handled by an explicit per-card
+ * waiver, never by silently loosening this list.
+ */
+export const CLOSED_FINDING_VOCABULARY = [
+  'РЕШЁНО',
+  'ЗАКРЫТО',
+  'CLOSED',
+  'ИСПРАВЛЕНО',
+  'FIXED',
+  'РЕШЕНИЕ ВЛАДЕЛЬЦА',
+] as const;
+
 export const BOARD_PATH = 'docs/00-governance/tps/board.json';
 export const BOARD_MARKDOWN_PATH = 'docs/00-governance/tps/BOARD.md';
 export const CATALOG_PATH = 'docs/00-governance/DOCUMENTATION_CATALOG.md';
@@ -109,6 +126,17 @@ export interface TpsCard {
     readonly auditor: string;
     readonly commands: readonly TpsCommand[];
   };
+  /**
+   * A card whose subject work was closed outside this flow (upstream commit, another session) must
+   * say so and cite the source. Quality at the source travels with the card: the station that
+   * produced the proof owns the substance checks, this cycle owns the merge-coherence checks.
+   */
+  readonly closure?: {
+    readonly closedBy: string;
+    readonly ciEvidence?: string;
+    readonly localEvidence?: string;
+    readonly thisCycleContribution?: string;
+  };
   readonly challenger?: {
     readonly attackedSubstitution: string;
     readonly independentFormOfEvidence?: string;
@@ -117,6 +145,12 @@ export interface TpsCard {
   readonly kaizenIds?: readonly string[];
   readonly kaizenDisposition?: { readonly disposition: string; readonly reason: string };
   readonly blockedOn?: string;
+  /**
+   * Declared exception for `CARD_FINDING_ALREADY_CLOSED`: a card may reference a finding whose
+   * registry resolution looks closed when the closure is only partial (e.g. artefact level resolved,
+   * node level still owed). The reason must be concrete, and the registry id must be real.
+   */
+  readonly findingReferenceWaivers?: readonly { readonly findingId: string; readonly reason: string }[];
 }
 
 export interface TpsAndonEvent {
@@ -154,6 +188,8 @@ export interface TpsMudaEntry {
   readonly eliminationPlan: string;
   readonly linkedCardId: string;
   readonly linkedAndonId?: string;
+  /** Set when the waste has actually been removed; an elimination plan alone is an intention. */
+  readonly resolution?: string;
 }
 
 export interface TpsTaktSample {
@@ -174,6 +210,8 @@ export interface TpsBoard {
   readonly standardWork: {
     readonly gateCommands: Readonly<Record<string, string>>;
     readonly requiredDoneChecks: readonly string[];
+    /** Lighter end-of-line set for cards whose substance was verified upstream (see card.closure). */
+    readonly requiredDoneChecksForExternalClosure?: readonly string[];
   };
   readonly leveling: {
     readonly classes: readonly string[];
@@ -418,7 +456,19 @@ function validateDoneCard(
       push(out, 'DONE_COMMAND_UNSTAMPED', `verification command lacks a parseable measuredAt: ${record.command}`, card.id);
     }
   }
-  for (const required of board.standardWork.requiredDoneChecks) {
+  const external = card.closure !== undefined;
+  if (external && (card.closure?.closedBy ?? '').trim().length < 20) {
+    push(
+      out,
+      'DONE_EXTERNAL_CLOSURE_UNSOURCED',
+      'a card closed outside this flow must name the upstream source (commit/PR/run) — otherwise "closed elsewhere" is an untraceable claim',
+      card.id,
+    );
+  }
+  const requiredChecks = external
+    ? (board.standardWork.requiredDoneChecksForExternalClosure ?? board.standardWork.requiredDoneChecks)
+    : board.standardWork.requiredDoneChecks;
+  for (const required of requiredChecks) {
     const matched = verification.commands.some((record) => record.command.includes(required));
     if (!matched) {
       push(out, 'DONE_MISSING_STANDARD_CHECK', `done requires the standard check "${required}"`, card.id);
@@ -545,8 +595,60 @@ function validateKaizenAndMuda(board: TpsBoard, out: TpsViolation[]): void {
     if (!cardIds.has(entry.linkedCardId)) {
       push(out, 'MUDA_CARD_UNKNOWN', `muda ${entry.id} references unknown card ${entry.linkedCardId}`);
     }
+    if (entry.resolution !== undefined && (entry.resolution ?? '').trim().length < 20) {
+      push(out, 'MUDA_RESOLUTION_THIN', `muda ${entry.id} claims resolution in fewer than 20 chars — a loss is closed by a fact, not by the word "done"`);
+    }
     if (entry.klass === 'defects' && !board.andon.some((event) => event.id === entry.linkedAndonId)) {
       push(out, 'MUDA_DEFECT_WITHOUT_ANDON', `muda ${entry.id} class "defects" must be pulled from an andon event`);
+    }
+  }
+}
+
+/**
+ * Pull-side cross-check against the findings registry: a card that is being actively worked on must
+ * not target a finding the registry already records as resolved. This is the overproduction guard —
+ * the process caught a real duplicate here (takt 2 started an F-08 repair that upstream PR #47 had
+ * already verified with a kernel run), and the rule now prevents the class instead of the instance.
+ */
+function validateFindingClosureAgainstRegistry(board: TpsBoard, repositoryRoot: string, out: TpsViolation[]): void {
+  const registryPath = join(repositoryRoot, FINDINGS_REGISTRY_PATH);
+  if (!existsSync(registryPath)) return; // absent registry is an infrastructure state, not a licence to skip
+
+  let resolved: Set<string>;
+  try {
+    const parsed = JSON.parse(readFileSync(registryPath, 'utf8')) as {
+      readonly findings?: readonly { readonly id?: string; readonly resolution?: string }[];
+    };
+    resolved = new Set<string>();
+    for (const finding of parsed.findings ?? []) {
+      const text = (finding.resolution ?? '').trim();
+      if (text.length === 0) continue;
+      if (CLOSED_FINDING_VOCABULARY.some((marker) => text.toUpperCase().startsWith(marker))) {
+        resolved.add(finding.id ?? '');
+      }
+    }
+  } catch {
+    push(out, 'FINDINGS_REGISTRY_UNPARSEABLE', `${FINDINGS_REGISTRY_PATH} is not readable JSON — the pull check is blind`);
+    return;
+  }
+
+  const flowLanes = new Set(['ready', 'in_progress', 'verify', 'andon']);
+  for (const card of board.cards) {
+    if (!flowLanes.has(card.lane)) continue;
+    const haystack = [card.title, card.originalGoal, ...(card.acceptanceCriteria ?? [])].join(' ');
+    const referenced = [...haystack.matchAll(/\bF-\d{2}\b/gu)].map((match) => match[0]);
+    for (const findingId of new Set(referenced)) {
+      if (!resolved.has(findingId)) continue;
+      const waived = (card.findingReferenceWaivers ?? []).some(
+        (waiver) => waiver.findingId === findingId && (waiver.reason ?? '').trim().length >= MIN_REASON_LENGTH,
+      );
+      if (waived) continue;
+      push(
+        out,
+        'CARD_FINDING_ALREADY_CLOSED',
+        `card pulls ${findingId}, but ${FINDINGS_REGISTRY_PATH} already records it as resolved — this is overproduction; close the card upstream or declare findingReferenceWaivers with the remaining scope`,
+        card.id,
+      );
     }
   }
 }
@@ -713,6 +815,7 @@ export function validateBoard(board: unknown, repositoryRoot: string): TpsViolat
   validateCards(typed, repositoryRoot, out);
   validateAndon(typed, repositoryRoot, out);
   validateKaizenAndMuda(typed, out);
+  validateFindingClosureAgainstRegistry(typed, repositoryRoot, out);
   validateTakt(typed, out);
   return out;
 }

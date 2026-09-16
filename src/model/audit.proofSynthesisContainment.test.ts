@@ -594,7 +594,59 @@ describe('OIR-03 — audit proof-synthesis containment', () => {
       '?? artifacts/proofs/Schwarzschild_GeometricBridge.lean',
       '?? artifacts/proofs/Schwarzschild_GeometricBridge.json',
       '?? src/model/schwarzschildGeometricBridge.test.ts',
+      // MOBILE-SWIPE-TO-CLOSE-PANELS (0.4.195, 2026-09-15): жест закрытия свайпом
+      // для всех дополнительных панелей апплетов — экраны мобильного шелла (меню/детали),
+      // оверлей-панели и модали карты (настройки, Telegram-бот, Войнич, QA, Auto Prover,
+      // логи агента, импорт патчей, добавление/редактирование узла, готовность сообщества),
+      // песочница RICIS, QA-панель кинематического апплета и вложенный passport-диалог.
+      // Чистая классификация жеста + хук + zero-layout обёртка + стражи топологии.
+      ' M package.json',
+      ' M package-lock.json',
+      ' M index.html',
+      ' M README.md',
+      ' M CITATION.cff',
+      ' M src/version.ts',
+      ' M docs/05-evidence/architecture/structural-hash-report.md',
+      ' M docs/05-evidence/architecture/telegram-tokenpool-remediation-2026-08-18.md',
+      ' M docs/05-evidence/proofs/lean-boundary-audit-2026-08-18.md',
+      ' M src/hooks/mobileGestures.ts',
+      ' M src/hooks/mobileGestures.test.ts',
+      '?? src/hooks/useSwipeToClose.ts',
+      '?? src/hooks/useSwipeToClose.test.tsx',
+      '?? src/ui/components/SwipeDismissable.tsx',
+      '?? src/ui/components/SwipeDismissable.test.tsx',
+      '?? src/ui/swipeDismissWiring.topology.test.ts',
+      ' M src/ui/KinematicEnginePage.tsx',
+      ' M src/ui/RicisTerminalModal.tsx',
+      ' M src/ui/EditNodeModal.tsx',
 
+      // F-08 A11 KERNEL REPAIR (0.4.196, 2026-09-15): ядровой ремонт производной
+      // ricis-seed-expansion-a11 — тактика monotonic_growth под семантику ядра 4.33.1
+      // (let + change + cases по let-константам), identity-теоремы — simp + assumption;
+      // дефект F-08 воспроизведён и устранён локальным прогоном ядра 4.33.1
+      // (commit 819816b2e0a3bf405af45ae5c7af2491d8f5bee6 — тот же, что в CI):
+      // финальная производная exit 0, 0 ошибок, sorryAx отсутствует, 6/6 — только propext.
+      // A11 исключена из ciPolicy.expectedFailures; исходник не изменён (§7);
+      // evidence: docs/05-evidence/proofs/lean-core-checks-local-run-2026-09-15.md.
+      ' M ACTIVE_TASKS.md',
+      ' M artifacts/proofs/core-checks/kernel-findings.json',
+      ' M artifacts/proofs/core-checks/manifest.json',
+      ' M artifacts/proofs/core-checks/ricis-seed-expansion-a11.core-check.lean',
+      ' M docs/05-evidence/proofs/lean-core-checks-run-2026-09-14.md',
+      ' M scripts/generateLeanCoreChecks.ts',
+      '?? docs/05-evidence/proofs/lean-core-checks-local-run-2026-09-15.md',
+      // CORE-AGI PACKAGE DRIFT + F-02 METADATA SYNC (2026-09-15):
+      // published DOI 22225762 moved to the canonical import-patches path,
+      // PENDING_DOI is forbidden by the regression test, and backend metadata
+      // now matches the existing successful kernel run 34891262489.
+      'RM ricis-map-patch-core-agi-target-PENDING.json -> import-patches/ricis-map-patch-core-agi-target.json',
+      'R  ricis-map-patch-core-agi-target-PENDING.json -> import-patches/ricis-map-patch-core-agi-target.json',
+      ' M src/model/coreAgiTargetZenodoPatch.test.ts',
+      'M  src/model/coreAgiTargetZenodoPatch.test.ts',
+      ' M artifacts/proofs/ricis-backend-exact-reduction.json',
+      'M  artifacts/proofs/ricis-backend-exact-reduction.json',
+      'M  ACTIVE_TASKS.md',
+      'M  src/model/audit.proofSynthesisContainment.test.ts',
     ]);
     if (status.length > 0 && status.every(entry => entry.startsWith('?? '))) {
       // In clean container environments git status may return all files as untracked

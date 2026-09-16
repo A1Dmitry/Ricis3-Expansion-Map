@@ -291,6 +291,77 @@ describe('TPS poka-yoke is falsifiable', () => {
     expectCode({ ...clone(subject), muda } as TpsBoard, 'MUDA_DEFECT_WITHOUT_ANDON');
   });
 
+  it('refuses to pull work that the findings registry already records as closed (overproduction)', () => {
+    const subject = doneBaseline(validBoard());
+    const waiting = subject.cards.find((card) => card.lane === 'waiting_owner')!;
+    const pulled: TpsCard = { ...waiting, id: 'TPS-9201', lane: 'ready', status: 'READY', taskClass: 'math-proof', title: 'F-08: ремонт A11', originalGoal: 'Закрыть F-08 тактическим ремонтом производной A11, опираясь на фактические прогоны ядра.' };
+    const mutated = { ...clone(subject), cards: [...subject.cards, pulled] } as TpsBoard;
+    expectCode(mutated, 'CARD_FINDING_ALREADY_CLOSED');
+
+    // An explicit, concrete waiver is the only way to keep a partially-closed finding in flow,
+    // and the waiver must name the remaining scope (an empty excuse must not pass).
+    const waived = {
+      ...mutated,
+      cards: mutated.cards.map((card) =>
+        card.id === 'TPS-9201'
+          ? { ...card, findingReferenceWaivers: [{ findingId: 'F-08', reason: 'Артефактный уровень закрыт прогоном; остаётся уровень узла карты, закрытый только решением владельца (L9).' }] }
+          : card,
+      ),
+    } as TpsBoard;
+    expect(codesOf(validateBoard(waived, repositoryRoot))).not.toContain('CARD_FINDING_ALREADY_CLOSED');
+    const lazy = {
+      ...mutated,
+      cards: mutated.cards.map((card) =>
+        card.id === 'TPS-9201' ? { ...card, findingReferenceWaivers: [{ findingId: 'F-08', reason: 'ещё не закрыто' }] } : card,
+      ),
+    } as TpsBoard;
+    expectCode(lazy, 'CARD_FINDING_ALREADY_CLOSED');
+  });
+
+  it('allows an externally closed card only with a traceable source and its own check set', () => {
+    const subject = doneBaseline(validBoard());
+    const target = subject.cards.find((card) => card.id === 'TPS-0001')!;
+    // Claiming "someone else closed it" without a source is not a shortcut around the checks.
+    expectCode(
+      mapCard(subject, 'TPS-0001', { closure: { closedBy: 'upstream' } }),
+      'DONE_EXTERNAL_CLOSURE_UNSOURCED',
+    );
+    // With a source, the external set applies: dropping a check that the external set still
+    // requires must fire, and the card must no longer be demanded the full-suite check.
+    const lighter = {
+      ...clone(subject),
+      standardWork: {
+        ...subject.standardWork,
+        requiredDoneChecksForExternalClosure: ['npm run tps:gate', 'npm run nonexistent-check'],
+      },
+    } as TpsBoard;
+    expectCode(
+      mapCard(lighter, 'TPS-0001', { closure: { closedBy: 'origin/main abc1234 (PR #99) — kernel run 1, exit 0' } }),
+      'DONE_MISSING_STANDARD_CHECK',
+    );
+    const satisfied = {
+      ...clone(subject),
+      standardWork: { ...subject.standardWork, requiredDoneChecksForExternalClosure: ['npm run tps:gate'] },
+      cards: subject.cards.map((card) =>
+        card.id === 'TPS-0001'
+          ? {
+              ...card,
+              closure: { closedBy: 'origin/main abc1234 (PR #99) — kernel run 1, exit 0' },
+              verification: { auditor: card.verification!.auditor, commands: [{ command: 'npm run tps:gate', exitCode: 0, measuredAt: '2026-01-01T00:00:00Z' }] },
+            }
+          : card,
+      ),
+    } as TpsBoard;
+    expect(codesOf(validateBoard(satisfied, repositoryRoot))).not.toContain('DONE_MISSING_STANDARD_CHECK');
+    expect(target.lane).toBe('done');
+  });
+
+  it('requires a claimed waste resolution to be a fact, not a word', () => {
+    const subject = doneBaseline(validBoard());
+    const muda = subject.muda.map((entry) => (entry.id === 'M-0004' ? { ...entry, resolution: 'ок' } : entry));
+    expectCode({ ...clone(subject), muda } as TpsBoard, 'MUDA_RESOLUTION_THIN');
+  });
+
   it('requires the canonical lanes to exist', () => {
     const subject = doneBaseline(validBoard());
     const lanes = subject.lanes.filter((lane) => lane.id !== 'verify');

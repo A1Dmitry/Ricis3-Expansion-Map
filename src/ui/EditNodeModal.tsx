@@ -6,6 +6,8 @@ import { verifyLeanProof } from '../model/leanVerifier';
 import { auditProofContent } from '../model/ricisCoreRules';
 import { createEphemeralPassportSession, type EphemeralPassportSessionView } from '../leanPassportSession/leanPassportSession.domain';
 import { LeanPassportSessionDialog } from './LeanPassportSessionDialog';
+import { useMobileLayout } from '../hooks/useMobileLayout';
+import { SwipeDismissable } from './components/SwipeDismissable';
 
 type Props = {
   node: ProblemNode;
@@ -21,6 +23,9 @@ export const EditNodeModal: React.FC<Props> = ({ node, onClose, onSolveAfterSave
   const externalLeanReference = useMapStore(s => s.proofs[node.id]?.externalLean);
   const getLatexProof = useMapStore(s => s.getLatexProof);
   const solveNode = useMapStore(s => s.solveNode);
+
+  // Mobile layout drives the swipe-to-close gesture on the nested passport dialog.
+  const isMobileLayout = useMobileLayout();
 
   const currentProof = getLatexProof(node.id) || '';
 
@@ -371,10 +376,12 @@ export const EditNodeModal: React.FC<Props> = ({ node, onClose, onSolveAfterSave
         </div>
       </div>
       {passportSession !== null && (
-        <LeanPassportSessionDialog
-          view={passportSession}
-          onClose={() => setPassportSession(null)}
-        />
+        <SwipeDismissable direction="down" onDismiss={() => setPassportSession(null)} enabled={isMobileLayout}>
+          <LeanPassportSessionDialog
+            view={passportSession}
+            onClose={() => setPassportSession(null)}
+          />
+        </SwipeDismissable>
       )}
     </div>
   );
