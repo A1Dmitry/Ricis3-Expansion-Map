@@ -1,6 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { Copy, Check, Terminal, FileCode2, ShieldCheck } from 'lucide-react';
 import { createTraceDrivenLeanProofGenerator } from '../services/leanCodegen';
+import { copyToClipboard } from '../services/clipboard';
 import type { ProofStep } from '../model/types';
 
 interface Lean4ReportViewerProps {
@@ -49,9 +50,12 @@ export function Lean4ReportViewer({ lean4Code, claim, className = '' }: Lean4Rep
   const lineCount = useMemo(() => displayedSource.split('\n').length, [displayedSource]);
 
   const handleCopy = () => {
-    navigator.clipboard.writeText(displayedSource).then(() => {
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
+    // BUG-07: unified guarded clipboard helper
+    void copyToClipboard(displayedSource).then((ok) => {
+      if (ok) {
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+      }
     });
   };
 

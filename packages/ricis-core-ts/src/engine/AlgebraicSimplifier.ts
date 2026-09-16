@@ -144,23 +144,39 @@ export class AlgebraicSimplifier {
               const n = powExp;
               const lRight = lSub.right;
               const rRight = rSub.right; // 'a'
-              
-              if (rRight.nodeType === 'Constant' && lRight.nodeType === 'Constant') {
-                 const a = (rRight as any).value;
-                 const an = (lRight as any).value;
-                 if (Math.pow(a, n) === an) {
-                    // Factorize!
-                    return this.buildPolynomialSum(xNode, a, n);
-                 }
-              } else if (lRight.nodeType === 'Constant' && (lRight as any).value === 1 && rRight.nodeType === 'Constant' && (rRight as any).value === 1) {
-                 // (x^n - 1) / (x - 1)
-                 return this.buildPolynomialSum(xNode, 1, n);
+
+              // BUG-05: the geometric-sum expansion is only valid for a
+              // bounded INTEGER exponent. n < 0 previously built 0 loop
+              // iterations (silently returning Const(0)), a fractional n
+              // produced garbage terms (x^0.5 -> x^-0.5), and an
+              // unbounded n built a billion-node tree (engine hang / OOM).
+              if (this.isExpandableExponent(n)) {
+                if (rRight.nodeType === 'Constant' && lRight.nodeType === 'Constant') {
+                   const a = (rRight as any).value;
+                   const an = (lRight as any).value;
+                   if (Math.pow(a, n) === an) {
+                      // Factorize!
+                      return this.buildPolynomialSum(xNode, a, n);
+                   }
+                } else if (lRight.nodeType === 'Constant' && (lRight as any).value === 1 && rRight.nodeType === 'Constant' && (rRight as any).value === 1) {
+                   // (x^n - 1) / (x - 1)
+                   return this.buildPolynomialSum(xNode, 1, n);
+                }
               }
             } else if (lSub.left.nodeType === 'Multiply') {
                 // (x*x*x*x - 1) / (x - 1)
                 // We'll skip complex arbitrary parsing and stick to standard Pow for now, but handle L8
+                // BUG-05: the chain must consist ONLY of x leaves. Counting
+                // x-occurrences alone silently dropped the other factors:
+                // (x*y*x − 1)/(x − 1) was "simplified" to x + 1.
                 let count = this.countMultiplyChain(lSub.left, (xNode as any).name);
-                if (count > 1 && lSub.right.nodeType === 'Constant' && rSub.right.nodeType === 'Constant') {
+                if (
+                  count > 1 &&
+                  this.isPurePowerChain(lSub.left, (xNode as any).name) &&
+                  this.isExpandableExponent(count) &&
+                  lSub.right.nodeType === 'Constant' &&
+                  rSub.right.nodeType === 'Constant'
+                ) {
                      const a = (rSub.right as any).value;
                      const an = (lSub.right as any).value;
                      if (Math.pow(a, count) === an) {
@@ -198,6 +214,33 @@ export class AlgebraicSimplifier {
           return this.countMultiplyChain((node as BinaryExpression).left, varName) + this.countMultiplyChain((node as BinaryExpression).right, varName);
       }
       return 0;
+  }
+
+  /**
+   * BUG-05: an exponent is admissible for the geometric-sum expansion only
+   * when it is a bounded positive integer (n >= 2). This is the single
+   * guard protecting the public `simplify` API from both incorrect
+   * factorization and the polynomial-expansion DoS.
+   */
+  private static readonly MAX_POLY_EXPANSION = 64;
+
+  private static isExpandableExponent(n: number): boolean {
+      return Number.isInteger(n) && n >= 2 && n <= AlgebraicSimplifier.MAX_POLY_EXPANSION;
+  }
+
+  /**
+   * BUG-05: true only when the whole multiply tree is built exclusively
+   * from leaves equal to the parameter `varName`. Any other leaf (a
+   * different parameter, a constant, a function) invalidates the
+   * pure-power-chain factorization.
+   */
+  private static isPurePowerChain(node: Expression, varName: string): boolean {
+      if (node.nodeType === 'Parameter' && (node as any).name === varName) return true;
+      if (node.nodeType === 'Multiply') {
+          const bin = node as BinaryExpression;
+          return this.isPurePowerChain(bin.left, varName) && this.isPurePowerChain(bin.right, varName);
+      }
+      return false;
   }
 
   public static areEqual(a: Expression, b: Expression): boolean {
@@ -245,6 +288,10 @@ export class AlgebraicSimplifier {
   }
 
   private static buildPolynomialSum(xNode: Expression, a: number, n: number): Expression {
+    // Defense-in-depth (BUG-05): never expand a non-admissible exponent.
+    if (!this.isExpandableExponent(n)) {
+      return xNode;
+    }
     // build: sum_{i=0}^{n-1} x^(n-1-i) * a^i
     let sumNode: Expression | null = null;
     for (let i = 0; i < n; i++) {

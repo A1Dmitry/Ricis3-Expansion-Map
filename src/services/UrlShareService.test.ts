@@ -52,6 +52,27 @@ describe('Deep Linking & Share Service Tests', () => {
     expect(clearedParams.get('view')).toBeNull();
     expect(clearedParams.get('root')).toBeNull();
   });
+
+  // BUG-04: the `seed` flag was silently ignored by updateBrowserUrl, which
+  // made the «Ссылка на это состояние (?view=seed)» button a no-op.
+  it('должен записывать и стирать view=seed через updateBrowserUrl', () => {
+    UrlShareService.updateBrowserUrl({ seed: true });
+    expect(new URLSearchParams(window.location.search).get('view')).toBe('seed');
+
+    UrlShareService.updateBrowserUrl({ seed: false });
+    expect(new URLSearchParams(window.location.search).get('view')).toBeNull();
+  });
+
+  it('должен разрешать view-конфликт одним common-слоем (seed имеет приоритет)', () => {
+    UrlShareService.updateBrowserUrl({ roadmap: true });
+    expect(new URLSearchParams(window.location.search).get('view')).toBe('roadmap');
+
+    UrlShareService.updateBrowserUrl({ roadmap: true, seed: true });
+    expect(new URLSearchParams(window.location.search).get('view')).toBe('seed');
+
+    // generateShareUrl and updateBrowserUrl must agree on the same input
+    expect(UrlShareService.generateShareUrl({ roadmap: true, seed: true })).toContain('view=seed');
+  });
 });
 
 describe('Model Pool Configuration Tests', () => {

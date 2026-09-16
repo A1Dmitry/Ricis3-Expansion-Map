@@ -8,14 +8,14 @@ import React, { useEffect, useState } from 'react';
 import { RouteSurfaceBoundary } from './ui/RouteSurfaceBoundary';
 import { lazyNamedComponent } from './ui/lazyNamedComponent';
 import { isCoreRecoveryRoute } from './services/coreRecovery';
-import { UrlShareService } from './services/UrlShareService';
 import { useMapStore } from './store/mapStore';
+import { useCommandStateStore } from './store/useCommandStateStore';
 import { CompactCommandMenuBar } from './ui/components/CompactCommandMenuBar';
 import { AppletActionToolbar } from './ui/components/AppletActionToolbar';
 import { AppletNavigationService } from './services/AppletNavigationService';
+import { SettingsApplet } from './ui/SettingsApplet';
 import type { AppletId } from './types/appletRegistry';
 import type { CommandContext } from './types/commandTypes';
-import { CommandRegistry } from './services/commandRegistry';
 import { APP_BUILD_LABEL } from './version';
 
 const Map3D = lazyNamedComponent(() => import('./ui/Map3D'), 'Map3D');
@@ -27,7 +27,6 @@ const RicisSeedPage = lazyNamedComponent(() => import('./ui/RicisSeedPage'), 'Ri
 const VoynichDecryptionPanel = lazyNamedComponent(() => import('./ui/VoynichDecryptionPanel'), 'VoynichDecryptionPanel');
 const RicisProofConsoleModal = lazyNamedComponent(() => import('./ui/RicisProofConsoleModal'), 'RicisProofConsoleModal');
 const AutoProverModal = lazyNamedComponent(() => import('./ui/AutoProverModal'), 'AutoProverModal');
-const SettingsModal = lazyNamedComponent(() => import('./ui/SettingsModal'), 'SettingsModal');
 
 function formatHydrationError(error: unknown): string {
   if (error instanceof Error) return error.message;
@@ -54,7 +53,12 @@ export default function App() {
   const hydrated = useMapStore(s => s.hydrated);
   const [error, setError] = useState<string | null>(null);
   const [locationSearch, setLocationSearch] = useState(() => window.location.search);
-  const [is3DMode, setIs3DMode] = useState(true);
+  // BUG-02: shared command-bus state (read by the command context for
+  // active indicators, owned by the pages that perform the actions).
+  const is3DMode = useCommandStateStore(s => s.is3DMode);
+  const toggle3DMode = useCommandStateStore(s => s.toggle3DMode);
+  const isSimulationRunning = useCommandStateStore(s => s.isSimulationRunning);
+  const isAutoProverRunning = useCommandStateStore(s => s.isAutoProverRunning);
 
   useEffect(() => {
     hydrate().catch(e => {
@@ -72,18 +76,42 @@ export default function App() {
   const currentApplet = AppletNavigationService.resolveCurrentApplet(locationSearch);
 
   const handleSelectApplet = (applet: AppletId) => {
+    // BUG-09: navigateTo() already syncs the URL (replaceState + popstate);
+    // the second updateBrowserUrl call here caused a double URL update on
+    // every applet switch.
     AppletNavigationService.navigateTo(applet);
-    UrlShareService.updateBrowserUrl({ applet: applet === 'map' ? undefined : applet });
     setLocationSearch(window.location.search);
   };
+
+  // BUG-02: global.diagnostics — run the real system audit (mapStore) and
+  // surface its report on the Map3D audit panel.
+  useEffect(() => {
+    const onRunDiagnostics = () => {
+      void useMapStore.getState().runSystemAudit().then(report => {
+        console.info(
+          `[diagnostics] System audit completed: valid=${report.isValid}, inspected=${report.totalInspected}, ` +
+          `orphans=${report.orphans.length}, brokenEdges=${report.brokenEdges.length}, duplicates=${report.duplicates.length}`,
+        );
+        if (AppletNavigationService.getActiveApplet() !== 'map') {
+          AppletNavigationService.navigateTo('map');
+          setLocationSearch(window.location.search);
+        }
+      });
+    };
+    window.addEventListener('ricis:run-diagnostics', onRunDiagnostics);
+    return () => window.removeEventListener('ricis:run-diagnostics', onRunDiagnostics);
+  }, []);
 
   const commandContext: CommandContext = {
     activeApplet: currentApplet,
     is3DMode,
+    isSimulationRunning,
+    isAutoProverRunning,
     onSelectApplet: handleSelectApplet,
     onToggle3DMode: () => {
-      setIs3DMode(prev => !prev);
-      window.dispatchEvent(new CustomEvent('ricis:toggle-3d-presentation'));
+      // BUG-02: store-driven presentation switch; Map3D subscribes to the
+      // same state and applies the camera projection.
+      toggle3DMode();
     },
     onResetCamera: () => {
       window.dispatchEvent(new CustomEvent('ricis:reset-camera'));
@@ -265,14 +293,9 @@ export default function App() {
                 ← Вернуться к 3D Карте
               </button>
             </div>
-            <SettingsModal
-              isOpen={true}
-              onClose={() => handleSelectApplet('map')}
-              roles={[]}
-              currentRoleId="default"
-              onSelectRole={() => {}}
-              onCreateRole={() => {}}
-            />
+            {/* BUG-03: full-featured settings (adaptive roles, panel
+                visibility, physics) — the same instance Map3D composes. */}
+            <SettingsApplet onClose={() => handleSelectApplet('map')} />
           </div>
         );
       case 'map':

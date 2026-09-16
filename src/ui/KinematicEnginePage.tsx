@@ -20,6 +20,7 @@ import {
   FileText,
   Cpu,
   Sparkles,
+  StepForward,
 } from 'lucide-react';
 import type {
   IKinematicState3D,
@@ -43,6 +44,8 @@ import { RicisSymbolicJacobianSolver3D } from '../services/kinematic/kinematicSo
 import { PickAndPlaceController } from '../services/kinematic/pickAndPlaceController';
 import { KinematicTelemetryLogger } from '../services/kinematic/kinematicLogger';
 import { forwardKinematics3D, computeJacobianDeterminant3D } from '../services/kinematic/kinematicMath';
+import { useCommandStateStore } from '../store/useCommandStateStore';
+import { copyToClipboard } from '../services/clipboard';
 import { useMapStore } from '../store/mapStore';
 import { useMobileLayout } from '../hooks/useMobileLayout';
 import { SwipeDismissable } from './components/SwipeDismissable';
@@ -379,6 +382,89 @@ export const KinematicEnginePage: React.FC<Props> = ({ onBackToMap }) => {
     setDlsState(resetState);
   };
 
+  // Target selection shared by the animation loop and the discrete step.
+  const computeActiveTarget = (dt: number): Vector3D => {
+    if (simMode === 'PICK_AND_PLACE') {
+      const pnpStep = pnpControllerRef.current.stepTarget(dt, ricisStateRef.current.endEffector);
+      return pnpStep.target;
+    }
+    if (simMode === 'SINGULAR_ORBIT') {
+      // Orbit along the singular boundary (r = 1.48m near max reach 1.50m)
+      orbitAngleRef.current += dt * 0.8;
+      const maxReach = LINK_LENGTHS[1] + LINK_LENGTHS[2] - 0.01;
+      return {
+        x: maxReach * Math.cos(orbitAngleRef.current),
+        y: maxReach * Math.sin(orbitAngleRef.current),
+        z: 0.4 + 0.3 * Math.sin(orbitAngleRef.current * 2),
+      };
+    }
+    return manualTargetRef.current;
+  };
+
+  // BUG-02: one discrete integration step (command `kinematic.stepForward`).
+  const handleStepForward = () => {
+    if (isRunning) setIsRunning(false);
+    const dt = Math.min(0.04, 0.016 * speedMultiplier);
+    const activeTarget = computeActiveTarget(dt);
+    const stepResult = dualEngine.step(
+      ricisStateRef.current,
+      dlsStateRef.current,
+      activeTarget,
+      LINK_LENGTHS,
+      dt,
+      coordinateMode
+    );
+    ricisStateRef.current = stepResult.ricisResult.nextState;
+    dlsStateRef.current = stepResult.dlsResult.nextState;
+    telemetryLogger.pushEntry(stepResult.logEntry);
+    if (simMode === 'PICK_AND_PLACE') {
+      setPnpState({ ...pnpControllerRef.current.getState() });
+    }
+    setCurrentDesiredTarget(activeTarget);
+    setRicisState(stepResult.ricisResult.nextState);
+    setDlsState(stepResult.dlsResult.nextState);
+    setRicisMetrics(stepResult.ricisResult.metrics);
+    setDlsMetrics(stepResult.dlsResult.metrics);
+    setLatestQaTrace(stepResult.ricisResult.qaTrace);
+    setAdvantageLedger(telemetryLogger.getLedger());
+  };
+
+  // ----------------------------------------------------------------------
+  // BUG-02: central command bus — this page is the listener for the
+  // kinematic commands (start/pause, reset joints, step forward).
+  // ----------------------------------------------------------------------
+  const setSimulationRunning = useCommandStateStore(s => s.setSimulationRunning);
+
+  useEffect(() => {
+    setSimulationRunning(isRunning);
+    return () => setSimulationRunning(false);
+  }, [isRunning, setSimulationRunning]);
+
+  const simulationCommandHandlersRef = useRef({
+    togglePlay: () => setIsRunning(r => !r),
+    reset: handleReset,
+    step: handleStepForward,
+  });
+  simulationCommandHandlersRef.current = {
+    togglePlay: () => setIsRunning(r => !r),
+    reset: handleReset,
+    step: handleStepForward,
+  };
+
+  useEffect(() => {
+    const onTogglePlay = () => simulationCommandHandlersRef.current.togglePlay();
+    const onReset = () => simulationCommandHandlersRef.current.reset();
+    const onStep = () => simulationCommandHandlersRef.current.step();
+    window.addEventListener('ricis:kinematic-toggle-play', onTogglePlay);
+    window.addEventListener('ricis:kinematic-reset', onReset);
+    window.addEventListener('ricis:kinematic-step', onStep);
+    return () => {
+      window.removeEventListener('ricis:kinematic-toggle-play', onTogglePlay);
+      window.removeEventListener('ricis:kinematic-reset', onReset);
+      window.removeEventListener('ricis:kinematic-step', onStep);
+    };
+  }, []);
+
   // Main 60 FPS Simulation Loop with Throttled UI Updates for Smooth Responsiveness
   useEffect(() => {
     let animId: number;
@@ -391,23 +477,7 @@ export const KinematicEnginePage: React.FC<Props> = ({ onBackToMap }) => {
       const dt = Math.min(0.04, dtRaw * speedMultiplier);
 
       if (isRunning && dt > 0) {
-        let activeTarget: Vector3D = { x: 1.0, y: 0.0, z: 0.6 };
-
-        if (simMode === 'PICK_AND_PLACE') {
-          const pnpStep = pnpControllerRef.current.stepTarget(dt, ricisStateRef.current.endEffector);
-          activeTarget = pnpStep.target;
-        } else if (simMode === 'SINGULAR_ORBIT') {
-          // Orbit along the singular boundary (r = 1.48m near max reach 1.50m)
-          orbitAngleRef.current += dt * 0.8;
-          const maxReach = LINK_LENGTHS[1] + LINK_LENGTHS[2] - 0.01;
-          activeTarget = {
-            x: maxReach * Math.cos(orbitAngleRef.current),
-            y: maxReach * Math.sin(orbitAngleRef.current),
-            z: 0.4 + 0.3 * Math.sin(orbitAngleRef.current * 2),
-          };
-        } else {
-          activeTarget = manualTargetRef.current;
-        }
+        const activeTarget = computeActiveTarget(dt);
 
         // Step both solvers via Dual Debugger Engine
         const stepResult = dualEngine.step(
@@ -482,9 +552,12 @@ export const KinematicEnginePage: React.FC<Props> = ({ onBackToMap }) => {
       null,
       2
     );
-    navigator.clipboard.writeText(payload).then(() => {
-      setCopiedTrace(true);
-      setTimeout(() => setCopiedTrace(false), 2000);
+    // BUG-07: unified guarded clipboard helper
+    void copyToClipboard(payload).then((ok) => {
+      if (ok) {
+        setCopiedTrace(true);
+        setTimeout(() => setCopiedTrace(false), 2000);
+      }
     });
   };
 
@@ -541,6 +614,18 @@ export const KinematicEnginePage: React.FC<Props> = ({ onBackToMap }) => {
           >
             <RotateCcw size={13} />
             Сброс
+          </button>
+
+          {/* Step Forward (BUG-02: same action as the kinematic.stepForward command) */}
+          <button
+            type="button"
+            onClick={handleStepForward}
+            data-testid="kinematic-step-forward"
+            className="flex items-center gap-1 px-2.5 py-1.5 rounded bg-neutral-800 hover:bg-neutral-700 text-slate-300 border border-neutral-700 text-xs transition-colors"
+            title="Один дискретный шаг интегрирования (dt)"
+          >
+            <StepForward size={13} />
+            Шаг
           </button>
 
           <div className="h-4 w-px bg-neutral-700" />

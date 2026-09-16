@@ -4,6 +4,7 @@ import type { AdaptiveRole } from '../hooks/useAdaptiveUI';
 import type { UIElement } from '../domain/ui/uiElement.types';
 import type { PhysicsParams } from '../model/physics';
 import { PhysicsControlFields } from './PhysicsControlPanel';
+import { copyToClipboard } from '../services/clipboard';
 import { FreeHostingDatabaseService } from '../services/calculatorEngine/calculatorEngine';
 import type { FreeHostingDatabaseKind } from '../services/calculatorEngine/types';
 
@@ -19,7 +20,7 @@ export interface SettingsModalProps {
   currentRoleId: string;
   onSelectRole: (roleId: string) => void;
   onCreateRole: (name: string, templateRoleId?: string) => void;
-  uiElements?: UIElement[];
+  uiElements?: readonly UIElement[];
   hiddenElementIds?: Set<string>;
   onToggleElement?: (id: string) => void;
   physicsParams?: PhysicsParams;
@@ -55,9 +56,13 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   const activeTemplate = useMemo(() => dbTemplates.find(t => t.kind === selectedDbKind) ?? dbTemplates[0], [dbTemplates, selectedDbKind]);
 
   const handleCopySnippet = (text: string, key: string) => {
-    navigator.clipboard.writeText(text);
-    setCopiedKey(key);
-    setTimeout(() => setCopiedKey(null), 2500);
+    // BUG-07: unified guarded clipboard helper (no throw in non-secure contexts)
+    void copyToClipboard(text).then((ok) => {
+      if (ok) {
+        setCopiedKey(key);
+        setTimeout(() => setCopiedKey(null), 2500);
+      }
+    });
   };
 
   if (!isOpen) return null;

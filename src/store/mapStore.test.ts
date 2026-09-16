@@ -2,13 +2,16 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { useMapStore } from './mapStore';
 import { ProblemNode, DependencyEdge } from '../model/types';
 import { auditProofContent } from '../model/ricisCoreRules';
+import { postJson } from '../model/apiClient';
 
 // Мокаем зависимости бэка, если необходимо (например, apiClient или db.ts)
 vi.mock('../model/apiClient', () => ({
   apiClient: {
     saveMapState: vi.fn().mockResolvedValue({ success: true }),
     getMapState: vi.fn().mockResolvedValue({ nodes: [], edges: [] }),
-  }
+  },
+  // BUG-06: контролируемый mock, чтобы тестировать контракт деградации
+  postJson: vi.fn(),
 }));
 
 vi.mock('../model/db', async (importOriginal) => {
@@ -352,5 +355,62 @@ describe('Zustand mapStore.ts Integration Tests (RICIS-III v7.7 Diagnostics & GC
     const state = useMapStore.getState();
     expect(state.nodes.some(n => n.id === createdNodeId && /^[0-9a-f]{32}$/.test(n.id))).toBe(true);
     expect(state.edges.some(e => e.fromId === 'math-singularity' && e.toId === createdNodeId)).toBe(true);
+  });
+});
+
+describe('BUG-06: unified API degradation contract (UI side)', () => {
+  beforeEach(() => {
+    vi.mocked(postJson).mockReset();
+    useMapStore.setState({
+      nodes: [
+        {
+          id: 'leaf-bug06',
+          title: 'Test Leaf',
+          targetFunction: 'f(x) = x',
+          description: 'Лист графа для проверки контракта деградации',
+          state: 'unresolved',
+          type: 'scientific_task',
+          economic: { costToSolve: 10, costUnresolved: 20, marketGain: 30, riskLoss: 5 },
+          dependencyIds: [],
+          dependentIds: [],
+          zoneIds: ['math'],
+          fractalDepth: 0,
+        },
+      ],
+      edges: [],
+      zones: [{ id: 'math', name: 'Mathematics', description: '', nodeIds: ['leaf-bug06'], economicProfile: {} as any }],
+      agentLogs: [],
+      isAuditing: false,
+    } as any);
+  });
+
+  it('no key → user CAN see the reason (degraded + error from 200-response)', async () => {
+    // Сервер отвечает HTTP 200 с tasks: [] + degraded-контрактом (GEMINI_API_KEY нет)
+    vi.mocked(postJson).mockResolvedValueOnce({
+      ok: true,
+      data: { tasks: [], degraded: 'ai_unavailable', error: 'GEMINI_API_KEY не настроен' },
+    } as any);
+
+    await (useMapStore.getState() as any).runGraphRepair();
+
+    const { agentLogs } = useMapStore.getState() as any;
+    expect(agentLogs.length).toBeGreaterThan(0);
+    const allDetails = agentLogs.map((l: any) => l.details || '').join('\n');
+    // Причина деградации не проглатывается молча — пользователь видит её в логе агента
+    expect(allDetails).toContain('GEMINI_API_KEY не настроен');
+    expect(allDetails).toContain('AI-расширение листьев недоступно');
+  });
+
+  it('healthy AI response (no degraded flag) → no degradation warning', async () => {
+    vi.mocked(postJson).mockResolvedValueOnce({
+      ok: true,
+      data: { tasks: [], model: 'gemini-pro' },
+    } as any);
+
+    await (useMapStore.getState() as any).runGraphRepair();
+
+    const { agentLogs } = useMapStore.getState() as any;
+    const allDetails = agentLogs.map((l: any) => l.details || '').join('\n');
+    expect(allDetails).not.toContain('AI-расширение листьев недоступно');
   });
 });

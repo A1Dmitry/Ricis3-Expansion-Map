@@ -1,6 +1,8 @@
-import React, { useState } from 'react';
-import { X, Play, RefreshCw, Cpu, CheckCircle2, AlertTriangle, ShieldCheck, Zap, Layers, BarChart2 } from 'lucide-react';
+import React, { useEffect, useRef, useState } from 'react';
+import { X, Play, RefreshCw, Cpu, CheckCircle2, AlertTriangle, ShieldCheck, Zap, Layers, BarChart2, FileText } from 'lucide-react';
 import { useMapStore } from '../store/mapStore';
+import { useCommandStateStore } from '../store/useCommandStateStore';
+import { downloadJsonFile } from '../services/downloadJsonFile';
 import { RicisAutoProverEngine, type AutoProverResult, type FractalCentralityScore } from '../services/autoProver/autoProver';
 
 interface AutoProverModalProps {
@@ -47,6 +49,49 @@ export const AutoProverModal: React.FC<AutoProverModalProps> = ({
       setIsRunning(false);
     }
   };
+
+  // BUG-02: command `qa.exportReport` — structured regression report (JSON).
+  const handleExportReport = () => {
+    downloadJsonFile(`ricis-qa-report-${new Date().toISOString().replace(/[:.]/g, '-')}.json`, {
+      generatedAt: new Date().toISOString(),
+      engine: 'RICIS-III Auto Prover v7.7',
+      nodesAnalyzed: nodes.length,
+      resultsCount: results.length,
+      results: results.map(res => ({
+        nodeId: res.nodeId,
+        success: res.success,
+        iterationsUsed: res.iterationsUsed,
+        finalInvariant: res.transformationLog.finalInvariant,
+        finalLeanCode: res.finalLeanCode,
+        traceHistory: res.traceHistory,
+      })),
+    });
+  };
+
+  // BUG-02: shared run-state for the command toolbar indicator (Play/Pause
+  // active glow on the «Запуск Краулера» button).
+  const setAutoProverRunning = useCommandStateStore(s => s.setAutoProverRunning);
+  useEffect(() => {
+    setAutoProverRunning(isRunning);
+    return () => setAutoProverRunning(false);
+  }, [isRunning, setAutoProverRunning]);
+
+  // ----------------------------------------------------------------------
+  // BUG-02: central command bus — this page listens to the QA commands.
+  // ----------------------------------------------------------------------
+  const qaCommandHandlersRef = useRef({ runFloodFill: handleRunBatch, exportReport: handleExportReport });
+  qaCommandHandlersRef.current = { runFloodFill: handleRunBatch, exportReport: handleExportReport };
+
+  useEffect(() => {
+    const onRunFloodFill = () => { void qaCommandHandlersRef.current.runFloodFill(); };
+    const onExportReport = () => qaCommandHandlersRef.current.exportReport();
+    window.addEventListener('ricis:qa-run-floodfill', onRunFloodFill);
+    window.addEventListener('ricis:qa-export-report', onExportReport);
+    return () => {
+      window.removeEventListener('ricis:qa-run-floodfill', onRunFloodFill);
+      window.removeEventListener('ricis:qa-export-report', onExportReport);
+    };
+  }, []);
 
   const currentResult = results[activeResultIndex];
 
@@ -141,6 +186,14 @@ export const AutoProverModal: React.FC<AutoProverModalProps> = ({
                   <Play className="w-4 h-4 fill-current" /> Запустить Auto Prover (Batch 5)
                 </>
               )}
+            </button>
+            {/* BUG-02: same action as the `qa.exportReport` command */}
+            <button
+              onClick={handleExportReport}
+              className="w-full py-2 px-4 rounded-lg border border-slate-700 bg-slate-900/60 hover:bg-slate-800 text-slate-300 text-xs flex items-center justify-center gap-2 transition-colors cursor-pointer"
+              title="Сформировать и сохранить структурированный отчет (JSON)"
+            >
+              <FileText className="w-4 h-4" /> Экспорт Отчета
             </button>
           </div>
 

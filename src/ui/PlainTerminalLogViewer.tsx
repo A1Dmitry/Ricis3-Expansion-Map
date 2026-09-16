@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { ITransformationLogDTO } from '../model/traceVisualizer.types';
 import { CheckCircle2, Copy, Check } from 'lucide-react';
+import { copyToClipboard } from '../services/clipboard';
 
 interface PlainTerminalLogViewerProps {
   logData: ITransformationLogDTO;
@@ -43,9 +44,12 @@ export function PlainTerminalLogViewer({ logData, className = '' }: PlainTermina
     });
     textLines.push(`Result: ${logData.finalInvariant}`);
 
-    navigator.clipboard.writeText(textLines.join('\n')).then(() => {
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
+    // BUG-07: unified guarded clipboard helper
+    void copyToClipboard(textLines.join('\n')).then((ok) => {
+      if (ok) {
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+      }
     });
   };
 

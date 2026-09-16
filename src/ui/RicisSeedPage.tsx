@@ -1,5 +1,5 @@
-import React, { useMemo, useState } from 'react';
-import { ArrowLeft, CheckCircle2, GitBranch, Layers, Lock, RefreshCw, ShieldCheck, Sprout, XCircle } from 'lucide-react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { ArrowLeft, CheckCircle2, Download, GitBranch, Layers, Lock, RefreshCw, ShieldCheck, Sprout, XCircle } from 'lucide-react';
 
 import {
   Ric,
@@ -10,6 +10,14 @@ import {
 import { DEMO_PROBLEM_CATALOG } from '../ricisSeed/ricisSeed.unsolvedRegistry';
 import type { RicisState, UnsolvedSingularProblem } from '../ricisSeed/contracts';
 import { UrlShareService } from '../services/UrlShareService';
+import { downloadJsonFile } from '../services/downloadJsonFile';
+
+interface SeedVerificationEntry {
+  readonly problemId: string;
+  readonly title: string;
+  readonly expanded: boolean;
+  readonly detail: string;
+}
 
 interface RicisSeedPageProps {
   onBackToMap: () => void;
@@ -70,6 +78,62 @@ export function RicisSeedPage({ onBackToMap }: RicisSeedPageProps): React.JSX.El
     setHistory([]);
   };
 
+  // BUG-02: command `seed.runVerification` — a full validation cycle: run the
+  // current system R(k) through every catalog problem, growing it with each
+  // accepted rule (R(k+1) = R(k) ∪ {A_new}) and recording the gate verdicts.
+  const [verificationReport, setVerificationReport] = useState<readonly SeedVerificationEntry[] | null>(null);
+
+  const runFullVerification = (): void => {
+    let current = system;
+    const entries: SeedVerificationEntry[] = DEMO_PROBLEM_CATALOG.map(entry => {
+      const outcome = current.ExpandTo((x: RicisState) => x.Resolve(entry.problem));
+      if (outcome.kind === 'EXPANDED') {
+        current = Ric.from(outcome.seed);
+        return {
+          problemId: entry.problem.id,
+          title: entry.title,
+          expanded: true,
+          detail: `допущено правило ${outcome.axiom.id} (R${outcome.seed.generation})`,
+        };
+      }
+      return {
+        problemId: entry.problem.id,
+        title: entry.title,
+        expanded: false,
+        detail: outcome.reason,
+      };
+    });
+    setVerificationReport(entries);
+  };
+
+  // BUG-02: command `seed.downloadLedger` — the crypto receipt: the current
+  // generation fingerprint plus the axiom/ledger fingerprints as JSON.
+  const downloadLedger = (): void => {
+    downloadJsonFile(`ricis-seed-ledger-R${seed.generation}.json`, {
+      protocol: 'RICIS-SEED-A11',
+      generation: seed.generation,
+      fingerprint: seed.fingerprint,
+      exportedAt: new Date().toISOString(),
+      axioms: seed.axioms,
+      ledger: seed.ledger,
+    });
+  };
+
+  // BUG-02: central command bus — this page listens to the seed commands.
+  const seedCommandHandlersRef = useRef({ verify: runFullVerification, downloadLedger });
+  seedCommandHandlersRef.current = { verify: runFullVerification, downloadLedger };
+
+  useEffect(() => {
+    const onVerify = () => seedCommandHandlersRef.current.verify();
+    const onDownloadLedger = () => seedCommandHandlersRef.current.downloadLedger();
+    window.addEventListener('ricis:seed-verify', onVerify);
+    window.addEventListener('ricis:seed-download-ledger', onDownloadLedger);
+    return () => {
+      window.removeEventListener('ricis:seed-verify', onVerify);
+      window.removeEventListener('ricis:seed-download-ledger', onDownloadLedger);
+    };
+  }, []);
+
   return (
     <div className="min-h-screen w-full bg-[#050505] text-slate-200 font-sans">
       <header className="sticky top-0 z-10 border-b border-emerald-900/50 bg-[#070707]/95 px-4 py-3 backdrop-blur">
@@ -89,13 +153,23 @@ export function RicisSeedPage({ onBackToMap }: RicisSeedPageProps): React.JSX.El
             R{seed.generation}
           </span>
           <span className="font-mono text-[10px] text-slate-500">{seed.fingerprint}</span>
-          <button
-            type="button"
-            onClick={resetToSeed}
-            className="ml-auto inline-flex min-h-10 items-center gap-1.5 rounded-md border border-slate-700 bg-slate-900/70 px-3 text-xs font-bold uppercase tracking-wider text-slate-300 hover:border-emerald-500 hover:text-emerald-200"
-          >
-            <RefreshCw size={13} /> Сброс к зерну
-          </button>
+          <div className="ml-auto flex items-center gap-2">
+            {/* BUG-02: same action as the `seed.runVerification` command */}
+            <button
+              type="button"
+              onClick={runFullVerification}
+              className="inline-flex min-h-10 items-center gap-1.5 rounded-md border border-cyan-700/70 bg-cyan-950/40 px-3 text-xs font-bold uppercase tracking-wider text-cyan-200 hover:border-cyan-500 hover:text-cyan-100"
+            >
+              <ShieldCheck size={13} /> Верификация
+            </button>
+            <button
+              type="button"
+              onClick={resetToSeed}
+              className="inline-flex min-h-10 items-center gap-1.5 rounded-md border border-slate-700 bg-slate-900/70 px-3 text-xs font-bold uppercase tracking-wider text-slate-300 hover:border-emerald-500 hover:text-emerald-200"
+            >
+              <RefreshCw size={13} /> Сброс к зерну
+            </button>
+          </div>
         </div>
       </header>
 
@@ -147,9 +221,19 @@ ExpandTo — допуск доказанного правила: R(k+1) = R(k) �
           </article>
 
           <article className="rounded-lg border border-slate-800 bg-[#0a0a0a] p-4">
-            <h2 className="mb-2 flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.18em] text-slate-300">
-              <GitBranch size={14} className="text-violet-400" /> Журнал развёртывания
-            </h2>
+            <div className="mb-2 flex items-center justify-between gap-2">
+              <h2 className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.18em] text-slate-300">
+                <GitBranch size={14} className="text-violet-400" /> Журнал развёртывания
+              </h2>
+              {/* BUG-02: same action as the `seed.downloadLedger` command */}
+              <button
+                type="button"
+                onClick={downloadLedger}
+                className="inline-flex min-h-9 items-center gap-1.5 rounded border border-violet-800/70 bg-violet-950/40 px-2.5 text-[10px] font-bold uppercase tracking-wider text-violet-200 hover:border-violet-500 hover:text-violet-100"
+              >
+                <Download size={12} /> Крипто-квитанция
+              </button>
+            </div>
             {seed.ledger.length === 0 ? (
               <p className="text-[11px] text-slate-500">Журнал пуст: система ещё в состоянии зерна R0.</p>
             ) : (
@@ -180,6 +264,45 @@ ExpandTo — допуск доказанного правила: R(k+1) = R(k) �
               </p>
             )}
           </article>
+
+          {verificationReport && (
+            <article className="rounded-lg border border-cyan-900/60 bg-cyan-950/10 p-4">
+              <h2 className="mb-2 flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.18em] text-cyan-300">
+                <ShieldCheck size={14} className="text-cyan-400" />
+                Отчёт верификации: {verificationReport.filter(entry => entry.expanded).length}/{verificationReport.length} допущено
+              </h2>
+              <table className="w-full text-left font-mono text-[10px]">
+                <thead className="text-slate-500">
+                  <tr>
+                    <th className="py-1">проблема</th>
+                    <th className="py-1">статус</th>
+                    <th className="py-1">результат ворот</th>
+                  </tr>
+                </thead>
+                <tbody className="text-slate-300">
+                  {verificationReport.map(entry => (
+                    <tr key={entry.problemId} className="border-t border-slate-800">
+                      <td className="py-1">
+                        <span className="text-cyan-300">{entry.problemId.replace('U-', '')}</span>
+                        <span className="ml-2 text-slate-400">{entry.title}</span>
+                      </td>
+                      <td className="py-1">
+                        {entry.expanded ? (
+                          <span className="text-emerald-400">EXPANDED</span>
+                        ) : (
+                          <span className="text-amber-400">REJECTED</span>
+                        )}
+                      </td>
+                      <td className="py-1 text-slate-400">{entry.detail}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+              <p className="mt-2 text-[10px] leading-relaxed text-slate-500">
+                Локальная структурная проверка ворот — не запуск ядра Lean. Статус ядра: REQUIRES_CORE_LEAN.
+              </p>
+            </article>
+          )}
         </section>
 
         {/* ---------- проблему → resolve → ворота ---------- */}

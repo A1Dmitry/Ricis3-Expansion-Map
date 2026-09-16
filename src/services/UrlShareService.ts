@@ -1,3 +1,5 @@
+import { copyToClipboard } from './clipboard';
+
 /**
  * Сервис синхронизации URL, глубоких ссылок (Deep Linking) и генерации share-ссылок.
  * DRY, Pure Functions & Browser History Integration.
@@ -17,6 +19,21 @@ export interface ShareParams {
 
 export class UrlShareService {
   /**
+   * Single source of truth for the legacy `view` parameter: exactly one
+   * view flag may be written at a time, in this priority order. BUG-04:
+   * `seed` was missing from `updateBrowserUrl`, which made the
+   * «Ссылка на это состояние (?view=seed)» action a silent no-op.
+   */
+  private static resolveViewValue(params: ShareParams): string | null {
+    let viewValue: string | null = null;
+    if (params.roadmap) viewValue = 'roadmap';
+    if (params.kinematic) viewValue = 'kinematic';
+    if (params.comparison) viewValue = 'comparison';
+    if (params.seed) viewValue = 'seed';
+    return viewValue;
+  }
+
+  /**
    * Сформировать абсолютный URL для обмена
    */
   public static generateShareUrl(params: ShareParams): string {
@@ -34,17 +51,9 @@ export class UrlShareService {
     if (params.mode) {
       url.searchParams.set('mode', params.mode);
     }
-    if (params.roadmap) {
-      url.searchParams.set('view', 'roadmap');
-    }
-    if (params.kinematic) {
-      url.searchParams.set('view', 'kinematic');
-    }
-    if (params.comparison) {
-      url.searchParams.set('view', 'comparison');
-    }
-    if (params.seed) {
-      url.searchParams.set('view', 'seed');
+    const viewValue = this.resolveViewValue(params);
+    if (viewValue) {
+      url.searchParams.set('view', viewValue);
     }
     if (params.rootNodeId) {
       url.searchParams.set('root', params.rootNodeId);
@@ -54,29 +63,11 @@ export class UrlShareService {
   }
 
   /**
-   * Скопировать сгенерированную ссылку в буфер обмена
+   * Скопировать сгенерированную ссылку в буфер обмена.
+   * BUG-07: delegates to the single guarded clipboard helper (DRY).
    */
   public static async copyShareUrlToClipboard(params: ShareParams): Promise<boolean> {
-    try {
-      const shareUrl = this.generateShareUrl(params);
-      if (navigator.clipboard && navigator.clipboard.writeText) {
-        await navigator.clipboard.writeText(shareUrl);
-        return true;
-      }
-      // Fallback
-      const textArea = document.createElement('textarea');
-      textArea.value = shareUrl;
-      textArea.style.position = 'fixed';
-      textArea.style.opacity = '0';
-      document.body.appendChild(textArea);
-      textArea.select();
-      document.execCommand('copy');
-      document.body.removeChild(textArea);
-      return true;
-    } catch (e) {
-      console.warn('Failed to copy share url:', e);
-      return false;
-    }
+    return copyToClipboard(this.generateShareUrl(params));
   }
 
   /**
@@ -110,23 +101,17 @@ export class UrlShareService {
         }
       }
 
-      if (params.roadmap !== undefined) {
-        if (params.roadmap) {
-          url.searchParams.set('view', 'roadmap');
-        } else {
-          url.searchParams.delete('view');
-        }
-      }
-      if (params.kinematic !== undefined) {
-        if (params.kinematic) {
-          url.searchParams.set('view', 'kinematic');
-        } else {
-          url.searchParams.delete('view');
-        }
-      }
-      if (params.comparison !== undefined) {
-        if (params.comparison) {
-          url.searchParams.set('view', 'comparison');
+      // BUG-04: the `view` slot is single-valued; any explicit view flag
+      // (including `seed`) rewrites it from the shared resolver above.
+      if (
+        params.roadmap !== undefined ||
+        params.kinematic !== undefined ||
+        params.comparison !== undefined ||
+        params.seed !== undefined
+      ) {
+        const viewValue = this.resolveViewValue(params);
+        if (viewValue) {
+          url.searchParams.set('view', viewValue);
         } else {
           url.searchParams.delete('view');
         }

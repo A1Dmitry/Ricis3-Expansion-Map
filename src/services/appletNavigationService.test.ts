@@ -38,6 +38,18 @@ describe('AppletNavigationService', () => {
     expect(AppletNavigationService.resolveCurrentApplet('?view=roadmap')).toBe('roadmap');
   });
 
+  // BUG-10: legacy deep links must cover every applet, not just the first four.
+  it('resolves legacy ?view= links for voynich, terminal, qa-tests and settings', () => {
+    expect(AppletNavigationService.resolveCurrentApplet('?view=voynich')).toBe('voynich');
+    expect(AppletNavigationService.resolveCurrentApplet('?view=terminal')).toBe('terminal');
+    expect(AppletNavigationService.resolveCurrentApplet('?view=qa-tests')).toBe('qa-tests');
+    expect(AppletNavigationService.resolveCurrentApplet('?view=settings')).toBe('settings');
+  });
+
+  it('still resolves map for unknown ?view= values', () => {
+    expect(AppletNavigationService.resolveCurrentApplet('?view=unknown')).toBe('map');
+  });
+
   it('handles navigation stack and back/forward operations correctly', () => {
     AppletNavigationService.navigateTo('kinematic');
     expect(AppletNavigationService.getActiveApplet()).toBe('kinematic');

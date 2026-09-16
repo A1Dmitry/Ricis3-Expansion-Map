@@ -12,8 +12,16 @@ import {
 } from "./server/ricisCoreSupervisor";
 import { registerCommunityRewardsUnavailableRoutes } from "./server/communityRewardsHttpAdapter";
 import { registerAdminCoreUnavailableRoutes } from "./server/adminCoreUnavailableHttpAdapter";
+import { aiDegradedBody } from "./server/aiDegradation";
 
 
+
+// BUG-01 (second layer): a single bad request must never take the whole
+// server down. The root cause lives in server/ricisCoreSupervisor.ts; this
+// keeps the process alive for any future async leak and logs it instead.
+process.on('unhandledRejection', (reason) => {
+  console.error('[server] Unhandled promise rejection (process kept alive):', reason);
+});
 
 const MODELS_POOL = SERVER_GEMINI_MODEL_POOL;
 
@@ -272,7 +280,8 @@ ${axiomList}
         targetFunction || '',
         id || 'node'
       );
-      res.json({ proof: fallbackProof, proofLatex: fallbackProof, model: "canonical-ricis-engine" });
+      // BUG-06: unified degradation contract (HTTP 200 + degraded + reason)
+      res.json({ proof: fallbackProof, proofLatex: fallbackProof, model: "canonical-ricis-engine", ...aiDegradedBody(e) });
     }
   });
 
@@ -332,7 +341,8 @@ ${axiomList}
             singularityHint: "Разрешение предельного перехода аксиомами SP1-SP4"
           }
         ],
-        model: "canonical-ricis-engine"
+        model: "canonical-ricis-engine",
+        ...aiDegradedBody(e) // BUG-06: unified degradation contract
       });
     }
   });
@@ -409,7 +419,8 @@ ${axiomList}
         hint: "Устранение сингулярностей за O(1) время без динамических пределов",
         connectToNodeIds: ["math-singularity"],
         significance: 0.85,
-        model: "canonical-ricis-engine"
+        model: "canonical-ricis-engine",
+        ...aiDegradedBody(e) // BUG-06: unified degradation contract
       });
     }
   });
@@ -480,7 +491,8 @@ ${leavesStr}
       res.json({ tasks, model: response.model });
     } catch (e: any) {
       console.warn("[expandLeaves fallback activated]:", e?.message || e);
-      res.json({ tasks: [], error: e?.message || e });
+      // BUG-06: unified degradation contract — reason must be visible to the UI
+      res.json({ tasks: [], ...aiDegradedBody(e) });
     }
   });
 
@@ -546,7 +558,8 @@ ${leavesStr}
         significance: 0.8,
         shortProofSketch: "Разрешение неопределенности через аксиомы SP1-SP4 и Skew Product A6",
         tags: ["math", "singularity", "ricis3"],
-        model: "canonical-ricis-engine"
+        model: "canonical-ricis-engine",
+        ...aiDegradedBody(e) // BUG-06: unified degradation contract
       });
     }
   });
@@ -590,7 +603,7 @@ ${leavesStr}
       res.json({ hits, model: response.model });
     } catch (e: any) {
       console.warn("[searchDerivatives fallback activated]:", e?.message || e);
-      res.json({ hits: [], model: "canonical-ricis-engine" });
+      res.json({ hits: [], model: "canonical-ricis-engine", ...aiDegradedBody(e) }); // BUG-06
     }
   });
 

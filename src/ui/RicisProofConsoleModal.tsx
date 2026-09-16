@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   getRicisCoreEngine,
   IRicisCoreEngine,
@@ -11,6 +11,7 @@ import {
   isProofGatewayFailure,
 } from '../services/ricisCore/IRicisProofGateway';
 import { useI18nStore } from '../store/useI18nStore';
+import { useTerminalStore } from '../store/useTerminalStore';
 import { writeCoreRecovery } from '../services/coreRecovery';
 import { APP_BUILD_LABEL } from '../version';
 import { X, Play, Cpu, BookOpen, Layers, CheckCircle2, Bookmark } from 'lucide-react';
@@ -63,8 +64,6 @@ export const RicisProofConsoleModal: React.FC<RicisProofConsoleModalProps> = ({
       }
     }
   }, [isOpen, initialClaim, engine]);
-
-  if (!isOpen) return null;
 
   const handleRunEvaluation = async () => {
     if (!expression.trim()) return;
@@ -119,6 +118,40 @@ export const RicisProofConsoleModal: React.FC<RicisProofConsoleModalProps> = ({
     setProofClaim(expr);
     setProofExpected(expr);
   };
+
+  // ----------------------------------------------------------------------
+  // BUG-02: central command bus — terminal commands (clear buffer, Lean 4
+  // gateway). Hooks must stay above the early return, so the handlers above
+  // are declared first.
+  // ----------------------------------------------------------------------
+  const handleClearBuffer = () => {
+    setEvalResult(null);
+    setProofRun(null);
+    setProofRecoveryResourceKey(null);
+    useTerminalStore.getState().clearHistory();
+    useTerminalStore.getState().setInput('');
+  };
+
+  const handleLeanVerify = () => {
+    setActiveTab('prove');
+    void handleGenerateProof();
+  };
+
+  const terminalCommandHandlersRef = useRef({ clear: handleClearBuffer, leanVerify: handleLeanVerify });
+  terminalCommandHandlersRef.current = { clear: handleClearBuffer, leanVerify: handleLeanVerify };
+
+  useEffect(() => {
+    const onClear = () => terminalCommandHandlersRef.current.clear();
+    const onLeanVerify = () => terminalCommandHandlersRef.current.leanVerify();
+    window.addEventListener('ricis:terminal-clear', onClear);
+    window.addEventListener('ricis:terminal-lean-verify', onLeanVerify);
+    return () => {
+      window.removeEventListener('ricis:terminal-clear', onClear);
+      window.removeEventListener('ricis:terminal-lean-verify', onLeanVerify);
+    };
+  }, []);
+
+  if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4 animate-in fade-in duration-200">

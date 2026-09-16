@@ -1,7 +1,8 @@
 import React, { useState, useMemo, useEffect, useRef, useCallback } from 'react';
 import type { ProblemNode } from '../model/types';
 import { getNodeIdentityPresentation } from '../model/nodeIdentityPresentation';
-import type { UIElement } from '../domain/ui/uiElement.types';
+import { UI_ELEMENTS } from '../domain/ui/uiElements';
+import { useCommandStateStore } from '../store/useCommandStateStore';
 import { AddNodeModal } from './AddNodeModal';
 import { Canvas, useThree, useFrame } from '@react-three/fiber';
 import { useMapStore } from '../store/mapStore';
@@ -72,6 +73,7 @@ import { TelegramBotPanel } from './TelegramBotPanel';
 import { AgentLogModal } from './AgentLogModal';
 import { LatexRenderer } from './LatexRenderer';
 import { useAdaptiveUI } from '../hooks/useAdaptiveUI';
+import { useUserDisabledPanels } from '../hooks/useUserDisabledPanels';
 import { useMobileLayout } from '../hooks/useMobileLayout';
 import { useMobileViewStack } from '../hooks/useMobileViewStack';
 import { useImmersiveCanvas } from '../hooks/useImmersiveCanvas';
@@ -115,13 +117,8 @@ import { presentMapNodeVisualStatus } from '../ricisSolutionCatalog';
 
 type PanelId = 'actions' | 'zones' | 'available' | 'agent' | 'persistence';
 
-const UI_ELEMENTS: UIElement[] = [
-  { id: 'actions', label: '', labelKey: 'panel.actions' },
-  { id: 'zones', label: '', labelKey: 'panel.zones' },
-  { id: 'available', label: '', labelKey: 'panel.available' },
-  { id: 'agent', label: '', labelKey: 'panel.agent' },
-  { id: 'persistence', label: '', labelKey: 'panel.persistence' },
-];
+// BUG-03: the element catalog lives in the shared domain module so the
+// Settings applet and this surface configure the same panels.
 
 const discoverablePanelIds = new Set<PanelId>(['persistence']);
 
@@ -606,31 +603,8 @@ export const Map3D: React.FC = () => {
   })();
 
   const [showOverflow, setShowOverflow] = useState(false);
-  const [userDisabledPanelIds, setUserDisabledPanelIds] = useState<Set<string>>(() => {
-    try {
-      const saved = localStorage.getItem('ricis_disabled_panel_ids');
-      return saved ? new Set(JSON.parse(saved)) : new Set();
-    } catch {
-      return new Set();
-    }
-  });
-
-  const togglePanelVisibility = (panelId: string) => {
-    setUserDisabledPanelIds((prev) => {
-      const next = new Set(prev);
-      if (next.has(panelId)) {
-        next.delete(panelId);
-      } else {
-        next.add(panelId);
-      }
-      try {
-        localStorage.setItem('ricis_disabled_panel_ids', JSON.stringify(Array.from(next)));
-      } catch (e) {
-        console.error('Failed to save disabled panels', e);
-      }
-      return next;
-    });
-  };
+  // BUG-03: shared with the Settings applet (same storage key & behavior).
+  const [userDisabledPanelIds, togglePanelVisibility] = useUserDisabledPanels();
 
   const projectedVisibleElements = useMemo(() => {
     const visiblePanelIds = new Set(visibleElements.map(element => element.id));
@@ -762,6 +736,55 @@ export const Map3D: React.FC = () => {
       controlsRef.current.reset();
     }
   };
+
+  // ----------------------------------------------------------------------
+  // BUG-02: central command bus. The toolbar/menu dispatch `ricis:*` events;
+  // Map3D is the listener for the view commands (reset camera, open search).
+  // ----------------------------------------------------------------------
+  const searchInputRef = useRef<HTMLInputElement | null>(null);
+
+  const handleOpenSearch = () => {
+    if (leftPanelMode === 'rail') setLeftPanelMode('open');
+    searchInputRef.current?.focus();
+    searchInputRef.current?.select();
+  };
+
+  const viewCommandHandlersRef = useRef({ resetCamera: handleResetCamera, openSearch: handleOpenSearch });
+  viewCommandHandlersRef.current = { resetCamera: handleResetCamera, openSearch: handleOpenSearch };
+
+  useEffect(() => {
+    const onResetCamera = () => viewCommandHandlersRef.current.resetCamera();
+    const onOpenSearch = () => viewCommandHandlersRef.current.openSearch();
+    window.addEventListener('ricis:reset-camera', onResetCamera);
+    window.addEventListener('ricis:open-search', onOpenSearch);
+    return () => {
+      window.removeEventListener('ricis:reset-camera', onResetCamera);
+      window.removeEventListener('ricis:open-search', onOpenSearch);
+    };
+  }, []);
+
+  // BUG-02: shared 3D/2D presentation (command `view.toggle3D`).
+  // 2D = top-down planar projection with rotation locked; 3D = free orbit.
+  const is3DMode = useCommandStateStore(s => s.is3DMode);
+  const previous3DModeRef = useRef<boolean | null>(null);
+
+  useEffect(() => {
+    const controls = controlsRef.current;
+    if (!controls || mapPresentationMode !== 'three_dimensional') return;
+    const previous = previous3DModeRef.current;
+    previous3DModeRef.current = is3DMode;
+    // React only on an actual mode transition, not on first mount.
+    if (previous === null || previous === is3DMode) return;
+    if (is3DMode) {
+      controls.enableRotate = true;
+      controls.object.position.set(0, 0, 32);
+    } else {
+      controls.enableRotate = false;
+      controls.object.position.set(0, 48, 0.001);
+    }
+    controls.target.set(0, 0, 0);
+    controls.update();
+  }, [is3DMode, mapPresentationMode]);
 
   const isDerivativeNode = (n: { type?: string; isDerivativeClaim?: boolean }) =>
     n.type === 'derivative_claim' || n.isDerivativeClaim === true;
@@ -1706,6 +1729,7 @@ export const Map3D: React.FC = () => {
             <Search size={16} className="text-cyan-400 shrink-0" />
             <div className="relative flex-1">
               <input
+                ref={searchInputRef}
                 type="text"
                 placeholder={t('search.placeholder')}
                 value={searchQuery}

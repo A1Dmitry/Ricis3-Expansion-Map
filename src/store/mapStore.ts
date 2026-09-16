@@ -799,6 +799,14 @@ export const useMapStore = create<MapStore>((set, get) => ({
           }
 
           const data = res.data;
+          // BUG-06: unified degradation contract — an AI fallback (e.g. missing
+          // GEMINI_API_KEY) answers HTTP 200 with `degraded` + reason. The reason
+          // must reach the user (agent log) instead of being silently swallowed.
+          if (data && data.degraded === 'ai_unavailable') {
+            details.push(
+              `AI-расширение листьев недоступно: ${data.error || 'причина не указана'}. Новые задачи не добавлены (локальный фолбэк пуст).`
+            );
+          }
           if (data && Array.isArray(data.tasks) && data.tasks.length > 0) {
             const addedNodes: ProblemNode[] = [];
             const addedEdges: DependencyEdge[] = [];

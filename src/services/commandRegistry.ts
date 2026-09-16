@@ -6,6 +6,7 @@
 import type { AppCommand, CommandCategory, CommandContext } from '../types/commandTypes';
 import type { AppletId } from '../types/appletRegistry';
 import { UrlShareService } from './UrlShareService';
+import { copyToClipboard } from './clipboard';
 
 export const APP_COMMANDS: readonly AppCommand[] = [
   // --- Navigation & Core Workspaces ---
@@ -151,9 +152,10 @@ export const APP_COMMANDS: readonly AppCommand[] = [
     shortcut: 'R',
     group: 'camera',
     isEnabled: ctx => ctx.activeApplet === 'map',
+    // BUG-02: the context callback is the single dispatcher; a second
+    // dispatch here would double-fire page listeners (e.g. double-toggle).
     execute: ctx => {
       ctx.onResetCamera?.();
-      window.dispatchEvent(new CustomEvent('ricis:reset-camera'));
     },
   },
   {
@@ -162,13 +164,14 @@ export const APP_COMMANDS: readonly AppCommand[] = [
     tooltip: 'Открыть диалог быстрого поиска и фильтрации узлов по DOI, сингулярностям и формулам',
     iconName: 'Search',
     category: 'view',
-    appletScope: ['map', 'roadmap'],
+    // The node-search UI exists only on the Map3D surface; the command is
+    // intentionally hidden elsewhere (BUG-02: no dead buttons).
+    appletScope: ['map'],
     shortcut: 'Ctrl+F',
     group: 'inspect',
-    isEnabled: ctx => ctx.activeApplet === 'map' || ctx.activeApplet === 'roadmap',
+    isEnabled: ctx => ctx.activeApplet === 'map',
     execute: ctx => {
       ctx.onSearchNodes?.();
-      window.dispatchEvent(new CustomEvent('ricis:open-search'));
     },
   },
 
@@ -186,7 +189,6 @@ export const APP_COMMANDS: readonly AppCommand[] = [
     isActive: ctx => ctx.isSimulationRunning ?? false,
     execute: ctx => {
       ctx.onToggleSimulation?.();
-      window.dispatchEvent(new CustomEvent('ricis:kinematic-toggle-play'));
     },
   },
   {
@@ -201,7 +203,6 @@ export const APP_COMMANDS: readonly AppCommand[] = [
     isEnabled: ctx => ctx.activeApplet === 'kinematic',
     execute: ctx => {
       ctx.onResetSimulation?.();
-      window.dispatchEvent(new CustomEvent('ricis:kinematic-reset'));
     },
   },
   {
@@ -216,7 +217,6 @@ export const APP_COMMANDS: readonly AppCommand[] = [
     isEnabled: ctx => ctx.activeApplet === 'kinematic',
     execute: ctx => {
       ctx.onStepSimulation?.();
-      window.dispatchEvent(new CustomEvent('ricis:kinematic-step'));
     },
   },
 
@@ -263,7 +263,6 @@ export const APP_COMMANDS: readonly AppCommand[] = [
     isEnabled: ctx => ctx.activeApplet === 'terminal',
     execute: ctx => {
       ctx.onClearTerminal?.();
-      window.dispatchEvent(new CustomEvent('ricis:terminal-clear'));
     },
   },
   {
@@ -295,7 +294,6 @@ export const APP_COMMANDS: readonly AppCommand[] = [
     isActive: ctx => ctx.isAutoProverRunning ?? false,
     execute: ctx => {
       ctx.onRunProver?.();
-      window.dispatchEvent(new CustomEvent('ricis:qa-run-floodfill'));
     },
   },
   {
@@ -325,10 +323,9 @@ export const APP_COMMANDS: readonly AppCommand[] = [
     group: 'global',
     isEnabled: () => true,
     execute: ctx => {
+      // BUG-07: unified guarded clipboard helper (works in non-secure contexts too)
       const url = UrlShareService.generateShareUrl({ applet: ctx.activeApplet });
-      if (typeof navigator !== 'undefined' && navigator.clipboard) {
-        navigator.clipboard.writeText(url).catch(() => {});
-      }
+      void copyToClipboard(url);
     },
   },
   {
@@ -343,7 +340,6 @@ export const APP_COMMANDS: readonly AppCommand[] = [
     isEnabled: () => true,
     execute: ctx => {
       ctx.onRunDiagnostics?.();
-      window.dispatchEvent(new CustomEvent('ricis:run-diagnostics'));
     },
   },
 ];

@@ -12,7 +12,7 @@ export interface AdaptiveRole {
 }
 
 export interface AdaptiveUIConfig {
-  elements: UIElement[];
+  elements: readonly UIElement[];
   storageKey?: string;
   maxVisible?: number;
   decayInterval?: number;
@@ -27,7 +27,7 @@ export interface AdaptiveUIConfig {
 export function calculateNewOrder(
   currentWeights: Record<string, number>,
   currentOrder: string[],
-  allElements: UIElement[],
+  allElements: readonly UIElement[],
   maxVisible: number,
   hysteresisDelta: number
 ): string[] {

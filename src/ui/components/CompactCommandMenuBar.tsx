@@ -39,6 +39,7 @@ import type { AppletId } from '../../types/appletRegistry';
 import { APPLET_DEFINITIONS } from '../../types/appletRegistry';
 import { AppletNavigationService } from '../../services/AppletNavigationService';
 import { UrlShareService } from '../../services/UrlShareService';
+import { copyToClipboard } from '../../services/clipboard';
 import type { CommandContext } from '../../types/commandTypes';
 import { CommandRegistry } from '../../services/commandRegistry';
 
@@ -83,11 +84,12 @@ export const CompactCommandMenuBar: React.FC<CompactCommandMenuBarProps> = ({
 
   const handleCopyShareLink = () => {
     const shareUrl = UrlShareService.generateShareUrl({ applet: activeApplet });
-    navigator.clipboard.writeText(shareUrl).then(() => {
-      setCopiedLink(true);
-      setTimeout(() => setCopiedLink(false), 2000);
-    }).catch(() => {
-      // fallback
+    // BUG-07: unified guarded clipboard helper (guard + fallback + catch)
+    void copyToClipboard(shareUrl).then((ok) => {
+      if (ok) {
+        setCopiedLink(true);
+        setTimeout(() => setCopiedLink(false), 2000);
+      }
     });
   };
 
@@ -95,6 +97,12 @@ export const CompactCommandMenuBar: React.FC<CompactCommandMenuBarProps> = ({
     onSelectApplet(applet);
     setOpenMenu(null);
   };
+
+  // BUG-08: reflect the real internal history stacks. The component
+  // re-renders on every navigation (popstate → App locationSearch), so the
+  // values below are always fresh.
+  const canGoBack = AppletNavigationService.canGoBack();
+  const canGoForward = AppletNavigationService.canGoForward();
 
   const handleExecute = (cmdId: string) => {
     const cmd = CommandRegistry.getById(cmdId);
@@ -126,8 +134,9 @@ export const CompactCommandMenuBar: React.FC<CompactCommandMenuBarProps> = ({
         <div className="flex items-center bg-neutral-900 border border-neutral-800 rounded p-0.5">
           <button
             type="button"
+            disabled={!canGoBack}
             onClick={() => AppletNavigationService.goBack()}
-            className="p-1 text-slate-400 hover:text-white hover:bg-neutral-800 rounded transition-colors disabled:opacity-30"
+            className="p-1 text-slate-400 hover:text-white hover:bg-neutral-800 rounded transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
             title="Назад (Browser Back)"
             aria-label="Browser Back"
           >
@@ -135,8 +144,9 @@ export const CompactCommandMenuBar: React.FC<CompactCommandMenuBarProps> = ({
           </button>
           <button
             type="button"
+            disabled={!canGoForward}
             onClick={() => AppletNavigationService.goForward()}
-            className="p-1 text-slate-400 hover:text-white hover:bg-neutral-800 rounded transition-colors disabled:opacity-30"
+            className="p-1 text-slate-400 hover:text-white hover:bg-neutral-800 rounded transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
             title="Вперёд (Browser Forward)"
             aria-label="Browser Forward"
           >

@@ -6,6 +6,36 @@
 import type { AppletId } from '../types/appletRegistry';
 import { UrlShareService } from './UrlShareService';
 
+/**
+ * Canonical applet id list — single source of truth for deep links.
+ */
+const VALID_APPLET_IDS: readonly AppletId[] = [
+  'map',
+  'kinematic',
+  'seed',
+  'comparison',
+  'roadmap',
+  'voynich',
+  'qa-tests',
+  'terminal',
+  'settings',
+];
+
+/**
+ * BUG-10: legacy `?view=` deep links must cover the same applets as
+ * `?applet=`, otherwise old bookmarks silently fall back to the map.
+ */
+const LEGACY_VIEW_APPLETS: ReadonlyMap<string, AppletId> = new Map<string, AppletId>([
+  ['kinematic', 'kinematic'],
+  ['seed', 'seed'],
+  ['comparison', 'comparison'],
+  ['roadmap', 'roadmap'],
+  ['voynich', 'voynich'],
+  ['terminal', 'terminal'],
+  ['qa-tests', 'qa-tests'],
+  ['settings', 'settings'],
+]);
+
 export class AppletNavigationService {
   private static historyStack: AppletId[] = [];
   private static forwardStack: AppletId[] = [];
@@ -19,26 +49,15 @@ export class AppletNavigationService {
     const appletParam = params.get('applet') as AppletId | null;
     const viewParam = params.get('view');
 
-    if (appletParam && ['map', 'kinematic', 'seed', 'comparison', 'roadmap', 'voynich', 'qa-tests', 'terminal', 'settings'].includes(appletParam)) {
+    if (appletParam && VALID_APPLET_IDS.includes(appletParam)) {
       this.currentApplet = appletParam;
       return appletParam;
     }
 
-    if (viewParam === 'kinematic') {
-      this.currentApplet = 'kinematic';
-      return 'kinematic';
-    }
-    if (viewParam === 'seed') {
-      this.currentApplet = 'seed';
-      return 'seed';
-    }
-    if (viewParam === 'comparison') {
-      this.currentApplet = 'comparison';
-      return 'comparison';
-    }
-    if (viewParam === 'roadmap') {
-      this.currentApplet = 'roadmap';
-      return 'roadmap';
+    const legacyViewApplet = LEGACY_VIEW_APPLETS.get(viewParam ?? '');
+    if (legacyViewApplet) {
+      this.currentApplet = legacyViewApplet;
+      return legacyViewApplet;
     }
 
     this.currentApplet = 'map';
