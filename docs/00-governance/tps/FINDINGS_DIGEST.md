@@ -23,13 +23,13 @@
 | ID | Тяжесть | Класс | Закрытость (по правилу гейта) | Затронутые артефакты | Карточки, ссылающиеся на находку |
 |---|---|---|---|---|---|
 | F-01 | CRITICAL | TUKHTA | закрыто (поле `resolution`/`status` начинается с маркера закрытия) | artifacts/proofs/ricis-jacobian-conjecture.json (verification.trustStatus = TRUSTED_AXIOM), src/model/initialMap.ts (proofs[registry-120].externalLean.trustStatus = TRUSTED_AXIOM), src/model/jacobianProof.test.ts (QA-1 проверяет лишь ТЕКСТОВОЕ присутствие строки `theorem Jacobian_singularity_resolved`, QA-2/QA-3 утверждают сам статус) | — |
-| F-02 | HIGH | TUKHTA | открыто или закрыто частично — см. реестр | src/model/initialMap.ts, artifacts/proofs/*.json, src/model/ricisV79Monolith.test.ts, src/model/riemannZetaProof.test.ts | TPS-0010 (done) |
-| F-03 | MEDIUM | PRECISION | открыто или закрыто частично — см. реестр | — | TPS-0010 (done) |
+| F-02 | HIGH | TUKHTA | открыто или закрыто частично — см. реестр | src/model/initialMap.ts, artifacts/proofs/*.json, src/model/ricisV79Monolith.test.ts, src/model/riemannZetaProof.test.ts | — |
+| F-03 | MEDIUM | PRECISION | открыто или закрыто частично — см. реестр | — | — |
 | F-04 | MEDIUM | EVIDENCE_DEFECT | закрыто (поле `resolution`/`status` начинается с маркера закрытия) | — | — |
-| F-05 | HIGH | SEMANTIC_BOUNDARY | открыто или закрыто частично — см. реестр | — | TPS-0005 (waiting_owner); TPS-0010 (done) |
+| F-05 | HIGH | SEMANTIC_BOUNDARY | открыто или закрыто частично — см. реестр | — | TPS-0005 (waiting_owner) |
 | F-06 | MEDIUM | PROOF_SCRIPT_DEFECT | закрыто (поле `resolution`/`status` начинается с маркера закрытия) | ricis-v79-monolith | — |
 | F-07 | HIGH | MISSING_INSTANCE | закрыто (поле `resolution`/`status` начинается с маркера закрытия) | ricis-kernel-ast-sp5 | — |
-| F-08 | MEDIUM | REPAIR_DEFECT | закрыто (поле `resolution`/`status` начинается с маркера закрытия) | ricis-seed-expansion-a11 | TPS-0002 (done, закрыто вне потока); TPS-0009 (done); TPS-0010 (done) |
+| F-08 | MEDIUM | REPAIR_DEFECT | закрыто (поле `resolution`/`status` начинается с маркера закрытия) | ricis-seed-expansion-a11 | TPS-0002 (done, закрыто вне потока); TPS-0009 (done); TPS-0010 (backlog) |
 | F-09 | HIGH | — | открыто или закрыто частично — см. реестр | — | TPS-0004 (waiting_owner) |
 | F-10 | HIGH | — | открыто или закрыто частично — см. реестр | — | TPS-0004 (waiting_owner) |
 | F-11 | MEDIUM | — | открыто или закрыто частично — см. реестр | — | TPS-0004 (waiting_owner) |
@@ -65,7 +65,6 @@
 ## Политика CI: ожидаемые отказы и ожидающие прогоны
 
 - `ciPolicy.expectedFailures` (падение этих целей не рвёт прогон, потому что первопричина зафиксирована): `ricis-jacobian-conjecture`
-- ожидает прогона: `ricis-general-resolution-v3` · job `mathlib-kernel-check` · статус PENDING_KERNEL_RUN
 - ожидает прогона: `ricis-yang-mills` · job `mathlib-kernel-check` · статус PENDING_KERNEL_RUN
 - `sorryAx` в скопилированном файле рвёт прогон всегда — ожидаемый отказ его не легализует.
 
