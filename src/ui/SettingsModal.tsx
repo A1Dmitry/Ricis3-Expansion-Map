@@ -20,7 +20,7 @@ export interface SettingsModalProps {
   onSelectRole: (roleId: string) => void;
   onCreateRole: (name: string, templateRoleId?: string) => void;
   uiElements?: UIElement[];
-  hiddenElementIds?: Set<string>;
+  hiddenElementIds?: ReadonlySet<string>;
   onToggleElement?: (id: string) => void;
   physicsParams?: PhysicsParams;
   onPhysicsChange?: (params: PhysicsParams) => void;

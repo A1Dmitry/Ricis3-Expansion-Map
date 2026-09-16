@@ -666,6 +666,16 @@ describe('OIR-03 — audit proof-synthesis containment', () => {
       '?? src/services/commandBus.ts',
       '?? src/services/commandBus.test.ts',
       '?? src/services/commandBus.wiring.topology.test.ts',
+
+      // AUDIT-2026-09-16 BUG-03: Settings-апплет получил реальные пропсы.
+      // Общие SETTINGS_PANEL_ELEMENTS/CONFIG + useDisabledPanelIds (DRY c Map3D),
+      // новая SettingsAppletPage вместо заглушки в App.tsx.
+      ' M src/ui/Map3D.tsx',
+      ' M src/ui/SettingsModal.tsx',
+      '?? src/domain/ui/settingsElements.ts',
+      '?? src/hooks/useDisabledPanelIds.ts',
+      '?? src/ui/SettingsAppletPage.tsx',
+      '?? src/ui/SettingsAppletPage.test.tsx',
     ]);
     if (status.length > 0 && status.every(entry => entry.startsWith('?? '))) {
       // In clean container environments git status may return all files as untracked

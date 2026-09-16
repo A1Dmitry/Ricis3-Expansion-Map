@@ -31,7 +31,7 @@ const RicisSeedPage = lazyNamedComponent(() => import('./ui/RicisSeedPage'), 'Ri
 const VoynichDecryptionPanel = lazyNamedComponent(() => import('./ui/VoynichDecryptionPanel'), 'VoynichDecryptionPanel');
 const RicisProofConsoleModal = lazyNamedComponent(() => import('./ui/RicisProofConsoleModal'), 'RicisProofConsoleModal');
 const AutoProverModal = lazyNamedComponent(() => import('./ui/AutoProverModal'), 'AutoProverModal');
-const SettingsModal = lazyNamedComponent(() => import('./ui/SettingsModal'), 'SettingsModal');
+const SettingsAppletPage = lazyNamedComponent(() => import('./ui/SettingsAppletPage'), 'SettingsAppletPage');
 
 function formatHydrationError(error: unknown): string {
   if (error instanceof Error) return error.message;
@@ -257,24 +257,9 @@ export default function App() {
         );
       case 'settings':
         return (
-          <div className="w-full h-full overflow-y-auto p-4 bg-[#070b14]">
-            <div className="max-w-6xl mx-auto mb-4 flex items-center justify-between">
-              <button
-                onClick={() => handleSelectApplet('map')}
-                className="px-3 py-1.5 rounded-lg text-xs font-mono bg-slate-800 hover:bg-slate-700 text-cyan-300 transition-colors flex items-center gap-1.5"
-              >
-                ← Вернуться к 3D Карте
-              </button>
-            </div>
-            <SettingsModal
-              isOpen={true}
-              onClose={() => handleSelectApplet('map')}
-              roles={[]}
-              currentRoleId="default"
-              onSelectRole={() => {}}
-              onCreateRole={() => {}}
-            />
-          </div>
+          <SettingsAppletPage
+            onBackToMap={() => handleSelectApplet('map')}
+          />
         );
       case 'map':
       default:

@@ -2,6 +2,8 @@ import React, { useState, useMemo, useEffect, useRef, useCallback } from 'react'
 import type { ProblemNode } from '../model/types';
 import { getNodeIdentityPresentation } from '../model/nodeIdentityPresentation';
 import type { UIElement } from '../domain/ui/uiElement.types';
+import { SETTINGS_ADAPTIVE_UI_CONFIG, SETTINGS_PANEL_ELEMENTS } from '../domain/ui/settingsElements';
+import { useDisabledPanelIds } from '../hooks/useDisabledPanelIds';
 import { AddNodeModal } from './AddNodeModal';
 import { Canvas, useThree, useFrame } from '@react-three/fiber';
 import { useMapStore } from '../store/mapStore';
@@ -117,13 +119,7 @@ import { presentMapNodeVisualStatus } from '../ricisSolutionCatalog';
 
 type PanelId = 'actions' | 'zones' | 'available' | 'agent' | 'persistence';
 
-const UI_ELEMENTS: UIElement[] = [
-  { id: 'actions', label: '', labelKey: 'panel.actions' },
-  { id: 'zones', label: '', labelKey: 'panel.zones' },
-  { id: 'available', label: '', labelKey: 'panel.available' },
-  { id: 'agent', label: '', labelKey: 'panel.agent' },
-  { id: 'persistence', label: '', labelKey: 'panel.persistence' },
-];
+const UI_ELEMENTS = SETTINGS_PANEL_ELEMENTS;
 
 const discoverablePanelIds = new Set<PanelId>(['persistence']);
 
@@ -501,13 +497,7 @@ export const Map3D: React.FC = () => {
     trackClick,
     switchRole,
     createRole
-  } = useAdaptiveUI({
-    elements: UI_ELEMENTS,
-    maxVisible: 3,
-    decayInterval: 10,
-    decayFactor: 0.9,
-    hysteresisDelta: 0.03
-  });
+  } = useAdaptiveUI(SETTINGS_ADAPTIVE_UI_CONFIG);
 
   const [openPanelIds, setOpenPanelIds] = useState<Set<PanelId>>(() => new Set());
   const initializedAdaptiveRoleRef = useRef<string | null>(null);
@@ -608,31 +598,7 @@ export const Map3D: React.FC = () => {
   })();
 
   const [showOverflow, setShowOverflow] = useState(false);
-  const [userDisabledPanelIds, setUserDisabledPanelIds] = useState<Set<string>>(() => {
-    try {
-      const saved = localStorage.getItem('ricis_disabled_panel_ids');
-      return saved ? new Set(JSON.parse(saved)) : new Set();
-    } catch {
-      return new Set();
-    }
-  });
-
-  const togglePanelVisibility = (panelId: string) => {
-    setUserDisabledPanelIds((prev) => {
-      const next = new Set(prev);
-      if (next.has(panelId)) {
-        next.delete(panelId);
-      } else {
-        next.add(panelId);
-      }
-      try {
-        localStorage.setItem('ricis_disabled_panel_ids', JSON.stringify(Array.from(next)));
-      } catch (e) {
-        console.error('Failed to save disabled panels', e);
-      }
-      return next;
-    });
-  };
+  const { userDisabledPanelIds, togglePanelVisibility } = useDisabledPanelIds();
 
   const projectedVisibleElements = useMemo(() => {
     const visiblePanelIds = new Set(visibleElements.map(element => element.id));
