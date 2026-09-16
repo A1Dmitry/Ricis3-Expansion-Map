@@ -2,7 +2,7 @@
   "boardVersion": "1.0.0",
   "system": "RICIS-III Expansion Map",
   "standard": "docs/00-governance/TOYOTA_TPS_WORKING_SYSTEM.md",
-  "generatedAt": "2026-09-16T08:49:07Z",
+  "generatedAt": "2026-09-16T08:54:04Z",
   "lanes": [
     {
       "id": "backlog",
@@ -99,58 +99,58 @@
       {
         "step": "release",
         "command": "npm run release:check",
-        "measuredMs": 892,
-        "sampleSize": 3,
-        "measuredAt": "2026-09-16T00:07:07Z",
-        "note": "Синхронизация версии + 13 тестов согласованности; 0.88–1.07 с."
+        "measuredMs": 997,
+        "sampleSize": 4,
+        "measuredAt": "2026-09-16T08:53:38Z",
+        "note": "Такт 3: 13/13, версия 0.4.198 синхронизирована."
       },
       {
         "step": "typecheck",
         "command": "npm run lint",
-        "measuredMs": 18260,
-        "sampleSize": 4,
-        "measuredAt": "2026-09-16T00:07:26Z",
-        "note": "tsc --noEmit: 17.0–18.5 с; стабильно на всём дереве (включая tools/ и scripts/)."
+        "measuredMs": 18535,
+        "sampleSize": 5,
+        "measuredAt": "2026-09-16T08:53:33Z",
+        "note": "Такт 3: tsc --noEmit на чистом дереве + board-дельта."
       },
       {
         "step": "test",
         "command": "npm test",
-        "measuredMs": 203084,
-        "sampleSize": 6,
-        "measuredAt": "2026-09-16T00:22:44Z",
-        "note": "Финальный зелёный прогон на слитом дереве: 2008/2008 (250 файлов). 202.3–213.1 с; горловина — jsdom startup 142.9 с."
+        "measuredMs": 215078,
+        "sampleSize": 7,
+        "measuredAt": "2026-09-16T08:52:55Z",
+        "note": "Такт 3, чистый коммит 38bcf82: 2012/2012 (250 файлов), +4 новых теста sweep/классификации."
       },
       {
         "step": "build",
         "command": "npm run build",
-        "measuredMs": 2769,
-        "sampleSize": 3,
-        "measuredAt": "2026-09-16T00:07:28Z",
-        "note": "2.68–3.0 с."
+        "measuredMs": 2746,
+        "sampleSize": 4,
+        "measuredAt": "2026-09-16T08:53:37Z",
+        "note": "Такт 3: крупнейший chunk 373.57 kB, предупреждения >500 kB нет."
       },
       {
         "step": "lineGate",
         "command": "npm run tps:gate",
-        "measuredMs": 780,
+        "measuredMs": 293,
+        "sampleSize": 12,
+        "measuredAt": "2026-09-16T08:54:03Z",
+        "note": "Такт 3: чисто на done-состоянии доски."
+      },
+      {
+        "step": "guardSuite",
+        "command": "npx vitest run tools/tpsStandardWork.test.ts",
+        "measuredMs": 1050,
         "sampleSize": 11,
-        "measuredAt": "2026-09-16T00:23:25Z",
-        "note": "0.5–0.9 с; именно этот гейт поймал обе устаревшие карточки до их закрытия."
+        "measuredAt": "2026-09-16T08:54:04Z",
+        "note": "Такт 3: 41/41 пока-ёке, включая sweep по живому реестру."
       },
       {
         "step": "guardSuite",
         "command": "npx vitest run tools/tpsStandardWork.test.ts",
-        "measuredMs": 370,
-        "sampleSize": 10,
-        "measuredAt": "2026-09-16T00:23:25Z",
-        "note": "37 тестов пока-ёке <0.4 с — точечный прогон перед коммитом (контрмера M-0006)."
-      },
-      {
-        "step": "guardSuite",
-        "command": "npx vitest run tools/tpsStandardWork.test.ts",
-        "measuredMs": 370,
-        "sampleSize": 10,
-        "measuredAt": "2026-09-16T00:23:25Z",
-        "note": "37 тестов пока-ёке <0.4 с — точечный прогон перед коммитом (контрмера M-0006)."
+        "measuredMs": 1050,
+        "sampleSize": 11,
+        "measuredAt": "2026-09-16T08:54:04Z",
+        "note": "Такт 3: 41/41 пока-ёке, включая sweep по живому реестру."
       }
     ]
   },
@@ -1036,8 +1036,8 @@
     {
       "id": "TPS-0010",
       "title": "Слепой страж перепроизводства: fail-safe классификация находок и sweep-тест по всему реестру (A-0009)",
-      "lane": "verify",
-      "status": "PARTIALLY_COMPLETED",
+      "lane": "done",
+      "status": "COMPLETED",
       "taskClass": "process",
       "owner": "agent:arena (Autonomous RCVAP cycle, takt 3)",
       "priority": "P0",
@@ -1079,7 +1079,61 @@
           "reason": "F-08 упомянут как пример-основатель правила и механики waiver; содержательная работа по самой находке закрыта выше (PR #47), этим циклом не выполняется."
         }
       ],
-      "startedAt": "2026-09-16T08:44:00Z"
+      "startedAt": "2026-09-16T08:44:00Z",
+      "closedAt": "2026-09-16T08:54:04Z",
+      "cycleTimeMs": 604000,
+      "verification": {
+        "auditor": "SELF (same-pipeline) — правило, тесты и A3 написаны и проверены этим циклом; находка F-* упоминаются как примеры формулировок, их substance не тянется",
+        "commands": [
+          {
+            "command": "npm run lint",
+            "exitCode": 0,
+            "measuredAt": "2026-09-16T08:53:33Z",
+            "durationMs": 18535,
+            "note": "tsc --noEmit на чистом дереве коммита 38bcf82 + board-дельта (типизация от доски не зависит)."
+          },
+          {
+            "command": "npm test",
+            "exitCode": 0,
+            "measuredAt": "2026-09-16T08:52:55Z",
+            "durationMs": 215078,
+            "note": "2012/2012, 250 файлов на чистом коммите 38bcf82 (TPS-0010 в verify). Дельта после — только board.json/BOARD.md; её покрывают tps:gate + guard-suite (единственные читатели доски)."
+          },
+          {
+            "command": "npm run build",
+            "exitCode": 0,
+            "measuredAt": "2026-09-16T08:53:37Z",
+            "durationMs": 2746,
+            "note": "Крупнейший chunk 373.57 kB, предупреждения >500 kB нет."
+          },
+          {
+            "command": "npm run release:check",
+            "exitCode": 0,
+            "measuredAt": "2026-09-16T08:53:38Z",
+            "durationMs": 997,
+            "note": "13/13, версия 0.4.198 синхронизирована."
+          },
+          {
+            "command": "npm run tps:gate",
+            "exitCode": 0,
+            "measuredAt": "2026-09-16T08:54:03Z",
+            "durationMs": 293,
+            "note": "Чисто на done-состоянии доски (все 6 проверок закрытия TPS-0010 на месте)."
+          },
+          {
+            "command": "npx vitest run tools/tpsStandardWork.test.ts",
+            "exitCode": 0,
+            "measuredAt": "2026-09-16T08:54:04Z",
+            "durationMs": 1050,
+            "note": "41/41: 4 новых теста (классификация, sweep по реестру, waiver-выходы, согласие сводки). Закрывающая перепроверка финальных метаданных — отдельным прогоном, в свидетельство не входит по построению (запись меняла бы доску)."
+          }
+        ]
+      },
+      "remainingRisks": [
+        "Словарь закрытия остаётся эвристикой: новая формулировка даст UNCLASSIFIED (стоп, не пропуск). Полное снятие — K-0011 (машиночитаемый status, решение владельца формата реестра).",
+        "Регекс ссылок F-\\d{2} не ловит lowercase/без-дефиса (латентно); расширение измерено как опасное (ложные срабатывания на hex-хешах). Оставлен как есть осознанно.",
+        "Свидетельство npm test снято на коммите 38bcf82 (TPS-0010 в verify); дельта после — только board.json/BOARD.md, покрыта tps:gate + guard-suite как единственными читателями доски."
+      ]
     }
   ]
 }
