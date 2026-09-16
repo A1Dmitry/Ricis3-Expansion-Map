@@ -7,6 +7,7 @@ import { describe, expect, it } from 'vitest';
 interface PackageManifest {
   readonly version: string;
   readonly packageManager?: string;
+  readonly scripts?: Readonly<Record<string, string>>;
   readonly license?: string;
   readonly homepage?: string;
   readonly bugs?: { readonly url?: string };
@@ -110,6 +111,20 @@ describe('release alignment policy', () => {
 
   it('declares npm as the primary package manager', () => {
     expect(packageManifest.packageManager ?? '').toMatch(/^npm@\d+\.\d+\.\d+/u);
+  });
+
+  it('stops pull-request verification on moderate-or-higher dependency vulnerabilities', () => {
+    const prWorkflow = readText('.github/workflows/pr-verify.yml');
+
+    expect(packageManifest.scripts?.['security:check']).toBe('npm audit --audit-level=moderate');
+    expect(prWorkflow).toContain('run: npm run security:check');
+
+    const installIndex = prWorkflow.indexOf('run: npm ci');
+    const auditIndex = prWorkflow.indexOf('run: npm run security:check');
+    const testIndex = prWorkflow.indexOf('run: npm test');
+    expect(installIndex).toBeGreaterThanOrEqual(0);
+    expect(auditIndex).toBeGreaterThan(installIndex);
+    expect(testIndex).toBeGreaterThan(auditIndex);
   });
 
   it('publishes complete research-software metadata', () => {

@@ -2,7 +2,7 @@
   "boardVersion": "1.0.0",
   "system": "RICIS-III Expansion Map",
   "standard": "docs/00-governance/TOYOTA_TPS_WORKING_SYSTEM.md",
-  "generatedAt": "2026-09-16T19:34:00Z",
+  "generatedAt": "2026-09-16T20:16:00Z",
   "lanes": [
     {
       "id": "backlog",
@@ -501,6 +501,47 @@
           "checkedOutcome": "Сверено: зафиксированы временная линия по коммитам, отброшенные гипотезы с основаниями и ручное воспроизведение «до/после»."
         }
       ]
+    },
+    {
+      "id": "A-0011",
+      "title": "Чистый npm ci устанавливал четыре moderate-уязвимости, а PR workflow не исполнял обязательный audit-гейт",
+      "severity": "medium",
+      "state": "CLOSED",
+      "openedAt": "2026-09-16T20:07:37Z",
+      "closedAt": "2026-09-16T20:10:45Z",
+      "affectedCardId": "TPS-0012",
+      "fact": "`npm ci` завершался сообщением `4 moderate severity vulnerabilities`; `npm audit --audit-level=moderate --json` → exit 1: @vitest/mocker/vitest 4.1.10 (GHSA-82fw-gwwq-j7x9) и qs 6.15.3 (GHSA-x5fp-wj9c-mxmx, GHSA-4mjr-xmp4-gh2g). В `.github/workflows/pr-verify.yml` после `npm ci` сразу шёл release/lint: команды npm audit не было.",
+      "whys": [
+        "Почему уязвимые версии установились? — lockfile фиксировал Vitest 4.1.10 и qs 6.15.3, попадающие в опубликованные advisory ranges; исправленные версии уже доступны в registry.",
+        "Почему состояние не остановило предыдущий PR? — `npm ci` сообщает vulnerabilities, но возвращает exit 0; CI не запускал `npm audit --audit-level=moderate` отдельной командой.",
+        "Почему обязательное правило AGENTS.md §3 не исполнялось машиной? — Оно было процедурой только для циклов изменения зависимостей, а releaseConsistency проверял npm ci и запрет global install, но не наличие security-гейта.",
+        "Почему одного обновления lockfile недостаточно? — advisory registry меняется независимо от репозитория; без PR-гейта следующий уже известный vulnerable range снова останется лишь предупреждением install-команды."
+      ],
+      "rootCause": "Требование выполнять npm audit после изменения зависимостей существовало только как ручная инструкция, а PR verification принимал `npm ci` exit 0 за достаточную проверку. Install-команда не падает на moderate advisories, поэтому vulnerable lockfile не имел машинного стоп-сигнала.",
+      "countermeasure": "Обновить прямые Vitest-пакеты до актуальной совместимой стабильной 5.0.1 и транзитивный qs до 6.16.0; добавить канонический `security:check` и запускать его после npm ci в PR verification; releaseConsistency фиксирует точную команду и порядок, а Pages deployment остаётся без сетевого audit-шага.",
+      "reverify": {
+        "command": "npm run security:check",
+        "exitCode": 0
+      },
+      "processChange": "`security:check` в package.json + обязательный PR-шаг в `.github/workflows/pr-verify.yml` + releaseConsistency guard на точную команду и порядок install → audit → test.",
+      "yokoten": [
+        {
+          "target": "package.json и packages/ricis-core-ts/package.json",
+          "checkedOutcome": "Обе прямые декларации Vitest переведены на одну major/minor 5.0.1; coverage provider имеет точный совместимый peer."
+        },
+        {
+          "target": "package-lock.json",
+          "checkedOutcome": "Проверено `npm ls`: vitest/@vitest/mocker/@vitest/coverage-v8 = 5.0.1, qs = 6.16.0; дубликатов уязвимой линии нет."
+        },
+        {
+          "target": ".github/workflows/pr-verify.yml",
+          "checkedOutcome": "Audit стоит после locked install и до тестов; deploy-pages.yml не изменён, уже опубликованный релиз не зависит от доступности advisory registry."
+        },
+        {
+          "target": "tools/releaseConsistency.test.ts",
+          "checkedOutcome": "Guard фиксирует script, CI-вызов и относительный порядок; профильный прогон 14/14."
+        }
+      ]
     }
   ],
   "kaizen": [
@@ -618,6 +659,16 @@
       "verificationCommand": "npx vitest run server/devHostPolicy.test.ts",
       "verificationExitCode": 0,
       "linkedAndonId": "A-0010"
+    },
+    {
+      "id": "K-0014",
+      "title": "Dependency advisories как PR-стоп: единый security:check после locked install, но вне Pages deployment",
+      "state": "DONE",
+      "owner": "agent:arena",
+      "expectedBenefit": "Уязвимый lockfile с advisory severity moderate или выше больше не проходит лишь с предупреждением npm ci: PR останавливается до мержа, при этом внешний registry не становится новой точкой отказа уже запущенного Pages deployment.",
+      "verificationCommand": "npm run security:check && npx vitest run tools/releaseConsistency.test.ts",
+      "verificationExitCode": 0,
+      "linkedAndonId": "A-0011"
     }
   ],
   "muda": [
@@ -699,6 +750,15 @@
       "linkedCardId": "TPS-0011",
       "linkedAndonId": "A-0010",
       "resolution": "Устранено инцидентным циклом 0.4.200: превью отвечает 200 на проксированный хост (было 403), обход модулей 208/208 → 200, страж 10/10 зелёный."
+    },
+    {
+      "id": "M-0015",
+      "klass": "defects",
+      "observation": "Четыре advisory-записи жили в воспроизводимом lockfile, но npm ci завершался exit 0, а 2071+ зелёных тестов не пересекали dependency-security слой; предупреждение можно было принять за несущественный шум и смержить.",
+      "eliminationPlan": "Исправленные зависимости плюс отдельный PR audit-гейт с release guard. Не добавлять audit в runtime/Pages deployment: качество создаётся до мержа, а не внешней сетевой проверкой при публикации.",
+      "linkedCardId": "TPS-0012",
+      "linkedAndonId": "A-0011",
+      "resolution": "Vitest/mocker/coverage = 5.0.1, qs = 6.16.0; npm audit --audit-level=moderate → exit 0, 0 vulnerabilities; PR workflow и release guard требуют повторять проверку."
     }
   ],
   "cards": [
@@ -1348,6 +1408,81 @@
         "Транспортный канал проверяется локальным стражем (vitest + HTTP через Vite-мидлварь), но не шагом CI: проба не поднимает реальный процесс `npm run dev`. Перенос в CI — кандидат в кайдзен, пока не сделан.",
         "Доступность опубликованного сайта (GitHub Pages) этим циклом не проверялась: из песочницы внешний HTTPS-эгресс недоступен (TLS-ошибка соединения). Утверждения о Pages в свидетельство не входят.",
         "Свидетельство `npm test` снято на коммите 1054eea; дельта после него — только `board.json`/`BOARD.md` (генератор витрины), их читают `tps:gate` и guard-suite, прогон которых зелёный."
+      ]
+    },
+    {
+      "id": "TPS-0012",
+      "title": "Уязвимый lockfile: обновление Vitest/qs и обязательный npm-audit гейт до мержа",
+      "lane": "verify",
+      "status": "PARTIALLY_COMPLETED",
+      "taskClass": "ci",
+      "owner": "agent:arena (автономный цикл RCVAP, security dependency maintenance)",
+      "priority": "P0",
+      "workPattern": "P-01, P-07, P-09, P-11",
+      "originalGoal": "Продолжить цикл разработки с фактического состояния зависимостей: устранить обнаруженные npm audit moderate-уязвимости без понижения пакетов или force-обходов и сделать так, чтобы уязвимый lockfile больше нельзя было незаметно смержить, сохранив стабильность отдельного Pages deployment-пути.",
+      "acceptanceCriteria": [
+        "`npm audit --audit-level=moderate` на чистом `npm ci` завершается exit 0 (до ремонта: exit 1, четыре moderate-записи).",
+        "Vitest и coverage provider обновлены во всех workspace-манифестах до актуальной совместимой стабильной версии; транзитивный qs разрешён в первую исправленную версию или новее; package.json и package-lock.json синхронны.",
+        "PR workflow исполняет единый `npm run security:check` строго после `npm ci` и до полного теста; Pages deployment workflow не получает сетевую точку отказа.",
+        "Статический release-страж краснеет при удалении/переименовании audit-скрипта или CI-шага и фиксирует порядок install → audit → test.",
+        "Чистые npm ci, security:check, lint, полный npm test и build завершаются exit 0 на Vitest 5."
+      ],
+      "sourceRef": "ACTIVE_TASKS.md",
+      "challenger": {
+        "attackedSubstitution": "Как ремонт мог бы выглядеть успешным при живом классе дефекта? Только обновить lockfile до сегодняшней зелени: следующий advisory снова появился бы между циклами и не остановил ни один PR. Обратная подмена — встроить сетевой audit в Pages deployment и выдать потенциальный outage публикации за безопасность. Поэтому контрмера состоит из двух частей: исправленные версии плюс audit именно в PR verify, а release-страж проверяет наличие и порядок шага.",
+        "independentFormOfEvidence": "Оракул содержательной проверки — npm advisory registry через `npm audit --audit-level=moderate`, отдельно от написанного нами статического теста. Совместимость новой major-линии проверяется полным набором Vitest, TypeScript и production build; до committed-состояния полный прогон честно остаётся красным только на известном OIR03-QA-36."
+      },
+      "andonIds": [
+        "A-0011"
+      ],
+      "kaizenIds": [
+        "K-0014"
+      ],
+      "startedAt": "2026-09-16T20:07:00Z",
+      "verification": {
+        "auditor": "SELF (same-pipeline) — зависимости и CI-гейт изменены и проверяются этим же циклом; npm advisory registry является внешним источником данных, но не внешним аудитом приложения",
+        "commands": [
+          {
+            "command": "npm ci",
+            "exitCode": 0,
+            "measuredAt": "2026-09-16T20:10:45Z",
+            "durationMs": 6522,
+            "note": "Чистая установка из обновлённого lockfile; 264 пакета, install-time audit: 0 vulnerabilities."
+          },
+          {
+            "command": "npm run security:check",
+            "exitCode": 0,
+            "measuredAt": "2026-09-16T20:10:45Z",
+            "durationMs": 1140,
+            "note": "Фактический npm audit --audit-level=moderate: 0 vulnerabilities; до ремонта команда возвращала exit 1 и 4 moderate."
+          },
+          {
+            "command": "npm run lint",
+            "exitCode": 0,
+            "measuredAt": "2026-09-16T20:10:39Z",
+            "durationMs": 20528,
+            "note": "TypeScript strict-проверка после Vitest 5 и нового release-контракта."
+          },
+          {
+            "command": "npm run build",
+            "exitCode": 0,
+            "measuredAt": "2026-09-16T20:15:06Z",
+            "durationMs": 3065,
+            "note": "Release check 14/14 + node-entry generation + Vite production build + server bundle."
+          },
+          {
+            "command": "npx vitest run tools/releaseConsistency.test.ts",
+            "exitCode": 0,
+            "measuredAt": "2026-09-16T20:10:20Z",
+            "durationMs": 1503,
+            "note": "14/14, включая новый контракт install → security audit → test."
+          }
+        ]
+      },
+      "remainingRisks": [
+        "Финальный полный npm test должен быть повторён после коммита: текущий dirty-tree прогон дал 2075/2076, единственное ожидаемое падение — OIR03-QA-36, который по контракту принимает только reviewed candidate paths или clean committed state.",
+        "`npm audit` видит только advisories npm registry и граф npm-зависимостей; он не является SAST/DAST и не доказывает отсутствие уязвимостей приложения.",
+        "Vitest 5.0.1 совместим по engines/peerDependencies и прошёл 2075 содержательных тестов, но полный зелёный прогон до перехода карточки в done ещё не записан."
       ]
     }
   ]

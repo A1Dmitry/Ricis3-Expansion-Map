@@ -4,7 +4,7 @@
 [![Formal Verification](https://img.shields.io/badge/Formal%20Verification-Lean%204.33.1-blue.svg)](https://lean-lang.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-**Версия: 0.4.200**
+**Версия: 0.4.201**
 
 Интерактивная исследовательская карта сингулярностей, ориентированный граф доказательств (Blueprint DAG) и аналитический вычислительный движок на базе аксиоматической системы **RICIS-III v7.7** (Recursive Indexed Calculus of Identity and Singularity).
 
@@ -184,7 +184,7 @@ npm ci
 # Проверка согласованности релизных контрактов
 npm run release:check
 
-# Запуск полного набора тестов (2071 unit-тест Vitest, 259 тест-файлов — v0.4.200)
+# Запуск полного набора тестов (2076 unit-тестов Vitest, 260 тест-файлов — v0.4.201)
 npm test
 
 # Статическая проверка типов TypeScript (strict: true)
