@@ -690,6 +690,11 @@ describe('OIR-03 — audit proof-synthesis containment', () => {
       ' M src/ui/RoadmapPage.tsx',
       ' M src/ui/RoadmapPage.test.tsx',
       ' M src/ui/uiControlWiring.topology.test.ts',
+
+      // AUDIT-2026-09-16 BUG-05: AlgebraicSimplifier — guard целого n в [2..64]
+      // (DoS-защита) + полная проверка multiply-chain (все листья = Parameter(x)).
+      ' M packages/ricis-core-ts/src/engine/AlgebraicSimplifier.ts',
+      '?? packages/ricis-core-ts/src/engine/AlgebraicSimplifier.test.ts',
     ]);
     if (status.length > 0 && status.every(entry => entry.startsWith('?? '))) {
       // In clean container environments git status may return all files as untracked
