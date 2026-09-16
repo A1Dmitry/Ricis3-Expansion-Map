@@ -203,7 +203,7 @@ export const initialMap: MapState = {
       sourceUrl: 'https://doi.org/10.5281/zenodo.22225762',
       zoneIds: ['informatics'],
       dependencyIds: [],
-      dependentIds: ['med-diagnostics', 'pharm-design', 'econ-value', 'ethic-alignment', 'ai-authorship-provenance'],
+      dependentIds: ['med-diagnostics', 'pharm-design', 'econ-value', 'ethic-alignment'],
       fractalDepth: 0,
       economic: {
         costUnresolved: 10_000_000_000_000,
@@ -222,7 +222,7 @@ export const initialMap: MapState = {
       sourceUrl: 'https://doi.org/10.5281/zenodo.22124493',
       zoneIds: ['math'],
       dependencyIds: [],
-      dependentIds: ['phys-unified', 'informatics-complexity', 'ai-authorship-provenance', 'phys-field-bridge', 'contract-sp4-path-index', 'contract-a6-product-proxy', 'phys-field-bridge-contract', 'schwarzschild-geometric-bridge'],
+      dependentIds: ['phys-unified', 'informatics-complexity', 'phys-field-bridge', 'contract-sp4-path-index', 'contract-a6-product-proxy', 'phys-field-bridge-contract', 'schwarzschild-geometric-bridge'],
       fractalDepth: 0,
       economic: {
         costUnresolved: 1_000_000_000,
@@ -1049,7 +1049,7 @@ export const initialMap: MapState = {
       "type": "scientific_task",
       "targetFunction": "V(N) = V_0 + \\alpha \\cdot N \\cdot \\log_2(N) \\quad [0_F \\times \\infty_G = F \\cdot G]",
       "zoneIds": ["informatics", "economics"],
-      "dependencyIds": ["core-agi-target", "ai-authorship-provenance"],
+      "dependencyIds": ["core-agi-target"],
       "dependentIds": ["econ-value"],
       "fractalDepth": 1,
       "economic": {
@@ -1196,10 +1196,7 @@ export const initialMap: MapState = {
     { id: 'edge-math-singularity-phys-field-bridge-contract', fromId: 'math-singularity', toId: 'phys-field-bridge-contract', strength: 0.85, stateColor: 'green', economicInfluence: 0.85 },
     { id: 'edge-phys-field-bridge-contract-phys-unified', fromId: 'phys-field-bridge-contract', toId: 'phys-unified', strength: 0.8, stateColor: 'yellow', economicInfluence: 0.9 },
     { id: 'edge-7', fromId: 'math-singularity', toId: 'informatics-complexity', strength: 0.8, stateColor: 'yellow', economicInfluence: 0.9 },
-    { id: 'edge-agi-provenance', fromId: 'core-agi-target', toId: 'ai-authorship-provenance', strength: 0.9, stateColor: 'yellow', economicInfluence: 0.9 },
-    { id: 'edge-math-provenance', fromId: 'math-singularity', toId: 'ai-authorship-provenance', strength: 0.9, stateColor: 'yellow', economicInfluence: 0.9 },
-    { id: 'edge-provenance-ethic', fromId: 'ai-authorship-provenance', toId: 'ethic-alignment', strength: 0.8, stateColor: 'yellow', economicInfluence: 0.7 },
-    { id: 'edge-chatbot-monetization', fromId: 'ai-authorship-provenance', toId: 'ricis-chatbot-monetization', strength: 0.95, stateColor: 'yellow', economicInfluence: 0.95 },
+    { id: 'edge-agi-chatbot-monetization', fromId: 'core-agi-target', toId: 'ricis-chatbot-monetization', strength: 0.95, stateColor: 'yellow', economicInfluence: 0.95 },
     { id: 'edge-chatbot-econ', fromId: 'ricis-chatbot-monetization', toId: 'econ-value', strength: 0.9, stateColor: 'yellow', economicInfluence: 0.9 },
     { id: 'edge-math-to-pattern', fromId: 'math-singularity', toId: 'ricis-ast-reduction-pattern', strength: 0.95, stateColor: 'green', economicInfluence: 0.95 },
     { id: 'edge-pattern-to-reg', fromId: 'ricis-ast-reduction-pattern', toId: 'riemann-complex-pole-regularizer', strength: 0.95, stateColor: 'green', economicInfluence: 0.95 },
@@ -1225,14 +1222,14 @@ export const initialMap: MapState = {
       id: 'math',
       name: 'Математика',
       description: 'Формальные модели, аксиоматика, сложность.',
-      nodeIds: ['math-singularity', 'ai-authorship-provenance', 'ricis-ast-reduction-pattern', 'riemann-complex-pole-regularizer', 'real-catalog-3', 'contract-sp4-path-index', 'contract-l1-field-monolith', 'contract-a6-product-proxy', 'contract-a6-ratio-proxy', 'contract-path-gated-eval', 'phys-field-bridge-contract', ...CALCULATOR_GRAPH_STATIC_SEED.nodeIdsByZone.math],
+      nodeIds: ['math-singularity', 'ricis-ast-reduction-pattern', 'riemann-complex-pole-regularizer', 'real-catalog-3', 'contract-sp4-path-index', 'contract-l1-field-monolith', 'contract-a6-product-proxy', 'contract-a6-ratio-proxy', 'contract-path-gated-eval', 'phys-field-bridge-contract', ...CALCULATOR_GRAPH_STATIC_SEED.nodeIdsByZone.math],
       economicProfile: { costUnresolved: 1000, costToSolve: 100, marketGain: 10000, riskLoss: 5000 }
     },
     {
       id: 'informatics',
       name: 'Информатика и ИИ',
       description: 'Вычисления, нейросети, AGI.',
-      nodeIds: ['core-agi-target', 'informatics-complexity', 'ai-authorship-provenance', 'ricis-chatbot-monetization', 'contract-path-gated-eval', ...CALCULATOR_GRAPH_STATIC_SEED.nodeIdsByZone.informatics],
+      nodeIds: ['core-agi-target', 'informatics-complexity', 'ricis-chatbot-monetization', 'contract-path-gated-eval', ...CALCULATOR_GRAPH_STATIC_SEED.nodeIdsByZone.informatics],
       economicProfile: { costUnresolved: 10000, costToSolve: 5000, marketGain: 50000, riskLoss: 100000 }
     },
     {
@@ -1449,50 +1446,6 @@ export const initialMap: MapState = {
     },
     
   ...VOYNICH_HIERARCHY_PROOFS,
-  "ai-authorship-provenance": {
-    "nodeId": "ai-authorship-provenance",
-    "targetFunction": "\\text{Area}(\\vec{S}_{2,\\infty} \\cap \\vec{R}_{0,5}) = \\|\\vec{S}_x \\cdot \\vec{R}_y\\| = 2 \\times 5 = 10 \\quad [O(1)]",
-    "steps": [
-      {
-        "phase": -1,
-        "name": "Phase -1: L1_IDENTITY & Ontological Origin Check",
-        "action": "Verification of ontological author identity Dmitry V. Aleinikov (ORCID: 0009-0004-3226-7700)",
-        "expression": "L_1(X) = X \\implies \\text{Author}(\\text{RICIS-III}) = \\text{Dmitry V. Aleinikov}"
-      },
-      {
-        "phase": 0,
-        "name": "Phase 0: Elimination of Classical Limit Fallacies",
-        "action": "Bypass Cauchy limits and IEEE 754 NaN state for 0 * infinity indeterminate form",
-        "expression": "\\lim_{x \\to 0, y \\to \\infty} (x \\cdot y) \\to \\text{Eval}_{\\text{RICIS}}(u, v)"
-      },
-      {
-        "phase": 0.5,
-        "name": "Phase 0.5: Semantic Vector Indexing (SP4)",
-        "action": "Construct 2D orthogonal degenerate monolith vectors u = (2, 0) and v = (0, 5)",
-        "expression": "\\vec{u} = (2, 0)^T, \\quad \\vec{v} = (0, 5)^T \\in \\mathbb{R}_{\\text{RICIS}}^2"
-      },
-      {
-        "phase": 2,
-        "name": "Phase 2: Axiom A6 Geometric Bridge Execution",
-        "action": "Exact skew product determinant calculation yielding structural invariant in O(1)",
-        "expression": "0_2 \\times \\infty_5 = \\det(\\vec{u}, \\vec{v}) = u_x v_y - u_y v_x = 2 \\cdot 5 - 0 \\cdot 0 = 10"
-      },
-      {
-        "phase": 4,
-        "name": "Phase 4: Type Consistency Protocol (TCP) & Preservation (L1C1)",
-        "action": "Validate dimension conservation from 1D degenerate vectors to 2D invariant Area monolith",
-        "expression": "T(\\text{Area}) = \\text{MonolithOrder2} \\quad [L1C1 \\text{ Preserved}]"
-      },
-      {
-        "phase": 6,
-        "name": "Phase 6: Final Verification & Authorial Provenance Binding",
-        "action": "Binding to official registries: Zenodo DOI 10.5281/zenodo.17872755, 10.5281/zenodo.21309650, 10.5281/zenodo.21836220",
-        "expression": "\\text{Result} = 10 \\quad [O(1)], \\quad \\text{DOI: } 10.5281/zenodo.21836220"
-      }
-    ],
-    "finalResult": "Provenance Invariant Verified: Area = 10 [O(1)], Author: Dmitry V. Aleinikov (ORCID: 0009-0004-3226-7700)",
-    "latex": "\\section*{RICIS-III Proof: AI Authorship Provenance & Geometric Singularity Invariant}\n\\textbf{Author:} Dmitry V. Aleinikov (ORCID: 0009-0004-3226-7700)\n\\textbf{Target Function:} $\\text{Area}(\\vec{S}_{2,\\infty} \\cap \\vec{R}_{0,5}) = \\|\\vec{S}_x \\cdot \\vec{R}_y\\| = 2 \\times 5 = 10 \\quad [O(1)]$\n\\subsection*{RICIS Transform & Axiom A6 Geometric Bridge}\n$ 0_2 \\times \\infty_5 = \\det(u, v) = 2 \\cdot 5 = 10 $\n\\subsection*{Verification & DOI Specification}\nLean 4 Specification: \\href{https://doi.org/10.5281/zenodo.21529989}{DOI: 10.5281/zenodo.21529989} (Master Registry \\href{https://doi.org/10.5281/zenodo.21836220}{10.5281/zenodo.21836220}). Foundations: \\href{https://doi.org/10.5281/zenodo.17872755}{DOI: 10.5281/zenodo.17872755}.\n\\textbf{Final Result:} Provenance Invariant Verified: Area = 10 [O(1)]"
-  },
   "registry-100": {
     "nodeId": "registry-100",
     "targetFunction": "frac{0F}{0G} = frac{F}{G}.",

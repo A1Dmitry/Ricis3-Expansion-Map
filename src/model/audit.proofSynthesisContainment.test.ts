@@ -734,6 +734,13 @@ describe('OIR-03 — audit proof-synthesis containment', () => {
       ' M docs/05-evidence/architecture/structural-hash-report.md',
       ' M docs/05-evidence/architecture/telegram-tokenpool-remediation-2026-08-18.md',
       ' M docs/05-evidence/proofs/lean-boundary-audit-2026-08-18.md',
+
+      // REGRESSION FIX (main 91b43b9): завершение удаления узла
+      // ai-authorship-provenance — висячие ссылки ломали SHA-128 миграцию
+      // (dangling_reference) и 10 тестов, включая гидрацию канонической карты.
+      ' M src/model/initialMap.ts',
+      ' M src/model/auditResolution.test.ts',
+      ' M src/ui/NodeCardDetails.tsx',
     ]);
     if (status.length > 0 && status.every(entry => entry.startsWith('?? '))) {
       // In clean container environments git status may return all files as untracked
