@@ -43,7 +43,7 @@ _пусто_
 | `TPS-0006` L9: узел registry-120 в src/model/initialMap.ts остаётся TRUSTED_AXIOM без ядерного основания | docs | PARTIALLY_COMPLETED | владелец проекта | — | — | src/model/initialMap.ts |
 | `TPS-0007` F-14: ricis-yang-mills.lean — ремонт импорта как новая версия доказательства + решение о allowlist MATHLIB_ARTIFACTS | ci | PARTIALLY_COMPLETED | владелец проекта + агент (после решения) | — | — | artifacts/proofs/ricis-yang-mills.lean |
 
-## DONE (годная деталь) — 5/∞
+## DONE (годная деталь) — 6/∞
 
 | Карточка | Класс | Статус | Владелец | Цикл | Проверка | Anchor |
 |---|---|---|---|---|---|---|
