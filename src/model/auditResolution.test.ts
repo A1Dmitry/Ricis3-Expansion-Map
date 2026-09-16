@@ -1,51 +1,39 @@
 import { describe, it, expect } from 'vitest';
-import { initialMap } from './initialMap';
+import { initialMap, deepCopyInitialMap } from './initialMap';
 import { auditProofContent, LEAN_SPEC_URL, OFFICIAL_ZENODO_DOIS } from './ricisCoreRules';
-import { hasWeakProofOrMissingTarget, findNodesMissingTarget, recolorEdgesForTargets } from './audit';
+import { migrateMapNodeIdentitySync } from './nodeIdentityMigration';
 import type { ProblemNode, Proof, ExternalLeanTrustStatus } from './types';
 
 describe('RICIS-III Audit Resolution & Graph Integrity (QA Automation Suite)', () => {
-  describe('1. Node ai-authorship-provenance Resolution (P0 Integrity)', () => {
-    it('has a valid Proof record in initialMap.proofs with high quality score >= 80', () => {
-      const node = initialMap.nodes.find(n => n.id === 'ai-authorship-provenance');
-      expect(node).toBeDefined();
-      expect(node?.state).toBe('resolved');
+  // Node ai-authorship-provenance was removed by the owner (commit 91b43b9).
+  // The removal initially left dangling references that broke hydration and
+  // every patch dry-run (SHA-128 migration rejects dangling_reference), so the
+  // block now guards the general invariant instead of the removed node.
+  describe('1. Canonical graph integrity: no dangling references (P0 Integrity)', () => {
+    it('every edge endpoint and cross-node reference points to an existing node', () => {
+      const nodeIds = new Set(initialMap.nodes.map(n => n.id));
 
-      const proof = initialMap.proofs['ai-authorship-provenance'];
-      expect(proof).toBeDefined();
-      expect(proof.nodeId).toBe('ai-authorship-provenance');
-      expect(proof.latex).toBeDefined();
-      expect(proof.steps).toBeDefined();
-      expect(proof.steps.length).toBeGreaterThanOrEqual(4);
-
-      const audit = auditProofContent(proof.latex);
-      expect(audit.isValid).toBe(true);
-      expect(audit.score).toBeGreaterThanOrEqual(80);
-      expect(audit.containsLeanRef).toBe(true);
-      expect(audit.containsAxiomA6).toBe(true);
-      expect(audit.issues).toHaveLength(0);
+      for (const edge of initialMap.edges) {
+        expect(nodeIds.has(edge.fromId), `edge ${edge.id}: fromId '${edge.fromId}' must exist`).toBe(true);
+        expect(nodeIds.has(edge.toId), `edge ${edge.id}: toId '${edge.toId}' must exist`).toBe(true);
+      }
+      for (const node of initialMap.nodes) {
+        for (const dep of node.dependencyIds ?? []) {
+          expect(nodeIds.has(dep), `node ${node.id}: dependencyId '${dep}' must exist`).toBe(true);
+        }
+        for (const dep of node.dependentIds ?? []) {
+          expect(nodeIds.has(dep), `node ${node.id}: dependentId '${dep}' must exist`).toBe(true);
+        }
+      }
     });
 
-    it('is not flagged as missing target or weak proof by the audit engine', () => {
-      const node = initialMap.nodes.find(n => n.id === 'ai-authorship-provenance')!;
-      const proof = initialMap.proofs['ai-authorship-provenance'];
-
-      expect(hasWeakProofOrMissingTarget(node, proof)).toBe(false);
-
-      const missingNodes = findNodesMissingTarget(initialMap);
-      expect(missingNodes.some(n => n.id === 'ai-authorship-provenance')).toBe(false);
+    it('the canonical map passes the SHA-128 identity migration (hydration gate)', () => {
+      expect(() => migrateMapNodeIdentitySync(deepCopyInitialMap())).not.toThrow();
     });
 
-    it('colors incoming and outgoing edges for ai-authorship-provenance consistently', () => {
-      const edges = recolorEdgesForTargets(initialMap);
-      const provEdges = edges.filter(
-        e => e.fromId === 'ai-authorship-provenance' || e.toId === 'ai-authorship-provenance'
-      );
-      expect(provEdges.length).toBeGreaterThan(0);
-      // Connected edges between fully resolved and proven nodes should be green
-      const agiToProv = provEdges.find(e => e.fromId === 'core-agi-target' && e.toId === 'ai-authorship-provenance');
-      expect(agiToProv).toBeDefined();
-      expect(agiToProv?.stateColor).toBe('green');
+    it('the removed ai-authorship-provenance node leaves no trace in the canonical map', () => {
+      expect(initialMap.nodes.some(n => n.id === 'ai-authorship-provenance')).toBe(false);
+      expect(JSON.stringify(initialMap)).not.toContain('ai-authorship-provenance');
     });
   });
 

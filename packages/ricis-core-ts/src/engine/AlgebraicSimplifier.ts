@@ -1,5 +1,21 @@
 import { Expression, AST, BinaryExpression, FunctionExpression, SingularityExpression, DerivativeExpression } from '../ast/ExpressionTypes';
 
+/**
+ * Hard upper bound for polynomial expansion of (x^n - a^n)/(x - a).
+ * Without it n = 1e9 would attempt to build a billion AST nodes (hang/OOM).
+ */
+export const MAX_POLY_EXPANSION_EXPONENT = 64;
+
+/**
+ * A polynomial factorization of (x^n - a^n)/(x - a) is only exact for
+ * integer n >= 2 within the expansion bound. Fractional or negative
+ * exponents must stay symbolic (previously x^(-2) folded to Const(0) and
+ * x^0.5 produced garbage terms — BUG-05).
+ */
+function isFactorizableExponent(n: number): boolean {
+  return Number.isInteger(n) && n >= 2 && n <= MAX_POLY_EXPANSION_EXPONENT;
+}
+
 export class AlgebraicSimplifier {
   /**
    * Evaluates constant expressions purely symbolically.
@@ -144,27 +160,31 @@ export class AlgebraicSimplifier {
               const n = powExp;
               const lRight = lSub.right;
               const rRight = rSub.right; // 'a'
-              
-              if (rRight.nodeType === 'Constant' && lRight.nodeType === 'Constant') {
-                 const a = (rRight as any).value;
-                 const an = (lRight as any).value;
-                 if (Math.pow(a, n) === an) {
-                    // Factorize!
-                    return this.buildPolynomialSum(xNode, a, n);
-                 }
-              } else if (lRight.nodeType === 'Constant' && (lRight as any).value === 1 && rRight.nodeType === 'Constant' && (rRight as any).value === 1) {
-                 // (x^n - 1) / (x - 1)
-                 return this.buildPolynomialSum(xNode, 1, n);
+
+              if (isFactorizableExponent(n)) {
+                if (rRight.nodeType === 'Constant' && lRight.nodeType === 'Constant') {
+                   const a = (rRight as any).value;
+                   const an = (lRight as any).value;
+                   if (Math.pow(a, n) === an) {
+                      // Factorize!
+                      return this.buildPolynomialSum(xNode, a, n);
+                   }
+                } else if (lRight.nodeType === 'Constant' && (lRight as any).value === 1 && rRight.nodeType === 'Constant' && (rRight as any).value === 1) {
+                   // (x^n - 1) / (x - 1)
+                   return this.buildPolynomialSum(xNode, 1, n);
+                }
               }
             } else if (lSub.left.nodeType === 'Multiply') {
-                // (x*x*x*x - 1) / (x - 1)
-                // We'll skip complex arbitrary parsing and stick to standard Pow for now, but handle L8
-                let count = this.countMultiplyChain(lSub.left, (xNode as any).name);
-                if (count > 1 && lSub.right.nodeType === 'Constant' && rSub.right.nodeType === 'Constant') {
+                // (x*x*x*x - 1) / (x - 1): factorize ONLY when every leaf of the
+                // chain is exactly the same parameter x (BUG-05: (x*y*x - 1)/(x - 1)
+                // silently dropped y and returned a wrong polynomial).
+                const chain = this.countMultiplyChain(lSub.left, (xNode as any).name);
+                if (chain.xCount > 1 && chain.foreignCount === 0
+                    && lSub.right.nodeType === 'Constant' && rSub.right.nodeType === 'Constant') {
                      const a = (rSub.right as any).value;
                      const an = (lSub.right as any).value;
-                     if (Math.pow(a, count) === an) {
-                        return this.buildPolynomialSum(xNode, a, count);
+                     if (Math.pow(a, chain.xCount) === an) {
+                        return this.buildPolynomialSum(xNode, a, chain.xCount);
                      }
                 }
             }
@@ -192,12 +212,19 @@ export class AlgebraicSimplifier {
     return node;
   }
 
-  private static countMultiplyChain(node: Expression, varName: string): number {
-      if (node.nodeType === 'Parameter' && (node as any).name === varName) return 1;
+  /**
+   * Counts leaves of a multiply chain: how many are exactly Parameter(varName)
+   * and how many are foreign sub-expressions. A chain is factorizable as
+   * x^count only when foreignCount === 0.
+   */
+  private static countMultiplyChain(node: Expression, varName: string): { xCount: number; foreignCount: number } {
+      if (node.nodeType === 'Parameter' && (node as any).name === varName) return { xCount: 1, foreignCount: 0 };
       if (node.nodeType === 'Multiply') {
-          return this.countMultiplyChain((node as BinaryExpression).left, varName) + this.countMultiplyChain((node as BinaryExpression).right, varName);
+          const left = this.countMultiplyChain((node as BinaryExpression).left, varName);
+          const right = this.countMultiplyChain((node as BinaryExpression).right, varName);
+          return { xCount: left.xCount + right.xCount, foreignCount: left.foreignCount + right.foreignCount };
       }
-      return 0;
+      return { xCount: 0, foreignCount: 1 };
   }
 
   public static areEqual(a: Expression, b: Expression): boolean {

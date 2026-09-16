@@ -39,6 +39,7 @@ import type { AppletId } from '../../types/appletRegistry';
 import { APPLET_DEFINITIONS } from '../../types/appletRegistry';
 import { AppletNavigationService } from '../../services/AppletNavigationService';
 import { UrlShareService } from '../../services/UrlShareService';
+import { copyTextToClipboard } from '../../services/clipboard';
 import type { CommandContext } from '../../types/commandTypes';
 import { CommandRegistry } from '../../services/commandRegistry';
 
@@ -83,11 +84,11 @@ export const CompactCommandMenuBar: React.FC<CompactCommandMenuBarProps> = ({
 
   const handleCopyShareLink = () => {
     const shareUrl = UrlShareService.generateShareUrl({ applet: activeApplet });
-    navigator.clipboard.writeText(shareUrl).then(() => {
-      setCopiedLink(true);
-      setTimeout(() => setCopiedLink(false), 2000);
-    }).catch(() => {
-      // fallback
+    void copyTextToClipboard(shareUrl).then((copied) => {
+      if (copied) {
+        setCopiedLink(true);
+        setTimeout(() => setCopiedLink(false), 2000);
+      }
     });
   };
 
@@ -122,23 +123,29 @@ export const CompactCommandMenuBar: React.FC<CompactCommandMenuBarProps> = ({
           <span>RICIS-III</span>
         </div>
 
-        {/* Browser Back / Forward Buttons */}
+        {/* Browser Back / Forward Buttons (disabled until in-app history exists —
+            BUG-08: previously an empty stack fell through to window.history.back()
+            and silently ejected the user from the app) */}
         <div className="flex items-center bg-neutral-900 border border-neutral-800 rounded p-0.5">
           <button
             type="button"
+            disabled={!AppletNavigationService.canGoBack()}
             onClick={() => AppletNavigationService.goBack()}
-            className="p-1 text-slate-400 hover:text-white hover:bg-neutral-800 rounded transition-colors disabled:opacity-30"
-            title="Назад (Browser Back)"
+            className="p-1 text-slate-400 hover:text-white hover:bg-neutral-800 rounded transition-colors disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:text-slate-400 disabled:cursor-not-allowed"
+            title={AppletNavigationService.canGoBack() ? 'Назад (Browser Back)' : 'Назад: история пуста'}
             aria-label="Browser Back"
+            aria-disabled={!AppletNavigationService.canGoBack()}
           >
             <ChevronLeft size={14} />
           </button>
           <button
             type="button"
+            disabled={!AppletNavigationService.canGoForward()}
             onClick={() => AppletNavigationService.goForward()}
-            className="p-1 text-slate-400 hover:text-white hover:bg-neutral-800 rounded transition-colors disabled:opacity-30"
-            title="Вперёд (Browser Forward)"
+            className="p-1 text-slate-400 hover:text-white hover:bg-neutral-800 rounded transition-colors disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:text-slate-400 disabled:cursor-not-allowed"
+            title={AppletNavigationService.canGoForward() ? 'Вперёд (Browser Forward)' : 'Вперёд: история пуста'}
             aria-label="Browser Forward"
+            aria-disabled={!AppletNavigationService.canGoForward()}
           >
             <ChevronRight size={14} />
           </button>

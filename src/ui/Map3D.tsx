@@ -2,6 +2,8 @@ import React, { useState, useMemo, useEffect, useRef, useCallback } from 'react'
 import type { ProblemNode } from '../model/types';
 import { getNodeIdentityPresentation } from '../model/nodeIdentityPresentation';
 import type { UIElement } from '../domain/ui/uiElement.types';
+import { SETTINGS_ADAPTIVE_UI_CONFIG, SETTINGS_PANEL_ELEMENTS } from '../domain/ui/settingsElements';
+import { useDisabledPanelIds } from '../hooks/useDisabledPanelIds';
 import { AddNodeModal } from './AddNodeModal';
 import { Canvas, useThree, useFrame } from '@react-three/fiber';
 import { useMapStore } from '../store/mapStore';
@@ -72,6 +74,8 @@ import { TelegramBotPanel } from './TelegramBotPanel';
 import { AgentLogModal } from './AgentLogModal';
 import { LatexRenderer } from './LatexRenderer';
 import { useAdaptiveUI } from '../hooks/useAdaptiveUI';
+import { useRicisCommand } from '../hooks/useRicisCommand';
+import { RICIS_COMMAND_EVENTS, dispatchRicisCommand } from '../services/commandBus';
 import { useMobileLayout } from '../hooks/useMobileLayout';
 import { useMobileViewStack } from '../hooks/useMobileViewStack';
 import { useImmersiveCanvas } from '../hooks/useImmersiveCanvas';
@@ -115,13 +119,7 @@ import { presentMapNodeVisualStatus } from '../ricisSolutionCatalog';
 
 type PanelId = 'actions' | 'zones' | 'available' | 'agent' | 'persistence';
 
-const UI_ELEMENTS: UIElement[] = [
-  { id: 'actions', label: '', labelKey: 'panel.actions' },
-  { id: 'zones', label: '', labelKey: 'panel.zones' },
-  { id: 'available', label: '', labelKey: 'panel.available' },
-  { id: 'agent', label: '', labelKey: 'panel.agent' },
-  { id: 'persistence', label: '', labelKey: 'panel.persistence' },
-];
+const UI_ELEMENTS = SETTINGS_PANEL_ELEMENTS;
 
 const discoverablePanelIds = new Set<PanelId>(['persistence']);
 
@@ -133,6 +131,36 @@ function getZoneColor(id: string) {
   for (let i = 0; i < id.length; i++) hash = id.charCodeAt(i) + ((hash << 5) - hash);
   const c = (hash & 0x00FFFFFF).toString(16).toUpperCase();
   return '#' + '00000'.substring(0, 6 - c.length) + c;
+}
+
+/**
+ * BUG-12: accessible dismiss control for chips inside accordion-header buttons.
+ * A raw <span onClick> is invisible to keyboard and screen readers; this control
+ * exposes role="button", focus, an aria-label and Enter/Space activation while
+ * stopping propagation so the parent accordion header is not toggled.
+ */
+function ChipDismissControl({ ariaLabel, onDismiss, className = '' }: {
+  ariaLabel: string;
+  onDismiss: () => void;
+  className?: string;
+}) {
+  const activate = (e: React.MouseEvent | React.KeyboardEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    onDismiss();
+  };
+  return (
+    <span
+      role="button"
+      tabIndex={0}
+      aria-label={ariaLabel}
+      onClick={activate}
+      onKeyDown={e => {
+        if (e.key === 'Enter' || e.key === ' ') activate(e);
+      }}
+      className={`text-slate-400 hover:text-rose-400 font-bold cursor-pointer ${className}`}
+    >✕</span>
+  );
 }
 
 const zoneColors: Record<string, string> = {
@@ -499,13 +527,7 @@ export const Map3D: React.FC = () => {
     trackClick,
     switchRole,
     createRole
-  } = useAdaptiveUI({
-    elements: UI_ELEMENTS,
-    maxVisible: 3,
-    decayInterval: 10,
-    decayFactor: 0.9,
-    hysteresisDelta: 0.03
-  });
+  } = useAdaptiveUI(SETTINGS_ADAPTIVE_UI_CONFIG);
 
   const [openPanelIds, setOpenPanelIds] = useState<Set<PanelId>>(() => new Set());
   const initializedAdaptiveRoleRef = useRef<string | null>(null);
@@ -606,31 +628,7 @@ export const Map3D: React.FC = () => {
   })();
 
   const [showOverflow, setShowOverflow] = useState(false);
-  const [userDisabledPanelIds, setUserDisabledPanelIds] = useState<Set<string>>(() => {
-    try {
-      const saved = localStorage.getItem('ricis_disabled_panel_ids');
-      return saved ? new Set(JSON.parse(saved)) : new Set();
-    } catch {
-      return new Set();
-    }
-  });
-
-  const togglePanelVisibility = (panelId: string) => {
-    setUserDisabledPanelIds((prev) => {
-      const next = new Set(prev);
-      if (next.has(panelId)) {
-        next.delete(panelId);
-      } else {
-        next.add(panelId);
-      }
-      try {
-        localStorage.setItem('ricis_disabled_panel_ids', JSON.stringify(Array.from(next)));
-      } catch (e) {
-        console.error('Failed to save disabled panels', e);
-      }
-      return next;
-    });
-  };
+  const { userDisabledPanelIds, togglePanelVisibility } = useDisabledPanelIds();
 
   const projectedVisibleElements = useMemo(() => {
     const visiblePanelIds = new Set(visibleElements.map(element => element.id));
@@ -762,6 +760,45 @@ export const Map3D: React.FC = () => {
       controlsRef.current.reset();
     }
   };
+
+  // --- Command bus wiring (toolbar / menus / shortcuts -> Map3D) ---
+  const searchInputRef = useRef<HTMLInputElement | null>(null);
+
+  useRicisCommand(RICIS_COMMAND_EVENTS.resetCamera, () => {
+    handleResetCamera();
+  });
+
+  useRicisCommand(RICIS_COMMAND_EVENTS.openSearch, () => {
+    setIsSearchFocused(true);
+    const input = searchInputRef.current;
+    if (input) {
+      input.focus();
+      input.select();
+    }
+  });
+
+  useRicisCommand(RICIS_COMMAND_EVENTS.toggle3DPresentation, () => {
+    setMapPresentationMode(prev => {
+      if (prev === 'three_dimensional') {
+        setMapFallbackReason('user_selected');
+        return 'accessible_list';
+      }
+      return 'three_dimensional';
+    });
+  });
+
+  useRicisCommand(RICIS_COMMAND_EVENTS.runDiagnostics, () => {
+    void checkCoreRuntime();
+  });
+
+  // Report the actual presentation mode back to the command bus so the
+  // 3D/2D command indicator reflects real page state (not a stale App flag).
+  useEffect(() => {
+    dispatchRicisCommand(RICIS_COMMAND_EVENTS.presentationModeChanged, {
+      is3D: mapPresentationMode === 'three_dimensional',
+    });
+  }, [mapPresentationMode]);
+
 
   const isDerivativeNode = (n: { type?: string; isDerivativeClaim?: boolean }) =>
     n.type === 'derivative_claim' || n.isDerivativeClaim === true;
@@ -910,15 +947,38 @@ export const Map3D: React.FC = () => {
     }
   }, [map.hydrated, deepLinkFocusOutcome, initialUrlParams.initialMode]);
 
+  // BUG-13: the ?mode= parameter must be honored on SPA navigation too, not
+  // only on first mount — a fresh ?mode=verify/proof deep link re-opens the
+  // proof panel without a full page reload. Unrelated popstate events with an
+  // unchanged mode never clobber a user-closed panel.
+  const lastSyncedModeRef = useRef<string | null>(initialUrlParams.initialMode);
+  useEffect(() => {
+    const syncModeFromUrl = () => {
+      const mode = new URLSearchParams(window.location.search).get('mode');
+      if (mode === lastSyncedModeRef.current) return;
+      lastSyncedModeRef.current = mode;
+      if (mode === 'verify' || mode === 'proof') {
+        setShowProof(true);
+      } else {
+        setShowProof(false);
+      }
+    };
+    syncModeFromUrl();
+    window.addEventListener('popstate', syncModeFromUrl);
+    return () => window.removeEventListener('popstate', syncModeFromUrl);
+  }, []);
+
   // Preserve an unknown shared-link target and mode parameter in the address bar.
+  // The URL ?mode= mirrors the actual proof-panel state (single source of truth:
+  // popstate -> panel above, panel -> URL here — no ping-pong, BUG-13).
   useEffect(() => {
     if (!map.hydrated) return;
     if (deepLinkFocusOutcome.kind === 'unknown_deep_link_target' && selectedNodeId === null) return;
     UrlShareService.updateBrowserUrl({
       nodeId: selectedNodeId,
-      mode: showProof ? 'verify' : (initialUrlParams.initialMode === 'verify' || initialUrlParams.initialMode === 'proof' ? initialUrlParams.initialMode : null),
+      mode: showProof ? 'verify' : null,
     });
-  }, [selectedNodeId, showProof, map.hydrated, deepLinkFocusOutcome, initialUrlParams.initialMode]);
+  }, [selectedNodeId, showProof, map.hydrated, deepLinkFocusOutcome]);
 
   useEffect(() => {
     if (selectedNodeId) setTaskPanelMode('open');
@@ -1706,6 +1766,7 @@ export const Map3D: React.FC = () => {
             <Search size={16} className="text-cyan-400 shrink-0" />
             <div className="relative flex-1">
               <input
+                ref={searchInputRef}
                 type="text"
                 placeholder={t('search.placeholder')}
                 value={searchQuery}
@@ -1829,7 +1890,11 @@ export const Map3D: React.FC = () => {
                             <span key={z.id} className="inline-flex items-center gap-1.5 bg-neutral-900 border border-neutral-700/80 px-2 py-0.5 rounded-full text-xs text-slate-200">
                               <span className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: getZoneColor(z.id) }} />
                               <span className="truncate max-w-[130px] font-medium">{z.name}</span>
-                              <span onClick={(e) => { e.preventDefault(); e.stopPropagation(); setHiddenZones(prev => new Set(prev).add(z.id)); }} className="text-slate-400 hover:text-rose-400 font-bold ml-0.5 cursor-pointer">✕</span>
+                              <ChipDismissControl
+                                ariaLabel={`Скрыть сферу ${z.name}`}
+                                onDismiss={() => setHiddenZones(prev => new Set(prev).add(z.id))}
+                                className="ml-0.5"
+                              />
                             </span>
                           ))
                         )}
@@ -1839,7 +1904,10 @@ export const Map3D: React.FC = () => {
                       selectedNode ? (
                         <span className="bg-emerald-950/80 border border-emerald-700/80 px-2.5 py-0.5 rounded-full text-emerald-200 inline-flex items-center gap-1.5 max-w-full font-medium">
                           <span className="truncate">🎯 {selectedNodePresentation?.title ?? selectedNode.title}</span>
-                          <span onClick={(e) => { e.preventDefault(); e.stopPropagation(); setSelectedNodeId(null); }} className="text-slate-400 hover:text-rose-400 font-bold cursor-pointer">✕</span>
+                          <ChipDismissControl
+                            ariaLabel="Снять выбор задачи"
+                            onDismiss={() => setSelectedNodeId(null)}
+                          />
                         </span>
                       ) : availableNodes.length > 0 ? (
                         <span className="bg-neutral-900 border border-neutral-800 px-2 py-0.5 rounded text-slate-300 truncate max-w-full">

@@ -1,15 +1,19 @@
 import React, { useMemo, useState } from 'react';
-import { ArrowLeft, CheckCircle2, GitBranch, Layers, Lock, RefreshCw, ShieldCheck, Sprout, XCircle } from 'lucide-react';
+import { ArrowLeft, CheckCircle2, Download, GitBranch, Layers, Lock, RefreshCw, ShieldCheck, Sprout, XCircle } from 'lucide-react';
 
 import {
   Ric,
   coveredFormsOf,
+  verifySeedInvariants,
   type ExpansionResult,
   type RicisSeedState,
+  type SeedInvariantReport,
 } from '../ricisSeed';
 import { DEMO_PROBLEM_CATALOG } from '../ricisSeed/ricisSeed.unsolvedRegistry';
 import type { RicisState, UnsolvedSingularProblem } from '../ricisSeed/contracts';
 import { UrlShareService } from '../services/UrlShareService';
+import { useRicisCommand } from '../hooks/useRicisCommand';
+import { RICIS_COMMAND_EVENTS } from '../services/commandBus';
 
 interface RicisSeedPageProps {
   onBackToMap: () => void;
@@ -46,6 +50,7 @@ export function RicisSeedPage({ onBackToMap }: RicisSeedPageProps): React.JSX.El
   const [problemId, setProblemId] = useState<string>(DEMO_PROBLEM_CATALOG[0]!.problem.id);
   const [result, setResult] = useState<ExpansionResult | null>(null);
   const [history, setHistory] = useState<readonly { readonly problemId: string; readonly outcome: string }[]>([]);
+  const [verification, setVerification] = useState<SeedInvariantReport | null>(null);
 
   const system = useMemo(() => Ric.from(seed), [seed]);
   const coveredForms = useMemo(() => coveredFormsOf(seed.axioms), [seed]);
@@ -62,13 +67,47 @@ export function RicisSeedPage({ onBackToMap }: RicisSeedPageProps): React.JSX.El
       { problemId: problem.id, outcome: outcome.kind === 'EXPANDED' ? `+${outcome.axiom.id}` : outcome.reason },
     ]);
     setSeed(outcome.seed);
+    setVerification(null);
   };
 
   const resetToSeed = (): void => {
     setSeed(Ric.seed);
     setResult(null);
     setHistory([]);
+    setVerification(null);
   };
+
+  const runVerification = (): void => {
+    setVerification(verifySeedInvariants(seed));
+  };
+
+  const downloadLedgerReceipt = (): void => {
+    const receipt = {
+      kind: 'ricis-seed-ledger-receipt',
+      generatedAt: new Date().toISOString(),
+      generation: seed.generation,
+      seedFingerprint: seed.fingerprint,
+      axiomFingerprints: seed.axioms.map(axiom => ({ id: axiom.id, fingerprint: axiom.fingerprint })),
+      ledger: seed.ledger,
+      invariantReport: verification ?? verifySeedInvariants(seed),
+    };
+    const blob = new Blob([JSON.stringify(receipt, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `ricis-seed-ledger-R${seed.generation}-${Date.now()}.json`;
+    link.click();
+    URL.revokeObjectURL(url);
+  };
+
+  // --- Command bus wiring (toolbar / menu / shortcuts -> Seed page) ---
+  useRicisCommand(RICIS_COMMAND_EVENTS.seedVerify, () => {
+    runVerification();
+  });
+
+  useRicisCommand(RICIS_COMMAND_EVENTS.seedDownloadLedger, () => {
+    downloadLedgerReceipt();
+  });
 
   return (
     <div className="min-h-screen w-full bg-[#050505] text-slate-200 font-sans">
@@ -309,13 +348,44 @@ ExpandTo — допуск доказанного правила: R(k+1) = R(k) �
               <li>· Статус верификации ядром Lean: <span className="text-amber-300">REQUIRES_CORE_LEAN</span> — требуется toolchain, compiler output, #print axioms, отсутствие sorryAx.</li>
               <li>· Таблица согласованности — проверка по точной форме; она ловит явные противоречия, но не является полной процедурой унификации.</li>
             </ul>
-            <button
-              type="button"
-              onClick={() => UrlShareService.updateBrowserUrl({ seed: true })}
-              className="mt-3 inline-flex min-h-9 items-center gap-1.5 rounded border border-slate-700 bg-slate-900/70 px-2.5 text-[10px] uppercase tracking-wider text-slate-300"
-            >
-              <GitBranch size={12} /> Ссылка на это состояние (?view=seed)
-            </button>
+            <div className="mt-3 flex flex-wrap gap-2">
+              <button
+                type="button"
+                onClick={runVerification}
+                className="inline-flex min-h-9 items-center gap-1.5 rounded border border-emerald-800/70 bg-emerald-950/40 px-2.5 text-[10px] font-bold uppercase tracking-wider text-emerald-200 hover:border-emerald-500"
+              >
+                <ShieldCheck size={12} /> Верификация Seed
+              </button>
+              <button
+                type="button"
+                onClick={downloadLedgerReceipt}
+                className="inline-flex min-h-9 items-center gap-1.5 rounded border border-slate-700 bg-slate-900/70 px-2.5 text-[10px] font-bold uppercase tracking-wider text-slate-300 hover:border-slate-500"
+              >
+                <Download size={12} /> Крипто-квитанция (JSON)
+              </button>
+              <button
+                type="button"
+                onClick={() => UrlShareService.updateBrowserUrl({ seed: true })}
+                className="inline-flex min-h-9 items-center gap-1.5 rounded border border-slate-700 bg-slate-900/70 px-2.5 text-[10px] uppercase tracking-wider text-slate-300"
+              >
+                <GitBranch size={12} /> Ссылка на это состояние (?view=seed)
+              </button>
+            </div>
+            {verification && (
+              <div className={`mt-3 rounded border p-3 font-mono text-[10px] leading-relaxed ${verification.ok ? 'border-emerald-800/70 bg-emerald-950/20 text-emerald-200' : 'border-red-800/70 bg-red-950/20 text-red-200'}`}>
+                <p className="flex items-center gap-1.5 font-bold uppercase tracking-wider">
+                  {verification.ok ? <CheckCircle2 size={12} /> : <XCircle size={12} />}
+                  Инварианты зерна R{seed.generation}: {verification.ok ? 'PASS' : `FAIL (${verification.violations.length})`}
+                </p>
+                {!verification.ok && (
+                  <ul className="mt-1 list-disc pl-4">
+                    {verification.violations.map(violation => (
+                      <li key={violation}>{violation}</li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+            )}
           </article>
         </section>
       </main>

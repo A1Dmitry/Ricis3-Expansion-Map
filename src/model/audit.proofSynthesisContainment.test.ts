@@ -647,6 +647,100 @@ describe('OIR-03 — audit proof-synthesis containment', () => {
       'M  artifacts/proofs/ricis-backend-exact-reduction.json',
       'M  ACTIVE_TASKS.md',
       'M  src/model/audit.proofSynthesisContainment.test.ts',
+
+      // AUDIT-2026-09-16 BUGFIX CAMPAIGN (FULL_AUDIT_REPORT_2026-09-16.md, §5):
+      // оживление командной шины BUG-02 (подписчики ricis:* в целевых страницах,
+      // state-feedback события, единая точка диспатча в commandRegistry) +
+      // DRY clipboard-хелпер (часть BUG-07, используется commandRegistry).
+      ' M src/App.tsx',
+      ' M src/services/commandRegistry.ts',
+      ' M src/ui/AutoProverModal.tsx',
+      ' M src/ui/KinematicEnginePage.tsx',
+      ' M src/ui/KinematicEnginePage.test.tsx',
+      ' M src/ui/Map3D.tsx',
+      ' M src/ui/RicisProofConsoleModal.tsx',
+      ' M src/ui/RicisSeedPage.tsx',
+      ' M src/ui/RicisSeedPage.test.tsx',
+      '?? src/hooks/useRicisCommand.ts',
+      '?? src/services/clipboard.ts',
+      '?? src/services/commandBus.ts',
+      '?? src/services/commandBus.test.ts',
+      '?? src/services/commandBus.wiring.topology.test.ts',
+
+      // AUDIT-2026-09-16 BUG-03: Settings-апплет получил реальные пропсы.
+      // Общие SETTINGS_PANEL_ELEMENTS/CONFIG + useDisabledPanelIds (DRY c Map3D),
+      // новая SettingsAppletPage вместо заглушки в App.tsx.
+      ' M src/ui/Map3D.tsx',
+      ' M src/ui/SettingsModal.tsx',
+      '?? src/domain/ui/settingsElements.ts',
+      '?? src/hooks/useDisabledPanelIds.ts',
+      '?? src/ui/SettingsAppletPage.tsx',
+      '?? src/ui/SettingsAppletPage.test.tsx',
+
+      // AUDIT-2026-09-16 BUG-04/08/09/10: UrlShareService — ветка seed +
+      // single-source-of-truth для view-флагов; двойной URL-sync убран;
+      // legacy ?view= для всех 9 апплетов; Back/Forward disabled по стекам;
+      // mode=challenge осмысленно обрабатывается RoadmapPage.
+      ' M src/App.tsx',
+      ' M src/services/UrlShareService.ts',
+      ' M src/services/UrlShareService.test.ts',
+      ' M src/services/AppletNavigationService.ts',
+      ' M src/services/appletNavigationService.test.ts',
+      ' M src/ui/components/CompactCommandMenuBar.tsx',
+      ' M src/ui/RoadmapPage.tsx',
+      ' M src/ui/RoadmapPage.test.tsx',
+      ' M src/ui/uiControlWiring.topology.test.ts',
+
+      // AUDIT-2026-09-16 BUG-05: AlgebraicSimplifier — guard целого n в [2..64]
+      // (DoS-защита) + полная проверка multiply-chain (все листья = Parameter(x)).
+      ' M packages/ricis-core-ts/src/engine/AlgebraicSimplifier.ts',
+      '?? packages/ricis-core-ts/src/engine/AlgebraicSimplifier.test.ts',
+
+      // AUDIT-2026-09-16 BUG-07: все места копирования переведены на единый
+      // copyTextToClipboard (guard не-secure контекста + textarea-fallback).
+      ' M src/services/UrlShareService.ts',
+      ' M src/services/clipboard.ts',
+      '?? src/services/clipboard.test.ts',
+      ' M src/ui/AgentLogModal.tsx',
+      ' M src/ui/CoreRecoveryPage.tsx',
+      ' M src/ui/CoreRecoveryPage.diagnosticsTopology.test.ts',
+      ' M src/ui/KinematicEnginePage.tsx',
+      ' M src/ui/Lean4ReportViewer.tsx',
+      ' M src/ui/PlainTerminalLogViewer.tsx',
+      ' M src/ui/SettingsModal.tsx',
+      ' M src/ui/TheoremReportViewer.tsx',
+      ' M src/ui/components/CompactCommandMenuBar.tsx',
+
+      // AUDIT-2026-09-16 BUG-06: единый контракт деградации AI-эндпоинтов —
+      // 503 + {degraded: no_api_key|ai_unavailable} для expandLeaves (нет
+      // черновика), 200 + {degraded: local_draft} для канонических черновиков.
+      ' M server.ts',
+      ' M src/store/mapStore.ts',
+      '?? server/aiDegradation.ts',
+      '?? server/aiDegradation.test.ts',
+
+      // AUDIT-2026-09-16 BUG-11/12/13 + release 0.4.199: доступные
+      // dismiss-контролы (ChipDismissControl), реакция ?mode= на SPA-навигацию,
+      // AUDITOR-маркер в QA-отчёте, актуальные числа тестов в README,
+      // синхронизация версии 0.4.198 -> 0.4.199.
+      ' M src/ui/Map3D.tsx',
+      ' M README.md',
+      ' M QA_RECURSIVE_AUDIT_REPORT.md',
+      ' M CITATION.cff',
+      ' M index.html',
+      ' M package.json',
+      ' M package-lock.json',
+      ' M src/version.ts',
+      ' M docs/05-evidence/architecture/structural-hash-report.md',
+      ' M docs/05-evidence/architecture/telegram-tokenpool-remediation-2026-08-18.md',
+      ' M docs/05-evidence/proofs/lean-boundary-audit-2026-08-18.md',
+
+      // REGRESSION FIX (main 91b43b9): завершение удаления узла
+      // ai-authorship-provenance — висячие ссылки ломали SHA-128 миграцию
+      // (dangling_reference) и 10 тестов, включая гидрацию канонической карты.
+      ' M src/model/initialMap.ts',
+      ' M src/model/auditResolution.test.ts',
+      ' M src/ui/NodeCardDetails.tsx',
     ]);
     if (status.length > 0 && status.every(entry => entry.startsWith('?? '))) {
       // In clean container environments git status may return all files as untracked

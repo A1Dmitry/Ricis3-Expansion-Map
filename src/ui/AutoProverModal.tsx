@@ -1,7 +1,9 @@
-import React, { useState } from 'react';
-import { X, Play, RefreshCw, Cpu, CheckCircle2, AlertTriangle, ShieldCheck, Zap, Layers, BarChart2 } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { X, Play, RefreshCw, Cpu, CheckCircle2, AlertTriangle, ShieldCheck, Zap, Layers, BarChart2, FileText } from 'lucide-react';
 import { useMapStore } from '../store/mapStore';
 import { RicisAutoProverEngine, type AutoProverResult, type FractalCentralityScore } from '../services/autoProver/autoProver';
+import { useRicisCommand } from '../hooks/useRicisCommand';
+import { RICIS_COMMAND_EVENTS, dispatchRicisCommand } from '../services/commandBus';
 
 interface AutoProverModalProps {
   isOpen: boolean;
@@ -27,8 +29,6 @@ export const AutoProverModal: React.FC<AutoProverModalProps> = ({
     return engine.scheduler.calculateFractalCentrality(nodes, edges);
   }, [engine, nodes, edges]);
 
-  if (!isOpen) return null;
-
   const handleRunBatch = async () => {
     setIsRunning(true);
     try {
@@ -47,6 +47,54 @@ export const AutoProverModal: React.FC<AutoProverModalProps> = ({
       setIsRunning(false);
     }
   };
+
+  const handleExportReport = () => {
+    if (results.length === 0) return;
+    const report = {
+      generatedAt: new Date().toISOString(),
+      engine: 'RICIS-III Auto Prover Engine v7.7',
+      totalRuns: results.length,
+      succeeded: results.filter(res => res.success).length,
+      results: results.map(res => ({
+        nodeId: res.nodeId,
+        success: res.success,
+        iterationsUsed: res.iterationsUsed,
+        finalInvariant: res.transformationLog.finalInvariant,
+        traceHistory: res.traceHistory.map(step => ({
+          iteration: step.iteration,
+          stepName: step.stepName,
+          valid: step.auditResult.isValid,
+        })),
+      })),
+    };
+    const blob = new Blob([JSON.stringify(report, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `ricis-qa-report-${Date.now()}.json`;
+    link.click();
+    URL.revokeObjectURL(url);
+  };
+
+  // --- Command bus wiring (toolbar / menu / shortcuts -> QA autoprover) ---
+  // Hooks run unconditionally (hooks-order safety); handlers no-op while closed.
+  useRicisCommand(RICIS_COMMAND_EVENTS.qaRunFloodFill, () => {
+    if (!isOpen || isRunning) return;
+    void handleRunBatch();
+  });
+
+  useRicisCommand(RICIS_COMMAND_EVENTS.qaExportReport, () => {
+    if (!isOpen) return;
+    handleExportReport();
+  });
+
+  // Report the real prover state back so the crawler command indicator
+  // lights up from live page state.
+  useEffect(() => {
+    dispatchRicisCommand(RICIS_COMMAND_EVENTS.qaRunningChanged, { isRunning });
+  }, [isRunning]);
+
+  if (!isOpen) return null;
 
   const currentResult = results[activeResultIndex];
 
@@ -141,6 +189,14 @@ export const AutoProverModal: React.FC<AutoProverModalProps> = ({
                   <Play className="w-4 h-4 fill-current" /> Запустить Auto Prover (Batch 5)
                 </>
               )}
+            </button>
+            <button
+              onClick={handleExportReport}
+              disabled={isRunning || results.length === 0}
+              title={results.length === 0 ? 'Сначала запустите автопроверку' : 'Скачать структурированный отчет (JSON)'}
+              className="w-full py-2 px-4 rounded-lg border border-slate-700 bg-slate-900/70 hover:bg-slate-800 disabled:opacity-40 text-slate-200 font-medium text-xs flex items-center justify-center gap-2 transition-colors cursor-pointer"
+            >
+              <FileText className="w-4 h-4" /> Экспорт отчета (JSON)
             </button>
           </div>
 

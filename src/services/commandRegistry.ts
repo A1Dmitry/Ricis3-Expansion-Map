@@ -6,6 +6,8 @@
 import type { AppCommand, CommandCategory, CommandContext } from '../types/commandTypes';
 import type { AppletId } from '../types/appletRegistry';
 import { UrlShareService } from './UrlShareService';
+import { RICIS_COMMAND_EVENTS, dispatchRicisCommand } from './commandBus';
+import { copyTextToClipboard } from './clipboard';
 
 export const APP_COMMANDS: readonly AppCommand[] = [
   // --- Navigation & Core Workspaces ---
@@ -139,7 +141,10 @@ export const APP_COMMANDS: readonly AppCommand[] = [
     group: 'camera',
     isEnabled: ctx => ctx.activeApplet === 'map',
     isActive: ctx => ctx.is3DMode ?? true,
-    execute: ctx => ctx.onToggle3DMode?.(),
+    execute: ctx => {
+      ctx.onToggle3DMode?.();
+      dispatchRicisCommand(RICIS_COMMAND_EVENTS.toggle3DPresentation);
+    },
   },
   {
     id: 'view.resetCamera',
@@ -153,7 +158,7 @@ export const APP_COMMANDS: readonly AppCommand[] = [
     isEnabled: ctx => ctx.activeApplet === 'map',
     execute: ctx => {
       ctx.onResetCamera?.();
-      window.dispatchEvent(new CustomEvent('ricis:reset-camera'));
+      dispatchRicisCommand(RICIS_COMMAND_EVENTS.resetCamera);
     },
   },
   {
@@ -168,7 +173,7 @@ export const APP_COMMANDS: readonly AppCommand[] = [
     isEnabled: ctx => ctx.activeApplet === 'map' || ctx.activeApplet === 'roadmap',
     execute: ctx => {
       ctx.onSearchNodes?.();
-      window.dispatchEvent(new CustomEvent('ricis:open-search'));
+      dispatchRicisCommand(RICIS_COMMAND_EVENTS.openSearch);
     },
   },
 
@@ -186,7 +191,7 @@ export const APP_COMMANDS: readonly AppCommand[] = [
     isActive: ctx => ctx.isSimulationRunning ?? false,
     execute: ctx => {
       ctx.onToggleSimulation?.();
-      window.dispatchEvent(new CustomEvent('ricis:kinematic-toggle-play'));
+      dispatchRicisCommand(RICIS_COMMAND_EVENTS.kinematicTogglePlay);
     },
   },
   {
@@ -201,7 +206,7 @@ export const APP_COMMANDS: readonly AppCommand[] = [
     isEnabled: ctx => ctx.activeApplet === 'kinematic',
     execute: ctx => {
       ctx.onResetSimulation?.();
-      window.dispatchEvent(new CustomEvent('ricis:kinematic-reset'));
+      dispatchRicisCommand(RICIS_COMMAND_EVENTS.kinematicReset);
     },
   },
   {
@@ -216,7 +221,7 @@ export const APP_COMMANDS: readonly AppCommand[] = [
     isEnabled: ctx => ctx.activeApplet === 'kinematic',
     execute: ctx => {
       ctx.onStepSimulation?.();
-      window.dispatchEvent(new CustomEvent('ricis:kinematic-step'));
+      dispatchRicisCommand(RICIS_COMMAND_EVENTS.kinematicStep);
     },
   },
 
@@ -232,7 +237,7 @@ export const APP_COMMANDS: readonly AppCommand[] = [
     group: 'protocol',
     isEnabled: ctx => ctx.activeApplet === 'seed',
     execute: () => {
-      window.dispatchEvent(new CustomEvent('ricis:seed-verify'));
+      dispatchRicisCommand(RICIS_COMMAND_EVENTS.seedVerify);
     },
   },
   {
@@ -246,7 +251,7 @@ export const APP_COMMANDS: readonly AppCommand[] = [
     group: 'protocol',
     isEnabled: ctx => ctx.activeApplet === 'seed',
     execute: () => {
-      window.dispatchEvent(new CustomEvent('ricis:seed-download-ledger'));
+      dispatchRicisCommand(RICIS_COMMAND_EVENTS.seedDownloadLedger);
     },
   },
 
@@ -263,7 +268,7 @@ export const APP_COMMANDS: readonly AppCommand[] = [
     isEnabled: ctx => ctx.activeApplet === 'terminal',
     execute: ctx => {
       ctx.onClearTerminal?.();
-      window.dispatchEvent(new CustomEvent('ricis:terminal-clear'));
+      dispatchRicisCommand(RICIS_COMMAND_EVENTS.terminalClear);
     },
   },
   {
@@ -277,7 +282,7 @@ export const APP_COMMANDS: readonly AppCommand[] = [
     group: 'terminal',
     isEnabled: ctx => ctx.activeApplet === 'terminal',
     execute: () => {
-      window.dispatchEvent(new CustomEvent('ricis:terminal-lean-verify'));
+      dispatchRicisCommand(RICIS_COMMAND_EVENTS.terminalLeanVerify);
     },
   },
 
@@ -295,7 +300,7 @@ export const APP_COMMANDS: readonly AppCommand[] = [
     isActive: ctx => ctx.isAutoProverRunning ?? false,
     execute: ctx => {
       ctx.onRunProver?.();
-      window.dispatchEvent(new CustomEvent('ricis:qa-run-floodfill'));
+      dispatchRicisCommand(RICIS_COMMAND_EVENTS.qaRunFloodFill);
     },
   },
   {
@@ -309,7 +314,7 @@ export const APP_COMMANDS: readonly AppCommand[] = [
     group: 'qa',
     isEnabled: ctx => ctx.activeApplet === 'qa-tests',
     execute: () => {
-      window.dispatchEvent(new CustomEvent('ricis:qa-export-report'));
+      dispatchRicisCommand(RICIS_COMMAND_EVENTS.qaExportReport);
     },
   },
 
@@ -326,9 +331,7 @@ export const APP_COMMANDS: readonly AppCommand[] = [
     isEnabled: () => true,
     execute: ctx => {
       const url = UrlShareService.generateShareUrl({ applet: ctx.activeApplet });
-      if (typeof navigator !== 'undefined' && navigator.clipboard) {
-        navigator.clipboard.writeText(url).catch(() => {});
-      }
+      void copyTextToClipboard(url);
     },
   },
   {
@@ -343,7 +346,7 @@ export const APP_COMMANDS: readonly AppCommand[] = [
     isEnabled: () => true,
     execute: ctx => {
       ctx.onRunDiagnostics?.();
-      window.dispatchEvent(new CustomEvent('ricis:run-diagnostics'));
+      dispatchRicisCommand(RICIS_COMMAND_EVENTS.runDiagnostics);
     },
   },
 ];

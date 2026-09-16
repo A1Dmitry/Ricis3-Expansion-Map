@@ -3,6 +3,7 @@ import { createRoot, type Root } from 'react-dom/client';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import { RicisSeedPage } from './RicisSeedPage';
+import { RICIS_COMMAND_EVENTS, dispatchRicisCommand } from '../services/commandBus';
 
 (globalThis as typeof globalThis & { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
 
@@ -108,5 +109,33 @@ describe('RicisSeedPage Component', () => {
 
     await click(buttonByText(rendered, 'Карта'));
     expect(onBack).toHaveBeenCalledTimes(1);
+  });
+
+  it('подписана на команды шины: верификация Seed и крипто-квитанция (BUG-02)', async () => {
+    const createObjectURL = vi.fn(() => 'blob:ledger-test');
+    const revokeObjectURL = vi.fn();
+    const originalURL = globalThis.URL;
+    vi.stubGlobal('URL', { ...originalURL, createObjectURL, revokeObjectURL });
+
+    try {
+      const rendered = await render(<RicisSeedPage onBackToMap={vi.fn()} />);
+
+      // Команда тулбара: ricis:seed-verify -> отчет инвариантов виден в UI.
+      expect(rendered.textContent).not.toContain('Инварианты зерна');
+      await act(async () => {
+        dispatchRicisCommand(RICIS_COMMAND_EVENTS.seedVerify);
+      });
+      expect(rendered.textContent).toContain('Инварианты зерна');
+      expect(rendered.textContent).toContain('PASS');
+
+      // Команда тулбара: ricis:seed-download-ledger -> скачивание JSON-квитанции.
+      await act(async () => {
+        dispatchRicisCommand(RICIS_COMMAND_EVENTS.seedDownloadLedger);
+      });
+      expect(createObjectURL).toHaveBeenCalledTimes(1);
+      expect(revokeObjectURL).toHaveBeenCalledTimes(1);
+    } finally {
+      vi.unstubAllGlobals();
+    }
   });
 });

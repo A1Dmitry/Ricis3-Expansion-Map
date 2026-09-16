@@ -13,6 +13,7 @@ import {
   toHealthProbeViewState,
 } from './recoveryDiagnostics';
 import type { HealthProbeViewState } from './recoveryDiagnostics.types';
+import { copyTextToClipboard } from '../services/clipboard';
 
 interface RecoveryStep {
   readonly title: string;
@@ -129,13 +130,9 @@ export function CoreRecoveryPage() {
   };
 
   const onCopy = async () => {
-    try {
-      await navigator.clipboard.writeText(diagnostics.clipboardText);
-      setCopied(true);
-      window.setTimeout(() => setCopied(false), 1800);
-    } catch {
-      setCopied(false);
-    }
+    const copiedOk = await copyTextToClipboard(diagnostics.clipboardText);
+    setCopied(copiedOk);
+    if (copiedOk) window.setTimeout(() => setCopied(false), 1800);
   };
 
   const steps = recoverySteps(recovery);

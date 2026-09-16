@@ -12,7 +12,10 @@ const physicsPanelSource = readFileSync(resolve(process.cwd(), 'src/ui/PhysicsCo
 describe('UI Control Wiring & Observability Topology Test', () => {
   it('ensures 100% of interactive UI controls are bound to active Zustand state or API actions without empty stubs', () => {
     // 1. App.tsx route and navigation boundary logic
-    expect(appSource).toContain('UrlShareService.updateBrowserUrl');
+    //    (BUG-09: URL sync happens exactly once inside navigateTo->syncUrl;
+    //    App must NOT call UrlShareService.updateBrowserUrl itself anymore)
+    expect(appSource).toContain('AppletNavigationService.navigateTo');
+    expect(appSource).not.toContain('UrlShareService.updateBrowserUrl');
     expect(appSource).toContain('isCoreRecoveryRoute');
 
     // 2. NodeCardDetails.tsx section toggles, share, and navigation

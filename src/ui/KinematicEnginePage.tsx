@@ -45,6 +45,9 @@ import { KinematicTelemetryLogger } from '../services/kinematic/kinematicLogger'
 import { forwardKinematics3D, computeJacobianDeterminant3D } from '../services/kinematic/kinematicMath';
 import { useMapStore } from '../store/mapStore';
 import { useMobileLayout } from '../hooks/useMobileLayout';
+import { useRicisCommand } from '../hooks/useRicisCommand';
+import { RICIS_COMMAND_EVENTS, dispatchRicisCommand } from '../services/commandBus';
+import { copyTextToClipboard } from '../services/clipboard';
 import { SwipeDismissable } from './components/SwipeDismissable';
 import { AutomatedTestingModal } from './components/testing/AutomatedTestingModal';
 import { RicisAstInspector } from './components/kinematic/RicisAstInspector';
@@ -379,6 +382,26 @@ export const KinematicEnginePage: React.FC<Props> = ({ onBackToMap }) => {
     setDlsState(resetState);
   };
 
+  // Resolves the desired end-effector target for the current simulation mode
+  // (single source of truth for both the 60 FPS loop and single-step command).
+  const resolveActiveTarget = (dt: number): Vector3D => {
+    if (simMode === 'PICK_AND_PLACE') {
+      const pnpStep = pnpControllerRef.current.stepTarget(dt, ricisStateRef.current.endEffector);
+      return pnpStep.target;
+    }
+    if (simMode === 'SINGULAR_ORBIT') {
+      // Orbit along the singular boundary (r = 1.48m near max reach 1.50m)
+      orbitAngleRef.current += dt * 0.8;
+      const maxReach = LINK_LENGTHS[1] + LINK_LENGTHS[2] - 0.01;
+      return {
+        x: maxReach * Math.cos(orbitAngleRef.current),
+        y: maxReach * Math.sin(orbitAngleRef.current),
+        z: 0.4 + 0.3 * Math.sin(orbitAngleRef.current * 2),
+      };
+    }
+    return manualTargetRef.current;
+  };
+
   // Main 60 FPS Simulation Loop with Throttled UI Updates for Smooth Responsiveness
   useEffect(() => {
     let animId: number;
@@ -391,23 +414,7 @@ export const KinematicEnginePage: React.FC<Props> = ({ onBackToMap }) => {
       const dt = Math.min(0.04, dtRaw * speedMultiplier);
 
       if (isRunning && dt > 0) {
-        let activeTarget: Vector3D = { x: 1.0, y: 0.0, z: 0.6 };
-
-        if (simMode === 'PICK_AND_PLACE') {
-          const pnpStep = pnpControllerRef.current.stepTarget(dt, ricisStateRef.current.endEffector);
-          activeTarget = pnpStep.target;
-        } else if (simMode === 'SINGULAR_ORBIT') {
-          // Orbit along the singular boundary (r = 1.48m near max reach 1.50m)
-          orbitAngleRef.current += dt * 0.8;
-          const maxReach = LINK_LENGTHS[1] + LINK_LENGTHS[2] - 0.01;
-          activeTarget = {
-            x: maxReach * Math.cos(orbitAngleRef.current),
-            y: maxReach * Math.sin(orbitAngleRef.current),
-            z: 0.4 + 0.3 * Math.sin(orbitAngleRef.current * 2),
-          };
-        } else {
-          activeTarget = manualTargetRef.current;
-        }
+        const activeTarget = resolveActiveTarget(dt);
 
         // Step both solvers via Dual Debugger Engine
         const stepResult = dualEngine.step(
@@ -467,6 +474,49 @@ export const KinematicEnginePage: React.FC<Props> = ({ onBackToMap }) => {
     return () => cancelAnimationFrame(animId);
   }, [isRunning, simMode, speedMultiplier, coordinateMode, dualEngine, telemetryLogger]);
 
+  // --- Command bus wiring (toolbar / menu / shortcuts -> Kinematic page) ---
+  const handleStepForward = () => {
+    if (isRunning) return; // stepping only makes sense while paused
+    const dt = Math.min(0.04, (1 / 60) * speedMultiplier);
+    const activeTarget = resolveActiveTarget(dt);
+    const stepResult = dualEngine.step(
+      ricisStateRef.current,
+      dlsStateRef.current,
+      activeTarget,
+      LINK_LENGTHS,
+      dt,
+      coordinateMode
+    );
+    ricisStateRef.current = stepResult.ricisResult.nextState;
+    dlsStateRef.current = stepResult.dlsResult.nextState;
+    telemetryLogger.pushEntry(stepResult.logEntry);
+    setCurrentDesiredTarget(activeTarget);
+    setRicisState(stepResult.ricisResult.nextState);
+    setDlsState(stepResult.dlsResult.nextState);
+    setRicisMetrics(stepResult.ricisResult.metrics);
+    setDlsMetrics(stepResult.dlsResult.metrics);
+    setLatestQaTrace(stepResult.ricisResult.qaTrace);
+    setAdvantageLedger(telemetryLogger.getLedger());
+  };
+
+  useRicisCommand(RICIS_COMMAND_EVENTS.kinematicTogglePlay, () => {
+    setIsRunning(prev => !prev);
+  });
+
+  useRicisCommand(RICIS_COMMAND_EVENTS.kinematicReset, () => {
+    handleReset();
+  });
+
+  useRicisCommand(RICIS_COMMAND_EVENTS.kinematicStep, () => {
+    handleStepForward();
+  });
+
+  // Report the real loop state back so the Play/Pause command indicator
+  // lights up from live page state.
+  useEffect(() => {
+    dispatchRicisCommand(RICIS_COMMAND_EVENTS.kinematicRunningChanged, { isRunning });
+  }, [isRunning]);
+
   // Copy QA Trace
   const handleCopyTrace = () => {
     if (!latestQaTrace) return;
@@ -482,9 +532,9 @@ export const KinematicEnginePage: React.FC<Props> = ({ onBackToMap }) => {
       null,
       2
     );
-    navigator.clipboard.writeText(payload).then(() => {
-      setCopiedTrace(true);
-      setTimeout(() => setCopiedTrace(false), 2000);
+    void copyTextToClipboard(payload).then((copied) => {
+      setCopiedTrace(copied);
+      if (copied) setTimeout(() => setCopiedTrace(false), 2000);
     });
   };
 

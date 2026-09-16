@@ -8,7 +8,6 @@ import React, { useEffect, useState } from 'react';
 import { RouteSurfaceBoundary } from './ui/RouteSurfaceBoundary';
 import { lazyNamedComponent } from './ui/lazyNamedComponent';
 import { isCoreRecoveryRoute } from './services/coreRecovery';
-import { UrlShareService } from './services/UrlShareService';
 import { useMapStore } from './store/mapStore';
 import { CompactCommandMenuBar } from './ui/components/CompactCommandMenuBar';
 import { AppletActionToolbar } from './ui/components/AppletActionToolbar';
@@ -16,6 +15,10 @@ import { AppletNavigationService } from './services/AppletNavigationService';
 import type { AppletId } from './types/appletRegistry';
 import type { CommandContext } from './types/commandTypes';
 import { CommandRegistry } from './services/commandRegistry';
+import {
+  RICIS_COMMAND_EVENTS,
+  subscribeRicisCommand,
+} from './services/commandBus';
 import { APP_BUILD_LABEL } from './version';
 
 const Map3D = lazyNamedComponent(() => import('./ui/Map3D'), 'Map3D');
@@ -27,7 +30,7 @@ const RicisSeedPage = lazyNamedComponent(() => import('./ui/RicisSeedPage'), 'Ri
 const VoynichDecryptionPanel = lazyNamedComponent(() => import('./ui/VoynichDecryptionPanel'), 'VoynichDecryptionPanel');
 const RicisProofConsoleModal = lazyNamedComponent(() => import('./ui/RicisProofConsoleModal'), 'RicisProofConsoleModal');
 const AutoProverModal = lazyNamedComponent(() => import('./ui/AutoProverModal'), 'AutoProverModal');
-const SettingsModal = lazyNamedComponent(() => import('./ui/SettingsModal'), 'SettingsModal');
+const SettingsAppletPage = lazyNamedComponent(() => import('./ui/SettingsAppletPage'), 'SettingsAppletPage');
 
 function formatHydrationError(error: unknown): string {
   if (error instanceof Error) return error.message;
@@ -72,43 +75,42 @@ export default function App() {
   const currentApplet = AppletNavigationService.resolveCurrentApplet(locationSearch);
 
   const handleSelectApplet = (applet: AppletId) => {
+    // navigateTo() already syncs the URL (replaceState + popstate) exactly once;
+    // a second URL-sync call from App duplicated history events and re-renders
+    // on every navigation (BUG-09).
     AppletNavigationService.navigateTo(applet);
-    UrlShareService.updateBrowserUrl({ applet: applet === 'map' ? undefined : applet });
     setLocationSearch(window.location.search);
   };
 
+  // Command-bus state feedback: pages report real runtime state so command
+  // indicators (Play/Pause, crawler, 3D/2D) light up from live data.
+  const [isSimulationRunning, setIsSimulationRunning] = useState(false);
+  const [isAutoProverRunning, setIsAutoProverRunning] = useState(false);
+
+  useEffect(() => {
+    const unsubscribers = [
+      subscribeRicisCommand(RICIS_COMMAND_EVENTS.presentationModeChanged, detail => {
+        setIs3DMode(Boolean(detail?.is3D));
+      }),
+      subscribeRicisCommand(RICIS_COMMAND_EVENTS.kinematicRunningChanged, detail => {
+        setIsSimulationRunning(Boolean(detail?.isRunning));
+      }),
+      subscribeRicisCommand(RICIS_COMMAND_EVENTS.qaRunningChanged, detail => {
+        setIsAutoProverRunning(Boolean(detail?.isRunning));
+      }),
+    ];
+    return () => unsubscribers.forEach(unsubscribe => unsubscribe());
+  }, []);
+
+  // Commands dispatch exactly one bus event each (see commandRegistry);
+  // applet pages subscribe via useRicisCommand. Context callbacks are
+  // integration seams only — no duplicate dispatch from App anymore.
   const commandContext: CommandContext = {
     activeApplet: currentApplet,
     is3DMode,
+    isSimulationRunning,
+    isAutoProverRunning,
     onSelectApplet: handleSelectApplet,
-    onToggle3DMode: () => {
-      setIs3DMode(prev => !prev);
-      window.dispatchEvent(new CustomEvent('ricis:toggle-3d-presentation'));
-    },
-    onResetCamera: () => {
-      window.dispatchEvent(new CustomEvent('ricis:reset-camera'));
-    },
-    onSearchNodes: () => {
-      window.dispatchEvent(new CustomEvent('ricis:open-search'));
-    },
-    onToggleSimulation: () => {
-      window.dispatchEvent(new CustomEvent('ricis:kinematic-toggle-play'));
-    },
-    onResetSimulation: () => {
-      window.dispatchEvent(new CustomEvent('ricis:kinematic-reset'));
-    },
-    onStepSimulation: () => {
-      window.dispatchEvent(new CustomEvent('ricis:kinematic-step'));
-    },
-    onClearTerminal: () => {
-      window.dispatchEvent(new CustomEvent('ricis:terminal-clear'));
-    },
-    onRunProver: () => {
-      window.dispatchEvent(new CustomEvent('ricis:qa-run-floodfill'));
-    },
-    onRunDiagnostics: () => {
-      window.dispatchEvent(new CustomEvent('ricis:run-diagnostics'));
-    },
   };
 
   // Global Keyboard Shortcuts (Alt+1..9, Space, etc.)
@@ -200,6 +202,7 @@ export default function App() {
             <RoadmapPage
               contextNodeId={roadmapParams.get('node')}
               initialRootNodeId={roadmapParams.get('root')}
+              initialMode={roadmapParams.get('mode')}
               onBackToMap={() => handleSelectApplet('map')}
             />
           );
@@ -256,24 +259,9 @@ export default function App() {
         );
       case 'settings':
         return (
-          <div className="w-full h-full overflow-y-auto p-4 bg-[#070b14]">
-            <div className="max-w-6xl mx-auto mb-4 flex items-center justify-between">
-              <button
-                onClick={() => handleSelectApplet('map')}
-                className="px-3 py-1.5 rounded-lg text-xs font-mono bg-slate-800 hover:bg-slate-700 text-cyan-300 transition-colors flex items-center gap-1.5"
-              >
-                ← Вернуться к 3D Карте
-              </button>
-            </div>
-            <SettingsModal
-              isOpen={true}
-              onClose={() => handleSelectApplet('map')}
-              roles={[]}
-              currentRoleId="default"
-              onSelectRole={() => {}}
-              onCreateRole={() => {}}
-            />
-          </div>
+          <SettingsAppletPage
+            onBackToMap={() => handleSelectApplet('map')}
+          />
         );
       case 'map':
       default:

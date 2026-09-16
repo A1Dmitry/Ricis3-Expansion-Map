@@ -60,4 +60,20 @@ describe('RoadmapPage Component', () => {
 
     expect(rendered.textContent).toContain('Режим «Связанные с корнем»');
   });
+
+  it('BUG-04: mode=challenge открывает контур открытых задач узла (параметр больше не призрак)', async () => {
+    const onBack = vi.fn();
+    const rendered = await render(
+      <RoadmapPage
+        contextNodeId="core-agi-target"
+        initialRootNodeId={null}
+        initialMode="challenge"
+        onBackToMap={onBack}
+      />
+    );
+
+    // Challenge banner is visible and the root contour is opened immediately.
+    expect(rendered.textContent).toContain('Режим Challenge');
+    expect(rendered.textContent).toContain('Режим «Связанные с корнем»');
+  });
 });

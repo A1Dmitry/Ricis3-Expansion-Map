@@ -3,6 +3,8 @@
  * DRY, Pure Functions & Browser History Integration.
  */
 
+import { copyTextToClipboard } from './clipboard';
+
 export interface ShareParams {
   nodeId?: string | null;
   sandboxExpr?: string | null;
@@ -15,13 +17,29 @@ export interface ShareParams {
   applet?: string | null;
 }
 
+/**
+ * Single source of truth for the legacy `?view=` deep-link flags.
+ * Every flag maps to the value written into the `view` URL parameter.
+ * Used by BOTH generateShareUrl and updateBrowserUrl so the two can never drift
+ * again (BUG-04: `seed` was missing from updateBrowserUrl).
+ */
+const VIEW_FLAG_TO_PARAM_VALUE: ReadonlyArray<{
+  readonly flag: 'roadmap' | 'kinematic' | 'seed' | 'comparison';
+  readonly viewParamValue: string;
+}> = [
+  { flag: 'roadmap', viewParamValue: 'roadmap' },
+  { flag: 'kinematic', viewParamValue: 'kinematic' },
+  { flag: 'seed', viewParamValue: 'seed' },
+  { flag: 'comparison', viewParamValue: 'comparison' },
+];
+
 export class UrlShareService {
   /**
    * Сформировать абсолютный URL для обмена
    */
   public static generateShareUrl(params: ShareParams): string {
     const url = new URL(window.location.origin + window.location.pathname);
-    
+
     if (params.applet) {
       url.searchParams.set('applet', params.applet);
     }
@@ -34,17 +52,10 @@ export class UrlShareService {
     if (params.mode) {
       url.searchParams.set('mode', params.mode);
     }
-    if (params.roadmap) {
-      url.searchParams.set('view', 'roadmap');
-    }
-    if (params.kinematic) {
-      url.searchParams.set('view', 'kinematic');
-    }
-    if (params.comparison) {
-      url.searchParams.set('view', 'comparison');
-    }
-    if (params.seed) {
-      url.searchParams.set('view', 'seed');
+    for (const { flag, viewParamValue } of VIEW_FLAG_TO_PARAM_VALUE) {
+      if (params[flag]) {
+        url.searchParams.set('view', viewParamValue);
+      }
     }
     if (params.rootNodeId) {
       url.searchParams.set('root', params.rootNodeId);
@@ -59,20 +70,7 @@ export class UrlShareService {
   public static async copyShareUrlToClipboard(params: ShareParams): Promise<boolean> {
     try {
       const shareUrl = this.generateShareUrl(params);
-      if (navigator.clipboard && navigator.clipboard.writeText) {
-        await navigator.clipboard.writeText(shareUrl);
-        return true;
-      }
-      // Fallback
-      const textArea = document.createElement('textarea');
-      textArea.value = shareUrl;
-      textArea.style.position = 'fixed';
-      textArea.style.opacity = '0';
-      document.body.appendChild(textArea);
-      textArea.select();
-      document.execCommand('copy');
-      document.body.removeChild(textArea);
-      return true;
+      return await copyTextToClipboard(shareUrl);
     } catch (e) {
       console.warn('Failed to copy share url:', e);
       return false;
@@ -110,25 +108,13 @@ export class UrlShareService {
         }
       }
 
-      if (params.roadmap !== undefined) {
-        if (params.roadmap) {
-          url.searchParams.set('view', 'roadmap');
-        } else {
-          url.searchParams.delete('view');
-        }
-      }
-      if (params.kinematic !== undefined) {
-        if (params.kinematic) {
-          url.searchParams.set('view', 'kinematic');
-        } else {
-          url.searchParams.delete('view');
-        }
-      }
-      if (params.comparison !== undefined) {
-        if (params.comparison) {
-          url.searchParams.set('view', 'comparison');
-        } else {
-          url.searchParams.delete('view');
+      for (const { flag, viewParamValue } of VIEW_FLAG_TO_PARAM_VALUE) {
+        if (params[flag] !== undefined) {
+          if (params[flag]) {
+            url.searchParams.set('view', viewParamValue);
+          } else {
+            url.searchParams.delete('view');
+          }
         }
       }
 

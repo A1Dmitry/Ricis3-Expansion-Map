@@ -1,9 +1,10 @@
-import { spawn, type ChildProcess } from 'node:child_process';
+import { spawn, spawnSync, type ChildProcess } from 'node:child_process';
 import { existsSync } from 'node:fs';
 import path from 'node:path';
 
 const CORE_PORT = Number(process.env.RICIS_CORE_PORT || 5044);
 const CORE_URL = process.env.RICIS_CORE_URL || `http://127.0.0.1:${CORE_PORT}`;
+const DOTNET_BIN = process.env.RICIS_CORE_DOTNET_BIN || 'dotnet';
 const CORE_REPO = path.resolve(process.cwd(), process.env.RICIS_CORE_REPO || '../Ricis.Core');
 const CORE_RUNTIME = path.resolve(process.cwd(), process.env.RICIS_CORE_RUNTIME || 'runtime/ricis-core');
 const CORE_DLL = path.resolve(CORE_RUNTIME, 'Ricis.WebApi.dll');
@@ -14,6 +15,7 @@ const CORE_PROJECT = path.resolve(
 
 let coreProcess: ChildProcess | null = null;
 let startPromise: Promise<void> | null = null;
+let lastLaunchError: string | null = null;
 
 function healthUrl(): string {
   return `${CORE_URL.replace(/\/$/, '')}/health`;
@@ -37,15 +39,39 @@ function assertCoreRuntime(): void {
   );
 }
 
+/**
+ * Pre-checks that the dotnet host itself is invocable BEFORE spawn().
+ * Without this check (and the 'error' listener below) a missing dotnet binary
+ * turns the async spawn ENOENT into an unhandled 'error' event that kills the
+ * whole Node process (remote DoS via a single GET /api/ricis-core/health).
+ */
+function assertDotnetHost(): void {
+  const probe = spawnSync(DOTNET_BIN, ['--version'], { stdio: 'ignore', timeout: 10_000 });
+  if (probe.error) {
+    throw new Error(
+      `dotnet host "${DOTNET_BIN}" is not available: ${probe.error.message}. ` +
+      'Install the .NET SDK/Runtime or unset the Ricis.Core supervisor routes.',
+    );
+  }
+  if (probe.status !== 0) {
+    throw new Error(
+      `dotnet host "${DOTNET_BIN}" failed the version probe (exit code ${probe.status}). ` +
+      'Ricis.Core cannot be started on this machine.',
+    );
+  }
+}
+
 function launchCoreProcess(): void {
   if (coreProcess && coreProcess.exitCode === null) return;
 
+  lastLaunchError = null;
   assertCoreRuntime();
+  assertDotnetHost();
   const bundledRuntimeAvailable = existsSync(CORE_DLL);
   const args = bundledRuntimeAvailable
     ? [CORE_DLL, '--urls', CORE_URL]
     : ['run', '--project', CORE_PROJECT, '--no-launch-profile', '--urls', CORE_URL];
-  coreProcess = spawn('dotnet', args, {
+  coreProcess = spawn(DOTNET_BIN, args, {
       cwd: bundledRuntimeAvailable ? CORE_RUNTIME : CORE_REPO,
       env: { ...process.env, ASPNETCORE_ENVIRONMENT: process.env.ASPNETCORE_ENVIRONMENT || 'Production' },
       stdio: ['ignore', 'pipe', 'pipe'],
@@ -54,6 +80,13 @@ function launchCoreProcess(): void {
 
   coreProcess.stdout?.on('data', (chunk: Buffer) => console.log(`[Ricis.Core] ${chunk.toString().trimEnd()}`));
   coreProcess.stderr?.on('data', (chunk: Buffer) => console.warn(`[Ricis.Core] ${chunk.toString().trimEnd()}`));
+  // Mandatory: an 'error' event (e.g. ENOENT when dotnet is missing) must never
+  // stay unhandled — that would crash the entire server process.
+  coreProcess.once('error', (error: Error) => {
+    lastLaunchError = `Failed to start Ricis.Core via "${DOTNET_BIN}": ${error.message}`;
+    console.warn(`[Ricis.Core] ${lastLaunchError}`);
+    coreProcess = null;
+  });
   coreProcess.once('exit', (code, signal) => {
     console.warn(`[Ricis.Core] stopped (code=${code ?? 'null'}, signal=${signal ?? 'none'})`);
     coreProcess = null;
@@ -67,6 +100,9 @@ export async function ensureRicisCoreApi(): Promise<void> {
       launchCoreProcess();
       const deadline = Date.now() + Number(process.env.RICIS_CORE_START_TIMEOUT_MS || 30_000);
       while (Date.now() < deadline) {
+        if (lastLaunchError) {
+          throw new Error(lastLaunchError);
+        }
         if (await isHealthy()) return;
         await new Promise((resolve) => setTimeout(resolve, 250));
       }
@@ -142,6 +178,7 @@ export function getRicisCoreIntegrationInfo() {
     relativeRuntime: path.relative(process.cwd(), CORE_RUNTIME),
     relativeProject: path.relative(process.cwd(), CORE_PROJECT),
     mode: existsSync(CORE_DLL) ? 'bundled-dll' : 'adjacent-source',
+    dotnetHost: DOTNET_BIN,
     running: Boolean(coreProcess && coreProcess.exitCode === null),
   };
 }

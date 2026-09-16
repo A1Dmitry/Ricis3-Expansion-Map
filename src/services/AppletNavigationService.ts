@@ -4,7 +4,11 @@
 // ============================================================================
 
 import type { AppletId } from '../types/appletRegistry';
+import { APPLET_DEFINITIONS } from '../types/appletRegistry';
 import { UrlShareService } from './UrlShareService';
+
+/** All applet ids recognized by the `?applet=` parameter. */
+const KNOWN_APPLETS: readonly AppletId[] = Object.keys(APPLET_DEFINITIONS) as AppletId[];
 
 export class AppletNavigationService {
   private static historyStack: AppletId[] = [];
@@ -12,33 +16,24 @@ export class AppletNavigationService {
   private static currentApplet: AppletId = 'map';
 
   /**
-   * Determine current applet from search string
+   * Determine current applet from search string.
+   * `?applet=` is canonical; legacy `?view=<appletId>` is accepted for ALL
+   * applets (BUG-10: voynich/terminal/qa-tests/settings used to silently fall
+   * back to the map, breaking old links/bookmarks).
    */
   public static resolveCurrentApplet(searchString: string): AppletId {
     const params = new URLSearchParams(searchString);
     const appletParam = params.get('applet') as AppletId | null;
     const viewParam = params.get('view');
 
-    if (appletParam && ['map', 'kinematic', 'seed', 'comparison', 'roadmap', 'voynich', 'qa-tests', 'terminal', 'settings'].includes(appletParam)) {
+    if (appletParam && KNOWN_APPLETS.includes(appletParam)) {
       this.currentApplet = appletParam;
       return appletParam;
     }
 
-    if (viewParam === 'kinematic') {
-      this.currentApplet = 'kinematic';
-      return 'kinematic';
-    }
-    if (viewParam === 'seed') {
-      this.currentApplet = 'seed';
-      return 'seed';
-    }
-    if (viewParam === 'comparison') {
-      this.currentApplet = 'comparison';
-      return 'comparison';
-    }
-    if (viewParam === 'roadmap') {
-      this.currentApplet = 'roadmap';
-      return 'roadmap';
+    if (viewParam && KNOWN_APPLETS.includes(viewParam as AppletId)) {
+      this.currentApplet = viewParam as AppletId;
+      return this.currentApplet;
     }
 
     this.currentApplet = 'map';
@@ -132,6 +127,7 @@ export class AppletNavigationService {
         roadmap: applet === 'roadmap',
       });
     }
-    window.dispatchEvent(new PopStateEvent('popstate'));
+    // updateBrowserUrl already dispatches a single `popstate` event;
+    // a second dispatch here caused duplicated re-renders (BUG-09).
   }
 }
