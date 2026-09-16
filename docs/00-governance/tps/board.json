@@ -2,7 +2,7 @@
   "boardVersion": "1.0.0",
   "system": "RICIS-III Expansion Map",
   "standard": "docs/00-governance/TOYOTA_TPS_WORKING_SYSTEM.md",
-  "generatedAt": "2026-09-16T20:16:00Z",
+  "generatedAt": "2026-09-16T20:21:49Z",
   "lanes": [
     {
       "id": "backlog",
@@ -115,10 +115,10 @@
       {
         "step": "test",
         "command": "npm test",
-        "measuredMs": 252070,
-        "sampleSize": 2,
-        "measuredAt": "2026-09-16T19:33:16Z",
-        "note": "Инцидентный цикл: 259 файлов / 2071 тест на чистом коммите 1054eea; прогон на незакоммиченном дереве даёт ожидаемый exit 1 на OIR03-QA-36 (A-0004)."
+        "measuredMs": 243708,
+        "sampleSize": 3,
+        "measuredAt": "2026-09-16T20:21:16Z",
+        "note": "Security dependency cycle: Vitest 5.0.1, clean commit c1160d6, 260 файлов / 2076 тестов, exit 0."
       },
       {
         "step": "build",
@@ -131,10 +131,10 @@
       {
         "step": "lineGate",
         "command": "npm run tps:gate",
-        "measuredMs": 348,
-        "sampleSize": 3,
-        "measuredAt": "2026-09-16T19:34:20Z",
-        "note": "Инцидентный цикл: 0 до записи доски, 0 после (витрина и сводка синхронны)."
+        "measuredMs": 329,
+        "sampleSize": 4,
+        "measuredAt": "2026-09-16T20:21:46Z",
+        "note": "Security dependency cycle: карточка в verify, A-0011/K-0014/M-0015 записаны; повтор после done обязателен."
       },
       {
         "step": "guardSuite",
@@ -159,6 +159,14 @@
         "sampleSize": 4,
         "measuredAt": "2026-09-16T19:22:31Z",
         "note": "Инцидентный цикл, новый страж: 10/10 — HTTP-проба через настоящую Vite-мидлварь (200 по умолчанию, 403 в строгом режиме), allowlist, резолвер политики, контракт точек входа."
+      },
+      {
+        "step": "security",
+        "command": "npm run security:check",
+        "measuredMs": 1140,
+        "sampleSize": 2,
+        "measuredAt": "2026-09-16T20:10:45Z",
+        "note": "До ремонта exit 1 / 4 moderate; после clean npm ci — exit 0 / 0 vulnerabilities."
       }
     ]
   },
@@ -1413,8 +1421,8 @@
     {
       "id": "TPS-0012",
       "title": "Уязвимый lockfile: обновление Vitest/qs и обязательный npm-audit гейт до мержа",
-      "lane": "verify",
-      "status": "PARTIALLY_COMPLETED",
+      "lane": "done",
+      "status": "COMPLETED",
       "taskClass": "ci",
       "owner": "agent:arena (автономный цикл RCVAP, security dependency maintenance)",
       "priority": "P0",
@@ -1476,14 +1484,30 @@
             "measuredAt": "2026-09-16T20:10:20Z",
             "durationMs": 1503,
             "note": "14/14, включая новый контракт install → security audit → test."
+          },
+          {
+            "command": "npm test",
+            "exitCode": 0,
+            "measuredAt": "2026-09-16T20:21:16Z",
+            "durationMs": 243708,
+            "note": "Vitest 5.0.1 на clean committed state c1160d6: 260/260 файлов, 2076/2076 тестов. Предыдущий dirty-tree прогон: 2075/2076, единственное падение OIR03-QA-36; allowlist стража не менялся."
+          },
+          {
+            "command": "npm run tps:gate",
+            "exitCode": 0,
+            "measuredAt": "2026-09-16T20:21:46Z",
+            "durationMs": 329,
+            "note": "Поток и документация чисты в verify-состоянии; повтор после перевода карточки в done выполняется перед финальным process-record коммитом."
           }
         ]
       },
       "remainingRisks": [
-        "Финальный полный npm test должен быть повторён после коммита: текущий dirty-tree прогон дал 2075/2076, единственное ожидаемое падение — OIR03-QA-36, который по контракту принимает только reviewed candidate paths или clean committed state.",
         "`npm audit` видит только advisories npm registry и граф npm-зависимостей; он не является SAST/DAST и не доказывает отсутствие уязвимостей приложения.",
-        "Vitest 5.0.1 совместим по engines/peerDependencies и прошёл 2075 содержательных тестов, но полный зелёный прогон до перехода карточки в done ещё не записан."
-      ]
+        "Audit-гейт зависит от доступности advisory registry в PR job. Он намеренно не добавлен в deploy-pages: уже принятый lockfile проверяется до мержа, а публикация не получает новую сетевую точку отказа.",
+        "Проверка совместимости Vitest 5 выполнена тем же пайплайном (SELF); внешний security review приложения не проводился."
+      ],
+      "closedAt": "2026-09-16T20:21:49Z",
+      "cycleTimeMs": 889000
     }
   ]
 }

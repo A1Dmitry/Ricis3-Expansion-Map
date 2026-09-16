@@ -24,7 +24,7 @@
 
 ### Продолжение 2026-09-16: SEC-DEPENDENCY-GATE
 
-* **Статус:** `VERIFY` — код и локальные профильные проверки зелёные; финальный полный прогон выполняется на committed-состоянии по процедуре OIR03-QA-36.
+* **Статус:** `COMPLETED` (`SELF-REPORTED, NOT INDEPENDENTLY VERIFIED`) — clean committed-прогон на Vitest 5: 260/260 файлов, 2076/2076 тестов; `npm audit --audit-level=moderate`: 0 vulnerabilities; lint/build/TPS-гейты зелёные.
 * **Факт до ремонта:** чистый `npm ci` устанавливал `vitest@4.1.10`, `@vitest/mocker@4.1.10` и `qs@6.15.3`; `npm audit --audit-level=moderate` завершался с exit 1 и четырьмя записями moderate (path traversal / arbitrary file read в Vitest mocker и два DoS-класса `qs`). Ни `pr-verify`, ни release-страж не исполняли уже обязательный по AGENTS.md §3 audit-гейт.
 * **Контрмера:** Vitest и coverage provider обновлены до актуальной совместимой стабильной линии `5.0.1` во всех workspace-манифестах, транзитивный `qs` — до `6.16.0`; добавлен единый `npm run security:check` и обязательный PR-шаг после `npm ci`, до тестов/сборки. `releaseConsistency.test.ts` фиксирует точную команду и порядок шага, чтобы гейт нельзя было тихо удалить.
 * **Граница:** это устранение известных уязвимых версий и предотвращение их незаметного мержа, а не заявление об абсолютной безопасности приложения. `npm audit` зависит от актуальности npm advisory registry; Pages deployment не получает сетевой audit-шаг, поэтому новый advisory останавливает PR до мержа, но не превращает уже собранный релиз в outage.

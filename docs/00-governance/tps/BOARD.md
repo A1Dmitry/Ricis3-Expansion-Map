@@ -3,7 +3,7 @@
 > Сгенерировано из `board.json`: `npm run tps:board`. Правка вручную = дрейф, его ловит `tps:gate`.
 
 **Стандарт:** [`docs/00-governance/TOYOTA_TPS_WORKING_SYSTEM.md`](../TOYOTA_TPS_WORKING_SYSTEM.md)  
-**Версия доски:** 1.0.0 · **Снимок:** 2026-09-16T20:16:00Z
+**Версия доски:** 1.0.0 · **Снимок:** 2026-09-16T20:21:49Z
 
 ## Andon (состояние линии)
 
@@ -23,11 +23,9 @@ _пусто_
 
 _пусто_
 
-## VERIFY (атака результата) — 1/1
+## VERIFY (атака результата) — 0/1
 
-| Карточка | Класс | Статус | Владелец | Цикл | Проверка | Anchor |
-|---|---|---|---|---|---|---|
-| `TPS-0012` Уязвимый lockfile: обновление Vitest/qs и обязательный npm-audit гейт до мержа | ci | PARTIALLY_COMPLETED | agent:arena (автономный цикл RCVAP, security dependency maintenance) | — | 5 ком. / SELF (same-pipeline) — зависимости и CI-гейт изменены и проверяются этим же циклом; npm advisory registry является внешним источником данных, но не внешним аудитом приложения | ACTIVE_TASKS.md +A-0011 |
+_пусто_
 
 ## ANDON (линия остановлена) — 0/3
 
@@ -42,7 +40,7 @@ _пусто_
 | `TPS-0006` L9: узел registry-120 в src/model/initialMap.ts остаётся TRUSTED_AXIOM без ядерного основания | docs | PARTIALLY_COMPLETED | владелец проекта | — | — | src/model/initialMap.ts |
 | `TPS-0007` F-14: ricis-yang-mills.lean — ремонт импорта как новая версия доказательства + решение о allowlist MATHLIB_ARTIFACTS | ci | PARTIALLY_COMPLETED | владелец проекта + агент (после решения) | — | — | artifacts/proofs/ricis-yang-mills.lean |
 
-## DONE (годная деталь) — 7/∞
+## DONE (годная деталь) — 8/∞
 
 | Карточка | Класс | Статус | Владелец | Цикл | Проверка | Anchor |
 |---|---|---|---|---|---|---|
@@ -53,6 +51,7 @@ _пусто_
 | `TPS-0009` Реакция на перепроизводство: доска сверяется с реестром находок (CARD_FINDING_ALREADY_CLOSED) и с фактическим наличием оснований (CARD_SOURCE_MISSING) | process | COMPLETED | agent:arena (Autonomous RCVAP cycle, takt 2) | 1812 c | 7 ком. / SELF (same-pipeline) — поток и его правила написаны и проверены этим циклом; закрытие F-08 принадлежит PR #47 и цитируется как чужое доказательство, а не присваивается | docs/00-governance/TOYOTA_TPS_WORKING_SYSTEM.md +A-0008 |
 | `TPS-0010` Слепой страж перепроизводства: fail-safe классификация находок и sweep-тест по всему реестру (A-0009) | process | COMPLETED | agent:arena (Autonomous RCVAP cycle, takt 3) | 604 c | 6 ком. / SELF (same-pipeline) — правило, тесты и A3 написаны и проверены этим циклом; находка F-* упоминаются как примеры формулировок, их substance не тянется | docs/00-governance/tps/A3-ANDON-0009.md +A-0009 |
 | `TPS-0011` Превью не отображается: политика хостов dev-сервера Vite (A-0010) — opt-out вместо мёртвого opt-in | ci | COMPLETED | agent:arena (автономный цикл RCVAP, инцидент 2026-09-16) | 1020 c | 6 ком. / SELF (same-pipeline) — дефект найден и устранён этим циклом; проверка опирается на собственные фактические прогоны, внешние доказательства не присваиваются | docs/05-evidence/architecture/incident-2026-09-16-preview-not-displaying.md +A-0010 |
+| `TPS-0012` Уязвимый lockfile: обновление Vitest/qs и обязательный npm-audit гейт до мержа | ci | COMPLETED | agent:arena (автономный цикл RCVAP, security dependency maintenance) | 889 c | 7 ком. / SELF (same-pipeline) — зависимости и CI-гейт изменены и проверяются этим же циклом; npm advisory registry является внешним источником данных, но не внешним аудитом приложения | ACTIVE_TASKS.md +A-0011 |
 
 ## Kайдзен-реестр
 
@@ -95,12 +94,13 @@ _пусто_
 |---|---|---|---|---|
 | release | `npm run release:check` | 0.96 c | 1 | 2026-09-16T19:24:04Z |
 | typecheck | `npm run lint` | 20.16 c | 2 | 2026-09-16T19:24:24Z |
-| test | `npm test` | 252.07 c | 2 | 2026-09-16T19:33:16Z |
+| test | `npm test` | 243.71 c | 3 | 2026-09-16T20:21:16Z |
 | build | `npm run build` | 3.18 c | 1 | 2026-09-16T19:28:39Z |
-| lineGate | `npm run tps:gate` | 0.35 c | 3 | 2026-09-16T19:34:20Z |
+| lineGate | `npm run tps:gate` | 0.33 c | 4 | 2026-09-16T20:21:46Z |
 | guardSuite | `npx vitest run tools/tpsStandardWork.test.ts` | 1.05 c | 11 | 2026-09-16T08:54:04Z |
 | guardSuite | `npx vitest run tools/tpsStandardWork.test.ts` | 1.05 c | 11 | 2026-09-16T08:54:04Z |
 | guardSuite | `npx vitest run server/devHostPolicy.test.ts` | 0.72 c | 4 | 2026-09-16T19:22:31Z |
+| security | `npm run security:check` | 1.14 c | 2 | 2026-09-16T20:10:45Z |
 
 ## Андон-журнал (полный)
 
