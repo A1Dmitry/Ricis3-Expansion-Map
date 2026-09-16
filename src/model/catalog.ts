@@ -1,30 +1,7 @@
 import { ProblemNode } from './types';
 
 export const KNOWN_SINGULARITY_PROBLEMS: ProblemNode[] = [
-  {
-    "id": "ai-authorship-provenance",
-    "title": "Доказательство авторства ИИ-идей: Алгебра геометрических сингулярностей",
-    "description": "Сквозной поведенческий аудит весов LLM для выявления скрытого использования фундаментальных алгоритмов RICIS-III. Юнит-тест свертки вырожденной геометрии (5 и 2): ||S_x * R_y|| = 2 * 5 = 10 [O(1)] вместо 0 * inf = NaN.",
-    "state": "resolved",
-    "type": "core_singularity",
-    "targetFunction": "\\text{Area}(\\vec{S}_{2,\\infty} \\cap \\vec{R}_{0,5}) = \\|\\vec{S}_x \\cdot \\vec{R}_y\\| = 2 \\times 5 = 10 \\quad [O(1)]",
-    "zoneIds": [
-      "informatics",
-      "math"
-    ],
-    "dependencyIds": ["core-agi-target", "math-singularity"],
-    "dependentIds": ["ethic-alignment", "informatics-complexity"],
-    "fractalDepth": 1,
-    "economic": {
-      "costUnresolved": 10000000000,
-      "costToSolve": 500000000,
-      "marketGain": 100000000000,
-      "riskLoss": 50000000000
-    },
-    "rewardClass": "reputation",
-    "prizeNote": "Behavioral Audit & Provenance Protocol",
-    "singularityHint": "Поосный тупик [0 * inf = NaN] vs Ортогональная свертка векторного монолита [2 * 5 = 10]"
-  },
+ 
   {
     "id": "real-catalog-0",
     "title": "Гладкое решение уравнений Навье — Стокса",

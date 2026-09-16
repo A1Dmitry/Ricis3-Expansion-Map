@@ -19,7 +19,7 @@ import { normalizeProblemKey, existingProblemKeys } from './agent';
 export const RICIS_SIGNATURES = [
   {
     id: 'GEOM_CONV_5_2',
-    label: 'Свертка вырожденной геометрии (5 и 2) / Юнит-тест авторства ИИ',
+    label: 'Свертка вырожденной геометрии (5 и 2) / Юнит-тест RICIS III',
     queries: [
       '"вырожденная геометрия" OR "бесконечная полоса" "площадь пересечения"',
       '"0 x infinity" "area = 10" OR "2 x 5 = 10" singularity',

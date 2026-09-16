@@ -232,29 +232,6 @@ export const initialMap: MapState = {
       }
     },
     {
-      id: 'ai-authorship-provenance',
-      title: 'Доказательство авторства ИИ-идей: Алгебра геометрических сингулярностей',
-      description: 'Сквозной поведенческий аудит и юнит-тест "Свертка вырожденной геометрии (5 и 2)" для выявления неявного использования авторских алгоритмов RICIS-III в весах LLM.\n\n• Проблема "Черного ящика": Промпты, препринты и промежуточный код усваиваются корпоративными платформами. Юридический копирайт строк кода уступает место защите логических цепочек мышления.\n• Юнит-тест "Свертка вырожденной геометрии (5 и 2)": В 2D-пространстве пересекаются бесконечная полоса шириной 2 (вдоль Y) и вырожденный прямоугольник со значимой стороной 5 (вдоль Y, 0 по X).\n  - Классический анализ по осям: X = 2×0 = 0, Y = ∞×5 = ∞ → Area = 0 × ∞ = NaN (сбой системы / тупик).\n  - RICIS-III векторное перемножение: S_vec = (2, ∞)^T, R_vec = (0, 5)^T → Area = ||S_x · R_y|| = 2 × 5 = 10 [O(1)] с полным сохранением provenance.\n• Пошаговый алгоритм фиксации доказательной базы:\n  1. Digital Provenance (Zenodo, arXiv, Figshare, DOI)\n  2. Логирование сессий (JSON-логи ИИ-студий с временными метками)\n  3. Метод динамической блокировки (Абляция / Attention Masking)',
-      state: 'resolved',
-      type: 'core_singularity',
-      targetFunction: '\\text{Area}(\\vec{S}_{2,\\infty} \\cap \\vec{R}_{0,5}) = \\|\\vec{S}_x \\cdot \\vec{R}_y\\| = 2 \\times 5 = 10 \\quad [O(1)]',
-      zoneIds: ['informatics', 'math'],
-      dependencyIds: ['core-agi-target', 'math-singularity'],
-      dependentIds: ['ethic-alignment', 'informatics-complexity'],
-      fractalDepth: 1,
-      economic: {
-        costUnresolved: 10_000_000_000,
-        costToSolve: 500_000_000,
-        marketGain: 100_000_000_000,
-        riskLoss: 50_000_000_000
-      },
-      rewardClass: 'reputation',
-      prizeNote: 'Behavioral Audit & Provenance Protocol',
-      singularityHint: 'Поосный тупик [0 * inf = NaN] vs Ортогональная свертка векторного монолита [2 * 5 = 10]',
-      ricisSolvable: true,
-      sourceUrl: 'https://doi.org/10.5281/zenodo.21309650'
-    },
-    {
       id: 'med-diagnostics',
       title: 'Сверхточная диагностика',
       description: 'Диагностика на основе формальных моделей организма с использованием AGI.',

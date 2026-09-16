@@ -789,10 +789,10 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
     },
   },
   'runtime.legacy.1bed345a8d0f': {
-    source: `Свертка вырожденной геометрии (5 и 2) / Юнит-тест авторства ИИ`,
+      source: `Свертка вырожденной геометрии (5 и 2) / Юнит-тест RICIS III`,
     status: 'pending-translation',
     values: {
-      'ru': `Свертка вырожденной геометрии (5 и 2) / Юнит-тест авторства ИИ`,
+        'ru': `Свертка вырожденной геометрии (5 и 2) / Юнит-тест RICIS III`,
     },
   },
   'runtime.legacy.1bed686fd0a4': {
@@ -3250,13 +3250,7 @@ export const LEGACY_RESOURCE_CATALOG: Readonly<Record<string, LegacyResourceEntr
       'ru': `Блокчейн-форк`,
     },
   },
-  'runtime.legacy.741b09b467c0': {
-    source: `Доказательство авторства ИИ-идей: Алгебра геометрических сингулярностей`,
-    status: 'pending-translation',
-    values: {
-      'ru': `Доказательство авторства ИИ-идей: Алгебра геометрических сингулярностей`,
-    },
-  },
+ 
   'runtime.legacy.7456aabfc1a8': {
     source: `Управление экспрессией генов.`,
     status: 'pending-translation',
