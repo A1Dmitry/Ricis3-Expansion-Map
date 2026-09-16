@@ -4,7 +4,7 @@
 [![Formal Verification](https://img.shields.io/badge/Formal%20Verification-Lean%204.33.1-blue.svg)](https://lean-lang.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-**Версия: 0.4.196**
+**Версия: 0.4.197**
 
 Интерактивная исследовательская карта сингулярностей, ориентированный граф доказательств (Blueprint DAG) и аналитический вычислительный движок на базе аксиоматической системы **RICIS-III v7.7** (Recursive Indexed Calculus of Identity and Singularity).
 
@@ -192,7 +192,16 @@ npm run lint
 
 # Сборка продакшен-бандла
 npm run build
+
+# Состояние рабочего процесса (Toyota/TPS: WIP, андон, пока-ёке)
+npm run tps:gate
 ```
+
+## 🏭 Рабочий процесс: шаблон Toyota (TPS)
+
+Поток работ нормирован в [`docs/00-governance/TOYOTA_TPS_WORKING_SYSTEM.md`](docs/00-governance/TOYOTA_TPS_WORKING_SYSTEM.md): канбан с WIP-лимитами и one-piece flow, дзидока (стоп-линия при любом `STOP — TUKHTA RISK`), такт по фактическим замерам, хейдзанка очереди, кайдзен и ёкотэн. Состояние линии — [`docs/00-governance/tps/board.json`](docs/00-governance/tps/board.json) (витрина [`tps/BOARD.md`](docs/00-governance/tps/BOARD.md) генерируется командой `npm run tps:board`). Проверка формы потока исполняется машиной и встроена в CI: `npm run tps:gate`.
+
+> **Граница:** гейт оценивает только форму потока. Зелёный `tps:gate` не является основанием повышать статусы доказательств, `trustStatus` или считать какую-либо гипотезу решённой.
 
 ---
 
