@@ -3,6 +3,7 @@ import { existsSync, readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
+import { resolveDevAllowedHosts } from '../server/devHostPolicy';
 
 const repositoryRoot = join(dirname(fileURLToPath(import.meta.url)), '..');
 
@@ -38,11 +39,14 @@ describe('Preview & Render Integrity Check (Верификация работо�
     expect(existsSync(socialImgPath)).toBe(true);
   });
 
-  it('проверяет, что сервер разрешает внешние хосты (allowedHosts: true) для стабильного отображения в iframe', () => {
+  it('проверяет, что сервер подключает общую политику внешних хостов для стабильного отображения в iframe', () => {
     const serverCode = readText('server.ts');
-    
-    // Проверяем, что allowedHosts выставлен в true без условий
-    expect(serverCode).toContain('allowedHosts: true');
+
+    // The default shared policy is equivalent to `allowedHosts: true`, while
+    // explicit VITE_ALLOWED_HOSTS values can still narrow the dev server.
+    expect(resolveDevAllowedHosts(undefined)).toBe(true);
+    expect(serverCode).toContain('resolveDevAllowedHosts(process.env[DEV_ALLOWED_HOSTS_ENV])');
+    expect(serverCode).toContain('allowedHosts,');
   });
 
   it('проверяет наличие точки входа React (/src/main.tsx) и базового компонента (/src/App.tsx)', () => {

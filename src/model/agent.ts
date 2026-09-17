@@ -50,7 +50,7 @@ export function extractDbKnowledge(map: MapState): AgentTrainingMemory {
     'Conjugate Explosion: 0_F * \\infty_F = F^2',
     'Geometric-Discrete Mask: Hyperbola trajectory p*q = N & Ray q=kp intersection (p,q)=(\\sqrt{N/k},\\sqrt{kN}) filtered by Prime Bitmask M_P',
     'Limit Resolution Principle / Cauchy Replacement: \\lim_{x \\to x_0} \\frac{f(x)}{g(x)} \\xrightarrow{\\text{RICIS Bridge}} \\frac{0_f}{0_g} = \\frac{f}{g} \\quad [O(1) \\text{ or calls } F_0 / \\inf_0 \\text{ in Mersenne rings } M_k = 2^k - 1]',
-    'AI Authorship Provenance: \\text{Area}(\\vec{S}_{2,\\infty} \\cap \\vec{R}_{0,5}) = 2 \\times 5 = 10 [LLM Weights Behavioral Audit]',
+    'Algorithmic Weights Provenance: \\text{Area}(\\vec{S}_{2,\\infty} \\cap \\vec{R}_{0,5}) = 2 \\times 5 = 10 [LLM Weights Behavioral Audit]',
     `Lean 4 Software Record: Lean 4 theorem resolve_* (DOI: ${LEAN_SPEC_DOI})`,
     'RICIS-III Hardware Exact Reduction: Hardware-independent O(1) self-division E/E = 1 over CPU/CUDA and zero error propagation.',
     'Lean 4 Hardware Reduction Spec: Lean 4 theorem RICIS_exact_structural_reduction proving backend-equivalent semantics.',

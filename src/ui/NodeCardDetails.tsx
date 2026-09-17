@@ -878,7 +878,7 @@ export const NodeCardDetails: React.FC<Props> = ({
       )}
 
       {/* 7. СЕКЦИЯ АККОРДЕОНА: ДОКАЗАТЕЛЬСТВО АВТОРСТВА ИЛИ АУДИТ ПРИОРИТЕТА */}
-      {(node.title.toLowerCase().includes('авторств') || node.type === 'derivative_claim') && (
+      {node.type === 'derivative_claim' && (
         <div className="flex flex-col">
           <button
             type="button"

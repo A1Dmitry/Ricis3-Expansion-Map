@@ -58,7 +58,7 @@ describe('MapPatchIngestionService (RICIS-III Ingestion Engine)', () => {
       nodePatches: [
         { id: 'math-singularity', state: 'resolved' },
         { id: 'core-agi-target', state: 'resolved' },
-        { id: 'ai-authorship-provenance', state: 'resolved' },
+        { id: 'econ-value', state: 'resolved' },
       ],
       proofs: {
         'math-singularity': {
