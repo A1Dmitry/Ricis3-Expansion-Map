@@ -9,6 +9,7 @@ import {
   CORE_CHECK_DIRECTORY,
   EPILOGUE_MARKER,
   LEAN_CORE_CHECK_PLAN,
+  blankCommentsAndStrings,
   collectTheoremNames,
   coreCheckBody,
   renderCoreCheck,
@@ -92,8 +93,30 @@ describe('Lean kernel core-check derivatives', () => {
         /^(?!\s)(?:theorem|def|example|axiom|lemma|instance)\b/mu,
       );
       expect(committed, `${entry.output}: производная не должна ничего импортировать`).not.toMatch(/^import\s/mu);
-      expect(committed, `${entry.output}: sorry в производной недопустим`).not.toMatch(/\bsorry\b|\badmit\b/u);
+      // sorry/admit недопустимы как ТАКТИКА/заполнитель доказательства. Сравнение идёт по
+      // тексту с вычищенными комментариями и строковыми литералами (тот же разбор, что
+      // использует генератор для имён теорем): упоминание «No sorry.» в док-комментарии
+      // исходника не является тактикой, тогда как настоящий `by sorry` в теле остаётся
+      // видимым и бракует производную. Авторитетная проверка — `sorryAx` в прогоне ядра.
+      const sorryScannable = blankCommentsAndStrings(committed);
+      expect(sorryScannable, `${entry.output}: sorry в производной недопустим`).not.toMatch(/\bsorry\b|\badmit\b/u);
     }
+  });
+
+  it('мутационная проба: детектор sorry чувствует код и не слепнет на комментариях', () => {
+    // Урок A-0006: опасен не красный страж, а нечувствительный. Проверка обязана
+    // уметь краснеть: настоящий `sorry`/`admit` в теле доказательства переживает
+    // вычитку комментариев и строк и ловится регулярным выражением.
+    const codeSorry = 'theorem t : 1 = 1 := by sorry\nexample : 2 = 2 := by admit';
+    const blankedCode = blankCommentsAndStrings(codeSorry);
+    expect(blankedCode).toMatch(/\bsorry\b/u);
+    expect(blankedCode).toMatch(/\badmit\b/u);
+
+    // Намеренное поведение: упоминание в док-комментарии/строке (класс
+    // «No sorry.» в Schwarzschild_GeometricBridge.lean) тактикой не является.
+    const proseSorry = '/-\n  No sorry.\n-/\ndef s := "sorry admit"\ntheorem t : 1 = 1 := rfl';
+    const blankedProse = blankCommentsAndStrings(proseSorry);
+    expect(blankedProse).not.toMatch(/\bsorry\b|\badmit\b/u);
   });
 
   it('каждая цель #print axioms в эпилоге — реальная теорема производной, а не выдуманное имя', () => {

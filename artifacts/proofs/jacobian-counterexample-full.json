@@ -1,0 +1,45 @@
+{
+  "source": "Внешний артефакт (пришёл в репозиторий вместе с пакетом Jacobian-контрпримера); байты неизменяемы (AGENTS.md §7).",
+  "claim": "jacobian-counterexample-full: явное полиномиальное поле над ℚ с постоянным глобальным якобианом (−2) и сертифицированным свидетелем неинъективности; режим доверенного контракта (объявленная аксиома как видимая граница доверия).",
+  "method": "explicit_polynomial_field_witness_with_trusted_contract",
+  "verification": {
+    "valid": false,
+    "verifiedAxioms": [],
+    "contentHash": "e6ab1b1db54ff04cdc3fb5a647cb6beedd7daba84bcd1272b51123519244339a",
+    "trustStatus": "REQUIRES_CORE_LEAN",
+    "claimLevel": "PENDING_KERNEL_RUN",
+    "claimLevelNote": "Статус не повышается до фактического двойного прогона (исходник как предоставлен + байт-в-байт производная с #print axioms) в джобе mathlib-kernel-check. Тело действительно нуждается в Mathlib: тип ℚ, тактики ring и norm_num. Объявленная аксиома доверенного контракта не становится доказанной леммой от того, что прогон зелёный."
+  },
+  "declaredAxioms": [
+    {
+      "name": "JacobianCounterexample.trusted_full_jacobian_contract",
+      "unqualifiedName": "trusted_full_jacobian_contract",
+      "role": "trusted contract: потребители могут принять проверенный полевой пакет как доверенный вход; #print axioms делает эту зависимость видимой",
+      "usedByTheorems": [
+        "trusted_contract_no_left_inverse"
+      ],
+      "note": "Объявлена внутри `namespace JacobianCounterexample`; эпилог производной печатает квалифицированное имя (A-0011)."
+    }
+  ],
+  "boundary": {
+    "provenIfKernelAccepts": [
+      "для явно предъявленного полиномиального отображения над ℚ: глобальный якобиан тождественно равен −2",
+      "три сертифицированные точки (свидетели) отображаются в одно значение (−1/4, 0, 0) — поле неинъективно",
+      "не существует левого обратного к отображению (следствие неинъективности)",
+      "записи якобиана совпадают с формальными частными производными координатных функций"
+    ],
+    "notProven": [
+      "Разрешение (доказательство или опровержение) классической гипотезы Якоби в целом артефактом не заявляется и прогоном не устанавливается.",
+      "Аксиома доверенного контракта — объявленная граница доверия, а не доказанная лемма.",
+      "Компилируемость и отсутствие sorryAx не считаются подтверждёнными до CI-прогона (локальный тулчейн недоступен — A-0007).",
+      "Прогон ядра фиксирует только структурные теоремы артефакта, не заявления узлов карты."
+    ]
+  },
+  "verificationPath": {
+    "workflow": ".github/workflows/lean-artifact-kernel-check.yml",
+    "job": "mathlib-kernel-check",
+    "checkedFile": "artifacts/proofs/jacobian-counterexample-full.lean",
+    "artifactCheckedAsProvided": true,
+    "status": "PENDING_KERNEL_RUN"
+  }
+}

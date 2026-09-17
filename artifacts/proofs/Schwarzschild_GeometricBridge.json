@@ -51,12 +51,44 @@
       "P1"
     ],
     "contentHash": "1df6b21df93cf2e5e822156a151929d849dd553979ef32c8992045d2a5b3de63",
-    "trustStatus": "REQUIRES_CORE_LEAN"
+    "trustStatus": "LEAN_VERIFIED",
+    "claimLevel": "STRUCTURALLY_VALIDATED",
+    "claimLevelNote": "Артефактный уровень: ядро Lean 4.33.1 приняло производную без неиспользуемых импортов (run 35145205870, exit 0, без sorryAx). Только структурные теоремы; регулярность метрики Шварцшильда / устранение сингулярности ОТО не заявлены и не проверялись."
   },
   "trustBoundary": {
     "facts": "Структурная идентичность пути, запрет тихого коллапса, A6 продукт/отношение прокси на Int, gated evaluation под SP4.",
     "notClaimed": "Регулярность метрики Шварцшильда, устранение сингулярности ОТО, физика интерьера чёрной дыры, структура горизонта событий, эмпирические тесты гравитации.",
     "kernelRun": "Отсутствует: артефакт импортирует Mathlib и не входит в явный allowlist MATHLIB_ARTIFACTS; статус REQUIRES_CORE_LEAN не повышается без воспроизводимого прогона ядра Lean 4.33.1.",
     "auditor": "AUDITOR: SELF (same-pipeline)"
+  },
+  "kernelCheck": {
+    "addedBy": "AGENTS.md §7 — статус записывается снаружи неизменяемого исходника (присоединение metadata)",
+    "registry": "artifacts/proofs/core-checks/kernel-findings.json",
+    "evidence": "docs/05-evidence/proofs/lean-kernel-run-35145205870.pr-comment.txt",
+    "rawEvidence": "docs/05-evidence/proofs/lean-kernel-run-35145205870.pr-comment.txt",
+    "run": 35145205870,
+    "runUrl": "https://github.com/A1Dmitry/Ricis3-Expansion-Map/actions/runs/35145205870",
+    "job": "kernel-check",
+    "toolchain": "lean 4.33.1 (pinned via elan, GitHub Actions ubuntu-latest)",
+    "command": "lean +4.33.1 artifacts/proofs/core-checks/Schwarzschild_GeometricBridge.core-check.lean",
+    "immutableSource": "artifacts/proofs/Schwarzschild_GeometricBridge.lean",
+    "immutableSourceSha256": "1df6b21df93cf2e5e822156a151929d849dd553979ef32c8992045d2a5b3de63",
+    "checkedFile": "artifacts/proofs/core-checks/Schwarzschild_GeometricBridge.core-check.lean",
+    "sourceCheckedAsProvided": false,
+    "transformNote": "Проверяется производная: исходник минус три неиспользуемые строки `import Mathlib…` плюс эпилог #print axioms (тело байт-в-байт). Тело не использует символы Mathlib — факт подтверждён прогоном.",
+    "substitutionsApplied": [],
+    "compilerExit": 0,
+    "compilerErrorCount": 0,
+    "theorems": {
+      "total": 11,
+      "provenWithoutSorryAx": 11,
+      "withSorryAx": 0,
+      "axiomFree": 7,
+      "withStandardAxiomsOnly": 4
+    },
+    "statusAfterKernelRun": "LEAN_VERIFIED",
+    "rootCause": null,
+    "trustBoundary": "Подтверждены только структурные теоремы (тождество пути, запрет тихого коллапса, A6 продукт/отношение прокси на Int, gated evaluation). Физические имена — метки пути SP4, не обитатели теории типов.",
+    "relationToDeclaredTrustStatus": "Было REQUIRES_CORE_LEAN (0.4.191) → стало LEAN_VERIFIED по факту run 35145205870 (артефактный уровень); заявления о физике Шварцшильда не повышались и не существовали."
   }
 }

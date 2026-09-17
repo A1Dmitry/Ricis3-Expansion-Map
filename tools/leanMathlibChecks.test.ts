@@ -173,6 +173,56 @@ describe('Lean kernel mathlib-check derivatives', () => {
     }
   });
 
+  it('A-0011: цель эпилога, объявленная внутри неймспейса, квалифицирована (независимый разбор)', () => {
+    // Инвариант: эпилог стоит после всех `end …`, поэтому `#print axioms <имя>`
+    // обязан быть разрешим из корня файла. Проверка намеренно НЕ переиспользует
+    // коллекторы генератора: независимый минимальный разбор источника (стек
+    // неймспейсов по строкам, бланкинг блочных комментариев) сверяет каждую
+    // `axiom`-декларацию с целями эпилога. Урок run 35145205870: аксиома внутри
+    // `namespace JacobianCounterexample` была напечатана неквалифицированно и
+    // ядро ответило `unknown identifier` — при том что сам коллектор считал
+    // имя «существующим» (самосогласованная, а не независимая проверка).
+    const stripBlockComments = (text: string): string =>
+      text.replace(/\/-[\s\S]*?-\//gu, '');
+    for (const entry of LEAN_MATHLIB_CHECK_PLAN) {
+      const source = stripBlockComments(readText(entry.source));
+      const committed = readText(entry.output);
+      const epilogue = committed.slice(committed.indexOf(EPILOGUE_MARKER));
+      const printed = new Set(
+        epilogue
+          .split('\n')
+          .filter((line) => line.startsWith('#print axioms '))
+          .map((line) => line.replace('#print axioms ', '').trim()),
+      );
+
+      const stack: string[] = [];
+      for (const raw of source.split('\n')) {
+        const line = raw.trim();
+        const namespace = /^namespace\s+([A-Za-z_][A-Za-z0-9_'.]*)\s*$/u.exec(line);
+        if (namespace?.[1]) {
+          stack.push(namespace[1]);
+          continue;
+        }
+        if (/^end\s/u.test(line)) {
+          stack.pop();
+          continue;
+        }
+        const axiomDecl = /^axiom\s+([A-Za-z_][A-Za-z0-9_'.]*)/u.exec(line);
+        if (!axiomDecl?.[1]) continue;
+        const qualified = stack.length > 0 ? `${stack.join('.')}.${axiomDecl[1]}` : axiomDecl[1];
+        expect(printed.has(qualified), `${entry.output}: контракт ${qualified} отсутствует в эпилоге`).toBe(true);
+        if (stack.length > 0) {
+          // Мутационная сторона: старое (неквалифицированное) имя бракуется —
+          // вне неймспейса ядро его не разрешит.
+          expect(
+            printed.has(axiomDecl[1]),
+            `${entry.output}: неквалифицированное имя ${axiomDecl[1]} не должно печататься`,
+          ).toBe(false);
+        }
+      }
+    }
+  });
+
   it('объявленные контракты (axiom) видны как доверенные входы, а не как доказательства', () => {
     for (const entry of LEAN_MATHLIB_CHECK_PLAN) {
       const source = readText(entry.source);
@@ -307,7 +357,7 @@ describe('Lean kernel mathlib-check derivatives', () => {
     }
   });
 
-  it('факт ядра виден в реестре: исходник как предоставлен, стандартные аксиомы, никаких объявленных контрактов в теоремах', () => {
+  it('факт ядра виден в реестре: исходник как предоставлен, стандартные аксиомы, контрактные зависимости теорем явны и точны', () => {
     expect(registry.mathlibRun, 'реестр не содержит раздела mathlibRun').toBeDefined();
     expect(registry.mathlibRun?.job).toBe('mathlib-kernel-check');
     expect(existsSync(join(repositoryRoot, registry.mathlibRun?.rawEvidence ?? '')), 'сырое evidence не сохранено').toBe(
@@ -320,6 +370,11 @@ describe('Lean kernel mathlib-check derivatives', () => {
             readonly declaredContracts?: readonly string[];
             readonly substitutionsApplied?: readonly unknown[];
             readonly sourceCheckedAsProvided?: string;
+            readonly contractDependencyFacts?: readonly {
+              readonly theorem: string;
+              readonly contract: string;
+              readonly why: string;
+            }[];
           })
         | undefined;
       if (!fact || fact.outcome !== 'LEAN_VERIFIED') continue;
@@ -335,11 +390,34 @@ describe('Lean kernel mathlib-check derivatives', () => {
       const declared = fact.declaredContracts ?? [];
       const theorems = fact.theorems.filter((theorem) => !declared.includes(theorem.name));
       expect(theorems.length, `${entry.artifactId}: в реестре нет теорем`).toBeGreaterThan(0);
-      // Ключевой факт F-09: теоремы НЕ зависят от объявленных контрактов.
+
+      // Ключевой факт (обобщение F-09): зависимость теоремы от объявленного контракта
+      // допустима ТОЛЬКО если она явно записана в contractDependencyFacts — доверенный вход
+      // обязан быть видимым, а не молчаливым. И наоборот: запись без фактической зависимости
+      // — фиктивный документ. Поэтому требуем точного двустороннего соответствия между
+      // фактическими аксиомами (#print axioms) и реестровыми записями.
+      const documented = fact.contractDependencyFacts ?? [];
+      const documentedKeys = new Set(documented.map((dep) => `${dep.theorem}::${dep.contract}`));
       for (const theorem of theorems) {
         for (const contract of declared) {
-          expect(theorem.axioms, `${entry.artifactId}.${theorem.name}`).not.toContain(contract);
+          const depends = theorem.axioms.includes(contract);
+          const isDocumented = documentedKeys.has(`${theorem.name}::${contract}`);
+          expect(
+            depends,
+            `${entry.artifactId}.${theorem.name} зависит от контракта ${contract}, но это не записано в contractDependencyFacts (молчаливый доверенный вход)`,
+          ).toBe(isDocumented);
+          expect(
+            isDocumented,
+            `${entry.artifactId}: запись о зависимости ${theorem.name} от ${contract} есть, но #print axioms её не подтверждает (фиктивный документ)`,
+          ).toBe(depends);
         }
+      }
+      // Каждая запись обязана указывать существующую теорему и нести содержательное «почему».
+      for (const dep of documented) {
+        const theorem = fact.theorems.find((item) => item.name === dep.theorem);
+        expect(theorem, `${entry.artifactId}: contractDependencyFacts ссылается на неизвестную теорему ${dep.theorem}`).toBeDefined();
+        expect(theorem?.axioms ?? [], `${entry.artifactId}.${dep.theorem}`).toContain(dep.contract);
+        expect(dep.why.trim().length, `${entry.artifactId}.${dep.theorem}: запись контракта без объяснения`).toBeGreaterThan(20);
       }
     }
   });

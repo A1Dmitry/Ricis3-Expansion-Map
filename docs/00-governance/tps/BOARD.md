@@ -3,13 +3,15 @@
 > Сгенерировано из `board.json`: `npm run tps:board`. Правка вручную = дрейф, его ловит `tps:gate`.
 
 **Стандарт:** [`docs/00-governance/TOYOTA_TPS_WORKING_SYSTEM.md`](../TOYOTA_TPS_WORKING_SYSTEM.md)  
-**Версия доски:** 1.0.0 · **Снимок:** 2026-09-16T20:21:49Z
+**Версия доски:** 1.0.0 · **Снимок:** 2026-09-16T21:15:00Z
+
 
 ## Andon (состояние линии)
 
-**ЛИНИЯ ИДЁТ** — блокирующих событий нет; открыто неблокирующих: 2 (тягу не останавливают, но видны в каждом прогоне)
+**ЛИНИЯ ИДЁТ** — блокирующих событий нет; открыто неблокирующих: 3 (тягу не останавливают, но видны в каждом прогоне)
 - `A-0003` (medium, не блокирует линию) — TUKHTA RISK: зелёный tps:gate может быть принят за верификацию результатов
 - `A-0007` (medium, не блокирует линию) — Ограничение среды: тулчейн Lean и логи раннера недоступны из песочницы — проверка возможна только прогоном CI
+- `A-0011` (medium, не блокирует линию) — Эпилог генератора не квалифицировал аксиомы, объявленные внутри неймспейса: производная jacobian-counterexample-full не скомпилировалась
 
 ## BACKLOG — 0/8
 
@@ -23,9 +25,11 @@ _пусто_
 
 _пусто_
 
-## VERIFY (атака результата) — 0/1
+## VERIFY (атака результата) — 1/1
 
-_пусто_
+| Карточка | Класс | Статус | Владелец | Цикл | Проверка | Anchor |
+|---|---|---|---|---|---|---|
+| `TPS-0013` Зафиксировать факты прогона run 35145205870 и отремонтировать эпилог генератора (F-15/A-0011): аксиома внутри неймспейса квалифицирована | ci | IN_PROGRESS | agent:arena (автономный цикл RCVAP, 2026-09-16) | — | — | ACTIVE_TASKS.md +A-0011 |
 
 ## ANDON (линия остановлена) — 0/3
 
@@ -51,6 +55,7 @@ _пусто_
 | `TPS-0009` Реакция на перепроизводство: доска сверяется с реестром находок (CARD_FINDING_ALREADY_CLOSED) и с фактическим наличием оснований (CARD_SOURCE_MISSING) | process | COMPLETED | agent:arena (Autonomous RCVAP cycle, takt 2) | 1812 c | 7 ком. / SELF (same-pipeline) — поток и его правила написаны и проверены этим циклом; закрытие F-08 принадлежит PR #47 и цитируется как чужое доказательство, а не присваивается | docs/00-governance/TOYOTA_TPS_WORKING_SYSTEM.md +A-0008 |
 | `TPS-0010` Слепой страж перепроизводства: fail-safe классификация находок и sweep-тест по всему реестру (A-0009) | process | COMPLETED | agent:arena (Autonomous RCVAP cycle, takt 3) | 604 c | 6 ком. / SELF (same-pipeline) — правило, тесты и A3 написаны и проверены этим циклом; находка F-* упоминаются как примеры формулировок, их substance не тянется | docs/00-governance/tps/A3-ANDON-0009.md +A-0009 |
 | `TPS-0011` Превью не отображается: политика хостов dev-сервера Vite (A-0010) — opt-out вместо мёртвого opt-in | ci | COMPLETED | agent:arena (автономный цикл RCVAP, инцидент 2026-09-16) | 1020 c | 6 ком. / SELF (same-pipeline) — дефект найден и устранён этим циклом; проверка опирается на собственные фактические прогоны, внешние доказательства не присваиваются | docs/05-evidence/architecture/incident-2026-09-16-preview-not-displaying.md +A-0010 |
+| `TPS-0012` P12: расширение kernel-покрытия на 3 оставшихся артефакта (RicisAgiTarget, jacobian-counterexample-full → Mathlib-путь; Schwarzschild → core-путь) | ci | COMPLETED | agent:arena (автономный цикл RCVAP, 2026-09-16) | 1260 c | 6 ком. / SELF (same-pipeline) — подготовка выполнена этим циклом; ядровое свидетельство произведёт только CI, до его прихода статусы не изменены | ACTIVE_TASKS.md |
 | `TPS-0012` Уязвимый lockfile: обновление Vitest/qs и обязательный npm-audit гейт до мержа | ci | COMPLETED | agent:arena (автономный цикл RCVAP, security dependency maintenance) | 889 c | 7 ком. / SELF (same-pipeline) — зависимости и CI-гейт изменены и проверяются этим же циклом; npm advisory registry является внешним источником данных, но не внешним аудитом приложения | ACTIVE_TASKS.md +A-0011 |
 
 ## Kайдзен-реестр
@@ -70,6 +75,8 @@ _пусто_
 | `K-0011` | Закрытость находки должна быть машиночитаемым полем реестра (status: CLOSED), а не распознаваться по началу строки resolution | PROPOSED | владелец проекта (формат kernel-findings.json — его нормативный артефакт) | — |
 | `K-0012` | Fail-safe классификация находок и запрет самопроверки: непонятное останавливает, sweep покрывает все записи реестра | DONE | agent:arena | npm run tps:gate |
 | `K-0013` | Dev-транспорт под проверкой: единая политика хостов Vite и HTTP-проба через настоящую мидлварь | DONE | agent:arena | npx vitest run server/devHostPolicy.test.ts |
+| `K-0014` | Lean-токен стражи различают код и прозу: поиск sorry/admit по вычищенным комментариям/строкам + мутационная проба | DONE | agent:arena | npx vitest run tools/leanKernelCoreChecks.test.ts |
+| `K-0015` | Имена генератора квалифицируются по скоупу: сбор теорем и аксиом унифицирован на collectScopedNames + независимый страж квалификации эпилога | DONE | agent:arena | npx vitest run tools/leanMathlibChecks.test.ts |
 | `K-0014` | Dependency advisories как PR-стоп: единый security:check после locked install, но вне Pages deployment | DONE | agent:arena | npm run security:check && npx vitest run tools/releaseConsistency.test.ts |
 
 ## Потери (muda)
@@ -100,6 +107,11 @@ _пусто_
 | guardSuite | `npx vitest run tools/tpsStandardWork.test.ts` | 1.05 c | 11 | 2026-09-16T08:54:04Z |
 | guardSuite | `npx vitest run tools/tpsStandardWork.test.ts` | 1.05 c | 11 | 2026-09-16T08:54:04Z |
 | guardSuite | `npx vitest run server/devHostPolicy.test.ts` | 0.72 c | 4 | 2026-09-16T19:22:31Z |
+| release | `npm run release:check` | 0.81 c | 1 | 2026-09-16T20:26:00Z |
+| typecheck | `npm run lint` | 15.90 c | 1 | 2026-09-16T20:26:00Z |
+| test | `npm test` | 185.79 c | 1 | 2026-09-16T20:26:00Z |
+| build | `npm run build` | 2.40 c | 1 | 2026-09-16T20:26:00Z |
+| lineGate | `npm run tps:gate` | 0.68 c | 1 | 2026-09-16T20:26:00Z |
 | security | `npm run security:check` | 1.14 c | 2 | 2026-09-16T20:10:45Z |
 
 ## Андон-журнал (полный)
@@ -249,6 +261,17 @@ _пусто_
 - **Ёкотэн:** `docs/05-evidence/architecture/incident-2026-09-16-preview-not-displaying.md` — Сверено: зафиксированы временная линия по коммитам, отброшенные гипотезы с основаниями и ручное воспроизведение «до/после».
 - **Изменение стандарта:** `server/devHostPolicy.ts` + `server/devHostPolicy.test.ts` (10 тестов: HTTP-проба по умолчанию/строгий режим/allowlist + контракт точек входа), правки `server.ts` и `vite.config.ts`, документирование в `.env.example`/`README.md`, разбор в `docs/05-evidence/architecture/incident-2026-09-16-preview-not-displaying.md`.
 
+### `A-0011` · medium · OPEN — Эпилог генератора не квалифицировал аксиомы, объявленные внутри неймспейса: производная jacobian-counterexample-full не скомпилировалась
+
+- **Факт:** run 35145205870 (mathlib-kernel-check, PR #59): исходник jacobian-counterexample-full.lean — exit 0, производная — exit 1: `mathlib-checks/jacobian-counterexample-full.mathlib-check.lean:162:14: error(lean.unknownIdentifier): Unknown constant trusted_full_jacobian_contract`. Аксиома объявлена внутри `namespace JacobianCounterexample`, эпилог стоит после `end …`, имя в `#print axioms` не квалифицировано.
+- **Почему 1:** Почему производная не скомпилировалась? — `#print axioms trusted_full_jacobian_contract` в эпилоге ссылается на неквалифицированное имя после закрытия неймспейса.
+- **Почему 2:** Почему имя не квалифицировано? — `collectDeclaredAxioms` собирал имена без отслеживания неймспейсов (в отличие от `collectTheoremNames`, который квалифицирует).
+- **Почему 3:** Почему расхождение не заметили на пилоте? — пилотные артефакты (general-resolution, v3) объявляют аксиомы только на верхнем уровне: выборка не покрывала класс «аксиома внутри неймспейса».
+- **Почему 4:** Почему локальные стражи не поймали? — страж сверял цели эпилога против ТОГО ЖЕ сборщика имён (самосогласованно), а разрешимость имени вне неймспейса проверяется только компилятором, недоступным локально (A-0007).
+- **Почему 5:** Почему допустима самосогласованная проверка? — инвариант «цель эпилога разрешима вне всех неймспейсов» не имел структурного прокси-стража: отсутствие тулчейна молча заменило инвариант его отсутствием.
+- **Корень:** Инвариант генератора «каждая цель #print axioms в эпилоге разрешима из корня файла» не был обеспечен ни структурой кода (два разных сборщика имён), ни стражем; пилотная выборка не покрывала класс неймспейс-скоуп аксиом.
+- **Контрмера:** Единый скоуп-трекер имён для теорем и аксиом (квалификация в обоих) + структурный страж: имя, объявленное внутри неймспейса, обязано нести его префикс в целях эпилога (проверяемо без тулчейна). Факт закрытия — зелёный повторный прогон джобы.
+- **Изменение стандарта:** shared collectScopedNames в scripts/generateLeanCoreChecks.ts; страж в tools/leanMathlibChecks.test.ts.
 ### `A-0011` · medium · CLOSED — Чистый npm ci устанавливал четыре moderate-уязвимости, а PR workflow не исполнял обязательный audit-гейт
 
 - **Факт:** `npm ci` завершался сообщением `4 moderate severity vulnerabilities`; `npm audit --audit-level=moderate --json` → exit 1: @vitest/mocker/vitest 4.1.10 (GHSA-82fw-gwwq-j7x9) и qs 6.15.3 (GHSA-x5fp-wj9c-mxmx, GHSA-4mjr-xmp4-gh2g). В `.github/workflows/pr-verify.yml` после `npm ci` сразу шёл release/lint: команды npm audit не было.

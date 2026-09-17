@@ -1312,9 +1312,258 @@
       ],
       "outcome": "LEAN_VERIFIED",
       "rootCause": null,
-      "trustBoundary": "run 34950902412 (Lean 4.33.0 + Mathlib, PR #40): исходник как предоставлен — exit 0, производная — exit 0, sorryAx отсутствует. #print axioms: три теоремы зависят только от стандартных аксиом (propext, Classical.choice, Quot.sound), то есть НЕ используют объявленные RICIS-контракты ax_A4_general/ax_SP1_general — это факт ядра, подтверждающий F-09. Объявленные контракты напечатаны отдельно и зависят от самих себя (DECLARED_CONTRACT, не доказательство). Граница (F-09/F-10/F-11): ядро подтвердило компилируемость и состав зависимостей, а НЕ содержательное утверждение заголовка «общая теорема разрешения сингулярностей»; сингулярность не предъявлена, редукция ricis_reduce не используется, имя ricis_equals_classical_limit не подтверждено предельным содержанием (P1).",
+      "trustBoundary": "run 34950902412 (Lean 4.33.0 + Mathlib, PR #40): исходник как предоставлен — exit 0, производная — exit 0, sorryAx отсутствует. #print axioms: три теоремы зависят только от стандартных аксиом (propext, Classical.choice, Quot.sound), то есть НЕ используют объявленные RICIS-контракты ax_A4_general/ax_SP1_general — это факт ядра, подтверждающий F-09. Объявленные контракты напечатаны отдельно и зависят от самих себя (DECLARED_CONTRACT, не доказательство). Граница (F-09/F-10/F-11): ядро подтвердило компилируемость и состав зависимостей, а НЕ содержательное утверждение заголовка «общая теорема разрешения сингулярностей»; сингулярность не предъявлена, редукция ricis_reduce не используется, имя ricis_equals_classical_limit не подтверждено предельным содержанием (P1). Повторный прогон run 35145205870 (mathlib-kernel-check, PR #59): исходник и производная — снова exit 0, sorryAx отсутствует; факт подтверждён.",
       "claimLevel": "STRUCTURALLY_VALIDATED",
-      "claimLevelNote": "Артефактный уровень (ядро приняло артефакт) — LEAN_VERIFIED. Уровень заявленного результата («общая теорема разрешения комплексных сингулярностей») — НЕ доказан: см. F-09/F-10/F-11. Разделение введено решением владельца по F-01 (README artifacts/proofs)."
+      "claimLevelNote": "Артефактный уровень (ядро приняло артефакт) — LEAN_VERIFIED. Уровень заявленного результата («общая теорема разрешения комплексных сингулярностей») — НЕ доказан: см. F-09/F-10/F-11. Разделение введено решением владельца по F-01 (README artifacts/proofs).",
+      "priorRun": {
+        "runId": 34950902412,
+        "pullRequest": 40,
+        "compilerExit": 0,
+        "resultLine": "OK (source exit 0, derivative exit 0, no compiler errors)",
+        "outcome": "LEAN_VERIFIED",
+        "note": "Первый Mathlib-прогон; факт подтверждён повторным прогоном в run 35145205870 (PR #59)."
+      }
+    },
+    {
+      "artifactId": "RicisAgiTarget",
+      "immutableSource": "artifacts/proofs/RicisAgiTarget.lean",
+      "sourceSha256": "4002d1c900271d7526f8b455c277f32a91ac99a613e55d8d25f09edcd7860073",
+      "checkedFile": "artifacts/proofs/mathlib-checks/RicisAgiTarget.mathlib-check.lean",
+      "sourceCheckedAsProvided": "artifacts/proofs/RicisAgiTarget.lean",
+      "substitutionsApplied": [],
+      "compilerExit": 0,
+      "resultLine": "OK (source exit 0, derivative exit 0, no compiler errors)",
+      "compilerErrorCount": 0,
+      "firstCompilerErrors": [],
+      "theoremCount": 3,
+      "theorems": [
+        {
+          "name": "RICIS3.AgiTarget.detBridge_eq_mul",
+          "status": "LEAN_VERIFIED_WITH_STANDARD_AXIOMS",
+          "axioms": [
+            "propext",
+            "Classical.choice",
+            "Quot.sound"
+          ]
+        },
+        {
+          "name": "RICIS3.AgiTarget.sp4_no_silent_collapse",
+          "status": "LEAN_VERIFIED_WITH_STANDARD_AXIOMS",
+          "axioms": [
+            "propext",
+            "Classical.choice",
+            "Quot.sound"
+          ]
+        },
+        {
+          "name": "RICIS3.AgiTarget.evaluateGoal_eq_product",
+          "status": "LEAN_VERIFIED_WITH_STANDARD_AXIOMS",
+          "axioms": [
+            "propext",
+            "Classical.choice",
+            "Quot.sound"
+          ]
+        }
+      ],
+      "declaredContracts": [],
+      "outcome": "LEAN_VERIFIED",
+      "claimLevel": "STRUCTURALLY_VALIDATED",
+      "rootCause": null,
+      "trustBoundary": "run 35145205870 (mathlib-kernel-check, PR #59): исходник как предоставлен — exit 0, производная — exit 0, sorryAx отсутствует. Объявленных доверенных контрактов нет: все три теоремы (A6-детерминантный мост на ℝ, сохранение путь-индекса, равенство вычисления произведению весов) зависят только от стандартных аксиом Lean. Прогон НЕ подтверждает ничего эмпирического об AGI: артефакт — структурный прототип для Zenodo-депозита; заявления узлов карты об AGI-метриках не проверялись."
+    },
+    {
+      "artifactId": "ricis-general-resolution-v3",
+      "immutableSource": "artifacts/proofs/ricis-general-resolution-v3.lean",
+      "sourceSha256": "fb792af15e8d4f2c090940a5430a26a0c696ad028200d8c2c6a4b8771058b44a",
+      "checkedFile": "artifacts/proofs/mathlib-checks/ricis-general-resolution-v3.mathlib-check.lean",
+      "sourceCheckedAsProvided": "artifacts/proofs/ricis-general-resolution-v3.lean",
+      "substitutionsApplied": [],
+      "compilerExit": 0,
+      "resultLine": "OK (source exit 0, derivative exit 0, no compiler errors)",
+      "compilerErrorCount": 0,
+      "firstCompilerErrors": [],
+      "theoremCount": 5,
+      "theorems": [
+        {
+          "name": "ricis_reduce_at_center_eq_eval",
+          "status": "LEAN_VERIFIED_WITH_STANDARD_AXIOMS",
+          "axioms": [
+            "propext",
+            "Classical.choice",
+            "Quot.sound"
+          ]
+        },
+        {
+          "name": "regular_factor_quotient_uses_A4",
+          "status": "LEAN_VERIFIED_WITH_STANDARD_AXIOMS",
+          "axioms": [
+            "ax_A4_general",
+            "propext",
+            "Classical.choice",
+            "Quot.sound"
+          ]
+        },
+        {
+          "name": "common_zero_factor_uses_SP1",
+          "status": "LEAN_VERIFIED_WITH_STANDARD_AXIOMS",
+          "axioms": [
+            "ax_SP1_general",
+            "propext",
+            "Classical.choice",
+            "Quot.sound"
+          ]
+        },
+        {
+          "name": "singularity_is_zero_over_zero",
+          "status": "LEAN_VERIFIED_WITH_STANDARD_AXIOMS",
+          "axioms": [
+            "propext",
+            "Classical.choice",
+            "Quot.sound"
+          ]
+        },
+        {
+          "name": "ricis_resolution_bridge",
+          "status": "LEAN_VERIFIED_WITH_STANDARD_AXIOMS",
+          "axioms": [
+            "ax_A4_general",
+            "ax_SP1_general",
+            "propext",
+            "Classical.choice",
+            "Quot.sound"
+          ]
+        },
+        {
+          "name": "ax_A4_general",
+          "status": "DECLARED_CONTRACT",
+          "axioms": [
+            "ax_A4_general",
+            "propext",
+            "Classical.choice",
+            "Quot.sound"
+          ]
+        },
+        {
+          "name": "ax_SP1_general",
+          "status": "DECLARED_CONTRACT",
+          "axioms": [
+            "ax_SP1_general",
+            "propext",
+            "Classical.choice",
+            "Quot.sound"
+          ]
+        }
+      ],
+      "declaredContracts": [
+        "ax_A4_general",
+        "ax_SP1_general"
+      ],
+      "outcome": "LEAN_VERIFIED",
+      "claimLevel": "STRUCTURALLY_VALIDATED",
+      "rootCause": null,
+      "trustBoundary": "run 35145205870 (mathlib-kernel-check, PR #59): исходник как предоставлен — exit 0, производная — exit 0, sorryAx отсутствует. Факт ядра, закрывающий разрыв F-09/F-11 на артефактном уровне: сингулярность 0/0 в центре явно предъявлена (singularity_is_zero_over_zero), ricis_reduce в центре равен ricis_eval_general, а именованные контракты ax_A4_general/ax_SP1_general являются ФАКТИЧЕСКИМИ зависимостями bridge-теоремы (#print axioms). A4/SP1 при этом остаются объявленными доверенными контрактами, а не доказанными леммами. Аналитические пределы не используются (P1). Уровень заявления — STRUCTURALLY_VALIDATED, не MATHEMATICALLY_PROVEN.",
+      "contractDependencyFacts": [
+        {
+          "theorem": "regular_factor_quotient_uses_A4",
+          "contract": "ax_A4_general",
+          "why": "Теорема по построению демонстрирует условный факт: регулярный фактор кватерниона использует контракт A4 как доверенный вход; зависимость подтверждена #print axioms прогона 35145205870, контракт остаётся объявленным, а не доказанным."
+        },
+        {
+          "theorem": "common_zero_factor_uses_SP1",
+          "contract": "ax_SP1_general",
+          "why": "Теорема по построению демонстрирует условный факт: общий нулевой фактор использует контракт SP1 как доверенный вход; зависимость подтверждена #print axioms прогона 35145205870, контракт остаётся объявленным, а не доказанным."
+        },
+        {
+          "theorem": "ricis_resolution_bridge",
+          "contract": "ax_A4_general",
+          "why": "Bridge-теорема условна относительно контракта A4: это фактический ядровой результат прогона 35145205870 (#print axioms), закрывающий разрыв F-09/F-11 на артефактном уровне; заявление остаётся структурным (STRUCTURALLY_VALIDATED), контракт не доказан."
+        },
+        {
+          "theorem": "ricis_resolution_bridge",
+          "contract": "ax_SP1_general",
+          "why": "Bridge-теорема условна относительно контракта SP1: это фактический ядровой результат прогона 35145205870 (#print axioms), закрывающий разрыв F-09/F-11 на артефактном уровне; заявление остаётся структурным (STRUCTURALLY_VALIDATED), контракт не доказан."
+        }
+      ]
+    },
+    {
+      "artifactId": "Schwarzschild_GeometricBridge",
+      "immutableSource": "artifacts/proofs/Schwarzschild_GeometricBridge.lean",
+      "sourceSha256": "1df6b21df93cf2e5e822156a151929d849dd553979ef32c8992045d2a5b3de63",
+      "checkedFile": "artifacts/proofs/core-checks/Schwarzschild_GeometricBridge.core-check.lean",
+      "substitutionsApplied": [],
+      "compilerExit": 0,
+      "resultLine": "OK (compiler exit 0, no compiler errors, no sorryAx)",
+      "compilerErrorCount": 0,
+      "firstCompilerErrors": [],
+      "theoremCount": 11,
+      "theorems": [
+        {
+          "name": "RICIS3.SchwarzschildBridge.l1_trivial",
+          "status": "LEAN_VERIFIED_AXIOM_FREE",
+          "axioms": []
+        },
+        {
+          "name": "RICIS3.SchwarzschildBridge.sp4_no_silent_collapse",
+          "status": "LEAN_VERIFIED_AXIOM_FREE",
+          "axioms": []
+        },
+        {
+          "name": "RICIS3.SchwarzschildBridge.preservesPath_iff",
+          "status": "LEAN_VERIFIED_AXIOM_FREE",
+          "axioms": []
+        },
+        {
+          "name": "RICIS3.SchwarzschildBridge.measure_eq_mul",
+          "status": "LEAN_VERIFIED_AXIOM_FREE",
+          "axioms": []
+        },
+        {
+          "name": "RICIS3.SchwarzschildBridge.a6_product_eq_mul",
+          "status": "LEAN_VERIFIED_AXIOM_FREE",
+          "axioms": []
+        },
+        {
+          "name": "RICIS3.SchwarzschildBridge.a6_product_self",
+          "status": "LEAN_VERIFIED_AXIOM_FREE",
+          "axioms": []
+        },
+        {
+          "name": "RICIS3.SchwarzschildBridge.a6_ratio_proxy_def",
+          "status": "LEAN_VERIFIED_AXIOM_FREE",
+          "axioms": []
+        },
+        {
+          "name": "RICIS3.SchwarzschildBridge.eval_product_ok",
+          "status": "LEAN_VERIFIED_WITH_STANDARD_AXIOMS",
+          "axioms": [
+            "propext"
+          ]
+        },
+        {
+          "name": "RICIS3.SchwarzschildBridge.eval_product_none_foreign",
+          "status": "LEAN_VERIFIED_WITH_STANDARD_AXIOMS",
+          "axioms": [
+            "propext"
+          ]
+        },
+        {
+          "name": "RICIS3.SchwarzschildBridge.eval_ratio_ok",
+          "status": "LEAN_VERIFIED_WITH_STANDARD_AXIOMS",
+          "axioms": [
+            "propext"
+          ]
+        },
+        {
+          "name": "RICIS3.SchwarzschildBridge.eval_ratio_none_foreign",
+          "status": "LEAN_VERIFIED_WITH_STANDARD_AXIOMS",
+          "axioms": [
+            "propext"
+          ]
+        }
+      ],
+      "outcome": "LEAN_VERIFIED",
+      "rootCause": null,
+      "trustBoundary": "run 35145205870 (джоба kernel-check, PR #59, Lean 4.33.1): производная без трёх неиспользуемых строк импорта Mathlib — exit 0, sorryAx отсутствует; 7 теорем без аксиом, 4 зависят только от propext. «Тело не использует Mathlib» из пофайлового чтения стало фактом прогона. Прогон подтверждает только структурные теоремы (тождество пути, запрет тихого коллапса, A6 продукт/отношение прокси на Int, gated evaluation); регулярность метрики Шварцшильда и устранение сингулярности ОТО НЕ заявлены и не проверялись — физические имена остаются метками пути SP4."
     }
   ],
   "pendingKernelRun": [
@@ -1334,18 +1583,18 @@
       "status": "PENDING_KERNEL_RUN"
     },
     {
-      "artifactId": "ricis-general-resolution-v3",
-      "immutableSource": "artifacts/proofs/ricis-general-resolution-v3.lean",
-      "sourceSha256": "fb792af15e8d4f2c090940a5430a26a0c696ad028200d8c2c6a4b8771058b44a",
+      "artifactId": "jacobian-counterexample-full",
+      "immutableSource": "artifacts/proofs/jacobian-counterexample-full.lean",
+      "sourceSha256": "e6ab1b1db54ff04cdc3fb5a647cb6beedd7daba84bcd1272b51123519244339a",
       "job": "mathlib-kernel-check",
       "toolchain": "leanprover/lean4:v4.33.0 (Mathlib @ 6f1ef4e5dd604a435bddba4747b13970cd65d2a1)",
       "commands": [
-        "(cd mathlib-check && lake env lean artifacts/proofs/ricis-general-resolution-v3.lean)",
-        "(cd mathlib-check && lake env lean artifacts/proofs/mathlib-checks/ricis-general-resolution-v3.mathlib-check.lean)"
+        "(cd mathlib-check && lake env lean artifacts/proofs/jacobian-counterexample-full.lean)",
+        "(cd mathlib-check && lake env lean artifacts/proofs/mathlib-checks/jacobian-counterexample-full.mathlib-check.lean)"
       ],
-      "metadata": "artifacts/proofs/ricis-general-resolution-v3.json",
-      "evidenceTarget": "docs/05-evidence/proofs/ricis-general-resolution-v3-kernel-run.md",
-      "expectedOutcome": "UNKNOWN до фактического двойного прогона; статический анализ не является evidence.",
+      "metadata": "artifacts/proofs/jacobian-counterexample-full.json",
+      "evidenceTarget": "artifacts/proofs/README.md (раздел Mathlib Artifacts — Kernel Path), реестр фактов после прогона",
+      "expectedOutcome": "UNKNOWN до повторного прогона ИСПРАВЛЕННОЙ производной. Факты run 35145205870: исходник как предоставлен — exit 0 (все 10 теорем приняты, #print axioms напечатан), производная — exit 1 по дефекту генератора эпилога (A-0011/F-15: неквалифицированная аксиома внутри неймспейса), а НЕ по дефекту доказательства. Генератор исправлен, производная перегенерирована; двойной прогон ожидает CI.",
       "status": "PENDING_KERNEL_RUN"
     }
   ],
@@ -1485,6 +1734,12 @@
       "artifact": "artifacts/proofs/ricis-yang-mills.lean",
       "evidence": "artifacts/proofs/ricis-yang-mills.lean, строки 11-12: `import  Mathlib.Basic.Real.Basic` и `import Mathlib.Tactic.Ring`; строка 4 (комментарий-шапка): «Статус: 100% компилируется, 0% sorry, строго по каноническому шаблону RICIS-III». Проверка дерева закреплённой ревизии Mathlib 6f1ef4e5dd604a435bddba4747b13970cd65d2a1 (GitHub contents API): Mathlib/Basic.lean — отсутствует, Mathlib/Basic/Real/Basic.lean — отсутствует, Mathlib/Real/Basic.lean — отсутствует; существуют Mathlib/Tactic/Ring.lean и Mathlib/Data/Real/Basic.lean. Т. к. Lean отображает имя модуля Mathlib.Basic.Real.Basic в файл Mathlib/Basic/Real/Basic.lean, файл в предоставленном виде не элаборируется: заявление шапки не подтверждено и на текущем дереве невыполнимо. Дополнительно: у артефакта нет метаданных (нет ricis-yang-mills.json), нет trustStatus, нет записи в прогонах — то есть нет и границы доверия, которую требует §7.",
       "status": "Зафиксировано без изменения чужих байтов (§7): артефакт внесён как REQUIRES_CORE_LEAN, в реестр добавлен pendingKernelRun с expectedOutcome UNKNOWN. В allowlist MATHLIB_ARTIFACTS не внесён сознательно: запуск цели, у которой не существует целевого модуля, не даёт evidence о теоремах, а решение о расширении allowlist и о регистрации ожидаемого отказа — за владельцем. Ремонт (исправление импорта на существующий модуль) возможен только как НОВАЯ версия доказательства, а не правка предоставленных байтов."
+    },
+    {
+      "id": "F-15",
+      "severity": "MEDIUM",
+      "title": "Эпилог mathlib-производной печатал аксиому внутри неймспейса неквалифицированно: производная не компилируется при компилирующемся исходнике",
+      "evidence": "run 35145205870 (mathlib-kernel-check, PR #59, дословно): `artifacts/proofs/mathlib-checks/jacobian-counterexample-full.mathlib-check.lean:162:14: error(lean.unknownIdentifier): Unknown constant trusted_full_jacobian_contract`. Аксиома объявлена внутри `namespace JacobianCounterexample`, эпилог стоит после `end …`; исходник при этом — exit 0. Первопричина: `collectDeclaredAxioms` не отслеживал неймспейсы (пилотные артефакты объявляли аксиомы только на верхнем уровне), а страж сверял цели эпилога против того же сборщика (самосогласованно, не независимо). Ремонт: единый скоуп-трекер `collectScopedNames` для теорем и аксиом + независимый структурный страж квалификации (tools/leanMathlibChecks.test.ts, A-0011); производная перегенерирована, ожидает повторного прогона."
     }
   ],
   "ciPolicy": {
@@ -1503,16 +1758,21 @@
     "kind": "github-actions-run",
     "workflow": ".github/workflows/lean-artifact-kernel-check.yml",
     "job": "mathlib-kernel-check",
-    "runId": 34950902412,
-    "runUrl": "https://github.com/A1Dmitry/Ricis3-Expansion-Map/actions/runs/34950902412",
-    "pullRequest": 40,
-    "branch": "arena/01a0a3eb-ricis3-expansion-map",
-    "runStartedAtUtc": "2026-09-15T09:10:52Z",
+    "runId": 35145205870,
+    "runUrl": "https://github.com/A1Dmitry/Ricis3-Expansion-Map/actions/runs/35145205870",
+    "pullRequest": 59,
+    "branch": "arena/01a0abc2-ricis3-expansion-map",
+    "runStartedAtUtc": "2026-09-16T20:13:00Z",
     "toolchain": "leanprover/lean4:v4.33.0 (lean-toolchain закреплённой ревизии Mathlib); global default на раннере — 4.33.1, для компиляции не использовался",
     "command": "(cd mathlib-check && lake env lean <artifact>)",
     "host": "ubuntu-latest (GitHub Actions)",
-    "evidenceChannel": "Комментарий PR #40 (step summary + полный лог компилятора). Логи раннера и загруженный артефакт из среды агента не читаются: results-receiver.actions.githubusercontent.com недоступен.",
-    "rawEvidence": "docs/05-evidence/proofs/lean-kernel-run-34950902412-mathlib.pr-comment.txt",
-    "note": "MATHLIB_REV 6f1ef4e5dd604a435bddba4747b13970cd65d2a1 — новейшая ревизия mathlib4 на линии 4.33.x (2026-09-15 master перешёл на v4.34.0). Oleans получены готовыми (lake exe cache get), сборка Mathlib из исходников не выполнялась. Прогон выполнен ДВАЖДЫ для одной цели: (1) исходник как предоставлен владельцем, (2) производная mathlib-check (тело байт-в-байт равно исходнику, добавлен только эпилог #print axioms). Целостность производной подтверждена в самом логе: source sha256 == sha256 в эпилоге, побайтовый префикс совпал (cmp)."
+    "evidenceChannel": "Комментарий PR #59 (step summary + полный лог компилятора).",
+    "rawEvidence": "docs/05-evidence/proofs/lean-kernel-run-35145205870.pr-comment.txt",
+    "priorMathlibRun": {
+      "runId": 34950902412,
+      "pullRequest": 40,
+      "rawEvidence": "docs/05-evidence/proofs/lean-kernel-run-34950902412-mathlib.pr-comment.txt"
+    },
+    "note": "Итог джобы — failure по ОДНОЙ цели: производная jacobian-counterexample-full — exit 1 (unknown constant trusted_full_jacobian_contract, A-0011: эпилог генератора не квалифицировал аксиому внутри неймспейса; дефект генератора, не дефект артефакта — исходник вышел с exit 0). Остальные цели зелёные: ricis-general-resolution, ricis-general-resolution-v3, RicisAgiTarget — исходник и производная exit 0, sorryAx отсутствует. Генератор исправлен (единый скоуп-трекер), производная перегенерирована и ожидает повторного прогона."
   }
 }

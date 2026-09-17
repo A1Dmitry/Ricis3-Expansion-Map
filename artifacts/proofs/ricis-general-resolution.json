@@ -69,9 +69,9 @@
     "addedBy": "AGENTS.md §7 — статус записывается снаружи неизменяемого исходника (присоединение metadata)",
     "registry": "artifacts/proofs/core-checks/kernel-findings.json",
     "evidence": "docs/05-evidence/proofs/ricis-general-resolution-claim-audit-2026-09-15.md",
-    "rawEvidence": "docs/05-evidence/proofs/lean-kernel-run-34950902412-mathlib.pr-comment.txt",
-    "run": 34950902412,
-    "runUrl": "https://github.com/A1Dmitry/Ricis3-Expansion-Map/actions/runs/34950902412",
+    "rawEvidence": "docs/05-evidence/proofs/lean-kernel-run-35145205870.pr-comment.txt",
+    "run": 35145205870,
+    "runUrl": "https://github.com/A1Dmitry/Ricis3-Expansion-Map/actions/runs/35145205870",
     "job": "mathlib-kernel-check",
     "toolchain": "leanprover/lean4:v4.33.0 — lean-toolchain закреплённой ревизии Mathlib @ 6f1ef4e5dd604a435bddba4747b13970cd65d2a1 (oleans готовыми, lake exe cache get)",
     "command": "(cd mathlib-check && lake env lean artifacts/proofs/ricis-general-resolution.lean) — исходник как предоставлен; та же команда для производной artifacts/proofs/mathlib-checks/ricis-general-resolution.mathlib-check.lean",
@@ -114,7 +114,12 @@
     ],
     "statusAfterKernelRun": "LEAN_VERIFIED",
     "rootCause": null,
-    "trustBoundary": "Ядро подтвердило: артефакт компилируется как предоставлен и через производную, sorryAx отсутствует; три теоремы зависят только от стандартных аксиом Lean, то есть НЕ используют объявленные RICIS-контракты (факт ядра, подтверждающий F-09). Ядро НЕ подтверждает содержательное утверждение заголовка: сингулярность 0/0 не предъявлена (F-11), редукция ricis_reduce в доказательствах не участвует (F-09/F-11), имя ricis_equals_classical_limit не подтверждено предельным содержанием (F-10; P1 запрещает пределы внутри Resolve_RICIS).",
-    "relationToDeclaredTrustStatus": "Было REQUIRES_CORE_LEAN (0.4.190, первый коммит PR #40) → стало LEAN_VERIFIED по факту run 34950902412 (exit 0 у исходника и производной, sorryAx отсутствует, #print axioms напечатан). Повышение касается ТОЛЬКО артефактного уровня; claimLevel остаётся STRUCTURALLY_VALIDATED."
+    "trustBoundary": "Ядро подтвердило: артефакт компилируется как предоставлен и через производную, sorryAx отсутствует; три теоремы зависят только от стандартных аксиом Lean, то есть НЕ используют объявленные RICIS-контракты (факт ядра, подтверждающий F-09). Ядро НЕ подтверждает содержательное утверждение заголовка: сингулярность 0/0 не предъявлена (F-11), редукция ricis_reduce в доказательствах не участвует (F-09/F-11), имя ricis_equals_classical_limit не подтверждено предельным содержанием (F-10; P1 запрещает пределы внутри Resolve_RICIS). Повторный прогон run 35145205870 (PR #59): исходник и производная — снова exit 0, sorryAx отсутствует.",
+    "relationToDeclaredTrustStatus": "Было REQUIRES_CORE_LEAN (0.4.190, первый коммит PR #40) → стало LEAN_VERIFIED по факту run 34950902412 (exit 0 у исходника и производной, sorryAx отсутствует, #print axioms напечатан). Повышение касается ТОЛЬКО артефактного уровня; claimLevel остаётся STRUCTURALLY_VALIDATED.",
+    "priorRun": {
+      "run": 34950902412,
+      "rawEvidence": "docs/05-evidence/proofs/lean-kernel-run-34950902412-mathlib.pr-comment.txt",
+      "note": "Первый Mathlib-прогон (PR #40); подтверждён повторным."
+    }
   }
 }

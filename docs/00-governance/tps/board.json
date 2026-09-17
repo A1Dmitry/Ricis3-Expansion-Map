@@ -2,7 +2,7 @@
   "boardVersion": "1.0.0",
   "system": "RICIS-III Expansion Map",
   "standard": "docs/00-governance/TOYOTA_TPS_WORKING_SYSTEM.md",
-  "generatedAt": "2026-09-16T20:21:49Z",
+  "generatedAt": "2026-09-16T21:15:00Z",
   "lanes": [
     {
       "id": "backlog",
@@ -161,12 +161,44 @@
         "note": "Инцидентный цикл, новый страж: 10/10 — HTTP-проба через настоящую Vite-мидлварь (200 по умолчанию, 403 в строгом режиме), allowlist, резолвер политики, контракт точек входа."
       },
       {
-        "step": "security",
-        "command": "npm run security:check",
-        "measuredMs": 1140,
-        "sampleSize": 2,
-        "measuredAt": "2026-09-16T20:10:45Z",
-        "note": "До ремонта exit 1 / 4 moderate; после clean npm ci — exit 0 / 0 vulnerabilities."
+        "step": "release",
+        "command": "npm run release:check",
+        "measuredMs": 808,
+        "sampleSize": 1,
+        "measuredAt": "2026-09-16T20:26:00Z",
+        "note": "Цикл TPS-0012 (P12): 0.4.200 → 0.4.201, синхронизация по 8 документам/манифестам."
+      },
+      {
+        "step": "typecheck",
+        "command": "npm run lint",
+        "measuredMs": 15897,
+        "sampleSize": 1,
+        "measuredAt": "2026-09-16T20:26:00Z",
+        "note": "Цикл TPS-0012 (P12): полное дерево после правок генераторов/стражей."
+      },
+      {
+        "step": "test",
+        "command": "npm test",
+        "measuredMs": 185787,
+        "sampleSize": 1,
+        "measuredAt": "2026-09-16T20:26:00Z",
+        "note": "Цикл TPS-0012 (P12): 259 файлов / 2072 теста на чистом коммите 610796e (зелёный)."
+      },
+      {
+        "step": "build",
+        "command": "npm run build",
+        "measuredMs": 2395,
+        "sampleSize": 1,
+        "measuredAt": "2026-09-16T20:26:00Z",
+        "note": "Цикл TPS-0012 (P12): vite build + esbuild server.cjs."
+      },
+      {
+        "step": "lineGate",
+        "command": "npm run tps:gate",
+        "measuredMs": 679,
+        "sampleSize": 1,
+        "measuredAt": "2026-09-16T20:26:00Z",
+        "note": "Цикл TPS-0012 (P12): 0 после закрытия карточки; до исправления sourceRef — 1 (CARD_SOURCE_MISSING)."
       }
     ]
   },
@@ -512,44 +544,23 @@
     },
     {
       "id": "A-0011",
-      "title": "Чистый npm ci устанавливал четыре moderate-уязвимости, а PR workflow не исполнял обязательный audit-гейт",
+      "title": "Эпилог генератора не квалифицировал аксиомы, объявленные внутри неймспейса: производная jacobian-counterexample-full не скомпилировалась",
       "severity": "medium",
-      "state": "CLOSED",
-      "openedAt": "2026-09-16T20:07:37Z",
-      "closedAt": "2026-09-16T20:10:45Z",
+      "state": "OPEN",
+      "openedAt": "2026-09-16T20:45:00Z",
       "affectedCardId": "TPS-0012",
-      "fact": "`npm ci` завершался сообщением `4 moderate severity vulnerabilities`; `npm audit --audit-level=moderate --json` → exit 1: @vitest/mocker/vitest 4.1.10 (GHSA-82fw-gwwq-j7x9) и qs 6.15.3 (GHSA-x5fp-wj9c-mxmx, GHSA-4mjr-xmp4-gh2g). В `.github/workflows/pr-verify.yml` после `npm ci` сразу шёл release/lint: команды npm audit не было.",
+      "fact": "run 35145205870 (mathlib-kernel-check, PR #59): исходник jacobian-counterexample-full.lean — exit 0, производная — exit 1: `mathlib-checks/jacobian-counterexample-full.mathlib-check.lean:162:14: error(lean.unknownIdentifier): Unknown constant trusted_full_jacobian_contract`. Аксиома объявлена внутри `namespace JacobianCounterexample`, эпилог стоит после `end …`, имя в `#print axioms` не квалифицировано.",
       "whys": [
-        "Почему уязвимые версии установились? — lockfile фиксировал Vitest 4.1.10 и qs 6.15.3, попадающие в опубликованные advisory ranges; исправленные версии уже доступны в registry.",
-        "Почему состояние не остановило предыдущий PR? — `npm ci` сообщает vulnerabilities, но возвращает exit 0; CI не запускал `npm audit --audit-level=moderate` отдельной командой.",
-        "Почему обязательное правило AGENTS.md §3 не исполнялось машиной? — Оно было процедурой только для циклов изменения зависимостей, а releaseConsistency проверял npm ci и запрет global install, но не наличие security-гейта.",
-        "Почему одного обновления lockfile недостаточно? — advisory registry меняется независимо от репозитория; без PR-гейта следующий уже известный vulnerable range снова останется лишь предупреждением install-команды."
+        "Почему производная не скомпилировалась? — `#print axioms trusted_full_jacobian_contract` в эпилоге ссылается на неквалифицированное имя после закрытия неймспейса.",
+        "Почему имя не квалифицировано? — `collectDeclaredAxioms` собирал имена без отслеживания неймспейсов (в отличие от `collectTheoremNames`, который квалифицирует).",
+        "Почему расхождение не заметили на пилоте? — пилотные артефакты (general-resolution, v3) объявляют аксиомы только на верхнем уровне: выборка не покрывала класс «аксиома внутри неймспейса».",
+        "Почему локальные стражи не поймали? — страж сверял цели эпилога против ТОГО ЖЕ сборщика имён (самосогласованно), а разрешимость имени вне неймспейса проверяется только компилятором, недоступным локально (A-0007).",
+        "Почему допустима самосогласованная проверка? — инвариант «цель эпилога разрешима вне всех неймспейсов» не имел структурного прокси-стража: отсутствие тулчейна молча заменило инвариант его отсутствием."
       ],
-      "rootCause": "Требование выполнять npm audit после изменения зависимостей существовало только как ручная инструкция, а PR verification принимал `npm ci` exit 0 за достаточную проверку. Install-команда не падает на moderate advisories, поэтому vulnerable lockfile не имел машинного стоп-сигнала.",
-      "countermeasure": "Обновить прямые Vitest-пакеты до актуальной совместимой стабильной 5.0.1 и транзитивный qs до 6.16.0; добавить канонический `security:check` и запускать его после npm ci в PR verification; releaseConsistency фиксирует точную команду и порядок, а Pages deployment остаётся без сетевого audit-шага.",
-      "reverify": {
-        "command": "npm run security:check",
-        "exitCode": 0
-      },
-      "processChange": "`security:check` в package.json + обязательный PR-шаг в `.github/workflows/pr-verify.yml` + releaseConsistency guard на точную команду и порядок install → audit → test.",
-      "yokoten": [
-        {
-          "target": "package.json и packages/ricis-core-ts/package.json",
-          "checkedOutcome": "Обе прямые декларации Vitest переведены на одну major/minor 5.0.1; coverage provider имеет точный совместимый peer."
-        },
-        {
-          "target": "package-lock.json",
-          "checkedOutcome": "Проверено `npm ls`: vitest/@vitest/mocker/@vitest/coverage-v8 = 5.0.1, qs = 6.16.0; дубликатов уязвимой линии нет."
-        },
-        {
-          "target": ".github/workflows/pr-verify.yml",
-          "checkedOutcome": "Audit стоит после locked install и до тестов; deploy-pages.yml не изменён, уже опубликованный релиз не зависит от доступности advisory registry."
-        },
-        {
-          "target": "tools/releaseConsistency.test.ts",
-          "checkedOutcome": "Guard фиксирует script, CI-вызов и относительный порядок; профильный прогон 14/14."
-        }
-      ]
+      "rootCause": "Инвариант генератора «каждая цель #print axioms в эпилоге разрешима из корня файла» не был обеспечен ни структурой кода (два разных сборщика имён), ни стражем; пилотная выборка не покрывала класс неймспейс-скоуп аксиом.",
+      "countermeasure": "Единый скоуп-трекер имён для теорем и аксиом (квалификация в обоих) + структурный страж: имя, объявленное внутри неймспейса, обязано нести его префикс в целях эпилога (проверяемо без тулчейна). Факт закрытия — зелёный повторный прогон джобы.",
+      "processChange": "shared collectScopedNames в scripts/generateLeanCoreChecks.ts; страж в tools/leanMathlibChecks.test.ts.",
+      "yokoten": []
     }
   ],
   "kaizen": [
@@ -670,11 +681,21 @@
     },
     {
       "id": "K-0014",
-      "title": "Dependency advisories как PR-стоп: единый security:check после locked install, но вне Pages deployment",
+      "title": "Lean-токен стражи различают код и прозу: поиск sorry/admit по вычищенным комментариям/строкам + мутационная проба",
       "state": "DONE",
       "owner": "agent:arena",
-      "expectedBenefit": "Уязвимый lockfile с advisory severity moderate или выше больше не проходит лишь с предупреждением npm ci: PR останавливается до мержа, при этом внешний registry не становится новой точкой отказа уже запущенного Pages deployment.",
-      "verificationCommand": "npm run security:check && npx vitest run tools/releaseConsistency.test.ts",
+      "expectedBenefit": "Класс «док-комментарий 'No sorry.' бракует производную» устранён без ослабления стража: настоящий `by sorry`/`admit` в теле по-прежнему ловится (мутационная проба фиксирует обе стороны), а авторитетная проверка остаётся за `sorryAx` в прогоне ядра.",
+      "verificationCommand": "npx vitest run tools/leanKernelCoreChecks.test.ts",
+      "verificationExitCode": 0,
+      "linkedAndonId": null
+    },
+    {
+      "id": "K-0015",
+      "title": "Имена генератора квалифицируются по скоупу: сбор теорем и аксиом унифицирован на collectScopedNames + независимый страж квалификации эпилога",
+      "state": "DONE",
+      "owner": "agent:arena",
+      "expectedBenefit": "Класс «эпилог ссылается на неквалифицированное имя после закрытия неймспейса» устранён для всех текущих и будущих производных: единый скоуп-трекер для теорем и аксиом, а страж квалификации в tools/leanMathlibChecks.test.ts использует независимый мини-парсер (не тот же сборщик, что генератор), поэтому самосогласованный дефект не проглатывается. Проверено мутационной стороной: неквалифицированная цель обязана отсутствовать.",
+      "verificationCommand": "npx vitest run tools/leanMathlibChecks.test.ts",
       "verificationExitCode": 0,
       "linkedAndonId": "A-0011"
     }
@@ -1420,94 +1441,112 @@
     },
     {
       "id": "TPS-0012",
-      "title": "Уязвимый lockfile: обновление Vitest/qs и обязательный npm-audit гейт до мержа",
+      "title": "P12: расширение kernel-покрытия на 3 оставшихся артефакта (RicisAgiTarget, jacobian-counterexample-full → Mathlib-путь; Schwarzschild → core-путь)",
       "lane": "done",
       "status": "COMPLETED",
       "taskClass": "ci",
-      "owner": "agent:arena (автономный цикл RCVAP, security dependency maintenance)",
+      "owner": "agent:arena (автономный цикл RCVAP, 2026-09-16)",
       "priority": "P0",
-      "workPattern": "P-01, P-07, P-09, P-11",
-      "originalGoal": "Продолжить цикл разработки с фактического состояния зависимостей: устранить обнаруженные npm audit moderate-уязвимости без понижения пакетов или force-обходов и сделать так, чтобы уязвимый lockfile больше нельзя было незаметно смержить, сохранив стабильность отдельного Pages deployment-пути.",
+      "workPattern": "P-01, P-04, P-11",
+      "originalGoal": "Исполнить пункт 1 dependency-ordered backlog (ACTIVE_TASKS §0): расширить явное покрытие ядровых прогонов на три именованных артефакта — `RicisAgiTarget.lean` и `jacobian-counterexample-full.lean` внести в allowlist `MATHLIB_ARTIFACTS` с байт-в-байт производными и честным `PENDING_KERNEL_RUN`; для `Schwarzschild_GeometricBridge.lean` установить, что тело не использует Mathlib, и направить его по core-check пути. Байты исходников не изменяются (§7), статусы не повышаются: факт даст только двойной CI-прогон.",
       "acceptanceCriteria": [
-        "`npm audit --audit-level=moderate` на чистом `npm ci` завершается exit 0 (до ремонта: exit 1, четыре moderate-записи).",
-        "Vitest и coverage provider обновлены во всех workspace-манифестах до актуальной совместимой стабильной версии; транзитивный qs разрешён в первую исправленную версию или новее; package.json и package-lock.json синхронны.",
-        "PR workflow исполняет единый `npm run security:check` строго после `npm ci` и до полного теста; Pages deployment workflow не получает сетевую точку отказа.",
-        "Статический release-страж краснеет при удалении/переименовании audit-скрипта или CI-шага и фиксирует порядок install → audit → test.",
-        "Чистые npm ci, security:check, lint, полный npm test и build завершаются exit 0 на Vitest 5."
+        "Для обоих Mathlib-артефактов сгенерированы производные (тело байт-в-байт + аддитивный эпилог #print axioms), источники внесены в MATHLIB_ARTIFACTS workflow, метаданные фиксируют sha256 и статус без повышения.",
+        "Для Шварцшильда сгенерирована core-check производная (удалены только неиспользуемые строки импорта), и она автоматически входит в целевой список джобы kernel-check.",
+        "Стражи байтовой регенерации (`tools/leanKernelCoreChecks.test.ts`, `tools/leanMathlibChecks.test.ts`) зелёные; `pendingKernelRun` содержит честные записи со статусом ожидающего прогона.",
+        "Полный набор гейтов (lint, test, build, release:check, tps:gate) exit 0 на чистом коммите; фактическое ядровое свидетельство производит только CI (локальный тулчейн недоступен — A-0007)."
       ],
       "sourceRef": "ACTIVE_TASKS.md",
-      "challenger": {
-        "attackedSubstitution": "Как ремонт мог бы выглядеть успешным при живом классе дефекта? Только обновить lockfile до сегодняшней зелени: следующий advisory снова появился бы между циклами и не остановил ни один PR. Обратная подмена — встроить сетевой audit в Pages deployment и выдать потенциальный outage публикации за безопасность. Поэтому контрмера состоит из двух частей: исправленные версии плюс audit именно в PR verify, а release-страж проверяет наличие и порядок шага.",
-        "independentFormOfEvidence": "Оракул содержательной проверки — npm advisory registry через `npm audit --audit-level=moderate`, отдельно от написанного нами статического теста. Совместимость новой major-линии проверяется полным набором Vitest, TypeScript и production build; до committed-состояния полный прогон честно остаётся красным только на известном OIR03-QA-36."
-      },
-      "andonIds": [
-        "A-0011"
-      ],
+      "startedAt": "2026-09-16T20:05:00Z",
+      "closedAt": "2026-09-16T20:26:00Z",
+      "cycleTimeMs": 1260000,
       "kaizenIds": [
         "K-0014"
       ],
-      "startedAt": "2026-09-16T20:07:00Z",
+      "challenger": {
+        "attackedSubstitution": "Как этот цикл мог бы выглядеть успешным при нерешённой задаче? Если принять регистрацию в allowlist и генерацию производных за само ядровое свидетельство (статусы тихо повышены до прогона). Контратака: все три артефакта остаются REQUIRES_CORE_LEAN/PENDING_KERNEL_RUN, стражи реестра запрещают повышение без факта (проверено тестом), а ожидаемый исход записан как UNKNOWN без прогноза. Вторая атака: статический вывод «тело Шварцшильда не использует Mathlib» мог быть неверен — тогда джоба kernel-check упадёт в CI; это не маскируется: цель не внесена в expectedFailures, прогон рвётся дословной ошибкой (запроектированный стоп-линия цикл), а не тихим обходом.",
+        "independentFormOfEvidence": "Независимая форма — фактический двойной прогон в джобе mathlib-kernel-check и прогон джобы kernel-check в CI (workflow lean-artifact-kernel-check.yml, PR #59): исходник как предоставлен + байт-в-байт производная, `#print axioms`, sorryAx-стоп. Локально исполнены только байтовые/структурные стражи (перегенерация побайтово, целостность манифестов, согласованность реестра) — они проверяют подготовку, но не заменяют компиляцию (A-0007)."
+      },
       "verification": {
-        "auditor": "SELF (same-pipeline) — зависимости и CI-гейт изменены и проверяются этим же циклом; npm advisory registry является внешним источником данных, но не внешним аудитом приложения",
+        "auditor": "SELF (same-pipeline) — подготовка выполнена этим циклом; ядровое свидетельство произведёт только CI, до его прихода статусы не изменены",
         "commands": [
           {
-            "command": "npm ci",
+            "command": "npm run release:check",
             "exitCode": 0,
-            "measuredAt": "2026-09-16T20:10:45Z",
-            "durationMs": 6522,
-            "note": "Чистая установка из обновлённого lockfile; 264 пакета, install-time audit: 0 vulnerabilities."
-          },
-          {
-            "command": "npm run security:check",
-            "exitCode": 0,
-            "measuredAt": "2026-09-16T20:10:45Z",
-            "durationMs": 1140,
-            "note": "Фактический npm audit --audit-level=moderate: 0 vulnerabilities; до ремонта команда возвращала exit 1 и 4 moderate."
+            "measuredAt": "2026-09-16T20:07:10Z",
+            "durationMs": 808,
+            "note": "Версия 0.4.201 синхронизирована (package.json, src/version.ts, lockfile, README, CITATION, index.html, evidence-документы)."
           },
           {
             "command": "npm run lint",
             "exitCode": 0,
-            "measuredAt": "2026-09-16T20:10:39Z",
-            "durationMs": 20528,
-            "note": "TypeScript strict-проверка после Vitest 5 и нового release-контракта."
-          },
-          {
-            "command": "npm run build",
-            "exitCode": 0,
-            "measuredAt": "2026-09-16T20:15:06Z",
-            "durationMs": 3065,
-            "note": "Release check 14/14 + node-entry generation + Vite production build + server bundle."
-          },
-          {
-            "command": "npx vitest run tools/releaseConsistency.test.ts",
-            "exitCode": 0,
-            "measuredAt": "2026-09-16T20:10:20Z",
-            "durationMs": 1503,
-            "note": "14/14, включая новый контракт install → security audit → test."
+            "measuredAt": "2026-09-16T20:07:26Z",
+            "durationMs": 15897,
+            "note": "tsc --noEmit (strict) после правок генераторов и стражей; отдельный `npx tsc --noEmit` тоже 0."
           },
           {
             "command": "npm test",
             "exitCode": 0,
-            "measuredAt": "2026-09-16T20:21:16Z",
-            "durationMs": 243708,
-            "note": "Vitest 5.0.1 на clean committed state c1160d6: 260/260 файлов, 2076/2076 тестов. Предыдущий dirty-tree прогон: 2075/2076, единственное падение OIR03-QA-36; allowlist стража не менялся."
+            "measuredAt": "2026-09-16T20:11:16Z",
+            "durationMs": 185787,
+            "note": "259 файлов / 2072 теста на чистом коммите 610796e (процедура A-0004; до коммита страж OIR03-QA-36 ожидаемо краснеет на грязном дереве)."
+          },
+          {
+            "command": "npm run build",
+            "exitCode": 0,
+            "measuredAt": "2026-09-16T20:07:29Z",
+            "durationMs": 2395,
+            "note": "vite build + esbuild server.cjs, без предупреждений о чанках."
           },
           {
             "command": "npm run tps:gate",
             "exitCode": 0,
-            "measuredAt": "2026-09-16T20:21:46Z",
-            "durationMs": 329,
-            "note": "Поток и документация чисты в verify-состоянии; повтор после перевода карточки в done выполняется перед финальным process-record коммитом."
+            "measuredAt": "2026-09-16T20:09:40Z",
+            "durationMs": 679,
+            "note": "Краснел один раз на собственной карточке (CARD_SOURCE_MISSING: sourceRef с текстом вместо пути) — исправлен на разрешимый путь; это срабатывание пока-ёке, а не регрессия."
+          },
+          {
+            "command": "npx vitest run tools/leanKernelCoreChecks.test.ts tools/leanMathlibChecks.test.ts tools/findingsDigest.test.ts tools/releaseConsistency.test.ts",
+            "exitCode": 0,
+            "measuredAt": "2026-09-16T20:06:30Z",
+            "durationMs": 2900,
+            "note": "Целевые стражи контура: 49/49, включая 2 мутационные пробы детектора sorry и сверку перегенерации сводки находок."
           }
         ]
       },
       "remainingRisks": [
-        "`npm audit` видит только advisories npm registry и граф npm-зависимостей; он не является SAST/DAST и не доказывает отсутствие уязвимостей приложения.",
-        "Audit-гейт зависит от доступности advisory registry в PR job. Он намеренно не добавлен в deploy-pages: уже принятый lockfile проверяется до мержа, а публикация не получает новую сетевую точку отказа.",
-        "Проверка совместимости Vitest 5 выполнена тем же пайплайном (SELF); внешний security review приложения не проводился."
+        "Ядровое свидетельство ещё не получено: локальный тулчейн недоступен (A-0007, сегодня перепроверено — скачивание elan обрывается по SSL при проходящих HEAD-запросах). Если какой-либо из трёх артефактов не скомпилируется в CI, прогон порвётся дословной ошибкой (цели не в expectedFailures) — это запроектированная стоп-линия, а не дефект этого цикла.",
+        "Статический вывод «тело Шварцшильда не использует Mathlib» опирается на пофайловое чтение: тактики `simp`/`native_decide` и производные классы ядро-нативны в 4.33.1 по документации ядра, но окончательный факт — только прогон; при отказе возможен перевод артефакта на Mathlib-путь отдельным решением.",
+        "Джоба mathlib-kernel-check теперь исполняет 4 артефакта (было 2): время CI растёт; 60-минутный лимит джобы не пересматривался.",
+        "Два файла в `artifacts/proofs/lean/` (AGI_TargetFunction.lean, UnifiedField_GeometricBridge.lean) не входят в реестр классификации и в этом цикле не тронуты — их покрытие требует отдельной задачи.",
+        "`ricis-yang-mills.lean` остаётся вне allowlist по решению владельца (TPS-0007, F-14)."
+      ]
+    },
+    {
+      "id": "TPS-0013",
+      "title": "Зафиксировать факты прогона run 35145205870 и отремонтировать эпилог генератора (F-15/A-0011): аксиома внутри неймспейса квалифицирована",
+      "lane": "verify",
+      "status": "IN_PROGRESS",
+      "taskClass": "ci",
+      "owner": "agent:arena (автономный цикл RCVAP, 2026-09-16)",
+      "priority": "P0",
+      "workPattern": "P-04, P-11",
+      "originalGoal": "Перевести факты двойного прогона run 35145205870 (PR #59) в реестр и метаданные без само-сертификации и устранить его единственную первопричину: генератор эпилога печатал аксиому, объявленную внутри неймспейса, неквалифицированно (находка реестра, андон). Байты всех заблокированных исходников не изменяются; статусы повышаются только там, где есть полный факт (исходник и производная — оба с кодом 0, без sorryAx); для производной Якоби статус остаётся требующим ядрового прогона до зелёного повторного запуска исправленного файла.",
+      "acceptanceCriteria": [
+        "Реестр ядровых находок несёт факты прогона: четыре артефакта с кодами выхода, списками теорем и аксиомными зависимостями по `#print axioms`; находка зарегистрирована с перво-причиной и контрмерой; ожидающие прогоны сужены до фактически непроверенного.",
+        "Генератор использует единый скоуп-трекер имён для теорем и аксиом; производная Якоби перегенерирована с квалифицированной целью эпилога, метаданные и манифест согласованы; добавлен независимый страж квалификации эпилога.",
+        "Метаданные артефактов соответствуют фактам: уровень доверия повышен только для трёх артефактов с полным двойным фактом (артефактный уровень — проверено ядром, уровень заявления — структурно валидировано), метаданные Якоби несут квалифицированное имя контракта, уровень доверия узла Шварцшильда в карте не меняется.",
+        "Досуг документации честен: добавлен аддендум к доказательному документу с дословной ошибкой производной и границей доверия; строки реестра артефактов отражают факты прогона; сводка находок перегенерирована машиной.",
+        "Гейт-команды проекта проходят: контроль релиза, линтер, полный набор тестов, сборка, гейт линии."
       ],
-      "closedAt": "2026-09-16T20:21:49Z",
-      "cycleTimeMs": 889000
+      "sourceRef": "ACTIVE_TASKS.md",
+      "startedAt": "2026-09-16T20:45:00Z",
+      "andonIds": [
+        "A-0011"
+      ],
+      "challenger": {
+        "attackedSubstitution": "Как этот цикл мог бы выглядеть успешным при нерешённой задаче? (1) Тихо повысить статус Якоби до проверенного ядром на основании зелёного исходника, несмотря на упавшую производную — контратака: статус не повышен, запись ожидающего прогона сохранена, метаданные держат уровень, требующий ядрового прогона. (2) Замаскировать дефект генератора через список ожидаемых падений — контратака: цель не внесена в ожидаемые падения, дефект устранён по первопричине (единый скоуп-трекер), а независимый страж квалификации проверяет производную другим парсером и имеет мутационную сторону (неквалифицированное имя обязано отсутствовать). (3) Записать факты прогона пересказом — контратака: комментарий сохранён дословно как доказательный файл, метаданные ссылаются на него, а код выхода и списки теорем сверены с ним.",
+        "independentFormOfEvidence": "Независимая форма — повторный прогон исправленной производной Якоби в джобе mathlib-kernel-check следующего запуска рабочего процесса: он исполняется тем же пайплайном ядра, но против перегенерированного байт-содержимого; зелёный код выхода обеих целей закрывает запись ожидающего прогона и андон. Локальные стражи (байтовая перегенерация, независимый парсер квалификации, сверка реестра и метаданных) проверяют подготовку, но не заменяют этот прогон."
+      }
     }
   ]
 }

@@ -3,12 +3,12 @@
   "claim": "Для параметризованной сингулярности положительных порядков явно доказаны 0/0 в центре, равенство значения ricis_reduce в центре и ricis_eval_general, а A4/SP1 включены как именованные trusted dependencies структурного bridge theorem.",
   "method": "explicit_reduction_evaluation_bridge_with_named_trusted_contracts",
   "verification": {
-    "valid": false,
+    "valid": true,
     "verifiedAxioms": [],
     "contentHash": "fb792af15e8d4f2c090940a5430a26a0c696ad028200d8c2c6a4b8771058b44a",
-    "trustStatus": "REQUIRES_CORE_LEAN",
-    "claimLevel": "PENDING_KERNEL_RUN",
-    "claimLevelNote": "Статус не повышается до двойного фактического Mathlib kernel run исходника и аддитивной производной. A4/SP1 остаются явно объявленными trusted contracts, а не доказанными леммами."
+    "trustStatus": "LEAN_VERIFIED",
+    "claimLevel": "STRUCTURALLY_VALIDATED",
+    "claimLevelNote": "Артефактный уровень: исходник и производная приняты ядром (run 35145205870, exit 0, без sorryAx) — LEAN_VERIFIED. Уровень заявления — STRUCTURALLY_VALIDATED: bridge-теорема опирается на именованные доверенные контракты ax_A4_general/ax_SP1_general (факт #print axioms), которые доказанными леммами не являются; аналитические пределы не используются (P1)."
   },
   "declaredAxioms": [
     {
@@ -45,6 +45,56 @@
     "job": "mathlib-kernel-check",
     "checkedFile": "artifacts/proofs/ricis-general-resolution-v3.lean",
     "artifactCheckedAsProvided": true,
-    "status": "PENDING_KERNEL_RUN"
+    "status": "COMPLETED",
+    "runId": 35145205870,
+    "outcome": "LEAN_VERIFIED (артефактный уровень); claimLevel = STRUCTURALLY_VALIDATED"
+  },
+  "kernelCheck": {
+    "addedBy": "AGENTS.md §7 — статус записывается снаружи неизменяемого исходника (присоединение metadata)",
+    "registry": "artifacts/proofs/core-checks/kernel-findings.json",
+    "evidence": "docs/05-evidence/proofs/lean-kernel-run-35145205870.pr-comment.txt",
+    "rawEvidence": "docs/05-evidence/proofs/lean-kernel-run-35145205870.pr-comment.txt",
+    "run": 35145205870,
+    "runUrl": "https://github.com/A1Dmitry/Ricis3-Expansion-Map/actions/runs/35145205870",
+    "job": "mathlib-kernel-check",
+    "toolchain": "leanprover/lean4:v4.33.0 — lean-toolchain закреплённой ревизии Mathlib @ 6f1ef4e5dd604a435bddba4747b13970cd65d2a1 (oleans готовыми, lake exe cache get)",
+    "command": "(cd mathlib-check && lake env lean artifacts/proofs/ricis-general-resolution-v3.lean) — исходник как предоставлен; та же команда для производной",
+    "immutableSource": "artifacts/proofs/ricis-general-resolution-v3.lean",
+    "immutableSourceSha256": "fb792af15e8d4f2c090940a5430a26a0c696ad028200d8c2c6a4b8771058b44a",
+    "checkedFile": "artifacts/proofs/mathlib-checks/ricis-general-resolution-v3.mathlib-check.lean",
+    "sourceCheckedAsProvided": true,
+    "substitutionsApplied": [],
+    "compilerExit": 0,
+    "compilerErrorCount": 0,
+    "theorems": {
+      "total": 5,
+      "provenWithoutSorryAx": 5,
+      "withSorryAx": 0,
+      "axiomFree": 0,
+      "withStandardAxiomsOnly": 5
+    },
+    "declaredContracts": [
+      {
+        "name": "ax_A4_general",
+        "kind": "axiom",
+        "printAxiomsLine": "'ax_A4_general' depends on axioms: [ax_A4_general, propext, Classical.choice, Quot.sound]"
+      },
+      {
+        "name": "ax_SP1_general",
+        "kind": "axiom",
+        "printAxiomsLine": "'ax_SP1_general' depends on axioms: [ax_SP1_general, propext, Classical.choice, Quot.sound]"
+      }
+    ],
+    "printAxiomsOutput": [
+      "'ricis_reduce_at_center_eq_eval' depends on axioms: [propext, Classical.choice, Quot.sound]",
+      "'regular_factor_quotient_uses_A4' depends on axioms: [ax_A4_general, propext, Classical.choice, Quot.sound]",
+      "'common_zero_factor_uses_SP1' depends on axioms: [ax_SP1_general, propext, Classical.choice, Quot.sound]",
+      "'singularity_is_zero_over_zero' depends on axioms: [propext, Classical.choice, Quot.sound]",
+      "'ricis_resolution_bridge' depends on axioms: [ax_A4_general, ax_SP1_general, propext, Classical.choice, Quot.sound]"
+    ],
+    "statusAfterKernelRun": "LEAN_VERIFIED",
+    "rootCause": null,
+    "trustBoundary": "Факт ядра по F-09/F-11 на артефактном уровне: сингулярность 0/0 предъявлена, ricis_reduce в центре равен ricis_eval_general, A4/SP1 — фактические зависимости bridge-теоремы, но остаются доверенными контрактами. Общая классическая разрешимость не заявляется.",
+    "relationToDeclaredTrustStatus": "Было REQUIRES_CORE_LEAN/PENDING_KERNEL_RUN (0.4.200) → стало LEAN_VERIFIED по факту run 35145205870. Только артефактный уровень; claimLevel = STRUCTURALLY_VALIDATED."
   }
 }

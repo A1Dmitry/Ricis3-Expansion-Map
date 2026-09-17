@@ -416,6 +416,23 @@ export const LEAN_CORE_CHECK_PLAN: readonly LeanCoreCheckPlanEntry[] = [
       'Не проверялось ядром до этого PR (статус REQUIRES_CORE_LEAN).',
     ],
   },
+  {
+    artifactId: 'Schwarzschild_GeometricBridge',
+    source: `${PROOFS_DIR}/Schwarzschild_GeometricBridge.lean`,
+    output: `${CORE_CHECK_DIR}/Schwarzschild_GeometricBridge.core-check.lean`,
+    metadataJson: `${PROOFS_DIR}/Schwarzschild_GeometricBridge.json`,
+    substitutions: [],
+    rationale:
+      'Тело использует только ядро-нативные примитивы: структуры над Nat/Int/String с ' +
+      'deriving DecidableEq/Repr/Hashable, доказательства rfl / congrArg / simp / native_decide, ' +
+      'дискретный A6-прокси на Int (продукт и gated-отношение). Ни ℝ/ℚ/ℂ, ни ring/norm_num, ни ' +
+      'других Mathlib-символов в теле нет — установлено пофайловым чтением (локальный тулчейн ' +
+      'недоступен, A-0007); три строки импорта Mathlib телом не используются и удаляются в ' +
+      'производной. Фактическим основанием самодостаточности станет прогон джобы kernel-check.',
+    sourceFindings: [
+      'Не проверялось ядром до этого цикла (статус REQUIRES_CORE_LEAN; вне allowlist MATHLIB_ARTIFACTS).',
+    ],
+  },
 ];
 
 /** Маркер начала добавленного эпилога: по нему тест отсекает эпилог и сверяет префикс. */
@@ -513,11 +530,14 @@ const THEOREM_PATTERN =
   /^(?:(?:private|protected|noncomputable|partial|unsafe)\s+)*theorem\s+([A-Za-z_][A-Za-z0-9_'.]*)/u;
 
 /**
- * Собирает полностью квалифицированные имена всех `theorem` файла — цели
- * инспекционных команд `#print axioms` в эпилоге (эпилог стоит после `end …`,
- * поэтому имена обязаны быть полными).
+ * Собирает полностью квалифицированные имена деклараций, подходящих под
+ * `pattern` (группа 1 — имя), с отслеживанием неймспейсов. Цели инспекционных
+ * команд эпилога (`#print axioms …`) всегда стоят ПОСЛЕ всех `end …`, поэтому
+ * любое имя, объявленное внутри неймспейса, обязано нести его префикс —
+ * иначе ядро ответит `unknown identifier` (A-0011: аксиома внутри
+ * `namespace JacobianCounterexample` была напечатана неквалифицированно).
  */
-export function collectTheoremNames(source: string): readonly string[] {
+export function collectScopedNames(source: string, pattern: RegExp): readonly string[] {
   const scannable = blankCommentsAndStrings(source);
   const scope: ScopeEntry[] = [];
   const names: string[] = [];
@@ -552,17 +572,26 @@ export function collectTheoremNames(source: string): readonly string[] {
       scope.pop();
       continue;
     }
-    const theoremMatch = THEOREM_PATTERN.exec(line);
-    if (theoremMatch) {
+    const declarationMatch = pattern.exec(line);
+    if (declarationMatch && declarationMatch[1]) {
       const prefix = scope
         .filter((entry) => entry.kind === 'namespace')
         .map((entry) => entry.name)
         .join('.');
-      names.push(prefix.length > 0 ? `${prefix}.${theoremMatch[1]}` : theoremMatch[1]);
+      names.push(prefix.length > 0 ? `${prefix}.${declarationMatch[1]}` : declarationMatch[1]);
     }
   }
 
   return [...new Set(names)];
+}
+
+/**
+ * Собирает полностью квалифицированные имена всех `theorem` файла — цели
+ * инспекционных команд `#print axioms` в эпилоге (эпилог стоит после `end …`,
+ * поэтому имена обязаны быть полными).
+ */
+export function collectTheoremNames(source: string): readonly string[] {
+  return collectScopedNames(source, THEOREM_PATTERN);
 }
 
 /** Удаляет строки `import Mathlib…` и гарантирует отсутствие любых других импортов. */

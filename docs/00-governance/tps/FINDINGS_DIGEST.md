@@ -36,6 +36,7 @@
 | F-12 | MEDIUM | — | закрыто (поле `resolution`/`status` начинается с маркера закрытия) | — | — |
 | F-13 | MEDIUM | — | открыто или закрыто частично — см. реестр | — | — |
 | F-14 | HIGH | — | открыто или закрыто частично — см. реестр | — | TPS-0007 (waiting_owner) |
+| F-15 | MEDIUM | — | открыто или закрыто частично — см. реестр | — | TPS-0013 (verify) |
 
 > Класс закрытости вычисляется той же функцией `isFindingRecordedClosed`, что и правило
 > `CARD_FINDING_ALREADY_CLOSED`: доска и отчёт не могут расходиться, потому что проверка одна.
@@ -51,6 +52,7 @@
 | ricis-backend-exact-reduction | LEAN_VERIFIED | 0 | 0 | 22 | `artifacts/proofs/core-checks/ricis-backend-exact-reduction.standalone.core-check.lean` |
 | ricis-chatbot-monetization | LEAN_VERIFIED | 0 | 0 | 2 | `artifacts/proofs/core-checks/ricis-chatbot-monetization.core-check.lean` |
 | ricis-general-resolution | LEAN_VERIFIED | 0 | 0 | 3 | `artifacts/proofs/mathlib-checks/ricis-general-resolution.mathlib-check.lean` |
+| ricis-general-resolution-v3 | LEAN_VERIFIED | 0 | 0 | 5 | `artifacts/proofs/mathlib-checks/ricis-general-resolution-v3.mathlib-check.lean` |
 | ricis-jacobian-conjecture | NOT_VERIFIED_CORE_ONLY | 1 | 1 | 2 | `artifacts/proofs/core-checks/ricis-jacobian-conjecture.standalone.core-check.lean` |
 | ricis-kernel-ast-sp5 | LEAN_VERIFIED | 0 | 0 | 2 | `artifacts/proofs/core-checks/ricis-kernel-ast-sp5.standalone.core-check.lean` |
 | ricis-navier-stokes-ast-bridge | LEAN_VERIFIED | 0 | 0 | 2 | `artifacts/proofs/core-checks/ricis-navier-stokes-ast-bridge.standalone.core-check.lean` |
@@ -58,6 +60,8 @@
 | ricis-seed-expansion-a11 | LEAN_VERIFIED | 0 | 0 | 6 | `artifacts/proofs/core-checks/ricis-seed-expansion-a11.core-check.lean` |
 | ricis-universal-orchestration-template | LEAN_VERIFIED | 0 | 0 | 27 | `artifacts/proofs/core-checks/ricis-universal-orchestration-template.core-check.lean` |
 | ricis-v79-monolith | LEAN_VERIFIED | 0 | 0 | 31 | `artifacts/proofs/core-checks/ricis-v79-monolith.standalone.core-check.lean` |
+| RicisAgiTarget | LEAN_VERIFIED | 0 | 0 | 3 | `artifacts/proofs/mathlib-checks/RicisAgiTarget.mathlib-check.lean` |
+| Schwarzschild_GeometricBridge | LEAN_VERIFIED | 0 | 0 | 11 | `artifacts/proofs/core-checks/Schwarzschild_GeometricBridge.core-check.lean` |
 
 > `outcome` — единственное, что даёт право на статус; `trustBoundary` и `rootCause` каждого
 > артефакта читаются в реестре и сюда не переносятся.
@@ -65,7 +69,7 @@
 ## Политика CI: ожидаемые отказы и ожидающие прогоны
 
 - `ciPolicy.expectedFailures` (падение этих целей не рвёт прогон, потому что первопричина зафиксирована): `ricis-jacobian-conjecture`
-- ожидает прогона: `ricis-general-resolution-v3` · job `mathlib-kernel-check` · статус PENDING_KERNEL_RUN
+- ожидает прогона: `jacobian-counterexample-full` · job `mathlib-kernel-check` · статус PENDING_KERNEL_RUN
 - ожидает прогона: `ricis-yang-mills` · job `mathlib-kernel-check` · статус PENDING_KERNEL_RUN
 - `sorryAx` в скопилированном файле рвёт прогон всегда — ожидаемый отказ его не легализует.
 
