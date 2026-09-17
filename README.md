@@ -203,6 +203,19 @@ npm run tps:gate
 > можно переменной `VITE_ALLOWED_HOSTS` (`false` — только localhost/IP, список — явные суффиксы).
 > Разбор инцидента 2026-09-16: [`docs/05-evidence/architecture/incident-2026-09-16-preview-not-displaying.md`](docs/05-evidence/architecture/incident-2026-09-16-preview-not-displaying.md).
 
+## 🔒 Манифест неизменности RICIS-III
+
+Неизменность принятого Core нормирована в [`docs/00-governance/RICIS_IMMUTABILITY_MANIFEST.md`](docs/00-governance/RICIS_IMMUTABILITY_MANIFEST.md) и является правилом проекта:
+
+- принятая аксиома не переписывается задним числом — ни ослаблением, ни усилением, ни «более удобной формулировкой»;
+- результат не является критерием истинности аксиомы: недоказуемость теоремы или расхождение с классической математикой не дают права менять Core;
+- `Resolve ≠ Commit` — новое правило проходит цепочку `Candidate → Analysis → Proof → Audit → Admission → Commit`;
+- несовместимое правило либо отклоняется, либо порождает новую версию/ветвь с собственной идентичностью (`CoreVersion`, `CoreHash`, `AxiomSet`, `History`); одинаковое имя при различном Core запрещено;
+- kernel-run Lean подтверждает вывод из заданных аксиом, но не истинность самих аксиом и не их принадлежность исходному RICIS-III;
+- развитие системы — только `Core + Extension`, а не переписывание Core.
+
+---
+
 ## 🏭 Рабочий процесс: шаблон Toyota (TPS)
 
 Поток работ нормирован в [`docs/00-governance/TOYOTA_TPS_WORKING_SYSTEM.md`](docs/00-governance/TOYOTA_TPS_WORKING_SYSTEM.md): канбан с WIP-лимитами и one-piece flow, дзидока (стоп-линия при любом `STOP — TUKHTA RISK`), такт по фактическим замерам, хейдзанка очереди, кайдзен и ёкотэн. Состояние линии — [`docs/00-governance/tps/board.json`](docs/00-governance/tps/board.json) (витрина [`tps/BOARD.md`](docs/00-governance/tps/BOARD.md) генерируется командой `npm run tps:board`). Проверка формы потока исполняется машиной и встроена в CI: `npm run tps:gate`.
