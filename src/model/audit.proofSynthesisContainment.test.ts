@@ -666,6 +666,21 @@ describe('OIR-03 — audit proof-synthesis containment', () => {
       // на закоммиченной версии файла страж падает на строках 114/115/160).
       ' M src/agentGateway/externalExecutorProtocol.ts',
       '?? tools/sourceHeredocLeakage.test.ts',
+      // ZENODO-METADATA-DUMPS-LINK (0.4.207, 2026-09-17): связь проекта с Zenodo
+      // через публичный «List available dumps» (GET /api/exporter,
+      // developers.zenodo.org). Идентичность проекта (имя/версия/URL/авторы →
+      // User-Agent) берётся из проектных SEO-данных (index.html JSON-LD/meta,
+      // package.json, CITATION.cff, robots.txt, sitemap.xml); эндпоинты
+      // /api/zenodo/v1/profile и /api/zenodo/v1/dumps, честная деградация 502/504.
+      ' M .env.example',
+      ' M server.ts',
+      '?? server/zenodoHttpAdapter.test.ts',
+      '?? server/zenodoHttpAdapter.ts',
+      '?? src/services/zenodo/contracts.ts',
+      '?? src/services/zenodo/seoProjectProfile.test.ts',
+      '?? src/services/zenodo/seoProjectProfile.ts',
+      '?? src/services/zenodo/zenodoDumpsClient.test.ts',
+      '?? src/services/zenodo/zenodoDumpsClient.ts',
     ]);
     if (status.length > 0 && status.every(entry => entry.startsWith('?? '))) {
       // In clean container environments git status may return all files as untracked
