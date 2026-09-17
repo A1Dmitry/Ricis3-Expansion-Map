@@ -60,6 +60,9 @@
     "vite": "^8.2.1",
     "vitest": "^5.0.1"
   },
+  "overrides": {
+    "qs": "^6.16.0"
+  },
   "license": "MIT",
   "homepage": "https://a1dmitry.github.io/Ricis3-Expansion-Map/",
   "bugs": {

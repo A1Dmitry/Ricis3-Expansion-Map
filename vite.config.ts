@@ -14,26 +14,7 @@ export default defineConfig(() => {
     base: process.env.GITHUB_PAGES === 'true' ? GITHUB_PAGES_BASE : '/',
     plugins: [react(), tailwindcss()],
     build: {
-      rolldownOptions: {
-        output: {
-          // Keep lazily loaded applets lazy, then cap generated chunks below Vite's
-          // 500 kB warning threshold. Rolldown may split large dependency graphs
-          // (notably Three.js) without forcing them into the initial route.
-          codeSplitting: {
-            maxSize: 450_000,
-            groups: [
-              {
-                name: 'vendor',
-                test: /node_modules/,
-              },
-              {
-                name: 'app',
-                test: /\/src\//,
-              },
-            ],
-          },
-        },
-      },
+      chunkSizeWarningLimit: 1500,
     },
     resolve: {
       alias: {

@@ -23,7 +23,7 @@ export const RICIS_SIGNATURES = [
     queries: [
       '"вырожденная геометрия" OR "бесконечная полоса" "площадь пересечения"',
       '"0 x infinity" "area = 10" OR "2 x 5 = 10" singularity',
-      '"behavioral audit" "proof of authorship" LLM weights vector product',
+      '"behavioral audit" "algorithmic provenance" LLM weights vector product',
     ],
   },
   {
