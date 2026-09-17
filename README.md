@@ -4,7 +4,7 @@
 [![Formal Verification](https://img.shields.io/badge/Formal%20Verification-Lean%204.33.1-blue.svg)](https://lean-lang.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-**Версия: 0.4.206**
+**Версия: 0.4.207**
 
 Интерактивная исследовательская карта сингулярностей, ориентированный граф доказательств (Blueprint DAG) и аналитический вычислительный движок на базе аксиоматической системы **RICIS-III v7.7** (Recursive Indexed Calculus of Identity and Singularity).
 
@@ -288,4 +288,15 @@ RICIS Expansion Map — это исследовательская среда и 
 ## SEO и discoverability
 
 Публикация манифестов, канонических ссылок и метаданных предназначена для академической индексации и исследовательской прозрачности. Наличие SEO-разметки обеспечивает точную навигацию по базе знаний и не обещает автоматическое первое место в выдаче поисковых систем без внешней релевантности.
+
+### Zenodo: связь через публичные metadata dumps
+
+Проект поддерживает машинную связь с [Zenodo](https://zenodo.org/) через публичный API «List available dumps» (`GET https://zenodo.org/api/exporter`, документация: [developers.zenodo.org — Metadata Dumps](https://developers.zenodo.org/#list-available-dumps)). Серверные эндпоинты:
+
+- `GET /api/zenodo/v1/dumps` — актуальный список доступных metadata dumps Zenodo (варианты `records-xml.tar.gz`, `records-json.tar.gz`, `records-deleted.csv.gz` и т.д. с версиями, checksum, размером и ссылками на скачивание) рядом с контекстом проекта.
+- `GET /api/zenodo/v1/profile` — идентификация проекта для Zenodo: имя, версия, URL, лицензия, авторы с ORCID, ключевые слова и User-Agent.
+
+**Источник информации — проектные SEO-данные, а не хардкод:** профиль строится парсером из `index.html` (JSON-LD `SoftwareApplication`/`WebSite`, meta-теги, canonical), `package.json`, `CITATION.cff`, `public/robots.txt` и `public/sitemap.xml`. User-Agent запроса к Zenodo формируется из SEO-названия, SEO-версии и канонического URL. Парсер также сверяет версию и URL между всеми SEO-поверхностями и возвращает типизированный вердикт согласованности (`consistent`/`inconsistent` с перечнем расхождений).
+
+Доступность Zenodo не влияет на работу сайта: сбой сети/таймаут/неожиданный ответ возвращают типизированный статус `zenodo_unavailable` (502, 504 при таймауте), а неисправимые SEO-активы — `seo_profile_unavailable` (502, вызов к Zenodo при этом не выполняется). Кэш каталога dumps — 5 минут. Базовый URL API переопределяется переменной `ZENODO_API_BASE_URL` (по умолчанию `https://zenodo.org`), токен не требуется.
 

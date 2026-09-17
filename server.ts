@@ -12,6 +12,7 @@ import {
 } from "./server/ricisCoreSupervisor";
 import { registerCommunityRewardsUnavailableRoutes } from "./server/communityRewardsHttpAdapter";
 import { registerAdminCoreUnavailableRoutes } from "./server/adminCoreUnavailableHttpAdapter";
+import { registerZenodoRoutes } from "./server/zenodoHttpAdapter";
 import {
   DEV_ALLOWED_HOSTS_ENV,
   describeDevAllowedHosts,
@@ -703,6 +704,10 @@ ${leavesStr}
   // browser cannot mistake HTML for an authoritative token result.
   registerCommunityRewardsUnavailableRoutes(app);
   registerAdminCoreUnavailableRoutes(app);
+  // Zenodo integration: project identity comes from SEO assets; the dumps
+  // directory is proxied from the public `GET /api/exporter` endpoint.
+  // Fails closed (502/504 typed status) and never blocks the static site.
+  registerZenodoRoutes(app);
 
   // Serve the calculator sandbox static files explicitly to bypass parent SPA wildcard matches
   const calculatorSandboxPath = process.env.NODE_ENV === "production"
