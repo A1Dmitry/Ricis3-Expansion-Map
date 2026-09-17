@@ -1692,9 +1692,9 @@
           {
             "command": "npm test",
             "exitCode": 0,
-            "measuredAt": "2026-09-17T14:56:22Z",
-            "durationMs": 273920,
-            "note": "265 файлов / 2105 тестов на main d50a883 до правок (baseline). Повторный полный прогон на изменённом дереве — см. описание PR (запись обновляется по факту)."
+            "measuredAt": "2026-09-17T15:23:07Z",
+            "durationMs": 244046,
+            "note": "266 файлов / 2114 тестов на чистом коммите 243f2a1 (изменённое дерево: +httpListen.test.ts, +3 теста супервизора, обновлён coreRecovery.test.ts). Baseline на main d50a883 до правок — 265/2105, тоже 0."
           },
           {
             "command": "npx vitest run server/httpListen.test.ts server/ricisCoreSupervisor.test.ts src/services/coreRecovery.test.ts",
