@@ -11,6 +11,7 @@
 - 🌐 **Интерактивная живая карта (Live Demo)**: [https://a1dmitry.github.io/Ricis3-Expansion-Map/](https://a1dmitry.github.io/Ricis3-Expansion-Map/)
 - 📄 **Автоматизированный аудит-манифест инвариантов**: [`ai-audit-manifest.json`](ai-audit-manifest.json)
 - 📋 **Официальный реестр внедрений и адаптеров**: [`adopters.md`](adopters.md) ([зеркало на GitHub](https://github.com/A1Dmitry/RICIS-III-Lean4-Kernel/blob/main/adopters.md))
+- 📜 **Манифест неизменности ядра (Core Invariance)**: [`docs/00-governance/RICIS_IMMUTABILITY_MANIFEST.md`](docs/00-governance/RICIS_IMMUTABILITY_MANIFEST.md)
 
 ---
 
@@ -268,6 +269,14 @@ RICIS Expansion Map — это исследовательская среда и 
 Любое доказательство в RICIS-III строится по единому каноническому шаблону ([`docs/00-governance/RICIS_PROOF_ORCHESTRATION_TEMPLATE.md`](docs/00-governance/RICIS_PROOF_ORCHESTRATION_TEMPLATE.md)):
 1. **Runtime-пайплайн (TypeScript)** ([`src/model/orchestrationPipeline.ts`](src/model/orchestrationPipeline.ts)): единый контракт `IRicisOrchestratorEngine.executePipeline` из 5 стадий (`PARSING_AND_L1_CHECK` → `AXIOMATIC_REDUCTION` → `LEAN_CODEGEN` → `GATEWAY_DISPATCH` → `TRUST_VALIDATION`) с логом `TransformationLog` и монадой `RicisNumber`.
 2. **Универсальный шаблон редукции (Lean 4)** ([`artifacts/proofs/ricis-universal-orchestration-template.lean`](artifacts/proofs/ricis-universal-orchestration-template.lean)): универсальный двухшаговый алгоритм `fullResolve(e) = resolveRICIS(resolveRICIS(e))` и `resolveRICIS(e) = geometricMeasure(ricisResolve(e))` (шаги $L1/SP2/A1..A10 \to A6 \to \mu(\text{rect}) \to F*G \to \text{fullResolve} \to SP4 \to \text{resolveVec4}$).
+
+### 🛡️ Манифест неизменности ядра (Core Invariance)
+Фундаментальный нормативный регламент системы ([`docs/00-governance/RICIS_IMMUTABILITY_MANIFEST.md`](docs/00-governance/RICIS_IMMUTABILITY_MANIFEST.md)):
+- **Аксиома не изменяется:** принятая аксиома ядра ($L0, L1, SP1..SP4, A1..A10$) является частью идентичности системы и не может быть изменена, ослаблена или заменена.
+- **Сомнение не меняет Core:** противоречие или подозрение AI в ошибке исследуется в контексте применения, но аксиома остаётся неприкосновенной.
+- **Неизвестное — допустимое состояние:** открытые вопросы признаются честно, подгонка под ответ запрещена.
+- **AI не владеет семантикой:** LLM/агенты — лишь инструменты расчёта и валидации, не имеющие права реформировать аксиоматику.
+- **Эволюция только через версионирование:** развитие происходит через фиксацию новых мажорных версий (v8.0+), старая версия неизменна навсегда.
 
 Дополнительно различаются три уровня заявления (см. [`artifacts/proofs/README.md`](artifacts/proofs/README.md)):
 `LEAN_VERIFIED` (ядро приняло артефакт без `sorryAx`), `REQUIRES_CORE_LEAN` (прогон не выполнялся —

@@ -325,6 +325,10 @@ export async function dbLoadMap(options?: { timeoutMs?: number }): Promise<MapSt
   }
 }
 
+async function openDbSafe(timeoutMs = 1500): Promise<IDBDatabase | null> {
+  return openDbWithTimeout(timeoutMs);
+}
+
 export async function dbClear(): Promise<void> {
   if (!isIndexedDbAvailable) {
     clearMemoryStores();
@@ -333,7 +337,12 @@ export async function dbClear(): Promise<void> {
   }
 
   try {
-    const db = await openDb();
+    const db = await openDbSafe();
+    if (!db) {
+      clearMemoryStores();
+      memoryStores.meta.clear();
+      return;
+    }
     try {
       await clearStore(db, STORES.nodes);
       await clearStore(db, STORES.edges);
@@ -359,13 +368,23 @@ export async function dbPutNode(node: ProblemNode): Promise<void> {
     return;
   }
 
-  const db = await openDb();
   try {
-    const tx = db.transaction(STORES.nodes, 'readwrite');
-    tx.objectStore(STORES.nodes).put(node);
-    await txDone(tx);
-  } finally {
-    db.close();
+    const db = await openDbSafe();
+    if (!db) {
+      memoryStores.nodes.set(node.id, node);
+      return;
+    }
+    try {
+      const tx = db.transaction(STORES.nodes, 'readwrite');
+      tx.objectStore(STORES.nodes).put(node);
+      await txDone(tx);
+    } finally {
+      db.close();
+    }
+  } catch (err) {
+    console.warn('IndexedDB put node failed, falling back to memoryStores', err);
+    isIndexedDbAvailable = false;
+    memoryStores.nodes.set(node.id, node);
   }
 }
 
@@ -376,13 +395,23 @@ export async function dbPutProof(proof: Proof): Promise<void> {
     return;
   }
 
-  const db = await openDb();
   try {
-    const tx = db.transaction(STORES.proofs, 'readwrite');
-    tx.objectStore(STORES.proofs).put(proof);
-    await txDone(tx);
-  } finally {
-    db.close();
+    const db = await openDbSafe();
+    if (!db) {
+      memoryStores.proofs.set(proof.nodeId, proof);
+      return;
+    }
+    try {
+      const tx = db.transaction(STORES.proofs, 'readwrite');
+      tx.objectStore(STORES.proofs).put(proof);
+      await txDone(tx);
+    } finally {
+      db.close();
+    }
+  } catch (err) {
+    console.warn('IndexedDB put proof failed, falling back to memoryStores', err);
+    isIndexedDbAvailable = false;
+    memoryStores.proofs.set(proof.nodeId, proof);
   }
 }
 
@@ -391,12 +420,21 @@ export async function dbGetNode(id: string): Promise<ProblemNode | undefined> {
     return memoryStores.nodes.get(id);
   }
 
-  const db = await openDb();
   try {
-    const tx = db.transaction(STORES.nodes, 'readonly');
-    return await reqToPromise(tx.objectStore(STORES.nodes).get(id));
-  } finally {
-    db.close();
+    const db = await openDbSafe();
+    if (!db) {
+      return memoryStores.nodes.get(id);
+    }
+    try {
+      const tx = db.transaction(STORES.nodes, 'readonly');
+      return await reqToPromise(tx.objectStore(STORES.nodes).get(id));
+    } finally {
+      db.close();
+    }
+  } catch (err) {
+    console.warn('IndexedDB get node failed, falling back to memoryStores', err);
+    isIndexedDbAvailable = false;
+    return memoryStores.nodes.get(id);
   }
 }
 
@@ -405,12 +443,21 @@ export async function dbGetProof(nodeId: string): Promise<Proof | undefined> {
     return memoryStores.proofs.get(nodeId);
   }
 
-  const db = await openDb();
   try {
-    const tx = db.transaction(STORES.proofs, 'readonly');
-    return await reqToPromise(tx.objectStore(STORES.proofs).get(nodeId));
-  } finally {
-    db.close();
+    const db = await openDbSafe();
+    if (!db) {
+      return memoryStores.proofs.get(nodeId);
+    }
+    try {
+      const tx = db.transaction(STORES.proofs, 'readonly');
+      return await reqToPromise(tx.objectStore(STORES.proofs).get(nodeId));
+    } finally {
+      db.close();
+    }
+  } catch (err) {
+    console.warn('IndexedDB get proof failed, falling back to memoryStores', err);
+    isIndexedDbAvailable = false;
+    return memoryStores.proofs.get(nodeId);
   }
 }
 
@@ -420,20 +467,31 @@ export async function dbGetMigrationState(): Promise<{ version: number; auditedA
     return row ? { version: row.version ?? 0, auditedAt: row.auditedAt, report: row.report } : null;
   }
 
-  const db = await openDb();
   try {
-    const tx = db.transaction(STORES.meta, 'readonly');
-    const row = await reqToPromise(
-      tx.objectStore(STORES.meta).get('migration_state') as IDBRequest<{
-        key: string;
-        version: number;
-        auditedAt?: string;
-        report?: any;
-      }>
-    );
+    const db = await openDbSafe();
+    if (!db) {
+      const row = memoryStores.meta.get('migration_state');
+      return row ? { version: row.version ?? 0, auditedAt: row.auditedAt, report: row.report } : null;
+    }
+    try {
+      const tx = db.transaction(STORES.meta, 'readonly');
+      const row = await reqToPromise(
+        tx.objectStore(STORES.meta).get('migration_state') as IDBRequest<{
+          key: string;
+          version: number;
+          auditedAt?: string;
+          report?: any;
+        }>
+      );
+      return row ? { version: row.version ?? 0, auditedAt: row.auditedAt, report: row.report } : null;
+    } finally {
+      db.close();
+    }
+  } catch (err) {
+    console.warn('IndexedDB get migration state failed, falling back to memoryStores', err);
+    isIndexedDbAvailable = false;
+    const row = memoryStores.meta.get('migration_state');
     return row ? { version: row.version ?? 0, auditedAt: row.auditedAt, report: row.report } : null;
-  } finally {
-    db.close();
   }
 }
 
@@ -448,18 +506,38 @@ export async function dbSetMigrationState(version: number, report?: any): Promis
     return;
   }
 
-  const db = await openDb();
   try {
-    const tx = db.transaction(STORES.meta, 'readwrite');
-    tx.objectStore(STORES.meta).put({
+    const db = await openDbSafe();
+    if (!db) {
+      memoryStores.meta.set('migration_state', {
+        key: 'migration_state',
+        version,
+        auditedAt: new Date().toISOString(),
+        report,
+      });
+      return;
+    }
+    try {
+      const tx = db.transaction(STORES.meta, 'readwrite');
+      tx.objectStore(STORES.meta).put({
+        key: 'migration_state',
+        version,
+        auditedAt: new Date().toISOString(),
+        report,
+      });
+      await txDone(tx);
+    } finally {
+      db.close();
+    }
+  } catch (err) {
+    console.warn('IndexedDB set migration state failed, falling back to memoryStores', err);
+    isIndexedDbAvailable = false;
+    memoryStores.meta.set('migration_state', {
       key: 'migration_state',
       version,
       auditedAt: new Date().toISOString(),
       report,
     });
-    await txDone(tx);
-  } finally {
-    db.close();
   }
 }
 
@@ -469,18 +547,29 @@ export async function dbGetAgentTrainingMemory(): Promise<any | null> {
     return row ? row.data : null;
   }
 
-  const db = await openDb();
   try {
-    const tx = db.transaction(STORES.meta, 'readonly');
-    const row = await reqToPromise(
-      tx.objectStore(STORES.meta).get('agent_training_memory') as IDBRequest<{
-        key: string;
-        data: any;
-      }>
-    );
+    const db = await openDbSafe();
+    if (!db) {
+      const row = memoryStores.meta.get('agent_training_memory');
+      return row ? row.data : null;
+    }
+    try {
+      const tx = db.transaction(STORES.meta, 'readonly');
+      const row = await reqToPromise(
+        tx.objectStore(STORES.meta).get('agent_training_memory') as IDBRequest<{
+          key: string;
+          data: any;
+        }>
+      );
+      return row ? row.data : null;
+    } finally {
+      db.close();
+    }
+  } catch (err) {
+    console.warn('IndexedDB get agent training memory failed, falling back to memoryStores', err);
+    isIndexedDbAvailable = false;
+    const row = memoryStores.meta.get('agent_training_memory');
     return row ? row.data : null;
-  } finally {
-    db.close();
   }
 }
 
@@ -494,17 +583,35 @@ export async function dbSetAgentTrainingMemory(memory: any): Promise<void> {
     return;
   }
 
-  const db = await openDb();
   try {
-    const tx = db.transaction(STORES.meta, 'readwrite');
-    tx.objectStore(STORES.meta).put({
+    const db = await openDbSafe();
+    if (!db) {
+      memoryStores.meta.set('agent_training_memory', {
+        key: 'agent_training_memory',
+        data: memory,
+        updatedAt: new Date().toISOString(),
+      });
+      return;
+    }
+    try {
+      const tx = db.transaction(STORES.meta, 'readwrite');
+      tx.objectStore(STORES.meta).put({
+        key: 'agent_training_memory',
+        data: memory,
+        updatedAt: new Date().toISOString(),
+      });
+      await txDone(tx);
+    } finally {
+      db.close();
+    }
+  } catch (err) {
+    console.warn('IndexedDB set agent training memory failed, falling back to memoryStores', err);
+    isIndexedDbAvailable = false;
+    memoryStores.meta.set('agent_training_memory', {
       key: 'agent_training_memory',
       data: memory,
       updatedAt: new Date().toISOString(),
     });
-    await txDone(tx);
-  } finally {
-    db.close();
   }
 }
 
@@ -513,20 +620,29 @@ export async function dbMeta(): Promise<{ savedAt?: string; nodeCount?: number; 
     return memoryStores.meta.get('snapshot') ?? null;
   }
 
-  const db = await openDb();
   try {
-    const tx = db.transaction(STORES.meta, 'readonly');
-    const row = await reqToPromise(
-      tx.objectStore(STORES.meta).get('snapshot') as IDBRequest<{
-        key: string;
-        savedAt?: string;
-        nodeCount?: number;
-        proofCount?: number;
-      }>
-    );
-    return row ?? null;
-  } finally {
-    db.close();
+    const db = await openDbSafe();
+    if (!db) {
+      return memoryStores.meta.get('snapshot') ?? null;
+    }
+    try {
+      const tx = db.transaction(STORES.meta, 'readonly');
+      const row = await reqToPromise(
+        tx.objectStore(STORES.meta).get('snapshot') as IDBRequest<{
+          key: string;
+          savedAt?: string;
+          nodeCount?: number;
+          proofCount?: number;
+        }>
+      );
+      return row ?? null;
+    } finally {
+      db.close();
+    }
+  } catch (err) {
+    console.warn('IndexedDB get meta failed, falling back to memoryStores', err);
+    isIndexedDbAvailable = false;
+    return memoryStores.meta.get('snapshot') ?? null;
   }
 }
 
@@ -559,29 +675,45 @@ export async function dbCommitUnitOfWork(uow: UnitOfWork): Promise<void> {
     return;
   }
 
-  const db = await openDb();
   try {
-    const activeStores: StoreName[] = [STORES.nodes, STORES.proofs];
-    const tx = db.transaction(activeStores, 'readwrite');
-    const nodeStore = tx.objectStore(STORES.nodes);
-    const proofStore = tx.objectStore(STORES.proofs);
+    const db = await openDbSafe();
+    if (!db) {
+      for (const node of nodesToPut) memoryStores.nodes.set(node.id, node);
+      for (const proof of proofsToPut) memoryStores.proofs.set(proof.nodeId, proof);
+      for (const id of nodesToDelete) memoryStores.nodes.delete(id);
+      for (const id of proofsToDelete) memoryStores.proofs.delete(id);
+      return;
+    }
+    try {
+      const activeStores: StoreName[] = [STORES.nodes, STORES.proofs];
+      const tx = db.transaction(activeStores, 'readwrite');
+      const nodeStore = tx.objectStore(STORES.nodes);
+      const proofStore = tx.objectStore(STORES.proofs);
 
-    for (const node of nodesToPut) {
-      nodeStore.put(node);
-    }
-    for (const proof of proofsToPut) {
-      proofStore.put(proof);
-    }
-    for (const id of nodesToDelete) {
-      nodeStore.delete(id);
-    }
-    for (const id of proofsToDelete) {
-      proofStore.delete(id);
-    }
+      for (const node of nodesToPut) {
+        nodeStore.put(node);
+      }
+      for (const proof of proofsToPut) {
+        proofStore.put(proof);
+      }
+      for (const id of nodesToDelete) {
+        nodeStore.delete(id);
+      }
+      for (const id of proofsToDelete) {
+        proofStore.delete(id);
+      }
 
-    await txDone(tx);
-  } finally {
-    db.close();
+      await txDone(tx);
+    } finally {
+      db.close();
+    }
+  } catch (err) {
+    console.warn('IndexedDB commit unit of work failed, falling back to memoryStores', err);
+    isIndexedDbAvailable = false;
+    for (const node of nodesToPut) memoryStores.nodes.set(node.id, node);
+    for (const proof of proofsToPut) memoryStores.proofs.set(proof.nodeId, proof);
+    for (const id of nodesToDelete) memoryStores.nodes.delete(id);
+    for (const id of proofsToDelete) memoryStores.proofs.delete(id);
   }
 }
 

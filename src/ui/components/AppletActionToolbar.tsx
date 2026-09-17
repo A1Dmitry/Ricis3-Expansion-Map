@@ -26,8 +26,8 @@ import {
   Terminal,
   Settings,
   HelpCircle,
-  LucideIcon,
 } from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
 import type { AppletId } from '../../types/appletRegistry';
 import { APPLET_DEFINITIONS } from '../../types/appletRegistry';
 import type { CommandContext, AppCommand } from '../../types/commandTypes';

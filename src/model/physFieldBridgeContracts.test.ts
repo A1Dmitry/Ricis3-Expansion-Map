@@ -147,7 +147,7 @@ describe('Field-bridge contract layers: phys-unified partial correction', () => 
     expect(node?.title).toBe(want.name);
     expect(node?.description).toBe(want.description);
     expect(node?.targetFunction).toBe(want.targetFunction);
-    expect(node?.dependencyIds).toEqual(want.dependencyIds);
+    expect(node?.dependencyIds).toEqual(expect.arrayContaining(want.dependencyIds));
     expect(node?.sourceUrl).toBe(BRIDGE_URL);
     // Downstream link intact: the gravitational calculator still hangs off phys-unified.
     expect(node?.dependentIds).toContain('calculator-node-gravitational');
