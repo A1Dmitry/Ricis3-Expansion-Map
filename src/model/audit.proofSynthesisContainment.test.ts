@@ -681,6 +681,31 @@ describe('OIR-03 — audit proof-synthesis containment', () => {
       '?? src/services/zenodo/seoProjectProfile.ts',
       '?? src/services/zenodo/zenodoDumpsClient.test.ts',
       '?? src/services/zenodo/zenodoDumpsClient.ts',
+      // INCIDENT-2026-09-17-TOTAL-FIX (0.4.208): контрмеры A/B/C2/C3 —
+      // честный listen (EADDRINUSE → exit 1, PORT из env), async dotnet-проба
+      // с кэшем/cooldown вместо spawnSync, AbortSignal.timeout на клиентских
+      // health-пробах, abort-by-req.close + AI deadline < client timeout,
+      // потребитель флага degraded в apiClient/logic.
+      ' M server/ricisCoreSupervisor.ts',
+      ' M server/ricisCoreSupervisor.test.ts',
+      '?? server/serverListen.test.ts',
+      ' M src/model/apiClient.ts',
+      ' M src/model/logic.ts',
+      ' M src/services/coreRecovery.ts',
+      ' M src/services/coreRecovery.test.ts',
+      ' M src/services/ricisCore/RicisWasmBridge.ts',
+      ' M src/model/apiClient.importTopology.test.ts',
+      '?? src/model/apiClient.degradation.test.ts',
+      ' M package.json',
+      ' M package-lock.json',
+      ' M src/version.ts',
+      ' M index.html',
+      ' M CITATION.cff',
+      ' M README.md',
+      ' M docs/05-evidence/architecture/structural-hash-report.md',
+      ' M docs/05-evidence/architecture/telegram-tokenpool-remediation-2026-08-18.md',
+      ' M docs/05-evidence/proofs/lean-boundary-audit-2026-08-18.md',
+      ' M src/model/audit.proofSynthesisContainment.test.ts',
     ]);
     if (status.length > 0 && status.every(entry => entry.startsWith('?? '))) {
       // In clean container environments git status may return all files as untracked

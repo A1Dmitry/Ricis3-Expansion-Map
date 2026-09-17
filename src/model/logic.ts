@@ -31,16 +31,25 @@ export async function generateProof(node: ProblemNode, allAxioms: Axiom[]): Prom
   );
 
   let latex = fallback;
+  let degraded: string | undefined;
   try {
-    const api = await postJson<{ proofLatex?: string; proof?: string }>('/api/generateProof', {
-      id: node.id,
-      title: node.title,
-      targetFunction: node.targetFunction,
-      description: node.description,
-      singularityHint: node.singularityHint,
-      axioms: allAxioms,
-    });
+    const api = await postJson<{ proofLatex?: string; proof?: string; degraded?: string }>(
+      '/api/generateProof',
+      {
+        id: node.id,
+        title: node.title,
+        targetFunction: node.targetFunction,
+        description: node.description,
+        singularityHint: node.singularityHint,
+        axioms: allAxioms,
+      },
+    );
     if (api.ok && api.data) {
+      // Incident 2026-09-17 C2: surface the server degradation flag so a local
+      // draft is never silently presented as an external-agent answer.
+      if (api.degraded === 'local_draft' || api.data.degraded === 'local_draft') {
+        degraded = 'local_draft';
+      }
       const raw = (typeof api.data.proofLatex === 'string' && api.data.proofLatex)
         ? api.data.proofLatex
         : (typeof api.data.proof === 'string' && api.data.proof)
@@ -52,14 +61,19 @@ export async function generateProof(node: ProblemNode, allAxioms: Axiom[]): Prom
         const audit = auditProofContent(transformed);
         latex = audit.isValid ? transformed : fallback;
       }
+    } else if (!api.ok && api.degraded) {
+      degraded = api.degraded;
     }
   } catch {
     // A provider failure leaves only the local diagnostic document. It must not
     // call legacy proof methods or claim authoritative Core/Lean evidence.
     latex = fallback;
+    degraded = degraded ?? 'ai_unavailable';
   }
 
-  const finalResult = 'Axiom Extracted: ' + node.id + '_resolved';
+  const finalResult = degraded
+    ? `Local diagnostic only (${degraded}): ${node.id}`
+    : 'Axiom Extracted: ' + node.id + '_resolved';
   return {
     nodeId: node.id,
     targetFunction: node.targetFunction,

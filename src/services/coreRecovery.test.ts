@@ -93,6 +93,11 @@ describe('core recovery routing', () => {
     }));
 
     await expect(probeRicisCoreHealth()).resolves.toEqual({ available: true });
-    expect(fetch).toHaveBeenCalledWith('/api/ricis-core/health', { headers: { accept: 'application/json' } });
+    expect(fetch).toHaveBeenCalledTimes(1);
+    const [, init] = (fetch as ReturnType<typeof vi.fn>).mock.calls[0] as [string, RequestInit];
+    expect(init.headers).toEqual({ accept: 'application/json' });
+    // Incident 2026-09-17 CM-4: health probe must carry a client-side deadline.
+    expect(init.signal).toBeDefined();
+    expect(init.signal).toBeInstanceOf(AbortSignal);
   });
 });
