@@ -1,7 +1,7 @@
 {
   "name": "ricis3-expansion",
   "private": false,
-  "version": "0.4.201",
+  "version": "0.4.202",
   "description": "Interactive RICIS-III singularity research map with explicit proof-trust boundaries",
   "type": "module",
   "workspaces": [
@@ -59,6 +59,9 @@
     "typescript": "^5.9.3",
     "vite": "^8.2.1",
     "vitest": "^5.0.1"
+  },
+  "overrides": {
+    "qs": "^6.16.0"
   },
   "license": "MIT",
   "homepage": "https://a1dmitry.github.io/Ricis3-Expansion-Map/",
