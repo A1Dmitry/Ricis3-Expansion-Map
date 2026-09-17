@@ -18,6 +18,7 @@ import {
   resolveDevAllowedHosts,
 } from "./server/devHostPolicy";
 import { LOCAL_DRAFT_DEGRADATION, expandLeavesDegradedResponse } from "./server/aiDegradation";
+import { SERVER_PORT_ENV, listenHonestly, resolveServerPort } from "./server/httpListen";
 
 
 
@@ -138,7 +139,9 @@ function validatePayload(body: any, schema: Record<string, string>): { isValid: 
 
 async function startServer() {
   const app = express();
-  const PORT = 3000;
+  // Incident 2026-09-17: a hard-coded port is the precondition for the silent
+  // EADDRINUSE below; the value now comes from `PORT` (default 3000).
+  const PORT = resolveServerPort(process.env[SERVER_PORT_ENV]);
   app.use(express.json({ limit: "50mb" }));
   app.use(express.urlencoded({ limit: "50mb", extended: true }));
 
@@ -731,6 +734,10 @@ ${leavesStr}
       server: {
         middlewareMode: true,
         hmr: false,
+        // Incident 2026-09-17 (finding D): `hmr: false` only silences HMR messages —
+        // Vite still opened a second public WebSocket listener on *:24678 that answered
+        // `426 Upgrade Required` and looked like a preview candidate to the platform.
+        ws: false,
         allowedHosts,
       },
       appType: "spa",
@@ -744,10 +751,18 @@ ${leavesStr}
     });
   }
 
-  app.listen(PORT, "0.0.0.0", () => {
-    console.log(`Server running on http://localhost:${PORT}`);
-
-  });
+  // Incident 2026-09-17: express@5 invokes the listen callback on `error` too, so the
+  // old `app.listen(PORT, cb)` printed «Server running» while holding no port at all.
+  // listenHonestly() resolves only after the socket is bound AND a self-probe of
+  // GET /api/health returned 200; otherwise it rejects with the real reason.
+  const listening = await listenHonestly(app, { port: PORT, host: "0.0.0.0" });
+  console.log(
+    `Server running on http://localhost:${listening.port} ` +
+      `(self-probe GET /api/health → 200 in ${listening.selfProbeMs} ms)`,
+  );
 }
 
-startServer();
+startServer().catch((error: unknown) => {
+  console.error(`[server] ${error instanceof Error ? error.message : String(error)}`);
+  process.exit(1);
+});

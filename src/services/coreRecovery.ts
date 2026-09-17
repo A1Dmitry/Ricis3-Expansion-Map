@@ -5,6 +5,7 @@ import type {
   CoreRecoveryOrigin,
 } from './ricisCore/IRicisCoreEngine';
 import { ricisCoreApiUrl, resolveRicisCoreApiEndpoint } from './ricisCore/coreEndpoint';
+import { CORE_HEALTH_TIMEOUT_MS, coreRequestSignal } from './ricisCore/requestTimeout';
 
 const RECOVERY_VIEW = 'core-recovery';
 const RECOVERY_STORAGE_KEY = 'ricis.core-recovery.v1';
@@ -156,7 +157,10 @@ export async function probeRicisCoreHealth(): Promise<CoreHealthProbeResult> {
   }
 
   try {
-    const response = await fetch(healthUrl, { headers: { accept: 'application/json' } });
+    const response = await fetch(healthUrl, {
+      headers: { accept: 'application/json' },
+      signal: coreRequestSignal(CORE_HEALTH_TIMEOUT_MS),
+    });
     if (!response.ok) {
       return { available: false, safeDetail: `Health endpoint returned HTTP ${response.status}.` };
     }

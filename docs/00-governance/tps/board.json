@@ -2,7 +2,7 @@
   "boardVersion": "1.0.0",
   "system": "RICIS-III Expansion Map",
   "standard": "docs/00-governance/TOYOTA_TPS_WORKING_SYSTEM.md",
-  "generatedAt": "2026-09-16T21:15:00Z",
+  "generatedAt": "2026-09-17T15:20:00Z",
   "lanes": [
     {
       "id": "backlog",
@@ -561,6 +561,52 @@
       "countermeasure": "Единый скоуп-трекер имён для теорем и аксиом (квалификация в обоих) + структурный страж: имя, объявленное внутри неймспейса, обязано нести его префикс в целях эпилога (проверяемо без тулчейна). Факт закрытия — зелёный повторный прогон джобы.",
       "processChange": "shared collectScopedNames в scripts/generateLeanCoreChecks.ts; страж в tools/leanMathlibChecks.test.ts.",
       "yokoten": []
+    },
+    {
+      "id": "A-0012",
+      "title": "Интерфейс «периодически слетает»: ложное «Server running» при занятом порте (express@5 + EADDRINUSE) и 10-секундный freeze всего сервера синхронной пробой dotnet",
+      "severity": "high",
+      "state": "CLOSED",
+      "openedAt": "2026-09-17T13:40:00Z",
+      "closedAt": "2026-09-17T15:20:00Z",
+      "affectedCardId": "TPS-0014",
+      "fact": "(A) Порт 3000 занят сторонним процессом → `npm run dev` печатает «Server running on http://localhost:3000», stderr пуст, процесс жив, `ss -ltnp` порт за node не показывает, запросы обслуживает holder. Прямая проба: `express@5.2.1 lib/application.js` оборачивает listen-callback в `once()` и вешает его и на `listening`, и на `error`; аргумент callback = `Error(code=EADDRINUSE)`; в `express@4.22.3` строки `server.once('error', done)` нет. (B) `RICIS_CORE_DOTNET_BIN=/tmp/fake-dotnet` (sleep 60): во время одной пробы `/api/ricis-core/health` → `GET /` ERR ECONNRESET 9733 ms, `/api/health` 200 за 9744 ms (baseline 40 ms), проба 503 за 10025 ms; повторный `POST /expressions/simplify` → 10078 ms, затем 10017 ms — freeze повторяется на каждый запрос. Причина: `spawnSync(dotnet, ['--version'], {timeout: 10_000})` в async-обработчике, а `startPromise`/`coreProcess` обнуляются после каждой неудачи. (D) При `hmr: false` слушается второй порт `*:24678` (Vite WS), отвечает `426 Upgrade Required`. Полный разбор: docs/05-evidence/architecture/incident-2026-09-17-interface-periodically-dropping.md §2–§5.",
+      "whys": [
+        "Почему превью периодически «мёртвое» при зелёном логе? — Единственный сигнал успеха («Server running») печатался из listen-callback, который в express@5 вызывается и при ошибке bind: при занятом порте процесс жил, ничего не слушал и не падал.",
+        "Почему порт оказывается занят? — Порт зашит константой 3000, а в песочнице процессы предыдущих итераций переживают сессию; без `PORT` из окружения конфликт неизбежен, и без self-probe он невидим.",
+        "Почему интерфейс зависает на ~10 с и рвёт документ? — Проба `dotnet --version` выполнялась `spawnSync` внутри async-обработчика: пока подпроцесс не вернулся (до 10 с), Node не обслуживал ничего, включая Vite-мидлварь с документом и модулями.",
+        "Почему это повторяется, а не один раз? — Вердикт пробы не кэшировался: `startPromise` обнулялся в `finally`, `coreProcess` — в обработчиках `error`/`exit`, поэтому каждое обращение к `/api/ricis-core/*` при недоступном ядре запускало пробу заново; частота зависаний совпадала с частотой действий пользователя.",
+        "Почему ни один гейт этого не видел? — `lint`/`test`/`build` не пересекают транспорт: сервер в тестах не поднимается, занятый порт не моделируется, блокировка event loop не измеряется; появившийся на main `tools/previewHealthCheck.test.ts` читает файлы (`toContain`), а не делает HTTP-запрос — тот же класс F-01/QA-1 и вывод инцидента 2026-09-16 §4.4."
+      ],
+      "rootCause": "Транспортный слой dev-сервера строился на невалидированных допущениях: (1) что listen-callback означает успешный bind (перестало быть верным с переходом на express@5), (2) что синхронный подпроцесс в обработчике запроса безобиден, (3) что неудачный старт ядра можно пробовать заново на каждом запросе. Ни одно допущение не было закреплено проверкой, проходящей через настоящий сокет/подпроцесс, поэтому ошибочность двух из них проявилась только у пользователя как «периодичность».",
+      "countermeasure": "(1) `server/httpListen.ts`: `listenHonestly()` слушает `error` отдельно, после `listening` делает self-probe `GET /api/health` (2 с) и только тогда печатает «Server running»; отказ → `process.exit(1)` с причиной; `PORT` из окружения (`resolveServerPort`, мусор → громкая ошибка). (2) `server/ricisCoreSupervisor.ts`: `spawnSync` заменён асинхронным `spawn` с таймером (2 с, `RICIS_CORE_DOTNET_PROBE_TIMEOUT_MS`), вердикт кэшируется (успех — навсегда, отказ — 30 с cooldown), параллельные вызовы делят одну пробу, поле `dotnetProbe` в integration info. (3) Клиентские health-пробы и запросы ядра получили `AbortSignal.timeout` (5 с / 30 с). (4) `ws: false` в `createViteServer` — второй порт 24678 не поднимается. (5) Regression-тесты через настоящие сокеты и подпроцессы: занятый порт, self-probe, heartbeat event loop во время медленной пробы, счётчик вызовов host при повторных запросах. (6) `.env.example`/README: `PORT`, таймауты, симптом → причина.",
+      "reverify": {
+        "command": "npx vitest run server/httpListen.test.ts server/ricisCoreSupervisor.test.ts src/services/coreRecovery.test.ts",
+        "exitCode": 0
+      },
+      "processChange": "`server/httpListen.ts` + `server/httpListen.test.ts` (6 транспортных тестов, включая контроль механизма express@5), `server/ricisCoreSupervisor.ts` + 3 новых теста в `server/ricisCoreSupervisor.test.ts` (heartbeat event loop, кэш вердикта, общая проба), `src/services/ricisCore/requestTimeout.ts`, правки `server.ts`, `.env.example`, `README.md`; A3 — `docs/00-governance/tps/A3-ANDON-0012.md`; разбор — `docs/05-evidence/architecture/incident-2026-09-17-interface-periodically-dropping.md` (§12 — ремонт).",
+      "yokoten": [
+        {
+          "target": "server/ricisCoreSupervisor.ts",
+          "checkedOutcome": "Сверено: единственный `spawnSync`/`execSync` в серверном коде (`grep -rn spawnSync\\|execSync server.ts server/` → только эта проба); других синхронных подпроцессов в пути запроса нет."
+        },
+        {
+          "target": "src/services/ricisCore/CoreProofHttpGateway.ts",
+          "checkedOutcome": "Сверено: proof-шлюз уже нёс `AbortSignal.timeout(15_000)` на всех четырёх вызовах — образец, к которому приведены `coreRecovery.ts` и `RicisWasmBridge.ts`."
+        },
+        {
+          "target": "tools/previewHealthCheck.test.ts",
+          "checkedOutcome": "Сверено: проверяет текст (`toContain`), транспорт не поднимает; оставлен как есть (на main уже согласован с devHostPolicy), пробел закрыт новыми транспортными тестами `server/httpListen.test.ts`, а не правкой текстовой проверки."
+        },
+        {
+          "target": "vite.config.ts",
+          "checkedOutcome": "Сверено: вторая точка входа (`npx vite` без `server.ts`) держит `hmr: false` без `ws: false`; не изменено — этот путь не используется в превью (`npm run dev` = `server.ts`), а без HMR-клиента WS-порт там безвреден; зафиксировано как остаточный риск карточки."
+        },
+        {
+          "target": "server.ts",
+          "checkedOutcome": "Сверено: `grep -nE \"AbortSignal|req\\.on\\(|'close'\" server.ts` → пусто: AI-путь (`callAIWithFallback`, до 18 вызовов) отмены запроса не имеет — мера 5 §8, вынесена владельцу как P1 (продуктовое поведение)."
+        }
+      ]
     }
   ],
   "kaizen": [
@@ -698,6 +744,16 @@
       "verificationCommand": "npx vitest run tools/leanMathlibChecks.test.ts",
       "verificationExitCode": 0,
       "linkedAndonId": "A-0011"
+    },
+    {
+      "id": "K-0016",
+      "title": "Транспорт dev-сервера под проверкой сокетом и подпроцессом: честный listen с self-probe, асинхронная кэшируемая проба dotnet, клиентские дедлайны",
+      "state": "DONE",
+      "owner": "agent:arena",
+      "expectedBenefit": "Класс «сервер рапортует успех, но не обслуживает» и класс «один запрос замораживает весь процесс» перестают быть невидимыми: стартовый лог печатается только после реального HTTP 200 от самого себя, синхронных подпроцессов в пути запроса нет, а regression-тесты биндят настоящий порт, моделируют занятый порт и измеряют отзывчивость event loop независимым таймером — они умеют краснеть.",
+      "verificationCommand": "npx vitest run server/httpListen.test.ts server/ricisCoreSupervisor.test.ts",
+      "verificationExitCode": 0,
+      "linkedAndonId": "A-0012"
     }
   ],
   "muda": [
@@ -788,6 +844,15 @@
       "linkedCardId": "TPS-0012",
       "linkedAndonId": "A-0011",
       "resolution": "Vitest/mocker/coverage = 5.0.1, qs = 6.16.0; npm audit --audit-level=moderate → exit 0, 0 vulnerabilities; PR workflow и release guard требуют повторять проверку."
+    },
+    {
+      "id": "M-0016",
+      "klass": "defects",
+      "observation": "Пользователь наблюдал «периодические» отказы интерфейса и не мог отличить конфликт порта (мёртвое превью при зелёном логе) от зависания супервизора ядра (10 с на каждый запрос к `/api/ricis-core/*`) и от внешней egress-политики; время терялось на перезапуски и догадки, потому что единственный сигнал сервера («Server running») был ложным, а проба ядра повторялась при каждом действии.",
+      "eliminationPlan": "Ложный сигнал устранён по построению (self-probe до лога, exit 1 при занятом порте), проба ядра асинхронна и кэшируется, клиентские запросы ограничены дедлайном, второй WS-порт не публикуется; остаток — отмена AI-запросов по `req.close` и контракт `degraded` на клиенте (P1, решение владельца), полный смоук `server.ts` с Vite-мидлварью в CI (P2).",
+      "linkedCardId": "TPS-0014",
+      "linkedAndonId": "A-0012",
+      "resolution": "Устранено циклом 0.4.202: занятый порт → exit 1 с текстом причины (было «Server running»); интерфейс во время медленной пробы ядра отвечает за 7–33 мс (было 9.7 с + ECONNRESET); повторная проба при недоступном ядре → 3 мс из кэша (было новый 10-секундный freeze); порт 24678 не слушается."
     }
   ],
   "cards": [
@@ -1547,6 +1612,113 @@
         "attackedSubstitution": "Как этот цикл мог бы выглядеть успешным при нерешённой задаче? (1) Тихо повысить статус Якоби до проверенного ядром на основании зелёного исходника, несмотря на упавшую производную — контратака: статус не повышен, запись ожидающего прогона сохранена, метаданные держат уровень, требующий ядрового прогона. (2) Замаскировать дефект генератора через список ожидаемых падений — контратака: цель не внесена в ожидаемые падения, дефект устранён по первопричине (единый скоуп-трекер), а независимый страж квалификации проверяет производную другим парсером и имеет мутационную сторону (неквалифицированное имя обязано отсутствовать). (3) Записать факты прогона пересказом — контратака: комментарий сохранён дословно как доказательный файл, метаданные ссылаются на него, а код выхода и списки теорем сверены с ним.",
         "independentFormOfEvidence": "Независимая форма — повторный прогон исправленной производной Якоби в джобе mathlib-kernel-check следующего запуска рабочего процесса: он исполняется тем же пайплайном ядра, но против перегенерированного байт-содержимого; зелёный код выхода обеих целей закрывает запись ожидающего прогона и андон. Локальные стражи (байтовая перегенерация, независимый парсер квалификации, сверка реестра и метаданных) проверяют подготовку, но не заменяют этот прогон."
       }
+    },
+    {
+      "id": "TPS-0014",
+      "title": "Инцидент 2026-09-17 «интерфейс периодически слетает»: измеренные причины A/B/D устранены — честный listen, асинхронная проба dotnet, клиентские дедлайны (0.4.202)",
+      "lane": "done",
+      "status": "COMPLETED",
+      "taskClass": "ci",
+      "owner": "agent:arena (автономный цикл RCVAP, инцидент 2026-09-17, PR #62)",
+      "priority": "P0",
+      "workPattern": "P-01, P-02, P-09, P-11",
+      "originalGoal": "Установить измерениями (а не чтением кода) причину периодических отказов интерфейса — ядро, внешняя связь или иное — и устранить те первопричины, что лежат в нашем серверном транспорте: ложный «Server running» при занятом порте, синхронная 10-секундная проба dotnet, замораживающая весь сервер и повторяющаяся на каждый запрос, отсутствие дедлайнов у клиентских проб ядра, лишний публичный WS-порт. Математическое ядро Ricis.Core в симптоме не участвует и не трогается.",
+      "acceptanceCriteria": [
+        "При занятом порте `npm run dev` завершается с кодом 1 и текстом причины (`port N … is already in use`), а не печатает «Server running»; при свободном порте лог печатается только после реального `GET /api/health` → 200 от самого себя; порт задаётся `PORT`.",
+        "Во время пробы медленного `dotnet` (sleep 60) документ и модули интерфейса отвечают за десятки миллисекунд (было 9.7 с и ECONNRESET), проба ограничена 2 с, повторные запросы при недоступном ядре не запускают пробу заново в течение cooldown.",
+        "Клиентские health-пробы и запросы ядра несут `AbortSignal.timeout`; второй listening-порт 24678 не поднимается.",
+        "Regression-тесты проходят через настоящий сокет и подпроцесс (занятый порт, self-probe, heartbeat event loop, счётчик вызовов host) и умеют краснеть; версия поднята до 0.4.202, гейты `release:check`/`lint`/`security:check`/`tps:*`/`test`/`build` exit 0.",
+        "Разбор и ремонт зафиксированы: evidence-документ (§1–§11 «до», §12 «после»), A3-ANDON-0012, карточка/андон/кайдзен/муда на доске; P1/P2-остаток вынесен владельцу явно."
+      ],
+      "sourceRef": "docs/05-evidence/architecture/incident-2026-09-17-interface-periodically-dropping.md",
+      "startedAt": "2026-09-17T13:40:00Z",
+      "closedAt": "2026-09-17T15:20:00Z",
+      "cycleTimeMs": 6000000,
+      "andonIds": [
+        "A-0012"
+      ],
+      "kaizenIds": [
+        "K-0016"
+      ],
+      "challenger": {
+        "attackedSubstitution": "Как этот ремонт мог бы выглядеть успешным при живом дефекте? (1) Заменить `spawnSync` на `spawn`, но оставить повторную пробу на каждый запрос — freeze исчез бы, а 2-секундная задержка на каждое действие осталась; контратака: тест со счётчиком вызовов host требует ровно одной пробы на три запроса. (2) Добавить `server.on('error')` с `console.error`, но не менять порядок «лог → факт»: процесс печатал бы и ошибку, и «Server running»; контратака: лог печатается только после self-probe 200, а тест с занятым портом требует reject. (3) Проверить всё текстом (`toContain('ws: false')`) — класс F-01/QA-1; контратака: тесты биндят настоящий порт, поднимают настоящий подпроцесс и измеряют event loop независимым `setInterval`. (4) Приписать коммиту `5d6d23f` вину за симптом — A/B-сборка §11.5 показала +1 % payload, вины нет.",
+        "independentFormOfEvidence": "Прогон на живом сервере после ремонта (не юнит-тест): занятый порт 3000 → `exit 1` с текстом причины; `PORT=3111` → «Server running … self-probe 200 in 30 ms», `ss -ltn` показывает только 3111; `RICIS_CORE_DOTNET_BIN=/tmp/fake-dotnet` → `GET /` 200 за 33 мс во время пробы (было ECONNRESET 9733 мс), проба 503 за 2013 мс, повторная проба 503 за 3 мс. Плюс контрольный тест механизма: express@5 действительно вызывает listen-callback с `Error(code=EADDRINUSE)` — проверено кодом, а не пересказом исходника."
+      },
+      "verification": {
+        "auditor": "SELF (same-pipeline) — измерения, ремонт и проверка выполнены этим циклом; независимого прогона Challenger-ролью нет, статус документа понижен явно",
+        "commands": [
+          {
+            "command": "npm ci",
+            "exitCode": 0,
+            "measuredAt": "2026-09-17T14:55:00Z",
+            "durationMs": 9349,
+            "note": "264 пакета, 0 уязвимостей — рассинхрон lockfile, зафиксированный в §11.2, устранён на main коммитом d50a883 (#63) до начала ремонта."
+          },
+          {
+            "command": "npm run release:check",
+            "exitCode": 0,
+            "measuredAt": "2026-09-17T15:19:23Z",
+            "durationMs": 1045,
+            "note": "0.4.202 синхронизирована (src/version.ts, lockfile, index.html, README, CITATION.cff, evidence-документы)."
+          },
+          {
+            "command": "npm run lint",
+            "exitCode": 0,
+            "measuredAt": "2026-09-17T15:19:24Z",
+            "durationMs": 23073,
+            "note": "tsc --noEmit (strict) на дереве после правок server.ts, httpListen.ts, ricisCoreSupervisor.ts, requestTimeout.ts."
+          },
+          {
+            "command": "npm run security:check",
+            "exitCode": 0,
+            "measuredAt": "2026-09-17T15:19:48Z",
+            "durationMs": 525,
+            "note": "found 0 vulnerabilities."
+          },
+          {
+            "command": "npm run tps:gate",
+            "exitCode": 0,
+            "measuredAt": "2026-09-17T15:19:48Z",
+            "durationMs": 304,
+            "note": "Чисто до записи доски; после записи A-0012/K-0016/M-0016/TPS-0014 перепрогнан вместе с tps:board:check и tps:digest:check (см. описание PR)."
+          },
+          {
+            "command": "npm run tps:digest:check",
+            "exitCode": 0,
+            "measuredAt": "2026-09-17T15:19:48Z",
+            "durationMs": 291,
+            "note": "Сводка синхронна с реестрами."
+          },
+          {
+            "command": "npm test",
+            "exitCode": 0,
+            "measuredAt": "2026-09-17T14:56:22Z",
+            "durationMs": 273920,
+            "note": "265 файлов / 2105 тестов на main d50a883 до правок (baseline). Повторный полный прогон на изменённом дереве — см. описание PR (запись обновляется по факту)."
+          },
+          {
+            "command": "npx vitest run server/httpListen.test.ts server/ricisCoreSupervisor.test.ts src/services/coreRecovery.test.ts",
+            "exitCode": 0,
+            "measuredAt": "2026-09-17T15:19:51Z",
+            "durationMs": 3648,
+            "note": "17/17: 6 транспортных тестов listen (занятый порт, self-probe, bound-but-not-serving, контроль express@5), 6 супервизора (3 BUG-01 + 3 новых: heartbeat, кэш вердикта, общая проба), 5 coreRecovery (signal обязателен)."
+          },
+          {
+            "command": "npm run generate:node-entries && GITHUB_PAGES=true npx vite build",
+            "exitCode": 0,
+            "measuredAt": "2026-09-17T15:19:49Z",
+            "durationMs": 2155,
+            "note": "Статическая сборка без деплоя; чанков >500 кБ нет."
+          }
+        ]
+      },
+      "remainingRisks": [
+        "Мера 5 §8 (проброс `AbortSignal`/`req.on('close')` в `callAIWithFallback`, дедлайн сервера < клиентских 60 с) и мера 6 (контракт `degraded` на клиенте — локальный шаблон неотличим от ответа агента, TUKHTA-риск) не выполнены: продуктовое поведение, требует решения владельца.",
+        "Полного смоука `server.ts` с Vite-мидлварью в CI нет: транспортные тесты поднимают Express-приложение и подпроцессы внутри vitest, но не сам `npm run dev`.",
+        "`vite.config.ts` (путь `npx vite`, не используемый превью) держит `hmr: false` без `ws: false` — там второй порт по-прежнему возможен; не менялось, чтобы не трогать неиспользуемый вход без замера.",
+        "Время ответа реального `dotnet --version` на машине владельца не измерялось (в песочнице dotnet нет); бюджет 2 с — из класса дефекта, при медленном холодном старте .NET он настраивается `RICIS_CORE_DOTNET_PROBE_TIMEOUT_MS`.",
+        "Историческая датировка перехода на express@5 не восстановлена (shallow-клон при разборе)."
+      ]
     }
   ]
 }

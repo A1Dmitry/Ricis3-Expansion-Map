@@ -1,4 +1,4 @@
-import { spawn, spawnSync, type ChildProcess } from 'node:child_process';
+import { spawn, type ChildProcess } from 'node:child_process';
 import { existsSync } from 'node:fs';
 import path from 'node:path';
 
@@ -40,33 +40,115 @@ function assertCoreRuntime(): void {
 }
 
 /**
- * Pre-checks that the dotnet host itself is invocable BEFORE spawn().
- * Without this check (and the 'error' listener below) a missing dotnet binary
- * turns the async spawn ENOENT into an unhandled 'error' event that kills the
- * whole Node process (remote DoS via a single GET /api/ricis-core/health).
+ * Probe budget for `dotnet --version`. A healthy host answers in well under a second;
+ * anything slower is treated as "unavailable right now" rather than allowed to hold
+ * the request open (incident 2026-09-17: the previous 10 s synchronous probe froze the
+ * whole event loop — GET / answered with ECONNRESET after ~9.7 s).
  */
-function assertDotnetHost(): void {
-  const probe = spawnSync(DOTNET_BIN, ['--version'], { stdio: 'ignore', timeout: 10_000 });
-  if (probe.error) {
-    throw new Error(
-      `dotnet host "${DOTNET_BIN}" is not available: ${probe.error.message}. ` +
-      'Install the .NET SDK/Runtime or unset the Ricis.Core supervisor routes.',
-    );
-  }
-  if (probe.status !== 0) {
-    throw new Error(
-      `dotnet host "${DOTNET_BIN}" failed the version probe (exit code ${probe.status}). ` +
-      'Ricis.Core cannot be started on this machine.',
-    );
-  }
+const DOTNET_PROBE_TIMEOUT_MS = Number(process.env.RICIS_CORE_DOTNET_PROBE_TIMEOUT_MS || 2_000);
+
+/**
+ * After a failed probe the verdict is cached for this long. Without it every request
+ * that touched `/api/ricis-core/*` re-ran the probe (the launch state was reset on each
+ * failure), so an unavailable Core meant one freeze per user action — the observed
+ * «периодически слетает».
+ */
+const DOTNET_PROBE_FAILURE_COOLDOWN_MS = Number(process.env.RICIS_CORE_PROBE_COOLDOWN_MS || 30_000);
+
+type DotnetProbeVerdict =
+  | { readonly ok: true }
+  | { readonly ok: false; readonly error: string; readonly retryAfter: number };
+
+let dotnetProbeVerdict: DotnetProbeVerdict | null = null;
+let dotnetProbePromise: Promise<void> | null = null;
+
+/**
+ * Asynchronous `dotnet --version` probe. Never blocks the event loop: the child is
+ * spawned, a timer bounds the wait, and the promise settles on the first of
+ * `error` (ENOENT etc.), `exit`, or timeout. A missing binary therefore surfaces as
+ * a rejected promise (-> honest HTTP 503) instead of an unhandled child-process
+ * `error` event that kills the whole Node process (BUG-01).
+ */
+function probeDotnetHost(): Promise<void> {
+  return new Promise<void>((resolve, reject) => {
+    let settled = false;
+    const settle = (fn: () => void): void => {
+      if (settled) return;
+      settled = true;
+      clearTimeout(timer);
+      fn();
+    };
+    const child = spawn(DOTNET_BIN, ['--version'], { stdio: 'ignore' });
+    const timer = setTimeout(() => {
+      child.kill('SIGKILL');
+      settle(() => reject(new Error(
+        `dotnet host "${DOTNET_BIN}" did not answer the version probe within ${DOTNET_PROBE_TIMEOUT_MS} ms. ` +
+        'Ricis.Core is treated as unavailable until the host responds.',
+      )));
+    }, DOTNET_PROBE_TIMEOUT_MS);
+    child.once('error', (error: Error) => {
+      settle(() => reject(new Error(
+        `dotnet host "${DOTNET_BIN}" is not available: ${error.message}. ` +
+        'Install the .NET SDK/Runtime or unset the Ricis.Core supervisor routes.',
+      )));
+    });
+    child.once('exit', (code, signal) => {
+      settle(() => {
+        if (code === 0) {
+          resolve();
+          return;
+        }
+        reject(new Error(
+          `dotnet host "${DOTNET_BIN}" failed the version probe (exit code ${code ?? 'null'}` +
+          `${signal ? `, signal ${signal}` : ''}). Ricis.Core cannot be started on this machine.`,
+        ));
+      });
+    });
+  });
 }
 
-function launchCoreProcess(): void {
+/**
+ * Pre-checks that the dotnet host itself is invocable BEFORE the real spawn().
+ * The verdict is cached: a success for the lifetime of the process, a failure for
+ * DOTNET_PROBE_FAILURE_COOLDOWN_MS. Concurrent callers share one in-flight probe.
+ */
+async function assertDotnetHost(): Promise<void> {
+  const verdict = dotnetProbeVerdict;
+  if (verdict?.ok) return;
+  if (verdict && !verdict.ok && Date.now() < verdict.retryAfter) {
+    throw new Error(verdict.error);
+  }
+  if (!dotnetProbePromise) {
+    dotnetProbePromise = probeDotnetHost()
+      .then(
+        () => {
+          dotnetProbeVerdict = { ok: true };
+        },
+        (error: unknown) => {
+          const message = error instanceof Error ? error.message : String(error);
+          dotnetProbeVerdict = { ok: false, error: message, retryAfter: Date.now() + DOTNET_PROBE_FAILURE_COOLDOWN_MS };
+          throw error;
+        },
+      )
+      .finally(() => {
+        dotnetProbePromise = null;
+      });
+  }
+  await dotnetProbePromise;
+}
+
+/** Diagnostic view of the cached probe verdict (exposed through the integration info). */
+function describeDotnetProbe(): 'unprobed' | 'ok' | 'failed' {
+  if (dotnetProbeVerdict === null) return 'unprobed';
+  return dotnetProbeVerdict.ok ? 'ok' : 'failed';
+}
+
+async function launchCoreProcess(): Promise<void> {
   if (coreProcess && coreProcess.exitCode === null) return;
 
   lastLaunchError = null;
   assertCoreRuntime();
-  assertDotnetHost();
+  await assertDotnetHost();
   const bundledRuntimeAvailable = existsSync(CORE_DLL);
   const args = bundledRuntimeAvailable
     ? [CORE_DLL, '--urls', CORE_URL]
@@ -97,7 +179,7 @@ export async function ensureRicisCoreApi(): Promise<void> {
   if (await isHealthy()) return;
   if (!startPromise) {
     startPromise = (async () => {
-      launchCoreProcess();
+      await launchCoreProcess();
       const deadline = Date.now() + Number(process.env.RICIS_CORE_START_TIMEOUT_MS || 30_000);
       while (Date.now() < deadline) {
         if (lastLaunchError) {
@@ -179,6 +261,7 @@ export function getRicisCoreIntegrationInfo() {
     relativeProject: path.relative(process.cwd(), CORE_PROJECT),
     mode: existsSync(CORE_DLL) ? 'bundled-dll' : 'adjacent-source',
     dotnetHost: DOTNET_BIN,
+    dotnetProbe: describeDotnetProbe(),
     running: Boolean(coreProcess && coreProcess.exitCode === null),
   };
 }

@@ -4,7 +4,7 @@
 **Ветка:** `arena/01a0af3a-ricis3-expansion-map`, перед открытием PR обновлена fast-forward до `main` = `5d6d23f`.
 Измерения §2–§4 выполнены на `97583b6`; код сервера с тех пор **не менялся** — `git diff --name-only 97583b6 5d6d23f -- server.ts server/ricisCoreSupervisor.ts server/devHostPolicy.ts` пуст, поэтому находки A и B действуют и на текущем `main`. Состояние `main` на момент подготовки PR измерено отдельно — §11.
 **Тип:** инцидент доступности интерфейса (транспорт dev-сервера + супервизор ядра + внешний AI-канал). **Не** научный и **не** proof-слой.
-**Статус:** первопричины установлены и **измерены**; контрмеры **предложены, не применены** (требуется решение владельца, см. §8).
+**Статус:** первопричины установлены и **измерены**; P0-контрмеры (меры 1–4 и 7 из §8) **применены в 0.4.202** и покрыты транспортными regression-тестами — см. §12. Меры 5, 6, 8 (P1/P2) остаются на решение владельца.
 **AUDITOR: SELF (same-pipeline)** — разбор и измерения выполнены тем же агентом/пайплайном, что и поддерживаемый код. Для статуса `EXTERNAL` нужен независимый прогон Challenger-ролью. Формулировки вида «полностью верифицировано» намеренно не используются.
 
 ---
@@ -527,3 +527,58 @@ Test Files  1 failed (1) · Tests  1 failed | 3 passed (4)
 * **Не** перегенерированы `package-lock.json`, `BOARD.md` и `FINDINGS_DIGEST.md`, **не** правились `src/App.tsx` и `tools/previewHealthCheck.test.ts`, **не** повышалась версия. Это чужие артефакты и чужие решения (реестры охраняются `tps:gate`, lockfile — вопрос политики зависимостей, `Map3D` — вопрос топологии маршрутов), а ORIGINAL_GOAL этого разбора — установить причину, а не переписать `main`.
 * Отдельно: контрмера №9 (андон `A-0012` + карточка в `board.json`) тоже **не** выполнена — доска сейчас в состоянии дрейфа, и правка `board.json` поверх чужого незафиксированного состояния смешала бы два несвязанных ремонта в одном PR.
 
+
+---
+
+## 12. Ремонт (0.4.202, 2026-09-17) — что применено и чем измерено
+
+Разделы §2–§11 сохранены как есть: это фиксация состояния **до** ремонта. Ниже — что изменено в этом же PR после решения продолжить с P0, и фактические прогоны на изменённом коде. `AUDITOR: SELF (same-pipeline)` — ремонт и проверка выполнены тем же пайплайном.
+
+### 12.1 Изменения
+
+| Находка | Мера §8 | Файл | Что сделано |
+| :-- | :-- | :-- | :-- |
+| **A** | 1, 2 | `server/httpListen.ts` (новый), `server.ts` | `listenHonestly()`: `server.once('error')` → reject с текстом причины (`EADDRINUSE`/`EACCES`/прочее), `server.once('listening')` → проверка `server.address()` + self-probe `GET /api/health` (таймаут 2 с) и только затем «Server running …». Отказ → `process.exit(1)`. `PORT` читается из `process.env.PORT` (`resolveServerPort`: пусто → 3000, мусор → громкая ошибка, а не тихий откат к 3000). |
+| **B** | 3 | `server/ricisCoreSupervisor.ts` | `spawnSync` удалён. `probeDotnetHost()` — асинхронный `spawn` + таймер (`RICIS_CORE_DOTNET_PROBE_TIMEOUT_MS`, по умолчанию 2000 мс) + `SIGKILL` по истечении. Вердикт кэшируется: успех — на жизнь процесса, отказ — на `RICIS_CORE_PROBE_COOLDOWN_MS` (30 000 мс); параллельные вызовы делят одну пробу. В `getRicisCoreIntegrationInfo()` добавлено поле `dotnetProbe: 'unprobed'|'ok'|'failed'`. |
+| **B** (клиент) | 4 | `src/services/ricisCore/requestTimeout.ts` (новый), `coreRecovery.ts`, `RicisWasmBridge.ts` | `AbortSignal.timeout` на health-пробах (5 с) и на `wasm`/`simplify` (30 с); при отсутствии `AbortSignal.timeout` в рантайме сигнал не ставится (поведение как раньше, без падения до запроса). |
+| **D** | 7 | `server.ts` | `ws: false` в `createViteServer` — `hmr: false` отключал только сообщения HMR, WebSocket-сервер на `*:24678` продолжал подниматься. |
+| — | — | `.env.example`, `README.md` | Документированы `PORT`, `RICIS_CORE_DOTNET_PROBE_TIMEOUT_MS`, `RICIS_CORE_PROBE_COOLDOWN_MS`; в README добавлен симптом → причина. |
+| — | — | `package.json` 0.4.201 → **0.4.202** | Функциональное изменение → обязательный patch-bump (`AGENTS.md` §3), `npm run sync:version` по всем манифестам. |
+
+### 12.2 Regression-тесты (транспортные, а не текстовые)
+
+* `server/httpListen.test.ts` (6): занятый порт → reject с `port N on 127.0.0.1 is already in use`; свободный порт → resolve только после реального `GET /api/health` = 200; приложение без `/api/health` → reject «bound but not serving»; **контроль механизма**: `express@5` действительно вызывает listen-callback с `Error(code=EADDRINUSE)` — это проба того, что модуль заменяет, а не пересказ.
+* `server/ricisCoreSupervisor.test.ts` (+3 к существующим 3): медленный host (`sleep 30`) с бюджетом 400 мс → reject за < 3 с, при этом независимый `setInterval(20 мс)` успевает ≥ 5 тиков (старая `spawnSync`-проба не дала бы ни одного); host с `exit 3` вызывается **один** раз на три последовательных запроса (`dotnetProbe: 'failed'`); три параллельных запроса делят одну пробу.
+* `src/services/coreRecovery.test.ts`: проба health обязана нести `signal: AbortSignal`.
+
+### 12.3 Прогоны на живом сервере (после ремонта)
+
+```console
+# A: порт 3000 занят (python3 -m http.server 3000)
+$ npx tsx server.ts
+[server] Server did not start: port 3000 on 0.0.0.0 is already in use — another process (probably a previous dev server) holds it. Stop that process or start this one with PORT=<free port>.
+exit code: 1                                   # было: «Server running on http://localhost:3000», exit не наступал
+
+# A+D: штатный старт на PORT=3111
+Server running on http://localhost:3111 (self-probe GET /api/health → 200 in 30 ms)
+$ ss -ltn | grep -E ':3111|:24678'
+LISTEN 0 511 0.0.0.0:3111                      # 24678 больше не слушается
+
+# B: RICIS_CORE_DOTNET_BIN=/tmp/fake-dotnet (sleep 60), интерфейс во время пробы ядра
+GET /              200 0.033 s                 # было: ECONNRESET через 9.7 с
+GET /api/health    200 0.007 s                 # было: 9744 мс
+GET /src/main.tsx  200 0.013 s                 # было: 9732 мс
+core probe #1      503 2.013 s                 # было: 10 025 мс; тело: «did not answer the version probe within 2000 ms»
+core probe #2      503 0.003 s                 # кэш вердикта: повторной пробы нет (было: новый 10-секундный freeze)
+POST …/simplify    503 0.011 s                 # то же
+```
+
+### 12.4 Гейты на изменённом коде
+
+Фактические прогоны см. в карточке `TPS-0014` (`docs/00-governance/tps/board.json`) и в описании PR; набор: `npm ci`, `npm run security:check`, `npm run release:check`, `npm run lint`, `npm run tps:gate`, `npm run tps:board:check`, `npm run tps:digest:check`, `npm test`, `GITHUB_PAGES=true npx vite build`.
+
+### 12.5 Что осталось не сделано (осознанно)
+
+* **Мера 5** (проброс `AbortSignal`/`req.on('close')` в `callAIWithFallback`, единый дедлайн < 60 с) и **мера 6** (контракт `degraded` на клиенте) — P1, затрагивают продуктовое поведение AI-пути и UI; требуют отдельной постановки цели владельцем (расширение скоупа по `AGENTS.md`).
+* **Мера 8** (`npm run dev:smoke` в CI) — частично закрыта тем, что `server/httpListen.test.ts` и `server/ricisCoreSupervisor.test.ts` поднимают настоящие сокеты/подпроцессы внутри `npm test`; полного прогона `server.ts` с Vite-мидлварью в CI по-прежнему нет.
+* Историческая датировка перехода на Express 5 — не восстановлена (см. §10.4).

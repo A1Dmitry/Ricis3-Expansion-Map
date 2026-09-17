@@ -93,6 +93,11 @@ describe('core recovery routing', () => {
     }));
 
     await expect(probeRicisCoreHealth()).resolves.toEqual({ available: true });
-    expect(fetch).toHaveBeenCalledWith('/api/ricis-core/health', { headers: { accept: 'application/json' } });
+    expect(fetch).toHaveBeenCalledWith('/api/ricis-core/health', {
+      headers: { accept: 'application/json' },
+      // Incident 2026-09-17: the probe must carry a deadline — a frozen server
+      // must not become an endless spinner.
+      signal: expect.any(AbortSignal),
+    });
   });
 });
