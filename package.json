@@ -17,6 +17,8 @@
     "bootstrap": "node -e \"require('node:fs').existsSync('node_modules/typescript') || require('node:child_process').execFileSync(process.platform==='win32'?'npm.cmd':'npm',['ci'],{stdio:'inherit'})\"",
     "release:check": "npm run sync:version && vitest run tools/releaseConsistency.test.ts",
     "tps:gate": "tsx scripts/tpsGate.ts",
+    "core:gate": "tsx scripts/coreImmutabilityGate.ts",
+    "core:seal": "tsx scripts/coreImmutabilityGate.ts --seal",
     "tps:board": "tsx scripts/tpsGate.ts --emit-board",
     "tps:board:check": "tsx scripts/tpsGate.ts --check-board",
     "tps:digest": "tsx scripts/generateFindingsDigest.ts",

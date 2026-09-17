@@ -741,6 +741,22 @@ describe('OIR-03 — audit proof-synthesis containment', () => {
       ' M src/model/initialMap.ts',
       ' M src/model/auditResolution.test.ts',
       ' M src/ui/NodeCardDetails.tsx',
+
+      // МАНИФЕСТ НЕИЗМЕННОСТИ RICIS-III: нормативный документ
+      // (docs/00-governance/RICIS_IMMUTABILITY_MANIFEST.md) и его машинное
+      // исполнение — реестр идентичности Core, guard, гейт (npm run core:gate,
+      // шаг CI pr-verify) и мутационные тесты опровержимости правил.
+      ' M AGENTS.md',
+      ' M .github/workflows/pr-verify.yml',
+      ' M docs/00-governance/DOCUMENTATION_CATALOG.md',
+      ' M docs/00-governance/RICIS_SEMANTIC_AUTHORITY.md',
+      '?? docs/00-governance/RICIS_IMMUTABILITY_MANIFEST.md',
+      ' M docs/00-governance/RICIS_IMMUTABILITY_MANIFEST.md',
+      '?? docs/00-governance/core-identity.lock.json',
+      '?? scripts/coreImmutabilityGate.ts',
+      '?? tools/coreImmutabilityGuard.ts',
+      '?? tools/coreImmutabilityGuard.test.ts',
+      ' M src/model/audit.proofSynthesisContainment.test.ts',
     ]);
     if (status.length > 0 && status.every(entry => entry.startsWith('?? '))) {
       // In clean container environments git status may return all files as untracked

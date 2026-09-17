@@ -1,0 +1,122 @@
+{
+  "lockVersion": "1.0.0",
+  "manifest": "docs/00-governance/RICIS_IMMUTABILITY_MANIFEST.md",
+  "boundary": "Реестр фиксирует идентичность принятых версий Core (CoreVersion, CoreHash, AxiomSet, RuleSet, происхождение, историю). Совпадение хэшей доказывает структурную непрерывность, но НЕ истинность аксиом, НЕ выполнение Lean kernel-run и НЕ факт независимой верификации.",
+  "versions": [
+    {
+      "coreVersion": "7.9_vector_multidimensional_extension",
+      "sourceFile": "docs/01-architecture/ricis-unified-complete-document-7.9-vector.json",
+      "sourceSha256": "cd47a4b31c6041cd0b8fe35dd4d287bca22e8e2ba5586a6830b6ad794936c5c1",
+      "coreHash": "c199a709d31723bcd26d3025f0fec707bfef207d4012df3781e8fe9804babffa",
+      "previousVersion": null,
+      "admissionStatus": "SEALED_FROM_REPOSITORY_STATE",
+      "provenance": {
+        "who": "Baseline capture агентом Arena (arena/01a0af46-ricis3-expansion-map) по запросу владельца репозитория A1Dmitry",
+        "when": "2026-09-17",
+        "what": "Запечатывание идентичности Core 7.9 (L0/L1, SP1-SP5, P1, аксиомы A1-A10, deprecated, FUNDAMENTAL_LOGICAL_STRUCTURE) как неизменяемой базовой линии",
+        "from": "(нет предшественника в реестре; документ существовал в дереве до введения гейта)",
+        "to": "7.9_vector_multidimensional_extension",
+        "why": "Манифест неизменности требует машинно проверяемой идентичности принятой версии; без запечатанной базовой линии запрет правки задним числом неисполним",
+        "evidence": "docs/01-architecture/ricis-unified-complete-document-7.9-vector.json на коммите 97583b6 (sha256 зафиксирован в sourceSha256); проверка npm run core:gate",
+        "proof": "НЕ ПРИМЕНИМО для запечатывания: хэш фиксирует байты принятой версии и не является доказательством истинности её аксиом (манифест §12)",
+        "admission": "SEALED_FROM_REPOSITORY_STATE: исторический акт Admission для 7.9 в репозитории не зафиксирован и НЕ реконструируется (манифест §16). Реестр гарантирует неизменность начиная с коммита запечатывания, а не задним числом"
+      },
+      "entries": {
+        "FOUNDATION:L0_ABSOLUTE_CONTINUITY": "53f0ee8d3c849db178b474ad440401b4d937fc2d43dd530075df13be3ae2e25f",
+        "FOUNDATION:L1_IDENTITY": "e84d7b3788ad86309125827c7b92b192aebce3c43d6aa46af17e58456b71fd6f",
+        "PROTOCOL:SP1_LOCALITY_RULE": "021689da2b0f3c979acd5a3ca512bdae43b533dc862a9cf107968eeb899979e7",
+        "PROTOCOL:SP2_REDUCTION_PRIORITY": "4d7df216d2098e01ed639cfe7986ee1056ba4bc7839378010a946a36ee39c8f5",
+        "PROTOCOL:SP3_INDEX_LAW": "699425b46bdc6486bf39f9532aa7f6a0e663aade88eceff60d1fda23812505a5",
+        "PROTOCOL:SP4_SEMANTIC_PRIORITY": "6e82f5154a3685c69c6c6b5aa0704e23f47df6158c3323e1185b95fef12a9439",
+        "PROTOCOL:SP5_TRIGONOMETRIC_PRE_NORMALIZATION": "5dbfc2bc447d2cfec88f7af6fc44eac54280d8d030235b7adcc900b5f4c50efd",
+        "PROTOCOL:P1_NO_RECURSIVE_LIMITS_OR_LHOPITAL": "c1d7505539144bd3257df932ebf609530dc8ff8938d82d53eb35e3fada917d05",
+        "AXIOM:core:A1_INDEXING": "00195ee7a1fc1624d60c57d9ecb3ccbee413de833c44618afb3fe6950a28aed4",
+        "AXIOM:core:A2_INDEXED_INFINITY": "87cc3ea2606eda1d2da8d258148ad91bc4fe2ee695230c5dc536051ae8c66039",
+        "AXIOM:indeterminate_forms:A4_0DIV0": "75d618bf89e203f3384a50142e7f76b52c0f316db09f04830345afd0efa423b4",
+        "AXIOM:indeterminate_forms:A5_INFDIVINF": "e8ebb419c6a6dde138d82432e65a1e9cf8ec72a53eb84f6205039207b0d847eb",
+        "AXIOM:indeterminate_forms:A6_GENERAL": "7c1296f641745ab4a6275d3a935d0ac62e365e6e2ca0391571c63f9a54f0936d",
+        "AXIOM:indeterminate_forms:A6_GEOMETRIC_REALIZATION": "357e2554e7cf0a0dfcbf600e5a22c3e47c7caa9e92681cf50656002a4c8c3281",
+        "AXIOM:indeterminate_forms:A7_INFSUBINF": "387a451f2b6198282f4a0a11bcb72949b2e457dfd9891199e576457e28320b5e",
+        "AXIOM:indeterminate_forms:A10_FTIMES0": "9573518929431b5fc025e4e914b6eefa1962b53b7afc9624e44787a5b5288f41",
+        "AXIOM:deprecated:A3": "197e996836aa4a976a3e066f00c3a5b0f0c5ce4fe36ac7704c1f0e8cfaa903ef",
+        "AXIOM:deprecated:A6_BYPASS": "197e996836aa4a976a3e066f00c3a5b0f0c5ce4fe36ac7704c1f0e8cfaa903ef",
+        "STRUCTURE:absolute_root": "d195b4ebb97eda7377fdeaa6ff909d2b856931b0d1a660996a54074a48a7d4df",
+        "STRUCTURE:derivation_chain": "773770ea59bda9611a858f85894fe9d27e3a8b211a7163f088082ce0e057e900",
+        "STRUCTURE:inviolable_rule": "41618f31398cacddd8a6abdff51cf46fe24133920a65829a336ad4dd8441473e",
+        "STRUCTURE:layer_order": "ba4de79c8d7f0c9c5bceae36a02adc3c4039e4381db0ecdeadfc4fbbefcbb53d"
+      }
+    },
+    {
+      "coreVersion": "8.0_seed_expansion",
+      "sourceFile": "docs/01-architecture/ricis-unified-complete-document-8.0-seed-expansion.json",
+      "sourceSha256": "2ed3614b3ac10075838ed786853ffdda34fb39dd5162c0f0aa917152333efec7",
+      "coreHash": "2fd3c5fe07ddfa3429d3535df86d571d5ffb9b33ac59cfbe49e7c7521d58e665",
+      "previousVersion": "7.9_vector_multidimensional_extension",
+      "admissionStatus": "SEALED_FROM_REPOSITORY_STATE",
+      "provenance": {
+        "who": "Baseline capture агентом Arena (arena/01a0af46-ricis3-expansion-map) по запросу владельца репозитория A1Dmitry",
+        "when": "2026-09-17",
+        "what": "Запечатывание идентичности Core 8.0 (наследует 7.9 дословно; добавляет SP6-SP11, P2, мета-аксиому A11 и слой seed-расширения)",
+        "from": "7.9_vector_multidimensional_extension",
+        "to": "8.0_seed_expansion",
+        "why": "Смена вида объекта (фиксированная система аксиом -> растущая с оператором самораскрытия) оформлена как НОВАЯ версия, а не как правка 7.9 — ровно тот порядок, который требует манифест §6",
+        "evidence": "docs/01-architecture/ricis-unified-complete-document-8.0-seed-expansion.json на коммите 97583b6 (version_rationale, PART_7_SEED_EXPANSION_PROTOCOL, PART_8_EXPANSION_LEDGER); проверка консервативности расширения относительно 7.9 выполняется npm run core:gate",
+        "proof": "НЕ ПРИМЕНИМО для запечатывания: Lean kernel-run не подтверждает выбор аксиом и не проводился для этого реестра (манифест §12, §16)",
+        "admission": "SEALED_FROM_REPOSITORY_STATE: документ объявляет собственные гейты допуска (SP6-SP11, P2), но независимая внешняя запись Admission отсутствует; статус не повышается до ADMITTED без внешнего аудитора (манифест §15, AGENTS.md No Self-Certification)"
+      },
+      "entries": {
+        "FOUNDATION:L0_ABSOLUTE_CONTINUITY": "53f0ee8d3c849db178b474ad440401b4d937fc2d43dd530075df13be3ae2e25f",
+        "FOUNDATION:L1_IDENTITY": "04a93845f2fe0735bcf123f881edd9437a024a4e90bb361be6a7023af7333eb6",
+        "PROTOCOL:SP1_LOCALITY_RULE": "021689da2b0f3c979acd5a3ca512bdae43b533dc862a9cf107968eeb899979e7",
+        "PROTOCOL:SP2_REDUCTION_PRIORITY": "4d7df216d2098e01ed639cfe7986ee1056ba4bc7839378010a946a36ee39c8f5",
+        "PROTOCOL:SP3_INDEX_LAW": "699425b46bdc6486bf39f9532aa7f6a0e663aade88eceff60d1fda23812505a5",
+        "PROTOCOL:SP4_SEMANTIC_PRIORITY": "6e82f5154a3685c69c6c6b5aa0704e23f47df6158c3323e1185b95fef12a9439",
+        "PROTOCOL:SP5_TRIGONOMETRIC_PRE_NORMALIZATION": "5dbfc2bc447d2cfec88f7af6fc44eac54280d8d030235b7adcc900b5f4c50efd",
+        "PROTOCOL:P1_NO_RECURSIVE_LIMITS_OR_LHOPITAL": "c1d7505539144bd3257df932ebf609530dc8ff8938d82d53eb35e3fada917d05",
+        "PROTOCOL:SP6_PROOF_BEFORE_COMMIT": "881db0e83e53aa9d00bde99b7556259f1b8a80ab1004694c5c817a97de54ceaa",
+        "PROTOCOL:SP7_NO_SELF_CERTIFICATION": "44fee400aa0dec874f012a87e443b5320f60aa625ad84da808b221aa67059cbf",
+        "PROTOCOL:SP8_NO_AXIOM_INFLATION": "612d25ed92340f7f73a578a540ce527fb6ce4f78847ea2c598a46d9b736cb6f2",
+        "PROTOCOL:SP9_CORE_IMMUTABILITY": "63b306f447f12ac993b34c18bb9dc51edf996b712be91c40af47125d2538bc62",
+        "PROTOCOL:SP10_CONSISTENCY_TABLE": "a7eb51d80046d3fc6de50e82d348bab68197ddf40d17edb5659a2f7cc27f4b5b",
+        "PROTOCOL:SP11_REPRODUCIBILITY": "96478c1b3a5c4e734f09420da84a363788d90f0cde7fb85cd100b2c086aba55f",
+        "PROTOCOL:P2_ADMISSIBILITY_GATES": "32c1474ce2f55a578eecff7c4d49a3ccdd6a1e142a2990ddca74f15000ebaf8c",
+        "AXIOM:core:A1_INDEXING": "00195ee7a1fc1624d60c57d9ecb3ccbee413de833c44618afb3fe6950a28aed4",
+        "AXIOM:core:A2_INDEXED_INFINITY": "87cc3ea2606eda1d2da8d258148ad91bc4fe2ee695230c5dc536051ae8c66039",
+        "AXIOM:indeterminate_forms:A4_0DIV0": "75d618bf89e203f3384a50142e7f76b52c0f316db09f04830345afd0efa423b4",
+        "AXIOM:indeterminate_forms:A5_INFDIVINF": "e8ebb419c6a6dde138d82432e65a1e9cf8ec72a53eb84f6205039207b0d847eb",
+        "AXIOM:indeterminate_forms:A6_GENERAL": "7c1296f641745ab4a6275d3a935d0ac62e365e6e2ca0391571c63f9a54f0936d",
+        "AXIOM:indeterminate_forms:A6_GEOMETRIC_REALIZATION": "357e2554e7cf0a0dfcbf600e5a22c3e47c7caa9e92681cf50656002a4c8c3281",
+        "AXIOM:indeterminate_forms:A7_INFSUBINF": "387a451f2b6198282f4a0a11bcb72949b2e457dfd9891199e576457e28320b5e",
+        "AXIOM:indeterminate_forms:A10_FTIMES0": "9573518929431b5fc025e4e914b6eefa1962b53b7afc9624e44787a5b5288f41",
+        "AXIOM:deprecated:A3": "197e996836aa4a976a3e066f00c3a5b0f0c5ce4fe36ac7704c1f0e8cfaa903ef",
+        "AXIOM:deprecated:A6_BYPASS": "197e996836aa4a976a3e066f00c3a5b0f0c5ce4fe36ac7704c1f0e8cfaa903ef",
+        "AXIOM:meta:A11_EXPANDABILITY": "f426f8f2bb862735a448148392f1fbfe04268acd6d887ba37f62dc10bc12600c",
+        "AXIOM:derived_by_seed_expansion:A12": "f9e43940879e5be486f4700b0ade1d4bf5d6e3d20f038d93ad6efe385ed26c56",
+        "AXIOM:derived_by_seed_expansion:A13": "4f56ea969e912073828560870d0fc7a1b98e175c4bb0f4bf275fc714e38505fc",
+        "AXIOM:derived_by_seed_expansion:A14": "4b43e9ed6e2c895c2b61373fdda64909242f687f0c6a78ddef50226d36238b20",
+        "STRUCTURE:absolute_root": "d195b4ebb97eda7377fdeaa6ff909d2b856931b0d1a660996a54074a48a7d4df",
+        "STRUCTURE:derivation_chain": "f2d23255107a76100f72138d5cf44e3310278c9477614b4a56c4dc7c42e2db17",
+        "STRUCTURE:inviolable_rule": "60f55fb3d0db5402f3a0f35c91c1376c9b8540fed9cc341c1698f7c68d399972",
+        "STRUCTURE:layer_order": "8ecd0489b68816735dd6afc7decbc8312af11e641f9a10b79d5ea65e8c95030b",
+        "STRUCTURE:seed_principle": "8c0c4007fde51fd87770da71edf80736246818bf690233f05803f032009bcd20"
+      },
+      "declaredSemanticChanges": [
+        {
+          "entry": "FOUNDATION:L1_IDENTITY",
+          "kind": "REWRITTEN",
+          "rationale": "Добавлено следствие L1C4_MonotonicGrowth и соответствующий элемент списка consequences. Изменение аддитивно по смыслу (утверждение X = X и следствия L1C1-L1C3 сохранены дословно), но затрагивает существующий список, поэтому объявляется явно и вынесено в НОВУЮ версию 8.0; текст L1_IDENTITY в 7.9 остаётся неизменным."
+        },
+        {
+          "entry": "STRUCTURE:derivation_chain",
+          "kind": "REWRITTEN",
+          "rationale": "Цепочка вывода детализирована и продолжена: обобщённое 'Safety Protocols -> Axioms' развёрнуто в 'SP1-SP5 -> P1 -> A1-A10', далее добавлены звенья 'Seed Expansion Layer (A11, SP6-SP11, P2) -> Derived Axioms A12...An'. Порядок и состав прежних звеньев сохранены; изменение затрагивает формулировку строки, поэтому объявлено явно и зафиксировано только в версии 8.0."
+        },
+        {
+          "entry": "STRUCTURE:inviolable_rule",
+          "kind": "REWRITTEN",
+          "rationale": "Перечень неприкосновенных оснований расширен: к L0/L1, Safety Protocols и P1 добавлены протоколы расширения SP6-SP11, P2 и гейты допуска A11. Ни одно прежнее основание не ослаблено и не удалено; правило стало строже, а не мягче, и зафиксировано только в версии 8.0."
+        }
+      ]
+    }
+  ]
+}

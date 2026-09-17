@@ -32,6 +32,13 @@ jobs:
         run: npm run security:check
       - name: Verify release alignment and TypeScript
         run: npm run release:check && npm run lint
+      - name: Core immutability gate (RICIS-III immutability manifest)
+        # docs/00-governance/RICIS_IMMUTABILITY_MANIFEST.md: an accepted axiom is never rewritten
+        # retroactively. The gate compares every Core document against the sealed identity
+        # registry (docs/00-governance/core-identity.lock.json) and stops the line on an in-place
+        # edit, a silent removal, an unsealed insertion or undeclared semantic drift between
+        # versions. Boundary: structural continuity only — not proof, not admission.
+        run: npm run core:gate
       - name: Toyota flow poka-yoke gate (TPS standard work), board and digest drift check
         # docs/00-governance/TOYOTA_TPS_WORKING_SYSTEM.md: the line stops when the working
         # process itself is violated (WIP overflow, open andon, "done" without a real run,
