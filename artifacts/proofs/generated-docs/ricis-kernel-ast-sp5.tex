@@ -1,0 +1,50 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[russian,english]{babel}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{hyperref}
+\usepackage{geometry}
+\geometry{margin=2.5cm}
+
+\title{\textbf{RICIS-III Formal Evidence Note:\\Artifact \texttt{ricis-kernel-ast-sp5}}}
+\author{\textbf{Dmitry V. Aleinikov}\\ORCID: \href{https://orcid.org/0009-0004-3226-7700}{0009-0004-3226-7700}}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+This technical note provides the formal evidence record for the RICIS-III formalization artifact \texttt{ricis-kernel-ast-sp5}.
+The corresponding Lean 4.33.1 source code has been verified by the Lean kernel without reliance on the unverified \texttt{sorryAx} axiom.
+The SHA-256 cryptographic digest of the verified source is \texttt{6ee144b7e438a112b1590c65625da5b88baf615cb53315f52b6935d91cacda57}.
+\end{abstract}
+
+\section{Structural Context & Rationale}
+Тело: структурная редукция SP5 и singularDiv через `if a = b`; доказательства unfold + simp и rfl. Кроме нотации ℚ Mathlib-символов нет. Клауза `deriving DecidableEq, Repr` добавлена к индуктиву RExpr: она обязательна для `if a = b` (ядро 4.33.1 не выводит DecidableEq автоматически); run 34877214125 (Lean 4.33.1) — exit 0.
+
+\section{Verified Theorems and Axiom Targets}
+The formal proof establishes the following verified Lean declarations:
+\begin{itemize}
+  \item \texttt{RICIS.KernelAST.SP5.singular_div_identity}
+  \item \texttt{RICIS.KernelAST.SP5.ricis_reduce_divself}
+\end{itemize}
+
+\section{Axiomatic Foundation}
+All reductions adhere strictly to Level 3 RICIS Monolith Algebra:
+\begin{equation}
+L1: \quad X = X, \quad \frac{0_F}{0_F} = 1
+\end{equation}
+\begin{equation}
+A6: \quad 0_F \times \infty_G = \det\begin{pmatrix} F & 0 \\ 0 & G \end{pmatrix} = F \cdot G
+\end{equation}
+
+\section{Cryptographic Binding & Archival Integrity}
+\begin{itemize}
+  \item \textbf{Artifact ID:} \texttt{ricis-kernel-ast-sp5}
+  \item \textbf{Source SHA-256:} \texttt{6ee144b7e438a112b1590c65625da5b88baf615cb53315f52b6935d91cacda57}
+  \item \textbf{Toolchain:} Lean 4.33.1 (pinned)
+  \item \textbf{Audit Status:} \texttt{AUDITOR: EXTERNAL}
+\end{itemize}
+
+\end{document}

@@ -1,0 +1,70 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[russian,english]{babel}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{hyperref}
+\usepackage{geometry}
+\geometry{margin=2.5cm}
+
+\title{\textbf{RICIS-III Formal Evidence Note:\\Artifact \texttt{ricis-backend-exact-reduction}}}
+\author{\textbf{Dmitry V. Aleinikov}\\ORCID: \href{https://orcid.org/0009-0004-3226-7700}{0009-0004-3226-7700}}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+This technical note provides the formal evidence record for the RICIS-III formalization artifact \texttt{ricis-backend-exact-reduction}.
+The corresponding Lean 4.33.1 source code has been verified by the Lean kernel without reliance on the unverified \texttt{sorryAx} axiom.
+The SHA-256 cryptographic digest of the verified source is \texttt{7607fe7bb27a55c68c9120fe9c5a8c2f693eb5a83c57b0c2ce9a8e5897947c2d}.
+\end{abstract}
+
+\section{Structural Context & Rationale}
+Тело: структурная редукция, счетчики и итерации; доказательства rfl / induction / constructor / intro. Единственная зависимость от Mathlib — нотация ℕ (8 вхождений в сигнатурах).
+
+\section{Verified Theorems and Axiom Targets}
+The formal proof establishes the following verified Lean declarations:
+\begin{itemize}
+  \item \texttt{RICIS.identity}
+  \item \texttt{RICIS.structure_irrelevant}
+  \item \texttt{RICIS.selfDivision_one_step}
+  \item \texttt{RICIS.reduction_independent_of_size}
+  \item \texttt{RICIS.selfDivision_eliminated}
+  \item \texttt{RICIS.eliminated_error_zero}
+  \item \texttt{RICIS.eliminated_error_independent_of_size}
+  \item \texttt{RICIS.complex_selfDivision}
+  \item \texttt{RICIS.complex_eliminated_error}
+  \item \texttt{RICIS.repeated_selfDivision}
+  \item \texttt{RICIS.repeated_error_zero}
+  \item \texttt{RICIS.billion_iterations_zero_error}
+  \item \texttt{RICIS.error_independent_of_iterations}
+  \item \texttt{RICIS.prepare_selfDivision}
+  \item \texttt{RICIS.execute_prepared_selfDivision}
+  \item \texttt{RICIS.CPU_correct}
+  \item \texttt{RICIS.CUDA_correct}
+  \item \texttt{RICIS.CPU_CUDA_same_semantics}
+  \item \texttt{RICIS.selfDivision_CPU}
+  \item \texttt{RICIS.selfDivision_CUDA}
+  \item \texttt{RICIS.selfDivision_all_backends}
+  \item \texttt{RICIS.RICIS_exact_structural_reduction}
+\end{itemize}
+
+\section{Axiomatic Foundation}
+All reductions adhere strictly to Level 3 RICIS Monolith Algebra:
+\begin{equation}
+L1: \quad X = X, \quad \frac{0_F}{0_F} = 1
+\end{equation}
+\begin{equation}
+A6: \quad 0_F \times \infty_G = \det\begin{pmatrix} F & 0 \\ 0 & G \end{pmatrix} = F \cdot G
+\end{equation}
+
+\section{Cryptographic Binding & Archival Integrity}
+\begin{itemize}
+  \item \textbf{Artifact ID:} \texttt{ricis-backend-exact-reduction}
+  \item \textbf{Source SHA-256:} \texttt{7607fe7bb27a55c68c9120fe9c5a8c2f693eb5a83c57b0c2ce9a8e5897947c2d}
+  \item \textbf{Toolchain:} Lean 4.33.1 (pinned)
+  \item \textbf{Audit Status:} \texttt{AUDITOR: EXTERNAL}
+\end{itemize}
+
+\end{document}

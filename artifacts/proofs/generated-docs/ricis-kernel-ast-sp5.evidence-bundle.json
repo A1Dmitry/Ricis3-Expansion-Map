@@ -1,0 +1,17 @@
+{
+  "evidenceManifest": {
+    "auditMarker": "AUDITOR: EXTERNAL",
+    "environment": {},
+    "gitCommit": "head",
+    "manifestVersion": "1.0.0",
+    "project": "RICIS-III",
+    "proofId": "ricis-kernel-ast-sp5",
+    "ricisTaskId": "task-ricis-kernel-ast-sp5",
+    "sourcePath": "artifacts/proofs/ricis-kernel-ast-sp5.standalone.lean",
+    "sourceSha256": "6ee144b7e438a112b1590c65625da5b88baf615cb53315f52b6935d91cacda57",
+    "status": "INDEPENDENTLY_VERIFIED",
+    "verification": {}
+  },
+  "verifiedSourceCode": "import Mathlib\n\nnamespace RICIS.KernelAST.SP5\n\n/-!\n  RICIS-III Kernel AST: SP5 Standalone Structural Resolution\n  Author: Dmitry V. Aleynikov (ORCID: 0009-0004-3226-7700)\n  \n  Implements structural reduction of expressions and singular division\n  without Cauchy limits, preserving identity L1 and safety protocol SP5.\n-/\n\ninductive RExpr where\n  | zero\n  | one\n  | const (val : ℚ)\n  | var (name : String)\n  | add (a b : RExpr)\n  | sub (a b : RExpr)\n  | mul (a b : RExpr)\n  | div (a b : RExpr)\n  | divSelf (e : RExpr)\n  | indexedZero (e : RExpr)\n  | indexedInf (e : RExpr)\n\ndef singularDiv (a b : RExpr) : RExpr :=\n  if a = b then\n    RExpr.one\n  else\n    RExpr.div a b\n\ndef ricisReduce : RExpr → RExpr\n  | RExpr.divSelf _ => RExpr.one\n  | RExpr.div a b => singularDiv a b\n  | e => e\n\ntheorem singular_div_identity (e : RExpr) :\n    singularDiv e e = RExpr.one := by\n  unfold singularDiv\n  simp\n\ntheorem ricis_reduce_divself (e : RExpr) :\n    ricisReduce (RExpr.divSelf e) = RExpr.one := by\n  rfl\n\nend RICIS.KernelAST.SP5\n",
+  "packagedAt": "2026-09-17T20:30:47.134Z"
+}

@@ -1,0 +1,67 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[russian,english]{babel}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{hyperref}
+\usepackage{geometry}
+\geometry{margin=2.5cm}
+
+\title{\textbf{RICIS-III Formal Evidence Note:\\Artifact \texttt{database-a6-0_5_inf_3}}}
+\author{\textbf{Dmitry V. Aleinikov}\\ORCID: \href{https://orcid.org/0009-0004-3226-7700}{0009-0004-3226-7700}}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+This technical note provides the formal evidence record for the RICIS-III formalization artifact \texttt{database-a6-0_5_inf_3}.
+The corresponding Lean 4.33.1 source code has been verified by the Lean kernel without reliance on the unverified \texttt{sorryAx} axiom.
+The SHA-256 cryptographic digest of the verified source is \texttt{963f701f3c87f7994f3784944250b46df5026e71be4ae8279bf41cf4d4e99d2c}.
+\end{abstract}
+
+\section{Structural Context & Rationale}
+Тело: типизированное ядро RICIS3.ExtendedKernel (RExpr/Rewrite/Derivation) и адаптер сгенерированного утверждения 0_5 × ∞_3. Использованы только abbrev/inductive/structure/deriving и тактики exact / constructor / intro / simpa (simpa — core-тактика 4.33.1).
+
+\section{Verified Theorems and Axiom Targets}
+The formal proof establishes the following verified Lean declarations:
+\begin{itemize}
+  \item \texttt{RICIS3.ExtendedKernel.RExpr.sp3_zero_valid}
+  \item \texttt{RICIS3.ExtendedKernel.RExpr.sp3_inf_valid}
+  \item \texttt{RICIS3.ExtendedKernel.RExpr.l0_payload_preserved}
+  \item \texttt{RICIS3.ExtendedKernel.RExpr.l1_identity}
+  \item \texttt{RICIS3.ExtendedKernel.RExpr.sp2_common_right}
+  \item \texttt{RICIS3.ExtendedKernel.RExpr.sp2_common_left}
+  \item \texttt{RICIS3.ExtendedKernel.RExpr.o1_bridge_mul_zero}
+  \item \texttt{RICIS3.ExtendedKernel.RExpr.o1_bridge_div_zero}
+  \item \texttt{RICIS3.ExtendedKernel.RExpr.a1_indexed_infinity}
+  \item \texttt{RICIS3.ExtendedKernel.RExpr.a4_distinct_payload}
+  \item \texttt{RICIS3.ExtendedKernel.RExpr.a4_same_identity}
+  \item \texttt{RICIS3.ExtendedKernel.RExpr.sp4_retains_source}
+  \item \texttt{RICIS3.ExtendedKernel.RExpr.a5_distinct_payload}
+  \item \texttt{RICIS3.ExtendedKernel.RExpr.a6_geometric_bridge}
+  \item \texttt{RICIS3.ExtendedKernel.RExpr.a6_coupled_reciprocal}
+  \item \texttt{RICIS3.ExtendedKernel.RExpr.fallback_requires_gate}
+  \item \texttt{RICIS3.ExtendedKernel.RExpr.priority_blocks_fallback}
+  \item \texttt{RICIS3.GeneratedDatabaseProof.generated_claim_is_a6_bridge}
+  \item \texttt{RICIS3.GeneratedDatabaseProof.generated_claim_indices_are_finite}
+\end{itemize}
+
+\section{Axiomatic Foundation}
+All reductions adhere strictly to Level 3 RICIS Monolith Algebra:
+\begin{equation}
+L1: \quad X = X, \quad \frac{0_F}{0_F} = 1
+\end{equation}
+\begin{equation}
+A6: \quad 0_F \times \infty_G = \det\begin{pmatrix} F & 0 \\ 0 & G \end{pmatrix} = F \cdot G
+\end{equation}
+
+\section{Cryptographic Binding & Archival Integrity}
+\begin{itemize}
+  \item \textbf{Artifact ID:} \texttt{database-a6-0_5_inf_3}
+  \item \textbf{Source SHA-256:} \texttt{963f701f3c87f7994f3784944250b46df5026e71be4ae8279bf41cf4d4e99d2c}
+  \item \textbf{Toolchain:} Lean 4.33.1 (pinned)
+  \item \textbf{Audit Status:} \texttt{AUDITOR: EXTERNAL}
+\end{itemize}
+
+\end{document}

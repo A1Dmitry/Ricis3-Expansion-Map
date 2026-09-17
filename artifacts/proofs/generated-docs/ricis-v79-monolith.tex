@@ -1,0 +1,79 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[russian,english]{babel}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{hyperref}
+\usepackage{geometry}
+\geometry{margin=2.5cm}
+
+\title{\textbf{RICIS-III Formal Evidence Note:\\Artifact \texttt{ricis-v79-monolith}}}
+\author{\textbf{Dmitry V. Aleinikov}\\ORCID: \href{https://orcid.org/0009-0004-3226-7700}{0009-0004-3226-7700}}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+This technical note provides the formal evidence record for the RICIS-III formalization artifact \texttt{ricis-v79-monolith}.
+The corresponding Lean 4.33.1 source code has been verified by the Lean kernel without reliance on the unverified \texttt{sorryAx} axiom.
+The SHA-256 cryptographic digest of the verified source is \texttt{fbd99bbdefd05aaff83fe4325377681f7e3b7099a3c9f5234b3ff4def86077e2}.
+\end{abstract}
+
+\section{Structural Context & Rationale}
+Тело: индуктив RExpr над String, доказательства rfl / cases F <;> rfl / repeat constructor. Единственная зависимость от Mathlib — нотация ℕ (2 вхождения, оба в сигнатурах resolveSteps/resolveError). Дополнительно удалён избыточный хвост `· rfl` (8 буллетов) в доказательстве RICIS_v79_unified: на ядровой базе цели уже закрыты `repeat constructor` (run 34870620154, 392:2).
+
+\section{Verified Theorems and Axiom Targets}
+The formal proof establishes the following verified Lean declarations:
+\begin{itemize}
+  \item \texttt{RICIS_v79.L1_identity}
+  \item \texttt{RICIS_v79.divSelf_one}
+  \item \texttt{RICIS_v79.SP2_subSelf_zero}
+  \item \texttt{RICIS_v79.A1_div_zero}
+  \item \texttt{RICIS_v79.A2_inf_zero_one}
+  \item \texttt{RICIS_v79.zero_div_zero_step1}
+  \item \texttt{RICIS_v79.zero_div_zero_step2}
+  \item \texttt{RICIS_v79.zero_div_zero_one}
+  \item \texttt{RICIS_v79.A4_indexed_zero_div}
+  \item \texttt{RICIS_v79.A5_inf_div}
+  \item \texttt{RICIS_v79.A6_geometric_realization}
+  \item \texttt{RICIS_v79.A7_inf_sub}
+  \item \texttt{RICIS_v79.A10_mul_zero}
+  \item \texttt{RICIS_v79.A10_zero_mul}
+  \item \texttt{RICIS_v79.L0_continuity_divSelf}
+  \item \texttt{RICIS_v79.L0_continuity_subSelf}
+  \item \texttt{RICIS_v79.L0_continuity_A6_rect}
+  \item \texttt{RICIS_v79.L0_continuity_A6_measure}
+  \item \texttt{RICIS_v79.SP4_preserves_parent}
+  \item \texttt{RICIS_v79.ns_R1_resolved}
+  \item \texttt{RICIS_v79.ns_R2_resolved}
+  \item \texttt{RICIS_v79.ns_R3_resolved}
+  \item \texttt{RICIS_v79.ns_Rt_resolved}
+  \item \texttt{RICIS_v79.ns_4D_resolved}
+  \item \texttt{RICIS_v79.L0_4D_no_discontinuity}
+  \item \texttt{RICIS_v79.ns_steps_4D}
+  \item \texttt{RICIS_v79.ns_error_zero}
+  \item \texttt{RICIS_v79.CPU_CUDA_same}
+  \item \texttt{RICIS_v79.complex_divSelf_one}
+  \item \texttt{RICIS_v79.complex_subSelf_zero}
+  \item \texttt{RICIS_v79.RICIS_v79_unified}
+\end{itemize}
+
+\section{Axiomatic Foundation}
+All reductions adhere strictly to Level 3 RICIS Monolith Algebra:
+\begin{equation}
+L1: \quad X = X, \quad \frac{0_F}{0_F} = 1
+\end{equation}
+\begin{equation}
+A6: \quad 0_F \times \infty_G = \det\begin{pmatrix} F & 0 \\ 0 & G \end{pmatrix} = F \cdot G
+\end{equation}
+
+\section{Cryptographic Binding & Archival Integrity}
+\begin{itemize}
+  \item \textbf{Artifact ID:} \texttt{ricis-v79-monolith}
+  \item \textbf{Source SHA-256:} \texttt{fbd99bbdefd05aaff83fe4325377681f7e3b7099a3c9f5234b3ff4def86077e2}
+  \item \textbf{Toolchain:} Lean 4.33.1 (pinned)
+  \item \textbf{Audit Status:} \texttt{AUDITOR: EXTERNAL}
+\end{itemize}
+
+\end{document}
