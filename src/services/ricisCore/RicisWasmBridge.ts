@@ -14,6 +14,7 @@ import {
 } from './IRicisCoreEngine';
 import { RicisFallbackEngine } from './RicisFallbackEngine';
 import { ricisCoreApiUrl, resolveRicisCoreApiEndpoint } from './coreEndpoint';
+import { CORE_HEALTH_TIMEOUT_MS, CORE_REQUEST_TIMEOUT_MS, coreRequestSignal } from './requestTimeout';
 import { CoreProofHttpGateway } from './CoreProofHttpGateway';
 import type {
   CreateProofRunRequest,
@@ -90,7 +91,7 @@ export class RicisWasmBridge implements IRicisCoreEngine, IRicisProofGateway {
   private async loadRuntime(wasmUrl: string): Promise<void> {
     try {
       if (typeof window !== 'undefined' && 'WebAssembly' in window) {
-        const response = await fetch(wasmUrl);
+        const response = await fetch(wasmUrl, { signal: coreRequestSignal(CORE_REQUEST_TIMEOUT_MS) });
         if (response.ok) {
           const buffer = await response.arrayBuffer();
           const module = await WebAssembly.instantiate(buffer, {});
@@ -111,6 +112,7 @@ export class RicisWasmBridge implements IRicisCoreEngine, IRicisProofGateway {
       if (typeof window !== 'undefined' && healthUrl) {
         const response = await fetch(healthUrl, {
           headers: { accept: 'application/json' },
+          signal: coreRequestSignal(CORE_HEALTH_TIMEOUT_MS),
         });
         if (response.ok) {
           const payload = await response.json() as CoreHealthPayload;
@@ -198,6 +200,7 @@ export class RicisWasmBridge implements IRicisCoreEngine, IRicisProofGateway {
           method: 'POST',
           headers: { 'content-type': 'application/json', accept: 'application/json' },
           body: JSON.stringify({ expression: request.expression }),
+          signal: coreRequestSignal(CORE_REQUEST_TIMEOUT_MS),
         });
 
         let payload: CoreApiPayload | null = null;

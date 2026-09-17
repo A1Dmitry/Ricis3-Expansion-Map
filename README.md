@@ -204,6 +204,12 @@ npm run tps:gate
 > можно переменной `VITE_ALLOWED_HOSTS` (`false` — только localhost/IP, список — явные суффиксы).
 > Разбор инцидента 2026-09-16: [`docs/05-evidence/architecture/incident-2026-09-16-preview-not-displaying.md`](docs/05-evidence/architecture/incident-2026-09-16-preview-not-displaying.md).
 
+> **Интерфейс «периодически слетает» / `npm run dev` завершился с `Server did not start: port 3000 … is already in use`?**
+> Порт держит другой процесс (обычно предыдущая сессия dev-сервера). С 0.4.202 сервер **не** печатает ложное
+> «Server running» при занятом порте, а честно выходит с кодом 1; порт задаётся переменной `PORT`. Проба
+> `dotnet` для Ricis.Core больше не блокирует сервер: она асинхронная, ограничена 2 с и кэшируется на 30 с.
+> Разбор инцидента 2026-09-17: [`docs/05-evidence/architecture/incident-2026-09-17-interface-periodically-dropping.md`](docs/05-evidence/architecture/incident-2026-09-17-interface-periodically-dropping.md).
+
 ## 🏭 Рабочий процесс: шаблон Toyota (TPS)
 
 Поток работ нормирован в [`docs/00-governance/TOYOTA_TPS_WORKING_SYSTEM.md`](docs/00-governance/TOYOTA_TPS_WORKING_SYSTEM.md): канбан с WIP-лимитами и one-piece flow, дзидока (стоп-линия при любом `STOP — TUKHTA RISK`), такт по фактическим замерам, хейдзанка очереди, кайдзен и ёкотэн. Состояние линии — [`docs/00-governance/tps/board.json`](docs/00-governance/tps/board.json) (витрина [`tps/BOARD.md`](docs/00-governance/tps/BOARD.md) генерируется командой `npm run tps:board`). Проверка формы потока исполняется машиной и встроена в CI: `npm run tps:gate`.
