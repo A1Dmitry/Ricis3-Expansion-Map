@@ -21,7 +21,7 @@ import {
 } from './services/commandBus';
 import { APP_BUILD_LABEL } from './version';
 
-import { Map3D } from './ui/Map3D';
+const Map3D = lazyNamedComponent(() => import('./ui/Map3D'), 'Map3D');
 const CoreRecoveryPage = lazyNamedComponent(() => import('./ui/CoreRecoveryPage'), 'CoreRecoveryPage');
 const RoadmapPage = lazyNamedComponent(() => import('./ui/RoadmapPage'), 'RoadmapPage');
 const KinematicEnginePage = lazyNamedComponent(() => import('./ui/KinematicEnginePage'), 'KinematicEnginePage');
