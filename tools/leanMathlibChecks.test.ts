@@ -17,6 +17,7 @@ import {
   mathlibCheckBody,
   renderMathlibCheck,
 } from '../scripts/generateLeanMathlibChecks';
+import { collectRecordedRunIds } from './tpsStandardWork';
 
 const repositoryRoot = join(dirname(fileURLToPath(import.meta.url)), '..');
 const proofsDirectory = join(repositoryRoot, 'artifacts/proofs');
@@ -328,8 +329,11 @@ describe('Lean kernel mathlib-check derivatives', () => {
           fact?.theorems.some((theorem) => theorem.status === 'REJECTED_SORRYAX'),
           `${entry.artifactId}: LEAN_VERIFIED при sorryAx`,
         ).toBe(false);
+        // Прогон обязан существовать в записанной ЦЕПОЧКЕ реестра (mathlibRun →
+        // priorMathlibRun… + generatedFrom): выдуманный номер в ней отсутствует.
+        // Единый сборщик — collectRecordedRunIds (tools/tpsStandardWork.ts).
         expect(
-          [registry.mathlibRun?.runId, registry.generatedFrom?.runId],
+          collectRecordedRunIds(registry),
           `${entry.artifactId}: kernelCheck.run не совпадает ни с одним прогоном реестра`,
         ).toContain(metadata.kernelCheck?.run);
         // Артефактный уровень не подменяет уровень заявления: компилируемость не делает

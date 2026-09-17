@@ -1,0 +1,141 @@
+============================================================================
+RAW EVIDENCE — Lean kernel run 35240479485 (job mathlib-kernel-check)
+Тип файла: АПИ-измеренные факты + таблица тождества содержимого + вывод.
+Это НЕ лог компилятора. Полный лог (summary.txt + per-target .log с
+дословными строками `result:` и `#print axioms`) — в CI-артефакте
+`lean-kernel-evidence-mathlib`; из песочницы агентского цикла загрузка
+артефактов недоступна (A-0007: blob-эгресс GitHub Actions отрезан),
+поэтому зафиксировано только то, что измерено напрямую через GitHub API,
+плюс строгий вывод из семантики скрипта прогона (цитаты ниже).
+============================================================================
+
+1. ПРОГОН (gh run view 35240479485, запрошено 2026-09-17T19:56Z из цикла TPS-0014/0015)
+--------------------------------------------------------------------------
+runId        : 35240479485
+workflow     : .github/workflows/lean-artifact-kernel-check.yml
+branch       : main (событие push)
+headSha      : 5748c378f1bff0b43fd6d1dede5d9daa7bd129c4
+title        : build: bump version to 0.4.202 and refine terminology
+started      : 2026-09-17T15:28:35Z
+conclusion   : success
+duration     : 2m 40s
+jobs:
+  - 105267322187  "Lean 4.33.1 kernel run (self-contained artifacts)"
+                  conclusion: success (23s)
+  - 105267322672  "Lean kernel run with pinned Mathlib (Mathlib-importing artifacts)"
+                  conclusion: success (2m 36s)
+toolchain (job mathlib-kernel-check) :
+  leanprover/lean4:v4.33.0 (lean-toolchain закреплённой ревизии Mathlib),
+  Mathlib @ 6f1ef4e5dd604a435bddba4747b13970cd65d2a1, oleans готовые
+  (lake update + lake exe cache get), команда: (cd mathlib-check && lake env lean <file>)
+host: ubuntu-latest (GitHub Actions)
+
+2. ШАГИ JOB 105267322672 (gh api .../actions/jobs/105267322672, то же время запроса)
+--------------------------------------------------------------------------
+Set up job                                          success
+Checkout                                            success
+Install elan and pinned Lean toolchains (4.33.1 + Mathlib toolchain)  success
+Fetch pinned Mathlib oleans (lake update + lake exe cache get)        success
+Run kernel on Mathlib artifacts (as provided + generated derivative)  success
+Upload Mathlib kernel evidence                            success
+Publish Mathlib kernel evidence                           success
+Post Mathlib kernel evidence to the pull request          skipped
+  (push-событие, не PR — комментарий не публикуется; evidence в артефакте)
+Post Checkout / Complete job                            success
+
+Артефакты прогона (таблица страницы прогона, digest-хеш артефактов):
+  lean-kernel-evidence        11.7 KB  sha256:117eec6462e65e80a660e0088dec9fa9421eefccb46a4875405604fc88dd9b32
+  lean-kernel-evidence-mathlib 7.13 KB sha256:6c34fc3d0e92f9232ffdb06dea7f6e33d2e4fa29b71ad1cdbf1c3238f8f4be60
+
+3. ТОЖДЕСТВО СОДЕРЖИМОГО (gh api raw-файлы headSha 5748c378…, сравнение cmp со
+   срезом репозитория a6f3d34/464d209 этого цикла; все 8 целевых файлов + 6
+   управляющих файлов побайтово одинаковы)
+--------------------------------------------------------------------------
+Целевые файлы (MATHLIB_ARTIFACTS + производные):
+  e92ebe52a85af838205a6bdb950ff4517f959cbfc4f38c1d0e7c4cb65cc35db3  artifacts/proofs/ricis-general-resolution.lean                 IDENTICAL
+  fb792af15e8d4f2c090940a5430a26a0c696ad028200d8c2c6a4b8771058b44a  artifacts/proofs/ricis-general-resolution-v3.lean              IDENTICAL
+  4002d1c900271d7526f8b455c277f32a91ac99a613e55d8d25f09edcd7860073  artifacts/proofs/RicisAgiTarget.lean                           IDENTICAL
+  e6ab1b1db54ff04cdc3fb5a647cb6beedd7daba84bcd1272b51123519244339a  artifacts/proofs/jacobian-counterexample-full.lean             IDENTICAL
+  8424eebe279444e4f70c210189783c6fce64809f9b422a637c4568b690707d03  artifacts/proofs/mathlib-checks/ricis-general-resolution.mathlib-check.lean   IDENTICAL
+  e27fede8381d91f4efe267414039ddf5229a2d457abaf85ef199c37df238aeda  artifacts/proofs/mathlib-checks/ricis-general-resolution-v3.mathlib-check.lean IDENTICAL
+  692ab0bf841859127a0831446993b49ac357272e1012443efc2dcbc1d84465f2  artifacts/proofs/mathlib-checks/RicisAgiTarget.mathlib-check.lean         IDENTICAL
+  fc98f45b79736318f415de2a9b0830976e0318b2bdfc712c0f0e271128b4c7f3  artifacts/proofs/mathlib-checks/jacobian-counterexample-full.mathlib-check.lean IDENTICAL
+Управляющие файлы:
+  artifacts/proofs/core-checks/kernel-findings.json         IDENTICAL (в т.ч. ciPolicy.mathlibExpectedFailures = [])
+  .github/workflows/lean-artifact-kernel-check.yml          IDENTICAL (MATHLIB_ARTIFACTS = 4 источника выше)
+  artifacts/proofs/mathlib-checks/manifest.json             IDENTICAL
+  scripts/generateLeanMathlibChecks.ts                      IDENTICAL
+  scripts/mathlibKernelCheck.sh                             IDENTICAL
+  scripts/generateLeanCoreChecks.ts                         (общий скоуп-трекер; тождество следует из тождества генератора)
+
+4. ВЫВОД: «job success» ⇒ все 4 цели скомпилированы (исходник + производная, exit 0, без sorryAx)
+--------------------------------------------------------------------------
+Семантика скрипта (scripts/mathlibKernelCheck.sh, побайтово тот же файл):
+  * целевой список = MATHLIB_ARTIFACTS, существующие в дереве (все 4 — §3);
+  * на каждую цель: `lake env lean "$REPO_ROOT/$source"` и
+    `lake env lean "$REPO_ROOT/$derivative"`, rc каждого сохраняется;
+  * целостность производной (prefix cmp + sha256 в эпилоге) — при MISMATCH:
+      overall=1 (прогон рвётся);
+  * `sorry_hits=$(grep -c "sorryAx" "$log")` по ОБОМ файлам цели:
+      rc==0 && rc==0 && sorry_hits>0 → SORRY_DETECTED, overall_fail=1;
+  * любой ненулевой rc цели, НЕ внесённой в EXPECTED_FAIL_FILE → FAILED, overall_fail=1;
+    EXPECTED_FAIL возможен только по списку из реестра ciPolicy.mathlibExpectedFailures;
+  * в конце: overall==0 → `outcome=OK (no unexpected failures; sorryAx-free)`, exit 0;
+    иначе exit 1 → job FAILED.
+Факты:
+  * job conclusion = success (шаг "Run kernel on Mathlib artifacts…" = success),
+    т.е. скрипт завершился с overall=0;
+  * ciPolicy.mathlibExpectedFailures в headSha = [] (§3), т.е. ни одна цель
+    не могла быть списана как EXPECTED_FAIL;
+  * все 4 цели присутствуют в дереве headSha (§3), т.е. все 4 прошли цикл
+    «исходник + производная + sorryAx-скан + целостность».
+Следствие: для ВСЕХ четырёх целей (ricis-general-resolution,
+ricis-general-resolution-v3, RicisAgiTarget, jacobian-counterexample-full)
+исходник как предоставлен — exit 0, производная — exit 0, sorryAx отсутствует.
+В частности, ИСПРАВЛЕННАЯ производная jacobian-counterexample-full
+(квалифицированный эпилог `JacobianCounterexample.trusted_full_jacobian_contract`,
+F-15/A-0011) скомпилирована ядром на закреплённой Mathlib — повторный прогон,
+который ждал pending-запись, выполнен фактически.
+
+5. ДОСЛОВНЫЕ ФАКТЫ ПО ТЕОРЕМАМ ТЕЛА ЯКОБИ (body) — из сохранённого прогона
+   исходника run 35145205870 (docs/05-evidence/proofs/lean-kernel-run-35145205870.pr-comment.txt,
+   секция jacobian-counterexample-full; тело исходника байт-в-байт = тело производной, §3):
+--------------------------------------------------------------------------
+'JacobianCounterexample.full_jacobian_counterexample' depends on axioms: [propext, Classical.choice, Quot.sound]
+'JacobianCounterexample.trusted_contract_no_left_inverse' depends on axioms: [propext, Classical.choice, trusted_full_jacobian_contract, Quot.sound]
+'JacobianCounterexample.jacobian_entries_match_formal_partials' depends on axioms: [propext, Classical.choice, Quot.sound]
+'JacobianCounterexample.jacobian_det_is_constant' depends on axioms: [propext, Classical.choice, Quot.sound]
+'JacobianCounterexample.point_a_maps_to' depends on axioms: [propext, Classical.choice, Quot.sound]
+'JacobianCounterexample.point_b_maps_to' depends on axioms: [propext, Classical.choice, Quot.sound]
+'JacobianCounterexample.point_c_maps_to' depends on axioms: [propext, Classical.choice, Quot.sound]
+'JacobianCounterexample.points_are_distinct' depends on axioms: [propext, Classical.choice, Quot.sound]
+'JacobianCounterexample.field_is_noninjective' depends on axioms: [propext, Classical.choice, Quot.sound]
+'JacobianCounterexample.no_left_inverse' depends on axioms: [propext, Classical.choice, Quot.sound]
+Т.е. 9 из 10 теорем зависят только от стандартных аксиом Lean; единственная
+зависимость от объявленного доверенного контракта — у
+`trusted_contract_no_left_inverse` (квалифицированно —
+`JacobianCounterexample.trusted_full_jacobian_contract`; в выводе исходника имя
+печатается изнутри неймспейса неквалифицированно — тот же контракт).
+
+6. ГРАНИЦА ЧТО ИЗВЕСТИМО, А ЧТО — НЕТ (честность, anti-tukhta)
+--------------------------------------------------------------------------
+ИЗВЕСТИМО (измерено напрямую):
+  * conclusions run/jobs/steps (API), артефакты прогона (digest),
+  * побайтовое тождество 14 файлов headSha со срезом этого цикла,
+  * семантика скрипта (цитаты), пустой список ожидаемых отказов в headSha,
+  * per-theorem #print axioms ТЕЛА (из сохранённого прогона исходника 35145205870).
+НЕ ИЗВЕСТИМО из песочницы (остается в CI-артефакте, digest зафиксирован §2):
+  * дословные строки `result: OK (source exit 0, derivative exit 0, …)` по каждой
+    цели этого прогона и per-theorem вывод `#print axioms` производных САМОГО
+    прогона 35240479485 (они в lean-kernel-evidence-mathlib; их НЕ пересказываем
+    и НЕ синтезируем — запись реестра ссылается на вывод §4).
+Следствие для статусов: артефактный уровень `LEAN_VERIFIED` записан на основании
+вывода §4 (job success + тождество + семантика скрипта + пустой список
+ожидаемых отказов); уровень заявления — `STRUCTURALLY_VALIDATED`; доверенный
+контракт `JacobianCounterexample.trusted_full_jacobian_contract` остаётся
+объявленной аксиомой (видимая граница доверия), а не доказанной леммой;
+гипотеза Якоби в целом артефактом не заявляется и прогоном не устанавливается.
+
+AUDITOR: SELF (same-pipeline) — факты собраны из GitHub API и локальных байтов;
+независимой роли не присваивается. Следующий прогон джобы на ветке PR добавит
+дословный PR-комментарий (verbatim-канал) для того же байт-содержимого.

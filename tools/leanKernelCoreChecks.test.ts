@@ -14,6 +14,7 @@ import {
   coreCheckBody,
   renderCoreCheck,
 } from '../scripts/generateLeanCoreChecks';
+import { collectRecordedRunIds } from './tpsStandardWork';
 
 const repositoryRoot = join(dirname(fileURLToPath(import.meta.url)), '..');
 const proofsDirectory = join(repositoryRoot, 'artifacts/proofs');
@@ -394,11 +395,9 @@ describe('Реестр фактов ядрового прогона (kernel-find
       expect(raw.kernelCheck.statusAfterKernelRun, fileName).toBe(entry?.outcome);
       expect(raw.kernelCheck.immutableSourceSha256, fileName).toBe(raw.verification?.contentHash);
       // Реестр может фиксировать более одного прогона (core-check и mathlib-check):
-      // metadata обязана ссылаться на ОДИН из них, а не на выдуманный номер.
-      const recordedRuns = [findingsRegistry.generatedFrom.runId, findingsRegistry.mathlibRun?.runId].filter(
-        (value): value is number => typeof value === 'number',
-      );
-      expect(recordedRuns, fileName).toContain(raw.kernelCheck.run);
+      // metadata обязана ссылаться на ОДИН из них, а не на выдуманный номер. Единый
+      // сборщик — collectRecordedRunIds (идёт по всей цепочке mathlibRun → priorMathlibRun…).
+      expect(collectRecordedRunIds(findingsRegistry), fileName).toContain(raw.kernelCheck.run);
       expect(existsSync(join(repositoryRoot, raw.kernelCheck.evidence)), `${fileName}: evidence не найден`).toBe(true);
       expect(existsSync(join(repositoryRoot, raw.kernelCheck.registry)), `${fileName}: реестр не найден`).toBe(true);
       checked += 1;

@@ -1,5 +1,5 @@
 {
-  "registryVersion": 2,
+  "registryVersion": 3,
   "title": "Реестр фактов ядрового прогона Lean 4.33.1 по core-check производным",
   "generatedFrom": {
     "kind": "github-actions-run",
@@ -1564,6 +1564,138 @@
       "outcome": "LEAN_VERIFIED",
       "rootCause": null,
       "trustBoundary": "run 35145205870 (джоба kernel-check, PR #59, Lean 4.33.1): производная без трёх неиспользуемых строк импорта Mathlib — exit 0, sorryAx отсутствует; 7 теорем без аксиом, 4 зависят только от propext. «Тело не использует Mathlib» из пофайлового чтения стало фактом прогона. Прогон подтверждает только структурные теоремы (тождество пути, запрет тихого коллапса, A6 продукт/отношение прокси на Int, gated evaluation); регулярность метрики Шварцшильда и устранение сингулярности ОТО НЕ заявлены и не проверялись — физические имена остаются метками пути SP4."
+    },
+    {
+      "artifactId": "jacobian-counterexample-full",
+      "immutableSource": "artifacts/proofs/jacobian-counterexample-full.lean",
+      "sourceSha256": "e6ab1b1db54ff04cdc3fb5a647cb6beedd7daba84bcd1272b51123519244339a",
+      "checkedFile": "artifacts/proofs/mathlib-checks/jacobian-counterexample-full.mathlib-check.lean",
+      "sourceCheckedAsProvided": "artifacts/proofs/jacobian-counterexample-full.lean",
+      "substitutionsApplied": [],
+      "compilerExit": 0,
+      "resultLine": "OK (job mathlib-kernel-check success, run 35240479485: source exit 0, derivative exit 0, no compiler errors — вывод из семантики скрипта + тождества содержимого headSha; дословные строки result: по каждой цели — в CI-артефакте lean-kernel-evidence-mathlib)",
+      "compilerErrorCount": 0,
+      "firstCompilerErrors": [],
+      "theoremCount": 10,
+      "theorems": [
+        {
+          "name": "JacobianCounterexample.jacobian_entries_match_formal_partials",
+          "status": "LEAN_VERIFIED_WITH_STANDARD_AXIOMS",
+          "axioms": [
+            "propext",
+            "Classical.choice",
+            "Quot.sound"
+          ]
+        },
+        {
+          "name": "JacobianCounterexample.jacobian_det_is_constant",
+          "status": "LEAN_VERIFIED_WITH_STANDARD_AXIOMS",
+          "axioms": [
+            "propext",
+            "Classical.choice",
+            "Quot.sound"
+          ]
+        },
+        {
+          "name": "JacobianCounterexample.point_a_maps_to",
+          "status": "LEAN_VERIFIED_WITH_STANDARD_AXIOMS",
+          "axioms": [
+            "propext",
+            "Classical.choice",
+            "Quot.sound"
+          ]
+        },
+        {
+          "name": "JacobianCounterexample.point_b_maps_to",
+          "status": "LEAN_VERIFIED_WITH_STANDARD_AXIOMS",
+          "axioms": [
+            "propext",
+            "Classical.choice",
+            "Quot.sound"
+          ]
+        },
+        {
+          "name": "JacobianCounterexample.point_c_maps_to",
+          "status": "LEAN_VERIFIED_WITH_STANDARD_AXIOMS",
+          "axioms": [
+            "propext",
+            "Classical.choice",
+            "Quot.sound"
+          ]
+        },
+        {
+          "name": "JacobianCounterexample.points_are_distinct",
+          "status": "LEAN_VERIFIED_WITH_STANDARD_AXIOMS",
+          "axioms": [
+            "propext",
+            "Classical.choice",
+            "Quot.sound"
+          ]
+        },
+        {
+          "name": "JacobianCounterexample.field_is_noninjective",
+          "status": "LEAN_VERIFIED_WITH_STANDARD_AXIOMS",
+          "axioms": [
+            "propext",
+            "Classical.choice",
+            "Quot.sound"
+          ]
+        },
+        {
+          "name": "JacobianCounterexample.no_left_inverse",
+          "status": "LEAN_VERIFIED_WITH_STANDARD_AXIOMS",
+          "axioms": [
+            "propext",
+            "Classical.choice",
+            "Quot.sound"
+          ]
+        },
+        {
+          "name": "JacobianCounterexample.full_jacobian_counterexample",
+          "status": "LEAN_VERIFIED_WITH_STANDARD_AXIOMS",
+          "axioms": [
+            "propext",
+            "Classical.choice",
+            "Quot.sound"
+          ]
+        },
+        {
+          "name": "JacobianCounterexample.trusted_contract_no_left_inverse",
+          "status": "LEAN_VERIFIED_WITH_STANDARD_AXIOMS",
+          "axioms": [
+            "propext",
+            "Classical.choice",
+            "JacobianCounterexample.trusted_full_jacobian_contract",
+            "Quot.sound"
+          ]
+        }
+      ],
+      "declaredContracts": [
+        "JacobianCounterexample.trusted_full_jacobian_contract"
+      ],
+      "contractDependencyFacts": [
+        {
+          "theorem": "JacobianCounterexample.trusted_contract_no_left_inverse",
+          "contract": "JacobianCounterexample.trusted_full_jacobian_contract",
+          "why": "Теорема условна относительно объявленного доверенного контракта: свойство «нет левого обратного» для проверенного полевого пакета выводится из контракта как доверенного входа. Зависимость — факт ядра (#print axioms прогона исходника 35145205870; тело байт-в-байт = тело производной, §3 evidence-файла 35240479485). Контракт остаётся объявленной аксиомой, а не доказанной леммой."
+        }
+      ],
+      "warningsObserved": [
+        "run 35145205870 (исходник): linter unusedVariables на связи `_z` (apply) — предупреждение, не ошибка"
+      ],
+      "outcome": "LEAN_VERIFIED",
+      "rootCause": null,
+      "trustBoundary": "run 35240479485 (job mathlib-kernel-check, push main@5748c378, 2026-09-17T15:28:35Z): conclusion success, все 11 шагов success; содержимое headSha побайтово тождественно подготовленному состоянию (sha256-таблица в evidence-файле); ciPolicy.mathlibExpectedFailures в headSha пуст; семантика scripts/mathlibKernelCheck.sh (любой незарегистрированный отказ или скомпилированный sorryAx рвёт прогон) ⇒ исходник как предоставлен exit 0, ИСПРАВЛЕННАЯ производная exit 0, sorryAx отсутствует. Факт, закрывающий F-15/A-0011: производная с квалифицированным эпилогом JacobianCounterexample.trusted_full_jacobian_contract скомпилирована ядром на закреплённой Mathlib. Per-theorem #print axioms тела (9 теорем — только стандартные аксиомы, 1 теорема — объявленный контракт) — из сохранённого прогона исходника 35145205870 (тело байт-в-байт). Граница: прогон проверяет структурные теоремы артефакта (явное полиномиальное поле над ℚ с константным глобальным якобианом −2, сертифицированные свидетели неинъективности, отсутствие левого обратного); объявленная аксиома остаётся границей доверия; классическая гипотеза Якоби в целом не заявляется и не устанавливается.",
+      "claimLevel": "STRUCTURALLY_VALIDATED",
+      "claimLevelNote": "Артефактный уровень (ядро приняло исходник и исправленную производную) — LEAN_VERIFIED. Уровень заявления: структурные факты артефакта (поле, константный якобиан, свидетели, отсутствие левого обратного) приняты ядром; разрешение классической гипотезы Якоби в целом артефактом не заявляется и прогоном не устанавливается.",
+      "priorRun": {
+        "runId": 35145205870,
+        "pullRequest": 59,
+        "compilerExit": 1,
+        "resultLine": "FAILED (source exit 0, derivative exit 1) — дефект генератора эпилога F-15/A-0011",
+        "outcome": "PENDING_FIX",
+        "note": "Первый двойной прогон: исходник как предоставлен принят ядром (10 теорем, #print axioms напечатан), производная — exit 1 по неквалифицированной аксиоме внутри неймспейса (162:14 unknown constant) — дефект генератора, не дефект доказательства. Ремонт (единый скоуп-трекер), перегенерация; фактический повторный прогон — run 35240479485 (текущая запись)."
+      }
     }
   ],
   "pendingKernelRun": [
@@ -1580,21 +1712,6 @@
       "metadata": "<нет: артефакт пришёл из main без метаданных>",
       "evidenceTarget": "artifacts/proofs/README.md (раздел Mathlib Artifacts — Kernel Path), findings[F-14]",
       "expectedOutcome": "UNKNOWN, но статически установлен дефект импорта F-14 (модуль Mathlib.Basic.Real.Basic отсутствует в закреплённой Mathlib). Прогон не запущен: цель не внесена в allowlist MATHLIB_ARTIFACTS — решение владельца.",
-      "status": "PENDING_KERNEL_RUN"
-    },
-    {
-      "artifactId": "jacobian-counterexample-full",
-      "immutableSource": "artifacts/proofs/jacobian-counterexample-full.lean",
-      "sourceSha256": "e6ab1b1db54ff04cdc3fb5a647cb6beedd7daba84bcd1272b51123519244339a",
-      "job": "mathlib-kernel-check",
-      "toolchain": "leanprover/lean4:v4.33.0 (Mathlib @ 6f1ef4e5dd604a435bddba4747b13970cd65d2a1)",
-      "commands": [
-        "(cd mathlib-check && lake env lean artifacts/proofs/jacobian-counterexample-full.lean)",
-        "(cd mathlib-check && lake env lean artifacts/proofs/mathlib-checks/jacobian-counterexample-full.mathlib-check.lean)"
-      ],
-      "metadata": "artifacts/proofs/jacobian-counterexample-full.json",
-      "evidenceTarget": "artifacts/proofs/README.md (раздел Mathlib Artifacts — Kernel Path), реестр фактов после прогона",
-      "expectedOutcome": "UNKNOWN до повторного прогона ИСПРАВЛЕННОЙ производной. Факты run 35145205870: исходник как предоставлен — exit 0 (все 10 теорем приняты, #print axioms напечатан), производная — exit 1 по дефекту генератора эпилога (A-0011/F-15: неквалифицированная аксиома внутри неймспейса), а НЕ по дефекту доказательства. Генератор исправлен, производная перегенерирована; двойной прогон ожидает CI.",
       "status": "PENDING_KERNEL_RUN"
     }
   ],
@@ -1739,7 +1856,9 @@
       "id": "F-15",
       "severity": "MEDIUM",
       "title": "Эпилог mathlib-производной печатал аксиому внутри неймспейса неквалифицированно: производная не компилируется при компилирующемся исходнике",
-      "evidence": "run 35145205870 (mathlib-kernel-check, PR #59, дословно): `artifacts/proofs/mathlib-checks/jacobian-counterexample-full.mathlib-check.lean:162:14: error(lean.unknownIdentifier): Unknown constant trusted_full_jacobian_contract`. Аксиома объявлена внутри `namespace JacobianCounterexample`, эпилог стоит после `end …`; исходник при этом — exit 0. Первопричина: `collectDeclaredAxioms` не отслеживал неймспейсы (пилотные артефакты объявляли аксиомы только на верхнем уровне), а страж сверял цели эпилога против того же сборщика (самосогласованно, не независимо). Ремонт: единый скоуп-трекер `collectScopedNames` для теорем и аксиом + независимый структурный страж квалификации (tools/leanMathlibChecks.test.ts, A-0011); производная перегенерирована, ожидает повторного прогона."
+      "evidence": "run 35145205870 (mathlib-kernel-check, PR #59, дословно): `artifacts/proofs/mathlib-checks/jacobian-counterexample-full.mathlib-check.lean:162:14: error(lean.unknownIdentifier): Unknown constant trusted_full_jacobian_contract`. Аксиома объявлена внутри `namespace JacobianCounterexample`, эпилог стоит после `end …`; исходник при этом — exit 0. Первопричина: `collectDeclaredAxioms` не отслеживал неймспейсы (пилотные артефакты объявляли аксиомы только на верхнем уровне), а страж сверял цели эпилога против того же сборщика (самосогласованно, не независимо). Ремонт: единый скоуп-трекер `collectScopedNames` для теорем и аксиом + независимый структурный страж квалификации (tools/leanMathlibChecks.test.ts, A-0011); производная перегенерирована, ожидает повторного прогона.",
+      "status": "ЗАКРЫТО ФАКТИЧЕСКИМ ПРОГОНОМ (независимый повторный прогон исправленной производной): run 35240479485 (job mathlib-kernel-check, push main@5748c378, 2026-09-17T15:28:35Z) — conclusion success; содержимое headSha побайтово тождественно (sha256-таблица в evidence-файле), mathlibExpectedFailures пуст, семантика скрипта ⇒ исправленная производная exit 0, sorryAx отсутствует. Контрмеры действуют: единый скоуп-трекер collectScopedNames + независимый структурный страж (tools/leanMathlibChecks.test.ts, A-0011).",
+      "artifact": "artifacts/proofs/jacobian-counterexample-full.lean"
     }
   ],
   "ciPolicy": {
@@ -1758,21 +1877,43 @@
     "kind": "github-actions-run",
     "workflow": ".github/workflows/lean-artifact-kernel-check.yml",
     "job": "mathlib-kernel-check",
-    "runId": 35145205870,
-    "runUrl": "https://github.com/A1Dmitry/Ricis3-Expansion-Map/actions/runs/35145205870",
-    "pullRequest": 59,
-    "branch": "arena/01a0abc2-ricis3-expansion-map",
-    "runStartedAtUtc": "2026-09-16T20:13:00Z",
+    "runId": 35240479485,
+    "runUrl": "https://github.com/A1Dmitry/Ricis3-Expansion-Map/actions/runs/35240479485",
+    "branch": "main",
+    "commit": "5748c378f1bff0b43fd6d1dede5d9daa7bd129c4",
+    "trigger": "push",
+    "runStartedAtUtc": "2026-09-17T15:28:35Z",
     "toolchain": "leanprover/lean4:v4.33.0 (lean-toolchain закреплённой ревизии Mathlib); global default на раннере — 4.33.1, для компиляции не использовался",
     "command": "(cd mathlib-check && lake env lean <artifact>)",
     "host": "ubuntu-latest (GitHub Actions)",
-    "evidenceChannel": "Комментарий PR #59 (step summary + полный лог компилятора).",
-    "rawEvidence": "docs/05-evidence/proofs/lean-kernel-run-35145205870.pr-comment.txt",
-    "priorMathlibRun": {
-      "runId": 34950902412,
-      "pullRequest": 40,
-      "rawEvidence": "docs/05-evidence/proofs/lean-kernel-run-34950902412-mathlib.pr-comment.txt"
+    "evidenceChannel": "CI-артефакт lean-kernel-evidence-mathlib (7.13 KB, sha256:6c34fc3d0e92f9232ffdb06dea7f6e33d2e4fa29b71ad1cdbf1c3238f8f4be60; недоступен из песочницы — A-0007) + evidence-файл с АПИ-измеренными фактами и таблицей тождества содержимого.",
+    "rawEvidence": "docs/05-evidence/proofs/lean-kernel-run-35240479485-mathlib.api-evidence.txt",
+    "contentIdentity": {
+      "method": "GitHub API: raw-получение файлов headSha 5748c378… и побайтовое сравнение (cmp) со срезом цикла TPS-0014/0015 (a6f3d34/464d209); запрошено 2026-09-17T19:56Z-20:10Z",
+      "targets": "все 4 источника + все 4 производные MATHLIB_ARTIFACTS побайтово тождественны (sha256 — в evidence-файле §3); также тождественны kernel-findings.json (ciPolicy.mathlibExpectedFailures = []), workflow (MATHLIB_ARTIFACTS), manifest.json, scripts/generateLeanMathlibChecks.ts, scripts/mathlibKernelCheck.sh",
+      "derivation": "mathlibKernelCheck.sh: overall=0 (job success) + пустой ciPolicy.mathlibExpectedFailures + все 4 цели присутствуют в дереве headSha ⇒ для всех целей исходник exit 0, производная exit 0, sorryAx отсутствует (SORRY_DETECTED и незарегистрированный отказ всегда рвут прогон)"
     },
-    "note": "Итог джобы — failure по ОДНОЙ цели: производная jacobian-counterexample-full — exit 1 (unknown constant trusted_full_jacobian_contract, A-0011: эпилог генератора не квалифицировал аксиому внутри неймспейса; дефект генератора, не дефект артефакта — исходник вышел с exit 0). Остальные цели зелёные: ricis-general-resolution, ricis-general-resolution-v3, RicisAgiTarget — исходник и производная exit 0, sorryAx отсутствует. Генератор исправлен (единый скоуп-трекер), производная перегенерирована и ожидает повторного прогона."
+    "note": "Джоба success: все цели зелёные — ricis-general-resolution, ricis-general-resolution-v3, RicisAgiTarget, jacobian-counterexample-full (исходник + производная, sorryAx отсутствует). Исправленная производная Якоби (квалифицированный эпилог, F-15/A-0011) прогнана фактически: ожидающий прогон закрыт фактом. Дословный лог компилятора — в CI-артефакте (загрузка из песочницы недоступна, A-0007); вывод — см. contentIdentity и evidence-файл.",
+    "priorMathlibRun": {
+      "kind": "github-actions-run",
+      "workflow": ".github/workflows/lean-artifact-kernel-check.yml",
+      "job": "mathlib-kernel-check",
+      "runId": 35145205870,
+      "runUrl": "https://github.com/A1Dmitry/Ricis3-Expansion-Map/actions/runs/35145205870",
+      "pullRequest": 59,
+      "branch": "arena/01a0abc2-ricis3-expansion-map",
+      "runStartedAtUtc": "2026-09-16T20:13:00Z",
+      "toolchain": "leanprover/lean4:v4.33.0 (lean-toolchain закреплённой ревизии Mathlib); global default на раннере — 4.33.1, для компиляции не использовался",
+      "command": "(cd mathlib-check && lake env lean <artifact>)",
+      "host": "ubuntu-latest (GitHub Actions)",
+      "evidenceChannel": "Комментарий PR #59 (step summary + полный лог компилятора).",
+      "rawEvidence": "docs/05-evidence/proofs/lean-kernel-run-35145205870.pr-comment.txt",
+      "priorMathlibRun": {
+        "runId": 34950902412,
+        "pullRequest": 40,
+        "rawEvidence": "docs/05-evidence/proofs/lean-kernel-run-34950902412-mathlib.pr-comment.txt"
+      },
+      "note": "Итог джобы — failure по ОДНОЙ цели: производная jacobian-counterexample-full — exit 1 (unknown constant trusted_full_jacobian_contract, A-0011: эпилог генератора не квалифицировал аксиому внутри неймспейса; дефект генератора, не дефект артефакта — исходник вышел с exit 0). Остальные цели зелёные: ricis-general-resolution, ricis-general-resolution-v3, RicisAgiTarget — исходник и производная exit 0, sorryAx отсутствует. Генератор исправлен (единый скоуп-трекер), производная перегенерирована и ожидает повторного прогона."
+    }
   }
 }
