@@ -1,0 +1,54 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[russian,english]{babel}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{hyperref}
+\usepackage{geometry}
+\geometry{margin=2.5cm}
+
+\title{\textbf{RICIS-III Formal Evidence Note:\\Artifact \texttt{ricis-seed-expansion-a11}}}
+\author{\textbf{Dmitry V. Aleinikov}\\ORCID: \href{https://orcid.org/0009-0004-3226-7700}{0009-0004-3226-7700}}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+This technical note provides the formal evidence record for the RICIS-III formalization artifact \texttt{ricis-seed-expansion-a11}.
+The corresponding Lean 4.33.1 source code has been verified by the Lean kernel without reliance on the unverified \texttt{sorryAx} axiom.
+The SHA-256 cryptographic digest of the verified source is \texttt{368dc0359e3f37391e3e830fc1abf9107b8e3f1f37d0a7f3ac6d2b3bc36839f2}.
+\end{abstract}
+
+\section{Structural Context & Rationale}
+Тело: модель протокола A11 (Rule/Seed/ExpansionOutcome, ворота допуска, IDENTITY_COHERENCE) на String/List/Nat/Bool. Все использованные тактики — core 4.33.1: intro, unfold, let, change, cases, simp, exact, assumption (все в src/Init/Tactics.lean; `split` src/Init/Tactics.lean:1205 в финальном доказательстве не используется). Ядровые факты, вынудившие форму доказательств, установлены прогоном ядра и зафиксированы в sourceFindings. Прогон ядра 2026-09-15: exit 0, 6/6 теорем без sorryAx, все — только propext.
+
+\section{Verified Theorems and Axiom Targets}
+The formal proof establishes the following verified Lean declarations:
+\begin{itemize}
+  \item \texttt{RICIS.Seed.monotonic_growth}
+  \item \texttt{RICIS.Seed.rejection_preserves_generation}
+  \item \texttt{RICIS.Seed.no_commit_without_proof}
+  \item \texttt{RICIS.Seed.core_rule_never_commits}
+  \item \texttt{RICIS.Seed.identity_violation_never_commits}
+  \item \texttt{RICIS.Seed.identity_ok_preserves_expansion}
+\end{itemize}
+
+\section{Axiomatic Foundation}
+All reductions adhere strictly to Level 3 RICIS Monolith Algebra:
+\begin{equation}
+L1: \quad X = X, \quad \frac{0_F}{0_F} = 1
+\end{equation}
+\begin{equation}
+A6: \quad 0_F \times \infty_G = \det\begin{pmatrix} F & 0 \\ 0 & G \end{pmatrix} = F \cdot G
+\end{equation}
+
+\section{Cryptographic Binding & Archival Integrity}
+\begin{itemize}
+  \item \textbf{Artifact ID:} \texttt{ricis-seed-expansion-a11}
+  \item \textbf{Source SHA-256:} \texttt{368dc0359e3f37391e3e830fc1abf9107b8e3f1f37d0a7f3ac6d2b3bc36839f2}
+  \item \textbf{Toolchain:} Lean 4.33.1 (pinned)
+  \item \textbf{Audit Status:} \texttt{AUDITOR: EXTERNAL}
+\end{itemize}
+
+\end{document}

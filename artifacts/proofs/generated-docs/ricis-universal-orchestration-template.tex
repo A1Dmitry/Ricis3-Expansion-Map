@@ -1,0 +1,75 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[russian,english]{babel}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{hyperref}
+\usepackage{geometry}
+\geometry{margin=2.5cm}
+
+\title{\textbf{RICIS-III Formal Evidence Note:\\Artifact \texttt{ricis-universal-orchestration-template}}}
+\author{\textbf{Dmitry V. Aleinikov}\\ORCID: \href{https://orcid.org/0009-0004-3226-7700}{0009-0004-3226-7700}}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+This technical note provides the formal evidence record for the RICIS-III formalization artifact \texttt{ricis-universal-orchestration-template}.
+The corresponding Lean 4.33.1 source code has been verified by the Lean kernel without reliance on the unverified \texttt{sorryAx} axiom.
+The SHA-256 cryptographic digest of the verified source is \texttt{cebe44f3e058d6d68b9b6df267300162aa53d4ce5730e3e98d623991a4363849}.
+\end{abstract}
+
+\section{Structural Context & Rationale}
+Тело: структурные редукции, счетчики `Nat`, доказательство-конъюнкция закрыто ⟨rfl, …⟩. Mathlib-символов нет — проверено фактическим прогоном ядра (run 34858902595, exit 0).
+
+\section{Verified Theorems and Axiom Targets}
+The formal proof establishes the following verified Lean declarations:
+\begin{itemize}
+  \item \texttt{RICIS_Template.L1_identity}
+  \item \texttt{RICIS_Template.divSelf_one}
+  \item \texttt{RICIS_Template.SP2_subSelf_zero}
+  \item \texttt{RICIS_Template.A1_div_zero}
+  \item \texttt{RICIS_Template.A2_inf_zero_one}
+  \item \texttt{RICIS_Template.zero_div_zero_step1}
+  \item \texttt{RICIS_Template.zero_div_zero_step2}
+  \item \texttt{RICIS_Template.zero_div_zero_one}
+  \item \texttt{RICIS_Template.A4_indexed_zero_div}
+  \item \texttt{RICIS_Template.A5_inf_div}
+  \item \texttt{RICIS_Template.A6_geometric_realization}
+  \item \texttt{RICIS_Template.A7_inf_sub}
+  \item \texttt{RICIS_Template.A10_mul_zero}
+  \item \texttt{RICIS_Template.A10_zero_mul}
+  \item \texttt{RICIS_Template.L0_continuity_divSelf}
+  \item \texttt{RICIS_Template.L0_continuity_subSelf}
+  \item \texttt{RICIS_Template.L0_continuity_A6_rect}
+  \item \texttt{RICIS_Template.L0_continuity_A6_measure}
+  \item \texttt{RICIS_Template.SP4_preserves_parent}
+  \item \texttt{RICIS_Template.mySystem_4D_resolved}
+  \item \texttt{RICIS_Template.L0_mySystem_no_discontinuity}
+  \item \texttt{RICIS_Template.mySystem_steps_4D}
+  \item \texttt{RICIS_Template.mySystem_error_zero}
+  \item \texttt{RICIS_Template.CPU_CUDA_same}
+  \item \texttt{RICIS_Template.complex_divSelf_one}
+  \item \texttt{RICIS_Template.complex_subSelf_zero}
+  \item \texttt{RICIS_Template.RICIS_unified}
+\end{itemize}
+
+\section{Axiomatic Foundation}
+All reductions adhere strictly to Level 3 RICIS Monolith Algebra:
+\begin{equation}
+L1: \quad X = X, \quad \frac{0_F}{0_F} = 1
+\end{equation}
+\begin{equation}
+A6: \quad 0_F \times \infty_G = \det\begin{pmatrix} F & 0 \\ 0 & G \end{pmatrix} = F \cdot G
+\end{equation}
+
+\section{Cryptographic Binding & Archival Integrity}
+\begin{itemize}
+  \item \textbf{Artifact ID:} \texttt{ricis-universal-orchestration-template}
+  \item \textbf{Source SHA-256:} \texttt{cebe44f3e058d6d68b9b6df267300162aa53d4ce5730e3e98d623991a4363849}
+  \item \textbf{Toolchain:} Lean 4.33.1 (pinned)
+  \item \textbf{Audit Status:} \texttt{AUDITOR: EXTERNAL}
+\end{itemize}
+
+\end{document}
