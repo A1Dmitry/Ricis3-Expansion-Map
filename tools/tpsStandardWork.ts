@@ -651,6 +651,12 @@ export interface RegistryFinding {
   readonly affected?: readonly string[];
 }
 
+/** A recorded kernel run; superseded runs are chained via `priorMathlibRun`. */
+export interface RegistryRunRecord {
+  readonly runId?: number;
+  readonly priorMathlibRun?: RegistryRunRecord;
+}
+
 export interface FindingsRegistry {
   readonly registryVersion?: string;
   readonly title?: string;
@@ -659,6 +665,8 @@ export interface FindingsRegistry {
   readonly artifacts?: readonly Record<string, unknown>[];
   readonly ciPolicy?: { readonly expectedFailures?: readonly { readonly artifactId?: string }[] };
   readonly pendingKernelRun?: readonly { readonly artifactId?: string; readonly status?: string; readonly job?: string }[];
+  readonly generatedFrom?: RegistryRunRecord;
+  readonly mathlibRun?: RegistryRunRecord;
 }
 
 /**
@@ -678,6 +686,33 @@ export function isFindingRecordedClosed(finding: RegistryFinding): boolean {
       trimmed.length > 0 && CLOSED_FINDING_VOCABULARY.some((marker) => trimmed.toUpperCase().startsWith(marker))
     );
   });
+}
+
+/**
+ * Single source of truth for "which run ids does the registry actually record".
+ *
+ * The registry records the current mathlib run at the top of `mathlibRun` and chains every
+ * superseded run through `priorMathlibRun` (plus the core-check run in `generatedFrom`). The
+ * artifact-metadata invariant ("kernelCheck.run must reference a recorded run, never an
+ * invented number") was derived from the first shape of the registry — a single top-level run —
+ * and went blind when a superseding run pushed the others one level down the chain (takt 4,
+ * run 35240479485): three honest artifacts still referenced their own recorded run and were
+ * flagged. The walk below generalizes the rule without weakening it: an id that the registry
+ * does not record anywhere in the chain is still rejected.
+ */
+export function collectRecordedRunIds(registry: {
+  readonly generatedFrom?: RegistryRunRecord;
+  readonly mathlibRun?: RegistryRunRecord;
+}): number[] {
+  const ids: number[] = [];
+  const walk = (record: RegistryRunRecord | undefined): void => {
+    if (!record) return;
+    if (typeof record.runId === 'number') ids.push(record.runId);
+    walk(record.priorMathlibRun);
+  };
+  walk(registry.generatedFrom);
+  walk(registry.mathlibRun);
+  return ids;
 }
 
 /**

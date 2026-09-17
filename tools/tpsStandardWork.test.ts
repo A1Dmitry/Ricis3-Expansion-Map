@@ -20,6 +20,7 @@ import {
   REQUIRED_WORKFLOWS,
   CATALOG_PATH,
   classifyFindingResolution,
+  collectRecordedRunIds,
   isLineStoppingEvent,
   loadBoard,
   renderBoard,
@@ -510,6 +511,29 @@ describe('TPS poka-yoke is falsifiable', () => {
 
   it('the canonical mutation baseline is itself green (a fixture nobody can validate is not a baseline)', () => {
     expect(validateBoard(doneBaseline(validBoard()), repositoryRoot)).toEqual([]);
+  });
+
+  it('collectRecordedRunIds walks the whole mathlibRun -> priorMathlibRun chain, not just the top', () => {
+    // The registry records the current run at the top and chains every superseded run via
+    // priorMathlibRun. A guard derived from the first shape (single top-level run) went blind
+    // when a superseding run pushed honest artifacts one level down (takt 4). This test pins the
+    // walk: ids recorded at ANY depth are present; an id the registry never records is absent.
+    const registry = {
+      generatedFrom: { runId: 100 },
+      mathlibRun: {
+        runId: 300,
+        priorMathlibRun: {
+          runId: 200,
+          priorMathlibRun: { runId: 150 },
+        },
+      },
+    };
+    expect(collectRecordedRunIds(registry).sort((a, b) => a - b)).toEqual([100, 150, 200, 300]);
+    // Fabricated numbers are never "recorded": the invariant stays a stop, not a pass.
+    expect(collectRecordedRunIds(registry)).not.toContain(999);
+    // Missing records are honest "not measured", not a crash and not an invented id.
+    expect(collectRecordedRunIds({})).toEqual([]);
+    expect(collectRecordedRunIds({ mathlibRun: { priorMathlibRun: { runId: 42 } } })).toEqual([42]);
   });
 });
 
