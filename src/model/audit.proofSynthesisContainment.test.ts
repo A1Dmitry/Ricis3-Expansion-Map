@@ -656,6 +656,16 @@ describe('OIR-03 — audit proof-synthesis containment', () => {
       '?? src/model/recursiveTaskChain.test.ts',
       '?? src/model/taskResolutionEngine.test.ts',
       '?? src/model/taskResolutionEngine.ts',
+      // LINT-REPAIR-HEREDOC-LEAK (0.4.203, 2026-09-17): в
+      // src/agentGateway/externalExecutorProtocol.ts были закоммичены строки
+      // 114–160 — хвост породившего файл shell-скрипта (терминатор `EOF`,
+      // команда `cat > … <<'EOF'` и текст теста), из-за чего `npm run lint`
+      // падал (TS2395/TS2304/TS2440/TS1499) и CI не мог пройти. Хвост удалён
+      // без изменения тела модуля (1–113) и его теста; повтор класса запрещён
+      // стражем tools/sourceHeredocLeakage.test.ts (негативный контроль:
+      // на закоммиченной версии файла страж падает на строках 114/115/160).
+      ' M src/agentGateway/externalExecutorProtocol.ts',
+      '?? tools/sourceHeredocLeakage.test.ts',
     ]);
     if (status.length > 0 && status.every(entry => entry.startsWith('?? '))) {
       // In clean container environments git status may return all files as untracked
