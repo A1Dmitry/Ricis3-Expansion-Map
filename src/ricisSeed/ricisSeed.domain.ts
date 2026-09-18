@@ -34,7 +34,13 @@ import {
   type UnsolvedProblemResolver,
   type UnsolvedSingularProblem,
 } from './contracts';
-import { canonicalizeForm, identityExpectation, indexSymbolsOf, substituteAllSymbols } from './canonicalForm';
+import {
+  canonicalizeForm,
+  identityExpectation,
+  indexSymbolsOf,
+  normalizeMatchKey,
+  substituteAllSymbols,
+} from './canonicalForm';
 import { verifyProofChain } from './ruleVerifier';
 import { axiomFingerprint, seedFingerprint, type SeedFingerprint } from './fingerprint';
 import { SEED_AXIOM_TABLE, type SeedAxiomDefinition } from './seedTable';
@@ -369,27 +375,34 @@ function hasForbiddenSemantics(proof: ProofCertificate): string | null {
 }
 
 function checkConsistency(seed: RicisSeedState, candidate: CandidateAxiom): string | null {
+  // Ключи и значения — по нормализованной записи (normalizeMatchKey): формы, одинаковые
+  // «глазами» (перестановка множителей/слагаемых, пробелы, невидимые символы),
+  // обязаны занимать одну строку таблицы следствий.
   const table = new Map<string, { readonly outputForm: string; readonly axiomId: string }>();
   for (const axiom of seed.axioms) {
     for (const consequence of axiom.consequences) {
-      const existing = table.get(consequence.inputForm);
-      if (existing && existing.outputForm !== consequence.outputForm) {
+      const key = normalizeMatchKey(consequence.inputForm);
+      const value = normalizeMatchKey(consequence.outputForm);
+      const existing = table.get(key);
+      if (existing && existing.outputForm !== value) {
         // Внутреннее противоречие самого зерна фиксируется, но не маскируется.
-        return `внутреннее противоречие в R(${seed.generation}): ${consequence.inputForm} → ${existing.outputForm} и ${consequence.outputForm}`;
+        return `внутреннее противоречие в R(${seed.generation}): ${key} → ${existing.outputForm} и ${value}`;
       }
-      table.set(consequence.inputForm, { outputForm: consequence.outputForm, axiomId: axiom.id });
+      table.set(key, { outputForm: value, axiomId: axiom.id });
     }
   }
   const local = new Map<string, string>();
   for (const consequence of candidate.consequences) {
-    const own = local.get(consequence.inputForm);
-    if (own && own !== consequence.outputForm) {
-      return `кандидат сам себе противоречит на форме ${consequence.inputForm}`;
+    const key = normalizeMatchKey(consequence.inputForm);
+    const value = normalizeMatchKey(consequence.outputForm);
+    const own = local.get(key);
+    if (own && own !== value) {
+      return `кандидат сам себе противоречит на форме ${key}`;
     }
-    local.set(consequence.inputForm, consequence.outputForm);
-    const existing = table.get(consequence.inputForm);
-    if (existing && existing.outputForm !== consequence.outputForm) {
-      return `форма ${consequence.inputForm} уже разрешена аксиомой ${existing.axiomId} как ${existing.outputForm}, кандидат даёт ${consequence.outputForm}`;
+    local.set(key, value);
+    const existing = table.get(key);
+    if (existing && existing.outputForm !== value) {
+      return `форма ${key} уже разрешена аксиомой ${existing.axiomId} как ${existing.outputForm}, кандидат даёт ${value}`;
     }
   }
   return null;

@@ -20,7 +20,7 @@ import type {
   RicisSeedState,
   UnsolvedSingularProblem,
 } from './contracts';
-import { canonicalizeForm, indexSymbolsOf, substituteSymbol } from './canonicalForm';
+import { canonicalizeForm, indexSymbolsOf, substituteSymbol, normalizeMatchKey } from './canonicalForm';
 
 export interface PreSolveMatchResult {
   readonly found: boolean;
@@ -37,9 +37,12 @@ export class PreSolveMatcher {
    * и возвращает маппинг параметров при совпадении.
    */
   static matchIsomorphism(pattern: string, input: string): Record<string, string> | null {
-    // Входные строки могут быть как сырыми, так и частично канонизированными
-    const pTrim = pattern.replace(/\s+/g, '');
-    const iTrim = input.replace(/\s+/g, '');
+    // Входные строки могут быть как сырыми, так и частично канонизированными.
+    // Единый ключ нормализации: пробельные/невидимые символы игнорируются,
+    // множители/слагаемые коммутируемых цепочек упорядочиваются (F*G == G*F),
+    // тождества НЕ сворачиваются (0_F/0_F остаётся шаблоном для L1-ветки ниже).
+    const pTrim = normalizeMatchKey(pattern);
+    const iTrim = normalizeMatchKey(input);
 
     if (pTrim === iTrim) {
       return {};
@@ -117,7 +120,7 @@ export function graphGuidedPreSolve(
   seed: RicisSeedState,
   problem: UnsolvedSingularProblem,
 ): PreSolveMatchResult {
-  const rawInput = problem.inputForm.replace(/\s+/g, '');
+  const rawInput = normalizeMatchKey(problem.inputForm);
 
   // 1. Проверка фундаментального тождества L1: X / X = 1, X - X = 0
   const zeroSelfDivMatch = rawInput.match(/^0_([A-Za-z0-9_]+)\/0_([A-Za-z0-9_]+)$/);
@@ -150,7 +153,7 @@ export function graphGuidedPreSolve(
 
   for (const axiom of sortedAxioms) {
     for (const consequence of axiom.consequences) {
-      const cFormTrim = consequence.inputForm.replace(/\s+/g, '');
+      const cFormTrim = normalizeMatchKey(consequence.inputForm);
       // Прямое совпадение
       if (cFormTrim === rawInput) {
         return {

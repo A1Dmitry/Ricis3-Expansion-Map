@@ -140,6 +140,54 @@ describe('RICIS SEED — ворота допуска отказывают там
     expect(result.detail).toContain('0_F/0_G');
   });
 
+  it('CONSISTENCY_TABLE распознаёт коммутированную запись: inf_G*0_F → F+G конфликтует с A6', () => {
+    // «Глазами» inf_G*0_F — та же форма, что следствие A6 «0_F*inf_G → F*G».
+    // До нормализации ключей таблицы следствий сырые ключи различались бы,
+    // и кандидат с другой правой частью прошёл бы ворота согласованности.
+    const commuted: UnsolvedSingularProblem = {
+      id: 'U-TEST-COMMUTED-CONTRADICTION',
+      statement: 'inf_G*0_F',
+      inputForm: 'inf_G*0_F',
+      singularityClasses: ['ZERO_TIMES_INF'],
+      coverageClaim: ['A6'],
+    };
+    const resolver: UnsolvedProblemResolver = {
+      resolverId: 'U-TEST-COMMUTED-CONTRADICTION-RESOLVER',
+      supportedProblemIds: Object.freeze(['U-TEST-COMMUTED-CONTRADICTION']),
+      resolve(problem): ResolutionResult {
+        const conclusion = 'F+G';
+        return {
+          kind: 'RESOLVED',
+          resolution: {
+            problem,
+            candidate: {
+              id: 'A18',
+              layer: 'AXIOM',
+              statement: 'inf_G*0_F = F+G',
+              covers: ['ZERO_TIMES_INF'],
+              consequences: [{ inputForm: 'inf_G*0_F', outputForm: 'F+G' }],
+            } as unknown as CandidateAxiom,
+            proof: {
+              strategy: 'INHERITED_CLASSICAL',
+              steps: [{ rule: 'CLASSICAL', from: 'inf_G*0_F', to: 'F+G' }],
+              conclusion: 'F+G',
+              usesLimits: false,
+              usesNumericApproximation: false,
+            },
+          },
+        };
+      },
+    };
+    const localRic = createRicisSystem({ resolvers: [resolver] });
+    const result = localRic.ExpandTo((x: RicisState) => x.Resolve(commuted));
+    expect(result.kind).toBe('REJECTED');
+    if (result.kind !== 'REJECTED') return;
+    expect(result.reason).toBe('CONTRADICTS_EXISTING_AXIOM');
+    expect(gateOutcome(result, 'CONSISTENCY_TABLE')).toBe('FAIL');
+    // в сообщении фигурирует канонический ключ формы (множители упорядочены)
+    expect(result.detail).toContain('0_F*inf_G');
+  });
+
   it('отказывает переопределять защищённое ядро, даже если цепочка доказательства формально верна', () => {
     const result = Ric.ExpandTo((x: RicisState) => x.Resolve(U_CORE));
     expect(result.kind).toBe('REJECTED');
