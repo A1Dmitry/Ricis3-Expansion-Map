@@ -1,0 +1,39 @@
+{
+  "source": "НОВАЯ версия внешнего артефакта artifacts/proofs/ricis-yang-mills.lean (пришёл из main 2026-09-15). Исходные байты v1 не изменены ни на байт (AGENTS.md §7); ремонт импорта выполнен в этом файле.",
+  "claim": "Тождества 2×2-детерминанта над ℝ для ортогональной пары: skew_product ⟨f'(a),0,0,1/g'(a)⟩ = f'(a)/g'(a) при g'(a) ≠ 0, и сопряжённый случай F = G: skew_product ⟨f',0,0,f'⟩ = (f')².",
+  "method": "determinant_bridge_identity_on_real_pair",
+  "verification": {
+    "valid": false,
+    "validNote": "Ядровой прогон ещё не выполнялся: значение valid=false означает «не проверено», а не «опровергнуто». Статус будет записан прогоном job mathlib-kernel-check и реестром kernel-findings.json.",
+    "verifiedAxioms": [],
+    "contentHash": "cfac8b97f3051366b77b6fe09ab92c02d674861b5c5f42b408e647f1631579bf",
+    "trustStatus": "REQUIRES_CORE_LEAN",
+    "claimLevel": "STRUCTURALLY_VALIDATED",
+    "claimLevelNote": "Даже после зелёного прогона уровень заявления остаётся структурным: доказаны тождества детерминанта над ℝ (A6-мость в вещественной модели). Массовый гэп Янга—Миллса, калибровочные поля, квантование и пределы здесь НЕ рассматриваются (TASK-02, known_content_risk)."
+  },
+  "declaredAxioms": [],
+  "boundary": {
+    "changedAgainstV1": [
+      "import Mathlib.Basic.Real.Basic → import Mathlib.Data.Real.Basic (модуль отсутствует в закреплённой ревизии Mathlib 6f1ef4e5dd604a435bddba4747b13970cd65d2a1, F-14);",
+      "янг-милловские имена теорем заменены описательными: yang_mills_monolith_resolution → skew_product_orthogonal_pair_eq_div, axiom_a6_conjugate_resolution → skew_product_conjugate_pair_eq_square, yang_mills_target_invariant → orthogonal_bridge_invariant, yang_mills_monolith_is_resolved → orthogonal_bridge_invariant_eq_div;",
+      "шапка файла больше не заявляет статус («100% компилируется»): статус живёт в реестре прогонов, а не в тексте доказательства."
+    ],
+    "provenIfKernelAccepts": [
+      "skew_product_orthogonal_pair_eq_div: det((f',0),(0,1/g')) = f'/g' при g' ≠ 0;",
+      "skew_product_conjugate_pair_eq_square: det((f',0),(0,f')) = (f')²;",
+      "orthogonal_bridge_invariant_eq_div: инвариант моста равен f'/g'."
+    ],
+    "notProven": [
+      "Массовый гэп Янга—Миллса и любая связь с калибровочной теорией поля;",
+      "Классические пределы и правило Лопиталя (P1 запрещает пределы внутри Resolve_RICIS);",
+      "Эмпирические утверждения узла карты."
+    ]
+  },
+  "verificationPath": {
+    "workflow": ".github/workflows/lean-artifact-kernel-check.yml",
+    "job": "mathlib-kernel-check",
+    "checkedFile": "artifacts/proofs/mathlib-checks/ricis-yang-mills-v2.mathlib-check.lean",
+    "artifactCheckedAsProvided": true,
+    "status": "PENDING_KERNEL_RUN"
+  }
+}

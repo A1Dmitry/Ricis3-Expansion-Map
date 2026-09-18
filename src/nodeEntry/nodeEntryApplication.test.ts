@@ -25,9 +25,13 @@ describe('NodeEntry application and static renderer', () => {
       'real-catalog-57',
       'real-catalog-79',
     ]);
+    // GAP-CLOSURE TASK-05 (F-05), 2026-09-19: состояние узла гипотезы Римана
+    // понижено с 'resolved' до 'partial' — ядровой прогон подтверждает только
+    // структурную редукцию AST (ricis-riemann-zeta-ast-bridge), а не саму
+    // гипотезу; внешняя задача вынесена в informalExternalClaim.
     expect(entries.every((entry) => {
       if (entry.catalogNode.nodeId === 'real-catalog-3') {
-        return entry.catalogNode.state === 'resolved';
+        return entry.catalogNode.state === 'partial';
       }
       return entry.catalogNode.state === 'unresolved';
     })).toBe(true);

@@ -137,7 +137,9 @@ Evidence including toolchain, SHA-256, compiler output, and `#print axioms` is r
 | :------------------------------------------------------------------------------- | :----------------------- | :-------------------------------------------------------------------------------------------------- |
 | `database-a6-minimal-core-check.lean`                                            | `LEAN_VERIFIED`          | Kernel-verified specification: exit 0, no `sorryAx`, `#print axioms`: does not depend on any axioms |
 | `ricis-universal-orchestration-template.lean`                                    | `REQUIRES_CORE_LEAN`     | Universal reduction template (2-layer proof orchestration: `fullResolve`, `resolveRICIS`, `ricisResolve`, `geometricMeasure`, `resolveVec4`) — см. [`docs/00-governance/RICIS_PROOF_ORCHESTRATION_TEMPLATE.md`](../../docs/00-governance/RICIS_PROOF_ORCHESTRATION_TEMPLATE.md) |
-| `ricis-jacobian-conjecture.standalone.lean` / `database-registry-120-jacobian.*` | `STRUCTURALLY_VALIDATED` | Structural model verification; **not an arbitrary classical theorem proof**                         |
+| `ricis-jacobian-conjecture.standalone.lean` / `database-registry-120-jacobian.*` | `STRUCTURALLY_VALIDATED` | Structural model verification; **not an arbitrary classical theorem proof**. The central identity of the v1 source is **REFUTED** (see the v2 row below): the `rfl` failure registered in run 34870620154 is a false statement, not technical debt |
+| `ricis-jacobian-conjecture-v2.lean` (2026-09-19, TASK-01 / F-01)                  | `REQUIRES_CORE_LEAN`     | **New versioned artifact — v1 bytes untouched (§7).** The v1 statement `resolveRICIS (det (zeroF F) zero zero (infF G)) = sub (mul F G) (zeroF zero)` is proven **false** for all `F`, `G` (`jacobian_v1_identity_refuted`); root cause proven (`det_expansion_single_pass`: the one-pass `det` branch never descends into the products, so the A6 pair `zeroF F · infF G` never reaches the A6 stage); corrected statement (`ricisResolveDet`, same A6 stage as the canon) proven with core-only tactics. Derivative registered in the core-check plan (`PENDING_KERNEL_RUN`, `substitutions: []`); status is **not** promoted before the actual kernel run. The Jacobian Conjecture itself is **not** claimed |
+| Map nodes `real-catalog-3`, `riemann-complex-pole-regularizer`, `registry-117` (`src/model/initialMap.ts`, TASK-05 / F-05) | `STRUCTURALLY_VALIDATED` (node claim level) | Node statements were relabelled to the kernel-verified structural statement only (ZetaExpr/FieldExpr AST reduction `divSelf E → one`); the external problems (Riemann Hypothesis, Navier–Stokes) moved into the `informalExternalClaim` field with an `INFORMAL:` prefix; node states lowered to `partial`, `ricisSolvable: false`. Artifact hashes and `externalLean` provenance unchanged |
 | Mathlib-importing files with a registered run path (core-check or `MATHLIB_ARTIFACTS`) | `REQUIRES_CORE_LEAN`     | Derivatives generated and registered for a kernel run (`PENDING_KERNEL_RUN`); status is **not** promoted until the actual run produces evidence |
 | Remaining Mathlib-importing file without a run path (`ricis-yang-mills.lean`)    | `REQUIRES_CORE_LEAN`     | Outside the `MATHLIB_ARTIFACTS` allowlist and the core-check plan; running it is the owner's decision (F-14). Status not promoted |
 | `ricis-general-resolution.lean` (2026-09-15)                                     | `LEAN_VERIFIED`          | kernel run 34950902412, re-confirmed by run 35145205870 (PR #59): source as provided exit 0 + generated derivative exit 0, no `sorryAx`; theorems depend only on standard Lean axioms |
@@ -213,6 +215,23 @@ from-scratch build; prebuilt oleans of a pinned revision do.
   `LEAN_VERIFIED` record or the kernel's verbatim error, to be registered in
   `ciPolicy.mathlibExpectedFailures`) is the owner's decision — the import defect F-14 is reported
   first, because a run whose target module does not exist cannot produce evidence about the theorems.
+* **Gap-closure extension (2026-09-19, TASK-02 / TASK-03+04) — new versioned artifacts, `PENDING_KERNEL_RUN`:**
+  * `ricis-yang-mills-v2.lean` (TASK-02, F-14): the bad import `Mathlib.Basic.Real.Basic` is fixed to
+    `Mathlib.Data.Real.Basic`; the Yang–Mills-flavoured theorem names are replaced by descriptive ones
+    (`skew_product_orthogonal_pair_eq_div`, `skew_product_conjugate_pair_eq_square`, …). Declared scope:
+    a 2×2 determinant identity over `ℝ` (`f'/g'` via the skew-product bridge) — **not** gauge fields,
+    **not** the Yang–Mills mass gap. Metadata: `artifacts/proofs/ricis-yang-mills-v2.json`
+    (`REQUIRES_CORE_LEAN` until a run).
+  * `ricis-general-resolution-v4.lean` (TASK-03 / TASK-04, F-09/F-10/F-11): **0 declared axioms** — the
+    A4/SP1 contracts became constructors of an inductive relation `RicisContract` (an explicit contract,
+    not a silent axiom); the singularity object is exhibited (`singularity_is_zero_over_zero`); the link
+    `ricis_reduce ↔ ricis_eval_general` is proven for a genuinely singular `S`; the equation-form A4 is
+    refuted (`no_universal_a4_equation`); the misleading name `ricis_equals_classical_limit` is replaced
+    by `ricis_eval_value_form`. Metadata: `artifacts/proofs/ricis-general-resolution-v4.json`
+    (`REQUIRES_CORE_LEAN` until a run).
+  * Both files are in the `MATHLIB_ARTIFACTS` allowlist with generated `artifacts/proofs/mathlib-checks/`
+    derivatives (`--check` drift 0). Compilability before the run is an **UNVERIFIED_PREDICTION**
+    (TASK-07 rule); the statuses above are recorded by the run itself, never by static review.
 
 ---
 

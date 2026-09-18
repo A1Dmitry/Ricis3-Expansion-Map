@@ -133,11 +133,12 @@ export const KNOWN_SINGULARITY_PROBLEMS: ProblemNode[] = [
   },
   {
     "id": "real-catalog-3",
-    "title": "Гипотеза Римана",
-    "description": "Все нетривиальные нули дзета-функции Римана лежат на критической прямой s=1/2+it. Доказано через обобщенную регуляризацию полюса и сохранение конформного семантического моста RICIS-III.",
-    "state": "resolved",
-    "type": "core_singularity",
-    "targetFunction": "Formalize(ГипотезаРимана)",
+    "title": "Гипотеза Римана: структурная редукция E/E в AST (внешняя задача открыта)",
+    "description": "ВНЕШНЯЯ ЗАДАЧА ОТКРЫТА: гипотеза Римана (все нетривиальные нули дзета-функции лежат на критической прямой s=1/2+it) не доказана ни этим узлом, ни аттестованным артефактом.\n\nЧТО ФАКТИЧЕСКИ ПОДТВЕРЖДЕНО ЯДРОМ: структурная редукция узла AST divSelf(E) → one в символическом языке ZetaExpr и независимость этой редукции от вложенности pole/analyticContinuation (артефакт ricis-riemann-zeta-ast-bridge.standalone.lean, ядровой прогон lean +4.33.1, exit 0, без sorryAx; запись реестра: kernel-findings.json).\n\nЧТО НЕ УТВЕРЖДАЕТСЯ: связь редукции с распределением нулей дзета-функции не доказана; предел не строится; pole/analyticContinuation — неинтерпретированные конструкторы AST.",
+    "state": "partial",
+    "type": "derived_problem",
+    "informalExternalClaim": "INFORMAL: гипотеза Римана — открытая задача Clay; узел содержит проверенную структурную редукцию AST, а не решение этой задачи.",
+    "targetFunction": "StructuralReduce(divSelf(E)) = one in ZetaExpr AST",
     "zoneIds": [
       "math"
     ],
@@ -156,7 +157,7 @@ export const KNOWN_SINGULARITY_PROBLEMS: ProblemNode[] = [
     },
     "rewardClass": "reputation",
     "prizeNote": "Catalog discovery",
-    "singularityHint": "Полюс при s=1."
+    "singularityHint": "Полюс при s=1 — символический узел AST, а не аналитическая особенность."
   },
   {
     "id": "real-catalog-4",

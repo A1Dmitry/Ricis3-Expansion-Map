@@ -12,6 +12,60 @@
   "command": "lake env lean <artifact>",
   "artifacts": [
     {
+      "artifactId": "ricis-yang-mills-v2",
+      "source": "artifacts/proofs/ricis-yang-mills-v2.lean",
+      "sourceSha256": "cfac8b97f3051366b77b6fe09ab92c02d674861b5c5f42b408e647f1631579bf",
+      "output": "artifacts/proofs/mathlib-checks/ricis-yang-mills-v2.mathlib-check.lean",
+      "outputSha256": "477731cb579086a00eac0471ac4e14a5e09d33ec4b8b9a53845024514dd095ab",
+      "rationale": "НОВАЯ версия внешнего артефакта ricis-yang-mills.lean (TASK-02 / F-14): импорт несуществующего в закреплённой ревизии Mathlib модуля Mathlib.Basic.Real.Basic заменён на существующий Mathlib.Data.Real.Basic; тела доказательств сохранены, вводящие в заблуждение имена теорем заменены описательными (skew_product_orthogonal_pair_eq_div и т. д.). Тело действительно нуждается в Mathlib: ℝ и тактика ring. До фактического прогона компилируемость — UNVERIFIED_PREDICTION (правило TASK-07); статус записывает реестр, а не шапка файла.",
+      "metadataJson": "artifacts/proofs/ricis-yang-mills-v2.json",
+      "theorems": [
+        "RICIS.skew_product_orthogonal_pair_eq_div",
+        "RICIS.skew_product_conjugate_pair_eq_square",
+        "RICIS.orthogonal_bridge_invariant_eq_div"
+      ],
+      "declaredAxioms": [],
+      "printAxiomsTargets": [
+        "RICIS.skew_product_orthogonal_pair_eq_div",
+        "RICIS.skew_product_conjugate_pair_eq_square",
+        "RICIS.orthogonal_bridge_invariant_eq_div"
+      ]
+    },
+    {
+      "artifactId": "ricis-general-resolution-v4",
+      "source": "artifacts/proofs/ricis-general-resolution-v4.lean",
+      "sourceSha256": "1e89cbc83d2c06a8abffcf5e59b4d88b83a02bf35909ce59306660cace0be3a3",
+      "output": "artifacts/proofs/mathlib-checks/ricis-general-resolution-v4.mathlib-check.lean",
+      "outputSha256": "c3dcf8eaed57ce859e9ddd4f0c04b2dd89031579d32b07fd58dee041d7d262b0",
+      "rationale": "НОВАЯ версия (TASK-03/TASK-04, F-09/F-10/F-11): контракты A4/SP1 переведены из axiom-уравнений (опровержимых в свободной модели — опровержение доказано в самом файле) в нормативное отношение RicisContract; в файле 0 объявленных аксиом. Связь редукции и вычисления (ricis_reduce_at_center_eq_eval использует ricis_reduce и в формулировке, и в доказательстве), явно предъявленная сингулярность 0/0 (singularity_is_zero_over_zero) и переименование ricis_equals_classical_limit → ricis_eval_value_form. Тело использует ℂ, omega и арифметику Nat — прогон только на тулчейне Mathlib (lake env lean, предустановленные oleans).",
+      "metadataJson": "artifacts/proofs/ricis-general-resolution-v4.json",
+      "theorems": [
+        "RicisExpr_div_ne_val",
+        "a4_equation_form_is_refutable",
+        "no_universal_a4_equation",
+        "ricis_contract_inhabited",
+        "ricis_reduce_at_center_eq_eval",
+        "singularity_is_zero_over_zero",
+        "regular_factor_quotient_uses_A4",
+        "common_zero_factor_uses_SP1",
+        "ricis_eval_value_form",
+        "ricis_resolution_bridge"
+      ],
+      "declaredAxioms": [],
+      "printAxiomsTargets": [
+        "RicisExpr_div_ne_val",
+        "a4_equation_form_is_refutable",
+        "no_universal_a4_equation",
+        "ricis_contract_inhabited",
+        "ricis_reduce_at_center_eq_eval",
+        "singularity_is_zero_over_zero",
+        "regular_factor_quotient_uses_A4",
+        "common_zero_factor_uses_SP1",
+        "ricis_eval_value_form",
+        "ricis_resolution_bridge"
+      ]
+    },
+    {
       "artifactId": "RicisAgiTarget",
       "source": "artifacts/proofs/RicisAgiTarget.lean",
       "sourceSha256": "4002d1c900271d7526f8b455c277f32a91ac99a613e55d8d25f09edcd7860073",
