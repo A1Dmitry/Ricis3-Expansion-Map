@@ -29,6 +29,7 @@ import type {
   ICrawlerSessionState,
 } from '../../../model/crawlerTesting.contracts';
 import { FloodFillCrawlerService } from '../../../services/testing/floodFillCrawlerService';
+import { copyTextToClipboard } from '../../../services/clipboard';
 
 export interface AutomatedTestingModalProps {
   isOpen: boolean;
@@ -152,9 +153,11 @@ export const AutomatedTestingModal: React.FC<AutomatedTestingModalProps> = ({
 
   // Copy to clipboard helper
   const handleCopy = (text: string, label: string) => {
-    navigator.clipboard.writeText(text);
-    setCopiedNotification(label);
-    setTimeout(() => setCopiedNotification(null), 2500);
+    void copyTextToClipboard(text).then((copied) => {
+      if (!copied) return;
+      setCopiedNotification(label);
+      setTimeout(() => setCopiedNotification(null), 2500);
+    });
   };
 
   const handleDownload = (content: string, filename: string, mimeType: string) => {
