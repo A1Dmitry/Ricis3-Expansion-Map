@@ -11,6 +11,13 @@
  *   2. сворачивает тождества: E - E -> 0, E / E -> 1;
  *   3. упорядочивает операнды коммутативных цепочек (* и +), чтобы `F*G` и `G*F` были одной формой.
  *
+ * Нормализация записи (принцип «глазами одно и то же — в коде одно и то же»):
+ *   - невидимые символы (zero-width, bidi-override, BOM) отбрасываются ДО разбора;
+ *   - любые юникодные пробельные символы (\\s, включая \\n, \\r, NBSP) игнорируются токенайзером;
+ *   - сортировка коммутируемых цепочек — по КОДПОЙНТАМ (localeCompare зависит от локали/ICU
+ *     рантайма и нарушает требование №1 fingerprint.ts: одинаковость в Node, в браузере и между запусками);
+ *   - рендер восстанавливает скобки там, где их отсутствие меняет дерево при повторном разборе.
+ *
  * Никакой арифметики чисел, никаких пределов, никаких приближений: только структура.
  */
 
@@ -24,12 +31,39 @@ type Node = FormNode;
 
 const OPERATORS = new Set(['+', '-', '*', '/', '^']);
 
+/**
+ * Невидимые символы: soft hyphen, zero-width (U+200B–U+200F), bidi-override (U+202A–U+202E),
+ * invisible operators/разделители (U+2060–U+2064, U+2066–U+2069), BOM (U+FEFF).
+ * Отбрасываются ДО разбора: то, чего глаз не видит, не должно создавать «другую» форму.
+ * Явный blacklist — видимые символы не трогаются, «нечитаемое» не выбрасывается молча:
+ * синтаксически некорректная запись по-прежнему даёт явную ошибку разбора (P2).
+ */
+const INVISIBLE_CHARS = /[\u00ad\u200b-\u200f\u202a-\u202e\u2060-\u2064\u2066-\u2069\ufeff]/g;
+
+/** Удаление невидимых символов (см. INVISIBLE_CHARS). */
+export function stripInvisible(form: string): string {
+  return form.replace(INVISIBLE_CHARS, '');
+}
+
+/** Пробельный символ (юникодный класс \s: пробел, таб, \\n, \\r, NBSP и др.). */
+const WS_CHAR = /\s/;
+
+/**
+ * Детерминированное сравнение строк по кодпоинтам.
+ * `localeCompare` зависит от локали/ICU рантайма (например, порядок 'a' vs 'B'
+ * различен между окружениями) и потому непригоден для канонической формы.
+ */
+function compareCodepoints(a: string, b: string): number {
+  return a < b ? -1 : a > b ? 1 : 0;
+}
+
 function tokenize(form: string): string[] {
+  const source = stripInvisible(form);
   const tokens: string[] = [];
   let index = 0;
-  while (index < form.length) {
-    const char = form[index]!;
-    if (char === ' ' || char === '\t') {
+  while (index < source.length) {
+    const char = source[index]!;
+    if (WS_CHAR.test(char)) {
       index += 1;
       continue;
     }
@@ -39,12 +73,12 @@ function tokenize(form: string): string[] {
       continue;
     }
     let end = index;
-    while (end < form.length) {
-      const next = form[end]!;
-      if (next === '(' || next === ')' || OPERATORS.has(next) || next === ' ' || next === '\t') break;
+    while (end < source.length) {
+      const next = source[end]!;
+      if (next === '(' || next === ')' || OPERATORS.has(next) || WS_CHAR.test(next)) break;
       end += 1;
     }
-    tokens.push(form.slice(index, end));
+    tokens.push(source.slice(index, end));
     index = end;
   }
   return tokens;
@@ -151,9 +185,15 @@ function render(node: Node): string {
         const text = render(child);
         if (child.kind !== 'bin') return text;
         const childPrecedence = precedence(child.op);
+        // Скобки обязательны, если их отсутствие меняет дерево при повторном разборе
+        // (left-associative разбор): правый операнд равного старшинства требует скобок,
+        // КРОМЕ случая «та же коммутативная операция» (* или +) — цепочка всё равно
+        // канонизируется в один и тот же отсортированный список операндов.
         const needsParens =
           childPrecedence < own ||
-          (childPrecedence === own && side === 'right' && (node.op === '-' || node.op === '/'));
+          (childPrecedence === own &&
+            side === 'right' &&
+            !(node.op === child.op && (node.op === '*' || node.op === '+')));
         return needsParens ? `(${text})` : text;
       };
       return `${renderChild(node.left, 'left')}${node.op}${renderChild(node.right, 'right')}`;
@@ -171,25 +211,36 @@ function flatten(node: Node, op: '*' | '+'): Node[] {
   return [node];
 }
 
-function canonicalNode(node: Node): Node {
+/**
+ * Канонизация узла. `foldIdentities = false` отключает свёртку E - E -> 0 / E / E -> 1:
+ * это нужно для КЛЮЧЕЙ сопоставления (normalizeMatchKey), где `0_F/0_F` обязан оставаться
+ * шаблоном, а не превращаться в `1` (иначе пре-солвер не сможет опознать задачу тождества).
+ */
+function canonicalNode(node: Node, foldIdentities = true): Node {
   if (node.kind === 'id') return node;
-  if (node.kind === 'call') return { kind: 'call', name: node.name, arg: canonicalNode(node.arg) };
+  if (node.kind === 'call') {
+    return { kind: 'call', name: node.name, arg: canonicalNode(node.arg, foldIdentities) };
+  }
   if (node.kind === 'pow') {
-    return { kind: 'pow', base: canonicalNode(node.base), exponent: canonicalNode(node.exponent) };
+    return {
+      kind: 'pow',
+      base: canonicalNode(node.base, foldIdentities),
+      exponent: canonicalNode(node.exponent, foldIdentities),
+    };
   }
 
-  const left = canonicalNode(node.left);
-  const right = canonicalNode(node.right);
+  const left = canonicalNode(node.left, foldIdentities);
+  const right = canonicalNode(node.right, foldIdentities);
 
   // ТОЖДЕСТВО (L1): E - E = 0 и E / E = 1 применяется до аксиом сингулярностей.
-  if ((node.op === '-' || node.op === '/') && render(left) === render(right)) {
+  if (foldIdentities && (node.op === '-' || node.op === '/') && render(left) === render(right)) {
     return { kind: 'id', name: node.op === '-' ? '0' : '1' };
   }
 
   if (node.op === '*' || node.op === '+') {
     const operands = [...flatten(left, node.op), ...flatten(right, node.op)]
-      .map(canonicalNode)
-      .sort((a, b) => render(a).localeCompare(render(b)));
+      .map(operand => canonicalNode(operand, foldIdentities))
+      .sort((a, b) => compareCodepoints(render(a), render(b)));
     const chained = operands.reduce<Node | null>((accumulator, operand) => {
       if (!accumulator) return operand;
       return { kind: 'bin', op: node.op, left: accumulator, right: operand };
@@ -263,6 +314,22 @@ export function canonicalizeForm(form: string): string {
 }
 
 /**
+ * Ключ сопоставления «глазами одно и то же — в коде одно и то же»:
+ * разбор -> нормализация записи (пробельные/невидимые символы, перестановка
+ * множителей/слагаемых) -> рендер, БЕЗ свёртки тождеств (0_F/0_F остаётся шаблоном).
+ * Если разбор невозможен — прежняя политика пре-солвера: убрать невидимые символы
+ * и свернуть \s+ (непарсируемый синтаксис не маскируется «успешной» нормализацией).
+ */
+export function normalizeMatchKey(form: string): string {
+  const cleaned = stripInvisible(form);
+  try {
+    return render(canonicalNode(parse(tokenize(cleaned)), false));
+  } catch {
+    return cleaned.replace(/\s+/g, '');
+  }
+}
+
+/**
  * Ожидание тождества для формы верхнего уровня:
  *   E - E -> '0', E / E -> '1', иначе null (ограничений нет).
  */
@@ -283,7 +350,8 @@ export function indexSymbolsOf(form: string): readonly string[] {
   const found = new Set<string>();
   // Символ индекса — одиночная заглавная буква; `_` слева разрешён (inf_F, 0_G),
   // а буквы/цифры слева — нет (иначе это часть более длинного идентификатора).
-  for (const match of form.matchAll(/(?<![A-Za-z0-9])[A-Z](?![A-Za-z0-9_])/gu)) {
+  // Невидимые символы отбрасываются: они не должны «прятать» индекс.
+  for (const match of stripInvisible(form).matchAll(/(?<![A-Za-z0-9])[A-Z](?![A-Za-z0-9_])/gu)) {
     found.add(match[0]);
   }
   return Object.freeze([...found].sort());

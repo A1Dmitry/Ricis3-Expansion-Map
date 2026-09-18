@@ -92,4 +92,35 @@ describe('RICIS SEED — Graph-Guided Pre-Solve & Proof Reuse', () => {
     expect(preSolveResult.outputForm).toBe('(A*D)/(B*C)');
     expect(preSolveResult.reusedProof?.conclusion).toBe('(F*K)/(G*H)');
   });
+
+  it('одна и та же запись узнаётся независимо от перестановки множителей и пробелов (нормализация)', () => {
+    const ric = createRicisSystem({ resolvers: DEMO_RESOLVERS });
+    const state = ric.seed;
+
+    // Та же форма, что следствие A6 «0_F*inf_G», но записанная с перестановкой
+    // множителей, пробелами и невидимым символом: глазами — одно и то же.
+    const commuted: UnsolvedSingularProblem = {
+      id: 'U-TEST-COMMUTED-A6',
+      statement: 'inf_G * 0_F',
+      inputForm: 'inf_G * 0_F',
+      singularityClasses: ['ZERO_TIMES_INF'],
+      coverageClaim: ['A6'],
+    };
+
+    const result = graphGuidedPreSolve(state, commuted);
+    expect(result.found).toBe(true);
+    if (!result.found) return;
+    expect(result.reusedRuleId).toBe('A6');
+
+    // И с «грязной» записью: NBSP, перенос строки, zero-width
+    const dirty: UnsolvedSingularProblem = {
+      ...commuted,
+      id: 'U-TEST-DIRTY-A6',
+      inputForm: 'inf_G\u00a0*\u200b\n0_F',
+    };
+    const dirtyResult = graphGuidedPreSolve(state, dirty);
+    expect(dirtyResult.found).toBe(true);
+    if (!dirtyResult.found) return;
+    expect(dirtyResult.reusedRuleId).toBe('A6');
+  });
 });
