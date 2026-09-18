@@ -43,6 +43,17 @@ export {
 } from './ricisSeed.unsolvedRegistry';
 export { SEED_AXIOM_TABLE, type SeedAxiomDefinition } from './seedTable';
 export {
+  BOUND_PAREN_RULE_CORPUS,
+  BOUND_PAREN_RULE_ID,
+  requiresParentheses,
+  verifyBoundParenRule,
+  type BinaryOperator,
+  type BoundParenRuleReport,
+  type BoundParenViolation,
+  type BoundParenViolationStage,
+  type ParenSide,
+} from './boundParenRule';
+export {
   serializeSeedStateToJson,
   deserializeSeedStateFromJson,
   PersistentSeedStorage,

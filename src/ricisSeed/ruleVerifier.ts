@@ -212,6 +212,23 @@ function checkRootRule(rule: ProofRule, fromNode: FormNode, toNode: FormNode): b
       return false;
     }
 
+    case 'A14': {
+      // A14 (расширение R3, поколение U-INF-SELF-DIFF): inf_F - inf_F = 0 —
+      // ТОЖДЕСТВО (SP2 first: тождество применяется до сингулярных расширений),
+      // а не сингулярная ветка A7. Требования:
+      //   1) оба операнда — индексированные бесконечности inf_F и inf_G;
+      //   2) индексы структурно ИДЕНТИЧНЫ (F ≡ G, иначе территория A7);
+      //   3) результат — ровно '0' (не '1' исторической ветки A17 и не inf_0).
+      if (fromNode.kind === 'bin' && fromNode.op === '-') {
+        const leftIndex = extractIndexedInf(fromNode.left);
+        const rightIndex = extractIndexedInf(fromNode.right);
+        if (leftIndex && rightIndex && equivalentAst(leftIndex, rightIndex)) {
+          return toNode.kind === 'id' && toNode.name === '0';
+        }
+      }
+      return false;
+    }
+
     case 'CLASSICAL':
     case 'LEAN_KERNEL':
       return true;
