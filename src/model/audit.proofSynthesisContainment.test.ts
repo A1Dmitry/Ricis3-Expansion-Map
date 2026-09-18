@@ -790,6 +790,23 @@ describe('OIR-03 — audit proof-synthesis containment', () => {
       '?? "1B.9-session-memory/SM MP81-uncertain-map.md"',
       ' M "1B.9-session-memory/SM MP81-uncertain-map.md"',
       '?? src/services/kinematic/elbowFloorGuard.test.ts',
+      // INTERCEPTION-BENCHMARK (0.4.216, 2026-09-19): бенчмарк-карниз по
+      // спецификации LLM-бенчмарка владельца — стандартная батарея из 10
+      // сценариев перехвата (T01–T10: slow/high-lob/low-throw/fast-lateral/
+      // bounce/multi-bounce/free-form + два заведомо недостижимых) и seeded
+      // UNKNOWN-батч (mulberry32, случайные позиция/скорость/угол/restitution)
+      // прогоняются ЖИВЫМ пайплайном (controller→smoother→engine, 60 Гц) без
+      // ручных правок между кейсами. Контроллер научился декларировать
+      // недостижимость (покоящийся шар вне кольца охвата → статус UNREACHABLE,
+      // переход к следующей задаче — зависания нет) и штамповать план перехвата
+      // (getLastInterceptPlan) для метрик prediction/timing error. Отчёт:
+      // catch rate, IK error, FK-drift, joint-limit/collision violations,
+      // replan count, determinism signature. UI-панель «📊 Бенчмарк перехвата»
+      // показывает таблицу метрик. Стражи: ожидания батареи (10/10), детект
+      // UNREACHABLE < 400 шагов, нулевые нарушения, детерминизм двух прогонов,
+      // UNKNOWN seed 7 ≥ 8/10.
+      '?? src/services/kinematic/interceptionBenchmark.test.ts',
+      '?? src/services/kinematic/interceptionBenchmark.ts',
     ]);
     if (status.length > 0 && status.every(entry => entry.startsWith('?? '))) {
       // In clean container environments git status may return all files as untracked

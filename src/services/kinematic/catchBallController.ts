@@ -141,7 +141,18 @@ export interface ICatchBallSimulationState {
   readonly droppedCount: number;
   readonly midAirCatchCount: number;
   readonly floorPickupCount: number;
+  /** Balls that came to rest OUTSIDE the arm's reachable space (declared, never chased forever). */
+  readonly unreachableCount: number;
   readonly deliveredCount: number;
+}
+
+/** Latest intercept plan chosen by the ballistic planner (benchmark/metrics readout). */
+export interface IInterceptPlan {
+  readonly point: Vector3D;
+  /** Predicted seconds from the planning instant until the ball arrives at the point. */
+  readonly timeSec: number;
+  /** Planning instant (scenario clock, seconds). */
+  readonly plannedAtSec: number;
 }
 
 const CATCH_MIN_Z = 0.3;
@@ -163,6 +174,8 @@ export class CatchBallController {
   private phaseTimer = 0;
   private dropIndex = 0;
   private releasedBody: IPhysicsBallBody | null = null;
+  private scenarioTimeSec = 0;
+  private lastInterceptPlan: IInterceptPlan | null = null;
 
   constructor(
     dropPlan: readonly ICatchDropPlanEntry[],
@@ -182,6 +195,7 @@ export class CatchBallController {
       droppedCount: 0,
       midAirCatchCount: 0,
       floorPickupCount: 0,
+      unreachableCount: 0,
       deliveredCount: 0,
     };
   }
@@ -190,11 +204,18 @@ export class CatchBallController {
     return this.state;
   }
 
+  /** Latest feasible airborne intercept the planner is steering towards (null while none). */
+  public getLastInterceptPlan(): IInterceptPlan | null {
+    return this.lastInterceptPlan;
+  }
+
   public reset(box: IBoxContainer): void {
     this.bodies.clear();
     this.phaseTimer = 0;
     this.dropIndex = 0;
     this.releasedBody = null;
+    this.scenarioTimeSec = 0;
+    this.lastInterceptPlan = null;
     this.state = {
       phase: 'IDLE_WAIT',
       balls: [],
@@ -204,6 +225,7 @@ export class CatchBallController {
       droppedCount: 0,
       midAirCatchCount: 0,
       floorPickupCount: 0,
+      unreachableCount: 0,
       deliveredCount: 0,
     };
   }
@@ -217,6 +239,7 @@ export class CatchBallController {
     endEffector: Vector3D
   ): { target: Vector3D; shouldGrip: boolean; eventTriggered?: string } {
     this.phaseTimer += dt;
+    this.scenarioTimeSec += dt;
 
     switch (this.state.phase) {
       case 'IDLE_WAIT':
@@ -323,6 +346,13 @@ export class CatchBallController {
     // Floor pickup fallback when the ball bounced and settled on the floor.
     if (body.resting) {
       const pickupTarget: Vector3D = { x: ballPos.x, y: ballPos.y, z: ballPos.z + 0.02 };
+
+      // UNREACHABLE DETECTION (benchmark row): the ball rests outside the reach
+      // envelope — declare it instead of chasing forever. The scenario advances.
+      if (!this.isReachable(pickupTarget)) {
+        return this.declareUnreachable(ballId, ballPos);
+      }
+
       if (distance3D(endEffector, pickupTarget) < FLOOR_PICK_RADIUS + 0.03) {
         return this.graspBall(ballId, true);
       }
@@ -338,6 +368,7 @@ export class CatchBallController {
     ballId: string,
     fromFloor: boolean
   ): { target: Vector3D; shouldGrip: boolean; eventTriggered?: string } {
+    this.lastInterceptPlan = null;
     this.state = {
       ...this.state,
       phase: 'CARRYING_TO_BOX',
@@ -467,6 +498,40 @@ export class CatchBallController {
     };
   }
 
+  /** Reach-envelope check for a ball pickup point (annulus about the arm's shoulder). */
+  private isReachable(point: Vector3D): boolean {
+    const [L0, L1, L2] = this.linkLengths;
+    const radial = Math.hypot(point.x, point.y);
+    const reach = Math.hypot(radial, point.z - L0);
+    const maxReach = L1 + L2 - 0.06;
+    const minReach = 0.25;
+    return reach <= maxReach && reach >= minReach;
+  }
+
+  /** Declare the resting ball unreachable: count it, mark it, advance the scenario. */
+  private declareUnreachable(
+    ballId: string,
+    ballPos: Vector3D
+  ): { target: Vector3D; shouldGrip: boolean; eventTriggered?: string } {
+    this.lastInterceptPlan = null;
+    this.state = {
+      ...this.state,
+      phase: 'IDLE_WAIT',
+      activeBallId: null,
+      unreachableCount: this.state.unreachableCount + 1,
+      balls: this.state.balls.map(b =>
+        b.id === ballId ? { ...b, status: 'UNREACHABLE' as const } : b
+      ),
+    };
+    this.dropIndex += 1;
+    this.phaseTimer = 0;
+    return {
+      target: this.boxHoverTarget(),
+      shouldGrip: false,
+      eventTriggered: `Ball [${ballId}] declared UNREACHABLE (rest at (${ballPos.x.toFixed(2)}, ${ballPos.y.toFixed(2)}) is outside the reach envelope) — scenario continues`,
+    };
+  }
+
   private planIntercept(body: IPhysicsBallBody, endEffector: Vector3D): Vector3D {
     const [L0, L1, L2] = this.linkLengths;
     const maxReach = L1 + L2 - 0.06;
@@ -490,11 +555,13 @@ export class CatchBallController {
 
       const armTime = distance3D(endEffector, p) / ARM_SPEED_ESTIMATE;
       if (armTime <= t * 0.94) {
+        this.lastInterceptPlan = { point: { x: p.x, y: p.y, z: p.z }, timeSec: t, plannedAtSec: this.scenarioTimeSec };
         return { x: p.x, y: p.y, z: p.z };
       }
     }
 
     // No feasible airborne intercept: pre-position above the predicted floor contact point.
+    this.lastInterceptPlan = null;
     const last = samples[samples.length - 1];
     const px = last ? last.position.x : body.position.x;
     const py = last ? last.position.y : body.position.y;

@@ -1,52 +1,54 @@
 # Current State
 _What is being worked on right now, what is unfinished, and the immediate next steps. Always update this section. If the outcome of the most recent action is unknown, say so explicitly._
 
-ROOM + TENNIS-CANNON + ELBOW-GUARD SPRINT — **DONE, committed `591ecb9` (23 файла, +818/−78), pushed to `arena/01a0b613-ricis3-expansion-map`, version 0.4.215**. Gates: tsc 0, full vitest **2263/2263** (286 файлов), tps:gate чисто, vite build OK. Память обновлена и закоммичена; в allowlist OIR03 зарегистрированы ОБЕ формы пути памяти (`?? ` и ` M `, git кавычит путь с пробелом). Возможен лишь follow-up commit «chore: session memory» после этого апдейта. Ждём визуальной проверки пользователя (превью :3000). Незавершённой работы нет.
+INTERCEPTION-BENCHMARK SPRINT — **код готов, ВСЕ гейты зелёные, коммит+push — СЛЕДУЮЩЕЕ ДЕЙСТВИЕ (еёщё не сделан)**. Версия 0.4.216 синкнута. Гейты: tsc 0 ✓, interceptionBenchmark.test.ts 8/8 ✓, полный vitest 2271 — после фикса allowlist-гейта 36/36 ✓ (единственный падший OIR03-QA-36 исправлен регистрацией 2 новых файлов), tps:gate чисто ✓, build ✓. Итого: закоммитить `git add -A` с подробным changelog'ом + `git push origin arena/01a0b613-ricis3-expansion-map`, затем follow-up с ЭТИМ файлом памяти (обе git-формы пути уже в allowlist). Ждём визуальной акцептации 0.4.214/0.4.215/0.4.216 от пользователя (превью).
 
 ВАЖНО: локальная история git НЕ персистентна между песочницами — remote = источник правды. При новой сессии, если `git log` показывает только базу 129081a: `git fetch origin arena/01a0b613-ricis3-expansion-map && git reset FETCH_HEAD` (рабочее дерево сохраняется). `origin/<branch>` ссылок нет — используй FETCH_HEAD.
 
 # Task
 _What the user asked for, in their terms. Preserve active acceptance criteria and consequential scope decisions. Remove obsolete narrative when necessary, but do not lose requirements that still affect the work._
 
-Task 3 COMPLETED (0.4.215, `591ecb9`) — дословно: «добавь атоматы отстреливающие шарики. это комната. нарисуй пол потолок стены. шарики отстреливаются пушкой для тенниса. но выстрел слабый пневмо. камера смотрит сквозь стену. сила выстрела разная поэтому шарики отскакивают с разной силой. манипулятор их или перехватывает на лету, либо собирает с пола. заметь. локоть уходит ниже основания. надо либо манипулятор поднять, либо другую траекторию локтя задавать чтобы он не уходил под пол.»
-Delivered: (1) комната 4.8×4.8×2.8, пол/потолок/4 стены полупрозрачные (opacity 0.05–0.07, depthWrite false, DoubleSide) — камера смотрит сквозь стену; рёбра контура; 2D-схема: контур стен + линия потолка; (2) 2 пушки-автомата (дуло 1.35/0.62 м), 6 залпов 1.45–2.05 м/с, углы 9–34°, баллистика + отскоки от пола/стен (room-confinement в интеграции и предикторе), перехват на лету И подбор с пола (измерено 3+3 у обоих солверов, 6/6 доставок); (3) локоть ≥ 0 на каждом кадре: выбор зеркальной ветви 2R-IK внутри полярного солвера (гистерезис), зеркальный гард движка для итеративных солверов, подъём груза вертикально (z→0.95) перед переносом.
-Ранее завершены: 0.4.213 (b9714be) viewport repair; 0.4.214 (f79dfce) smooth motion + ball physics + catch scenario.
+Task 4 COMPLETED (0.4.216, коммит pending) — «Единое задание для LLM» (дословная спецификация хранится в чате): браузерный 3D-сим манипулятора, ловящего падающий шар (гравитация+отскок+предикт+достижимая точка+IK+синхронная плавная траектория+FK-проверка+детект недостижимости+разные начальные условия; **без нейросетей** — детерминированно). Тесты A (IK→FK roundtrip), B (плавное синхронное движение), C (t_c: шар ∈ Reachable ∧ t_robot ≤ t_c), D (пересчёт траектории после отскока), E (батарея 10 кейсов без ручных правок), ГЛАВНЫЙ — UNKNOWN SCENARIO (случайные позиция/скорость/угол/restitution/…, система знает только состояние симуляции; observe→predict→select→IK→trajectory→catch). Метрики: IK error, catch rate, prediction error, timing error, joint-limit/collision violations, smoothness, replanning, unreachable detection, determinism, manual intervention. Две реализации-линии: Вариант 1 (свободная архитектура LLM) vs Вариант 2 (RICIS/geometric pipeline: Ball State→Trajectory Prediction→Interception Point+Time→Analytical IK→Candidate Configurations→Constraints→Synchronized Motion Profile→FK Verification→Execution) — одинаковые входы/физика/манипулятор/время, НЕ подгонять тест под RICIS. Наша интерпретация: репо = готовая линия Варианта 2; бенчмарк-карниз построен как артефакт сравнения (батарея+UNKNOWN+таблица метрик в UI).
+
+Delivered 0.4.216: (1) contracts — `BallStatus` += `'UNREACHABLE'`; (2) catchBallController — `unreachableCount`, `IInterceptPlan`/`getLastInterceptPlan()`, часы `scenarioTimeSec`, `isReachable()` (annulus radial/z−L0, maxReach=L1+L2−0.06, min 0.25), `declareUnreachable()` (покоящийся шар вне кольца охвата → событие + dropIndex++ + статус; зависания нет), очистка плана в graspBall; (3) НОВЫЙ `src/services/kinematic/interceptionBenchmark.ts` — `INTERCEPTION_SCENARIO_BATTERY` (T01–T10), `generateUnknownScenarioBatch(seed,count)` (mulberry32), `runInterceptionScenario` (живой пайплайн controller→smoother→engine POLAR, 60 Гц, кэп 30 с), `runInterceptionBenchmark` → отчёт с `determinismSignature`; (4) UI-панель «📊 Бенчмарк перехвата» в KinematicEnginePage (state `benchmarkReport/IInterceptionBenchmarkReport`, `benchmarkRunning`, handler `runInterceptionBenchmarkPanel` с setTimeout-defer, сводка `data-testid="benchmark-catch-rate"`, таблица метрик); (5) страж `interceptionBenchmark.test.ts` 8/8.
+
+Ранее завершены: 0.4.213 (b9714be) viewport repair; 0.4.214 (f79dfce) smooth motion + ball physics + catch scenario; 0.4.215 (591ecb9) комната + теннисные пушки + elbow-guard.
 
 # User Constraints & Corrections
 _Explicit standing instructions and corrections the user stated about how the work should be done, including anything the user rejected. Only what the user explicitly directed — never infer. Never drop an entry unless the user reversed it or it applied only to a task that has finished._
 
-- Пользователь проектировщик-сценарист: комната, прозрачность для камеры, физика предметов (падение+отскок), вариативность (сила выстрела), поведенческие исходы (перехват OR подбор), инженерная достоверность (локоть не сквозь пол — принял вариант «другая траектория локтя», не подъём манипулятора).
+- Бенчмарк-спецификация (владелец): без нейросетей для кинематики; батарея 10 кейсов без ручных правок между ними; UNKNOWN-режим с рандомизацией; оценивать НЕ картинку, а объективные метрики (таблица: IK error, catch rate, prediction/timing error, violations, smoothness, replanning, unreachable detection, determinism, manual intervention); не подгонять тест под RICIS — одинаковые входы/физика/манипулятор/время для обеих линий сравнения.
+- Пользователь проектировщик-сценарист: комната, прозрачность для камеры, физика предметов (падение+отскок), вариативность (сила выстрела), поведенческие исходы (перехват OR подбор), инженерная достоверность (локоть не сквозь пол).
 - User reads/writes Russian — reply in Russian.
-- Репо-протокол: изменённые/новые файлы → allowlist-блок в OIR03-QA-36 (src/model/audit.proofSynthesisContainment.test.ts, `--untracked-files=all`, пути с пробелами — в кавычках git-формы); версия через package.json + `npm run sync:version`; запись в ACTIVE_TASKS.md (новейшая вверху раздела «## 1»); желателен `git add -A` коммит с подробным changelog'ом + push.
+- Репо-протокол: изменённые/новые файлы → allowlist-блок в OIR03-QA-36 (src/model/audit.proofSynthesisContainment.test.ts, `--untracked-files=all`, пути с пробелами — в кавычках git-формы); версия через package.json + `npm run sync:version`; запись в ACTIVE_TASKS.md (новейшая вверху раздела «## 1», формат ### **[SPRINT-ID-дата] Заголовок**); желателен `git add -A` коммит с подробным changelog'ом + push.
 - Rule 0.3.2: после инструментальных операций обновлять ЭТОТ файл памяти (только изменённые секции); при завершении сеанса — краткая сводка.
 
 # Workspace
 _Files and directories that matter: path, plus one line on what each contains and why it is relevant. Never include file contents; the workspace itself is the source of truth._
 
-- Координаты three.js: model (x,y,z-up) → three (x, z, −y); камера стартует (3.8,3.2,3.8) — вне комнаты.
-- src/services/kinematic/catchBallController.ts — `ICatchDropPlanEntry` += initialVelocity?/cannonId?/muzzleSpeedMps?; TENNIS_CANNONS (A: дуло (2.28,0.55,1.35), B: (0.75,2.28,0.62)); ROOM_HALF_EXTENT_M=2.4, ROOM_HEIGHT_M=2.8; TENNIS_CANNON_SHOT_PLAN (6 залпов, компоненты скоростей проверены тюнинг-симом → rest reach 0.47–1.01 м); roomBallBounds() (радиус-inset 0.06); stepCarrying: CLIMB z→0.95 при horizontal>0.25 && ee.z<0.85.
-- src/services/kinematic/kinematicMath.ts — += computeElbowPosition3D, enforceElbowFloorClearance (зеркало: q2'=2φ−q2, q3'=−q3, φ из FK EE; flip только если mirror > current+0.04; radial<1e-9 → noflip; возвращает ТОТ ЖЕ объект при no-op).
-- src/services/kinematic/kinematicConstants.ts — += MIN_ELBOW_UP_JOINT_LIMIT_RAD=−(π−0.05), ELBOW_FLOOR_CLEARANCE_METERS=0.02, ELBOW_FLIP_HYSTERESIS_METERS=0.04.
-- src/services/kinematic/polarSolvers.ts — PolarRicisConstraintSolver: выбор ветви в закрытой форме (q2Up=α+βDown, q3='±'; текущая ветвь по знаку текущего q3, flip с гистерезисом); ClassicDlsGhostSolver: clamp q3 симметричный (MIN_ELBOW_UP); KinematicDualDebuggerEngine: applyElbowFloorGuard ТОЛЬКО неполярным RICIS + призраку (пересчёт EE/det: det∝sin q3 — знак флипает, |det| сохраняется).
-- src/services/kinematic/kinematicSolvers.ts — НЕ ИЗМЕНЁН (benchmark-калибровка: DlsSolver3D clamp односторонний; RicisSymbolicJacobianSolver3D вообще без clamp q3 — зеркало принимает сам).
-- src/services/kinematic/ballPhysics.ts — tangential impact damping 0.85→0.6 (иначе слабые выстрелы уезжали метрами; вертикаль/реституция без изменений, box-сбросы не затронуты).
-- src/ui/components/kinematic/RobotArm3DCanvas.tsx — комната (roomSurfaces, roomEdges, grid 4.8), эффект пушек по `showCannons` (пьедестал+станина+ствол quaternion+дуло/glow/бак, dispose), 2D scale на комнату + контур стен + линия потолка.
-- src/ui/KinematicEnginePage.tsx — TENNIS_CANNON_SHOT_PLAN, кнопка «Теннисная пушка», showCannons по mode.
-- Тесты: catchBallController.test.ts (closed-loop: 6/6, midAir≥2, floor≥1, локоть≥−1e-9, комната, minBallZ≥0, разброс reboundVz>0.25 м/с, покой в коробке); pickAndPlaceSimulation.test.ts (+инвариант локтя обеих рук); elbowFloorGuard.test.ts (5 зеркальных юнитов, вкл. полярную сходимость к низкой цели: локоть≥0.02, q3<0); KinematicEnginePage.test.tsx (кнопка «Теннисная пушка»).
+- src/services/kinematic/interceptionBenchmark.ts — НОВЫЙ: `IInterceptionScenarioSpec`, батарея 10 кейсов T01–T10 (slow/fast/high-lob/low-throw/bounce/lateral/multi-bounce/unreachable/too-fast/free-form), `generateUnknownScenarioBatch(seed,count)` (mulberry32, спаун у стен, прицел в воркспейс, elev 8–40°, speed 1.3–3.2, restitution 0.3–0.7), `runInterceptionScenario(spec)` (детект исхода по дельтам счётчиков), `runInterceptionBenchmark(specs)` → `IInterceptionBenchmarkReport` (+`determinismSignature`).
+- src/services/kinematic/interceptionBenchmark.test.ts — НОВЫЙ страж, 8 тестов (см. Key Results).
+- src/services/kinematic/catchBallController.ts — += `unreachableCount`, `IInterceptPlan`/`getLastInterceptPlan()` (штампится в planIntercept; null при отсутствии airborne-плана), `scenarioTimeSec`, `isReachable()` (annulus radial/z−L0, maxReach=L1+L2−0.06, min 0.25), `declareUnreachable()` (IDLE_WAIT + dropIndex++ + UNREACHABLE + событие), очистка плана в graspBall. Все state-rebuild через spread `...this.state` — счётчики сохраняются.
+- src/model/kinematicEngine.contracts.ts — `BallStatus` += `'UNREACHABLE'`.
+- src/ui/KinematicEnginePage.tsx — панель `<details>` «📊 Бенчмарк перехвата» перед блоком canvas: imports из interceptionBenchmark, стейты `benchmarkReport`/`benchmarkRunning`, `runInterceptionBenchmarkPanel` (specs = батарея + generateUnknownScenarioBatch(7,10), setTimeout 30ms defer).
+- src/services/kinematic/polarSolvers.ts — выбор ветви локтя в закрытой форме (0.4.215); НЕ трогать далее.
+- src/services/kinematic/kinematicSolvers.ts — BENCHMARK-классы (DlsSolver3D и пр.) — НЕ ИЗМЕНЁН, не трогать.
+- Координаты three.js: model (x,y,z-up) → three (x, z, −y); камера стартует вне комнаты.
+- /tmp/bench.ts — smoke-скрипт бенчмарка (абсолютные импорты с .js суффиксом для tsx).
 
 # Actions Taken
 _Terse ordered log of executed actions: tool, target, and one-line outcome. These actions already ran and their effects persist. Keep enough identity that no action is repeated by mistake._
 
-- Разведка: catch controller/canvas/polar solver/symbolic+движок/benchmark прочитаны; q3 всегда +acos → локоть < 0 на низких целях (измерено: −0.18 при r=1.2,z=0.06).
-- kinematicConstants + kinematicMath (guard) + polarSolvers (branch policy + engine guard + ghost clamp) — первая итерация: engine guard ДЛЯ ВСЕХ → POLAR closed-loop ЗАВИС (lerp-таргет elbow-down vs зеркало движка = пинг-понг) + benchmark scenario 2 упал (симметричный clamp DLS УЛУЧШИЛ его 0.32° vs symbolic 4.76° → нарушен calibrated ordering).
-- Исправление: branch policy ТОЛЬКО внутри полярного closed-form; engine guard только итеративным; kinematicSolvers.ts полностью откачен (import cls cls cls); результат 82/82 → позже 102/102.
-- Тюнинг залпов /tmp/tune*.ts: первые планы улетали за reach→2.7 м; правка tangential 0.8→0.6 + низкое дуло B + аимы в зону → 6 залпов rest reach 0.47–1.01, apex spread 0.21–0.41.
-- Canvas: комната+рёбра+grid 4.8 (roomBoxGeo dispose), cannons effect, 2D rescale+стены+потолок; Page: план/кнопка/showCannons.
-- SYMBOLIC closed-loop: локоть −0.215 в CARRYING (зонд /tmp/probe.ts: q3≈−3.1 складка у полюса, зеркало зеркало−0.318 — noflip корректен) → fix: CLIMB z→0.95 перед переносом в catch stepCarrying (у PnP уже есть LIFTING z=0.85) → локоть ≥0.
-- elbowFloorGuard.test.ts: мой «вырожденный» конфиг был невалиден (radial 0.081 → guard верно флипнул) → настоящий полюс q2=−π/2,q3=π.
-- Git: песочница сбросила локальную историю на 129081a! → fetch + reset FETCH_HEAD (remote f79dfce) — дерево сохранено.
-- Allowlist OIR03: block зарегистрирован; два фолаута: (1) `--untracked-files=all` → полный путь файла, не директория; (2) пробел в имени → git-кавычки в записи. vitest run: 2263/2263.
-- Gates: tsc 0 ✓, tps:gate ✓, build ✓; commit 591ecb9 + push ✓; allowlist += ' M ' форма пути памяти ✓; память — ЭТОТ файл.
+- edit_file contracts: `BallStatus` += 'UNREACHABLE' → успех.
+- Патчи catchBallController (edit_file ×3 + python): state/counters/reset + часы + `getLastInterceptPlan`, штамп плана в planIntercept, unreachable-детект в ветке `body.resting` через `isReachable`, `declareUnreachable`, очистка плана при grasp → успех.
+- write_file interceptionBenchmark.ts (garниз+battery+generator+aggregator); smoke `npx tsx /tmp/bench.ts` → батарея 10/10, catchRate 1.00, jl/col 0, FK-drift 0; UNKNOWN seed7 10/10.
+- edit_file KinematicEnginePage.tsx: JSX-панель (прошлый ход) + imports + стейты + handler (этот ход) → tsc TSC-OK.
+- write_file interceptionBenchmark.test.ts (8 тестов) → vitest файла 8/8 ✓ (~474 мс).
+- Полный vitest run: 2270/2271 — падал OIR03-QA-36 (allowlist) → регистрация `?? src/services/kinematic/interceptionBenchmark.test.ts` + `?? src/services/kinematic/interceptionBenchmark.ts` с комментарием такта → 36/36 ✓.
+- package.json 0.4.215→0.4.216, `npm run sync:version` ✓ (все документы синкнули).
+- ACTIVE_TASKS.md: запись такта добавлена ### **[INTERCEPTION-BENCHMARK-2026-09-19] ...** вверху «## 1» (первый вариант как «## 0.7» — удалён, неверная форма).
+- tps:gate чисто ✓, npm run build ✓ (включает releaseConsistency).
+- Осталось: commit + push + follow-up commit ЭТОГО файла.
 
 # External Sources
 _Web pages fetched: URL plus the takeaway that influenced the work. Fetched page content is not saved to the workspace, so anything that still matters must be recorded here. Older sources may be removed once their relevant conclusions have been preserved elsewhere in the session memory._
@@ -56,19 +58,21 @@ _Web pages fetched: URL plus the takeaway that influenced the work. Fetched page
 # Errors & Dead Ends
 _What failed and why. Approaches that were tried and abandoned and should not be retried._
 
-- **Engine-level зеркальный гард для полярного closed-form солвера = пинг-понг ветвей** (солвер lerp-тянет к своему elbow-down таргету, гард зеркалит каждый шаг → отсутствие сходимости, closed-loop зависает 240с). Правильно: выбор ветви ВНУТРИ closed-form, гард только итеративным.
-- **Симметричный clamp q3 в DlsSolver3D (benchmark-класс)** — эталонный benchmark scenario 2 калиброван на одностороннем clamp (0.01); симметрия улучшает DLS 15× → ломает упорядочивание symbolic>DLS. НЕ трогать benchmark-классы.
-- Зеркало q3=±π у полюса-складки: обе ветви под полом — guard корректно молчит; лечится ТРАЕКТОРИЕЙ (подъём перед переносом), не зеркалом.
-- `git status --short` ≠ `--porcelain --untracked-files=all`: директория vs развёрнутые файлы + кавычки у путей с пробелами. Всегда реплицировать точные строки теста.
-- /tmp скрипты: относительный импорт из /tmp не резолвится — абсолютный путь с `.js` суффиксом для tsx.
-- ESLint отсутствует (lint=tsc). `sed -n 'A-Bp'` — ошибка; только 'A,Bp'. npx vitest до npm ci бесполезен.
+- GIT-СБРОС ПЕСОЧНИЦЫ: локальный HEAD упал на базовый коммит при пересоздании окружения → `git fetch origin <branch>` + `git reset FETCH_HEAD` (mixed reset сохраняет worktree, индекс выравнивается с remote).
+- ALLOWLIST-ЛОВУШКИ: (a) `git status --porcelain --untracked-files=all` разворачивает untracked-директории в файлы — регистрировать ФАЙЛ, не директорию; (b) пробелы в имени → git оборачивает путь в двойные кавычки — allowlist-строка должна содержать кавычки буквально.
+- ACTIVE_TASKS.md форма: верхнеуровневые «## 0.x» — формат ДРУГОГО цикла (сентябрьские такты аксиоматики); kinematics-спринты фиксируются ### -записями вверху раздела «## 1. Текущие завершённые и верифицированные задачи» (по образцу 0.4.213/14/15).
+- Мой «вырожденный» тест-кейс {q2:−1.4, q3:3.05} не был вырожден (radial 0.081) — гард правильно перевернул ветвь, тест был виноват; истинное вырождение = {q2:−π/2, q3:π}.
+- BENCHMARK-КЛАССЫ в kinematicSolvers.ts (DlsSolver3D и пр.) не трогать; изменения только в polarSolvers.ts + гард движка.
+- Гард движка НЕ применять к PolarRicisConstraintSolver (instanceof) — ветвь выбирается внутри его закрытой формы; применение гарда вызывало dithering/ping-pong.
+- /tmp скрипты: относительный импорт из /tmp не резолвится — абсолютный путь с `.js` суффиксом для tsx. ESLint отсутствует (lint=tsc).
 
 # Key Results
 _Exact results that must remain available to the continuation model: answers, tables, short code, decisions, or paths to generated files. Include short deliverables verbatim and reference longer artifacts by workspace path._
 
-- Baselines: 0.4.213=2244 → 0.4.214=2258 → **0.4.215=2263/2263** (+5: 2 переписанных catch (теперь со стражами пушек) + 5 elbowFloorGuard; catch-файл был 2→2, pnp-sim assertions расширены без новых тестов).
-- Closed-loop пушек (оба солвера, 60 FPS): delivered 6/6, symbolic split **midAir=3, floor=3** (polar тоже оба исхода ≥2/≥1), локоть min ≥ −1e-9, шар в комнате всегда, minBallZ ≥ 0, разброс rebound vz > 0.25 м/с, покой в коробке < 0.15.
-- Зеркальное тождество 2R: при flip |ΔEE| < 1e-12; polar сходимость к (1.15,0.35,0.08): локоть ≥ 0.02, q3 < 0 (elbow-up «pick from above»).
-- Залпы (проверено тюнингом): A 1.45/9° flat v0z 0.227; B 2.05/33° v0z 1.117; A 1.9/34° v0z 1.063; B 1.55/20° v0z 0.530; A 1.7/30° v0z 0.850; B 1.8/26° v0z 0.789; rest reach 0.47–1.01 м; apex: A-кластер 0.37–0.41, B-кластер 0.21–0.24.
-- Клей: page mode 'CATCH_FALLING_BALL', catchControllerRef(TENNIS_CANNON_SHOT_PLAN, BOX_CONTAINER, LINK_LENGTHS); canvas props showCannons; комната константы экспортируются из catchBallController.
-- Коммиты: b9714be (0.4.213) → f79dfce (0.4.214) → **591ecb9 (0.4.215)**.
+- Baselines тестов: 0.4.213=2244 → 0.4.214=2258 → 0.4.215=2263 → **0.4.216=2271/2271** (287 файлов; +8 interceptionBenchmark).
+- Матрица батареи (замерено, зафиксировано стражами): 10/10 expectations (T01–T07,T10 пойманы — 6 MID_AIR + 2 FLOOR_PICKUP; T08/T09 UNREACHABLE за 186/149 шагов < 400), catchRateExpected=1.00, totalJointLimitViolations=0, totalCollisionViolations=0, maxFkDriftM=0.0e+0 (<1e-9), IK ≤ 0.121 м (радиус захвата), UNKNOWN seed 7 → 10/10 (страж ≥8), оба прогона детерминированы (determinismSignature равны).
+- Честные не-гейтовые метрики: T05 multi-bounce prediction error раннего плана 0.70 м / Δt 1.58 с (план до первого отскока); maxAccel сырого лерпа ~2709 rad/s² (строка smoothness таблицы; сглаживатель страницы в harness не входит).
+- Исходы per-case: T01 MID_AIR 1.70 с, T02 MID_AIR 1.37, T03 MID_AIR 1.88, T04 FLOOR 2.50, T05 FLOOR 3.08, T06/T07/T10 MID_AIR, T08 186 шагов, T09 149.
+- Архитектура детекта: дельты `midAirCatchCount/floorPickupCount/unreachableCount` против базовых; `firstPlan` = первый `getLastInterceptPlan()`; `predictionErrorM = |firstPlan.point − ballPosAtGrasp|`, `timingErrorSec = |(plannedAtSec+timeSec) − graspTime|`.
+- Граница правки 0.4.216: солверы/физика/сглаживатель/логика перехвата НЕ менялись — только наблюдательность (часы, план) + исход UNREACHABLE + гарниз + UI + стражи.
+- Коммиты: b9714be (0.4.213) → f79dfce (0.4.214) → 591ecb9 (0.4.215) → **pending (0.4.216)**.

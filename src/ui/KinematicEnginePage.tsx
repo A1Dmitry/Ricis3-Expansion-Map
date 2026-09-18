@@ -43,6 +43,12 @@ import {
 import { RicisSymbolicJacobianSolver3D } from '../services/kinematic/kinematicSolvers';
 import { PickAndPlaceController } from '../services/kinematic/pickAndPlaceController';
 import { CatchBallController, TENNIS_CANNON_SHOT_PLAN } from '../services/kinematic/catchBallController';
+import {
+  generateUnknownScenarioBatch,
+  INTERCEPTION_SCENARIO_BATTERY,
+  runInterceptionBenchmark,
+  type IInterceptionBenchmarkReport,
+} from '../services/kinematic/interceptionBenchmark';
 import { CartesianMotionSmoother } from '../services/kinematic/motionSmoothing';
 import { KinematicTelemetryLogger } from '../services/kinematic/kinematicLogger';
 import { forwardKinematics3D, computeJacobianDeterminant3D } from '../services/kinematic/kinematicMath';
@@ -387,6 +393,19 @@ export const KinematicEnginePage: React.FC<Props> = ({ onBackToMap }) => {
   if (motionSmootherRef.current === null) {
     motionSmootherRef.current = new CartesianMotionSmoother(initialEE);
   }
+
+  // Interception benchmark (standardized battery + seeded UNKNOWN batch)
+  const [benchmarkReport, setBenchmarkReport] = useState<IInterceptionBenchmarkReport | null>(null);
+  const [benchmarkRunning, setBenchmarkRunning] = useState(false);
+  const runInterceptionBenchmarkPanel = () => {
+    setBenchmarkRunning(true);
+    // Defer the heavy deterministic batch so the button paint is not blocked.
+    window.setTimeout(() => {
+      const specs = [...INTERCEPTION_SCENARIO_BATTERY, ...generateUnknownScenarioBatch(7, 10)];
+      setBenchmarkReport(runInterceptionBenchmark(specs));
+      setBenchmarkRunning(false);
+    }, 30);
+  };
 
   const [advantageLedger, setAdvantageLedger] = useState(() => telemetryLogger.getLedger());
 
@@ -990,6 +1009,83 @@ export const KinematicEnginePage: React.FC<Props> = ({ onBackToMap }) => {
               )}
             </div>
           </div>
+
+          {/* Interception benchmark panel (LLM-benchmark spec, Variant-2 lane):
+              standardized 10-case battery + seeded UNKNOWN batch through the exact
+              live pipeline; objective metrics, no manual tuning between cases. */}
+          <details className="border-t border-neutral-800 bg-neutral-950/60">
+            <summary className="cursor-pointer select-none px-3 py-1.5 text-[11px] font-bold text-slate-400 hover:text-white">
+              📊 Бенчмарк перехвата (10 сценариев + UNKNOWN ×10) — объективные метрики
+            </summary>
+            <div className="px-3 pb-2 text-xs">
+              <div className="flex items-center gap-3 py-1.5">
+                <button
+                  type="button"
+                  disabled={benchmarkRunning}
+                  onClick={runInterceptionBenchmarkPanel}
+                  className="px-3 py-1 rounded bg-cyan-900/60 border border-cyan-600/60 text-cyan-200 font-bold hover:bg-cyan-800/60 disabled:opacity-40"
+                >
+                  {benchmarkRunning ? 'Выполняется…' : 'Запустить бенчмарк'}
+                </button>
+                {benchmarkReport && (
+                  <span className="text-slate-400 font-mono text-[11px]">
+                    Поймано: <strong className="text-emerald-300">{benchmarkReport.catchCount}/{benchmarkReport.totalScenarios}</strong>
+                    {' '}· catch-rate (ожидаемые ловимые): <strong className="text-emerald-300" data-testid="benchmark-catch-rate">
+                      {(benchmarkReport.catchRateExpected * 100).toFixed(0)}%
+                    </strong>
+                    {' '}· unreachable-детект: <strong className="text-amber-300">{benchmarkReport.unreachableDetected}</strong>
+                    {' '}· нарушений лимитов: <strong className="text-emerald-300">{benchmarkReport.totalJointLimitViolations}</strong>
+                    {' '}· коллизий: <strong className="text-emerald-300">{benchmarkReport.totalCollisionViolations}</strong>
+                    {' '}· FK-дрейф: <strong className="text-emerald-300">{benchmarkReport.maxFkDriftM.toExponential(0)}</strong>
+                  </span>
+                )}
+              </div>
+              {benchmarkReport && (
+                <div className="max-h-56 overflow-y-auto">
+                  <table className="w-full font-mono text-[10px] text-slate-300">
+                    <thead>
+                      <tr className="text-slate-500 text-left">
+                        <th className="pr-2">Сценарий</th>
+                        <th className="pr-2">Исход</th>
+                        <th className="pr-2">t₍ₗₒᵥ₎, с</th>
+                        <th className="pr-2">IK, м</th>
+                        <th className="pr-2">Δпред, м</th>
+                        <th className="pr-2">Δt, с</th>
+                        <th className="pr-2">Репл.</th>
+                        <th className="pr-2">Оценка</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {benchmarkReport.scenarios.map(row => (
+                        <tr key={row.spec.id} className="border-t border-neutral-800/60">
+                          <td className="pr-2 py-0.5" title={row.spec.id}>{row.spec.name}</td>
+                          <td className={`pr-2 py-0.5 ${
+                            row.outcome === 'MID_AIR' ? 'text-rose-300'
+                            : row.outcome === 'FLOOR_PICKUP' ? 'text-cyan-300'
+                            : row.outcome === 'UNREACHABLE' ? 'text-amber-300'
+                            : 'text-slate-500'
+                          }`}>
+                            {row.outcome === 'MID_AIR' ? 'на лету'
+                              : row.outcome === 'FLOOR_PICKUP' ? 'с пола'
+                              : row.outcome === 'UNREACHABLE' ? 'недостижим'
+                              : 'таймаут'}
+                          </td>
+                          <td className="pr-2 py-0.5">{row.graspTimeSec?.toFixed(2) ?? '—'}</td>
+                          <td className="pr-2 py-0.5">{row.ikErrorM?.toFixed(3) ?? '—'}</td>
+                          <td className="pr-2 py-0.5">{row.predictionErrorM?.toFixed(2) ?? '—'}</td>
+                          <td className="pr-2 py-0.5">{row.timingErrorSec?.toFixed(2) ?? '—'}</td>
+                          <td className="pr-2 py-0.5">{row.replanCount}</td>
+                          <td className={`pr-2 py-0.5 ${row.expectationMet ? 'text-emerald-300' : 'text-red-400'}`}>
+                            {row.expectationMet ? 'OK' : 'FAIL'}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
+          </details>
 
           {/* Visualization Canvas — routed by viewport mode:
               simulation scenarios render the LIVE dual-arm debugger (RICIS arm + DLS ghost,

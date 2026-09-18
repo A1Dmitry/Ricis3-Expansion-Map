@@ -53,7 +53,7 @@ export interface IKinematicSolver3D {
   ): ISolverResult3D;
 }
 
-export type BallStatus = 'ON_SPAWN' | 'GRASPED' | 'IN_BOX' | 'FALLING';
+export type BallStatus = 'ON_SPAWN' | 'GRASPED' | 'IN_BOX' | 'FALLING' | 'UNREACHABLE';
 
 export interface IBallEntity {
   readonly id: string;
