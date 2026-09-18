@@ -9,7 +9,7 @@
  * человеком и не может «подменить» аксиому перестановкой полей.
  */
 
-import type { AxiomId, AxiomLayer, SingularityClass } from './contracts';
+import { DEPRECATED_AXIOM_IDS, type AxiomId, type AxiomLayer, type SingularityClass } from './contracts';
 
 export interface SeedAxiomDefinition {
   readonly id: AxiomId;
@@ -253,3 +253,52 @@ export const SEED_AXIOM_TABLE: readonly SeedAxiomDefinition[] = Object.freeze([
     consequences: [],
   },
 ]);
+
+// ---------------------------------------------------------------------------
+// Канонический состав зерна (единый источник для всех слоёв верификации)
+// ---------------------------------------------------------------------------
+
+/**
+ * Идентификаторы АКТИВНОГО зерна R0: таблица зерна без снятых записей.
+ *
+ * Это единственный источник правды о том, какие идентификаторы принадлежат ядру.
+ * Слои верификации (RuleVerifier, fallback-движок ядра, ворота допуска) обязаны
+ * производить свои списки из него, а не держать собственные копии: расхождение
+ * копий уже давало дефект класса A-0014 — верификатор принимал снятую `A3`
+ * и отвергал активные `L1C3`/`SP5`/`P1`/`A11` (все четыре — защищённое ядро).
+ *
+ * Внимание: `L1C4` в таблице зерна НЕ значится намеренно — это выводимая гарантия
+ * `A11 + L1` (`protected_core_derived` в `scripts/generateSeedExpansionSpec.ts`),
+ * а не отдельная строка R0; она обеспечивается воротами `MONOTONIC_COMMIT`.
+ */
+export const ACTIVE_SEED_AXIOM_IDS: readonly AxiomId[] = Object.freeze(
+  SEED_AXIOM_TABLE.filter(entry => !entry.deprecated).map(entry => entry.id),
+);
+
+/** Идентификаторы, снятые в v7.7/v7.9: историческая запись, не активное зерно. */
+export const DEPRECATED_SEED_AXIOM_IDS: readonly AxiomId[] = Object.freeze(
+  SEED_AXIOM_TABLE.filter(entry => entry.deprecated === true).map(entry => entry.id),
+);
+
+/**
+ * Проверка согласованности двух представлений «снятости»: флаг в таблице зерна
+ * и реестр `DEPRECATED_AXIOM_IDS` в контрактах. Расхождение — брак данных,
+ * а не повод молча выбрать одно из двух (fail-safe, урок A-0009).
+ */
+export function seedAxiomDeprecationInconsistencies(): readonly string[] {
+  const problems: string[] = [];
+  const registry = new Set<string>(DEPRECATED_AXIOM_IDS);
+  const flagged = new Set<string>(DEPRECATED_SEED_AXIOM_IDS);
+  for (const entry of SEED_AXIOM_TABLE) {
+    if (entry.deprecated === true && !registry.has(entry.id)) {
+      problems.push(`${entry.id}: помечена снятой в таблице зерна, но отсутствует в DEPRECATED_AXIOM_IDS`);
+    }
+  }
+  for (const id of registry) {
+    const inTable = SEED_AXIOM_TABLE.some(entry => entry.id === id);
+    if (inTable && !flagged.has(id)) {
+      problems.push(`${id}: числится снятой в DEPRECATED_AXIOM_IDS, но не помечена в таблице зерна`);
+    }
+  }
+  return Object.freeze(problems);
+}

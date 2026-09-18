@@ -13,6 +13,31 @@ import {
   RicisProofStep, 
   RicisProofVerificationResult 
 } from './IRicisCoreEngine';
+import { ACTIVE_SEED_AXIOM_IDS } from '../../ricisSeed/seedTable';
+import { DEPRECATED_AXIOM_IDS } from '../../ricisSeed/contracts';
+
+/**
+ * Идентификаторы, которыеfallback-движок признаёт в шагах доказательства.
+ *
+ * Список ПРОИЗВОДИТСЯ из канонической таблицы зерна R0 (единый источник —
+ * `src/ricisSeed/seedTable.ts`), а не копируется вручную: ручная копия
+ * содержала снятую в v7.7/v7.9 аксиому `A3` и не содержала активных
+ * `L1C3`/`SP5`/`P1`/`A11` (все четыре — защищённое ядро), то есть доказательство можно было
+ * «подтвердить» ссылкой на снятую аксиому и нельзя было обосновать
+ * защищённым ядром (андон A-0014).
+ *
+ * `TCP` (Type Consistency Protocol) — протокольная метка самого движка:
+ * её выставляют генерируемые им шаги фазы контроля типов, в таблице зерна
+ * её нет по определению (это не математическая аксиома RICIS).
+ */
+export const FALLBACK_ENGINE_PROTOCOL_MARKERS: readonly string[] = Object.freeze(['TCP']);
+
+const KNOWN_AXIOMS: ReadonlySet<string> = new Set<string>([
+  ...ACTIVE_SEED_AXIOM_IDS,
+  ...FALLBACK_ENGINE_PROTOCOL_MARKERS,
+]);
+
+const DEPRECATED_AXIOMS: ReadonlySet<string> = new Set<string>(DEPRECATED_AXIOM_IDS);
 
 /** Evaluates a deliberately small arithmetic grammar without executing source text. */
 function evaluateSafeArithmetic(expression: string, variables: Record<string, number | string>): number | undefined {
@@ -695,7 +720,6 @@ export class RicisFallbackEngine implements IRicisCoreEngine {
 
   public async verifyProofChain(proof: RicisFormalProof): Promise<RicisProofVerificationResult> {
     const verifiedAxioms: string[] = [];
-    const knownAxioms = new Set(['L0', 'L1', 'L1C1', 'L1C2', 'SP1', 'SP2', 'SP3', 'SP4', 'A1', 'A2', 'A3', 'A4', 'A5', 'A6', 'A7', 'A8', 'A9', 'A10', 'TCP']);
 
     if (!proof.targetClaim.trim() || !proof.theoremTitle.trim() || !proof.conclusionInvariant.trim() || proof.steps.length === 0) {
       return { valid: false, brokenStepIndex: 0, reason: 'Proof chain has no complete claim, theorem title, conclusion invariant, or steps.', verifiedAxioms };
@@ -714,11 +738,16 @@ export class RicisFallbackEngine implements IRicisCoreEngine {
           verifiedAxioms,
         };
       }
-      if (!step.justificationAxiom || !knownAxioms.has(step.justificationAxiom)) {
+      if (!step.justificationAxiom || !KNOWN_AXIOMS.has(step.justificationAxiom)) {
+        // Снятая аксиома — отдельная причина: это не «неизвестная метка», а ссылка
+        // на правило, исключённое из активного зерна (историческая запись).
+        const deprecated = DEPRECATED_AXIOMS.has(step.justificationAxiom);
         return {
           valid: false,
           brokenStepIndex: i,
-          reason: `Неизвестная или некорректная аксиома в шаге ${step.stepNumber}: "${step.justificationAxiom}"`,
+          reason: deprecated
+            ? `Аксиома ${step.justificationAxiom} в шаге ${step.stepNumber} снята (v7.7/v7.9) и не входит в активное зерно R0`
+            : `Неизвестная или некорректная аксиома в шаге ${step.stepNumber}: "${step.justificationAxiom}"`,
           verifiedAxioms,
         };
       }
