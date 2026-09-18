@@ -13,17 +13,20 @@ interface RoadmapPageProps {
   /** Deep-link mode: 'challenge' opens the open-tasks contour of the context node. */
   initialMode?: string | null;
   onBackToMap: () => void;
+  onNavigateToMap?: (nodeId?: string, mode?: string) => void;
 }
 
 function isRootCandidate(node: ProblemNode): boolean {
   return node.type === 'core_singularity' || node.id === 'core-agi-target' || node.id === 'math-singularity';
 }
 
-function navigateToMap(nodeId?: string, mode?: string): void {
-  window.location.assign(UrlShareService.generateShareUrl({ nodeId, mode, roadmap: false, rootNodeId: null }));
-}
-
-export function RoadmapPage({ contextNodeId, initialRootNodeId, initialMode, onBackToMap }: RoadmapPageProps) {
+export function RoadmapPage({
+  contextNodeId,
+  initialRootNodeId,
+  initialMode,
+  onBackToMap,
+  onNavigateToMap,
+}: RoadmapPageProps) {
   const map = useMapStore();
   const contextNode = map.nodes.find(node => node.id === contextNodeId) ?? null;
   // mode=challenge (NodeCardDetails "Challenge" action) lands directly in the
@@ -35,6 +38,21 @@ export function RoadmapPage({ contextNodeId, initialRootNodeId, initialMode, onB
   const [rootNodeId, setRootNodeId] = useState<string | null>(
     challengeMode ? (contextNodeId ?? null) : (initialRootNodeId ?? null),
   );
+
+  const navigateToMap = (nodeId?: string, mode?: string): void => {
+    UrlShareService.updateBrowserUrl({
+      applet: null,
+      nodeId: nodeId ?? null,
+      mode: mode ?? null,
+      roadmap: false,
+      rootNodeId: null,
+    });
+    if (onNavigateToMap) {
+      onNavigateToMap(nodeId, mode);
+    } else {
+      onBackToMap();
+    }
+  };
 
   const rootCandidates = useMemo(() => {
     const candidates = map.nodes.filter(isRootCandidate);

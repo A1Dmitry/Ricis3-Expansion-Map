@@ -204,6 +204,7 @@ export default function App() {
               initialRootNodeId={roadmapParams.get('root')}
               initialMode={roadmapParams.get('mode')}
               onBackToMap={() => handleSelectApplet('map')}
+              onNavigateToMap={(_nodeId, _mode) => handleSelectApplet('map')}
             />
           );
         }
