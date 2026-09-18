@@ -706,6 +706,24 @@ describe('OIR-03 — audit proof-synthesis containment', () => {
       ' M docs/05-evidence/architecture/telegram-tokenpool-remediation-2026-08-18.md',
       ' M docs/05-evidence/proofs/lean-boundary-audit-2026-08-18.md',
       ' M src/model/audit.proofSynthesisContainment.test.ts',
+      // KINEMATIC-VIEWPORT-REPAIR (0.4.213, 2026-09-18): ремонт отсоединённой
+      // визуализации кинематического апплета. Первопричина «полностью сломанной
+      // кинематики»: страница рендерила ModularManipulator3DCanvas, привязанный
+      // к статическому walkthrough-состоянию planarJoints, а живой цикл
+      // pick-and-place (ricisState/dlsState, шары, коробка, DLS-призрак) не
+      // выводился никуда — RobotArm3DCanvas (731 строка рабочего рендерера)
+      // был импортирован, но не использовался. Маршрутизация viewport'а по
+      // simMode восстановлена; heatmap θ₂×θ₃ ограничена 3-DOF (ранее клик по
+      // ней урезал 5-звенный вектор суставов до 3); клешня отражает
+      // gripperClosed; маркер цели скрывается без цели; GPU-ресурсы
+      // освобождаются при перестроении цепи; «Сброс» стал полным.
+      // Регрессионные стражи: closed-loop тесты симуляции (оба RICIS-солвера
+      // доезжают 4/4 шаров без NaN и не выходят за границу рабочей зоны) +
+      // UI-маршрутизация viewports.
+      ' M src/ui/KinematicEnginePage.test.tsx',
+      ' M src/ui/components/kinematic/ModularManipulator3DCanvas.tsx',
+      ' M src/ui/components/kinematic/RobotArm3DCanvas.tsx',
+      '?? src/services/kinematic/pickAndPlaceSimulation.test.ts',
     ]);
     if (status.length > 0 && status.every(entry => entry.startsWith('?? '))) {
       // In clean container environments git status may return all files as untracked

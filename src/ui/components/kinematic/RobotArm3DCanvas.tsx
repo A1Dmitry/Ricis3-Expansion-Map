@@ -55,6 +55,7 @@ export const RobotArm3DCanvas: React.FC<Props> = ({
   const ricisBaseRef = useRef<THREE.Group | null>(null);
   const ricisShoulderRef = useRef<THREE.Group | null>(null);
   const ricisElbowRef = useRef<THREE.Group | null>(null);
+  const ricisGripperFingersRef = useRef<{ f1: THREE.Mesh; f2: THREE.Mesh } | null>(null);
 
   // Arm Object Refs (DLS Ghost)
   const dlsBaseRef = useRef<THREE.Group | null>(null);
@@ -221,6 +222,8 @@ export const RobotArm3DCanvas: React.FC<Props> = ({
       gripperGroup.position.x = L2;
       elbowGroup.add(gripperGroup);
 
+      let gripperFingers: { f1: THREE.Mesh; f2: THREE.Mesh } | null = null;
+
       if (isRicis) {
         // 2-finger claw
         const clawBase = new THREE.Mesh(
@@ -236,6 +239,7 @@ export const RobotArm3DCanvas: React.FC<Props> = ({
         const f2 = new THREE.Mesh(fingerGeo, fingerMat);
         f2.position.set(0.06, -0.04, 0);
         gripperGroup.add(f1, f2);
+        gripperFingers = { f1, f2 };
       }
 
       return {
@@ -244,6 +248,7 @@ export const RobotArm3DCanvas: React.FC<Props> = ({
         shoulderGroup,
         elbowGroup,
         gripperGroup,
+        gripperFingers,
       };
     };
 
@@ -252,6 +257,7 @@ export const RobotArm3DCanvas: React.FC<Props> = ({
     ricisBaseRef.current = ricisArm.baseRotGroup;
     ricisShoulderRef.current = ricisArm.shoulderGroup;
     ricisElbowRef.current = ricisArm.elbowGroup;
+    ricisGripperFingersRef.current = ricisArm.gripperFingers;
 
     const dlsArm = createArm(false);
     scene.add(dlsArm.armGroup);
@@ -338,6 +344,14 @@ export const RobotArm3DCanvas: React.FC<Props> = ({
       ricisBaseRef.current.rotation.y = ricisState.joints.q1;
       ricisShoulderRef.current.rotation.z = ricisState.joints.q2;
       ricisElbowRef.current.rotation.z = ricisState.joints.q3;
+    }
+
+    // Gripper claw reflects the live grasp state driven by the pick-and-place controller
+    const fingers = ricisGripperFingersRef.current;
+    if (fingers) {
+      const halfGap = ricisState.gripperClosed ? 0.022 : 0.04;
+      fingers.f1.position.y = halfGap;
+      fingers.f2.position.y = -halfGap;
     }
 
     if (dlsBaseRef.current && dlsShoulderRef.current && dlsElbowRef.current) {
