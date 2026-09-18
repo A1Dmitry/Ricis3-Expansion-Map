@@ -43,6 +43,22 @@ export {
 } from './ricisSeed.unsolvedRegistry';
 export { SEED_AXIOM_TABLE, type SeedAxiomDefinition } from './seedTable';
 export {
+  EXTERNAL_RULE_IDS,
+  NON_REWRITE_RULE_IDS,
+  PROTOCOL_REWRITE_RULE_IDS,
+  STRUCTURAL_RULE_IDS,
+  classifyRule,
+  expansionRuleSchemasOf,
+  verifyProofChain,
+  verifyProofStep,
+  type ChainVerificationResult,
+  type ExpansionRuleSchema,
+  type RuleCategory,
+  type RuleVerificationContext,
+  type RuleVerificationFailure,
+  type StepVerificationResult,
+} from './ruleVerifier';
+export {
   BOUND_PAREN_RULE_CORPUS,
   BOUND_PAREN_RULE_ID,
   requiresParentheses,

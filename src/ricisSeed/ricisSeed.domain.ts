@@ -41,7 +41,7 @@ import {
   normalizeMatchKey,
   substituteAllSymbols,
 } from './canonicalForm';
-import { verifyProofChain } from './ruleVerifier';
+import { expansionRuleSchemasOf, verifyProofChain } from './ruleVerifier';
 import { axiomFingerprint, seedFingerprint, type SeedFingerprint } from './fingerprint';
 import { SEED_AXIOM_TABLE, type SeedAxiomDefinition } from './seedTable';
 
@@ -599,8 +599,13 @@ export function expandTo(seed: RicisSeedState, state: RicisState, program: Expan
   else gates.skip('PROOF_CHAIN_CONNECTED', 'нет доказательства для проверки');
 
   // Семантическая валидация каждого шага доказательства через RuleVerifier (P0 / P3).
+  // Верификатору передаётся реестр производных правил текущего поколения: шаг под меткой
+  // A12+ проверяется по зарегистрированной схеме правила, а при отсутствии реестра
+  // отклоняется (fail-safe). Метка правила без структурного верификатора переход не обосновывает.
   if (proof.steps.length > 0) {
-    const semanticVerification = verifyProofChain(proof.steps);
+    const semanticVerification = verifyProofChain(proof.steps, {
+      expansionRules: expansionRuleSchemasOf(seed.axioms),
+    });
     if (!semanticVerification.valid) {
       gates.fail(
         'SEMANTIC_RULE_VERIFIED',

@@ -1,13 +1,36 @@
+/**
+ * RICIS SEED — верификатор шагов доказательства (RuleVerifier).
+ *
+ * Граница доверия (No Self-Certification):
+ *  - верификатор проверяет СЕМАНТИКУ перехода `from -> to` под меткой правила;
+ *  - принадлежность правила поколению R(n) проверяют ворота `RULE_SET_CLOSED`
+ *    в `ricisSeed.domain.ts` — это два разных вопроса, и они не подменяют друг друга;
+ *  - успешная проверка здесь — это уровень `STRUCTURALLY_VALIDATED`, а НЕ
+ *    `FORMALLY_VERIFIED` (для него нужен внешний kernel run: toolchain + compiler
+ *    output + `#print axioms` + отсутствие `sorryAx`).
+ *
+ * Fail-safe правило (класс андона A-0013):
+ *  метка правила БЕЗ структурного верификатора не может обосновать переход.
+ *  Прежняя реализация завершала разбор `default: return true`, из-за чего любой
+ *  переход проходил под меткой протокола (SP1/SP2/SP4/SP5), закона (L0, L1C1–L1C3),
+ *  запрета (P1), мета-аксиомы (A11), снятой аксиомы (A3) или непроверенного
+ *  производного правила (A12+). Фактически это допускало в ядро математически
+ *  ложную аксиому: кандидат `0_F*(inf_G-inf_H) = F*(G+H)` с единственным шагом
+ *  под меткой `SP2` проходил ворота `SEMANTIC_RULE_VERIFIED` и коммитился в R(n+1).
+ *  Теперь неизвестная/нереализованная метка — явный отказ с типизированной причиной.
+ */
+
 import {
   type FormNode,
-  type CanonicalResult,
   canonicalizeForProof,
   renderForm,
   canonicalNode,
   equivalentAst,
   parseForm,
+  indexSymbolsOf,
+  substituteAllSymbols,
 } from './canonicalForm';
-import type { ProofRule, ProofStep } from './contracts';
+import { DEPRECATED_AXIOM_IDS, type ProofRule, type ProofStep, type RicisAxiom } from './contracts';
 
 export interface StepVerificationResult {
   readonly valid: boolean;
@@ -15,6 +38,14 @@ export interface StepVerificationResult {
   readonly ruleApplied?: ProofRule;
   readonly fromAst?: FormNode;
   readonly toAst?: FormNode;
+  /** Типизированная причина отказа ( machine-readable, для стражей и разбора отказов). */
+  readonly failure?: RuleVerificationFailure;
+  /**
+   * `true`, когда шаг принят НЕ структурной проверкой RICIS, а явно внешним слоем
+   * (классическая алгебра / ядро Lean). Такой шаг не повышает доверие до
+   * `STRUCTURALLY_VALIDATED` по правилам RICIS: его основание живёт вне верификатора.
+   */
+  readonly external?: boolean;
 }
 
 export interface ChainVerificationResult {
@@ -23,6 +54,124 @@ export interface ChainVerificationResult {
   readonly reason?: string;
   readonly stepResults: readonly StepVerificationResult[];
 }
+
+/**
+ * Классы меток правил. Категория отвечает на вопрос «может ли эта метка в принципе
+ * обосновать переход `from -> to`», до проверки конкретного перехода.
+ */
+export type RuleCategory =
+  /** Реализованный структурный верификатор (законы/аксиомы singularity-слоя). */
+  | 'STRUCTURAL_AXIOM'
+  /** Протокол, который сам является законом переписывания (SP3: 0_F/0_G = F/G). */
+  | 'PROTOCOL_REWRITE'
+  /** Протокол/закон/запрет/мета-аксиома: порядок применения, а не преобразование формы. */
+  | 'NON_REWRITE'
+  /** Снятая аксиома: историческая запись, не входит в активное зерно R0. */
+  | 'DEPRECATED'
+  /** Производное правило расширения (A12+): проверяется по реестру R(n). */
+  | 'EXPANSION'
+  /** Явно внешний слой: классическая алгебра или ядро Lean. */
+  | 'EXTERNAL'
+  /** Метка не распознана: fail-safe отказ. */
+  | 'UNRECOGNIZED';
+
+/** Типизированные причины отказа верификатора. */
+export type RuleVerificationFailure =
+  | 'RULE_CATEGORY_NOT_A_REWRITE'
+  | 'RULE_DEPRECATED'
+  | 'RULE_NOT_IN_REGISTRY'
+  | 'RULE_SCHEMA_MISMATCH'
+  | 'RULE_VERIFIER_NOT_IMPLEMENTED'
+  | 'RULE_PATTERN_MISMATCH';
+
+/**
+ * Метки, которые НЕ являются правилами переписывания: они задают порядок применения,
+ * границы типов и запреты. Шаг доказательства под такой меткой — категориальная ошибка:
+ * «обосновать переход» ими нельзя (в том числе `x -> x+1` под меткой запрета P1).
+ */
+export const NON_REWRITE_RULE_IDS: readonly ProofRule[] = Object.freeze([
+  'L0',
+  'L1C1',
+  'L1C2',
+  'L1C3',
+  'SP1',
+  'SP2',
+  'SP4',
+  'SP5',
+  'P1',
+  'A11',
+]);
+
+/** Метки с реализованным структурным верификатором. */
+export const STRUCTURAL_RULE_IDS: readonly ProofRule[] = Object.freeze([
+  'L1',
+  'LOCAL_STRUCTURAL_REDUCTION',
+  'A1',
+  'A2',
+  'A4',
+  'A5',
+  'A6',
+  'A7',
+  'A8',
+  'A9',
+  'A10',
+  'A14',
+]);
+
+/** Протоколы, которые сами являются законом переписывания. */
+export const PROTOCOL_REWRITE_RULE_IDS: readonly ProofRule[] = Object.freeze(['SP3']);
+
+/** Явно внешние слои (не структурная проверка RICIS). */
+export const EXTERNAL_RULE_IDS: readonly ProofRule[] = Object.freeze(['CLASSICAL', 'LEAN_KERNEL']);
+
+/** Схема производного правила: то, что правило реально утверждает (из таблицы следствий R(n)). */
+export interface ExpansionRuleSchema {
+  readonly id: string;
+  readonly from: string;
+  readonly to: string;
+}
+
+/** Контекст верификации: реестр производных правил текущего поколения. */
+export interface RuleVerificationContext {
+  readonly expansionRules?: readonly ExpansionRuleSchema[];
+}
+
+/**
+ * Схемы производных правил поколения: каждое выращенное правило утверждает ровно свои
+ * следствия (inputForm -> outputForm). Это единственный честный источник семантики A12+:
+ * верификатор не «угадывает» производное правило, а сверяет шаг с зарегистрированной схемой.
+ */
+export function expansionRuleSchemasOf(axioms: readonly RicisAxiom[]): readonly ExpansionRuleSchema[] {
+  const schemas: ExpansionRuleSchema[] = [];
+  for (const axiom of axioms) {
+    if (axiom.origin !== 'EXPANSION') continue;
+    for (const consequence of axiom.consequences) {
+      schemas.push({ id: axiom.id, from: consequence.inputForm, to: consequence.outputForm });
+    }
+  }
+  return Object.freeze(schemas);
+}
+
+/** Категория метки правила (до проверки конкретного перехода). */
+export function classifyRule(rule: ProofRule): RuleCategory {
+  if (EXTERNAL_RULE_IDS.includes(rule)) return 'EXTERNAL';
+  if (DEPRECATED_AXIOM_IDS.includes(rule)) return 'DEPRECATED';
+  if (STRUCTURAL_RULE_IDS.includes(rule)) return 'STRUCTURAL_AXIOM';
+  if (PROTOCOL_REWRITE_RULE_IDS.includes(rule)) return 'PROTOCOL_REWRITE';
+  if (NON_REWRITE_RULE_IDS.includes(rule)) return 'NON_REWRITE';
+  if (/^A\d+$/.test(rule) && Number(rule.slice(1)) >= 12) return 'EXPANSION';
+  return 'UNRECOGNIZED';
+}
+
+const CATEGORY_LABEL: Readonly<Record<RuleCategory, string>> = Object.freeze({
+  STRUCTURAL_AXIOM: 'структурная аксиома RICIS',
+  PROTOCOL_REWRITE: 'протокол-преобразование',
+  NON_REWRITE: 'протокол/закон/запрет порядка применения',
+  DEPRECATED: 'снятая аксиома',
+  EXPANSION: 'производное правило расширения',
+  EXTERNAL: 'внешний слой',
+  UNRECOGNIZED: 'нераспознанная метка',
+});
 
 function extractIndexedZero(node: FormNode): FormNode | null {
   if (node.kind === 'call' && (node.name === '0_' || node.name === '0')) {
@@ -54,36 +203,204 @@ function extractIndexedInf(node: FormNode): FormNode | null {
 }
 
 /**
+ * Сопоставление схемы правила с фактическим переходом.
+ *
+ * Индексные символы схемы (F, G, H, K …) — переменные: они связываются один раз и
+ * согласованно во всём переходе, поэтому схема A12
+ * `(0_F/0_G)/(0_H/0_K) -> (F*K)/(G*H)` применяма к `(0_X/0_Y)/(0_Z/0_W)`,
+ * но не к форме с другим расположением индексов.
+ */
+/**
+ * Сопоставление имён-идентификаторов. Имя может ЦЕЛИКОМ быть переменной (`F`)
+ * либо содержать индексный символ внутри (`0_F`, `inf_G`): во втором случае имя
+ * разбирается как шаблон «литералы + переменные», поэтому схема `0_F/0_G`
+ * сопоставляется с `0_X/0_Y` и связывает F -> X, G -> Y.
+ */
+function matchIdName(
+  patternName: string,
+  targetName: string,
+  variables: ReadonlySet<string>,
+  bindings: Map<string, FormNode>,
+): boolean {
+  if (variables.has(patternName)) {
+    const bound = bindings.get(patternName);
+    const target: FormNode = { kind: 'id', name: targetName };
+    if (bound) return equivalentAst(bound, target);
+    bindings.set(patternName, target);
+    return true;
+  }
+
+  const embedded = indexSymbolsOf(patternName).filter(symbol => variables.has(symbol));
+  if (embedded.length === 0) return patternName === targetName;
+
+  let expression = '^';
+  let cursor = 0;
+  for (const symbol of embedded) {
+    const position = patternName.indexOf(symbol, cursor);
+    if (position < 0) return false;
+    expression += patternName.slice(cursor, position).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    expression += '([A-Za-z0-9_]+)';
+    cursor = position + symbol.length;
+  }
+  expression += `${patternName.slice(cursor).replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`;
+
+  const match = new RegExp(expression, 'u').exec(targetName);
+  if (!match) return false;
+
+  for (const [offset, symbol] of embedded.entries()) {
+    const captured = match[offset + 1];
+    if (captured === undefined) return false;
+    const bound = bindings.get(symbol);
+    const target: FormNode = { kind: 'id', name: captured };
+    if (bound) {
+      if (!equivalentAst(bound, target)) return false;
+    } else {
+      bindings.set(symbol, target);
+    }
+  }
+  return true;
+}
+
+function matchSchemaPattern(
+  pattern: FormNode,
+  target: FormNode,
+  variables: ReadonlySet<string>,
+  bindings: Map<string, FormNode>,
+): boolean {
+  if (pattern.kind === 'id' && variables.has(pattern.name)) {
+    const bound = bindings.get(pattern.name);
+    if (bound) return equivalentAst(bound, target);
+    bindings.set(pattern.name, target);
+    return true;
+  }
+  if (pattern.kind !== target.kind) return false;
+  if (pattern.kind === 'id' && target.kind === 'id') {
+    return matchIdName(pattern.name, target.name, variables, bindings);
+  }
+  if (pattern.kind === 'call' && target.kind === 'call') {
+    return pattern.name === target.name && matchSchemaPattern(pattern.arg, target.arg, variables, bindings);
+  }
+  if (pattern.kind === 'pow' && target.kind === 'pow') {
+    return (
+      matchSchemaPattern(pattern.base, target.base, variables, bindings) &&
+      matchSchemaPattern(pattern.exponent, target.exponent, variables, bindings)
+    );
+  }
+  if (pattern.kind === 'bin' && target.kind === 'bin') {
+    return (
+      pattern.op === target.op &&
+      matchSchemaPattern(pattern.left, target.left, variables, bindings) &&
+      matchSchemaPattern(pattern.right, target.right, variables, bindings)
+    );
+  }
+  return false;
+}
+
+function instantiate(node: FormNode, bindings: ReadonlyMap<string, FormNode>): FormNode {
+  if (node.kind === 'id') {
+    const direct = bindings.get(node.name);
+    if (direct) return direct;
+    // Индексный символ может жить внутри имени (0_F, inf_G): подстановка выполняется
+    // только для связанных имён-идентификаторов. Связка на сложное выражение внутрь
+    // имени не подставляется — такая форма не является корректным идентификатором,
+    // и шаг честно не пройдёт проверку вместо «приблизительного» совпадения.
+    const embedded = indexSymbolsOf(node.name).filter(symbol => bindings.has(symbol));
+    if (embedded.length === 0) return node;
+    const substitution: Record<string, string> = {};
+    for (const symbol of embedded) {
+      const bound = bindings.get(symbol);
+      if (!bound || bound.kind !== 'id') return node;
+      substitution[symbol] = bound.name;
+    }
+    return { kind: 'id', name: substituteAllSymbols(node.name, substitution) };
+  }
+  if (node.kind === 'call') {
+    return { kind: 'call', name: node.name, arg: instantiate(node.arg, bindings) };
+  }
+  if (node.kind === 'pow') {
+    return {
+      kind: 'pow',
+      base: instantiate(node.base, bindings),
+      exponent: instantiate(node.exponent, bindings),
+    };
+  }
+  return {
+    kind: 'bin',
+    op: node.op,
+    left: instantiate(node.left, bindings),
+    right: instantiate(node.right, bindings),
+  };
+}
+
+interface ExpansionMatch {
+  readonly kind: 'MATCH' | 'NOT_IN_REGISTRY' | 'SCHEMA_MISMATCH';
+}
+
+/** Проверка шага под производное правило расширения по реестру поколения. */
+function matchExpansionRule(
+  rule: ProofRule,
+  fromNode: FormNode,
+  toNode: FormNode,
+  context: RuleVerificationContext | undefined,
+): ExpansionMatch {
+  const schemas = (context?.expansionRules ?? []).filter(schema => schema.id === rule);
+  if (schemas.length === 0) return { kind: 'NOT_IN_REGISTRY' };
+  for (const schema of schemas) {
+    let patternFrom: FormNode;
+    let patternTo: FormNode;
+    try {
+      patternFrom = parseForm(schema.from);
+      patternTo = parseForm(schema.to);
+    } catch {
+      continue; // нечитаемая схема не может обосновать переход
+    }
+    const variables = new Set<string>([...indexSymbolsOf(schema.from), ...indexSymbolsOf(schema.to)]);
+    const bindings = new Map<string, FormNode>();
+    if (!matchSchemaPattern(patternFrom, fromNode, variables, bindings)) continue;
+    const expected = instantiate(patternTo, bindings);
+    if (equivalentAst(canonicalNode(expected), canonicalNode(toNode))) {
+      return { kind: 'MATCH' };
+    }
+  }
+  return { kind: 'SCHEMA_MISMATCH' };
+}
+
+/**
  * Проверяет, можно ли получить toNode из fromNode путем применения правила rule
  * к корню выражения ИЛИ к любому подвыражению (контексту).
  */
-function checkRuleApplication(rule: ProofRule, from: FormNode, to: FormNode): boolean {
+function checkRuleApplication(
+  rule: ProofRule,
+  from: FormNode,
+  to: FormNode,
+  context: RuleVerificationContext | undefined,
+): boolean {
   // 1. Пробуем применить в корне
-  if (checkRootRule(rule, from, to)) return true;
+  if (checkRootRule(rule, from, to, context)) return true;
 
   // 2. Если корни одинаковой структуры (bin, call, pow), проверяем рекурсивно замену в поддереве
   if (from.kind === 'bin' && to.kind === 'bin' && from.op === to.op) {
     // Вариант 1: левый изменился по правилу, правый остался эквивалентным
-    if (checkRuleApplication(rule, from.left, to.left) && equivalentAst(from.right, to.right)) {
+    if (checkRuleApplication(rule, from.left, to.left, context) && equivalentAst(from.right, to.right)) {
       return true;
     }
     // Вариант 2: правый изменился по правилу, левый остался эквивалентным
-    if (equivalentAst(from.left, to.left) && checkRuleApplication(rule, from.right, to.right)) {
+    if (equivalentAst(from.left, to.left) && checkRuleApplication(rule, from.right, to.right, context)) {
       return true;
     }
   }
 
   if (from.kind === 'call' && to.kind === 'call' && from.name === to.name) {
-    if (checkRuleApplication(rule, from.arg, to.arg)) {
+    if (checkRuleApplication(rule, from.arg, to.arg, context)) {
       return true;
     }
   }
 
   if (from.kind === 'pow' && to.kind === 'pow') {
-    if (checkRuleApplication(rule, from.base, to.base) && equivalentAst(from.exponent, to.exponent)) {
+    if (checkRuleApplication(rule, from.base, to.base, context) && equivalentAst(from.exponent, to.exponent)) {
       return true;
     }
-    if (equivalentAst(from.base, to.base) && checkRuleApplication(rule, from.exponent, to.exponent)) {
+    if (equivalentAst(from.base, to.base) && checkRuleApplication(rule, from.exponent, to.exponent, context)) {
       return true;
     }
   }
@@ -91,7 +408,12 @@ function checkRuleApplication(rule: ProofRule, from: FormNode, to: FormNode): bo
   return false;
 }
 
-function checkRootRule(rule: ProofRule, fromNode: FormNode, toNode: FormNode): boolean {
+function checkRootRule(
+  rule: ProofRule,
+  fromNode: FormNode,
+  toNode: FormNode,
+  context: RuleVerificationContext | undefined,
+): boolean {
   switch (rule) {
     case 'L1':
     case 'LOCAL_STRUCTURAL_REDUCTION': {
@@ -131,7 +453,11 @@ function checkRootRule(rule: ProofRule, fromNode: FormNode, toNode: FormNode): b
       return false;
     }
 
-    case 'A4': {
+    case 'A4':
+    case 'SP3': {
+      // A4 и SP3 — один и тот же закон индексов (Weight of Zero) на разных слоях:
+      // 0_F / 0_G = F / G. SP3 заявлен как протокол, но утверждает преобразование формы,
+      // поэтому он обязан проверяться структурно, а не «по умолчанию».
       if (fromNode.kind === 'bin' && fromNode.op === '/') {
         const numZero = extractIndexedZero(fromNode.left);
         const denZero = extractIndexedZero(fromNode.right);
@@ -229,25 +555,98 @@ function checkRootRule(rule: ProofRule, fromNode: FormNode, toNode: FormNode): b
       return false;
     }
 
+    // Явно внешние слои: классическая алгебра и ядро Lean. Это НЕ структурная
+    // проверка RICIS — основание шага живёт вне верификатора (для LEAN_KERNEL
+    // ворота NO_FORBIDDEN_SEMANTICS требуют фактический kernel run).
     case 'CLASSICAL':
     case 'LEAN_KERNEL':
       return true;
 
+    default: {
+      // Fail-safe (A-0013): метка без структурного верификатора переход не обосновает.
+      // Производные правила расширения проверяются по реестру R(n), всё остальное — отказ.
+      if (classifyRule(rule) === 'EXPANSION') {
+        return matchExpansionRule(rule, fromNode, toNode, context).kind === 'MATCH';
+      }
+      return false;
+    }
+  }
+}
+
+/** Причина отказа и человекочитаемая формулировка для шага, который не прошёл проверку. */
+function describeFailure(
+  rule: ProofRule,
+  fromNode: FormNode,
+  toNode: FormNode,
+  context: RuleVerificationContext | undefined,
+): { readonly failure: RuleVerificationFailure; readonly reason: string } {
+  const transition = `'${renderForm(fromNode)}' -> '${renderForm(toNode)}'`;
+  const category = classifyRule(rule);
+  switch (category) {
+    case 'NON_REWRITE':
+      return {
+        failure: 'RULE_CATEGORY_NOT_A_REWRITE',
+        reason:
+          `Правило ${rule} — ${CATEGORY_LABEL.NON_REWRITE}, а не правило переписывания: ` +
+          `оно задаёт порядок применения/границу, поэтому не может обосновать переход ${transition}`,
+      };
+    case 'DEPRECATED':
+      return {
+        failure: 'RULE_DEPRECATED',
+        reason:
+          `Правило ${rule} снято (v7.7/v7.9) и не входит в активное зерно R0: ` +
+          `переход ${transition} не может быть им обоснован`,
+      };
+    case 'EXPANSION': {
+      const match = matchExpansionRule(rule, fromNode, toNode, context);
+      if (match.kind === 'NOT_IN_REGISTRY') {
+        return {
+          failure: 'RULE_NOT_IN_REGISTRY',
+          reason:
+            `Правило ${rule} — ${CATEGORY_LABEL.EXPANSION}: верификатору не предоставлен реестр R(n), ` +
+            `поэтому переход ${transition} не проверяем (fail-safe отказ, а не пропуск по умолчанию)`,
+        };
+      }
+      return {
+        failure: 'RULE_SCHEMA_MISMATCH',
+        reason:
+          `Правило ${rule} неприменимо для перехода: ${transition} ` +
+          '(переход не соответствует зарегистрированной схеме производного правила)',
+      };
+    }
+    case 'UNRECOGNIZED':
+      return {
+        failure: 'RULE_VERIFIER_NOT_IMPLEMENTED',
+        reason:
+          `Правило ${rule} не распознано верификатором (${CATEGORY_LABEL.UNRECOGNIZED}): ` +
+          `структурного верификатора нет, поэтому переход ${transition} отклонён (fail-safe)`,
+      };
     default:
-      return true;
+      return {
+        failure: 'RULE_PATTERN_MISMATCH',
+        reason: `Правило ${rule} неприменимо для перехода: ${transition}`,
+      };
   }
 }
 
 /**
  * Проверяет допустимость семантического преобразования from -> to под действием правила rule.
+ *
+ * `context.expansionRules` — реестр производных правил поколения R(n)
+ * (см. `expansionRuleSchemasOf`). Без него шаги под метками A12+ отклоняются:
+ * отсутствие реестра — это отсутствие основания, а не разрешение.
  */
-export function verifyProofStep(step: ProofStep): StepVerificationResult {
+export function verifyProofStep(
+  step: ProofStep,
+  context?: RuleVerificationContext,
+): StepVerificationResult {
   const fromRes = canonicalizeForProof(step.from);
   if (fromRes.kind === 'ERR') {
     return {
       valid: false,
       reason: `Синтаксическая ошибка во входной форме '${step.from}': ${fromRes.error}`,
       ruleApplied: step.rule,
+      failure: 'RULE_PATTERN_MISMATCH',
     };
   }
 
@@ -257,11 +656,13 @@ export function verifyProofStep(step: ProofStep): StepVerificationResult {
       valid: false,
       reason: `Синтаксическая ошибка в выходной форме '${step.to}': ${toRes.error}`,
       ruleApplied: step.rule,
+      failure: 'RULE_PATTERN_MISMATCH',
     };
   }
 
   const fromNode = fromRes.ast;
   const toNode = toRes.ast;
+  const external = classifyRule(step.rule) === 'EXTERNAL';
 
   if (equivalentAst(fromNode, toNode)) {
     return {
@@ -269,6 +670,7 @@ export function verifyProofStep(step: ProofStep): StepVerificationResult {
       ruleApplied: step.rule,
       fromAst: fromNode,
       toAst: toNode,
+      external,
     };
   }
 
@@ -278,39 +680,46 @@ export function verifyProofStep(step: ProofStep): StepVerificationResult {
   try {
     const rawFrom = parseForm(step.from);
     const rawTo = parseForm(step.to);
-    if (checkRuleApplication(step.rule, rawFrom, rawTo)) {
+    if (checkRuleApplication(step.rule, rawFrom, rawTo, context)) {
       return {
         valid: true,
         ruleApplied: step.rule,
         fromAst: fromNode,
         toAst: toNode,
+        external,
       };
     }
   } catch {
     // игнорируем сырые ошибки и пробуем каноничные
   }
 
-  const isApplied = checkRuleApplication(step.rule, fromNode, toNode);
+  const isApplied = checkRuleApplication(step.rule, fromNode, toNode, context);
   if (isApplied) {
     return {
       valid: true,
       ruleApplied: step.rule,
       fromAst: fromNode,
       toAst: toNode,
+      external,
     };
   }
 
+  const failure = describeFailure(step.rule, fromNode, toNode, context);
   return {
     valid: false,
-    reason: `Правило ${step.rule} неприменимо для перехода: '${renderForm(fromNode)}' -> '${renderForm(toNode)}'`,
+    reason: failure.reason,
     ruleApplied: step.rule,
+    failure: failure.failure,
   };
 }
 
 /**
  * Проверяет полную цепочку шагов доказательства (ProofCertificate steps).
  */
-export function verifyProofChain(steps: readonly ProofStep[]): ChainVerificationResult {
+export function verifyProofChain(
+  steps: readonly ProofStep[],
+  context?: RuleVerificationContext,
+): ChainVerificationResult {
   if (steps.length === 0) {
     return {
       valid: false,
@@ -323,7 +732,7 @@ export function verifyProofChain(steps: readonly ProofStep[]): ChainVerification
 
   for (let i = 0; i < steps.length; i++) {
     const step = steps[i]!;
-    const stepRes = verifyProofStep(step);
+    const stepRes = verifyProofStep(step, context);
     stepResults.push(stepRes);
 
     if (!stepRes.valid) {

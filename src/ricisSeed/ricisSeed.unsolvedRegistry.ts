@@ -286,10 +286,12 @@ const adversarialResolver: UnsolvedProblemResolver = Object.freeze({
               { inputForm: problem.inputForm, outputForm: conclusion },
             ]),
             // НАМЕРЕННАЯ ОШИБКА СЦЕНАРИЯ: шаг ссылается на аксиому A15, которую это
-            // доказательство само и вводит. Приведение типа необходимо, потому что
-            // A15 заведомо отсутствует в R(n) — именно это ловят ворота NO_SELF_CERTIFICATION.
+            // доказательство само и вводит; A15 заведомо отсутствует в R(n) — это ловят
+            // ворота NO_SELF_CERTIFICATION. Приведение типа не нужно: A15 — валидный
+            // ExpansionAxiomId (`A${number}`), а семантику перехода проверяет RuleVerifier
+            // по реестру поколения (fail-safe: правила нет в реестре — шаг отклоняется).
             proof: certificate('RICIS_STRUCTURAL', [
-              { rule: 'A15' as unknown as ProofRule, from: 'inf_F*0_G', to: 'F*G' },
+              { rule: 'A15', from: 'inf_F*0_G', to: 'F*G' },
             ], conclusion),
           },
         };

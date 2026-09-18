@@ -1,4 +1,5 @@
 import type { ProblemNode, ProofStep, ExternalLeanTrustStatus, LeanKernelVerificationEvidence } from '../../model/types';
+import type { AxiomId } from '../../ricisSeed/contracts';
 
 /**
  * Онтологический тип сингулярности или скаляра в пространстве R_RICIS^2.
@@ -23,7 +24,15 @@ export interface RicisNumber<T = string> {
 export interface TransformationLog<T = string> {
   readonly stepIndex: number;
   readonly phase: -1 | 0 | 0.5 | 1 | 2 | 3 | 4 | 5 | 6;
-  readonly axiomApplied: 'L0' | 'L1' | 'SP1' | 'SP2' | 'SP3' | 'SP4' | 'A1' | 'A2' | 'A3' | 'A4' | 'A5' | 'A6' | 'A7' | 'A8' | 'A9' | 'A10' | 'GEOMETRIC_BRIDGE';
+  /**
+   * Метка применённого правила. Идентификаторы берутся из канонического типа зерна
+   * (`AxiomId`), а не из ручной копии списка: копия содержала снятую в v7.7/v7.9 `A3`
+   * и не содержала активных `L1C1`–`L1C3`/`SP5`/`P1`/`A11` (андон A-0014).
+   * `GEOMETRIC_BRIDGE` — историческая метка геометрического моста R^2_RICIS (не идентификатор зерна).
+   * Принадлежность активному ядру и запрет снятых аксиом проверяются по данным зерна
+   * (`ACTIVE_SEED_AXIOM_IDS` / `DEPRECATED_AXIOM_IDS`), тип этого выразить не может.
+   */
+  readonly axiomApplied: AxiomId | 'GEOMETRIC_BRIDGE';
   readonly inputExpression: T;
   readonly outputExpression: T;
   readonly complexity: 'O(1)' | 'O(log N)' | 'structural_reduction';
