@@ -1724,16 +1724,17 @@ export const Map3D: React.FC = () => {
               <div className="mb-3 border-b border-cyan-900/30 pb-3">
                 <p className="text-[9px] font-mono text-cyan-500">Key: {getNodeIdentityPresentation(selectedNode).base64Key}</p><p className="text-[9px] font-mono text-slate-500 truncate">Path: {getNodeIdentityPresentation(selectedNode).canonicalPath}</p><h2 className="mt-1 text-sm font-bold leading-tight text-white">{selectedNodePresentation?.title ?? selectedNode.title}</h2>
               </div>
-              <NodeCardDetails node={selectedNodePresentation ?? selectedNode} map={map} isExpanded={true} onEdit={() => setEditingNode(selectedNode)} onNavigateToNode={handleNavigateToNode} />
-              <ActionButton
-                onClick={() => handleSolve(selectedNode.id)}
-                isLoading={isSolving}
-                isDisabled={!isNodeAvailable(selectedNode, map) && selectedNode.state !== 'resolved'}
-                variant="cyan"
-                className="mt-4 w-full py-3 text-[11px] font-bold uppercase tracking-wider"
-              >
-                {selectedNode.state === 'resolved' ? 'Перерассчитать RICIS-решение' : 'Запустить RICIS-решение'}
-              </ActionButton>
+              <NodeCardDetails
+                node={selectedNodePresentation ?? selectedNode}
+                map={map}
+                isExpanded={true}
+                onEdit={() => setEditingNode(selectedNode)}
+                onNavigateToNode={handleNavigateToNode}
+                onSolve={() => handleSolve(selectedNode.id)}
+                isSolving={isSolving}
+                isSolveDisabled={!isNodeAvailable(selectedNode, map) && selectedNode.state !== 'resolved'}
+                solveDisabledReason="Заблокировано зависимостями"
+              />
             </article>
           </main>
         )}
@@ -2328,14 +2329,18 @@ export const Map3D: React.FC = () => {
                 <span className="px-2 py-1 rounded-full text-[9px] font-bold uppercase tracking-wider bg-cyan-950/60 text-cyan-400 border border-cyan-900/40">RICIS CORE</span>
               )}
             </div>
-              <NodeCardDetails 
+              <NodeCardDetails
                 node={selectedNodePresentation ?? selectedNode}
                 map={map}
-                isExpanded={isNodeExpanded} 
+                isExpanded={isNodeExpanded}
                 onEdit={() => setEditingNode(selectedNode)}
                 onNavigateToNode={handleNavigateToNode}
                 onNavigateBack={navigationStack.length > 0 ? handleNavigateBack : undefined}
                 previousNodeTitle={navigationStack.length > 0 ? map.nodes.find(n => n.id === navigationStack[navigationStack.length - 1])?.title : null}
+                onSolve={() => handleSolve(selectedNode.id)}
+                isSolving={isSolving}
+                isSolveDisabled={!isNodeAvailable(selectedNode, map) && selectedNode.state !== 'resolved'}
+                solveDisabledReason="Заблокировано зависимостями"
               />
 
               {pathNodeIds.length > 0 && (
@@ -2354,27 +2359,6 @@ export const Map3D: React.FC = () => {
                 </div>
               )}
               {texMsg && <p className="mb-3 text-[9px] text-amber-300/90 font-mono break-all">{texMsg}</p>}
-              
-              <ActionButton
-                onClick={() => handleSolve(selectedNode.id)}
-                isLoading={isSolving}
-                isDisabled={!isNodeAvailable(selectedNode, map) && selectedNode.state !== 'resolved'}
-                disabledReason={
-                  !isNodeAvailable(selectedNode, map) && selectedNode.state !== 'resolved'
-                    ? 'Заблокировано зависимостями'
-                    : undefined
-                }
-                variant="cyan"
-                className="w-full mt-auto py-2.5 text-[11px] uppercase tracking-widest shadow-lg font-bold cursor-pointer"
-              >
-                {isSolving
-                  ? 'Агент вычисляет (RICIS-III)...'
-                  : selectedNode.state === 'resolved'
-                  ? 'Перерассчитать доказательство (RICIS-III)'
-                  : !isNodeAvailable(selectedNode, map)
-                  ? 'Заблокировано зависимостями'
-                  : 'Execute RICIS Solution'}
-              </ActionButton>
 
               {(showProof || map.getLatexProof(selectedNode.id) || selectedNode.state === 'resolved' || selectedNode.state === 'partial') && (
                 <div className="mt-4 border-t border-gray-800 pt-3">

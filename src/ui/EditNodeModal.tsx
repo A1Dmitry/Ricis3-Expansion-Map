@@ -23,6 +23,8 @@ export const EditNodeModal: React.FC<Props> = ({ node, onClose, onSolveAfterSave
   const externalLeanReference = useMapStore(s => s.proofs[node.id]?.externalLean);
   const getLatexProof = useMapStore(s => s.getLatexProof);
   const solveNode = useMapStore(s => s.solveNode);
+  const zones = useMapStore(s => s.zones);
+  const assignNodeZone = useMapStore(s => s.assignNodeZone);
 
   // Mobile layout drives the swipe-to-close gesture on the nested passport dialog.
   const isMobileLayout = useMobileLayout();
@@ -39,9 +41,15 @@ export const EditNodeModal: React.FC<Props> = ({ node, onClose, onSolveAfterSave
   const [type, setType] = useState(node.type || 'scientific_task');
   const [marketGain, setMarketGain] = useState(node.economic?.marketGain || 0);
   const [costToSolve, setCostToSolve] = useState(node.economic?.costToSolve || 0);
+  // Поля паритета с формой создания задачи: ссылка на первоисточник и сфера науки.
+  const [sourceUrl, setSourceUrl] = useState(node.sourceUrl || '');
+  const [zoneId, setZoneId] = useState(node.zoneIds[0] || zones[0]?.id || 'math');
+  const [newZoneName, setNewZoneName] = useState('');
   const [isSaving, setIsSaving] = useState(false);
   const [passportSession, setPassportSession] = useState<EphemeralPassportSessionView | null>(null);
   const canOpenPassportSession = externalLeanReference?.sourceLocked === true;
+
+  const originalZoneId = node.zoneIds[0] || zones[0]?.id || 'math';
 
   const handleOpenPassportSession = () => {
     if (!canOpenPassportSession || !externalLeanReference) return;
@@ -71,6 +79,14 @@ export const EditNodeModal: React.FC<Props> = ({ node, onClose, onSolveAfterSave
   const handleSave = async (andSolve = false) => {
     setIsSaving(true);
     try {
+      // Нормализация ссылки на первоисточник — то же правило, что и при создании задачи.
+      const trimmedSourceUrl = sourceUrl.trim();
+      const normalizedSourceUrl = trimmedSourceUrl
+        ? (/^https?:\/\//i.test(trimmedSourceUrl)
+            ? trimmedSourceUrl
+            : 'https://' + trimmedSourceUrl.replace(/^\/+/, ''))
+        : undefined;
+
       const updates: Partial<ProblemNode> = {
         title: title.trim(),
         targetFunction: targetFunction.trim(),
@@ -83,11 +99,24 @@ export const EditNodeModal: React.FC<Props> = ({ node, onClose, onSolveAfterSave
           marketGain: Number(marketGain) || 0,
           costToSolve: Number(costToSolve) || 0,
         },
+        sourceUrl: normalizedSourceUrl,
         leanErrors: realTimeAudit.errors,
         leanWarnings: realTimeAudit.warnings,
       };
 
       await updateNode(node.id, updates);
+
+      // Сфера науки — паритет с созданием задачи: выбор существующей или создание новой.
+      if (zoneId !== originalZoneId) {
+        if (zoneId === 'NEW_ZONE') {
+          if (!newZoneName.trim()) {
+            throw new Error('Укажите название новой сферы науки.');
+          }
+          await assignNodeZone(node.id, undefined, newZoneName.trim());
+        } else {
+          await assignNodeZone(node.id, zoneId, undefined);
+        }
+      }
 
       if (proofLatex !== currentProof) {
         if (sourceLocked) {
@@ -203,6 +232,49 @@ export const EditNodeModal: React.FC<Props> = ({ node, onClose, onSolveAfterSave
               onChange={e => setSingularityHint(e.target.value)}
               placeholder="например: SP2 cancellation at x=0"
               className="w-full bg-neutral-900 border border-neutral-700 rounded p-2 text-purple-200 font-mono focus:border-purple-500 focus:outline-none text-[10px]"
+            />
+          </div>
+
+          {/* Сфера науки — то же поле, что и при создании задачи */}
+          <div>
+            <label className="block text-[10px] font-bold text-gray-400 uppercase mb-1">
+              Сфера науки / Область знаний
+            </label>
+            <select
+              value={zoneId}
+              onChange={e => setZoneId(e.target.value)}
+              className="w-full bg-neutral-900 border border-neutral-700 rounded p-2 text-white focus:border-cyan-500 focus:outline-none"
+            >
+              {zones.map(z => (
+                <option key={z.id} value={z.id}>
+                  {z.name}
+                </option>
+              ))}
+              <option value="NEW_ZONE">+ Создать новую сферу науки...</option>
+            </select>
+
+            {zoneId === 'NEW_ZONE' && (
+              <input
+                type="text"
+                value={newZoneName}
+                onChange={e => setNewZoneName(e.target.value)}
+                placeholder="Название новой сферы..."
+                className="w-full mt-2 bg-neutral-900 border border-cyan-700/60 rounded p-2 text-white focus:border-cyan-500 focus:outline-none"
+              />
+            )}
+          </div>
+
+          {/* Ссылка на первоисточник — то же поле, что и при создании задачи */}
+          <div>
+            <label className="block text-[10px] font-bold text-gray-400 uppercase mb-1">
+              Ссылка на первоисточник / DOI (опционально)
+            </label>
+            <input
+              type="text"
+              value={sourceUrl}
+              onChange={e => setSourceUrl(e.target.value)}
+              placeholder="например, https://doi.org/10.5281/zenodo.17872755"
+              className="w-full bg-neutral-900 border border-neutral-700 rounded p-2 text-cyan-300 font-mono focus:border-cyan-500 focus:outline-none"
             />
           </div>
 
