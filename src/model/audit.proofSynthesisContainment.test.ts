@@ -788,6 +788,7 @@ describe('OIR-03 — audit proof-synthesis containment', () => {
       ' M src/ui/KinematicEnginePage.tsx',
       ' M src/ui/components/kinematic/RobotArm3DCanvas.tsx',
       '?? "1B.9-session-memory/SM MP81-uncertain-map.md"',
+      ' M "1B.9-session-memory/SM MP81-uncertain-map.md"',
       '?? src/services/kinematic/elbowFloorGuard.test.ts',
     ]);
     if (status.length > 0 && status.every(entry => entry.startsWith('?? '))) {
