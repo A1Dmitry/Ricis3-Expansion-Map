@@ -724,6 +724,36 @@ describe('OIR-03 — audit proof-synthesis containment', () => {
       ' M src/ui/components/kinematic/ModularManipulator3DCanvas.tsx',
       ' M src/ui/components/kinematic/RobotArm3DCanvas.tsx',
       '?? src/services/kinematic/pickAndPlaceSimulation.test.ts',
+      // KINEMATIC-SMOOTH-MOTION-AND-BALL-PHYSICS (0.4.214, 2026-09-18): ответ на
+      // замечание пользователя «это тухта» — движения были рывками между фазными
+      // якорями, шар телепортировался (Math.random) в коробку без гравитации.
+      // 1) CartesianMotionSmoother: дискретные якоря фаз-машин превращаются в
+      // C1-непрерывный поток целей с трапецеидальным профилем скорости и жёстким
+      // anti-overshoot-фиксатором — рука летит по оптимальной плавной траектории,
+      // все суставы вращаются одновременно. 2) BallPhysicsWorld: полу-неявный
+      // Эйлер с гравитацией, реституцией, confinement-ом в коробке; плоскость
+      // контакта = дно коробки при boxBounds (шар не проваливается сквозь дно).
+      // 3) Pick-and-place RELEASING: сброс с реальным падением+отскоком внутри
+      // коробки до покоя (телепортация удалена). 4) Новый сценарий
+      // «Перехват падающих» (CATCH_FALLING_BALL): плановые сбросы шаров,
+      // баллистический предиктор predictTrajectory, перехват в полёте (fallback —
+      // подбор с пола), доставка с отскоком в коробку; BallStatus += 'FALLING',
+      // IBallEntity += velocity. Регрессионные стражи: замкнутый цикл
+      // контроллер→сглаживатель→двойной солвер (оба RICIS-солвера, ≥3 перехвата
+      // на лету из 4, шары в покое внутри коробки), аналитика физики
+      // (½gt², вершина ~e²h, rest, wall-clamp), контракты сглаживателя
+      // (непрерывность, точное settle, ноль overshoot, ретаргетинг в полёте),
+      // UI-тест переключателя сценария.
+      ' M src/model/kinematicEngine.contracts.ts',
+      ' M src/services/kinematic/pickAndPlaceController.ts',
+      ' M src/services/kinematic/pickAndPlaceSimulation.test.ts',
+      ' M src/ui/KinematicEnginePage.tsx',
+      '?? src/services/kinematic/ballPhysics.test.ts',
+      '?? src/services/kinematic/ballPhysics.ts',
+      '?? src/services/kinematic/catchBallController.test.ts',
+      '?? src/services/kinematic/catchBallController.ts',
+      '?? src/services/kinematic/motionSmoothing.test.ts',
+      '?? src/services/kinematic/motionSmoothing.ts',
     ]);
     if (status.length > 0 && status.every(entry => entry.startsWith('?? '))) {
       // In clean container environments git status may return all files as untracked

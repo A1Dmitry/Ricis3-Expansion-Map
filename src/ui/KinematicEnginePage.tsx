@@ -20,6 +20,7 @@ import {
   FileText,
   Cpu,
   Sparkles,
+  Target,
 } from 'lucide-react';
 import type {
   IKinematicState3D,
@@ -41,6 +42,8 @@ import {
 } from '../services/kinematic/polarSolvers';
 import { RicisSymbolicJacobianSolver3D } from '../services/kinematic/kinematicSolvers';
 import { PickAndPlaceController } from '../services/kinematic/pickAndPlaceController';
+import { CatchBallController, DEFAULT_CATCH_DROP_PLAN } from '../services/kinematic/catchBallController';
+import { CartesianMotionSmoother } from '../services/kinematic/motionSmoothing';
 import { KinematicTelemetryLogger } from '../services/kinematic/kinematicLogger';
 import { forwardKinematics3D, computeJacobianDeterminant3D } from '../services/kinematic/kinematicMath';
 import { useMapStore } from '../store/mapStore';
@@ -85,10 +88,15 @@ const LINK_LENGTHS: [number, number, number] = [0.4, 0.8, 0.7]; // L0=0.4, L1=0.
 
 /**
  * Viewport routing for the main canvas area:
- * - PICK_AND_PLACE / SINGULAR_ORBIT / MANUAL -> live dual-arm 3D simulation (RobotArm3DCanvas);
+ * - PICK_AND_PLACE / CATCH_FALLING_BALL / SINGULAR_ORBIT / MANUAL -> live dual-arm 3D simulation (RobotArm3DCanvas);
  * - TWO_STAGE_WALKTHROUGH -> modular planar analysis workspace (Planar/Modular manipulator canvas).
  */
-type KinematicViewportMode = 'PICK_AND_PLACE' | 'SINGULAR_ORBIT' | 'MANUAL' | 'TWO_STAGE_WALKTHROUGH';
+type KinematicViewportMode =
+  | 'PICK_AND_PLACE'
+  | 'CATCH_FALLING_BALL'
+  | 'SINGULAR_ORBIT'
+  | 'MANUAL'
+  | 'TWO_STAGE_WALKTHROUGH';
 
 /** Inert placeholder grid — heatmap generation is a 3-DOF-only capability (see IoC SINGULAR_HEATMAP_2D). */
 const EMPTY_HEATMAP_GRID: ISingularityHeatmapGrid = {
@@ -367,6 +375,19 @@ export const KinematicEnginePage: React.FC<Props> = ({ onBackToMap }) => {
   // Pick & Place controller ref
   const pnpControllerRef = useRef(new PickAndPlaceController(INITIAL_BALLS, BOX_CONTAINER));
   const [pnpState, setPnpState] = useState(() => pnpControllerRef.current.getState());
+
+  // Catch-the-falling-ball controller ref + state
+  const catchControllerRef = useRef(new CatchBallController(DEFAULT_CATCH_DROP_PLAN, BOX_CONTAINER, LINK_LENGTHS));
+  const [catchState, setCatchState] = useState(() => catchControllerRef.current.getState());
+
+  // Cartesian S-curve smoother: turns discrete waypoint anchors into a C1-continuous
+  // acceleration-limited target stream so the arm FOLLOWS AN OPTIMAL, SMOOTH PATH
+  // (uniform simultaneous joint rotation) instead of snapping between waypoints.
+  const motionSmootherRef = useRef<CartesianMotionSmoother | null>(null);
+  if (motionSmootherRef.current === null) {
+    motionSmootherRef.current = new CartesianMotionSmoother(initialEE);
+  }
+
   const [advantageLedger, setAdvantageLedger] = useState(() => telemetryLogger.getLedger());
 
   // Mutable refs for high-frequency animation loop (avoids re-triggering useEffect every frame)
@@ -426,6 +447,8 @@ export const KinematicEnginePage: React.FC<Props> = ({ onBackToMap }) => {
   const handleReset = () => {
     pnpControllerRef.current.reset(INITIAL_BALLS, BOX_CONTAINER);
     setPnpState(pnpControllerRef.current.getState());
+    catchControllerRef.current.reset(BOX_CONTAINER);
+    setCatchState(catchControllerRef.current.getState());
     telemetryLogger.clear();
     setAdvantageLedger(telemetryLogger.getLedger());
 
@@ -449,6 +472,7 @@ export const KinematicEnginePage: React.FC<Props> = ({ onBackToMap }) => {
       gripperClosed: false,
     };
 
+    motionSmootherRef.current?.reset(resetEE);
     ricisStateRef.current = resetState;
     dlsStateRef.current = resetState;
     setRicisState(resetState);
@@ -457,24 +481,40 @@ export const KinematicEnginePage: React.FC<Props> = ({ onBackToMap }) => {
 
   // Resolves the desired end-effector target for the current simulation mode
   // (single source of truth for both the 60 FPS loop and single-step command).
+  // Resolves the desired end-effector target for the current simulation mode and
+  // passes it through the Cartesian S-curve smoother, so the arm always receives
+  // a continuous, acceleration-limited target stream (smooth optimal trajectory,
+  // uniform simultaneous joint rotation — no waypoint snapping).
   const resolveActiveTarget = (dt: number): Vector3D => {
+    const smoother = motionSmootherRef.current;
+    let anchor: Vector3D;
+
     if (simMode === 'PICK_AND_PLACE') {
       const pnpStep = pnpControllerRef.current.stepTarget(dt, ricisStateRef.current.endEffector);
       gripperRef.current = pnpStep.shouldGrip;
-      return pnpStep.target;
-    }
-    gripperRef.current = false;
-    if (simMode === 'SINGULAR_ORBIT') {
+      anchor = pnpStep.target;
+    } else if (simMode === 'CATCH_FALLING_BALL') {
+      const catchStep = catchControllerRef.current.stepTarget(dt, ricisStateRef.current.endEffector);
+      gripperRef.current = catchStep.shouldGrip;
+      anchor = catchStep.target;
+    } else if (simMode === 'SINGULAR_ORBIT') {
+      gripperRef.current = false;
       // Orbit along the singular boundary (r = 1.48m near max reach 1.50m)
       orbitAngleRef.current += dt * 0.8;
       const maxReach = LINK_LENGTHS[1] + LINK_LENGTHS[2] - 0.01;
-      return {
+      anchor = {
         x: maxReach * Math.cos(orbitAngleRef.current),
         y: maxReach * Math.sin(orbitAngleRef.current),
         z: 0.4 + 0.3 * Math.sin(orbitAngleRef.current * 2),
       };
+    } else {
+      gripperRef.current = false;
+      anchor = manualTargetRef.current;
     }
-    return manualTargetRef.current;
+
+    if (!smoother) return anchor;
+    smoother.setAnchor(anchor);
+    return smoother.step(dt);
   };
 
   // Main 60 FPS Simulation Loop with Throttled UI Updates for Smooth Responsiveness
@@ -521,6 +561,8 @@ export const KinematicEnginePage: React.FC<Props> = ({ onBackToMap }) => {
           lastUiUpdate = now;
           if (simMode === 'PICK_AND_PLACE') {
             setPnpState({ ...pnpControllerRef.current.getState() });
+          } else if (simMode === 'CATCH_FALLING_BALL') {
+            setCatchState({ ...catchControllerRef.current.getState() });
           }
           setCurrentDesiredTarget(activeTarget);
           setRicisState(nextRicisState);
@@ -585,6 +627,8 @@ export const KinematicEnginePage: React.FC<Props> = ({ onBackToMap }) => {
     telemetryLogger.pushEntry(stepResult.logEntry);
     if (simMode === 'PICK_AND_PLACE') {
       setPnpState({ ...pnpControllerRef.current.getState() });
+    } else if (simMode === 'CATCH_FALLING_BALL') {
+      setCatchState({ ...catchControllerRef.current.getState() });
     }
     setCurrentDesiredTarget(activeTarget);
     setRicisState(nextRicisState);
@@ -849,6 +893,19 @@ export const KinematicEnginePage: React.FC<Props> = ({ onBackToMap }) => {
                 </button>
                 <button
                   type="button"
+                  onClick={() => setSimMode('CATCH_FALLING_BALL')}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded text-xs font-bold transition-all ${
+                    simMode === 'CATCH_FALLING_BALL'
+                      ? 'bg-rose-950/80 border border-rose-500/80 text-rose-300'
+                      : 'text-slate-400 hover:text-white hover:bg-neutral-800'
+                  }`}
+                  title="Шары падают под тяготением и отскакивают от пола; рука по баллистическому предиктору ловит их на лету"
+                >
+                  <Target size={14} />
+                  Перехват падающих
+                </button>
+                <button
+                  type="button"
                   onClick={() => setSimMode('SINGULAR_ORBIT')}
                   className={`flex items-center gap-1.5 px-3 py-1.5 rounded text-xs font-bold transition-all ${
                     simMode === 'SINGULAR_ORBIT'
@@ -894,6 +951,22 @@ export const KinematicEnginePage: React.FC<Props> = ({ onBackToMap }) => {
                     Собрано:{' '}
                     <strong className="text-emerald-400 font-mono">
                       {pnpState.ballsPlacedCount} / {pnpState.balls.length}
+                    </strong>
+                  </span>
+                </div>
+              ) : simMode === 'CATCH_FALLING_BALL' ? (
+                <div className="flex items-center gap-3 px-2 text-xs">
+                  <span className="text-slate-400">
+                    Фаза: <strong className="text-rose-300 font-mono text-[11px]">{catchState.phase}</strong>
+                  </span>
+                  <span className="text-slate-400">
+                    Поймано на лету:{' '}
+                    <strong className="text-rose-300 font-mono">{catchState.midAirCatchCount}</strong>
+                  </span>
+                  <span className="text-slate-400">
+                    Доставлено:{' '}
+                    <strong className="text-emerald-400 font-mono">
+                      {catchState.deliveredCount} / {catchState.totalPlannedDrops}
                     </strong>
                   </span>
                 </div>
@@ -951,8 +1024,8 @@ export const KinematicEnginePage: React.FC<Props> = ({ onBackToMap }) => {
                 ricisState={ricisState}
                 dlsState={dlsState}
                 target={currentDesiredTarget}
-                balls={pnpState.balls}
-                box={pnpState.box}
+                balls={simMode === 'CATCH_FALLING_BALL' ? catchState.balls : pnpState.balls}
+                box={simMode === 'CATCH_FALLING_BALL' ? catchState.box : pnpState.box}
                 showDlsGhost={showDlsGhost}
                 linkLengths={LINK_LENGTHS}
               />

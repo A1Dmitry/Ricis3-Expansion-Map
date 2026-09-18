@@ -150,6 +150,35 @@ function runPickAndPlaceClosedLoop(mode: 'POLAR_GEOMETRIC' | 'SYMBOLIC_AST'): {
   return { controller, stepsUsed: step, maxSteps };
 }
 
+/**
+ * Physics integrity guard: a delivered ball must have come to rest INSIDE the box
+ * (free fall + bounce into the box floor, never through it) with near-zero velocity.
+ */
+function assertDeliveredBallsRestInsideBox(state: {
+  balls: ReadonlyArray<{
+    status: string;
+    currentPosition: { x: number; y: number; z: number };
+    velocity?: { x: number; y: number; z: number };
+    radius: number;
+  }>;
+  box: {
+    position: { x: number; y: number; z: number };
+    dimensions: { x: number; y: number; z: number };
+  };
+}): void {
+  const halfX = state.box.dimensions.x / 2;
+  const halfY = state.box.dimensions.y / 2;
+  const boxFloorZ = state.box.position.z - state.box.dimensions.z / 2;
+  for (const ball of state.balls) {
+    expect(Math.abs(ball.currentPosition.x - state.box.position.x)).toBeLessThanOrEqual(halfX + 1e-9);
+    expect(Math.abs(ball.currentPosition.y - state.box.position.y)).toBeLessThanOrEqual(halfY + 1e-9);
+    // Resting ON the box floor (physics contact plane = boxFloorZ + radius).
+    expect(ball.currentPosition.z).toBeGreaterThanOrEqual(boxFloorZ + ball.radius - 1e-9);
+    const speed = Math.hypot(ball.velocity?.x ?? 0, ball.velocity?.y ?? 0, ball.velocity?.z ?? 0);
+    expect(speed, `delivered ball still moving (|v| = ${speed.toFixed(3)} m/s)`).toBeLessThan(0.15);
+  }
+}
+
 describe('Closed-loop pick-and-place simulation (solver ↔ controller integration)', () => {
   it('POLAR_GEOMETRIC RICIS solver sorts all 4 balls into the box within the time budget', () => {
     const { controller, stepsUsed, maxSteps } = runPickAndPlaceClosedLoop('POLAR_GEOMETRIC');
@@ -160,6 +189,7 @@ describe('Closed-loop pick-and-place simulation (solver ↔ controller integrati
     expect(state.ballsPlacedCount).toBe(INITIAL_BALLS.length);
     expect(state.box.collectedBallIds).toHaveLength(INITIAL_BALLS.length);
     expect(state.balls.every(b => b.status === 'IN_BOX')).toBe(true);
+    assertDeliveredBallsRestInsideBox(state);
   });
 
   it('SYMBOLIC_AST RICIS solver sorts all 4 balls into the box within the time budget', () => {
@@ -171,6 +201,7 @@ describe('Closed-loop pick-and-place simulation (solver ↔ controller integrati
     expect(state.ballsPlacedCount).toBe(INITIAL_BALLS.length);
     expect(state.box.collectedBallIds).toHaveLength(INITIAL_BALLS.length);
     expect(state.balls.every(b => b.status === 'IN_BOX')).toBe(true);
+    assertDeliveredBallsRestInsideBox(state);
   });
 });
 

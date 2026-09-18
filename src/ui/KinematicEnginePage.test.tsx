@@ -158,4 +158,19 @@ describe('KinematicEnginePage Component', () => {
     expect(rendered.textContent).toContain('IN DEVELOPMENT');
     expect(rendered.textContent).not.toContain('3D Manipulator View');
   });
+
+  it('switches to the falling-ball interception scenario with its own HUD counters', async () => {
+    const rendered = await render(<KinematicEnginePage onBackToMap={() => undefined} />);
+
+    await act(async () => {
+      clickButton(rendered, 'Перехват падающих');
+    });
+
+    // The scenario keeps the physics viewport mounted and exposes its own telemetry:
+    // ballistic phase label, mid-air catch counter and delivered-vs-planned counter.
+    expect(rendered.textContent).toContain('RICIS-III Arm');
+    expect(rendered.textContent).toContain('Фаза:');
+    expect(rendered.textContent).toContain('Поймано на лету');
+    expect(rendered.textContent).toContain('Доставлено');
+  });
 });
