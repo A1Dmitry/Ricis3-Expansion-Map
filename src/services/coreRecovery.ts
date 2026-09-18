@@ -156,7 +156,12 @@ export async function probeRicisCoreHealth(): Promise<CoreHealthProbeResult> {
   }
 
   try {
-    const response = await fetch(healthUrl, { headers: { accept: 'application/json' } });
+    // Incident 2026-09-17 fact B/CM-4: without a client deadline a frozen
+    // supervisor turns the recovery page into an infinite spinner.
+    const response = await fetch(healthUrl, {
+      headers: { accept: 'application/json' },
+      signal: AbortSignal.timeout(8_000),
+    });
     if (!response.ok) {
       return { available: false, safeDetail: `Health endpoint returned HTTP ${response.status}.` };
     }
@@ -164,8 +169,16 @@ export async function probeRicisCoreHealth(): Promise<CoreHealthProbeResult> {
     return payload.status === 'ready' || payload.status === 'ok'
       ? { available: true }
       : { available: false, safeDetail: 'Health endpoint did not report a ready Core runtime.' };
-  } catch {
-    return { available: false, safeDetail: 'Health endpoint could not be reached.' };
+  } catch (error) {
+    const timedOut =
+      error instanceof Error &&
+      (error.name === 'TimeoutError' || error.name === 'AbortError');
+    return {
+      available: false,
+      safeDetail: timedOut
+        ? 'Health endpoint timed out (Core supervisor did not answer in time).'
+        : 'Health endpoint could not be reached.',
+    };
   }
 }
 

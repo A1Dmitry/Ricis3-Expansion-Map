@@ -109,8 +109,11 @@ export class RicisWasmBridge implements IRicisCoreEngine, IRicisProofGateway {
       const endpoint = resolveRicisCoreApiEndpoint();
       const healthUrl = ricisCoreApiUrl(endpoint, 'health');
       if (typeof window !== 'undefined' && healthUrl) {
+        // Incident 2026-09-17 fact B/CM-4: bound the health probe so a frozen
+        // supervisor cannot hang runtime initialisation indefinitely.
         const response = await fetch(healthUrl, {
           headers: { accept: 'application/json' },
+          signal: AbortSignal.timeout(8_000),
         });
         if (response.ok) {
           const payload = await response.json() as CoreHealthPayload;

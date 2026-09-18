@@ -75,7 +75,9 @@ describe('P-07 apiClient import topology', () => {
     const logic = source('src/model/logic.ts');
 
     expect(logic).toContain('const fallback = buildCanonicalRicisProofLatex(');
-    expect(logic).toContain("const finalResult = 'Axiom Extracted: ' + node.id + '_resolved';");
+    // Incident 2026-09-17 C2: finalResult is conditional on the degradation
+    // flag so a local draft is never silently labelled as an extracted axiom.
+    expect(logic).toMatch(/const finalResult = degraded[\s\S]*Axiom Extracted:/);
     expect(logic).toContain("state: node.state === 'resolved' ? 'resolved' : 'partial'");
     expect(logic).toContain("'proof.core.state.localDiagnosticOnly'");
   });

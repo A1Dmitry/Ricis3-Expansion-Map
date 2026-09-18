@@ -5,9 +5,53 @@
  * "Unexpected token '<', \"<html>...\"".
  */
 
+/**
+ * Machine-readable AI degradation reasons mirrored from server/aiDegradation.ts.
+ * - local_draft: HTTP 200 with a canonical local template instead of AI output
+ * - no_api_key / ai_unavailable: request genuinely failed (typically HTTP 503)
+ */
+export type AiDegradationFlag = 'local_draft' | 'no_api_key' | 'ai_unavailable';
+
 export type ApiResult<T> =
-  | { ok: true; data: T; error?: undefined; isStaticHost?: undefined }
-  | { ok: false; error: string; status?: number; isStaticHost?: boolean; data?: undefined };
+  | {
+      ok: true;
+      data: T;
+      error?: undefined;
+      isStaticHost?: undefined;
+      /** Present when the server answered 200 with a local draft instead of AI. */
+      degraded?: AiDegradationFlag;
+    }
+  | {
+      ok: false;
+      error: string;
+      status?: number;
+      isStaticHost?: boolean;
+      data?: undefined;
+      degraded?: AiDegradationFlag;
+    };
+
+/** Russian user-facing labels for the degradation flag (incident 2026-09-17 C2). */
+export function describeAiDegradation(flag: AiDegradationFlag | undefined): string | null {
+  switch (flag) {
+    case 'local_draft':
+      return 'Локальный канонический черновик RICIS (внешний AI недоступен или отклонён).';
+    case 'no_api_key':
+      return 'GEMINI_API_KEY не настроен — внешний AI-канал недоступен.';
+    case 'ai_unavailable':
+      return 'Внешний AI-канал временно недоступен.';
+    default:
+      return null;
+  }
+}
+
+function readDegradationFlag(data: unknown): AiDegradationFlag | undefined {
+  if (!data || typeof data !== 'object') return undefined;
+  const value = (data as { degraded?: unknown }).degraded;
+  if (value === 'local_draft' || value === 'no_api_key' || value === 'ai_unavailable') {
+    return value;
+  }
+  return undefined;
+}
 
 const STATIC_HOST_HINT =
   'Агент API недоступен на статическом хостинге (GitHub Pages). ' +
@@ -83,6 +127,8 @@ export async function postJson<T = unknown>(
         };
       }
 
+      const degraded = readDegradationFlag(data);
+
       if (!res.ok) {
         let errMsg =
           (typeof data?.error === 'string' && data.error) ||
@@ -101,10 +147,14 @@ export async function postJson<T = unknown>(
         } else if (String(errMsg).includes('404')) {
           errMsg = 'Модель недоступна или отключена (ошибка 404).';
         }
-        return { ok: false, error: errMsg, status: res.status };
+        const reason = describeAiDegradation(degraded);
+        if (reason && !String(errMsg).includes(reason)) {
+          errMsg = `${errMsg} (${reason})`;
+        }
+        return { ok: false, error: errMsg, status: res.status, degraded };
       }
 
-      return { ok: true, data: data as T };
+      return { ok: true, data: data as T, degraded };
     } catch (e: any) {
       if (e?.name === 'AbortError') {
         return { ok: false, error: 'Таймаут запроса к агенту API.' };

@@ -32,11 +32,22 @@ process.on('unhandledRejection', (reason) => {
 
 const delay = (ms: number) => new Promise((res) => setTimeout(res, ms));
 
+/**
+ * Hard ceiling for a single AI call chain. Must stay BELOW the client
+ * `postJson` default (60 s) so the server stops burning quota after the
+ * browser has already aborted (incident 2026-09-17 fact C3).
+ */
+const AI_CALL_DEADLINE_MS = Number(process.env.RICIS_AI_CALL_DEADLINE_MS || 45_000);
+/** Cap the model pool so a full sweep cannot outlive the deadline. */
+const AI_MAX_MODELS = Number(process.env.RICIS_AI_MAX_MODELS || 4);
+const AI_ATTEMPTS_PER_MODEL = 2;
+
 async function callAIWithFallback(
   prompt: string,
   responseMimeType = "text/plain",
   preferredModel?: string,
-  enableSearch = false
+  enableSearch = false,
+  externalSignal?: AbortSignal,
 ) {
   const apiKey = process.env.GEMINI_API_KEY?.trim();
   if (
@@ -48,15 +59,30 @@ async function callAIWithFallback(
     throw new Error("GEMINI_API_KEY не настроен или содержит некорректное значение (about:blank). Проверьте настройки Secrets в AI Studio.");
   }
 
+  if (externalSignal?.aborted) {
+    throw new Error("AI request aborted before start (client disconnected).");
+  }
+
   let pool = [...MODELS_POOL];
   if (preferredModel && pool.includes(preferredModel)) {
     pool = [preferredModel, ...pool.filter((m) => m !== preferredModel)];
   }
+  pool = pool.slice(0, Math.max(1, AI_MAX_MODELS));
   let lastError: any = null;
+  const deadline = Date.now() + AI_CALL_DEADLINE_MS;
+
+  const throwIfAborted = (): void => {
+    if (externalSignal?.aborted) {
+      throw new Error("AI request aborted (client disconnected).");
+    }
+    if (Date.now() >= deadline) {
+      throw lastError || new Error(`AI call deadline exceeded (${AI_CALL_DEADLINE_MS}ms).`);
+    }
+  };
 
   for (const model of pool) {
-    // Внутренний цикл попыток для одной модели
-    for (let attempt = 1; attempt <= 2; attempt++) {
+    for (let attempt = 1; attempt <= AI_ATTEMPTS_PER_MODEL; attempt++) {
+      throwIfAborted();
       try {
         console.log(`[AI] Calling model ${model}, attempt ${attempt}...`);
         const ai = new GoogleGenAI({
@@ -64,10 +90,13 @@ async function callAIWithFallback(
           httpOptions: { headers: { "User-Agent": "aistudio-build" } },
         });
 
+        // The @google/genai GenerateContentConfig has no abortSignal field in
+        // the pinned SDK; cancellation is enforced by throwIfAborted() between
+        // attempts and by the outer AI_CALL_DEADLINE_MS ceiling.
         const response = await ai.models.generateContent({
           model,
           contents: prompt,
-          config: { 
+          config: {
             responseMimeType,
             tools: enableSearch ? [{ googleSearch: {} }] : undefined,
           },
@@ -80,6 +109,10 @@ async function callAIWithFallback(
         console.warn(`[AI] Model ${model} attempt ${attempt} failed: ${errMsg}`);
         lastError = e;
 
+        if (externalSignal?.aborted || /aborted|deadline exceeded/i.test(errMsg)) {
+          throw e instanceof Error ? e : new Error(errMsg);
+        }
+
         const isQuotaError =
           errMsg.includes("429") ||
           errMsg.includes("RESOURCE_EXHAUSTED") ||
@@ -91,15 +124,28 @@ async function callAIWithFallback(
           errMsg.includes("not found");
 
         if (isQuotaError) {
-          await delay(1000 * attempt);
+          const remaining = deadline - Date.now();
+          if (remaining <= 0) break;
+          await delay(Math.min(1000 * attempt, remaining));
         } else if (isNotFound) {
-          // Если модель не найдена (404), сразу переходим к следующей модели
+          // Model missing (404) — skip to the next model immediately.
           break;
         }
       }
     }
   }
   throw lastError || new Error("Все модели AI из пула временно недоступны.");
+}
+
+/** Bind an AbortController to the lifetime of an Express request (client disconnect). */
+function bindRequestAbort(req: { on: (event: string, cb: () => void) => void }): AbortController {
+  const controller = new AbortController();
+  const onClose = (): void => {
+    if (!controller.signal.aborted) controller.abort();
+  };
+  req.on("close", onClose);
+  req.on("aborted", onClose);
+  return controller;
 }
 
 function validatePayload(body: any, schema: Record<string, string>): { isValid: boolean; error?: string } {
@@ -137,9 +183,24 @@ function validatePayload(body: any, schema: Record<string, string>): { isValid: 
   return { isValid: true };
 }
 
+/**
+ * Resolve the HTTP listen port.
+ * Incident 2026-09-17 fact A: a hard-coded 3000 made every leftover process
+ * turn the next `npm run dev` into a silent dead preview. Prefer PORT from
+ * the environment; fall back to 3000 for local/default runs.
+ */
+function resolveListenPort(env: NodeJS.ProcessEnv = process.env): number {
+  const raw = env.PORT?.trim();
+  if (raw && /^\d+$/u.test(raw)) {
+    const parsed = Number(raw);
+    if (Number.isInteger(parsed) && parsed >= 1 && parsed <= 65535) return parsed;
+  }
+  return 3000;
+}
+
 async function startServer() {
   const app = express();
-  const PORT = 3000;
+  const PORT = resolveListenPort();
   app.use(express.json({ limit: "50mb" }));
   app.use(express.urlencoded({ limit: "50mb", extended: true }));
 
@@ -224,6 +285,8 @@ async function startServer() {
   app.post("/api/generateProof", async (req, res) => {
     const { id, title, targetFunction, description, singularityHint, axioms, preferredModel } = req.body || {};
 
+    const abort = bindRequestAbort(req);
+
     try {
       const validation = validatePayload(req.body, {
         id: "string",
@@ -267,7 +330,7 @@ ${axiomList}
 Выводи все формулы и выражения строго в формате LaTeX (через $...$ или $$...$$) без использования Unicode-символов для математики (не используй стрелочки, дроби или надписи юникодом).
 Обязательно используй Аксиому A6 (для сопряженного контекста 0_F * \\infty_F = F^2, в общем случае det(u,v) = F * G), Геометрико-дискретный каркас (непрерывная гипербола p*q = N, пересечение с лучами q = k*p в точках (\\sqrt{N/k}, \\sqrt{kN}) и дискретная маска малых простых M_P в кольцах Мерсенна M_k = 2^k - 1) и дай Lean 4 код. Не включай в вывод никаких ссылок, URL, Zenodo или DOI. Никаких заглушек вида "0_E", "Result = Result" или "sorry".`;
 
-      const response = await callAIWithFallback(prompt, "text/plain", preferredModel);
+      const response = await callAIWithFallback(prompt, "text/plain", preferredModel, false, abort.signal);
 
       let text = response.text || "";
       const audit = auditProofContent(text);
@@ -291,6 +354,8 @@ ${axiomList}
 
   app.post("/api/discoverTasks", async (req, res) => {
     const { existingTitles, parentNode, existingZones, dbKnowledge, preferredModel } = req.body || {};
+
+    const abort = bindRequestAbort(req);
 
     try {
       const validation = validatePayload(req.body, {
@@ -319,7 +384,7 @@ ${axiomList}
 Верни СТРОГИЙ JSON массив объектов: title (строка), description (строка), targetFunction (строка), zoneId (строка - ID научной области на английском. Используй одну из существующих зон, ИЛИ если проблема совсем в них не попадает, придумай НОВЫЙ ID, например finance, ecology), significance (число 0-1), singularityHint (строка).
 Предпочитай проблемы, расширяющие ядро сингулярностей или применяющие RICIS к новым дисциплинам. Максимум 8 элементов. Выведи ТОЛЬКО JSON массив.`;
 
-      const response = await callAIWithFallback(prompt, "application/json", preferredModel, true);
+      const response = await callAIWithFallback(prompt, "application/json", preferredModel, true, abort.signal);
 
       let text = response.text || "[]";
       const match = text.match(/\[[\s\S]*\]/);
@@ -353,6 +418,8 @@ ${axiomList}
 
   app.post("/api/aiAssistantNode", async (req, res) => {
     const { title, targetFunction, zoneId, hint, preferredModel } = req.body || {};
+
+    const abort = bindRequestAbort(req);
 
     try {
       const validation = validatePayload(req.body, {
@@ -392,7 +459,7 @@ ${axiomList}
 }
 Выведи ТОЛЬКО JSON объект.`;
 
-      const response = await callAIWithFallback(prompt, "application/json", preferredModel);
+      const response = await callAIWithFallback(prompt, "application/json", preferredModel, false, abort.signal);
 
       let text = response.text || "{}";
       const match = text.match(/\{[\s\S]*\}/);
@@ -431,6 +498,8 @@ ${axiomList}
 
   app.post("/api/expandLeaves", async (req, res) => {
     const { leaves, existingZones, existingTitles, preferredModel } = req.body || {};
+
+    const abort = bindRequestAbort(req);
 
     try {
       const validation = validatePayload(req.body, {
@@ -480,7 +549,7 @@ ${leavesStr}
 ]
 Выведи ТОЛЬКО JSON массив.`;
 
-      const response = await callAIWithFallback(prompt, "application/json", preferredModel, true);
+      const response = await callAIWithFallback(prompt, "application/json", preferredModel, true, abort.signal);
 
       let text = response.text || "[]";
       const match = text.match(/\[[\s\S]*\]/);
@@ -506,6 +575,8 @@ ${leavesStr}
 
   app.post("/api/fillNodeParams", async (req, res) => {
     const { title, description, zoneIds, preferredModel } = req.body || {};
+
+    const abort = bindRequestAbort(req);
 
     try {
       const validation = validatePayload(req.body, {
@@ -543,7 +614,7 @@ ${leavesStr}
 }
 Выведи ТОЛЬКО JSON объект.`;
 
-      const response = await callAIWithFallback(prompt, "application/json", preferredModel, true);
+      const response = await callAIWithFallback(prompt, "application/json", preferredModel, true, abort.signal);
 
       let text = response.text || "{}";
       const match = text.match(/\{[\s\S]*\}/);
@@ -578,6 +649,7 @@ ${leavesStr}
    */
   app.post("/api/searchDerivatives", async (req, res) => {
     const { prompt, existingTitles, preferredModel } = req.body || {};
+    const abort = bindRequestAbort(req);
 
     try {
       const validation = validatePayload(req.body, {
@@ -596,7 +668,7 @@ ${leavesStr}
 Уже на карте: ${Array.isArray(existingTitles) ? existingTitles.slice(0, 40).join("; ") : ""}
 Отвечай СТРОГО на РУССКОМ ЯЗЫКЕ. Выведи ТОЛЬКО валидный JSON массив.`;
 
-      const response = await callAIWithFallback(typeof prompt === "string" && prompt.length > 100 ? prompt : fallbackPrompt, "application/json", preferredModel, true);
+      const response = await callAIWithFallback(typeof prompt === "string" && prompt.length > 100 ? prompt : fallbackPrompt, "application/json", preferredModel, true, abort.signal);
 
       let text = response.text || "[]";
       const match = text.match(/\[[\s\S]*\]/);
@@ -749,9 +821,48 @@ ${leavesStr}
     });
   }
 
-  app.listen(PORT, "0.0.0.0", () => {
-    console.log(`Server running on http://localhost:${PORT}`);
+  // Incident 2026-09-17 fact A: Express 5 routes the same listen-callback onto
+  // both 'listening' and 'error'. Ignoring the Error argument turned EADDRINUSE
+  // into a silent "Server running" lie while the process held no port.
+  const server = app.listen(PORT, "0.0.0.0", (error?: Error) => {
+    if (error) {
+      const code = (error as NodeJS.ErrnoException).code;
+      console.error(
+        `[server] FAILED to bind 0.0.0.0:${PORT}` +
+          (code ? ` (${code})` : "") +
+          `: ${error.message}`,
+      );
+      if (code === "EADDRINUSE") {
+        console.error(
+          `[server] Port ${PORT} is already in use. Free it or set PORT=<free-port> ` +
+            `(see .env.example). Refusing to report a false "Server running".`,
+        );
+      }
+      process.exit(1);
+      return;
+    }
+    const address = server.address();
+    if (address === null) {
+      console.error(
+        `[server] listen callback fired but server.address() is null — ` +
+          `port ${PORT} was not acquired. Exiting.`,
+      );
+      process.exit(1);
+      return;
+    }
+    const bound =
+      typeof address === "string" ? address : `${address.address}:${address.port}`;
+    console.log(`Server running on http://localhost:${PORT} (bound ${bound})`);
+  });
 
+  server.on("error", (error: NodeJS.ErrnoException) => {
+    // Defence in depth if Express ever stops piping 'error' into the callback.
+    console.error(
+      `[server] listen error on port ${PORT}` +
+        (error.code ? ` (${error.code})` : "") +
+        `: ${error.message}`,
+    );
+    process.exit(1);
   });
 }
 

@@ -1,4 +1,4 @@
-import { spawn, spawnSync, type ChildProcess } from 'node:child_process';
+import { spawn, type ChildProcess } from 'node:child_process';
 import { existsSync } from 'node:fs';
 import path from 'node:path';
 
@@ -13,9 +13,22 @@ const CORE_PROJECT = path.resolve(
   process.env.RICIS_CORE_PROJECT || 'Ricis.WebApi/Ricis.WebApi.csproj',
 );
 
+/** Hard cap for the async `dotnet --version` probe (incident 2026-09-17 fact B). */
+const DOTNET_PROBE_TIMEOUT_MS = Number(process.env.RICIS_CORE_DOTNET_PROBE_TIMEOUT_MS || 2_000);
+/**
+ * After a failed host probe, skip re-probing for this long so every
+ * `/api/ricis-core/*` call does not re-freeze the event loop.
+ */
+const DOTNET_PROBE_COOLDOWN_MS = Number(process.env.RICIS_CORE_DOTNET_PROBE_COOLDOWN_MS || 30_000);
+
 let coreProcess: ChildProcess | null = null;
 let startPromise: Promise<void> | null = null;
 let lastLaunchError: string | null = null;
+
+/** Cached result of the async `dotnet --version` probe (null = not yet probed). */
+let dotnetHostProbe: { readonly ok: true } | { readonly ok: false; readonly error: string } | null = null;
+let dotnetHostProbePromise: Promise<void> | null = null;
+let dotnetHostProbeFailedAt = 0;
 
 function healthUrl(): string {
   return `${CORE_URL.replace(/\/$/, '')}/health`;
@@ -40,33 +53,89 @@ function assertCoreRuntime(): void {
 }
 
 /**
- * Pre-checks that the dotnet host itself is invocable BEFORE spawn().
- * Without this check (and the 'error' listener below) a missing dotnet binary
- * turns the async spawn ENOENT into an unhandled 'error' event that kills the
- * whole Node process (remote DoS via a single GET /api/ricis-core/health).
+ * Async `dotnet --version` probe. Replaces the previous `spawnSync` call that
+ * blocked the Node event loop for up to 10 s on every request when the host
+ * was missing or slow (incident 2026-09-17 fact B: measured 9.7 s freeze +
+ * ECONNRESET on GET /). Result is cached for the process lifetime on success
+ * and for DOTNET_PROBE_COOLDOWN_MS on failure.
  */
-function assertDotnetHost(): void {
-  const probe = spawnSync(DOTNET_BIN, ['--version'], { stdio: 'ignore', timeout: 10_000 });
-  if (probe.error) {
-    throw new Error(
-      `dotnet host "${DOTNET_BIN}" is not available: ${probe.error.message}. ` +
-      'Install the .NET SDK/Runtime or unset the Ricis.Core supervisor routes.',
-    );
+function probeDotnetHostAsync(): Promise<void> {
+  if (dotnetHostProbe?.ok === true) {
+    return Promise.resolve();
   }
-  if (probe.status !== 0) {
-    throw new Error(
-      `dotnet host "${DOTNET_BIN}" failed the version probe (exit code ${probe.status}). ` +
-      'Ricis.Core cannot be started on this machine.',
-    );
+  if (
+    dotnetHostProbe?.ok === false &&
+    Date.now() - dotnetHostProbeFailedAt < DOTNET_PROBE_COOLDOWN_MS
+  ) {
+    return Promise.reject(new Error(dotnetHostProbe.error));
   }
+  if (dotnetHostProbePromise) {
+    return dotnetHostProbePromise;
+  }
+
+  dotnetHostProbePromise = new Promise<void>((resolve, reject) => {
+    let settled = false;
+    const child = spawn(DOTNET_BIN, ['--version'], {
+      stdio: 'ignore',
+    });
+
+    const finish = (error: Error | null): void => {
+      if (settled) return;
+      settled = true;
+      clearTimeout(timer);
+      try {
+        child.kill('SIGKILL');
+      } catch {
+        // already exited
+      }
+      if (error) {
+        const message =
+          `dotnet host "${DOTNET_BIN}" is not available: ${error.message}. ` +
+          'Install the .NET SDK/Runtime or unset the Ricis.Core supervisor routes.';
+        dotnetHostProbe = { ok: false, error: message };
+        dotnetHostProbeFailedAt = Date.now();
+        reject(new Error(message));
+        return;
+      }
+      dotnetHostProbe = { ok: true };
+      resolve();
+    };
+
+    const timer = setTimeout(() => {
+      finish(new Error(`version probe timed out after ${DOTNET_PROBE_TIMEOUT_MS}ms`));
+    }, DOTNET_PROBE_TIMEOUT_MS);
+
+    child.once('error', (error: Error) => {
+      finish(error);
+    });
+    child.once('exit', (code, signal) => {
+      if (code === 0) {
+        finish(null);
+        return;
+      }
+      finish(
+        new Error(
+          `version probe failed (exit code ${code ?? 'null'}, signal ${signal ?? 'none'})`,
+        ),
+      );
+    });
+  }).finally(() => {
+    dotnetHostProbePromise = null;
+  });
+
+  return dotnetHostProbePromise;
 }
 
-function launchCoreProcess(): void {
+async function assertDotnetHost(): Promise<void> {
+  await probeDotnetHostAsync();
+}
+
+async function launchCoreProcess(): Promise<void> {
   if (coreProcess && coreProcess.exitCode === null) return;
 
   lastLaunchError = null;
   assertCoreRuntime();
-  assertDotnetHost();
+  await assertDotnetHost();
   const bundledRuntimeAvailable = existsSync(CORE_DLL);
   const args = bundledRuntimeAvailable
     ? [CORE_DLL, '--urls', CORE_URL]
@@ -97,7 +166,7 @@ export async function ensureRicisCoreApi(): Promise<void> {
   if (await isHealthy()) return;
   if (!startPromise) {
     startPromise = (async () => {
-      launchCoreProcess();
+      await launchCoreProcess();
       const deadline = Date.now() + Number(process.env.RICIS_CORE_START_TIMEOUT_MS || 30_000);
       while (Date.now() < deadline) {
         if (lastLaunchError) {
@@ -181,4 +250,21 @@ export function getRicisCoreIntegrationInfo() {
     dotnetHost: DOTNET_BIN,
     running: Boolean(coreProcess && coreProcess.exitCode === null),
   };
+}
+
+/** Test-only: reset in-memory probe cache between vitest cases. */
+export function __resetDotnetHostProbeForTests(): void {
+  dotnetHostProbe = null;
+  dotnetHostProbePromise = null;
+  dotnetHostProbeFailedAt = 0;
+  lastLaunchError = null;
+  startPromise = null;
+  if (coreProcess) {
+    try {
+      coreProcess.kill('SIGKILL');
+    } catch {
+      // ignore
+    }
+    coreProcess = null;
+  }
 }
