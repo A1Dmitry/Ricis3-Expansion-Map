@@ -143,6 +143,14 @@ export const DICTIONARY = {
     ru: 'Узел отмечен как resolved в карте. Этот статус сам по себе не является Lean kernel verification.',
     en: 'The node is marked resolved in the map. That workflow status alone is not Lean kernel verification.',
   },
+  'proofTrust.structurallyValidated.label': {
+    ru: 'Структурно валидировано',
+    en: 'Structurally Validated',
+  },
+  'proofTrust.structurallyValidated.description': {
+    ru: 'Артефакт прошёл структурные AST-проверки (включая canon-гейты); ядровой прогон Lean не подтверждал заявленное математическое утверждение. Не MATHEMATICALLY_PROVEN.',
+    en: 'The artifact passed structural AST checks (including canon gates); a Lean kernel run did not verify the claimed mathematical statement. Not MATHEMATICALLY_PROVEN.',
+  },
   'proofTrust.noProof.label': {
     ru: 'Proof evidence не приложен',
     en: 'No proof evidence attached',

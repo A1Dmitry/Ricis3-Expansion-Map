@@ -171,6 +171,18 @@ export const LOCALE_OVERRIDES: Partial<Record<TranslationKey, LocaleOverride>> =
     'hi-IN': 'यह नोड मानचित्र पर \'resolved\' के रूप में चिह्नित है। यह workflow स्थिति अकेले Lean kernel सत्यापन नहीं बताती।',
     'ms-MY': 'Nod ditandakan sebagai resolved dalam peta. Status workflow itu sendiri bukanlah pengesahan kernel Lean.',
   },
+  'proofTrust.structurallyValidated.label': {
+    'fr-CA': 'Validé structurellement',
+    'de-DE': 'Strukturell validiert',
+    'hi-IN': 'संरचनात्मक रूप से सत्यापित',
+    'ms-MY': 'Disahkan secara struktur',
+  },
+  'proofTrust.structurallyValidated.description': {
+    'fr-CA': 'L\'artefact a passé les vérifications structurelles AST (y compris les portes canon) ; une exécution du noyau Lean n\'a pas vérifié l\'énoncé mathématique revendiqué. Non MATHEMATICALLY_PROVEN.',
+    'de-DE': 'Das Artefakt bestand die strukturellen AST-Prüfungen (einschließlich Canon-Gates); ein Lean-Kernel-Lauf hat die behauptete mathematische Aussage nicht verifiziert. Nicht MATHEMATICALLY_PROVEN.',
+    'hi-IN': 'आर्टिफैक्ट ने संरचनात्मक AST जाँच (कैनन गेट सहित) पास कर ली; Lean kernel रन ने दावा किए गए गणितीय कथन को सत्यापित नहीं किया। MATHEMATICALLY_PROVEN नहीं।',
+    'ms-MY': 'Artefak lulus pemeriksaan AST struktur (termasuk gerbang canon); satu larian kernel Lean tidak mengesahkan kenyataan matematik yang dituntut. Bukan MATHEMATICALLY_PROVEN.',
+  },
   'proofTrust.noProof.label': {
     'fr-CA': 'Aucune preuve attachée',
     'de-DE': 'Keine Proof‑Belege angehängt',

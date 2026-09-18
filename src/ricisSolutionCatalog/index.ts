@@ -92,7 +92,7 @@ export type GreenBasis =
   | 'RICIS_SOURCE_AND_LEAN_KERNEL_VERIFIED';
 
 export interface LeanEvidenceInput {
-  readonly trustStatus: 'LEAN_VERIFIED' | 'TRUSTED_AXIOM' | 'REQUIRES_CORE_LEAN' | 'REJECTED' | 'ABSENT';
+  readonly trustStatus: 'LEAN_VERIFIED' | 'TRUSTED_AXIOM' | 'REQUIRES_CORE_LEAN' | 'STRUCTURALLY_VALIDATED' | 'REJECTED' | 'ABSENT';
   readonly sourceHash?: string;
   readonly toolchain?: string;
   readonly command?: string;

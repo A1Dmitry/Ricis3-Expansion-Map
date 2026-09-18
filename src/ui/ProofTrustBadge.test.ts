@@ -57,6 +57,23 @@ describe('getProofTrustPresentation', () => {
     });
   });
 
+  it('presents STRUCTURALLY_VALIDATED for artifacts that passed AST checks but no kernel proof', () => {
+    const proof: Proof = {
+      ...baseProof,
+      externalLean: {
+        sourceHash: 'fnv1a:abc',
+        submittedAt: '2026-08-18T00:00:00.000Z',
+        sourceLocked: true,
+        trustStatus: 'STRUCTURALLY_VALIDATED',
+      },
+    };
+    expect(getProofTrustPresentation(baseNode, proof)).toMatchObject({
+      code: 'STRUCTURALLY_VALIDATED',
+      tone: 'amber',
+    });
+    expect(getProofTrustPresentation(baseNode, proof, 'ru').label).toBe('Структурно валидировано');
+  });
+
   it('localizes trust presentation through the explicit Russian locale without changing the trust code', () => {
     expect(getProofTrustPresentation(baseNode, baseProof, 'ru')).toMatchObject({
       code: 'NODE_STATE_ONLY',

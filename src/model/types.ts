@@ -104,6 +104,7 @@ export type ExternalLeanTrustStatus =
   | 'REQUIRES_CORE_LEAN'
   | 'LEAN_VERIFIED'
   | 'TRUSTED_AXIOM'
+  | 'STRUCTURALLY_VALIDATED'
   | 'REJECTED';
 
 export interface LeanKernelVerificationEvidence {
