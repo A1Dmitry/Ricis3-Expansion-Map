@@ -18,8 +18,10 @@ import { initialMap } from './initialMap';
  * этот QA-контракт обновлён соответствующим образом (QA-2, QA-4).
  *
  * ОСТАЁТСЯ ОТДЕЛЬНЫМ РЕШЕНИЕМ ВЛАДЕЛЬЦА (L9): запись узла `registry-120`
- * в `src/model/initialMap.ts` (QA-3 ниже проверяет её ТЕКУЩЕЕ состояние без
- * его изменения — см. F-01/F-05 в `artifacts/proofs/core-checks/kernel-findings.json`).
+ * в `src/model/initialMap.ts`. Решение владельца (unblock-l9, 2026-09-18): узел
+ * понижен с `TRUSTED_AXIOM` до `STRUCTURALLY_VALIDATED`, в согласии с уже
+ * принятой классификацией артефакта (F-01, owner decision 2026-09-14). QA-3
+ * ниже проверяет ИТОГОВОЕ состояние узла (см. F-01/F-05/TPS-0006).
  */
 describe('QA Suite: Jacobian Conjecture Resolution', () => {
   it('QA-1: verifies the existence of the Lean 4 Jacobian proof file', () => {
@@ -45,14 +47,14 @@ describe('QA Suite: Jacobian Conjecture Resolution', () => {
     expect(metadata.verification.contentHash).toBe('2e043f2738df8d8b02754aebb5fa93580fb87e6cc71733557c620c463c4de56b');
   });
 
-  it('QA-3: verifies the Jacobian node is registered with verified proofs in initialMap (current state; node-level demotion is a pending owner decision L9)', () => {
+  it('QA-3: verifies the Jacobian node is registered with structurally-validated proofs in initialMap (owner decision L9 / unblock-l9, 2026-09-18)', () => {
     const node = initialMap.nodes.find(n => n.id === 'registry-120');
     expect(node).toBeDefined();
 
     const proof = initialMap.proofs['registry-120'];
     expect(proof).toBeDefined();
     expect(proof.externalLean).toBeDefined();
-    expect(proof.externalLean?.trustStatus).toBe('TRUSTED_AXIOM');
+    expect(proof.externalLean?.trustStatus).toBe('STRUCTURALLY_VALIDATED');
     expect(proof.externalLean?.sourceHash).toBe('2e043f2738df8d8b02754aebb5fa93580fb87e6cc71733557c620c463c4de56b');
   });
 

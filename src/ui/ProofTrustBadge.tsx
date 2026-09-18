@@ -8,6 +8,7 @@ export interface ProofTrustPresentation {
   readonly code:
     | 'LEAN_VERIFIED'
     | 'TRUSTED_AXIOM'
+    | 'STRUCTURALLY_VALIDATED'
     | 'REQUIRES_CORE_LEAN'
     | 'REJECTED'
     | 'NODE_STATE_ONLY'
@@ -51,6 +52,15 @@ export function getProofTrustPresentation(
       label: resolveDictionaryText(DICTIONARY['proofTrust.trustedAxiom.label'], locale),
       description: resolveDictionaryText(DICTIONARY['proofTrust.trustedAxiom.description'], locale),
       tone: 'cyan',
+    };
+  }
+
+  if (externalLean?.trustStatus === 'STRUCTURALLY_VALIDATED') {
+    return {
+      code: 'STRUCTURALLY_VALIDATED',
+      label: resolveDictionaryText(DICTIONARY['proofTrust.structurallyValidated.label'], locale),
+      description: resolveDictionaryText(DICTIONARY['proofTrust.structurallyValidated.description'], locale),
+      tone: 'amber',
     };
   }
 

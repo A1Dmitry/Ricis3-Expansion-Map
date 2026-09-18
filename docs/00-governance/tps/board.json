@@ -1176,8 +1176,8 @@
     {
       "id": "TPS-0006",
       "title": "L9: узел registry-120 в src/model/initialMap.ts остаётся TRUSTED_AXIOM без ядерного основания",
-      "lane": "waiting_owner",
-      "status": "PARTIALLY_COMPLETED",
+      "lane": "done",
+      "status": "COMPLETED",
       "taskClass": "docs",
       "owner": "владелец проекта",
       "priority": "P2",
@@ -1189,7 +1189,56 @@
         "Запись внесена в ACTIVE_TASKS.md с датой и основанием."
       ],
       "sourceRef": "src/model/initialMap.ts",
-      "blockedOn": "Решение владельца по узлу-уровню (L9); исполнитель не может менять публичный статус доказательства на основании собственного вывода."
+      "blockedOn": "Решение владельца принято (unblock-l9, 2026-09-18): узел registry-120 понижен TRUSTED_AXIOM → STRUCTURALLY_VALIDATED в src/model/initialMap.ts (согласовано с артефактным уровнем F-01, owner decision 2026-09-14). См. ACTIVE_TASKS.md.",
+      "startedAt": "2026-09-18T12:18:00Z",
+      "closedAt": "2026-09-18T12:36:00Z",
+      "verification": {
+        "auditor": "SELF (same-pipeline) — реклассификация выполнена и проверена этим циклом; решение о публичном статусе узла принято владельцем (unblock-l9, 2026-09-18).",
+        "commands": [
+          {
+            "command": "npm run lint",
+            "exitCode": 0,
+            "measuredAt": "2026-09-18T12:31:00Z",
+            "durationMs": 20600,
+            "note": "tsc --noEmit (strict) после расширения ExternalLeanTrustStatus/LeanEvidenceInput и правки registry-120 / ProofTrustBadge / i18n."
+          },
+          {
+            "command": "npx tsx tools/recursiveProductionAudit.ts",
+            "exitCode": 0,
+            "measuredAt": "2026-09-18T12:32:00Z",
+            "durationMs": 590,
+            "note": "200/200 узлов достижимы, 0 orphan/cyclic, 200/200 валидных proof, 0 errors (17 benign PROOF_TARGET_MISMATCH warnings неизменны)."
+          },
+          {
+            "command": "npm run release:check",
+            "exitCode": 0,
+            "measuredAt": "2026-09-18T12:33:10Z",
+            "durationMs": 161,
+            "note": "Синхронизация версии 0.4.210 + 14 тестов релизной согласованности."
+          },
+          {
+            "command": "npm test",
+            "exitCode": 0,
+            "measuredAt": "2026-09-18T12:45:37Z",
+            "durationMs": 214000,
+            "note": "2199 тестов (включая новый ProofTrustBadge STRUCTURALLY_VALIDATED), 0 failed на чистом коммите 64db48c; полный прогон зелёный (exit 0)."
+          },
+          {
+            "command": "npm run tps:gate",
+            "exitCode": 0,
+            "measuredAt": "2026-09-18T12:36:00Z",
+            "durationMs": 452,
+            "note": "Гейт зелёный после записи полей верификации и каскадной регенерации BOARD.md."
+          }
+        ]
+      },
+      "kaizenDisposition": {
+        "disposition": "NONE_JUSTIFIED",
+        "reason": "Разовая реклассификация доверия узла по решению владельца (L9/unblock-l9); не порождает улучшение стандарта потока, поэтому kaizen не требуется."
+      },
+      "challenger": {
+        "attackedSubstitution": "Понижение метки узла до STRUCTURALLY_VALIDATED выглядит как закрытие F-05, но ядровой прогон Lean по-прежнему отсутствует: исходник не компилируется (run 34870620154, rfl failed), математическое утверждение Jacobian не доказано — изменилась только классификация, не evidence."
+      }
     },
     {
       "id": "TPS-0007",

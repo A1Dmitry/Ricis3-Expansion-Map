@@ -2037,7 +2037,7 @@ export const initialMap: MapState = {
   "registry-120": {
     "nodeId": "registry-120",
     "externalLean": {
-      "trustStatus": "TRUSTED_AXIOM",
+      "trustStatus": "STRUCTURALLY_VALIDATED",
       "sourceHash": "2e043f2738df8d8b02754aebb5fa93580fb87e6cc71733557c620c463c4de56b",
       "submittedAt": "2026-08-29",
       "sourceLocked": true

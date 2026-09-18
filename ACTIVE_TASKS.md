@@ -9,6 +9,23 @@ ORIGINAL_GOAL: «создать правило» — формализация д
 * **Тесты:** новый `src/ricisSeed/ricisSeed.ruleRegistry.test.ts` — 13 тестов (A14: 8, BOUND_PAREN_RULE: 5, включая проверку всех следствий аксиом зерна R0 на идемпотентность скобок). Полный прогон: 276 файлов / 2209 тестов, 0 падений (после коммита); `npm run lint` — 0 ошибок.
 * **Версия:** 0.4.208 -> 0.4.209 (`npm run sync:version`: package-lock, index.html, README, CITATION.cff, src/version.ts, evidence-документы).
 
+## 0.2. Цикл 2026-09-18: unblock-l9 — реклассификация узла registry-120 (0.4.210)
+
+ORIGINAL_GOAL (подтверждение владельца, unblock-l9): «перевести узел `registry-120` в `src/model/initialMap.ts` из `TRUSTED_AXIOM` → `STRUCTURALLY_VALIDATED` и согласовать формулировки зависимых узлов (TPS-0006/F-05)» с правкой кода и QA-контракта.
+
+* **Контекст / первопричина:** узел `registry-120` (Jacobian Conjecture) нёс `TRUSTED_AXIOM` без ядерного основания (F-01: исходник `ricis-jacobian-conjecture.standalone.lean` не компилируется, run 34870620154; `rfl failed`). Артефактный уровень уже понижен владельцем до `STRUCTURALLY_VALIDATED` (2026-09-14); узловой уровень оставался рассинхронизированным (L9 / TPS-0006). Решение владельца (2026-09-18) устраняет рассинхрон.
+* **Изменения (код + QA-контракт):**
+  * `src/model/types.ts` — `ExternalLeanTrustStatus` расширен значением `STRUCTURALLY_VALIDATED` (до этого статус жил только на уровне метаданных артефакта).
+  * `src/ricisSolutionCatalog/index.ts` — `LeanEvidenceInput.trustStatus` также принимает `STRUCTURALLY_VALIDATED` (иначе присвоение `externalLean.trustStatus` не проходило бы тип).
+  * `src/model/initialMap.ts` — `registry-120.proof.externalLean.trustStatus`: `TRUSTED_AXIOM` → `STRUCTURALLY_VALIDATED` (хеш источника `2e043f…` неизменен; байты артефакта не тронуты, §7).
+  * `src/ui/ProofTrustBadge.tsx` — честная ветвь `STRUCTURALLY_VALIDATED` (тон `amber`) + поле `code` в `ProofTrustPresentation`; `src/model/i18n.types.ts` (DICTIONARY) и `src/model/i18n.locale-overrides.ts` (LOCALE_OVERRIDES: fr-CA/de-DE/hi-IN/ms-MY) получили ключи `proofTrust.structurallyValidated.{label,description}`.
+  * `src/model/jacobianProof.test.ts` — QA-3 теперь утверждает `STRUCTURALLY_VALIDATED` для `registry-120` (было `TRUSTED_AXIOM`); комментарий цикла обновлён: L9 закрыт решением владельца.
+  * `docs/00-governance/tps/board.json` + `BOARD.md` — карточка `TPS-0006` переведена в `done`/`COMPLETED` с полями `verification` (auditor `SELF`, команды lint/test/tps:gate + реальные прогоны), `challenger.attackedSubstitution` и `kaizenDisposition: NONE_JUSTIFIED`.
+* **Тесты / верификация (на чистом коммите):** `tsc --noEmit` — 0 ошибок; `npm test` — 275 файлов / 2199 тестов, 0 падений (новый тест ветви бейджа `ProofTrustBadge` покрывает `STRUCTURALLY_VALIDATED`); `npm run tps:gate` / `tps:board:check` / `tps:digest:check` — зелёные; `tools/recursiveProductionAudit.ts` — 200/200 узлов достижимы, 0 orphan/cyclic, 200/200 валидных proof, 0 errors (17 benign `PROOF_TARGET_MISMATCH` warnings неизменны); `npm run release:check` — 0.
+* **Граница доверия (anti-tukhta):** это РЕКЛАССИФИКАЦИЯ ДОВЕРИЯ, а не доказательство. Ядровой прогон Lean по Jacobian по-прежнему отсутствует (F-01); математическое утверждение гипотезы Якоби не заявляется. Статус `STRUCTURALLY_VALIDATED` = «прошёл структурные AST-проверки, ядровой прогон не подтверждал заявленное» — честнее, чем `TRUSTED_AXIOM`.
+* **Версия:** 0.4.209 → 0.4.210 (`npm run sync:version`: package-lock, index.html, README, CITATION.cff, src/version.ts, evidence-документы).
+* **AUDITOR: SELF (same-pipeline).**
+
 ## 0. Актуализация состояния и порядок продолжения (2026-09-15)
 
 В этом документе собран актуальный перечень активных и запланированных задач проекта **RICIS Expansion Map** согласно правилам разработки RICIS-III Agile Pipeline и протоколу RCVAP.
