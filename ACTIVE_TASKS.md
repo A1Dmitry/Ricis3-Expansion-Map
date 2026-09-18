@@ -1,5 +1,15 @@
 # Активные задачи проекта (RICIS Expansion Map Active Tasks)
 
+## 0.3. UX-P14: UI/UX redesign RICIS-III — постановка BA (2026-09-18)
+
+ORIGINAL_GOAL: обработать пользовательское ТЗ по полному рекурсивному UI/UX redesign, сохранить его как исполнимую постановку и не выполнять redesign на этом шаге.
+
+* **Статус:** `HYPOTHESIS / READY_FOR_DISCOVERY`; реализация и полный UX-аудит не начинались по прямому указанию владельца.
+* **Канонический документ:** [`docs/01-architecture/RICIS_UI_UX_REDESIGN_BA_SPEC.md`](docs/01-architecture/RICIS_UI_UX_REDESIGN_BA_SPEC.md).
+* **Содержание:** цели и границы, Global Shell / Dynamic Main Menu / Context Toolbar / Workspace / Context Menu / Advanced, command model, recursive audit protocol, inventory schema, applet matrix, P0/P1/P2 backlog, responsive/accessibility rules, deliverables, acceptance criteria, risks и open decisions.
+* **Граница исполнения:** не изменены `src/`, стили, command registry, navigation, тесты или runtime. Следующий допустимый шаг — Discovery setup и фактическая UX inventory с evidence; implementation только после утверждения IA, Command Map и wireframes.
+* **AUDITOR: SELF (same-pipeline).**
+
 ## 0.1. Цикл 2026-09-18: правило A14 + BOUND_PAREN_RULE (0.4.209)
 
 ORIGINAL_GOAL: «создать правило» — формализация двух жёстких истин якоря сборки 0.4.209 как исполняемых правил с независимой верификацией (без изменения зерна R0 и его отпечатка `seed-v1`).
