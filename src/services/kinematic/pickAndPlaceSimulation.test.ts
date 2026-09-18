@@ -16,6 +16,7 @@ import { RicisSymbolicJacobianSolver3D } from './kinematicSolvers';
 import { PickAndPlaceController } from './pickAndPlaceController';
 import {
   forwardKinematics3D,
+  computeElbowPosition3D,
   computeJacobianDeterminant3D,
 } from './kinematicMath';
 import type {
@@ -117,6 +118,7 @@ function runPickAndPlaceClosedLoop(mode: 'POLAR_GEOMETRIC' | 'SYMBOLIC_AST'): {
   controller: PickAndPlaceController;
   stepsUsed: number;
   maxSteps: number;
+  minElbowZ: number;
 } {
   const engine = new KinematicDualDebuggerEngine();
   if (mode === 'SYMBOLIC_AST') {
@@ -133,6 +135,7 @@ function runPickAndPlaceClosedLoop(mode: 'POLAR_GEOMETRIC' | 'SYMBOLIC_AST'): {
   const maxSteps = 90 * 60; // 90 virtual seconds budget (measured: 12s / 23s)
 
   let step = 0;
+  let minElbowZ = Infinity;
   for (; step < maxSteps; step++) {
     const { target } = controller.stepTarget(dt, ricisState.endEffector);
     const result = engine.step(ricisState, dlsState, target, LINK_LENGTHS, dt, 'POLAR');
@@ -144,10 +147,17 @@ function runPickAndPlaceClosedLoop(mode: 'POLAR_GEOMETRIC' | 'SYMBOLIC_AST'): {
     assertWithinWorkspace(ricisState, `${mode} step ${step} (RICIS)`);
     assertWithinWorkspace(dlsState, `${mode} step ${step} (DLS ghost)`);
 
+    // Elbow-over-floor invariant (both arms, user-reported "локоть под пол").
+    minElbowZ = Math.min(
+      minElbowZ,
+      computeElbowPosition3D(ricisState.joints, LINK_LENGTHS).z,
+      computeElbowPosition3D(dlsState.joints, LINK_LENGTHS).z
+    );
+
     if (controller.getState().phase === 'COMPLETED') break;
   }
 
-  return { controller, stepsUsed: step, maxSteps };
+  return { controller, stepsUsed: step, maxSteps, minElbowZ };
 }
 
 /**
@@ -181,7 +191,7 @@ function assertDeliveredBallsRestInsideBox(state: {
 
 describe('Closed-loop pick-and-place simulation (solver ↔ controller integration)', () => {
   it('POLAR_GEOMETRIC RICIS solver sorts all 4 balls into the box within the time budget', () => {
-    const { controller, stepsUsed, maxSteps } = runPickAndPlaceClosedLoop('POLAR_GEOMETRIC');
+    const { controller, stepsUsed, maxSteps, minElbowZ } = runPickAndPlaceClosedLoop('POLAR_GEOMETRIC');
 
     const state = controller.getState();
     expect(stepsUsed, `scenario did not finish within ${maxSteps} steps`).toBeLessThan(maxSteps);
@@ -190,10 +200,12 @@ describe('Closed-loop pick-and-place simulation (solver ↔ controller integrati
     expect(state.box.collectedBallIds).toHaveLength(INITIAL_BALLS.length);
     expect(state.balls.every(b => b.status === 'IN_BOX')).toBe(true);
     assertDeliveredBallsRestInsideBox(state);
+    // The elbow never pierces the room floor (mirrored-branch guard).
+    expect(minElbowZ).toBeGreaterThanOrEqual(0 - 1e-9);
   });
 
   it('SYMBOLIC_AST RICIS solver sorts all 4 balls into the box within the time budget', () => {
-    const { controller, stepsUsed, maxSteps } = runPickAndPlaceClosedLoop('SYMBOLIC_AST');
+    const { controller, stepsUsed, maxSteps, minElbowZ } = runPickAndPlaceClosedLoop('SYMBOLIC_AST');
 
     const state = controller.getState();
     expect(stepsUsed, `scenario did not finish within ${maxSteps} steps`).toBeLessThan(maxSteps);
@@ -202,6 +214,7 @@ describe('Closed-loop pick-and-place simulation (solver ↔ controller integrati
     expect(state.box.collectedBallIds).toHaveLength(INITIAL_BALLS.length);
     expect(state.balls.every(b => b.status === 'IN_BOX')).toBe(true);
     assertDeliveredBallsRestInsideBox(state);
+    expect(minElbowZ).toBeGreaterThanOrEqual(0 - 1e-9);
   });
 });
 

@@ -14,14 +14,116 @@ import type {
   Vector3D,
 } from '../../model/kinematicEngine.contracts';
 import { distance3D } from './kinematicMath';
-import { BallPhysicsWorld, type IPhysicsBallBody } from './ballPhysics';
+import { BallPhysicsWorld, type IBoxBounceBounds, type IPhysicsBallBody } from './ballPhysics';
 
 export interface ICatchDropPlanEntry {
   readonly spawnPosition: Vector3D;
   readonly spawnDelaySec: number;
   readonly color: string;
   readonly isSingularZone?: boolean;
+  /** Initial launch velocity (cannon shot); zero/absent means a pure gravity drop. */
+  readonly initialVelocity?: Vector3D;
+  /** Which tennis automaton fired this ball ('A' | 'B'); informational. */
+  readonly cannonId?: string;
+  /** Muzzle speed of the shot (m/s, informational — power varies per shot). */
+  readonly muzzleSpeedMps?: number;
 }
+
+/** A tennis-ball automaton prop in the room (used by the 3D canvas and the shot plan). */
+export interface ITennisCannonProp {
+  readonly id: string;
+  /** Base (breech) position of the cannon, metres. */
+  readonly basePosition: Vector3D;
+  /** Muzzle (ball exit) position, metres. */
+  readonly muzzlePosition: Vector3D;
+  /** Unit aiming direction of the barrel. */
+  readonly aimDirection: Vector3D;
+}
+
+// ----------------------------------------------------------------------------
+// ROOM & TENNIS AUTOMATONS (shared between the scenario controller and the canvas)
+// ----------------------------------------------------------------------------
+
+/** Room half-extent in X/Y (m): interior walls live at ±ROOM_HALF_EXTENT_M. */
+export const ROOM_HALF_EXTENT_M = 2.4;
+/** Room ceiling height (m). */
+export const ROOM_HEIGHT_M = 2.8;
+
+export const TENNIS_CANNONS: readonly ITennisCannonProp[] = [
+  {
+    id: 'A',
+    basePosition: { x: 2.28, y: 0.55, z: 1.35 },
+    muzzlePosition: { x: 2.28, y: 0.55, z: 1.35 },
+    aimDirection: { x: -0.8419, y: -0.3547, z: 0.4067 },
+  },
+  {
+    id: 'B',
+    basePosition: { x: 0.75, y: 2.28, z: 0.62 },
+    muzzlePosition: { x: 0.75, y: 2.28, z: 0.62 },
+    aimDirection: { x: -0.1333, y: -0.8889, z: 0.4384 },
+  },
+];
+
+/**
+ * Deterministic 6-shot scenario for two weak pneumatic tennis automatons.
+ * Shot power VARIES per shot (1.45–2.05 m/s muzzle) and the two cannons have very
+ * different muzzle heights (1.35 m vs 0.62 m), so balls rebound with visibly
+ * different energies (first-bounce apex ~0.2 m for the low unit vs ~0.4 m for the
+ * high unit — measured by the closed-loop guard). Every shot settles inside the
+ * room and inside the arm's reach (validated headlessly).
+ */
+export const TENNIS_CANNON_SHOT_PLAN: readonly ICatchDropPlanEntry[] = [
+  {
+    spawnPosition: { x: 2.28, y: 0.55, z: 1.35 },
+    spawnDelaySec: 1.2,
+    color: '#ef4444',
+    initialVelocity: { x: -1.3333, y: -0.5229, z: 0.2268 },
+    cannonId: 'A',
+    muzzleSpeedMps: 1.45,
+  },
+  {
+    spawnPosition: { x: 0.75, y: 2.28, z: 0.62 },
+    spawnDelaySec: 1.6,
+    color: '#f59e0b',
+    initialVelocity: { x: -0.4298, y: -1.6647, z: 1.1165 },
+    cannonId: 'B',
+    muzzleSpeedMps: 2.05,
+    isSingularZone: true,
+  },
+  {
+    spawnPosition: { x: 2.28, y: 0.55, z: 1.35 },
+    spawnDelaySec: 1.6,
+    color: '#06b6d4',
+    initialVelocity: { x: -1.4474, y: -0.6214, z: 1.0625 },
+    cannonId: 'A',
+    muzzleSpeedMps: 1.9,
+  },
+  {
+    spawnPosition: { x: 0.75, y: 2.28, z: 0.62 },
+    spawnDelaySec: 1.6,
+    color: '#a855f7',
+    initialVelocity: { x: -0.1190, y: -1.4517, z: 0.5301 },
+    cannonId: 'B',
+    muzzleSpeedMps: 1.55,
+    isSingularZone: true,
+  },
+  {
+    spawnPosition: { x: 2.28, y: 0.55, z: 1.35 },
+    spawnDelaySec: 1.6,
+    color: '#22c55e',
+    initialVelocity: { x: -1.3648, y: -0.5522, z: 0.8500 },
+    cannonId: 'A',
+    muzzleSpeedMps: 1.7,
+  },
+  {
+    spawnPosition: { x: 0.75, y: 2.28, z: 0.62 },
+    spawnDelaySec: 1.6,
+    color: '#eab308',
+    initialVelocity: { x: -0.3204, y: -1.5858, z: 0.7891 },
+    cannonId: 'B',
+    muzzleSpeedMps: 1.8,
+  },
+];
 
 export type CatchPhase =
   | 'IDLE_WAIT'
@@ -41,14 +143,6 @@ export interface ICatchBallSimulationState {
   readonly floorPickupCount: number;
   readonly deliveredCount: number;
 }
-
-/** Default 4-drop deterministic scenario (spawn heights give the arm a real but feasible chase). */
-export const DEFAULT_CATCH_DROP_PLAN: readonly ICatchDropPlanEntry[] = [
-  { spawnPosition: { x: -0.15, y: -0.35, z: 1.55 }, spawnDelaySec: 1.2, color: '#ef4444' },
-  { spawnPosition: { x: 0.25, y: -0.85, z: 1.7 }, spawnDelaySec: 1.6, color: '#f59e0b', isSingularZone: true },
-  { spawnPosition: { x: -1.1, y: -0.25, z: 1.7 }, spawnDelaySec: 1.6, color: '#06b6d4', isSingularZone: true },
-  { spawnPosition: { x: -0.4, y: 0.3, z: 1.8 }, spawnDelaySec: 1.6, color: '#a855f7' },
-];
 
 const CATCH_MIN_Z = 0.3;
 const CATCH_MAX_Z = 1.15;
@@ -167,8 +261,9 @@ export class CatchBallController {
       return { target: this.boxHoverTarget(), shouldGrip: false };
     }
 
-    // Drop the ball.
-    const ballId = `drop-ball-${this.dropIndex + 1}`;
+    // Fire/drop the ball.
+    const ballId = `shot-ball-${this.dropIndex + 1}`;
+    const launchVelocity = nextDrop.initialVelocity ?? { x: 0, y: 0, z: 0 };
     const newBall: IBallEntity = {
       id: ballId,
       initialPosition: { ...nextDrop.spawnPosition },
@@ -177,9 +272,12 @@ export class CatchBallController {
       color: nextDrop.color,
       status: 'FALLING',
       isSingularZone: nextDrop.isSingularZone ?? false,
-      velocity: { x: 0, y: 0, z: 0 },
+      velocity: { ...launchVelocity },
     };
-    this.bodies.set(ballId, this.physics.createBody(nextDrop.spawnPosition, newBall.radius));
+    this.bodies.set(
+      ballId,
+      this.physics.createBody(nextDrop.spawnPosition, newBall.radius, launchVelocity)
+    );
     this.state = {
       ...this.state,
       phase: 'INTERCEPTING',
@@ -191,7 +289,9 @@ export class CatchBallController {
     return {
       target: this.boxHoverTarget(),
       shouldGrip: false,
-      eventTriggered: `Ball [${ballId}] dropped from z=${nextDrop.spawnPosition.z.toFixed(2)}m — ballistic interception engaged`,
+      eventTriggered: nextDrop.cannonId
+        ? `Tennis automaton [${nextDrop.cannonId}] fired ball [${ballId}] at ${(nextDrop.muzzleSpeedMps ?? 0).toFixed(2)} m/s — ballistic interception engaged`
+        : `Ball [${ballId}] dropped from z=${nextDrop.spawnPosition.z.toFixed(2)}m — ballistic interception engaged`,
     };
   }
 
@@ -207,8 +307,9 @@ export class CatchBallController {
       return { target: this.boxHoverTarget(), shouldGrip: false };
     }
 
-    // Integrate live physics of the falling ball (room floor bounce included).
-    body = this.physics.integrate(body, dt, { floorZ: 0 });
+    // Integrate live physics of the flying ball, confined by the room
+    // (floor bounce + wall rebounds — the ball can never leave the room).
+    body = this.physics.integrate(body, dt, { boxBounds: this.roomBallBounds() });
     this.bodies.set(ballId, body);
     this.syncBallFromBody(ballId, body);
 
@@ -261,6 +362,15 @@ export class CatchBallController {
   } {
     this.followGripper(endEffector);
     const hover = this.boxHoverTarget();
+    const horizontalToBox = Math.hypot(hover.x - endEffector.x, hover.y - endEffector.y);
+    // CLIMB BEFORE TRAVEL: going straight from a floor pickup to the box crosses
+    // near the base axis (pole region), where the arm folds onto itself (q3 → ±π)
+    // and the elbow grazes the floor in both inverse branches. Lifting the load
+    // straight up first keeps the transit configuration elevated and graceful —
+    // exactly how a human lifts a ball before carrying it across the room.
+    if (horizontalToBox > 0.25 && endEffector.z < 0.85) {
+      return { target: { x: endEffector.x, y: endEffector.y, z: 0.95 }, shouldGrip: true };
+    }
     if (distance3D(endEffector, hover) < 0.09 || this.phaseTimer > 4.0) {
       this.state = { ...this.state, phase: 'RELEASING' };
       this.phaseTimer = 0;
@@ -345,13 +455,27 @@ export class CatchBallController {
   // Ballistic interception planning
   // --------------------------------------------------------------------------
 
+  /** Radius-inset room bounds for ball confinement (walls + floor, open concept: the ceiling is never reached by weak shots). */
+  private roomBallBounds(): IBoxBounceBounds {
+    const r = 0.06;
+    return {
+      minX: -ROOM_HALF_EXTENT_M + r,
+      maxX: ROOM_HALF_EXTENT_M - r,
+      minY: -ROOM_HALF_EXTENT_M + r,
+      maxY: ROOM_HALF_EXTENT_M - r,
+      floorZ: 0,
+    };
+  }
+
   private planIntercept(body: IPhysicsBallBody, endEffector: Vector3D): Vector3D {
     const [L0, L1, L2] = this.linkLengths;
     const maxReach = L1 + L2 - 0.06;
     const minReach = 0.25;
 
+    // Prediction must use the SAME room confinement as the live integration
+    // (wall rebounds change the post-bounce path the arm tries to meet).
     const samples = this.physics.predictTrajectory(body, PREDICTION_HORIZON_SEC, PREDICTION_SAMPLE_DT, {
-      floorZ: 0,
+      boxBounds: this.roomBallBounds(),
     });
 
     for (let i = 0; i < samples.length; i++) {

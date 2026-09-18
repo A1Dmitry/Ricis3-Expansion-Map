@@ -42,7 +42,7 @@ import {
 } from '../services/kinematic/polarSolvers';
 import { RicisSymbolicJacobianSolver3D } from '../services/kinematic/kinematicSolvers';
 import { PickAndPlaceController } from '../services/kinematic/pickAndPlaceController';
-import { CatchBallController, DEFAULT_CATCH_DROP_PLAN } from '../services/kinematic/catchBallController';
+import { CatchBallController, TENNIS_CANNON_SHOT_PLAN } from '../services/kinematic/catchBallController';
 import { CartesianMotionSmoother } from '../services/kinematic/motionSmoothing';
 import { KinematicTelemetryLogger } from '../services/kinematic/kinematicLogger';
 import { forwardKinematics3D, computeJacobianDeterminant3D } from '../services/kinematic/kinematicMath';
@@ -377,7 +377,7 @@ export const KinematicEnginePage: React.FC<Props> = ({ onBackToMap }) => {
   const [pnpState, setPnpState] = useState(() => pnpControllerRef.current.getState());
 
   // Catch-the-falling-ball controller ref + state
-  const catchControllerRef = useRef(new CatchBallController(DEFAULT_CATCH_DROP_PLAN, BOX_CONTAINER, LINK_LENGTHS));
+  const catchControllerRef = useRef(new CatchBallController(TENNIS_CANNON_SHOT_PLAN, BOX_CONTAINER, LINK_LENGTHS));
   const [catchState, setCatchState] = useState(() => catchControllerRef.current.getState());
 
   // Cartesian S-curve smoother: turns discrete waypoint anchors into a C1-continuous
@@ -899,10 +899,10 @@ export const KinematicEnginePage: React.FC<Props> = ({ onBackToMap }) => {
                       ? 'bg-rose-950/80 border border-rose-500/80 text-rose-300'
                       : 'text-slate-400 hover:text-white hover:bg-neutral-800'
                   }`}
-                  title="Шары падают под тяготением и отскакивают от пола; рука по баллистическому предиктору ловит их на лету"
+                  title="Две теннисные пушки отстреливают шарики со слабой разной силой; мячи отскакивают от пола и стен, рука перехватывает их на лету или собирает с пола"
                 >
                   <Target size={14} />
-                  Перехват падающих
+                  Теннисная пушка
                 </button>
                 <button
                   type="button"
@@ -1027,6 +1027,7 @@ export const KinematicEnginePage: React.FC<Props> = ({ onBackToMap }) => {
                 balls={simMode === 'CATCH_FALLING_BALL' ? catchState.balls : pnpState.balls}
                 box={simMode === 'CATCH_FALLING_BALL' ? catchState.box : pnpState.box}
                 showDlsGhost={showDlsGhost}
+                showCannons={simMode === 'CATCH_FALLING_BALL'}
                 linkLengths={LINK_LENGTHS}
               />
             )}

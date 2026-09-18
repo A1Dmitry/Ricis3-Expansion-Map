@@ -163,7 +163,7 @@ describe('KinematicEnginePage Component', () => {
     const rendered = await render(<KinematicEnginePage onBackToMap={() => undefined} />);
 
     await act(async () => {
-      clickButton(rendered, 'Перехват падающих');
+      clickButton(rendered, 'Теннисная пушка');
     });
 
     // The scenario keeps the physics viewport mounted and exposes its own telemetry:

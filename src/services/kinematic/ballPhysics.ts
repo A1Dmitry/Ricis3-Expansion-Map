@@ -106,9 +106,10 @@ export class BallPhysicsWorld {
       const impactSpeed = Math.abs(vz);
       if (impactSpeed > this.settleSpeed) {
         vz = impactSpeed * this.restitution; // bounce upward
-        // tangential impact damping
-        vx *= 0.85;
-        vy *= 0.85;
+        // Tangential impact damping: an indoor court floor kills a good part of the
+        // skid speed per bounce, otherwise weak shots roll metres past their mark.
+        vx *= 0.6;
+        vy *= 0.6;
       } else {
         vz = 0;
         // Rolling/settling: bleed off residual horizontal speed quickly.

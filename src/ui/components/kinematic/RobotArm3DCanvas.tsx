@@ -7,6 +7,11 @@ import type {
   IBallEntity,
   IBoxContainer,
 } from '../../../model/kinematicEngine.contracts';
+import {
+  TENNIS_CANNONS,
+  ROOM_HALF_EXTENT_M,
+  ROOM_HEIGHT_M,
+} from '../../../services/kinematic/catchBallController';
 
 interface Props {
   readonly ricisState: IKinematicState3D;
@@ -16,6 +21,8 @@ interface Props {
   readonly box: IBoxContainer;
   readonly showDlsGhost?: boolean;
   readonly linkLengths: readonly [number, number, number];
+  /** Show the two tennis-ball automatons (catch-the-falling-ball / cannon scenario). */
+  readonly showCannons?: boolean;
 }
 
 function supportsWebGL(): boolean {
@@ -35,6 +42,7 @@ export const RobotArm3DCanvas: React.FC<Props> = ({
   balls,
   box,
   showDlsGhost = true,
+  showCannons = false,
   linkLengths,
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -124,10 +132,78 @@ export const RobotArm3DCanvas: React.FC<Props> = ({
     emeraldLight.position.set(-2, 4, -2);
     scene.add(emeraldLight);
 
-    // Floor Grid & Circular Boundaries
-    const grid = new THREE.GridHelper(6, 24, 0x06b6d4, 0x1e293b);
-    grid.position.y = 0;
+    // Floor Grid & Circular Boundaries (court grid matches the room footprint)
+    const grid = new THREE.GridHelper(2 * ROOM_HALF_EXTENT_M, 24, 0x06b6d4, 0x1e293b);
+    grid.position.y = 0.001;
     scene.add(grid);
+
+    // ------------------------------------------------------------------
+    // ROOM (floor, 4 walls, ceiling) — see-through for the orbiting camera.
+    // The walls/ceiling use a semi-transparent double-sided material with
+    // depthWrite disabled, so the camera ALWAYS sees through the nearest
+    // wall; faint edge lines keep the room volume readable.
+    // Model coords (x, y, z-up) map to three.js as (x, z, -y).
+    // ------------------------------------------------------------------
+    const roomHalf = ROOM_HALF_EXTENT_M;
+    const roomHeight = ROOM_HEIGHT_M;
+
+    const floorMat = new THREE.MeshStandardMaterial({
+      color: 0x0b1220,
+      metalness: 0.1,
+      roughness: 0.9,
+    });
+    const floorMesh = new THREE.Mesh(new THREE.PlaneGeometry(2 * roomHalf, 2 * roomHalf), floorMat);
+    floorMesh.rotation.x = -Math.PI / 2;
+    floorMesh.position.y = -0.002;
+    floorMesh.receiveShadow = true;
+    scene.add(floorMesh);
+
+    const wallMat = new THREE.MeshStandardMaterial({
+      color: 0x38bdf8,
+      metalness: 0.0,
+      roughness: 1.0,
+      transparent: true,
+      opacity: 0.07,
+      side: THREE.DoubleSide,
+      depthWrite: false,
+    });
+    const ceilingMat = new THREE.MeshStandardMaterial({
+      color: 0x94a3b8,
+      metalness: 0.0,
+      roughness: 1.0,
+      transparent: true,
+      opacity: 0.05,
+      side: THREE.DoubleSide,
+      depthWrite: false,
+    });
+    const roomSurfaces: Array<{ geo: THREE.PlaneGeometry; pos: [number, number, number]; rot: [number, number, number]; mat: THREE.Material }> = [
+      // Ceiling
+      { geo: new THREE.PlaneGeometry(2 * roomHalf, 2 * roomHalf), pos: [0, roomHeight, 0], rot: [Math.PI / 2, 0, 0], mat: ceilingMat },
+      // Wall at three-x = +roomHalf (model x = +roomHalf)
+      { geo: new THREE.PlaneGeometry(2 * roomHalf, roomHeight), pos: [roomHalf, roomHeight / 2, 0], rot: [0, -Math.PI / 2, 0], mat: wallMat },
+      // Wall at three-x = -roomHalf (model x = -roomHalf)
+      { geo: new THREE.PlaneGeometry(2 * roomHalf, roomHeight), pos: [-roomHalf, roomHeight / 2, 0], rot: [0, Math.PI / 2, 0], mat: wallMat },
+      // Wall at three-z = +roomHalf (model y = -roomHalf)
+      { geo: new THREE.PlaneGeometry(2 * roomHalf, roomHeight), pos: [0, roomHeight / 2, roomHalf], rot: [0, Math.PI, 0], mat: wallMat },
+      // Wall at three-z = -roomHalf (model y = +roomHalf)
+      { geo: new THREE.PlaneGeometry(2 * roomHalf, roomHeight), pos: [0, roomHeight / 2, -roomHalf], rot: [0, 0, 0], mat: wallMat },
+    ];
+    for (const surface of roomSurfaces) {
+      const mesh = new THREE.Mesh(surface.geo, surface.mat);
+      mesh.position.set(...surface.pos);
+      mesh.rotation.set(...surface.rot);
+      scene.add(mesh);
+    }
+
+    // Room outline edges (keep the volume readable through the transparent walls)
+    const roomBoxGeo = new THREE.BoxGeometry(2 * roomHalf, roomHeight, 2 * roomHalf);
+    const roomEdges = new THREE.LineSegments(
+      new THREE.EdgesGeometry(roomBoxGeo),
+      new THREE.LineBasicMaterial({ color: 0x0ea5e9, transparent: true, opacity: 0.35 })
+    );
+    roomEdges.position.y = roomHeight / 2;
+    scene.add(roomEdges);
+    roomBoxGeo.dispose();
 
     // Workspace boundary ring
     const maxReach = L1 + L2;
@@ -398,6 +474,84 @@ export const RobotArm3DCanvas: React.FC<Props> = ({
   }, [presentationMode, balls]);
 
   // --------------------------------------------------------------------------
+  // TENNIS AUTOMATONS (weak pneumatic cannons) — visible in the catch scenario.
+  // Each prop: pedestal column, breech block, oriented barrel and muzzle ring.
+  // Model coords (x, y, z-up) map to three.js as (x, z, -y).
+  // --------------------------------------------------------------------------
+  useEffect(() => {
+    if (presentationMode !== '3d' || !sceneRef.current) return;
+    const scene = sceneRef.current;
+    if (!showCannons) return;
+
+    const cannonGroup = new THREE.Group();
+
+    for (const cannon of TENNIS_CANNONS) {
+      const muzzle = cannon.muzzlePosition;
+      const dir = new THREE.Vector3(cannon.aimDirection.x, cannon.aimDirection.z, -cannon.aimDirection.y).normalize();
+
+      const accent = cannon.id === 'A' ? 0xf59e0b : 0xa855f7;
+      const bodyMat = new THREE.MeshStandardMaterial({ color: 0x334155, metalness: 0.85, roughness: 0.3 });
+      const accentMat = new THREE.MeshStandardMaterial({ color: accent, metalness: 0.6, roughness: 0.35 });
+
+      // Pedestal column up to the breech
+      const pedestalH = Math.max(0.15, muzzle.z - 0.32);
+      const pedestal = new THREE.Mesh(new THREE.CylinderGeometry(0.11, 0.16, pedestalH, 16), bodyMat);
+      pedestal.position.set(muzzle.x, pedestalH / 2, -muzzle.y);
+      cannonGroup.add(pedestal);
+
+      // Breech block
+      const muzzleThree = new THREE.Vector3(muzzle.x, muzzle.z, -muzzle.y);
+      const breech = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.18, 0.26), bodyMat);
+      breech.position.copy(muzzleThree.clone().addScaledVector(dir, -0.2));
+      breech.lookAt(muzzleThree.clone().add(dir));
+      cannonGroup.add(breech);
+
+      // Barrel (protrudes slightly beyond the muzzle plane)
+      const barrelLen = 0.5;
+      const barrel = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.062, barrelLen, 20), bodyMat);
+      const upAxis = new THREE.Vector3(0, 1, 0);
+      const orient = new THREE.Quaternion().setFromUnitVectors(upAxis, dir);
+      barrel.quaternion.copy(orient);
+      barrel.position.copy(muzzleThree.clone().addScaledVector(dir, -(barrelLen / 2) + 0.05));
+      cannonGroup.add(barrel);
+
+      // Muzzle ring + glow disc (weak pneumatic "breath" look, not a firearm flash)
+      const ring = new THREE.Mesh(new THREE.TorusGeometry(0.062, 0.014, 12, 24), accentMat);
+      ring.quaternion.copy(orient);
+      ring.rotateX(Math.PI / 2);
+      ring.position.copy(muzzleThree);
+      cannonGroup.add(ring);
+
+      const glow = new THREE.Mesh(
+        new THREE.CircleGeometry(0.05, 20),
+        new THREE.MeshBasicMaterial({ color: accent, transparent: true, opacity: 0.5, side: THREE.DoubleSide })
+      );
+      glow.quaternion.copy(orient);
+      glow.rotateX(-Math.PI / 2);
+      glow.position.copy(muzzleThree.clone().addScaledVector(dir, 0.012));
+      cannonGroup.add(glow);
+
+      // Pressure tank hint at the pedestal base
+      const tank = new THREE.Mesh(new THREE.SphereGeometry(0.13, 16, 16), accentMat);
+      tank.position.set(muzzle.x, 0.22, -muzzle.y);
+      cannonGroup.add(tank);
+    }
+
+    scene.add(cannonGroup);
+    return () => {
+      scene.remove(cannonGroup);
+      cannonGroup.traverse(obj => {
+        if (obj instanceof THREE.Mesh) {
+          obj.geometry.dispose();
+          const material = obj.material as THREE.Material | THREE.Material[];
+          if (Array.isArray(material)) material.forEach(m => m.dispose());
+          else material.dispose();
+        }
+      });
+    };
+  }, [presentationMode, showCannons]);
+
+  // --------------------------------------------------------------------------
   // 2D Canvas Fallback Renderer (Orthographic Top-Down and Side-Elevation Views)
   // --------------------------------------------------------------------------
   useEffect(() => {
@@ -420,7 +574,12 @@ export const RobotArm3DCanvas: React.FC<Props> = ({
 
       const halfW = width / 2;
       const maxReach = L1 + L2; // 1.50m
-      const scale = Math.min((halfW - 40) / (maxReach * 1.3), (height - 80) / (maxReach * 1.3));
+      // Fit the whole ROOM (±2.4m walls, 2.8m ceiling) into both schematic views.
+      const scale = Math.min(
+        (halfW - 40) / (ROOM_HALF_EXTENT_M * 1.08),
+        (height / 2 - 40) / ROOM_HALF_EXTENT_M,
+        (height - 80) / ROOM_HEIGHT_M
+      );
 
       // Divider line
       ctx.strokeStyle = '#1e293b';
@@ -453,6 +612,19 @@ export const RobotArm3DCanvas: React.FC<Props> = ({
         ctx.font = '9px monospace';
         ctx.fillText(`${r.toFixed(1)}m`, cx1 + r * scale + 3, cy1 - 2);
       });
+
+      // Room walls (top-down outline)
+      ctx.strokeStyle = 'rgba(14, 165, 233, 0.5)';
+      ctx.lineWidth = 1.5;
+      ctx.strokeRect(
+        cx1 - ROOM_HALF_EXTENT_M * scale,
+        cy1 - ROOM_HALF_EXTENT_M * scale,
+        2 * ROOM_HALF_EXTENT_M * scale,
+        2 * ROOM_HALF_EXTENT_M * scale
+      );
+      ctx.fillStyle = '#64748b';
+      ctx.font = '9px monospace';
+      ctx.fillText('СТЕНЫ КОМНАТЫ', cx1 + ROOM_HALF_EXTENT_M * scale - 68, cy1 - ROOM_HALF_EXTENT_M * scale + 11);
 
       // Axes
       ctx.strokeStyle = '#334155';
@@ -553,6 +725,18 @@ export const RobotArm3DCanvas: React.FC<Props> = ({
       ctx.moveTo(halfW + 15, cy2);
       ctx.lineTo(width - 15, cy2);
       ctx.stroke();
+
+      // Ceiling line (room height)
+      ctx.strokeStyle = 'rgba(14, 165, 233, 0.4)';
+      ctx.setLineDash([6, 4]);
+      ctx.beginPath();
+      ctx.moveTo(halfW + 15, cy2 - ROOM_HEIGHT_M * scale);
+      ctx.lineTo(width - 15, cy2 - ROOM_HEIGHT_M * scale);
+      ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.fillStyle = '#64748b';
+      ctx.font = '9px monospace';
+      ctx.fillText('ПОТОЛОК', width - 66, cy2 - ROOM_HEIGHT_M * scale - 4);
 
       // Base Pedestal L0
       const shoulderX = cx2;

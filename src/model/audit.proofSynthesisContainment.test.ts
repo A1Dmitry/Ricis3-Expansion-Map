@@ -754,6 +754,41 @@ describe('OIR-03 — audit proof-synthesis containment', () => {
       '?? src/services/kinematic/catchBallController.ts',
       '?? src/services/kinematic/motionSmoothing.test.ts',
       '?? src/services/kinematic/motionSmoothing.ts',
+      // KINEMATIC-ROOM-TENNIS-CANNON-ELBOW-GUARD (0.4.215, 2026-09-19): комната и
+      // теннисные автоматы по ТЗ владельца. 1) Сцена — комната: пол, потолок и 4
+      // стены полупрозрачные (deepWrite off, DoubleSide) — камера смотрит СКВОЗЬ
+      // ближнюю стену с любого ракурса; сетка пола доведена до габарита комнаты,
+      // 2D-схема получила контур стен и линию потолка. 2) Два слабых пневматических
+      // автомата (пропсы-пьедесталы со стволом и дулом) отстреливают шарики с
+      // РАЗНОЙ силой (1.45–2.05 м/с, разные высоты дула 1.35/0.62 м) — отскоки
+      // заметно разные (страж измеряет разброс скорости отскока > 0.25 м/с).
+      // 3) Шары летают по баллистике, отскакивают от пола и стен
+      // (room-confinement в живой интеграции и в предикторе), манипулятор ловит
+      // их на лету или собирает с пола — closed-loop измеряет ОБА исхода (3+3).
+      // 4) «Локоть уходит ниже основания» — корневая причина: закрытая форма IK
+      // всегда брала ветвь elbow-down. Ремонт: выбор ветви локтя (elbow-up зеркало,
+      // тождество планарного 2R) внутри полярного солвера с гистерезисом; зеркальный
+      // гард движка для итеративных солверов (симметричный лимит q3 у DLS-призрака);
+      // подъём груза вертикально перед переносом к коробке (транзит вблизи
+      // полюса-складки — обёртка q3→±π с обвалом локтя в обеих ветвях). Замер:
+      // локоть ≥ 0 на каждом кадре closed-loop обоих солверов и обоих сценариев.
+      // Стражи: юнит-страж зеркала (EE сохраняется побитово, гистерезис, вырождение
+      // на полюсе), инвариант локтя в симуляциях, удержание комнаты, покой в
+      // коробке. Классические лимиты/динамика бенчмарка НЕ менялись (SOLVERS DlsSolver3D
+      // и RicisSymbolicJacobianSolver3D оставлены в калиброванных ограничениях).
+      // 1B.9-session-memory — сессионная память (cursor rule 0.3.2, рабочий артефакт).
+      ' M src/services/kinematic/ballPhysics.ts',
+      ' M src/services/kinematic/catchBallController.test.ts',
+      ' M src/services/kinematic/catchBallController.ts',
+      ' M src/services/kinematic/kinematicConstants.ts',
+      ' M src/services/kinematic/kinematicMath.ts',
+      ' M src/services/kinematic/pickAndPlaceSimulation.test.ts',
+      ' M src/services/kinematic/polarSolvers.ts',
+      ' M src/ui/KinematicEnginePage.test.tsx',
+      ' M src/ui/KinematicEnginePage.tsx',
+      ' M src/ui/components/kinematic/RobotArm3DCanvas.tsx',
+      '?? "1B.9-session-memory/SM MP81-uncertain-map.md"',
+      '?? src/services/kinematic/elbowFloorGuard.test.ts',
     ]);
     if (status.length > 0 && status.every(entry => entry.startsWith('?? '))) {
       // In clean container environments git status may return all files as untracked
