@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import type { ProblemNode, Proof } from '../model/types';
 import { isMissingTargetFunction, nodeHasSorry } from '../model/audit';
-import { getUnlockedTargets, getUnlockRequirements } from '../model/access';
-import { ChevronDown, ChevronUp, ArrowLeft, ExternalLink, ShieldCheck, Sparkles, Lock, Unlock, BookOpen, DollarSign, Terminal, CheckCircle2, Share2, Check, Calculator, Sliders, Layers as LayersIcon } from 'lucide-react';
+import { getUnlockedTargets, getUnlockRequirements, isNodeAvailable } from '../model/access';
+import { ChevronDown, ChevronUp, ArrowLeft, ExternalLink, ShieldCheck, Sparkles, Lock, Unlock, BookOpen, DollarSign, Terminal, CheckCircle2, Share2, Check, Calculator, Layers as LayersIcon, Activity, Zap, Play, Compass, Pencil } from 'lucide-react';
 import { useTerminalStore } from '../store/useTerminalStore';
 import { LatexRenderer } from './LatexRenderer';
 import { ExecutionTraceViewer } from './ExecutionTraceViewer';
@@ -10,7 +10,6 @@ import type { ITransformationLogDTO } from '../model/traceVisualizer.types';
 import { getRicisCoreEngine } from '../services/ricisCore';
 import { isCoreExecutionFailure } from '../services/ricisCore/IRicisCoreEngine';
 import { writeCoreRecovery } from '../services/coreRecovery';
-import { Activity } from 'lucide-react';
 import { UrlShareService } from '../services/UrlShareService';
 import { useI18nStore } from '../store/useI18nStore';
 import { ProofTrustBadge } from './ProofTrustBadge';
@@ -23,6 +22,8 @@ import {
   toSolutionMonolithCardView,
 } from '../ricisSolutionCatalog';
 import { SolutionMonolithCard } from './SolutionMonolithCard';
+import { NodeContextMenu } from './NodeContextMenu';
+import type { NodeContextMenuItem } from './NodeContextMenu';
 import { getCalculatorExplorerEntryForNodeId } from '../calculatorExplorer/calculatorExplorer.domain';
 import { LEAN_SPEC_URL } from '../model/ricisCoreRules';
 
@@ -97,6 +98,11 @@ type Props = {
   onNavigateToNode?: (targetId: string) => void;
   onNavigateBack?: () => void;
   previousNodeTitle?: string | null;
+  /** Запуск / перерасчёт RICIS-решения (кнопка выполнения перенесена в контекстное меню). */
+  onSolve?: () => void;
+  isSolving?: boolean;
+  isSolveDisabled?: boolean;
+  solveDisabledReason?: string;
 };
 
 export function getReferencesForNode(node: ProblemNode) {
@@ -159,6 +165,10 @@ export const NodeCardDetails: React.FC<Props> = ({
   onNavigateToNode,
   onNavigateBack,
   previousNodeTitle,
+  onSolve,
+  isSolving = false,
+  isSolveDisabled,
+  solveDisabledReason,
 }) => {
   const { t } = useI18nStore();
   const isKinematicManipulator = 
@@ -277,12 +287,130 @@ export const NodeCardDetails: React.FC<Props> = ({
 
   const [copiedLink, setCopiedLink] = useState(false);
 
-  const handleShareNode = async (e: React.MouseEvent) => {
-    e.stopPropagation();
+  const handleShareNode = async (e?: React.MouseEvent) => {
+    e?.stopPropagation();
     await UrlShareService.copyShareUrlToClipboard({ nodeId: node.id });
     setCopiedLink(true);
     setTimeout(() => setCopiedLink(false), 2000);
   };
+
+  // Паритет блокировок с кнопкой выполнения в Map3D: узел под замком зависимостей.
+  const solveLocked = isSolveDisabled ?? (map ? (!isNodeAvailable(node, map as any) && node.state !== 'resolved') : false);
+  const resolvedSolveDisabledReason = solveDisabledReason ?? (solveLocked ? 'Заблокировано зависимостями' : undefined);
+  const externalCalculatorHref = calculatorEntry?.launch?.kind === 'READY'
+    ? calculatorEntry.launch.href ?? null
+    : null;
+
+  /**
+   * Все действия бывших кнопок выполнения карточки, собранные в контекстное меню:
+   * выполнение RICIS-решения, калькуляторы, исследование, навигация и правка.
+   */
+  const menuItems: NodeContextMenuItem[] = [
+    ...(onSolve ? [{
+      id: 'solve',
+      group: 'Выполнение',
+      icon: <Play size={14} />,
+      label: node.state === 'resolved' ? 'Перерассчитать RICIS-решение' : 'Запустить RICIS-решение',
+      hint: isSolving
+        ? 'Агент вычисляет (RICIS-III)...'
+        : node.state === 'resolved'
+          ? 'Перезапустить Агента RICIS-III'
+          : 'Синтезировать доказательство Агентом',
+      disabled: solveLocked,
+      disabledReason: resolvedSolveDisabledReason,
+      busy: isSolving,
+      onSelect: onSolve,
+    } as NodeContextMenuItem] : []),
+    {
+      id: 'formula-calculator',
+      group: 'Выполнение',
+      icon: <Calculator size={14} />,
+      label: 'Калькулятор формулы',
+      hint: node.targetFunction || 'Вычислить сингулярность',
+      onSelect: () => {
+        const expr = node.targetFunction || '0/0';
+        useTerminalStore.getState().setInput(expr);
+        useTerminalStore.getState().toggleTerminal(true);
+      },
+    },
+    ...(externalCalculatorHref ? [{
+      id: 'external-calculator',
+      group: 'Выполнение',
+      icon: <ExternalLink size={14} />,
+      label: 'Веб-приложение Монолита',
+      hint: 'Открыть внешний калькулятор',
+      onSelect: () => {
+        window.open(externalCalculatorHref as string, '_blank', 'noopener,noreferrer');
+      },
+    } as NodeContextMenuItem] : []),
+    {
+      id: 'kinematic-engine',
+      group: 'Выполнение',
+      icon: <Activity size={14} />,
+      label: isKinematicManipulator ? 'Launch Kinematic Constraint Engine' : '3D Кинематический Движок',
+      hint: 'Сравнение с DLS и Pick & Place',
+      onSelect: () => {
+        UrlShareService.updateBrowserUrl({ kinematic: true });
+        window.dispatchEvent(new PopStateEvent('popstate'));
+      },
+    },
+    {
+      id: 'explore',
+      group: 'Исследование',
+      icon: <Compass size={14} />,
+      label: 'Explore',
+      hint: 'Посмотреть зависимости и последствия',
+      onSelect: () => setOpenSections(prev => ({ ...prev, target: true, prereqs: true, forward: true })),
+    },
+    {
+      id: 'verify',
+      group: 'Исследование',
+      icon: <ShieldCheck size={14} />,
+      label: 'Verify',
+      hint: 'Проверить evidence и статус доверия',
+      onSelect: () => setOpenSections(prev => ({ ...prev, verification: true })),
+    },
+    {
+      id: 'challenge',
+      group: 'Исследование',
+      icon: <Sparkles size={14} />,
+      label: 'Challenge',
+      hint: 'Искать контрпример или открытую задачу',
+      onSelect: () => {
+        UrlShareService.updateBrowserUrl({ roadmap: true, rootNodeId: node.id, mode: 'challenge' });
+        window.dispatchEvent(new PopStateEvent('popstate'));
+      },
+    },
+    {
+      id: 'roadmap',
+      group: 'Навигация',
+      icon: <LayersIcon size={14} />,
+      label: 'Форма задачи & Roadmap',
+      hint: 'Детальный граф связей и доказательств',
+      onSelect: () => {
+        UrlShareService.updateBrowserUrl({ roadmap: true, rootNodeId: node.id });
+        window.dispatchEvent(new PopStateEvent('popstate'));
+      },
+    },
+    {
+      id: 'share',
+      group: 'Навигация',
+      icon: copiedLink ? <Check size={14} className="text-emerald-400" /> : <Share2 size={14} />,
+      label: copiedLink ? 'Ссылка скопирована!' : 'Скопировать прямую ссылку',
+      hint: 'Поделиться формой этой задачи',
+      onSelect: () => {
+        void handleShareNode();
+      },
+    },
+    ...(onEdit ? [{
+      id: 'edit',
+      group: 'Правка',
+      icon: <Pencil size={14} />,
+      label: 'Редактировать задачу',
+      hint: 'Те же поля, что и при создании',
+      onSelect: onEdit,
+    } as NodeContextMenuItem] : []),
+  ];
 
   return (
     <div className={`space-y-0 ${isExpanded ? 'text-[12px]' : 'text-[11px]'}`}>
@@ -302,184 +430,18 @@ export const NodeCardDetails: React.FC<Props> = ({
         </button>
       )}
 
-      {/* ОБЛАСТЬ КОНТЕКСТНОГО РАСШИРЕНИЯ И ИНТЕРАКТИВНОГО КАЛЬКУЛЯТОРА */}
-      <section className="border-b border-cyan-800/60 bg-gradient-to-br from-cyan-950/40 via-neutral-950/80 to-purple-950/30 p-3 rounded-lg border my-2 shadow-lg">
-        <div className="flex items-center justify-between mb-2">
-          <p className="text-[10px] font-bold uppercase tracking-[0.15em] text-cyan-300 flex items-center gap-1.5">
-            <Calculator size={13} className="text-emerald-400" />
-            Контекстное расширение и Калькулятор
-          </p>
-          <span className="text-[9px] font-mono px-1.5 py-0.5 rounded bg-cyan-950/80 border border-cyan-800 text-cyan-300 font-bold">
-            RICIS Engine
-          </span>
-        </div>
-
-        <p className="text-[9.5px] text-slate-300/90 mb-2.5 leading-relaxed">
-          Интерактивные инструменты для этой задачи: запуск вычислений в песочнице, 3D симуляция кинематики и детальная форма аналитического доказательства.
+      {/* ПАНЕЛЬ ДЕЙСТВИЙ: кнопки выполнения переехали в контекстное меню задачи */}
+      <div className="my-2 flex items-center justify-between gap-2 rounded-lg border border-cyan-900/40 bg-neutral-950/60 px-3 py-2">
+        <p className="text-[9px] font-bold uppercase tracking-[0.15em] text-cyan-300 flex items-center gap-1.5">
+          <Zap size={12} className="text-cyan-400" />
+          Действия задачи
         </p>
+        <NodeContextMenu
+          items={menuItems}
+          triggerLabel="Действия"
+        />
+      </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-          {/* Кнопка 1: Интерактивный Калькулятор / Песочница */}
-          <button
-            type="button"
-            onClick={() => {
-              const expr = node.targetFunction || '0/0';
-              useTerminalStore.getState().setInput(expr);
-              useTerminalStore.getState().toggleTerminal(true);
-            }}
-            className="flex items-center gap-2 p-2 rounded-md bg-purple-950/60 hover:bg-purple-900/70 border border-purple-700/70 hover:border-purple-400 text-left transition-all group shadow-sm cursor-pointer"
-          >
-            <div className="p-1.5 rounded bg-purple-900/80 text-purple-300 group-hover:scale-105 transition-transform shrink-0">
-              <Calculator size={14} />
-            </div>
-            <div className="min-w-0 flex-1">
-              <span className="block text-[10px] font-bold text-purple-200 group-hover:text-white">
-                Калькулятор формулы
-              </span>
-              <span className="block text-[8.5px] text-purple-300/75 truncate font-mono">
-                {node.targetFunction ? `$$${node.targetFunction}$$` : 'Вычислить сингулярность'}
-              </span>
-            </div>
-          </button>
-
-          {/* Кнопка 2: Кинематический 3D Движок */}
-          <button
-            type="button"
-            onClick={() => {
-              UrlShareService.updateBrowserUrl({ kinematic: true });
-              window.dispatchEvent(new PopStateEvent('popstate'));
-            }}
-            className="flex items-center gap-2 p-2 rounded-md bg-emerald-950/60 hover:bg-emerald-900/70 border border-emerald-700/70 hover:border-emerald-400 text-left transition-all group shadow-sm cursor-pointer"
-          >
-            <div className="p-1.5 rounded bg-emerald-900/80 text-emerald-300 group-hover:scale-105 transition-transform shrink-0">
-              <Activity size={14} />
-            </div>
-            <div className="min-w-0 flex-1">
-              <span className="block text-[10px] font-bold text-emerald-200 group-hover:text-white">
-                3D Кинематический Движок
-              </span>
-              <span className="block text-[8.5px] text-emerald-300/75 truncate">
-                Сравнение с DLS и Pick & Place
-              </span>
-            </div>
-          </button>
-
-          {/* Кнопка 3: Полная Форма задачи (Roadmap) */}
-          <button
-            type="button"
-            onClick={() => {
-              UrlShareService.updateBrowserUrl({ roadmap: true, rootNodeId: node.id });
-              window.dispatchEvent(new PopStateEvent('popstate'));
-            }}
-            className="flex items-center gap-2 p-2 rounded-md bg-cyan-950/60 hover:bg-cyan-900/70 border border-cyan-700/70 hover:border-cyan-400 text-left transition-all group shadow-sm cursor-pointer"
-          >
-            <div className="p-1.5 rounded bg-cyan-900/80 text-cyan-300 group-hover:scale-105 transition-transform shrink-0">
-              <LayersIcon size={14} />
-            </div>
-            <div className="min-w-0 flex-1">
-              <span className="block text-[10px] font-bold text-cyan-200 group-hover:text-white">
-                Форма задачи & Roadmap
-              </span>
-              <span className="block text-[8.5px] text-cyan-300/75 truncate">
-                Детальный граф связей и доказательств
-              </span>
-            </div>
-          </button>
-
-          {/* Кнопка 4: Внешний калькулятор / Поделиться ссылкой */}
-          {calculatorEntry?.launch?.kind === 'READY' && calculatorEntry.launch.href ? (
-            <a
-              href={calculatorEntry.launch.href}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center gap-2 p-2 rounded-md bg-blue-950/60 hover:bg-blue-900/70 border border-blue-700/70 hover:border-blue-400 text-left transition-all group shadow-sm cursor-pointer"
-            >
-              <div className="p-1.5 rounded bg-blue-900/80 text-blue-300 group-hover:scale-105 transition-transform shrink-0">
-                <ExternalLink size={14} />
-              </div>
-              <div className="min-w-0 flex-1">
-                <span className="block text-[10px] font-bold text-blue-200 group-hover:text-white">
-                  Веб-приложение Монолита
-                </span>
-                <span className="block text-[8.5px] text-blue-300/75 truncate">
-                  Открыть внешний калькулятор
-                </span>
-              </div>
-            </a>
-          ) : (
-            <button
-              type="button"
-              onClick={handleShareNode}
-              className="flex items-center gap-2 p-2 rounded-md bg-neutral-900/80 hover:bg-neutral-800 border border-neutral-700 hover:border-cyan-500 text-left transition-all group shadow-sm cursor-pointer"
-            >
-              <div className="p-1.5 rounded bg-neutral-800 text-cyan-300 group-hover:scale-105 transition-transform shrink-0">
-                <Share2 size={14} />
-              </div>
-              <div className="min-w-0 flex-1">
-                <span className="block text-[10px] font-bold text-slate-200 group-hover:text-white">
-                  {copiedLink ? 'Ссылка скопирована!' : 'Скопировать прямую ссылку'}
-                </span>
-                <span className="block text-[8.5px] text-slate-400 truncate">
-                  Поделиться формой этой задачи
-                </span>
-              </div>
-            </button>
-          )}
-        </div>
-      </section>
-
-      <section className="border-b border-neutral-800/50 bg-gradient-to-br from-cyan-950/25 via-transparent to-violet-950/20 p-3">
-        <p className="mb-2 text-[9px] font-bold uppercase tracking-[0.15em] text-cyan-300">Исследовательские действия</p>
-        <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
-          <button
-            type="button"
-            onClick={() => setOpenSections(prev => ({ ...prev, target: true, prereqs: true, forward: true }))}
-            className="min-h-10 rounded-md border border-cyan-800/70 bg-cyan-950/35 px-2.5 py-2 text-left transition-colors hover:border-cyan-400 hover:bg-cyan-900/45"
-          >
-            <span className="block text-[10px] font-bold text-cyan-100">Explore</span>
-            <span className="mt-0.5 block text-[9px] leading-tight text-cyan-200/75">Посмотреть зависимости и последствия</span>
-          </button>
-          <button
-            type="button"
-            onClick={() => setOpenSections(prev => ({ ...prev, verification: true }))}
-            className="min-h-10 rounded-md border border-emerald-800/70 bg-emerald-950/30 px-2.5 py-2 text-left transition-colors hover:border-emerald-400 hover:bg-emerald-900/40"
-          >
-            <span className="block text-[10px] font-bold text-emerald-100">Verify</span>
-            <span className="mt-0.5 block text-[9px] leading-tight text-emerald-200/75">Проверить evidence и статус доверия</span>
-          </button>
-          <button
-            type="button"
-            onClick={() => {
-              UrlShareService.updateBrowserUrl({ roadmap: true, rootNodeId: node.id, mode: 'challenge' });
-              window.dispatchEvent(new PopStateEvent('popstate'));
-            }}
-            className="min-h-10 rounded-md border border-violet-800/70 bg-violet-950/35 px-2.5 py-2 text-left transition-colors hover:border-violet-400 hover:bg-violet-900/45"
-          >
-            <span className="block text-[10px] font-bold text-violet-100">Challenge</span>
-            <span className="mt-0.5 block text-[9px] leading-tight text-violet-200/75">Искать контрпример или открытую задачу</span>
-          </button>
-        </div>
-      </section>
-
-      
-      {isKinematicManipulator && (
-        <section className="mb-3 rounded border border-emerald-800/70 bg-emerald-950/25 p-3">
-          <p className="text-[10px] font-bold text-emerald-100 uppercase tracking-wider mb-2 flex items-center gap-1.5"><Activity size={12}/> Engineering Demo</p>
-          <p className="text-[9px] text-emerald-200/80 mb-3 leading-relaxed">
-            Open the Kinematic Constraint Engine. Compare classical DLS with RICIS constraint recovery directly in the browser.
-          </p>
-          <button 
-            type="button"
-            onClick={() => {
-              UrlShareService.updateBrowserUrl({ kinematic: true });
-              window.dispatchEvent(new PopStateEvent('popstate'));
-            }}
-            className="w-full flex items-center justify-center gap-1.5 rounded bg-emerald-700/80 py-2 px-3 text-[10px] font-bold text-white hover:bg-emerald-600 transition-colors"
-          >
-            Launch Kinematic Constraint Engine
-          </button>
-        </section>
-      )}
 
       {calculatorEntry?.monolith.calculator.mode === 'KINEMATIC' && (
         <section aria-label="Граница визуализации манипулятора" className="mb-3 rounded border border-amber-800/70 bg-amber-950/25 p-2 text-[9px] leading-relaxed text-amber-100">
@@ -500,37 +462,6 @@ export const NodeCardDetails: React.FC<Props> = ({
             {t('node.targetFunction')}
           </span>
           <div className="flex items-center gap-2">
-            <button
-              type="button"
-              onClick={handleShareNode}
-              className="text-[9px] font-bold text-slate-300 hover:text-white bg-neutral-900 border border-neutral-700 hover:border-cyan-600 px-2 py-0.5 rounded transition-all flex items-center gap-1 cursor-pointer"
-              title="Скопировать ссылку на эту задачу"
-            >
-              {copiedLink ? (
-                <>
-                  <Check size={11} className="text-emerald-400" />
-                  <span className="text-emerald-400">Скопировано</span>
-                </>
-              ) : (
-                <>
-                  <Share2 size={11} className="text-cyan-400" />
-                  <span>Поделиться</span>
-                </>
-              )}
-            </button>
-            {onEdit && (
-              <button
-                type="button"
-                onClick={e => {
-                  e.stopPropagation();
-                  onEdit();
-                }}
-                className="text-[9px] font-bold text-cyan-400 hover:text-cyan-200 bg-cyan-950/70 border border-cyan-800/70 px-1.5 py-0.5 rounded transition-colors flex items-center gap-1"
-                title="Редактировать параметры задачи"
-              >
-                <span>✏️</span> Правка
-              </button>
-            )}
             {openSections['target'] ? <ChevronUp size={14} className="text-neutral-400" /> : <ChevronDown size={14} className="text-neutral-400" />}
           </div>
         </div>

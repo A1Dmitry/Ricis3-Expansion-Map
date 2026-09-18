@@ -31,6 +31,7 @@ import { runDatabaseMigration, MigrationAuditReport, auditAndFixMapGraph } from 
 import { normalizeCanonicalPath, sha256Truncated128Hex } from '../model/nodeIdentityMigration';
 import { DependencyGraphAuditor } from '../model/dependencyGraph';
 import { AuditReportMonolith, GarbageCollectionResult, TransformationLog } from '../model/dependencyGraph.types';
+import { applyNodeZoneAssignment } from '../domain/node/zoneAssignment.domain';
 import { getRicisCoreEngine, RicisAcademicProofResult } from '../services/ricisCore';
 import { AuthoritativeProofStatePolicy } from '../model/authoritativeProofStatePolicy';
 import {
@@ -94,6 +95,8 @@ interface MapStore extends MapState {
   /** Авто-обучение агента из базы данных */
   runAgentDbTraining: () => Promise<AgentTrainingMemory>;
   updateNode: (nodeId: string, updates: Partial<ProblemNode>) => Promise<void>;
+  /** Переназначает задачу существующей сфере или создаёт новую (паритет с созданием задачи). */
+  assignNodeZone: (nodeId: string, zoneId?: string, newZoneName?: string) => Promise<void>;
   updateProof: (nodeId: string, proofLatex: string) => Promise<void>;
   /** Stores user-supplied Lean source verbatim and locks it against agent replacement. */
   submitExternalLeanProof: (nodeId: string, leanSource: string) => Promise<void>;
@@ -575,6 +578,19 @@ export const useMapStore = create<MapStore>((set, get) => ({
     const state = get();
     const newNodes = state.nodes.map(n => (n.id === nodeId ? { ...n, ...updates } : n));
     const newState = { ...state, nodes: newNodes };
+    set(newState);
+    await saveMapToDb(newState);
+  },
+
+  assignNodeZone: async (nodeId, zoneId, newZoneName) => {
+    const state = get();
+    const assignment = applyNodeZoneAssignment(state, nodeId, zoneId, newZoneName);
+    if (!assignment) return;
+    const newState = {
+      ...state,
+      nodes: assignment.nodes,
+      zones: assignment.zones,
+    };
     set(newState);
     await saveMapToDb(newState);
   },
