@@ -306,9 +306,17 @@ jobs:
     env:
       # Explicit allowlist of artifacts whose BODY genuinely needs Mathlib. Nothing is
       # promoted by the existence of this mechanism: only files listed here are run.
+      # GAP-CLOSURE additions (2026-09-19, docs/02-sprints/GAP_CLOSURE_PLAN_SINGULARITY_2026-09-18.json):
+      #   * ricis-general-resolution-v4.lean — TASK-03/TASK-04: 0 declared axioms (contracts moved to
+      #     the normative RicisContract relation), reduction↔evaluation bridge, renamed
+      #     misleading theorem name;
+      #   * ricis-yang-mills-v2.lean — TASK-02/F-14: the missing module fixed in a NEW version
+      #     (Mathlib.Data.Real.Basic); the original bytes stay immutable.
       MATHLIB_ARTIFACTS: >-
         artifacts/proofs/ricis-general-resolution.lean
         artifacts/proofs/ricis-general-resolution-v3.lean
+        artifacts/proofs/ricis-general-resolution-v4.lean
+        artifacts/proofs/ricis-yang-mills-v2.lean
         artifacts/proofs/RicisAgiTarget.lean
         artifacts/proofs/jacobian-counterexample-full.lean
       # Pinned Mathlib revision = newest mathlib4 revision whose lean-toolchain is on the

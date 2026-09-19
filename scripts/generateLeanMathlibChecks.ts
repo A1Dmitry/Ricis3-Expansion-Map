@@ -68,6 +68,33 @@ const MATHLIB_CHECK_DIR = `${PROOFS_DIR}/mathlib-checks`;
  */
 export const LEAN_MATHLIB_CHECK_PLAN: readonly LeanMathlibCheckPlanEntry[] = [
   {
+    artifactId: 'ricis-yang-mills-v2',
+    source: `${PROOFS_DIR}/ricis-yang-mills-v2.lean`,
+    output: `${MATHLIB_CHECK_DIR}/ricis-yang-mills-v2.mathlib-check.lean`,
+    metadataJson: `${PROOFS_DIR}/ricis-yang-mills-v2.json`,
+    rationale:
+      'НОВАЯ версия внешнего артефакта ricis-yang-mills.lean (TASK-02 / F-14): импорт несуществующего ' +
+      'в закреплённой ревизии Mathlib модуля Mathlib.Basic.Real.Basic заменён на существующий ' +
+      'Mathlib.Data.Real.Basic; тела доказательств сохранены, вводящие в заблуждение имена теорем ' +
+      'заменены описательными (skew_product_orthogonal_pair_eq_div и т. д.). Тело действительно ' +
+      'нуждается в Mathlib: ℝ и тактика ring. До фактического прогона компилируемость — ' +
+      'UNVERIFIED_PREDICTION (правило TASK-07); статус записывает реестр, а не шапка файла.',
+  },
+  {
+    artifactId: 'ricis-general-resolution-v4',
+    source: `${PROOFS_DIR}/ricis-general-resolution-v4.lean`,
+    output: `${MATHLIB_CHECK_DIR}/ricis-general-resolution-v4.mathlib-check.lean`,
+    metadataJson: `${PROOFS_DIR}/ricis-general-resolution-v4.json`,
+    rationale:
+      'НОВАЯ версия (TASK-03/TASK-04, F-09/F-10/F-11): контракты A4/SP1 переведены из axiom-уравнений ' +
+      '(опровержимых в свободной модели — опровержение доказано в самом файле) в нормативное отношение ' +
+      'RicisContract; в файле 0 объявленных аксиом. Связь редукции и вычисления ' +
+      '(ricis_reduce_at_center_eq_eval использует ricis_reduce и в формулировке, и в доказательстве), ' +
+      'явно предъявленная сингулярность 0/0 (singularity_is_zero_over_zero) и переименование ' +
+      'ricis_equals_classical_limit → ricis_eval_value_form. Тело использует ℂ, omega и арифметику Nat — ' +
+      'прогон только на тулчейне Mathlib (lake env lean, предустановленные oleans).',
+  },
+  {
     artifactId: 'RicisAgiTarget',
     source: `${PROOFS_DIR}/RicisAgiTarget.lean`,
     output: `${MATHLIB_CHECK_DIR}/RicisAgiTarget.mathlib-check.lean`,

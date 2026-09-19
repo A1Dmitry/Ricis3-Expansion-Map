@@ -190,6 +190,27 @@
       ]
     },
     {
+      "artifactId": "ricis-jacobian-conjecture-v2",
+      "source": "artifacts/proofs/ricis-jacobian-conjecture-v2.lean",
+      "sourceSha256": "cc7d8d44551e4120bda8b504b3ad6cbcb99734ac3a0a1809139cff25ae20b364",
+      "output": "artifacts/proofs/core-checks/ricis-jacobian-conjecture-v2.core-check.lean",
+      "outputSha256": "15728ca63e9b0dc66501d185c07f53288cbd2c29bf89b66137a05b0d8590103c",
+      "substitutions": [],
+      "sourceFindings": [],
+      "rationale": "Тело — НОВАЯ версия артефакта якобиана (F-01): опровержение утверждения v1 (jacobian_v1_identity_refuted), формализованная первопричина (det_expansion_single_pass: ветвь `det` одношагового резолвера не спускается в произведения) и исправленное утверждение с опуском разрешения в произведения детерминанта (Jacobian_singularity_resolved через A6-стадию канона). Использованы только ядро-нативные конструкции: индуктив, rfl, rw, injection, cases. Ни ℝ/ℚ/ℂ, ни Mathlib-тактик в теле нет; строка `import Mathlib` телом не используется и удаляется в производной. Фактическим основанием статуса будет прогон джобы kernel-check (A-0007: локальный тулчейн недоступен из песочницы).",
+      "metadataJson": "artifacts/proofs/ricis-jacobian-conjecture-v2.json",
+      "printAxiomsTargets": [
+        "RICIS_Jacobian.det_expansion_single_pass",
+        "RICIS_Jacobian.RExpr_mul_ne_zeroF",
+        "RICIS_Jacobian.jacobian_v1_identity_refuted",
+        "RICIS_Jacobian.A6_pair_reaches_geometric_measure",
+        "RICIS_Jacobian.A6_geometric_realization",
+        "RICIS_Jacobian.A10_mul_zero",
+        "RICIS_Jacobian.Jacobian_singularity_resolved",
+        "RICIS_Jacobian.Jacobian_L1_identity"
+      ]
+    },
+    {
       "artifactId": "ricis-navier-stokes-ast-bridge",
       "source": "artifacts/proofs/ricis-navier-stokes-ast-bridge.standalone.lean",
       "sourceSha256": "85edafc2dd5fdcd3fc694cd246f8faf9337e9b036fe05f9fcd105b95cc6cc77a",

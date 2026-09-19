@@ -1053,10 +1053,11 @@ export const initialMap: MapState = {
     {
         "id": "registry-117",
         "title": "3D Navier--Stokes Existence and Smoothness",
-        "description": "Millennium Prize problem regarding smooth velocity fields in fluid dynamics.",
-        "state": "resolved",
-        "type": "scientific_task",
-        "targetFunction": "0{text{vol}} times infty{nabla u} = F cdot G.",
+        "description": "ВНЕШНЯЯ ЗАДАЧА ОТКРЫТА: существование и гладкость решений 3D уравнений Навье–Стокса (Millennium Prize) не доказаны ни этим узлом, ни аттестованным артефактом.\n\nЧТО ФАКТИЧЕСКИ ПОДТВЕРЖДЕНО ЯДРОМ: структурная редукция узла AST divSelf(E) → one в символическом языке FieldExpr и независимость редукции от вложенности операторов laplace/deriv (артефакт ricis-navier-stokes-ast-bridge.standalone.lean, теоремы singularEnergyBridge_reduced, bridge_independent_of_complexity; ядровой прогон lean +4.33.1, exit 0, без sorryAx; запись реестра: kernel-findings.json, artifactId ricis-navier-stokes-ast-bridge).\n\nЧТО НЕ УТВЕРЖДАЕТСЯ: никакого утверждения о существовании, единственности или гладкости решений Navier–Stokes здесь нет; FieldExpr — свободный символьный синтаксис без семантики функциональных пространств. Внешняя задача упоминается только как неформальная мотивация (поле informalExternalClaim).",
+        "state": "partial",
+        "type": "derived_problem",
+        "informalExternalClaim": "INFORMAL: 3D Navier–Stokes existence and smoothness — открытая задача Clay; узел содержит проверенную структурную редукцию AST, а не решение этой задачи.",
+        "targetFunction": "StructuralReduce(divSelf(E)) = one in FieldExpr AST",
         "zoneIds": [
             "physics"
         ],
@@ -1071,7 +1072,7 @@ export const initialMap: MapState = {
             "marketGain": 5000000000,
             "riskLoss": 2000000000
         },
-        "ricisSolvable": true
+        "ricisSolvable": false
     },
     {
         "id": "registry-118",
@@ -1163,11 +1164,12 @@ export const initialMap: MapState = {
     },
     {
       "id": "riemann-complex-pole-regularizer",
-      "title": "Регуляризатор полюса комплексной плоскости",
-      "description": "Доказательство абсолютной непрерывности дзета-функции в точке s=1 через исключение полюса первого порядка с сохранением семантического индекса и топологического заряда.",
-      "state": "resolved",
-      "type": "scientific_task",
-      "targetFunction": "ricisReduce(analyticContinuation(pole(s))) = 1",
+      "title": "Регуляризатор полюса: структурная редукция (не аналитическая регулярность)",
+      "description": "ВНЕШНЕЕ АНАЛИТИЧЕСКОЕ УТВЕРЖДЕНИЕ НЕ ДОКАЗАНО: абсолютная непрерывность дзета-функции в точке s=1, устранение полюса первого порядка, сохранение семантического индекса и топологического заряда аналитически не доказаны и не проверены ядром.\n\nЧТО ФАКТИЧЕСКИ ПОДТВЕРЖДЕНО: символическая редукция узла AST divSelf(analyticContinuation(pole(s))) → one в языке ZetaExpr (артефакт ricis-riemann-zeta-ast-bridge.standalone.lean, теорема riemann_bridge_independent_of_complexity; ядровой прогон lean +4.33.1, exit 0, без sorryAx).\n\npole и analyticContinuation — неинтерпретированные конструкторы AST, а не аналитические операции над комплексной функцией; никакого утверждения о поведении ζ(s) вблизи s=1 узел не содержит.",
+      "state": "partial",
+      "type": "derived_problem",
+      "informalExternalClaim": "INFORMAL: регулярность ζ(s) в s=1 — предмет классического комплексного анализа; узел даёт символическую редукцию, а не аналитическую теорему.",
+      "targetFunction": "StructuralReduce(divSelf(analyticContinuation(pole(s)))) = one in ZetaExpr AST",
       "zoneIds": ["math"],
       "dependencyIds": ["ricis-ast-reduction-pattern"],
       "dependentIds": ["real-catalog-3"],
@@ -1182,11 +1184,12 @@ export const initialMap: MapState = {
     },
     {
       "id": "real-catalog-3",
-      "title": "Гипотеза Римана",
-      "description": "Все нетривиальные нули дзета-функции Римана лежат на критической прямой s=1/2+it. Доказано через обобщенную регуляризацию полюса и сохранение конформного семантического моста RICIS-III.",
-      "state": "resolved",
-      "type": "core_singularity",
-      "targetFunction": "Formalize(ГипотезаРимана)",
+      "title": "Гипотеза Римана: структурная редукция E/E в AST (внешняя задача открыта)",
+      "description": "ВНЕШНЯЯ ЗАДАЧА ОТКРЫТА: гипотеза Римана (все нетривиальные нули дзета-функции лежат на критической прямой s=1/2+it) не доказана ни этим узлом, ни аттестованным артефактом.\n\nЧТО ФАКТИЧЕСКИ ПОДТВЕРЖДЕНО ЯДРОМ: структурная редукция узла AST divSelf(E) → one в символическом языке ZetaExpr и независимость этой редукции от вложенности pole/analyticContinuation (артефакт ricis-riemann-zeta-ast-bridge.standalone.lean, ядровой прогон lean +4.33.1, exit 0, без sorryAx; запись реестра: kernel-findings.json, artifactId ricis-riemann-zeta-ast-bridge). Теоремы: riemann_bridge_reduced, riemann_bridge_independent_of_complexity.\n\nЧТО НЕ УТВЕРЖДАЕТСЯ: никакой связи этой редукции с распределением нулей дзета-функции не доказано, предел не строится, аналитическое продолжение остаётся неинтерпретированным символом (тип ZetaExpr, не комплексная функция). Внешняя задача упоминается только как неформальная мотивация (поле informalExternalClaim).",
+      "state": "partial",
+      "type": "derived_problem",
+      "informalExternalClaim": "INFORMAL: гипотеза Римана — открытая задача Clay; узел не содержит и не может содержать её решения. Связь с ней — неформальная мотивация, а не проверенный результат.",
+      "targetFunction": "StructuralReduce(divSelf(E)) = one in ZetaExpr AST",
       "zoneIds": ["math"],
       "dependencyIds": ["riemann-complex-pole-regularizer"],
       "dependentIds": [],
@@ -1197,7 +1200,7 @@ export const initialMap: MapState = {
         "marketGain": 1507000000,
         "riskLoss": 2428000000
       },
-      "ricisSolvable": true
+      "ricisSolvable": false
     },
     {
       "id": "ricis-chatbot-monetization",
@@ -1963,34 +1966,40 @@ export const initialMap: MapState = {
   },
   "registry-117": {
     "nodeId": "registry-117",
-    "targetFunction": "0{text{vol}} times infty{nabla u} = F cdot G.",
+    "targetFunction": "StructuralReduce(divSelf(E)) = one in FieldExpr AST",
     "steps": [
       {
         "phase": -1,
-        "name": "L1_IDENTITY",
-        "action": "Verify identity and types",
-        "expression": "T(0{text{vol}} times infty{nabla u} = F cdot G.)"
+        "name": "Identity Principle (AST typing)",
+        "action": "Define the symbolic language FieldExpr; laplace/deriv/grad are uninterpreted constructors",
+        "expression": "T(Field) = FieldExpr"
       },
       {
         "phase": 2,
-        "name": "RICIS transform",
-        "action": "Axiom A6",
-        "expression": "0_F x infinity_G = F * G (Spec: https://doi.org/10.5281/zenodo.21836220)"
+        "name": "Structural Energy Bridge Reduction",
+        "action": "Reduce the divSelf node to one in the AST; no limits and no f−f=0 tricks",
+        "expression": "ricisReduceField (divSelf E) = one"
+      },
+      {
+        "phase": 6,
+        "name": "Invariance under nesting",
+        "action": "The reduction is independent of the nesting depth of laplace/deriv",
+        "expression": "ricisReduceField (divSelf (laplace E)) = one"
       }
     ],
-    "finalResult": "Axiom Extracted: registry-117_resolved",
-    "latex": "\\section*{RICIS-III Proof: 3D Navier--Stokes Existence and Smoothness}\n\\textbf{Target Function:} $0{text{vol}} times infty{nabla u} = F cdot G.$\n\\subsection*{RICIS Transform & Axiom A6}\n$ 0_F \\times \\infty_G = F \\cdot G $\n\\textbf{Specification Lean 4 DOI:} \\href{https://doi.org/10.5281/zenodo.21529989}{https://doi.org/10.5281/zenodo.21529989} (Master Registry href{https://doi.org/10.5281/zenodo.21836220}{10.5281/zenodo.21836220}) (Master Registry \\href{https://doi.org/10.5281/zenodo.21517353}{10.5281/zenodo.21517353})\n\\textbf{Final Result:} Axiom Extracted: registry-117_resolved",
+    "finalResult": "Structural AST reduction divSelf → one verified at kernel level (artifact ricis-navier-stokes-ast-bridge, kernel run 34891262489). Navier–Stokes existence/smoothness NOT solved and NOT claimed.",
+    "latex": "\\section*{RICIS-III Structural Proof: Field AST Reduction (external problem open)}\n\\textbf{Author:} Dmitry V. Aleinikov (ORCID: 0009-0004-3226-7700)\n\\subsection*{Core (structural) theorem}\nIn the symbolic language \\texttt{FieldExpr} the singular-energy bridge \\texttt{singularEnergyBridge E = divSelf E} reduces to \\texttt{one}, and the reduction is independent of nesting of \\texttt{laplace}/\\texttt{deriv}.\n\\subsection*{Boundary of the claim}\nThe 3D Navier--Stokes existence and smoothness problem is NOT solved here and is NOT addressed by this artifact: \\texttt{FieldExpr} is a free symbolic syntax with no functional-analytic semantics. No statement about existence, uniqueness or smoothness of solutions is made.\n\\subsection*{Lean 4 verification (artifact level)}\n\\textbf{Source File:} \\texttt{ricis-navier-stokes-ast-bridge.standalone.lean}\n\\textbf{Content Hash:} \\texttt{85edafc2dd5fdcd3fc694cd246f8faf9337e9b036fe05f9fcd105b95cc6cc77a}\n\\textbf{Artifact Kernel Status:} LEAN_VERIFIED — run 34891262489, exit 0, no \\texttt{sorryAx}; 2 theorems, both with standard axioms only (does not constitute a resolution of the Navier--Stokes problem)\n\textbf{Specification Lean 4 DOI:} \href{https://doi.org/10.5281/zenodo.21529989}{https://doi.org/10.5281/zenodo.21529989}\n\textbf{RICIS transform (Axiom A6, symbolic level):} $0_F \times \infty_G = F \cdot G$ — applied to the AST node, not to the PDE.",
     "externalLean": {
       "sourceHash": "sha256:85edafc2dd5fdcd3fc694cd246f8faf9337e9b036fe05f9fcd105b95cc6cc77a",
       "submittedAt": "2026-08-29T03:00:00.000Z",
       "sourceLocked": true,
       "trustStatus": "LEAN_VERIFIED",
-      "kernelEvidence": {
-        "toolchain": "lean:4.11.0",
-        "command": "lean ricis-navier-stokes-ast-bridge.standalone.lean",
-        "compilerOutput": "compiled successfully (0 warnings, 0 errors)",
-        "axiomReport": "standard axioms verified (no sorryAx used)",
-        "verifiedAt": "2026-08-29T03:00:00.000Z"
+"kernelEvidence": {
+        "toolchain": "lean 4.33.1 (pinned via elan, GitHub Actions ubuntu-latest)",
+        "command": "lean +4.33.1 artifacts/proofs/core-checks/ricis-navier-stokes-ast-bridge.standalone.core-check.lean",
+        "compilerOutput": "exit 0, ошибок компилятора 0 (запись реестра: kernel-findings.json, artifactId ricis-navier-stokes-ast-bridge)",
+        "axiomReport": "#print axioms: sorryAx отсутствует; обе теоремы зависят только от стандартных аксиом Lean (propext)",
+        "verifiedAt": "2026-09-14T20:10:25Z"
       }
     }
   },
@@ -2090,78 +2099,90 @@ export const initialMap: MapState = {
       "submittedAt": "2026-08-29T03:21:00.000Z",
       "sourceLocked": true,
       "trustStatus": "LEAN_VERIFIED",
-      "kernelEvidence": {
-        "toolchain": "lean:4.11.0",
-        "command": "lean ricis-v79-monolith.standalone.lean",
-        "compilerOutput": "compiled successfully (0 warnings, 0 errors)",
-        "axiomReport": "standard axioms verified (no sorryAx used)",
-        "verifiedAt": "2026-08-29T03:21:00.000Z"
+"kernelEvidence": {
+        "toolchain": "lean 4.33.1 (pinned via elan, GitHub Actions ubuntu-latest)",
+        "command": "lean +4.33.1 artifacts/proofs/core-checks/ricis-v79-monolith.standalone.core-check.lean",
+        "compilerOutput": "exit 0, ошибок компилятора 0 (ядровой прогон run 34891262489; запись реестра: kernel-findings.json, artifactId ricis-v79-monolith)",
+        "axiomReport": "#print axioms: sorryAx отсутствует; 31 теорема — 3 без аксиом (L1_identity, SP4_preserves_parent, ns_error_zero), 28 зависят только от стандартных аксиом Lean (propext)",
+        "verifiedAt": "2026-09-14T20:10:25Z"
       }
     }
   },
   "riemann-complex-pole-regularizer": {
     "nodeId": "riemann-complex-pole-regularizer",
-    "targetFunction": "ricisReduce(analyticContinuation(pole(s))) = 1",
+    "targetFunction": "StructuralReduce(divSelf(analyticContinuation(pole(s)))) = one in ZetaExpr AST",
     "steps": [
       {
         "phase": 0.5,
-        "name": "Semantic Indexing",
-        "action": "Assign strongly-typed zero at the pole using SP4",
-        "expression": "semanticIndex(s - 1) = zeroF(s - 1)"
+        "name": "Semantic Indexing (AST)",
+        "action": "Represent the pole as a strongly-typed symbolic zero node using SP4 — an operation on the AST, not an analytic statement about ζ(s)",
+        "expression": "semanticIndex(pole(s)) = zeroF(pole(s))"
+      },
+      {
+        "phase": 1,
+        "name": "Structural Safety Check (SP2)",
+        "action": "The symbolic quotient node is kept unresolved (no NaN, no limit) until the structural rules apply",
+        "expression": "riemannZetaBridge E = ZetaExpr.divSelf E"
       },
       {
         "phase": 2,
-        "name": "Pole Resolution",
-        "action": "Apply Axiom A4 zero-to-zero ratio or A2 zero-indexed infinity resolution",
-        "expression": "resolveRICIS(infF RExpr.zero) = RExpr.one"
+        "name": "Structural Pole Node Resolution",
+        "action": "Unfold the symbolic divSelf node to one under rules A2/A4 — definitional unfolding in the AST, not analytic regularity of ζ(s) at s=1",
+        "expression": "ricisReduceZeta (divSelf (analyticContinuation (pole E))) = one"
       }
     ],
-    "finalResult": "Complex Pole Regularizer Verified",
-    "latex": "\\section*{RICIS-III Proof: Riemann Zeta Complex Pole Regularizer}\n\\textbf{Author:} Dmitry V. Aleinikov (ORCID: 0009-0004-3226-7700)\n\\subsection*{Pole Regularization at $s=1$}\nUsing semantic indexing (SP4), the singularity is resolved directly by identifying the pole as a zero-indexed infinity monolith $\\infty_0$, evaluating to $1$ in $O(1)$ operations with zero error propagation.\n\\subsection*{Lean 4 Proof Status}\nVerified under namespace \\texttt{RICIS_v79} in \\texttt{ricis-v79-monolith.standalone.lean}.",
+    "finalResult": "Symbolic AST reduction divSelf → one verified at kernel level (artifact ricis-riemann-zeta-ast-bridge, run 34891262489, exit 0, no sorryAx). Not claimed: analytic regularity of ζ(s) at s=1, pole cancellation, semantic index, topological charge.",
+    "latex": "\\section*{RICIS-III Structural Proof: Symbolic Pole Node in the Riemann-Zeta AST}\n\\textbf{Author:} Dmitry V. Aleinikov (ORCID: 0009-0004-3226-7700)\n\\subsection*{Structural (AST) statement}\nIn the symbolic language \\texttt{ZetaExpr} the bridge node \\texttt{riemannZetaBridge E = divSelf E} reduces to \\texttt{one} in $O(1)$ steps, and this reduction is independent of nesting of \\texttt{pole}/\\texttt{analyticContinuation}.\n\\subsection*{Boundary of the claim}\nNo analytic statement is made: absolute continuity of $\\zeta(s)$ at $s=1$, cancellation of the first-order pole, preservation of the semantic index and of a topological charge are NOT proven and are NOT covered by any kernel run. \\texttt{pole} and \\texttt{analyticContinuation} are uninterpreted AST constructors, not analytic operations on a complex function.\n\\subsection*{Artifact kernel status}\n\\texttt{ricis-riemann-zeta-ast-bridge.standalone.lean}, Lean 4.33.1, run 34891262489: exit 0, no \\texttt{sorryAx}; both theorems depend only on standard Lean axioms (registry: \\texttt{kernel-findings.json}).\n\textbf{Specification Lean 4 DOI:} \href{https://doi.org/10.5281/zenodo.21529989}{https://doi.org/10.5281/zenodo.21529989}\n\textbf{RICIS transform (Axiom A6, symbolic level):} $0_F \times \infty_G = F \cdot G$ — applied to the AST node, not to ζ.",
     "externalLean": {
       "sourceHash": "sha256:fbd99bbdefd05aaff83fe4325377681f7e3b7099a3c9f5234b3ff4def86077e2",
       "submittedAt": "2026-08-29T03:21:00.000Z",
       "sourceLocked": true,
       "trustStatus": "LEAN_VERIFIED",
-      "kernelEvidence": {
-        "toolchain": "lean:4.11.0",
-        "command": "lean ricis-v79-monolith.standalone.lean",
-        "compilerOutput": "compiled successfully (0 warnings, 0 errors)",
-        "axiomReport": "standard axioms verified (no sorryAx used)",
-        "verifiedAt": "2026-08-29T03:21:00.000Z"
+"kernelEvidence": {
+        "toolchain": "lean 4.33.1 (pinned via elan, GitHub Actions ubuntu-latest)",
+        "command": "lean +4.33.1 artifacts/proofs/core-checks/ricis-v79-monolith.standalone.core-check.lean",
+        "compilerOutput": "exit 0, ошибок компилятора 0 (ядровой прогон run 34891262489; запись реестра: kernel-findings.json, artifactId ricis-v79-monolith)",
+        "axiomReport": "#print axioms: sorryAx отсутствует; 31 теорема — 3 без аксиом (L1_identity, SP4_preserves_parent, ns_error_zero), 28 зависят только от стандартных аксиом Lean (propext)",
+        "verifiedAt": "2026-09-14T20:10:25Z"
       }
     }
   },
   "real-catalog-3": {
     "nodeId": "real-catalog-3",
-    "targetFunction": "Formalize(ГипотезаРимана)",
+    "targetFunction": "StructuralReduce(divSelf(E)) = one in ZetaExpr AST",
     "steps": [
       {
         "phase": -1,
-        "name": "Identity Principle",
-        "action": "Define the ontological boundaries of Zeta expression",
-        "expression": "T(Zeta) = ComplexZetaExpr"
+        "name": "Identity Principle (AST typing)",
+        "action": "Define the symbolic language ZetaExpr; pole and analyticContinuation are uninterpreted constructors",
+        "expression": "T(Zeta) = ZetaExpr"
       },
       {
         "phase": 2,
-        "name": "Conformal Bridge Resolution",
-        "action": "Apply Axiom A4 and A6 to the critical line zeros mapping",
-        "expression": "resolveRICIS(div (zeroF a) (zeroF b)) = div a b"
+        "name": "Structural Bridge Reduction",
+        "action": "Reduce the divSelf node to one in the AST under the structural rules; no limits are introduced",
+        "expression": "ricisReduceZeta (divSelf E) = one"
+      },
+      {
+        "phase": 6,
+        "name": "Invariance under nesting",
+        "action": "The reduction is independent of the nesting depth of pole/analyticContinuation",
+        "expression": "ricisReduceZeta (divSelf (analyticContinuation (pole E))) = one"
       }
     ],
-    "finalResult": "Riemann Hypothesis Resolved",
-    "latex": "\\section*{RICIS-III Proof: Resolution of the Riemann Hypothesis}\n\\textbf{Author:} Dmitry V. Aleinikov (ORCID: 0009-0004-3226-7700)\n\\subsection*{Core Theorem}\nAll non-trivial zeros of the Riemann Zeta function lie strictly on the critical line $Re(s) = 1/2$. By mapping the functional equation as a 4D conformal monolith under RICIS-III, the polar singularity is cancelled via $O(1)$ AST-reduction, preventing numeric gradient drift and proving absolute structural continuity.\n\\subsection*{Lean 4 Formal Proof}\n\\textbf{Source File:} \\texttt{ricis-riemann-zeta-ast-bridge.standalone.lean}\n\\textbf{Content Hash:} \\texttt{85fd84aca47bf193245a65617c64a5d5b47c101863e868d3260b1e71e4c9798b}\n\\textbf{Proof Status:} LEAN_VERIFIED",
+    "finalResult": "Structural AST reduction divSelf → one verified at kernel level (artifact ricis-riemann-zeta-ast-bridge, run 34891262489, exit 0, no sorryAx). External problem (Riemann Hypothesis) is NOT solved and NOT claimed.",
+    "latex": "\\section*{RICIS-III Structural Proof: Zeta AST Reduction (external problem open)}\n\\textbf{Author:} Dmitry V. Aleinikov (ORCID: 0009-0004-3226-7700)\n\\subsection*{Core (structural) theorem}\nIn the symbolic language \\texttt{ZetaExpr} the bridge node \\texttt{riemannZetaBridge E = divSelf E} reduces to \\texttt{one}, and the reduction is independent of nesting of \\texttt{pole} and \\texttt{analyticContinuation}.\n\\subsection*{Boundary of the claim}\nThe Riemann Hypothesis is NOT proven here and is NOT addressed by this artifact: no statement about the distribution of non-trivial zeros is made. \\texttt{pole} and \\texttt{analyticContinuation} are uninterpreted AST constructors; no limit is constructed; the external problem remains open (informal motivation only).\n\\subsection*{Lean 4 verification (artifact level)}\n\\textbf{Source File:} \\texttt{ricis-riemann-zeta-ast-bridge.standalone.lean}\n\\textbf{Content Hash:} \\texttt{85fd84aca47bf193245a65617c64a5d5b47c101863e868d3260b1e71e4c9798b}\n\\textbf{Artifact Kernel Status:} LEAN_VERIFIED — run 34891262489, exit 0, no \\texttt{sorryAx}; 2 theorems, both with standard axioms only (does not constitute a proof of the Riemann Hypothesis)\n\\textbf{Declared trust status of the artifact metadata:} TRUSTED_AXIOM (named trust dependency L1/SP2/A4)\n\textbf{Specification Lean 4 DOI:} \href{https://doi.org/10.5281/zenodo.21529989}{https://doi.org/10.5281/zenodo.21529989}\n\textbf{RICIS transform (Axiom A6, symbolic level):} $0_F \times \infty_G = F \cdot G$ — applied to the AST node, not to ζ.",
     "externalLean": {
       "sourceHash": "sha256:85fd84aca47bf193245a65617c64a5d5b47c101863e868d3260b1e71e4c9798b",
       "submittedAt": "2026-08-29T03:00:00.000Z",
       "sourceLocked": true,
       "trustStatus": "LEAN_VERIFIED",
-      "kernelEvidence": {
-        "toolchain": "lean:4.11.0",
-        "command": "lean ricis-riemann-zeta-ast-bridge.standalone.lean",
-        "compilerOutput": "compiled successfully (0 warnings, 0 errors)",
-        "axiomReport": "standard axioms verified (no sorryAx used)",
-        "verifiedAt": "2026-08-29T03:00:00.000Z"
+"kernelEvidence": {
+        "toolchain": "lean 4.33.1 (pinned via elan, GitHub Actions ubuntu-latest)",
+        "command": "lean +4.33.1 artifacts/proofs/core-checks/ricis-riemann-zeta-ast-bridge.standalone.core-check.lean",
+        "compilerOutput": "exit 0, ошибок компилятора 0 (запись реестра: kernel-findings.json, artifactId ricis-riemann-zeta-ast-bridge)",
+        "axiomReport": "#print axioms: sorryAx отсутствует; обе теоремы зависят только от стандартных аксиом Lean (propext)",
+        "verifiedAt": "2026-09-14T20:10:25Z"
       }
     }
   }

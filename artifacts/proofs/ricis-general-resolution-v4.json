@@ -1,0 +1,42 @@
+{
+  "source": "НОВАЯ версия доказательства (TASK-03 + TASK-04). Внешние исходники artifacts/proofs/ricis-general-resolution.lean (v2) и artifacts/proofs/ricis-general-resolution-v3.lean (v3) не изменены ни на байт (AGENTS.md §7).",
+  "claim": "Для параметризованной мероморфной сингулярности: при положительных порядках m, n в центре a сингулярность 0/0 предъявлена явно (N a = 0 ∧ D a = 0); значение структурной редукции ricis_reduce в центре равно RICIS-вычислению ricis_eval_general; контракты A4/SP1 входят видимыми элементами нормативного отношения RicisContract — при 0 объявленных аксиом в файле.",
+  "method": "reduction_evaluation_bridge_with_normative_contract_relation",
+  "verification": {
+    "valid": false,
+    "validNote": "Ядровой прогон ещё не выполнялся: valid=false означает «не проверено». Значение будет записано по факту прогона job mathlib-kernel-check.",
+    "verifiedAxioms": [],
+    "contentHash": "1e89cbc83d2c06a8abffcf5e59b4d88b83a02bf35909ce59306660cace0be3a3",
+    "trustStatus": "REQUIRES_CORE_LEAN",
+    "claimLevel": "STRUCTURALLY_VALIDATED",
+    "claimLevelNote": "Уровень заявления — структурный (даже при зелёном прогоне): контракты A4/SP1 остаются нормативными входами RICIS (теперь — конструкторы отношения RicisContract, а не аксиомы-уравнения), классический предел не определяется и не заявляется (P1)."
+  },
+  "declaredAxioms": [],
+  "axiomFreeConstruction": {
+    "before": "v2/v3 объявляли `axiom ax_A4_general` и `axiom ax_SP1_general` как УРАВНЕНИЯ RicisExpr (div … = val …).",
+    "whyRemoved": "В свободной индуктивной модели RicisExpr равенство `div x y = val c` опровержимо (разные конструкторы): аксиома такого вида делает теорию противоречивой. Опровержение доказано в этом же файле: RicisExpr_div_ne_val, a4_equation_form_is_refutable, no_universal_a4_equation.",
+    "after": "Контракты выражены нормативным отношением RicisContract (конструкторы a4 / sp1) — то же решение, что в типизированном ядре database-registry-120-jacobian.standalone.lean («RICIS axioms are normative contracts, not theorems derivable from classical field arithmetic»). Свидетель непустоты отношения предъявлен: ricis_contract_inhabited.",
+    "renamed": "ricis_equals_classical_limit (v2) → ricis_eval_value_form: прежнее имя обещало доказанное совпадение с классическим пределом, которого в файле нет (P1)."
+  },
+  "boundary": {
+    "provenIfKernelAccepts": [
+      "singularity_is_zero_over_zero: N a = 0 ∧ D a = 0 при m > 0 и n > 0;",
+      "ricis_reduce_at_center_eq_eval: ricis_reduce S S.a = ricis_eval_general S при m ≥ n (редукция и вычисление связаны, F-09/F-11);",
+      "regular_factor_quotient_uses_A4 / common_zero_factor_uses_SP1: контракты как элементы отношения (видимые зависимости);",
+      "ricis_resolution_bridge: сводная bridge-теорема с явной сингулярностью, значением и обоими контрактами;",
+      "no_universal_a4_equation: аксиома-уравнение A4 не может быть универсально истинной."
+    ],
+    "notProven": [
+      "A4/SP1 не выводятся из A1–A10: они остаются нормативными контрактами (отношением), а не теоремами;",
+      "Общая разрешимость комплексных сингулярностей классического анализа и любое совпадение с классическим пределом;",
+      "Эмпирические утверждения узла карты."
+    ]
+  },
+  "verificationPath": {
+    "workflow": ".github/workflows/lean-artifact-kernel-check.yml",
+    "job": "mathlib-kernel-check",
+    "checkedFile": "artifacts/proofs/mathlib-checks/ricis-general-resolution-v4.mathlib-check.lean",
+    "artifactCheckedAsProvided": true,
+    "status": "PENDING_KERNEL_RUN"
+  }
+}

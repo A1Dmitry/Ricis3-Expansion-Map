@@ -34,9 +34,28 @@ describe('RICIS-III Singularity Resolution & Graph Completion Verification', () 
   // phys-unified is partial BY DESIGN — the prior det-only resolved marking was an
   // overclaim (continuum QM–GR unification was never established). Owner-authorized
   // correction; every other seed node must remain resolved.
-  it('scen_3: verifies 100% resolution of all core research nodes except documented partial-by-design', () => {
+  // GAP-CLOSURE TASK-05 (F-05), 2026-09-19: перечень partial-by-design расширен.
+  // real-catalog-3 (гипотеза Римана), riemann-complex-pole-regularizer и registry-117
+  // (Навье–Стокс) были 'resolved' по структурным AST-мостам: ядровой прогон подтверждает
+  // только редукцию divSelf → one, а не внешнюю задачу. Состояние понижено до 'partial',
+  // внешняя задача вынесена в поле informalExternalClaim (INFORMAL:).
+  it('scen_3: verifies every core research node is resolved except the documented partial-by-design ones', () => {
     const unresolved = initialMap.nodes.filter(n => n.state !== 'resolved');
-    expect(unresolved.map(n => n.id).sort()).toEqual(['phys-unified']);
+    expect(unresolved.map(n => n.id).sort()).toEqual([
+      'phys-unified',
+      'real-catalog-3',
+      'registry-117',
+      'riemann-complex-pole-regularizer',
+    ]);
+    for (const node of unresolved) {
+      if (node.id === 'phys-unified') continue;
+      expect(node.informalExternalClaim?.startsWith('INFORMAL')).toBe(true);
+    }
+    // Узлы, чьим предметом является открытая задача Clay, не могут быть «решаемыми
+    // протоколом»: узел хранит структурную редукцию, а не решение внешней задачи.
+    for (const nodeId of ['real-catalog-3', 'registry-117']) {
+      expect(initialMap.nodes.find(n => n.id === nodeId)?.ricisSolvable).toBe(false);
+    }
   });
 
   it('scen_3b: phys-unified stays partial (never unresolved) with OPEN continuum proof', () => {
