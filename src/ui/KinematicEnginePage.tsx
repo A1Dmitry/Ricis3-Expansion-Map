@@ -1,3 +1,6 @@
+import { ContentButton } from './components/ContentButton';
+import { IconButton } from './components/IconButton';
+
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import {
   ArrowLeft,
@@ -22,24 +25,10 @@ import {
   Sparkles,
   Target,
 } from 'lucide-react';
-import type {
-  IKinematicState3D,
-  Vector3D,
-  IBallEntity,
-  IBoxContainer,
-  ISolverMetrics3D,
-  IKinematicLogEntry,
-  CoordinateSystemMode,
-  IQATelemetryTraceEntry,
-  RicisSolverMode,
-} from '../model/kinematicEngine.contracts';
+import type { IKinematicState3D, Vector3D, IBallEntity, IBoxContainer, ISolverMetrics3D, CoordinateSystemMode, IQATelemetryTraceEntry, RicisSolverMode } from '../model/kinematicEngine.contracts';
 import { RobotArm3DCanvas } from './components/kinematic/RobotArm3DCanvas';
 import { PolarCoordinateService } from '../services/kinematic/polarCoordinateService';
-import {
-  PolarRicisConstraintSolver,
-  ClassicDlsGhostSolver,
-  KinematicDualDebuggerEngine,
-} from '../services/kinematic/polarSolvers';
+import { PolarRicisConstraintSolver, KinematicDualDebuggerEngine } from '../services/kinematic/polarSolvers';
 import { RicisSymbolicJacobianSolver3D } from '../services/kinematic/kinematicSolvers';
 import { PickAndPlaceController } from '../services/kinematic/pickAndPlaceController';
 import { CatchBallController, TENNIS_CANNON_SHOT_PLAN } from '../services/kinematic/catchBallController';
@@ -320,14 +309,14 @@ export const KinematicEnginePage: React.FC<Props> = ({ onBackToMap }) => {
       dualEngine.setRicisSolver(new PolarRicisConstraintSolver(), 'POLAR_GEOMETRIC');
     }
   }, [ricisSolverMode, dualEngine]);
-  
+
   // Symbolic Jacobian AST Engine
   const symbolicJacobianEngine = useMemo(() => new RicisSymbolicJacobianEngine(), []);
   const [symbolicSolution, setSymbolicSolution] = useState<IRicisAstInverseSolution | null>(null);
   const [symbolicMatrix, setSymbolicMatrix] = useState<ISymbolicJacobianMatrix3D | null>(() =>
     symbolicJacobianEngine.buildSymbolicJacobian(initJoints, LINK_LENGTHS)
   );
-  
+
   const mapStore = useMapStore();
 
   // Ensure mapStore is hydrated for testing modal
@@ -713,18 +702,18 @@ export const KinematicEnginePage: React.FC<Props> = ({ onBackToMap }) => {
   ];
 
   return (
-    <div className="flex flex-col h-screen bg-[#07090e] text-slate-100 overflow-hidden font-sans select-none">
+    <div className="flex flex-col h-full min-h-0 bg-[#07090e] text-slate-100 overflow-hidden font-sans select-none">
       {/* Top Header Bar */}
       <header className="flex items-center justify-between px-4 py-2.5 bg-neutral-900/90 border-b border-neutral-800 backdrop-blur z-20 shrink-0">
         <div className="flex items-center gap-3">
-          <button
+          <ContentButton
             type="button"
             onClick={onBackToMap}
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-neutral-800 hover:bg-neutral-700 text-cyan-400 hover:text-cyan-200 border border-neutral-700/80 text-xs font-bold transition-colors"
           >
             <ArrowLeft size={14} />
             К 3D Карте
-          </button>
+          </ContentButton>
           <div className="h-4 w-px bg-neutral-700" />
           <div>
             <h1 className="text-sm font-bold tracking-wide text-cyan-300 flex items-center gap-2">
@@ -740,7 +729,7 @@ export const KinematicEnginePage: React.FC<Props> = ({ onBackToMap }) => {
         {/* Global Controls */}
         <div className="flex items-center gap-2">
           {/* Pause / Play */}
-          <button
+          <ContentButton
             type="button"
             onClick={() => setIsRunning(!isRunning)}
             className={`flex items-center gap-1 px-3 py-1.5 rounded text-xs font-bold transition-all shadow-md ${
@@ -751,10 +740,10 @@ export const KinematicEnginePage: React.FC<Props> = ({ onBackToMap }) => {
           >
             {isRunning ? <Pause size={14} /> : <Play size={14} />}
             {isRunning ? 'Пауза' : 'Старт'}
-          </button>
+          </ContentButton>
 
           {/* Reset */}
-          <button
+          <ContentButton
             type="button"
             onClick={handleReset}
             className="flex items-center gap-1 px-2.5 py-1.5 rounded bg-neutral-800 hover:bg-neutral-700 text-slate-300 border border-neutral-700 text-xs transition-colors"
@@ -762,14 +751,14 @@ export const KinematicEnginePage: React.FC<Props> = ({ onBackToMap }) => {
           >
             <RotateCcw size={13} />
             Сброс
-          </button>
+          </ContentButton>
 
           <div className="h-4 w-px bg-neutral-700" />
 
           {/* Speed */}
           <div className="flex items-center bg-neutral-800 rounded p-0.5 border border-neutral-700 text-[10px]">
             {[1, 2, 4].map(s => (
-              <button
+              <ContentButton
                 key={s}
                 type="button"
                 onClick={() => setSpeedMultiplier(s)}
@@ -778,7 +767,7 @@ export const KinematicEnginePage: React.FC<Props> = ({ onBackToMap }) => {
                 }`}
               >
                 {s}x
-              </button>
+              </ContentButton>
             ))}
           </div>
 
@@ -786,7 +775,7 @@ export const KinematicEnginePage: React.FC<Props> = ({ onBackToMap }) => {
 
           {/* RICIS Solver Mode Toggle (Polar Geometric vs Symbolic AST) */}
           <div className="flex items-center bg-neutral-900/90 rounded-md p-0.5 border border-neutral-700 text-[11px]">
-            <button
+            <ContentButton
               type="button"
               onClick={() => setRicisSolverMode('POLAR_GEOMETRIC')}
               className={`flex items-center gap-1 px-2.5 py-1 rounded transition-colors font-medium ${
@@ -798,8 +787,8 @@ export const KinematicEnginePage: React.FC<Props> = ({ onBackToMap }) => {
             >
               <Compass size={12} />
               <span>RICIS Polar</span>
-            </button>
-            <button
+            </ContentButton>
+            <ContentButton
               type="button"
               onClick={() => setRicisSolverMode('SYMBOLIC_AST')}
               className={`flex items-center gap-1 px-2.5 py-1 rounded transition-colors font-medium ${
@@ -811,7 +800,7 @@ export const KinematicEnginePage: React.FC<Props> = ({ onBackToMap }) => {
             >
               <Cpu size={12} />
               <span>RICIS AST</span>
-            </button>
+            </ContentButton>
           </div>
 
           <div className="h-4 w-px bg-neutral-700" />
@@ -830,7 +819,7 @@ export const KinematicEnginePage: React.FC<Props> = ({ onBackToMap }) => {
           <div className="h-4 w-px bg-neutral-700" />
 
           {/* QA Stress Test Button */}
-          <button
+          <ContentButton
             type="button"
             onClick={() => setShowTestingModal(true)}
             className="flex items-center gap-1.5 px-3 py-1.5 rounded bg-rose-950/70 hover:bg-rose-900/80 text-rose-300 border border-rose-600/60 text-xs font-bold transition-all shadow-[0_0_10px_rgba(244,63,94,0.2)]"
@@ -838,7 +827,7 @@ export const KinematicEnginePage: React.FC<Props> = ({ onBackToMap }) => {
           >
             <Bug size={14} className="text-rose-400" />
             QA Стресс-тест
-          </button>
+          </ContentButton>
         </div>
       </header>
 
@@ -853,7 +842,7 @@ export const KinematicEnginePage: React.FC<Props> = ({ onBackToMap }) => {
               <div className="flex items-center gap-2">
                 <span className="text-[11px] font-mono text-slate-400">IoC Модель:</span>
                 <div className="flex items-center gap-1.5">
-                  <button
+                  <ContentButton
                     type="button"
                     onClick={() => handleSelectModule('planar-3link-two-stage')}
                     className={`px-2.5 py-1 rounded text-xs font-mono font-medium transition-all ${
@@ -863,8 +852,8 @@ export const KinematicEnginePage: React.FC<Props> = ({ onBackToMap }) => {
                     }`}
                   >
                     3-Link Planar (READY)
-                  </button>
-                  <button
+                  </ContentButton>
+                  <ContentButton
                     type="button"
                     onClick={() => handleSelectModule('planar-5link-redundant')}
                     className={`px-2.5 py-1 rounded text-xs font-mono font-medium transition-all ${
@@ -874,8 +863,8 @@ export const KinematicEnginePage: React.FC<Props> = ({ onBackToMap }) => {
                     }`}
                   >
                     5-Link Hyper-Redundant (READY)
-                  </button>
-                  <button
+                  </ContentButton>
+                  <ContentButton
                     type="button"
                     onClick={() => handleSelectModule('spatial-6dof-ricis')}
                     className={`px-2.5 py-1 rounded text-xs font-mono font-medium transition-all ${
@@ -885,7 +874,7 @@ export const KinematicEnginePage: React.FC<Props> = ({ onBackToMap }) => {
                     }`}
                   >
                     Spatial 6-DOF (IN DEV)
-                  </button>
+                  </ContentButton>
                 </div>
               </div>
 
@@ -898,7 +887,7 @@ export const KinematicEnginePage: React.FC<Props> = ({ onBackToMap }) => {
             {/* Bottom row: Operational Sim Modes */}
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-1.5">
-                <button
+                <ContentButton
                   type="button"
                   onClick={() => setSimMode('PICK_AND_PLACE')}
                   className={`flex items-center gap-1.5 px-3 py-1.5 rounded text-xs font-bold transition-all ${
@@ -909,8 +898,8 @@ export const KinematicEnginePage: React.FC<Props> = ({ onBackToMap }) => {
                 >
                   <Box size={14} />
                   Сортировка в коробку
-                </button>
-                <button
+                </ContentButton>
+                <ContentButton
                   type="button"
                   onClick={() => setSimMode('CATCH_FALLING_BALL')}
                   className={`flex items-center gap-1.5 px-3 py-1.5 rounded text-xs font-bold transition-all ${
@@ -922,8 +911,8 @@ export const KinematicEnginePage: React.FC<Props> = ({ onBackToMap }) => {
                 >
                   <Target size={14} />
                   Теннисная пушка
-                </button>
-                <button
+                </ContentButton>
+                <ContentButton
                   type="button"
                   onClick={() => setSimMode('SINGULAR_ORBIT')}
                   className={`flex items-center gap-1.5 px-3 py-1.5 rounded text-xs font-bold transition-all ${
@@ -934,8 +923,8 @@ export const KinematicEnginePage: React.FC<Props> = ({ onBackToMap }) => {
                 >
                   <Activity size={14} />
                   Орбита границы ($\det(J) \to 0$)
-                </button>
-                <button
+                </ContentButton>
+                <ContentButton
                   type="button"
                   onClick={() => setSimMode('MANUAL')}
                   className={`flex items-center gap-1.5 px-3 py-1.5 rounded text-xs font-bold transition-all ${
@@ -946,8 +935,8 @@ export const KinematicEnginePage: React.FC<Props> = ({ onBackToMap }) => {
                 >
                   <Sliders size={14} />
                   Ручной целеуказатель
-                </button>
-                <button
+                </ContentButton>
+                <ContentButton
                   type="button"
                   onClick={handleEnterWalkthrough}
                   className={`flex items-center gap-1.5 px-3 py-1.5 rounded text-xs font-bold transition-all ${
@@ -958,7 +947,7 @@ export const KinematicEnginePage: React.FC<Props> = ({ onBackToMap }) => {
                 >
                   <Sparkles size={14} className="text-purple-400" />
                   2-Stage RICIS Walkthrough
-                </button>
+                </ContentButton>
               </div>
 
               {simMode === 'PICK_AND_PLACE' ? (
@@ -1019,14 +1008,14 @@ export const KinematicEnginePage: React.FC<Props> = ({ onBackToMap }) => {
             </summary>
             <div className="px-3 pb-2 text-xs">
               <div className="flex items-center gap-3 py-1.5">
-                <button
+                <ContentButton
                   type="button"
                   disabled={benchmarkRunning}
                   onClick={runInterceptionBenchmarkPanel}
                   className="px-3 py-1 rounded bg-cyan-900/60 border border-cyan-600/60 text-cyan-200 font-bold hover:bg-cyan-800/60 disabled:opacity-40"
                 >
                   {benchmarkRunning ? 'Выполняется…' : 'Запустить бенчмарк'}
-                </button>
+                </ContentButton>
                 {benchmarkReport && (
                   <span className="text-slate-400 font-mono text-[11px]">
                     Поймано: <strong className="text-emerald-300">{benchmarkReport.catchCount}/{benchmarkReport.totalScenarios}</strong>
@@ -1147,7 +1136,7 @@ export const KinematicEnginePage: React.FC<Props> = ({ onBackToMap }) => {
                 <div className="flex items-center gap-2">
                   <span className="text-slate-400 text-[11px] font-bold">Система координат:</span>
                   <div className="flex items-center bg-neutral-950 rounded p-0.5 border border-neutral-800 text-[11px]">
-                    <button
+                    <ContentButton
                       type="button"
                       onClick={() => setCoordinateMode('POLAR')}
                       className={`flex items-center gap-1 px-2.5 py-0.5 rounded font-bold transition-colors ${
@@ -1158,8 +1147,8 @@ export const KinematicEnginePage: React.FC<Props> = ({ onBackToMap }) => {
                     >
                       <Compass size={12} />
                       Полярные (r, θ, z)
-                    </button>
-                    <button
+                    </ContentButton>
+                    <ContentButton
                       type="button"
                       onClick={() => setCoordinateMode('CARTESIAN')}
                       className={`flex items-center gap-1 px-2.5 py-0.5 rounded font-bold transition-colors ${
@@ -1170,7 +1159,7 @@ export const KinematicEnginePage: React.FC<Props> = ({ onBackToMap }) => {
                     >
                       <Sliders size={12} />
                       Декартовы (x, y, z)
-                    </button>
+                    </ContentButton>
                   </div>
                 </div>
 
@@ -1289,9 +1278,10 @@ export const KinematicEnginePage: React.FC<Props> = ({ onBackToMap }) => {
         <div className="lg:col-span-4 flex flex-col gap-2.5 min-h-0 overflow-y-auto pr-1">
           {/* Tabs: Telemetry vs QA Trace vs Math */}
           <div className="flex items-center bg-neutral-900/90 border border-neutral-800 rounded-lg p-1 shrink-0">
-            <button
+            <ContentButton
               type="button"
               onClick={() => setActiveTab('TELEMETRY')}
+            data-control-kind="tab" aria-pressed={activeTab === 'TELEMETRY'}
               className={`flex-1 py-1 px-2 rounded text-xs font-bold transition-all text-center ${
                 activeTab === 'TELEMETRY'
                   ? 'bg-neutral-800 text-cyan-300 shadow'
@@ -1299,10 +1289,11 @@ export const KinematicEnginePage: React.FC<Props> = ({ onBackToMap }) => {
               }`}
             >
               Дуэль Телеметрии
-            </button>
-            <button
+            </ContentButton>
+            <ContentButton
               type="button"
               onClick={() => setActiveTab('QA_TRACE')}
+            data-control-kind="tab" aria-pressed={activeTab === 'QA_TRACE'}
               className={`flex-1 py-1 px-2 rounded text-xs font-bold transition-all text-center flex items-center justify-center gap-1 ${
                 activeTab === 'QA_TRACE'
                   ? 'bg-neutral-800 text-emerald-300 shadow'
@@ -1311,10 +1302,11 @@ export const KinematicEnginePage: React.FC<Props> = ({ onBackToMap }) => {
             >
               <FileText size={12} />
               QA Трассировка
-            </button>
-            <button
+            </ContentButton>
+            <ContentButton
               type="button"
               onClick={() => setActiveTab('MATH')}
+            data-control-kind="tab" aria-pressed={activeTab === 'MATH'}
               className={`flex-1 py-1 px-2 rounded text-xs font-bold transition-all text-center ${
                 activeTab === 'MATH'
                   ? 'bg-neutral-800 text-purple-300 shadow'
@@ -1322,10 +1314,11 @@ export const KinematicEnginePage: React.FC<Props> = ({ onBackToMap }) => {
               }`}
             >
               RICIS Обоснование
-            </button>
-            <button
+            </ContentButton>
+            <ContentButton
               type="button"
               onClick={() => setActiveTab('AST_JACOBIAN')}
+            data-control-kind="tab" aria-pressed={activeTab === 'AST_JACOBIAN'}
               className={`flex-1 py-1 px-2 rounded text-xs font-bold transition-all text-center flex items-center justify-center gap-1 ${
                 activeTab === 'AST_JACOBIAN'
                   ? 'bg-neutral-800 text-cyan-300 shadow'
@@ -1334,10 +1327,11 @@ export const KinematicEnginePage: React.FC<Props> = ({ onBackToMap }) => {
             >
               <Layers size={12} />
               AST Якобиан
-            </button>
-            <button
+            </ContentButton>
+            <ContentButton
               type="button"
               onClick={() => setActiveTab('TWO_STAGE_SINGULARITY')}
+            data-control-kind="tab" aria-pressed={activeTab === 'TWO_STAGE_SINGULARITY'}
               className={`flex-1 py-1 px-2 rounded text-xs font-bold transition-all text-center flex items-center justify-center gap-1 ${
                 activeTab === 'TWO_STAGE_SINGULARITY'
                   ? 'bg-purple-900/80 border border-purple-500/80 text-purple-200 shadow'
@@ -1346,7 +1340,7 @@ export const KinematicEnginePage: React.FC<Props> = ({ onBackToMap }) => {
             >
               <Sparkles size={12} className="text-purple-400" />
               2-Stage RICIS
-            </button>
+            </ContentButton>
           </div>
 
           {activeTab === 'TELEMETRY' && (
@@ -1533,14 +1527,14 @@ export const KinematicEnginePage: React.FC<Props> = ({ onBackToMap }) => {
                   <FileText size={14} />
                   QA Трассировка Каллбэков
                 </span>
-                <button
+                <ContentButton
                   type="button"
                   onClick={handleCopyTrace}
                   className="flex items-center gap-1 px-2.5 py-1 rounded bg-neutral-800 hover:bg-neutral-700 text-slate-200 border border-neutral-700 text-[10px] transition-colors"
                 >
                   {copiedTrace ? <Check size={12} className="text-emerald-400" /> : <Copy size={12} />}
                   {copiedTrace ? 'Скопировано' : 'Экспорт JSON'}
-                </button>
+                </ContentButton>
               </div>
 
               {latestQaTrace ? (

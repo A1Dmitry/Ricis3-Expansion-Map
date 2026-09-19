@@ -1,3 +1,6 @@
+import { ContentButton } from './components/ContentButton';
+import { IconButton } from './components/IconButton';
+import { X as ButtonIconX } from 'lucide-react';
 import React, { useEffect, useRef, useState } from 'react';
 import { TelegramBotCommandHandler } from '../services/telegramBot/TelegramBotCommandHandler';
 import { RicisBotService } from '../services/telegramBot/RicisBotService';
@@ -81,7 +84,7 @@ export const TelegramBotPanel: React.FC<{ onClose: () => void }> = ({ onClose })
             <h3 className="text-sm font-bold text-white tracking-wide">{t('telegram.header')}</h3>
             <p className="text-[10px] text-gray-400">{t('telegram.localSimulation')}</p>
           </div>
-          <button type="button" onClick={onClose} className="text-gray-400 hover:text-white transition-colors text-sm font-bold px-2.5 py-1 rounded bg-neutral-900 border border-neutral-700">✕</button>
+          <IconButton title="Закрыть" fallbackIcon={ButtonIconX} type="button" onClick={onClose} className="text-gray-400 hover:text-white transition-colors text-sm font-bold px-2.5 py-1 rounded bg-neutral-900 border border-neutral-700">✕</IconButton>
         </header>
         <div className="px-4 py-2 bg-amber-950/30 border-b border-amber-900/40 text-[11px] text-amber-200">
           {t('telegram.evidenceNotice')}
@@ -100,7 +103,7 @@ export const TelegramBotPanel: React.FC<{ onClose: () => void }> = ({ onClose })
         </div>
         <div className="p-3 bg-[#060911] border-t border-cyan-900/60 flex items-center gap-2">
           <input type="text" value={input} onChange={event => setInput(event.target.value)} onKeyDown={event => event.key === 'Enter' && handleSend()} placeholder={t('telegram.placeholder')} className="flex-1 bg-neutral-900 border border-neutral-700 rounded-lg px-3 py-2 text-xs text-white placeholder-gray-500 focus:border-cyan-500 focus:outline-none font-mono" />
-          <button type="button" onClick={handleSend} disabled={isProcessing || !input.trim()} className="px-4 py-2 bg-gradient-to-r from-cyan-600 to-blue-600 disabled:opacity-50 rounded-lg text-white font-bold text-xs">{t('telegram.send')}</button>
+          <ContentButton  type="button" onClick={handleSend} disabled={isProcessing || !input.trim()} className="px-4 py-2 bg-gradient-to-r from-cyan-600 to-blue-600 disabled:opacity-50 rounded-lg text-white font-bold text-xs">{t('telegram.send')}</ContentButton>
         </div>
       </section>
     </div>

@@ -1,3 +1,6 @@
+import { ContentButton } from './ui/components/ContentButton';
+import { IconButton } from './ui/components/IconButton';
+import { ArrowLeft as ButtonIconPanelTop } from 'lucide-react';
 // ============================================================================
 // MODIFIED APP CONTAINER WITH ACTIVE APPLET CENTRAL WORKSPACE (MVVM / DDD)
 // Visual Studio / MS Word 2000 style layout:
@@ -214,12 +217,12 @@ export default function App() {
         return (
           <div className="w-full h-full overflow-y-auto p-4 bg-[#070b14]">
             <div className="max-w-6xl mx-auto mb-4 flex items-center justify-between">
-              <button
+              <ContentButton
                 onClick={() => handleSelectApplet('map')}
                 className="px-3 py-1.5 rounded-lg text-xs font-mono bg-slate-800 hover:bg-slate-700 text-cyan-300 transition-colors flex items-center gap-1.5"
               >
                 ← Вернуться к 3D Карте
-              </button>
+              </ContentButton>
             </div>
             <VoynichDecryptionPanel onClose={() => handleSelectApplet('map')} />
           </div>
@@ -228,12 +231,12 @@ export default function App() {
         return (
           <div className="w-full h-full overflow-y-auto p-4 bg-[#070b14]">
             <div className="max-w-6xl mx-auto mb-4 flex items-center justify-between">
-              <button
+              <ContentButton
                 onClick={() => handleSelectApplet('map')}
                 className="px-3 py-1.5 rounded-lg text-xs font-mono bg-slate-800 hover:bg-slate-700 text-cyan-300 transition-colors flex items-center gap-1.5"
               >
                 ← Вернуться к 3D Карте
-              </button>
+              </ContentButton>
             </div>
             <RicisProofConsoleModal
               isOpen={true}
@@ -245,12 +248,12 @@ export default function App() {
         return (
           <div className="w-full h-full overflow-y-auto p-4 bg-[#070b14]">
             <div className="max-w-6xl mx-auto mb-4 flex items-center justify-between">
-              <button
+              <ContentButton
                 onClick={() => handleSelectApplet('map')}
                 className="px-3 py-1.5 rounded-lg text-xs font-mono bg-slate-800 hover:bg-slate-700 text-cyan-300 transition-colors flex items-center gap-1.5"
               >
                 ← Вернуться к 3D Карте
-              </button>
+              </ContentButton>
             </div>
             <AutoProverModal
               isOpen={true}

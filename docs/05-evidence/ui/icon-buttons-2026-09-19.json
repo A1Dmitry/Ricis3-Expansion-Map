@@ -1,0 +1,305 @@
+{
+  "auditor": "SELF (same-pipeline)",
+  "date": "2026-09-19",
+  "browser": "Chromium 153 via Playwright 1.63.0",
+  "webgl": "disabled; map fallback tested, GPU scene not visually verified",
+  "routes": [
+    {
+      "applet": "map",
+      "lang": "ru",
+      "mobile": false,
+      "count": 457,
+      "bad": []
+    },
+    {
+      "applet": "settings",
+      "lang": "ru",
+      "mobile": false,
+      "count": 33,
+      "bad": []
+    },
+    {
+      "applet": "comparison",
+      "lang": "ru",
+      "mobile": false,
+      "count": 18,
+      "bad": []
+    },
+    {
+      "applet": "seed",
+      "lang": "ru",
+      "mobile": false,
+      "count": 29,
+      "bad": []
+    },
+    {
+      "applet": "roadmap",
+      "lang": "ru",
+      "mobile": false,
+      "count": 20,
+      "bad": []
+    },
+    {
+      "applet": "voynich",
+      "lang": "ru",
+      "mobile": false,
+      "count": 25,
+      "bad": []
+    },
+    {
+      "applet": "terminal",
+      "lang": "ru",
+      "mobile": false,
+      "count": 24,
+      "bad": []
+    },
+    {
+      "applet": "qa-tests",
+      "lang": "ru",
+      "mobile": false,
+      "count": 18,
+      "bad": []
+    },
+    {
+      "applet": "kinematic",
+      "lang": "ru",
+      "mobile": false,
+      "count": 47,
+      "bad": []
+    },
+    {
+      "applet": "map",
+      "lang": "en",
+      "mobile": false,
+      "count": 457,
+      "bad": []
+    },
+    {
+      "applet": "settings",
+      "lang": "en",
+      "mobile": false,
+      "count": 33,
+      "bad": []
+    },
+    {
+      "applet": "comparison",
+      "lang": "en",
+      "mobile": false,
+      "count": 18,
+      "bad": []
+    },
+    {
+      "applet": "seed",
+      "lang": "en",
+      "mobile": false,
+      "count": 29,
+      "bad": []
+    },
+    {
+      "applet": "roadmap",
+      "lang": "en",
+      "mobile": false,
+      "count": 20,
+      "bad": []
+    },
+    {
+      "applet": "voynich",
+      "lang": "en",
+      "mobile": false,
+      "count": 25,
+      "bad": []
+    },
+    {
+      "applet": "terminal",
+      "lang": "en",
+      "mobile": false,
+      "count": 24,
+      "bad": []
+    },
+    {
+      "applet": "qa-tests",
+      "lang": "en",
+      "mobile": false,
+      "count": 18,
+      "bad": []
+    },
+    {
+      "applet": "kinematic",
+      "lang": "en",
+      "mobile": false,
+      "count": 47,
+      "bad": []
+    },
+    {
+      "applet": "map",
+      "lang": "de-DE",
+      "mobile": false,
+      "count": 457,
+      "bad": []
+    },
+    {
+      "applet": "settings",
+      "lang": "de-DE",
+      "mobile": false,
+      "count": 33,
+      "bad": []
+    },
+    {
+      "applet": "comparison",
+      "lang": "de-DE",
+      "mobile": false,
+      "count": 18,
+      "bad": []
+    },
+    {
+      "applet": "seed",
+      "lang": "de-DE",
+      "mobile": false,
+      "count": 29,
+      "bad": []
+    },
+    {
+      "applet": "roadmap",
+      "lang": "de-DE",
+      "mobile": false,
+      "count": 20,
+      "bad": []
+    },
+    {
+      "applet": "voynich",
+      "lang": "de-DE",
+      "mobile": false,
+      "count": 25,
+      "bad": []
+    },
+    {
+      "applet": "terminal",
+      "lang": "de-DE",
+      "mobile": false,
+      "count": 24,
+      "bad": []
+    },
+    {
+      "applet": "qa-tests",
+      "lang": "de-DE",
+      "mobile": false,
+      "count": 18,
+      "bad": []
+    },
+    {
+      "applet": "kinematic",
+      "lang": "de-DE",
+      "mobile": false,
+      "count": 47,
+      "bad": []
+    },
+    {
+      "applet": "map",
+      "lang": "ru",
+      "mobile": true,
+      "count": 332,
+      "bad": []
+    },
+    {
+      "applet": "settings",
+      "lang": "ru",
+      "mobile": true,
+      "count": 33,
+      "bad": []
+    },
+    {
+      "applet": "map",
+      "lang": "en",
+      "mobile": true,
+      "count": 332,
+      "bad": []
+    },
+    {
+      "applet": "settings",
+      "lang": "en",
+      "mobile": true,
+      "count": 33,
+      "bad": []
+    },
+    {
+      "applet": "map",
+      "lang": "de-DE",
+      "mobile": true,
+      "count": 332,
+      "bad": []
+    },
+    {
+      "applet": "settings",
+      "lang": "de-DE",
+      "mobile": true,
+      "count": 33,
+      "bad": []
+    }
+  ],
+  "interactions": [
+    {
+      "width": 390,
+      "menu": "Файл",
+      "contained": true
+    },
+    {
+      "width": 390,
+      "menu": "Вид",
+      "contained": true
+    },
+    {
+      "width": 390,
+      "menu": "Кинематика",
+      "contained": true
+    },
+    {
+      "width": 390,
+      "menu": "Основания",
+      "contained": true
+    },
+    {
+      "width": 390,
+      "menu": "Сервис",
+      "contained": true
+    },
+    {
+      "width": 390,
+      "hover": true,
+      "focus": true,
+      "escape": true,
+      "tooltipContained": true
+    },
+    {
+      "width": 1440,
+      "menu": "Файл",
+      "contained": true
+    },
+    {
+      "width": 1440,
+      "menu": "Вид",
+      "contained": true
+    },
+    {
+      "width": 1440,
+      "menu": "Кинематика",
+      "contained": true
+    },
+    {
+      "width": 1440,
+      "menu": "Основания",
+      "contained": true
+    },
+    {
+      "width": 1440,
+      "menu": "Сервис",
+      "contained": true
+    },
+    {
+      "width": 1440,
+      "hover": true,
+      "focus": true,
+      "escape": true,
+      "tooltipContained": true
+    }
+  ]
+}

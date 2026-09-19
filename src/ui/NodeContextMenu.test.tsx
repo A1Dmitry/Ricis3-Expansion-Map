@@ -93,6 +93,10 @@ describe('NodeContextMenu — контекстное меню действий �
     expect(text).toContain('Исследование');
     expect(text).toContain('Запустить RICIS-решение');
     expect(text).toContain('Explore');
+    const command = menu()!.querySelector('[data-testid="node-context-menu-item-solve"]')!;
+    expect(command.classList.contains('menu-command')).toBe(true);
+    expect(command.querySelector('.icon-button__label')).toBeNull();
+    expect(command.querySelector('svg')).not.toBeNull();
   });
 
   it('выбирает действие, закрывает меню и вызывает обработчик один раз', async () => {

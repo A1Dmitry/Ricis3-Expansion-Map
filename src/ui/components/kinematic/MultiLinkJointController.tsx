@@ -1,3 +1,6 @@
+import { ContentButton } from '../ContentButton';
+import { IconButton } from '../IconButton';
+
 // ============================================================================
 // MODULAR MULTI-LINK JOINT CONTROLLER PANEL (DRY / SOLID / DDD)
 // Dynamically generates joint angle sliders for N-link manipulators (3, 5, or N links)
@@ -72,20 +75,20 @@ export const MultiLinkJointController: React.FC<MultiLinkJointControllerProps> =
             </span>
           )}
 
-          <button
+          <IconButton
             type="button"
             onClick={handleResetJoints}
             className="p-1 rounded hover:bg-slate-800 text-slate-400 hover:text-white transition-colors"
             title="Сбросить углы в исходное положение"
           >
             <RefreshCw size={12} />
-          </button>
+          </IconButton>
         </div>
       </div>
 
       {/* Parameterization Mode Selector */}
       <div className="grid grid-cols-2 gap-2">
-        <button
+        <ContentButton
           type="button"
           onClick={() => onChangeMode('CARTESIAN')}
           className={`py-1 px-2 rounded-lg text-xs font-bold transition-all border ${
@@ -95,8 +98,8 @@ export const MultiLinkJointController: React.FC<MultiLinkJointControllerProps> =
           }`}
         >
           Cartesian (Прямой)
-        </button>
-        <button
+        </ContentButton>
+        <ContentButton
           type="button"
           onClick={() => onChangeMode('POLAR')}
           className={`py-1 px-2 rounded-lg text-xs font-bold transition-all border ${
@@ -106,7 +109,7 @@ export const MultiLinkJointController: React.FC<MultiLinkJointControllerProps> =
           }`}
         >
           Polar (Полярный $O(1)$)
-        </button>
+        </ContentButton>
       </div>
 
       {/* Scrollable Joint Angle Sliders List to prevent overlap for any N > 3 */}

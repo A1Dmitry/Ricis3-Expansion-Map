@@ -1,0 +1,3 @@
+
+> ricis3-expansion@0.4.224 lint
+> tsc --noEmit

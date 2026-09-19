@@ -203,9 +203,9 @@ describe('EDU-VIS-01 — accessible Monolith Guided Case Trail UI', () => {
     expect(rendered.container.textContent).toContain('не создаёт Core/Lean result');
   });
 
-  it('EV01-QA-31: renders no link, iframe, canvas, image, svg or external launch control', async () => {
+  it('EV01-QA-31: renders no external launch control or visualization (decorative command icons only)', async () => {
     const rendered = await renderTrail(await future());
-    expect(rendered.container.querySelector('a, iframe, canvas, img, svg')).toBeNull();
+    expect(rendered.container.querySelector('a, iframe, canvas, img, svg:not([aria-hidden="true"])')).toBeNull();
     expect(rendered.container.textContent).not.toMatch(/Открыть visual calculator|Запустить|Рендер|Вычислить/i);
   });
 

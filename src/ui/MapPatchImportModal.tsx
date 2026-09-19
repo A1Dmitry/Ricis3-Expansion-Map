@@ -1,3 +1,6 @@
+import { ContentButton } from './components/ContentButton';
+import { IconButton } from './components/IconButton';
+
 import React, { useState } from 'react';
 import { X, Upload, CheckCircle2, AlertTriangle, FileCode, ArrowRight, ShieldCheck } from 'lucide-react';
 import { defaultMapPatchIngestionService } from '../model/mapPatchIngestion';
@@ -115,12 +118,12 @@ export const MapPatchImportModal: React.FC<MapPatchImportModalProps> = ({ onClos
               </p>
             </div>
           </div>
-          <button
+          <IconButton title="Закрыть"
             onClick={onClose}
             className="text-slate-400 hover:text-white p-1 rounded-lg hover:bg-slate-800/60 transition-colors"
           >
             <X size={18} />
-          </button>
+          </IconButton>
         </div>
 
         {/* Content */}
@@ -235,13 +238,13 @@ export const MapPatchImportModal: React.FC<MapPatchImportModalProps> = ({ onClos
 
         {/* Footer Actions */}
         <div className="flex items-center justify-between px-6 py-3.5 border-t border-cyan-950 bg-cyan-950/30">
-          <button
+          <ContentButton
             onClick={onClose}
             className="px-4 py-1.5 text-xs text-slate-400 hover:text-white rounded-lg hover:bg-slate-800/50 transition-colors"
           >
             Закрыть
-          </button>
-          <button
+          </ContentButton>
+          <ContentButton
             onClick={handleApply}
             disabled={!validationResult?.valid || isApplying || !!applyResult}
             className={`flex items-center gap-2 px-5 py-2 rounded-lg text-xs font-bold font-mono transition-all ${
@@ -252,7 +255,7 @@ export const MapPatchImportModal: React.FC<MapPatchImportModalProps> = ({ onClos
           >
             {isApplying ? 'Слияние...' : 'Применить к карте'}
             <ArrowRight size={14} />
-          </button>
+          </ContentButton>
         </div>
       </div>
     </div>

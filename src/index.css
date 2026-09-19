@@ -241,3 +241,193 @@ body,
     grid-template-columns: minmax(0, 1fr);
   }
 }
+
+/* Commands never inherit label-dependent width, padding or flex growth. Keep
+   display/position untouched: responsive hidden controls must remain hidden. */
+:is(button, a).icon-button {
+  box-sizing: border-box;
+  width: 2rem;
+  min-width: 2rem;
+  max-width: 2rem;
+  height: 2rem;
+  min-height: 2rem;
+  max-height: 2rem;
+  padding: 0;
+  gap: 0;
+  flex: 0 0 2rem;
+  overflow: hidden;
+  vertical-align: middle;
+}
+.icon-button__glyph {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+.icon-button__glyph svg {
+  width: 1.125rem;
+  height: 1.125rem;
+  flex-shrink: 0;
+}
+:is(button, a).icon-button:focus-visible {
+  outline: 2px solid #22d3ee;
+  outline-offset: 2px;
+}
+.icon-button-tooltip {
+  position: fixed;
+  z-index: 2147483647;
+  width: max-content;
+  max-width: min(320px, calc(100vw - 16px));
+  max-height: 40vh;
+  overflow: auto;
+  overflow-wrap: anywhere;
+  white-space: normal;
+  padding: 8px 10px;
+  border: 1px solid #475569;
+  border-radius: 6px;
+  background: #0f172a;
+  color: #f1f5f9;
+  font: 12px/1.5 system-ui, sans-serif;
+  text-align: left;
+  box-shadow: 0 4px 16px #0008;
+  pointer-events: none;
+}
+@media (pointer: coarse) {
+  :is(button, a).icon-button {
+    width: 2.75rem;
+    min-width: 2.75rem;
+    max-width: 2.75rem;
+    height: 2.75rem;
+    min-height: 2.75rem;
+    max-height: 2.75rem;
+    flex-basis: 2.75rem;
+  }
+}
+.icon-button__label {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip-path: inset(50%) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+}
+
+/* Classic application menus are text rows, not toolbar icon buttons. */
+button.menubar-command {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  min-height: 30px;
+  padding: 4px 10px;
+  white-space: nowrap;
+}
+button.menu-command {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  min-height: 32px;
+  padding: 7px 12px;
+  text-align: left;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+button.menu-command > svg,
+button.menu-command > span:first-child > svg {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+}
+button.menu-command > span { min-width: 0; }
+button.menu-command > span:last-child.font-mono {
+  flex-shrink: 0;
+  white-space: nowrap;
+  margin-left: auto;
+}
+button.menu-command:focus-visible,
+button.menubar-command:focus-visible {
+  outline: 2px solid #22d3ee;
+  outline-offset: -2px;
+}
+@media (pointer: coarse) {
+  button.menu-command, button.menubar-command { min-height: 44px; }
+}
+
+/* Labelled controls use their own layout: text remains visible at every locale. */
+button.content-button {
+  max-width: 100%;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+button.content-button:focus-visible, a.content-link:focus-visible {
+  outline: 2px solid #22d3ee;
+  outline-offset: -2px;
+}
+.content-button svg { flex-shrink: 0; }
+.content-link { overflow-wrap: anywhere; }
+.desktop-accordion-panel[hidden] { display: none; }
+.desktop-panel-heading {
+  width: 100%;
+  min-height: 36px;
+  font-size: 12px;
+}
+.desktop-panel-heading .accordion-title {
+  font-size: 12px;
+  letter-spacing: 0.025em;
+  min-width: 0;
+}
+.desktop-panel-heading .accordion-icon { color: #94a3b8; }
+.desktop-panel-heading[aria-expanded="true"] .accordion-icon { transform: rotate(180deg); }
+.desktop-panel-body { padding: 8px; }
+.desktop-quick-actions > button {
+  justify-content: flex-start;
+  width: 100%;
+  min-height: 34px;
+  padding: 7px 9px;
+  font-size: 12px;
+  font-weight: 500;
+  text-transform: none;
+  letter-spacing: normal;
+  text-align: left;
+  border-color: #263341;
+  background: #101820;
+  box-shadow: none;
+}
+.desktop-quick-actions > button:hover { background: #182631; }
+.desktop-quick-actions > button:disabled { opacity: 0.45; }
+[data-testid="node-details-accordion"] > div > .content-button,
+[data-testid="node-details-accordion"] > div > div > .content-button {
+  min-height: 36px;
+  padding: 9px 10px;
+  gap: 8px;
+}
+[data-testid="node-details-accordion"] .content-button > span:first-child {
+  min-width: 0;
+  font-size: 12px;
+  text-transform: none;
+  letter-spacing: normal;
+}
+.content-button[data-control-kind="tab"] {
+  flex: 0 0 auto;
+  min-height: 32px;
+  white-space: nowrap;
+}
+
+/* Satellite applets remain native new-tab links, including keyboard menu navigation. */
+a.menu-command {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 32px;
+  padding: 7px 12px;
+  white-space: normal;
+}
+a.menu-command:focus-visible { outline: 2px solid #22d3ee; outline-offset: -2px; }

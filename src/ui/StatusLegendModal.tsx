@@ -1,3 +1,6 @@
+import { ContentButton, SelectionCard } from './components/ContentButton';
+import { IconButton } from './components/IconButton';
+
 import { useMemo } from 'react';
 import { X, Palette, ShieldCheck, CheckCircle2, AlertTriangle, Clock, Lock, Sparkles, Compass, Eye, Filter } from 'lucide-react';
 import { NodeResolutionStatusCode, NODE_PROJECTIONS, GraphColorStateManager } from '../model/colorMatrix';
@@ -98,14 +101,14 @@ export function StatusLegendModal({
               </p>
             </div>
           </div>
-          <button
+          <IconButton
             type="button"
             onClick={onClose}
             className="rounded-lg border border-slate-700 bg-slate-900/80 p-1.5 text-slate-400 transition-colors hover:border-cyan-500 hover:text-white"
             aria-label={isRu ? 'Закрыть легенду' : 'Close legend'}
           >
             <X size={18} />
-          </button>
+          </IconButton>
         </div>
 
         {/* Visual Spectrum Bar */}
@@ -136,13 +139,13 @@ export function StatusLegendModal({
               {isRu ? 'Активный фильтр по статусу:' : 'Active status filter:'}{' '}
               <strong className="text-white">{NODE_PROJECTIONS[activeStatusFilter].label}</strong>
             </span>
-            <button
+            <ContentButton
               type="button"
               onClick={() => onSelectStatusFilter(null)}
               className="rounded bg-cyan-900/80 px-2 py-1 text-[10px] font-bold text-cyan-100 hover:bg-cyan-800"
             >
               {isRu ? 'Сбросить фильтр' : 'Reset filter'}
-            </button>
+            </ContentButton>
           </div>
         )}
 
@@ -157,7 +160,7 @@ export function StatusLegendModal({
             const rgbText = `RGB(${Math.round(projection.rgb.r * 255)}, ${Math.round(projection.rgb.g * 255)}, ${Math.round(projection.rgb.b * 255)})`;
 
             return (
-              <button
+              <SelectionCard
                 key={code}
                 type="button"
                 onClick={() => onSelectStatusFilter(isSelected ? null : code)}
@@ -205,7 +208,7 @@ export function StatusLegendModal({
                     </span>
                   </div>
                 </div>
-              </button>
+              </SelectionCard>
             );
           })}
         </div>
@@ -213,13 +216,13 @@ export function StatusLegendModal({
         {/* Footer */}
         <div className="mt-5 flex items-center justify-between border-t border-cyan-900/40 pt-4 text-xs text-slate-400">
           <span>{isRu ? `Всего узлов в графе: ${nodes.length}` : `Total graph nodes: ${nodes.length}`}</span>
-          <button
+          <ContentButton
             type="button"
             onClick={onClose}
             className="rounded-lg border border-cyan-700/80 bg-cyan-950 px-4 py-1.5 font-bold text-cyan-200 transition-colors hover:bg-cyan-900"
           >
             {isRu ? 'Понятно' : 'Done'}
-          </button>
+          </ContentButton>
         </div>
       </div>
     </div>

@@ -1,9 +1,13 @@
+import { ContentButton } from './components/ContentButton';
+import { IconButton, type IconButtonProps } from './components/IconButton';
+
 import React from 'react';
+import { LoaderCircle } from 'lucide-react';
 
 export type ButtonStatus = 'active' | 'disabled' | 'in_progress';
 export type ButtonVariant = 'cyan' | 'emerald' | 'amber' | 'violet' | 'red' | 'neutral';
 
-export interface ActionButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+export interface ActionButtonProps extends IconButtonProps {
   status?: ButtonStatus;
   isLoading?: boolean;
   isDisabled?: boolean;
@@ -80,6 +84,8 @@ export const ActionButton: React.FC<ActionButtonProps> = ({
   disabled,
   onClick,
   children,
+  presentation,
+  fallbackIcon: CommandIcon,
   ...restProps
 }) => {
   // Determine effective status
@@ -107,9 +113,13 @@ export const ActionButton: React.FC<ActionButtonProps> = ({
     statusClasses = `cursor-pointer ${vStyles.active}`;
   }
 
+  const Control = presentation === 'menu' ? IconButton : ContentButton;
+
   return (
-    <button
+    <Control
+      {...(presentation === 'menu' ? { presentation: 'menu' as const } : {})}
       type="button"
+      aria-busy={currentStatus === 'in_progress'}
       disabled={currentStatus === 'disabled' || currentStatus === 'in_progress'}
       onClick={currentStatus === 'active' ? onClick : undefined}
       title={disabledReason && currentStatus === 'disabled' ? disabledReason : undefined}
@@ -136,9 +146,10 @@ export const ActionButton: React.FC<ActionButtonProps> = ({
       {/* Button Content */}
       <div className="relative z-10 flex items-center gap-2 min-w-0 flex-1 text-left">
         {currentStatus === 'in_progress' && (
-          <span className="inline-block w-3 h-3 border-2 border-white/30 border-t-white rounded-full animate-spin shrink-0" />
+          <LoaderCircle size={18} className="animate-spin" />
         )}
-        <span className="truncate leading-tight">{children}</span>
+        {CommandIcon && currentStatus !== 'in_progress' && <CommandIcon size={16} className="shrink-0" aria-hidden="true" />}
+        <span className="min-w-0 leading-tight">{children}</span>
       </div>
 
       {/* Status Badge (Disabled / In Progress / Explicit custom label) */}
@@ -163,6 +174,6 @@ export const ActionButton: React.FC<ActionButtonProps> = ({
           )}
         </span>
       )}
-    </button>
+    </Control>
   );
 };

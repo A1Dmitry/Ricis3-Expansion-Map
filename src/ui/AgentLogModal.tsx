@@ -1,3 +1,6 @@
+import { ContentButton } from './components/ContentButton';
+import { IconButton } from './components/IconButton';
+import { X as ButtonIconX, RotateCcw as ButtonIconRotateCcw } from 'lucide-react';
 import React, { useState, useRef, useEffect } from 'react';
 import { useMapStore } from '../store/mapStore';
 import { useI18nStore } from '../store/useI18nStore';
@@ -87,14 +90,14 @@ export function AgentLogModal({ onClose, onSelectNode }: AgentLogModalProps) {
               </span>
             </h2>
           </div>
-          <button
+          <IconButton fallbackIcon={ButtonIconX}
             onClick={onClose}
             className="w-7 h-7 flex items-center justify-center rounded-lg bg-neutral-800/80 hover:bg-neutral-700 text-slate-400 hover:text-white transition-colors cursor-pointer text-sm font-bold"
             title={t('agentLog.close')}
             aria-label={t('agentLog.close')}
           >
             ✕
-          </button>
+          </IconButton>
         </div>
 
         {/* Toolbar & Filters */}
@@ -102,7 +105,7 @@ export function AgentLogModal({ onClose, onSelectNode }: AgentLogModalProps) {
           {/* Level Filter Tabs */}
           <div className="flex items-center gap-1.5 flex-wrap">
             {filterTabs.map(tab => (
-              <button
+              <ContentButton
                 key={tab.id}
                 onClick={() => setActiveLevel(tab.id)}
                 aria-label={tab.label}
@@ -114,7 +117,7 @@ export function AgentLogModal({ onClose, onSelectNode }: AgentLogModalProps) {
                 }`}
               >
                 {tab.label}
-              </button>
+              </ContentButton>
             ))}
           </div>
 
@@ -139,23 +142,23 @@ export function AgentLogModal({ onClose, onSelectNode }: AgentLogModalProps) {
               <span>{t('agentLog.autoScroll')}</span>
             </label>
 
-            <button
+            <ContentButton
               onClick={handleCopyLogs}
               className="px-2.5 py-1 bg-neutral-900 hover:bg-neutral-800 text-cyan-400 border border-cyan-900/60 rounded text-[11px] font-bold transition-colors cursor-pointer flex items-center gap-1"
               title={t('agentLog.copy.title')}
               aria-label={t('agentLog.copy.title')}
             >
               <span>{copied ? t('agentLog.copy.complete') : t('agentLog.copy')}</span>
-            </button>
+            </ContentButton>
 
-            <button
+            <IconButton fallbackIcon={ButtonIconRotateCcw}
               onClick={clearAgentLogs}
               className="px-2 py-1 bg-neutral-900 hover:bg-rose-950 text-slate-400 hover:text-rose-300 border border-neutral-800 hover:border-rose-900 rounded text-[11px] font-bold transition-colors cursor-pointer"
               title={t('agentLog.clear')}
               aria-label={t('agentLog.clear')}
             >
               🗑️
-            </button>
+            </IconButton>
           </div>
         </div>
 
@@ -192,7 +195,7 @@ export function AgentLogModal({ onClose, onSelectNode }: AgentLogModalProps) {
                   </div>
 
                   {entry.nodeId && onSelectNode && (
-                    <button
+                    <ContentButton
                       onClick={() => {
                         onSelectNode(entry.nodeId!);
                         onClose();
@@ -201,7 +204,7 @@ export function AgentLogModal({ onClose, onSelectNode }: AgentLogModalProps) {
                     aria-label={t('agentLog.nodeLink')}
                     >
                       {t('agentLog.nodeLink')}
-                    </button>
+                    </ContentButton>
                   )}
                 </div>
 

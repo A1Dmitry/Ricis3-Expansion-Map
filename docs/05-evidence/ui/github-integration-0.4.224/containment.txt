@@ -1,0 +1,68 @@
+
+ RUN  v5.0.1 /home/user/Ricis3-Expansion-Map
+
+ ❯ src/model/audit.proofSynthesisContainment.test.ts (36 tests | 1 failed) 57ms
+   ❯ OIR-03 — audit proof-synthesis containment (36)
+     ✓ OIR03-QA-01: preserves exact invalid Proof identity under the default legacy label 2ms
+     ✓ OIR03-QA-02: preserves invalid Proof LaTeX byte-for-byte 0ms
+     ✓ OIR03-QA-03: preserves nested invalid Proof steps identity 0ms
+     ✓ OIR03-QA-04: preserves nested externalLean provenance identity 0ms
+     ✓ OIR03-QA-05: preserves a valid existing Proof identity 0ms
+     ✓ OIR03-QA-06: preserves a source containing sorry without repair 0ms
+     ✓ OIR03-QA-07: preserves an empty-LaTeX source without synthesis 0ms
+     ✓ OIR03-QA-08: preserves every Proof identity when one entry is invalid 0ms
+     ✓ OIR03-QA-09: preserves invalid source for the legacy_repair compatibility option 0ms
+     ✓ OIR03-QA-10: preserves invalid source for the preserve option 0ms
+     ✓ OIR03-QA-11: makes omitted options source-preserving 0ms
+     ✓ OIR03-QA-12: reports zero repaired proofs for an invalid source 0ms
+     ✓ OIR03-QA-13: preserves P=NP-related source without selecting a template 0ms
+     ✓ OIR03-QA-14: never introduces a hypothesis label or classical reframe into user source 0ms
+     ✓ OIR03-QA-15: does not substitute any invalid source with another entry template 0ms
+     ✓ OIR03-QA-16: does not change node workflow state 0ms
+     ✓ OIR03-QA-17: retains the exact axioms array identity 0ms
+     ✓ OIR03-QA-18: retains proof keys without creation or deletion 0ms
+     ✓ OIR03-QA-19: keeps stable empty-edge recoloring semantics 0ms
+     ✓ OIR03-QA-20: leaves audit observations non-demoting 1ms
+     ✓ OIR03-QA-21: removes canonical builder import from audit source 0ms
+     ✓ OIR03-QA-22: removes canonical builder call and newLatex template writer 0ms
+     ✓ OIR03-QA-23: avoids direct proof LaTeX assignment in the containment body 0ms
+     ✓ OIR03-QA-24: contains no legacy generator or transport call in the containment body 0ms
+     ✓ OIR03-QA-25: writes no workflow, trust, source or axiom field in the containment body 0ms
+     ✓ OIR03-QA-26: invokes no Core, gateway or Lean toolchain in the containment body 0ms
+     ✓ OIR03-QA-27: has no browser, storage, timer or external action in the containment body 0ms
+     ✓ OIR03-QA-28: makes no Lean, Core or authoritative proof claim in the containment body 0ms
+     ✓ OIR03-QA-29: keeps logic.ts at published baseline bytes 9ms
+     ✓ OIR03-QA-30: keeps legacyProofDiagnostic.ts at published baseline bytes 4ms
+     ✓ OIR03-QA-31: keeps authoritative state policy at published baseline bytes 4ms
+     ✓ OIR03-QA-32: keeps Core bridge at published baseline bytes 4ms
+     ✓ OIR03-QA-33: keeps API client at published baseline bytes 4ms
+     ✓ OIR03-QA-34: keeps immutable RICIS core rules at published baseline bytes 4ms
+     ✓ OIR03-QA-35: keeps audit API default and explicit option calls type-compatible 0ms
+     × OIR03-QA-36: allows only reviewed candidate paths or a clean committed integration state 18ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/model/audit.proofSynthesisContainment.test.ts > OIR-03 — audit proof-synthesis containment > OIR03-QA-36: allows only reviewed candidate paths or a clean committed integration state
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ src/model/audit.proofSynthesisContainment.test.ts:1014:55
+    1012|       return;
+    1013|     }
+    1014|     expect(status.every(entry => allowed.has(entry))).toBe(true);
+       |                                                       ^
+    1015|   });
+    1016| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 35 passed (36)
+   Start at  22:02:32
+   Duration  919ms (environment 66%, transform 23%, tests 7%, import 3%, worker 1%)

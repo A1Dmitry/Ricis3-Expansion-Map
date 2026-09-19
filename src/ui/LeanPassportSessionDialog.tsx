@@ -1,3 +1,6 @@
+import { ContentButton } from './components/ContentButton';
+import { IconButton } from './components/IconButton';
+
 import type { EphemeralPassportSessionView } from '../leanPassportSession/leanPassportSession.domain';
 
 type LeanPassportSessionDialogProps = Readonly<{
@@ -20,14 +23,14 @@ export function LeanPassportSessionDialog({ view, onClose }: LeanPassportSession
             <h2 className="text-sm font-bold uppercase tracking-wide text-cyan-300">Паспорт источника Lean</h2>
             <p className="mt-1 text-xs text-gray-300">Source-bound reference без раскрытия исходного текста.</p>
           </div>
-          <button
+          <ContentButton
             type="button"
             aria-label="Закрыть паспорт источника"
             onClick={onClose}
             className="rounded border border-cyan-800 px-2 py-1 text-xs font-bold text-cyan-200 hover:border-cyan-400 hover:text-white"
           >
             Закрыть
-          </button>
+          </ContentButton>
         </header>
 
         <dl className="grid grid-cols-[auto_1fr] gap-x-3 gap-y-2 text-xs">

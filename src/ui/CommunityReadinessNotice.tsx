@@ -1,3 +1,6 @@
+import { ContentButton } from './components/ContentButton';
+import { IconButton } from './components/IconButton';
+
 import React, { useEffect, useRef } from 'react';
 import type { CommunityReadinessProjection } from '../communityReadiness/communityReadiness.domain';
 
@@ -58,7 +61,7 @@ export const CommunityReadinessNotice: React.FC<CommunityReadinessNoticeProps> =
             <p className="text-[10px] font-mono uppercase tracking-[0.18em] text-violet-300">Сообщество · read-only статус</p>
             <h2 className="mt-1 text-base font-bold text-white">{projection.title}</h2>
           </div>
-          <button
+          <ContentButton
             ref={closeButtonRef}
             type="button"
             aria-label="Закрыть информацию о готовности сообщества"
@@ -66,7 +69,7 @@ export const CommunityReadinessNotice: React.FC<CommunityReadinessNoticeProps> =
             className="rounded border border-neutral-700 bg-neutral-900 px-2.5 py-1 text-sm font-bold text-gray-300 transition-colors hover:border-violet-400 hover:text-white"
           >
             Закрыть
-          </button>
+          </ContentButton>
         </header>
 
         <div className="space-y-4 p-4 text-sm leading-relaxed text-slate-200">
@@ -78,14 +81,14 @@ export const CommunityReadinessNotice: React.FC<CommunityReadinessNoticeProps> =
           <section aria-label="Граница приглашения" className="rounded-lg border border-slate-700/70 bg-slate-950/50 p-3">
             <h3 className="font-semibold text-white">Ссылка приложения</h3>
             <p className="mt-1 text-slate-300">{projection.invitationStatement}</p>
-            <button
+            <ContentButton
               type="button"
               onClick={onCopyInvitation}
               disabled={isCopyingInvitation}
               className="mt-3 rounded border border-violet-600/70 bg-violet-950/70 px-3 py-2 text-xs font-bold text-violet-100 transition-colors hover:bg-violet-800/70 disabled:cursor-wait disabled:opacity-70"
             >
               {isCopyingInvitation ? 'Копирование…' : 'Скопировать ссылку приложения'}
-            </button>
+            </ContentButton>
             {copyMessage !== null && <p role="status" className="mt-2 text-xs text-violet-200">{copyMessage}</p>}
           </section>
 

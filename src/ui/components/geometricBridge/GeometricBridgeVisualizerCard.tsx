@@ -1,3 +1,6 @@
+import { ContentButton } from '../ContentButton';
+import { IconButton } from '../IconButton';
+
 // ============================================================================
 // RICIS-III GEOMETRIC BRIDGE VISUALIZER CARD COMPONENT
 // Space: R^2_RICIS | 0_F x inf_G = det(u, v) = F * G | 0_F / 0_G = F / G
@@ -5,7 +8,7 @@
 // ============================================================================
 
 import React, { useState, useMemo } from 'react';
-import { Compass, Sparkles, ShieldCheck, Layers } from 'lucide-react';
+import { Compass, Sparkles, ShieldCheck } from 'lucide-react';
 import { GeometricBridgeEngine } from '../../../services/geometricBridge/geometricBridgeEngine';
 import type { GeometricBridgeOperationType } from '../../../services/geometricBridge/geometricBridge.contracts';
 
@@ -75,7 +78,7 @@ export const GeometricBridgeVisualizerCard: React.FC<Props> = ({
       {/* Operation selector pills */}
       <div className="flex items-center gap-1 bg-slate-950/70 p-1 rounded-lg border border-slate-800 overflow-x-auto">
         {OPERATIONS.map((op) => (
-          <button
+          <ContentButton
             key={op.id}
             type="button"
             onClick={() => setActiveOp(op.id)}
@@ -86,7 +89,7 @@ export const GeometricBridgeVisualizerCard: React.FC<Props> = ({
             }`}
           >
             {op.label}
-          </button>
+          </ContentButton>
         ))}
       </div>
 

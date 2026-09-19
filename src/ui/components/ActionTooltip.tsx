@@ -1,3 +1,4 @@
+import { IconButton, type IconButtonProps } from './IconButton';
 // ============================================================================
 // RICIS-III ACTION TOOLTIP (MVVM / DRY / SOLID)
 // Floating contextual tooltip with title, shortcut pill, and description
@@ -38,6 +39,14 @@ export const ActionTooltip: React.FC<ActionTooltipProps> = ({
     }
     setIsVisible(false);
   };
+
+  // Icon commands own a portal tooltip so scrolling menus cannot clip it.
+  if (React.isValidElement<IconButtonProps>(children) && children.type === IconButton) {
+    return React.cloneElement(children, {
+      'aria-label': children.props['aria-label'] || title,
+      title: [title, shortcut, description, disabledReason].filter(Boolean).join(' — '),
+    });
+  }
 
   return (
     <div

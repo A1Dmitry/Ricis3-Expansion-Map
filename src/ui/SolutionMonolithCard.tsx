@@ -1,9 +1,11 @@
+import { ContentLink } from './components/ContentButton';
+
 import { ExternalLink, FileCheck2, GitCommitHorizontal, ShieldCheck, Waypoints } from 'lucide-react';
 import type { SolutionMonolithCardView } from '../ricisSolutionCatalog';
 import { WidgetCapabilityBoundary } from './components/resilience/WidgetCapabilityBoundary';
 import { TcpFractalInspectorCard } from './components/tcp/TcpFractalInspectorCard';
 import { RationalSingularityInspectorCard } from './components/rationalSingularity/RationalSingularityInspectorCard';
-import type { IRationalFunctionInput } from '../services/rationalSingularity/rationalSingularityEngine.contracts';
+
 
 interface Props {
   readonly view: SolutionMonolithCardView;
@@ -119,14 +121,14 @@ export function SolutionMonolithCard({ view }: Props) {
 
       <div className="mt-3 flex flex-wrap gap-2">
         {href && (
-          <a href={href} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 rounded border border-cyan-700/70 bg-cyan-950/45 px-2 py-1 text-[9px] font-bold text-cyan-200 hover:border-cyan-400 hover:text-white">
+          <ContentLink href={href} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 rounded border border-cyan-700/70 bg-cyan-950/45 px-2 py-1 text-[9px] font-bold text-cyan-200 hover:border-cyan-400 hover:text-white">
             <GitCommitHorizontal size={11} /> Открыть immutable source <ExternalLink size={10} />
-          </a>
+          </ContentLink>
         )}
         {view.launch.kind === 'READY' && view.launch.href && (
-          <a href={view.launch.href} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 rounded border border-emerald-700/70 bg-emerald-950/45 px-2 py-1 text-[9px] font-bold text-emerald-200 hover:border-emerald-400 hover:text-white">
+          <ContentLink href={view.launch.href} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 rounded border border-emerald-700/70 bg-emerald-950/45 px-2 py-1 text-[9px] font-bold text-emerald-200 hover:border-emerald-400 hover:text-white">
             Открыть visual calculator <ExternalLink size={10} />
-          </a>
+          </ContentLink>
         )}
         {view.launch.kind !== 'READY' && (
           <span className="rounded border border-amber-800/70 bg-amber-950/35 px-2 py-1 text-[9px] text-amber-200">Calculator launch не настроен: {view.launch.reason}</span>

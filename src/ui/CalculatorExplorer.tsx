@@ -1,3 +1,7 @@
+import { SelectionCard } from './components/ContentButton';
+import { IconLink } from './components/IconButton';
+import { IconButton } from './components/IconButton';
+import { X as ButtonIconX } from 'lucide-react';
 import { ExternalLink } from 'lucide-react';
 import type { CalculatorExplorerEntry } from '../calculatorExplorer/calculatorExplorer.domain';
 import type { SupportedLocale, TranslationKey } from '../model/i18n.types';
@@ -26,13 +30,13 @@ export function CalculatorExplorer({ isOpen, entries, locale, t, onClose, onSele
           <p className="text-[9px] font-bold uppercase tracking-wider text-emerald-300">{t('calculatorExplorer.title')}</p>
           <p className="mt-1 text-[9px] leading-relaxed text-emerald-100/75">{t('calculatorExplorer.subtitle')}</p>
         </div>
-        <button type="button" aria-label={t('calculatorExplorer.close')} onClick={onClose} className="rounded px-1.5 py-0.5 text-xs text-emerald-200 transition-colors hover:bg-emerald-900/70 hover:text-white">✕</button>
+        <IconButton fallbackIcon={ButtonIconX} type="button" aria-label={t('calculatorExplorer.close')} onClick={onClose} className="rounded px-1.5 py-0.5 text-xs text-emerald-200 transition-colors hover:bg-emerald-900/70 hover:text-white">✕</IconButton>
       </div>
 
       <div className="mt-2 max-h-56 space-y-1 overflow-y-auto pr-1" role="list">
         {entries.map(entry => (
           <div key={entry.monolith.id} className="group relative flex items-center justify-between gap-1 rounded border border-emerald-950/80 bg-black/15 hover:border-emerald-700/80 hover:bg-emerald-950/45 transition-colors">
-            <button
+            <SelectionCard
               type="button"
               aria-label={t('calculatorExplorer.open', { title: entry.monolith.title[catalogLocale] })}
               onClick={() => select(onSelectNode, entry.nodeId)}
@@ -55,9 +59,9 @@ export function CalculatorExplorer({ isOpen, entries, locale, t, onClose, onSele
               {entry.launch.kind === 'REJECTED' && (
                 <span className="mt-1 block text-[8.5px] text-rose-300">{t('calculatorExplorer.rejected', { reason: entry.launch.reason ?? 'unknown' })}</span>
               )}
-            </button>
+            </SelectionCard>
             {entry.launch.kind === 'READY' && entry.launch.href && (
-              <a
+              <IconLink
                 href={entry.launch.href}
                 target="_blank"
                 rel="noopener noreferrer"
@@ -65,7 +69,7 @@ export function CalculatorExplorer({ isOpen, entries, locale, t, onClose, onSele
                 className="mr-2 p-1.5 rounded border border-emerald-800/50 bg-emerald-900/10 text-emerald-300 hover:border-emerald-400 hover:text-white transition flex items-center justify-center shrink-0 hover:scale-105"
               >
                 <ExternalLink size={12} />
-              </a>
+              </IconLink>
             )}
           </div>
         ))}

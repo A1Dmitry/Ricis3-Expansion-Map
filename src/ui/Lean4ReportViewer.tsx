@@ -1,3 +1,5 @@
+import { ContentButton } from './components/ContentButton';
+import { IconButton } from './components/IconButton';
 import React, { useState, useMemo } from 'react';
 import { Copy, Check, Terminal, FileCode2, ShieldCheck } from 'lucide-react';
 import { createTraceDrivenLeanProofGenerator } from '../services/leanCodegen';
@@ -19,7 +21,7 @@ export function Lean4ReportViewer({ lean4Code, claim, className = '' }: Lean4Rep
       return lean4Code;
     }
     const rawExpr = claim && claim.trim().length > 0 ? claim.trim() : '0_F * inf_G';
-    
+
     // Формируем модель шагов трассировки
     const steps: ProofStep[] = [
       {
@@ -58,7 +60,7 @@ export function Lean4ReportViewer({ lean4Code, claim, className = '' }: Lean4Rep
 
   return (
     <div className={`font-mono text-xs text-slate-100 bg-[#06080c] border border-blue-950/70 rounded-lg p-4 space-y-3 relative select-text ${className}`}>
-      
+
       {/* Header */}
       <div className="flex items-center justify-between border-b border-blue-900/40 pb-2.5">
         <div className="flex items-center gap-2">
@@ -80,7 +82,7 @@ export function Lean4ReportViewer({ lean4Code, claim, className = '' }: Lean4Rep
           </div>
         </div>
 
-        <button
+        <ContentButton
           type="button"
           onClick={handleCopy}
           className="flex items-center gap-1 px-2.5 py-1 rounded bg-neutral-900 hover:bg-neutral-800 border border-neutral-700 text-[11px] text-slate-300 hover:text-white transition-colors cursor-pointer"
@@ -97,7 +99,7 @@ export function Lean4ReportViewer({ lean4Code, claim, className = '' }: Lean4Rep
               <span>Копировать Lean 4</span>
             </>
           )}
-        </button>
+        </ContentButton>
       </div>
 
       {/* Code Viewer */}
