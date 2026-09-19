@@ -1,7 +1,7 @@
 # Current State
 _What is being worked on right now, what is unfinished, and the immediate next steps. Always update this section. If the outcome of the most recent action is unknown, say so explicitly._
 
-INTERCEPTION-BENCHMARK SPRINT — **DONE, committed `7d69ca0` (17 файлов, +728/−49), pushed, version 0.4.216**. Гейты: tsc 0 ✓, interceptionBenchmark.test.ts 8/8 ✓, полный vitest 2271 — после фикса allowlist-гейта 36/36 ✓ (единственный падший OIR03-QA-36 исправлен регистрацией 2 новых файлов), tps:gate чисто ✓, build ✓. Незавершённой работы нет; возможен лишь follow-up commit «session memory» этого апдейта. Ждём визуальной акцептации 0.4.214/0.4.215/0.4.216 от пользователя (превью).
+INTERCEPTION-BENCHMARK SPRINT — **DONE** (0.4.216). **PR #79 открыт, КОНФЛИКТЫ С MAIN УРЕГУЛИРОВАНЫ: mergeable=MERGEABLE**. Main был переписан в единичный корневой снимок 7e00e1a (GAP-CLOSURE-SINGULARITY + несогласованный бамп версий), история не пересекалась с веткой → ручное слияние с явной базой 129081a: merge-коммит `096fb4f` (50 main-only файлов вербатим, 9 версионных файлов — наши 0.4.216, allowlist — объединение обоих блоков) + `6e0d7ad` (репайр: рефактор EditNodeModal у main потерял поля паритета — стражи UIRF-04/05 на самом снимке были красными; восстановлены zones/assignNodeZone/source-ссылка поверх рефактора, стражи не ослаблены). Гейты слитого дерева: tsc 0, полный vitest **2301/2301** (296 файлов, включая GAP-side), tps:gate чисто, build OK. Гейты: tsc 0 ✓, interceptionBenchmark.test.ts 8/8 ✓, полный vitest 2271 — после фикса allowlist-гейта 36/36 ✓ (единственный падший OIR03-QA-36 исправлен регистрацией 2 новых файлов), tps:gate чисто ✓, build ✓. Незавершённой работы нет; возможен лишь follow-up commit «session memory» этого апдейта. Ждём визуальной акцептации 0.4.214/0.4.215/0.4.216 от пользователя (превью).
 
 ВАЖНО: локальная история git НЕ персистентна между песочницами — remote = источник правды. При новой сессии, если `git log` показывает только базу 129081a: `git fetch origin arena/01a0b613-ricis3-expansion-map && git reset FETCH_HEAD` (рабочее дерево сохраняется). `origin/<branch>` ссылок нет — используй FETCH_HEAD.
 
@@ -65,6 +65,7 @@ _What failed and why. Approaches that were tried and abandoned and should not be
 - BENCHMARK-КЛАССЫ в kinematicSolvers.ts (DlsSolver3D и пр.) не трогать; изменения только в polarSolvers.ts + гард движка.
 - Гард движка НЕ применять к PolarRicisConstraintSolver (instanceof) — ветвь выбирается внутри его закрытой формы; применение гарда вызывало dithering/ping-pong.
 - /tmp скрипты: относительный импорт из /tmp не резолвится — абсолютный путь с `.js` суффиксом для tsx. ESLint отсутствует (lint=tsc).
+- РЕЦЕПТ СЛИЯНИЯ С ПЕРЕПИСАННЫМ MAIN: несвязанные истории (`main` = одиночный root-коммит) — `git replace --graft` в песочнице (git 2.39.5) НЕ влияет на rev-list/merge-base (replace-refs игнорируются). Рабочий рецепт: (1) checkout main-only файлов из FETCH_HEAD; (2) ручное объединение пересечений; (3) дерево через `git write-tree` + коммит с двумя родителями через `git commit-tree -p HEAD -p <main>`; (4) `git update-ref` + `git reset --quiet`. После этого branch — настоящий потомок main, GitHub видит mergeable.
 
 # Key Results
 _Exact results that must remain available to the continuation model: answers, tables, short code, decisions, or paths to generated files. Include short deliverables verbatim and reference longer artifacts by workspace path._
@@ -75,4 +76,4 @@ _Exact results that must remain available to the continuation model: answers, ta
 - Исходы per-case: T01 MID_AIR 1.70 с, T02 MID_AIR 1.37, T03 MID_AIR 1.88, T04 FLOOR 2.50, T05 FLOOR 3.08, T06/T07/T10 MID_AIR, T08 186 шагов, T09 149.
 - Архитектура детекта: дельты `midAirCatchCount/floorPickupCount/unreachableCount` против базовых; `firstPlan` = первый `getLastInterceptPlan()`; `predictionErrorM = |firstPlan.point − ballPosAtGrasp|`, `timingErrorSec = |(plannedAtSec+timeSec) − graspTime|`.
 - Граница правки 0.4.216: солверы/физика/сглаживатель/логика перехвата НЕ менялись — только наблюдательность (часы, план) + исход UNREACHABLE + гарниз + UI + стражи.
-- Коммиты: b9714be (0.4.213) → f79dfce (0.4.214) → 591ecb9 (0.4.215) → **7d69ca0 (0.4.216)**.
+- Коммиты: b9714be (0.4.213) → f79dfce (0.4.214) → 591ecb9 (0.4.215) → 7d69ca0 (0.4.216) → ae488d5 (memory) → **096fb4f (merge main-snapshot 7e00e1a, явная база 129081a) → 6e0d7ad (UIRF-репайр EditNodeModal)**. PR #79 → main, mergeability MERGEABLE.
