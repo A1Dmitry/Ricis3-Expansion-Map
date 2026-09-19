@@ -48,13 +48,13 @@ export function parseExecutorHeader(subject: string): ExecutorHeaderCheck {
       code: 'EXECUTOR_KEY_FORMAT',
       message:
         `заголовок обязан иметь вид «исполнитель : <ключ>», где ключ — 64 строчных ` +
-        `hex-символа; получено: «${trimmed}»`,
+        `hex-символа; получено: «${trimmed}»; ${KEYLESS_COMMIT_EXCEPTION_TEXT}`,
     };
   }
   return {
     ok: false,
     code: 'EXECUTOR_HEADER_MISSING',
-    message: `в заголовке нет префикса «исполнитель : <ключ>»; получено: «${trimmed}»`,
+    message: `в заголовке нет префикса «исполнитель : <ключ>»; получено: «${trimmed}»; ${KEYLESS_COMMIT_EXCEPTION_TEXT}`,
   };
 }
 
@@ -97,6 +97,18 @@ export const MANDATORY_STUDY_DOCUMENTS: readonly string[] = [
   'docs/00-governance/EXECUTION_TRACEABILITY_GATES.md',
   'docs/01-architecture/ricis-unified-complete-document-7.9-vector.json',
 ];
+
+/**
+ * Обязательный текст исключения, которым ворота (G1, G3) отклоняют коммит без
+ * ключа: executor_key ещё не создан по протоколу. Отклоняющий обязан показать
+ * исполнителю этот текст: создать ключ по протоколу и — лучше — пройти
+ * обязательное обучение (полное изучение документации, §3 G2).
+ */
+export const KEYLESS_COMMIT_EXCEPTION_TEXT =
+  'исключение: коммит без ключа отклонён — надо создать ключ по вышеописанному протоколу ' +
+  '(docs/00-governance/EXECUTION_TRACEABILITY_GATES.md §1–§2, регистрация — ' +
+  'docs/00-governance/EXECUTOR_KEY.md), а лучше еще и пройти обучение — обязательное ' +
+  'изучение всей документации (перечень — MANDATORY_STUDY_DOCUMENTS и отчёт ворот G2)';
 
 /**
  * Builds the G2 verdict for the first commit that broke functionality

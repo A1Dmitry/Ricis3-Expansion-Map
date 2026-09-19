@@ -16,7 +16,9 @@ if printf '%s\n' "$subject" | LC_ALL=C grep -qE '^исполнитель : [0-9a
   exit 0
 fi
 
-echo "EXECUTOR GATE (commit-msg): andon — заголовок коммита обязан иметь вид «исполнитель : <ключ>»," >&2
-echo "где <ключ> — 64 строчных hex-символа, зарегистрированных в docs/00-governance/EXECUTOR_KEY.md." >&2
-echo "Правило и ворота: docs/00-governance/EXECUTION_TRACEABILITY_GATES.md" >&2
+echo "EXECUTOR GATE (commit-msg): исключение — коммит без ключа отклонён." >&2
+echo "Надо создать ключ по вышеописанному протоколу (docs/00-governance/EXECUTION_TRACEABILITY_GATES.md §1–§2," >&2
+echo "регистрация — docs/00-governance/EXECUTOR_KEY.md), а лучше еще и пройти обучение —" >&2
+echo "обязательное изучение всей документации (перечень — MANDATORY_STUDY_DOCUMENTS и отчёт ворот G2)." >&2
+echo "Форма заголовка: «исполнитель : <ключ>», где <ключ> — 64 строчных hex-символа." >&2
 exit 1

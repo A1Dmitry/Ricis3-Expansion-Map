@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
 import {
+  KEYLESS_COMMIT_EXCEPTION_TEXT,
   MANDATORY_STUDY_DOCUMENTS,
   buildForensicsVerdict,
   extractRegisteredKey,
@@ -23,12 +24,15 @@ describe('parseExecutorHeader', () => {
     expect(result).toEqual({ ok: true, key: KEY_A });
   });
 
-  it('отклоняет заголовок без префикса «исполнитель :»', () => {
+  it('отклоняет заголовок без префикса «исполнитель :» с обязательным текстом исключения', () => {
     const result = parseExecutorHeader('feat: обычный коммит без ключа');
     expect(result).toMatchObject({ ok: false, code: 'EXECUTOR_HEADER_MISSING' });
+    if (result.ok) return;
+    expect(result.message).toContain('надо создать ключ по вышеописанному протоколу');
+    expect(result.message).toContain('а лучше еще и пройти обучение');
   });
 
-  it('отклоняет ключ не из 64 строчных hex-символов', () => {
+  it('отклоняет ключ не из 64 строчных hex-символов с тем же текстом исключения', () => {
     expect(parseExecutorHeader(`исполнитель : ${KEY_A.toUpperCase()}`)).toMatchObject({
       ok: false,
       code: 'EXECUTOR_KEY_FORMAT',
@@ -37,10 +41,11 @@ describe('parseExecutorHeader', () => {
       ok: false,
       code: 'EXECUTOR_KEY_FORMAT',
     });
-    expect(parseExecutorHeader('исполнитель : не-ключ')).toMatchObject({
-      ok: false,
-      code: 'EXECUTOR_KEY_FORMAT',
-    });
+    const malformed = parseExecutorHeader('исполнитель : не-ключ');
+    expect(malformed).toMatchObject({ ok: false, code: 'EXECUTOR_KEY_FORMAT' });
+    if (malformed.ok) return;
+    expect(malformed.message).toContain('надо создать ключ по вышеописанному протоколу');
+    expect(malformed.message).toContain('а лучше еще и пройти обучение');
   });
 
   it('не зависит от концевых пробелов заголовка', () => {
@@ -58,6 +63,16 @@ describe('extractRegisteredKey', () => {
     expect(extractRegisteredKey('# Executor Key\n\npurpose: GitHub execution traceability\n')).toBeNull();
     expect(extractRegisteredKey(`executor_key: ${'z'.repeat(64)}\n`)).toBeNull();
     expect(extractRegisteredKey(`executor_key: ${KEY_A.toUpperCase()}\n`)).toBeNull();
+  });
+});
+
+describe('KEYLESS_COMMIT_EXCEPTION_TEXT', () => {
+  it('требует создать ключ по протоколу и предписывает обучение с указанием документов', () => {
+    expect(KEYLESS_COMMIT_EXCEPTION_TEXT).toContain('надо создать ключ по вышеописанному протоколу');
+    expect(KEYLESS_COMMIT_EXCEPTION_TEXT).toContain('а лучше еще и пройти обучение');
+    expect(KEYLESS_COMMIT_EXCEPTION_TEXT).toContain('docs/00-governance/EXECUTION_TRACEABILITY_GATES.md');
+    expect(KEYLESS_COMMIT_EXCEPTION_TEXT).toContain('docs/00-governance/EXECUTOR_KEY.md');
+    expect(KEYLESS_COMMIT_EXCEPTION_TEXT).toContain('MANDATORY_STUDY_DOCUMENTS');
   });
 });
 
