@@ -6,12 +6,26 @@ import type {
   PickAndPlacePhase,
 } from '../../model/kinematicEngine.contracts';
 import { distance3D } from './kinematicMath';
+import { BallPhysicsWorld, type IPhysicsBallBody } from './ballPhysics';
+
+/** Hover point just above the settled ball inside the box (post-delivery retreat). */
+function boxFloorHover(box: IBoxContainer): Vector3D {
+  return {
+    x: box.position.x,
+    y: box.position.y,
+    z: box.position.z - box.dimensions.z / 2 + 0.22,
+  };
+}
 
 export class PickAndPlaceController {
   private state: IPickAndPlaceSimulationState;
   private currentPhaseTimer = 0;
+  private readonly physics: BallPhysicsWorld;
+  // Live body of the ball that was just released over the box (free fall + bounce).
+  private releasedBody: IPhysicsBallBody | null = null;
 
-  constructor(initialBalls: readonly IBallEntity[], box: IBoxContainer) {
+  constructor(initialBalls: readonly IBallEntity[], box: IBoxContainer, physics?: BallPhysicsWorld) {
+    this.physics = physics ?? new BallPhysicsWorld();
     this.state = {
       phase: 'NAVIGATING_TO_BALL',
       currentTargetBallId: initialBalls[0]?.id ?? null,
@@ -36,6 +50,7 @@ export class PickAndPlaceController {
       graspFailuresCount: 0,
     };
     this.currentPhaseTimer = 0;
+    this.releasedBody = null;
   }
 
   /**
@@ -139,32 +154,82 @@ export class PickAndPlaceController {
       }
 
       case 'RELEASING': {
-        // "Fragile Egg" Protocol: Gently descend all the way into the box onto its floor
-        // Box floor height: box.position.z - box.dimensions.z / 2 + ballRadius
-        const boxFloorTarget: Vector3D = {
-          x: this.state.box.position.x,
-          y: this.state.box.position.y,
-          z: this.state.box.position.z - this.state.box.dimensions.z / 2 + 0.05,
+        // "Fragile Egg" Protocol: descend to just above the box floor, physically
+        // release the ball and let gravity + bounce physics settle it inside the box
+        // (no random teleportation — the ball visibly drops and bounces).
+        const box = this.state.box;
+        const boxFloorZ = box.position.z - box.dimensions.z / 2;
+
+        if (!this.releasedBody) {
+          const boxFloorTarget: Vector3D = {
+            x: box.position.x,
+            y: box.position.y,
+            z: boxFloorZ + 0.05,
+          };
+
+          // Continually hold ball in gripper during descent
+          this.updateGraspedBallPos(endEffector);
+
+          const distToFloor = distance3D(endEffector, boxFloorTarget);
+
+          // Release slightly above the floor so the last centimetres are real physics.
+          if (distToFloor < 0.06 || this.currentPhaseTimer > 2.5) {
+            const graspedBall = this.state.balls.find(b => b.id === currentBall.id);
+            const startPos = graspedBall
+              ? graspedBall.currentPosition
+              : { x: box.position.x, y: box.position.y, z: boxFloorZ + 0.1 };
+            this.releasedBody = this.physics.createBody(startPos, graspedBall?.radius ?? 0.06, {
+              x: 0,
+              y: 0,
+              z: -0.2,
+            });
+            this.state = {
+              ...this.state,
+              balls: this.state.balls.map(b =>
+                b.id === currentBall.id
+                  ? { ...b, status: 'FALLING' as const, velocity: { x: 0, y: 0, z: -0.2 } }
+                  : b
+              ),
+            };
+            this.currentPhaseTimer = 0;
+            eventTriggered = `Ball [${currentBall.id}] released — free fall & bounce inside the box`;
+          } else {
+            return { target: boxFloorTarget, shouldGrip: true, eventTriggered };
+          }
+        }
+
+        // Bounce inside the box until the ball comes to rest.
+        const r = this.releasedBody.radius;
+        this.releasedBody = this.physics.integrate(this.releasedBody, dt, {
+          boxBounds: {
+            minX: box.position.x - box.dimensions.x / 2 + r,
+            maxX: box.position.x + box.dimensions.x / 2 - r,
+            minY: box.position.y - box.dimensions.y / 2 + r,
+            maxY: box.position.y + box.dimensions.y / 2 - r,
+            floorZ: boxFloorZ,
+          },
+        });
+        this.state = {
+          ...this.state,
+          balls: this.state.balls.map(b =>
+            b.id === currentBall.id
+              ? { ...b, currentPosition: { ...this.releasedBody!.position }, velocity: { ...this.releasedBody!.velocity } }
+              : b
+          ),
         };
 
-        // Continually hold ball in gripper during descent
-        this.updateGraspedBallPos(endEffector);
+        if (this.releasedBody.resting || this.currentPhaseTimer > 3.0) {
+          // Ball safely deposited on the bottom of the box (real rest position)
+          const finalBody = this.releasedBody;
+          this.releasedBody = null;
 
-        const distToFloor = distance3D(endEffector, boxFloorTarget);
-
-        // Soft release only when gripper is right at the floor of the box
-        if (distToFloor < 0.05 || this.currentPhaseTimer > 2.5) {
-          // Ball safely deposited on the bottom of the box
           const updatedBalls = this.state.balls.map(b =>
             b.id === currentBall.id
               ? {
                   ...b,
                   status: 'IN_BOX' as const,
-                  currentPosition: {
-                    x: this.state.box.position.x + (Math.random() - 0.5) * 0.12,
-                    y: this.state.box.position.y + (Math.random() - 0.5) * 0.12,
-                    z: this.state.box.position.z - this.state.box.dimensions.z / 2 + 0.04,
-                  },
+                  currentPosition: { ...finalBody.position },
+                  velocity: { x: 0, y: 0, z: 0 },
                 }
               : b
           );
@@ -184,9 +249,16 @@ export class PickAndPlaceController {
             },
           };
           this.currentPhaseTimer = 0;
-          eventTriggered = `Fragile Egg [${currentBall.id}] Gently Placed onto Box Floor (RICIS L0 Continuity)`;
+          eventTriggered = `Fragile Egg [${currentBall.id}] Settled on the Box Floor after Bounce (RICIS L0 Continuity)`;
+          return { target: boxFloorHover(box), shouldGrip: false, eventTriggered };
         }
-        return { target: boxFloorTarget, shouldGrip: distToFloor >= 0.05, eventTriggered };
+
+        // Gentle retreat hover while the ball settles (claw out of the bounce zone).
+        return {
+          target: { x: box.position.x, y: box.position.y, z: boxFloorZ + 0.22 },
+          shouldGrip: false,
+          eventTriggered,
+        };
       }
 
       default:

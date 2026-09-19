@@ -49,6 +49,21 @@ export class KinematicConstants {
   /** Joint 3 (elbow) maximum limit (rad) */
   public static readonly MAX_ELBOW_JOINT_LIMIT_OFFSET_RAD = 0.05;
 
+  /**
+   * Joint 3 (elbow) minimum limit on the ELBOW-UP (negative) branch (rad).
+   * The elbow is a symmetric revolute joint: the classic solvers used to clamp it
+   * at MIN_ELBOW_JOINT_LIMIT_RAD (elbow-down branch only), which drove the elbow
+   * UNDER THE FLOOR for low targets. The mirrored elbow-up branch is the standard
+   * collision-avoidance solution for low pick points.
+   */
+  public static readonly MIN_ELBOW_UP_JOINT_LIMIT_RAD = -(Math.PI - 0.05);
+
+  /** Minimum physical clearance between the elbow joint and the room floor (m). */
+  public static readonly ELBOW_FLOOR_CLEARANCE_METERS = 0.02;
+
+  /** Hysteresis margin for elbow branch flipping: mirror only when it is strictly higher (m). */
+  public static readonly ELBOW_FLIP_HYSTERESIS_METERS = 0.04;
+
   /** Workspace reach boundary margin multiplier for validity checks */
   public static readonly WORKSPACE_BOUNDARY_MARGIN_RATIO = 1.05;
 

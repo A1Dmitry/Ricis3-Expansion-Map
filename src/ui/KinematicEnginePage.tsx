@@ -20,6 +20,7 @@ import {
   FileText,
   Cpu,
   Sparkles,
+  Target,
 } from 'lucide-react';
 import type {
   IKinematicState3D,
@@ -41,6 +42,14 @@ import {
 } from '../services/kinematic/polarSolvers';
 import { RicisSymbolicJacobianSolver3D } from '../services/kinematic/kinematicSolvers';
 import { PickAndPlaceController } from '../services/kinematic/pickAndPlaceController';
+import { CatchBallController, TENNIS_CANNON_SHOT_PLAN } from '../services/kinematic/catchBallController';
+import {
+  generateUnknownScenarioBatch,
+  INTERCEPTION_SCENARIO_BATTERY,
+  runInterceptionBenchmark,
+  type IInterceptionBenchmarkReport,
+} from '../services/kinematic/interceptionBenchmark';
+import { CartesianMotionSmoother } from '../services/kinematic/motionSmoothing';
 import { KinematicTelemetryLogger } from '../services/kinematic/kinematicLogger';
 import { forwardKinematics3D, computeJacobianDeterminant3D } from '../services/kinematic/kinematicMath';
 import { useMapStore } from '../store/mapStore';
@@ -82,6 +91,27 @@ interface Props {
 }
 
 const LINK_LENGTHS: [number, number, number] = [0.4, 0.8, 0.7]; // L0=0.4, L1=0.8, L2=0.7 (Max reach = 1.5m)
+
+/**
+ * Viewport routing for the main canvas area:
+ * - PICK_AND_PLACE / CATCH_FALLING_BALL / SINGULAR_ORBIT / MANUAL -> live dual-arm 3D simulation (RobotArm3DCanvas);
+ * - TWO_STAGE_WALKTHROUGH -> modular planar analysis workspace (Planar/Modular manipulator canvas).
+ */
+type KinematicViewportMode =
+  | 'PICK_AND_PLACE'
+  | 'CATCH_FALLING_BALL'
+  | 'SINGULAR_ORBIT'
+  | 'MANUAL'
+  | 'TWO_STAGE_WALKTHROUGH';
+
+/** Inert placeholder grid — heatmap generation is a 3-DOF-only capability (see IoC SINGULAR_HEATMAP_2D). */
+const EMPTY_HEATMAP_GRID: ISingularityHeatmapGrid = {
+  resolution: 0,
+  theta2Range: [-Math.PI, Math.PI],
+  theta3Range: [-Math.PI, Math.PI],
+  cartesianSigmaMinGrid: [],
+  polarSigmaMinGrid: [],
+};
 
 const INITIAL_BALLS: IBallEntity[] = [
   {
@@ -140,8 +170,8 @@ export const KinematicEnginePage: React.FC<Props> = ({ onBackToMap }) => {
   // Mobile layout drives the swipe-to-close gesture on additional panels.
   const isMobileLayout = useMobileLayout();
 
-  // Mode: 'PICK_AND_PLACE' | 'SINGULAR_ORBIT' | 'MANUAL'
-  const [simMode, setSimMode] = useState<'PICK_AND_PLACE' | 'SINGULAR_ORBIT' | 'MANUAL'>('PICK_AND_PLACE');
+  // Viewport mode: dual-arm simulation scenarios vs. modular analysis walkthrough
+  const [simMode, setSimMode] = useState<KinematicViewportMode>('PICK_AND_PLACE');
   const [coordinateMode, setCoordinateMode] = useState<CoordinateSystemMode>('POLAR');
   const [ricisSolverMode, setRicisSolverMode] = useState<RicisSolverMode>('POLAR_GEOMETRIC');
   const [isRunning, setIsRunning] = useState(true);
@@ -186,8 +216,49 @@ export const KinematicEnginePage: React.FC<Props> = ({ onBackToMap }) => {
   }, [planarKinematicService, planarJoints, planarLinks, planarMode]);
 
   const heatmapGrid = useMemo<ISingularityHeatmapGrid>(() => {
+    // The σ_min landscape is a θ₂×θ₃ slice: it is only defined for the 3-DOF module
+    // (matches the IoC capability model — SINGULAR_HEATMAP_2D is 3-link-only).
+    // Computing it for N≠3 both wastes 2×28² SVD evaluations and is mathematically ambiguous.
+    if (planarJoints.length !== 3 || planarLinks.length !== 3) {
+      return EMPTY_HEATMAP_GRID;
+    }
     return planarKinematicService.generateHeatmapGrid(planarJoints[0] ?? 0, planarLinks, 28);
   }, [planarKinematicService, planarJoints, planarLinks]);
+
+  // Selecting an IoC manipulator module opens its modular analysis workspace.
+  const handleSelectModule = (moduleId: KinematicModuleId) => {
+    setSelectedModuleId(moduleId);
+    setIsWalkthroughPlaying(false);
+    setWalkthroughIndex(0);
+    if (moduleId === 'planar-5link-redundant') {
+      setPlanarJoints([0.2, 0.3, -0.4, 0.5, -0.1]);
+    } else {
+      // 3-link workspace; IN-DEV modules keep a valid 3-link pose behind their stub.
+      setPlanarJoints([0.35, 0.78, 0.65]);
+    }
+    setSimMode('TWO_STAGE_WALKTHROUGH');
+    setActiveTab('TWO_STAGE_SINGULARITY');
+  };
+
+  // Entering the scripted walkthrough: the scenario is 3-link by construction,
+  // so the 3-link module is enforced to keep joint-count consistent.
+  const handleEnterWalkthrough = () => {
+    setSelectedModuleId('planar-3link-two-stage');
+    const step = WALKTHROUGH_STEPS[walkthroughIndex] ?? WALKTHROUGH_STEPS[0];
+    if (step) {
+      setPlanarJoints([...step.targetJoints]);
+      if (step.forcedMode) {
+        setPlanarMode(step.forcedMode);
+      }
+    }
+    setSimMode('TWO_STAGE_WALKTHROUGH');
+    setActiveTab('TWO_STAGE_SINGULARITY');
+  };
+
+  // Heatmap click applies only in the 3-DOF module (defensive guard against joint truncation).
+  const handleSelectHeatmapAngles = (t2: number, t3: number) => {
+    setPlanarJoints(prev => (prev.length === 3 ? [prev[0] ?? 0, t2, t3] : prev));
+  };
 
   // Walkthrough Auto-Play Timer
   useEffect(() => {
@@ -199,7 +270,10 @@ export const KinematicEnginePage: React.FC<Props> = ({ onBackToMap }) => {
         setWalkthroughIndex(nextIdx);
         const nextStep = WALKTHROUGH_STEPS[nextIdx];
         if (nextStep) {
-          setPlanarJoints([...nextStep.targetJoints] as [number, number, number]);
+          // Never truncate an N-DOF joint vector: steps are 3-link scripted poses.
+          setPlanarJoints(prevJoints =>
+            prevJoints.length === nextStep.targetJoints.length ? [...nextStep.targetJoints] : prevJoints
+          );
           if (nextStep.forcedMode) {
             setPlanarMode(nextStep.forcedMode);
           }
@@ -216,7 +290,10 @@ export const KinematicEnginePage: React.FC<Props> = ({ onBackToMap }) => {
     setWalkthroughIndex(index);
     const step = WALKTHROUGH_STEPS[index];
     if (step) {
-      setPlanarJoints([...step.targetJoints] as [number, number, number]);
+      // Never truncate an N-DOF joint vector: steps are 3-link scripted poses.
+      setPlanarJoints(prevJoints =>
+        prevJoints.length === step.targetJoints.length ? [...step.targetJoints] : prevJoints
+      );
       if (step.forcedMode) {
         setPlanarMode(step.forcedMode);
       }
@@ -304,6 +381,32 @@ export const KinematicEnginePage: React.FC<Props> = ({ onBackToMap }) => {
   // Pick & Place controller ref
   const pnpControllerRef = useRef(new PickAndPlaceController(INITIAL_BALLS, BOX_CONTAINER));
   const [pnpState, setPnpState] = useState(() => pnpControllerRef.current.getState());
+
+  // Catch-the-falling-ball controller ref + state
+  const catchControllerRef = useRef(new CatchBallController(TENNIS_CANNON_SHOT_PLAN, BOX_CONTAINER, LINK_LENGTHS));
+  const [catchState, setCatchState] = useState(() => catchControllerRef.current.getState());
+
+  // Cartesian S-curve smoother: turns discrete waypoint anchors into a C1-continuous
+  // acceleration-limited target stream so the arm FOLLOWS AN OPTIMAL, SMOOTH PATH
+  // (uniform simultaneous joint rotation) instead of snapping between waypoints.
+  const motionSmootherRef = useRef<CartesianMotionSmoother | null>(null);
+  if (motionSmootherRef.current === null) {
+    motionSmootherRef.current = new CartesianMotionSmoother(initialEE);
+  }
+
+  // Interception benchmark (standardized battery + seeded UNKNOWN batch)
+  const [benchmarkReport, setBenchmarkReport] = useState<IInterceptionBenchmarkReport | null>(null);
+  const [benchmarkRunning, setBenchmarkRunning] = useState(false);
+  const runInterceptionBenchmarkPanel = () => {
+    setBenchmarkRunning(true);
+    // Defer the heavy deterministic batch so the button paint is not blocked.
+    window.setTimeout(() => {
+      const specs = [...INTERCEPTION_SCENARIO_BATTERY, ...generateUnknownScenarioBatch(7, 10)];
+      setBenchmarkReport(runInterceptionBenchmark(specs));
+      setBenchmarkRunning(false);
+    }, 30);
+  };
+
   const [advantageLedger, setAdvantageLedger] = useState(() => telemetryLogger.getLedger());
 
   // Mutable refs for high-frequency animation loop (avoids re-triggering useEffect every frame)
@@ -314,6 +417,8 @@ export const KinematicEnginePage: React.FC<Props> = ({ onBackToMap }) => {
 
   const orbitAngleRef = useRef(0);
   const lastLedgerUpdateRef = useRef(0);
+  // Live gripper command from the pick-and-place state machine (stamped onto solver states).
+  const gripperRef = useRef(false);
 
   // Immediate solver step when user moves manual sliders
   const stepManualTarget = (newCart: Vector3D) => {
@@ -361,8 +466,18 @@ export const KinematicEnginePage: React.FC<Props> = ({ onBackToMap }) => {
   const handleReset = () => {
     pnpControllerRef.current.reset(INITIAL_BALLS, BOX_CONTAINER);
     setPnpState(pnpControllerRef.current.getState());
+    catchControllerRef.current.reset(BOX_CONTAINER);
+    setCatchState(catchControllerRef.current.getState());
     telemetryLogger.clear();
     setAdvantageLedger(telemetryLogger.getLedger());
+
+    // Full reset: scenario progress, orbit phase, displayed target and metric panels.
+    orbitAngleRef.current = 0;
+    gripperRef.current = false;
+    setCurrentDesiredTarget({ x: 1.45, y: 0.2, z: 0.25 });
+    setRicisMetrics(null);
+    setDlsMetrics(null);
+    setLatestQaTrace(null);
 
     const resetJoints = { q1: 0.35, q2: 0.6, q3: 1.2 };
     const resetEE = forwardKinematics3D(resetJoints, LINK_LENGTHS);
@@ -376,6 +491,7 @@ export const KinematicEnginePage: React.FC<Props> = ({ onBackToMap }) => {
       gripperClosed: false,
     };
 
+    motionSmootherRef.current?.reset(resetEE);
     ricisStateRef.current = resetState;
     dlsStateRef.current = resetState;
     setRicisState(resetState);
@@ -384,22 +500,40 @@ export const KinematicEnginePage: React.FC<Props> = ({ onBackToMap }) => {
 
   // Resolves the desired end-effector target for the current simulation mode
   // (single source of truth for both the 60 FPS loop and single-step command).
+  // Resolves the desired end-effector target for the current simulation mode and
+  // passes it through the Cartesian S-curve smoother, so the arm always receives
+  // a continuous, acceleration-limited target stream (smooth optimal trajectory,
+  // uniform simultaneous joint rotation — no waypoint snapping).
   const resolveActiveTarget = (dt: number): Vector3D => {
+    const smoother = motionSmootherRef.current;
+    let anchor: Vector3D;
+
     if (simMode === 'PICK_AND_PLACE') {
       const pnpStep = pnpControllerRef.current.stepTarget(dt, ricisStateRef.current.endEffector);
-      return pnpStep.target;
-    }
-    if (simMode === 'SINGULAR_ORBIT') {
+      gripperRef.current = pnpStep.shouldGrip;
+      anchor = pnpStep.target;
+    } else if (simMode === 'CATCH_FALLING_BALL') {
+      const catchStep = catchControllerRef.current.stepTarget(dt, ricisStateRef.current.endEffector);
+      gripperRef.current = catchStep.shouldGrip;
+      anchor = catchStep.target;
+    } else if (simMode === 'SINGULAR_ORBIT') {
+      gripperRef.current = false;
       // Orbit along the singular boundary (r = 1.48m near max reach 1.50m)
       orbitAngleRef.current += dt * 0.8;
       const maxReach = LINK_LENGTHS[1] + LINK_LENGTHS[2] - 0.01;
-      return {
+      anchor = {
         x: maxReach * Math.cos(orbitAngleRef.current),
         y: maxReach * Math.sin(orbitAngleRef.current),
         z: 0.4 + 0.3 * Math.sin(orbitAngleRef.current * 2),
       };
+    } else {
+      gripperRef.current = false;
+      anchor = manualTargetRef.current;
     }
-    return manualTargetRef.current;
+
+    if (!smoother) return anchor;
+    smoother.setAnchor(anchor);
+    return smoother.step(dt);
   };
 
   // Main 60 FPS Simulation Loop with Throttled UI Updates for Smooth Responsiveness
@@ -426,8 +560,18 @@ export const KinematicEnginePage: React.FC<Props> = ({ onBackToMap }) => {
           coordinateMode
         );
 
-        ricisStateRef.current = stepResult.ricisResult.nextState;
-        dlsStateRef.current = stepResult.dlsResult.nextState;
+        // Stamp the live gripper command onto both arm states so the
+        // visualization shows the actual grasp phase from the controller.
+        const nextRicisState: IKinematicState3D = {
+          ...stepResult.ricisResult.nextState,
+          gripperClosed: gripperRef.current,
+        };
+        const nextDlsState: IKinematicState3D = {
+          ...stepResult.dlsResult.nextState,
+          gripperClosed: gripperRef.current,
+        };
+        ricisStateRef.current = nextRicisState;
+        dlsStateRef.current = nextDlsState;
 
         telemetryLogger.pushEntry(stepResult.logEntry);
 
@@ -436,17 +580,19 @@ export const KinematicEnginePage: React.FC<Props> = ({ onBackToMap }) => {
           lastUiUpdate = now;
           if (simMode === 'PICK_AND_PLACE') {
             setPnpState({ ...pnpControllerRef.current.getState() });
+          } else if (simMode === 'CATCH_FALLING_BALL') {
+            setCatchState({ ...catchControllerRef.current.getState() });
           }
           setCurrentDesiredTarget(activeTarget);
-          setRicisState(stepResult.ricisResult.nextState);
-          setDlsState(stepResult.dlsResult.nextState);
+          setRicisState(nextRicisState);
+          setDlsState(nextDlsState);
           setRicisMetrics(stepResult.ricisResult.metrics);
           setDlsMetrics(stepResult.dlsResult.metrics);
           setLatestQaTrace(stepResult.ricisResult.qaTrace);
 
           // Compute live symbolic Jacobian AST & resolution
-          const currentJoints = stepResult.ricisResult.nextState.joints;
-          const currentEE = stepResult.ricisResult.nextState.endEffector;
+          const currentJoints = nextRicisState.joints;
+          const currentEE = nextRicisState.endEffector;
           const cDir = {
             x: activeTarget.x - currentEE.x,
             y: activeTarget.y - currentEE.y,
@@ -487,12 +633,25 @@ export const KinematicEnginePage: React.FC<Props> = ({ onBackToMap }) => {
       dt,
       coordinateMode
     );
-    ricisStateRef.current = stepResult.ricisResult.nextState;
-    dlsStateRef.current = stepResult.dlsResult.nextState;
+    const nextRicisState: IKinematicState3D = {
+      ...stepResult.ricisResult.nextState,
+      gripperClosed: gripperRef.current,
+    };
+    const nextDlsState: IKinematicState3D = {
+      ...stepResult.dlsResult.nextState,
+      gripperClosed: gripperRef.current,
+    };
+    ricisStateRef.current = nextRicisState;
+    dlsStateRef.current = nextDlsState;
     telemetryLogger.pushEntry(stepResult.logEntry);
+    if (simMode === 'PICK_AND_PLACE') {
+      setPnpState({ ...pnpControllerRef.current.getState() });
+    } else if (simMode === 'CATCH_FALLING_BALL') {
+      setCatchState({ ...catchControllerRef.current.getState() });
+    }
     setCurrentDesiredTarget(activeTarget);
-    setRicisState(stepResult.ricisResult.nextState);
-    setDlsState(stepResult.dlsResult.nextState);
+    setRicisState(nextRicisState);
+    setDlsState(nextDlsState);
     setRicisMetrics(stepResult.ricisResult.metrics);
     setDlsMetrics(stepResult.dlsResult.metrics);
     setLatestQaTrace(stepResult.ricisResult.qaTrace);
@@ -540,6 +699,18 @@ export const KinematicEnginePage: React.FC<Props> = ({ onBackToMap }) => {
 
   const polarThetaDeg = PolarCoordinateService.radToDeg(polarManualTarget.thetaRad);
   const currentEEPolar = PolarCoordinateService.cartesianToCylindrical(ricisState.endEffector);
+
+  // Safe 3-tuples for the 3-link planar workspace canvas (guarded render branch below).
+  const planarJointsTuple3: [number, number, number] = [
+    planarJoints[0] ?? 0,
+    planarJoints[1] ?? 0,
+    planarJoints[2] ?? 0,
+  ];
+  const planarLinksTuple3: [number, number, number] = [
+    planarLinks[0] ?? LINK_LENGTHS[0],
+    planarLinks[1] ?? LINK_LENGTHS[1],
+    planarLinks[2] ?? LINK_LENGTHS[2],
+  ];
 
   return (
     <div className="flex flex-col h-screen bg-[#07090e] text-slate-100 overflow-hidden font-sans select-none">
@@ -684,10 +855,7 @@ export const KinematicEnginePage: React.FC<Props> = ({ onBackToMap }) => {
                 <div className="flex items-center gap-1.5">
                   <button
                     type="button"
-                    onClick={() => {
-                      setSelectedModuleId('planar-3link-two-stage');
-                      setPlanarJoints([0.35, 0.78, 0.65] as any);
-                    }}
+                    onClick={() => handleSelectModule('planar-3link-two-stage')}
                     className={`px-2.5 py-1 rounded text-xs font-mono font-medium transition-all ${
                       selectedModuleId === 'planar-3link-two-stage'
                         ? 'bg-cyan-950 border border-cyan-500 text-cyan-200 shadow-sm'
@@ -698,10 +866,7 @@ export const KinematicEnginePage: React.FC<Props> = ({ onBackToMap }) => {
                   </button>
                   <button
                     type="button"
-                    onClick={() => {
-                      setSelectedModuleId('planar-5link-redundant');
-                      setPlanarJoints([0.2, 0.3, -0.4, 0.5, -0.1] as any);
-                    }}
+                    onClick={() => handleSelectModule('planar-5link-redundant')}
                     className={`px-2.5 py-1 rounded text-xs font-mono font-medium transition-all ${
                       selectedModuleId === 'planar-5link-redundant'
                         ? 'bg-purple-950 border border-purple-500 text-purple-200 shadow-sm'
@@ -712,7 +877,7 @@ export const KinematicEnginePage: React.FC<Props> = ({ onBackToMap }) => {
                   </button>
                   <button
                     type="button"
-                    onClick={() => setSelectedModuleId('spatial-6dof-ricis')}
+                    onClick={() => handleSelectModule('spatial-6dof-ricis')}
                     className={`px-2.5 py-1 rounded text-xs font-mono font-medium transition-all ${
                       selectedModuleId === 'spatial-6dof-ricis'
                         ? 'bg-amber-950 border border-amber-500 text-amber-200 shadow-sm'
@@ -747,6 +912,19 @@ export const KinematicEnginePage: React.FC<Props> = ({ onBackToMap }) => {
                 </button>
                 <button
                   type="button"
+                  onClick={() => setSimMode('CATCH_FALLING_BALL')}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded text-xs font-bold transition-all ${
+                    simMode === 'CATCH_FALLING_BALL'
+                      ? 'bg-rose-950/80 border border-rose-500/80 text-rose-300'
+                      : 'text-slate-400 hover:text-white hover:bg-neutral-800'
+                  }`}
+                  title="Две теннисные пушки отстреливают шарики со слабой разной силой; мячи отскакивают от пола и стен, рука перехватывает их на лету или собирает с пола"
+                >
+                  <Target size={14} />
+                  Теннисная пушка
+                </button>
+                <button
+                  type="button"
                   onClick={() => setSimMode('SINGULAR_ORBIT')}
                   className={`flex items-center gap-1.5 px-3 py-1.5 rounded text-xs font-bold transition-all ${
                     simMode === 'SINGULAR_ORBIT'
@@ -771,12 +949,9 @@ export const KinematicEnginePage: React.FC<Props> = ({ onBackToMap }) => {
                 </button>
                 <button
                   type="button"
-                  onClick={() => {
-                    setSimMode('TWO_STAGE_WALKTHROUGH' as any);
-                    setActiveTab('TWO_STAGE_SINGULARITY');
-                  }}
+                  onClick={handleEnterWalkthrough}
                   className={`flex items-center gap-1.5 px-3 py-1.5 rounded text-xs font-bold transition-all ${
-                    simMode === ('TWO_STAGE_WALKTHROUGH' as any)
+                    simMode === 'TWO_STAGE_WALKTHROUGH'
                       ? 'bg-gradient-to-r from-purple-900 to-indigo-900 border border-purple-400 text-purple-200 shadow-lg shadow-purple-950/60'
                       : 'text-slate-400 hover:text-white hover:bg-neutral-800'
                   }`}
@@ -798,6 +973,33 @@ export const KinematicEnginePage: React.FC<Props> = ({ onBackToMap }) => {
                     </strong>
                   </span>
                 </div>
+              ) : simMode === 'CATCH_FALLING_BALL' ? (
+                <div className="flex items-center gap-3 px-2 text-xs">
+                  <span className="text-slate-400">
+                    Фаза: <strong className="text-rose-300 font-mono text-[11px]">{catchState.phase}</strong>
+                  </span>
+                  <span className="text-slate-400">
+                    Поймано на лету:{' '}
+                    <strong className="text-rose-300 font-mono">{catchState.midAirCatchCount}</strong>
+                  </span>
+                  <span className="text-slate-400">
+                    Доставлено:{' '}
+                    <strong className="text-emerald-400 font-mono">
+                      {catchState.deliveredCount} / {catchState.totalPlannedDrops}
+                    </strong>
+                  </span>
+                </div>
+              ) : simMode === 'TWO_STAGE_WALKTHROUGH' ? (
+                <div className="flex items-center gap-2 px-2 text-[11px] text-slate-400 font-mono">
+                  <span>TCP x: <strong className="text-purple-300">{(planarState.fk[0] ?? 0).toFixed(2)}m</strong></span>
+                  <span>y: <strong className="text-purple-300">{(planarState.fk[1] ?? 0).toFixed(2)}m</strong></span>
+                  <span>
+                    σ_min:{' '}
+                    <strong className={planarState.svd.isSingular ? 'text-rose-300' : 'text-emerald-300'}>
+                      {planarState.svd.sigmaMin.toFixed(3)}
+                    </strong>
+                  </span>
+                </div>
               ) : (
                 <div className="flex items-center gap-2 px-2 text-[11px] text-slate-400 font-mono">
                   <span>EE R: <strong className="text-emerald-300">{currentEEPolar.r.toFixed(2)}m</strong></span>
@@ -808,35 +1010,127 @@ export const KinematicEnginePage: React.FC<Props> = ({ onBackToMap }) => {
             </div>
           </div>
 
-          {/* Visualization Canvas (Resilient Fallback vs WebGL 3D vs Planar 2D Engine) */}
+          {/* Interception benchmark panel (LLM-benchmark spec, Variant-2 lane):
+              standardized 10-case battery + seeded UNKNOWN batch through the exact
+              live pipeline; objective metrics, no manual tuning between cases. */}
+          <details className="border-t border-neutral-800 bg-neutral-950/60">
+            <summary className="cursor-pointer select-none px-3 py-1.5 text-[11px] font-bold text-slate-400 hover:text-white">
+              📊 Бенчмарк перехвата (10 сценариев + UNKNOWN ×10) — объективные метрики
+            </summary>
+            <div className="px-3 pb-2 text-xs">
+              <div className="flex items-center gap-3 py-1.5">
+                <button
+                  type="button"
+                  disabled={benchmarkRunning}
+                  onClick={runInterceptionBenchmarkPanel}
+                  className="px-3 py-1 rounded bg-cyan-900/60 border border-cyan-600/60 text-cyan-200 font-bold hover:bg-cyan-800/60 disabled:opacity-40"
+                >
+                  {benchmarkRunning ? 'Выполняется…' : 'Запустить бенчмарк'}
+                </button>
+                {benchmarkReport && (
+                  <span className="text-slate-400 font-mono text-[11px]">
+                    Поймано: <strong className="text-emerald-300">{benchmarkReport.catchCount}/{benchmarkReport.totalScenarios}</strong>
+                    {' '}· catch-rate (ожидаемые ловимые): <strong className="text-emerald-300" data-testid="benchmark-catch-rate">
+                      {(benchmarkReport.catchRateExpected * 100).toFixed(0)}%
+                    </strong>
+                    {' '}· unreachable-детект: <strong className="text-amber-300">{benchmarkReport.unreachableDetected}</strong>
+                    {' '}· нарушений лимитов: <strong className="text-emerald-300">{benchmarkReport.totalJointLimitViolations}</strong>
+                    {' '}· коллизий: <strong className="text-emerald-300">{benchmarkReport.totalCollisionViolations}</strong>
+                    {' '}· FK-дрейф: <strong className="text-emerald-300">{benchmarkReport.maxFkDriftM.toExponential(0)}</strong>
+                  </span>
+                )}
+              </div>
+              {benchmarkReport && (
+                <div className="max-h-56 overflow-y-auto">
+                  <table className="w-full font-mono text-[10px] text-slate-300">
+                    <thead>
+                      <tr className="text-slate-500 text-left">
+                        <th className="pr-2">Сценарий</th>
+                        <th className="pr-2">Исход</th>
+                        <th className="pr-2">t₍ₗₒᵥ₎, с</th>
+                        <th className="pr-2">IK, м</th>
+                        <th className="pr-2">Δпред, м</th>
+                        <th className="pr-2">Δt, с</th>
+                        <th className="pr-2">Репл.</th>
+                        <th className="pr-2">Оценка</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {benchmarkReport.scenarios.map(row => (
+                        <tr key={row.spec.id} className="border-t border-neutral-800/60">
+                          <td className="pr-2 py-0.5" title={row.spec.id}>{row.spec.name}</td>
+                          <td className={`pr-2 py-0.5 ${
+                            row.outcome === 'MID_AIR' ? 'text-rose-300'
+                            : row.outcome === 'FLOOR_PICKUP' ? 'text-cyan-300'
+                            : row.outcome === 'UNREACHABLE' ? 'text-amber-300'
+                            : 'text-slate-500'
+                          }`}>
+                            {row.outcome === 'MID_AIR' ? 'на лету'
+                              : row.outcome === 'FLOOR_PICKUP' ? 'с пола'
+                              : row.outcome === 'UNREACHABLE' ? 'недостижим'
+                              : 'таймаут'}
+                          </td>
+                          <td className="pr-2 py-0.5">{row.graspTimeSec?.toFixed(2) ?? '—'}</td>
+                          <td className="pr-2 py-0.5">{row.ikErrorM?.toFixed(3) ?? '—'}</td>
+                          <td className="pr-2 py-0.5">{row.predictionErrorM?.toFixed(2) ?? '—'}</td>
+                          <td className="pr-2 py-0.5">{row.timingErrorSec?.toFixed(2) ?? '—'}</td>
+                          <td className="pr-2 py-0.5">{row.replanCount}</td>
+                          <td className={`pr-2 py-0.5 ${row.expectationMet ? 'text-emerald-300' : 'text-red-400'}`}>
+                            {row.expectationMet ? 'OK' : 'FAIL'}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
+          </details>
+
+          {/* Visualization Canvas — routed by viewport mode:
+              simulation scenarios render the LIVE dual-arm debugger (RICIS arm + DLS ghost,
+              balls, box and target driven by the 60 FPS solver loop), while the walkthrough
+              renders the modular planar analysis workspace for the selected IoC module. */}
           <div className="flex-1 relative min-h-0">
-            {!resolvedModule.isAvailable ? (
-              <ModuleInDevelopmentStub
-                metadata={resolvedModule.metadata}
-                reason={resolvedModule.reason}
-                onFallbackToDefault={() => setSelectedModuleId('planar-3link-two-stage')}
-              />
+            {simMode === 'TWO_STAGE_WALKTHROUGH' ? (
+              !resolvedModule.isAvailable ? (
+                <ModuleInDevelopmentStub
+                  metadata={resolvedModule.metadata}
+                  reason={resolvedModule.reason}
+                  onFallbackToDefault={() => handleSelectModule('planar-3link-two-stage')}
+                />
+              ) : planarJoints.length === 3 ? (
+                <PlanarManipulatorCanvas
+                  joints={planarJointsTuple3}
+                  links={planarLinksTuple3}
+                  mode={planarMode}
+                  overlay={planarState.overlay}
+                />
+              ) : (
+                <ModularManipulator3DCanvas
+                  jointAngles={planarJoints}
+                  linkLengths={planarLinks}
+                  dof={planarJoints.length}
+                  isSingular={planarState.svd.isSingular}
+                  mode={planarMode}
+                />
+              )
             ) : (
-              /* 3D / Dual Scene Rendering using ModularManipulator3DCanvas */
-              <ModularManipulator3DCanvas
-                jointAngles={planarJoints}
-                linkLengths={
-                  planarJoints.length === 5
-                    ? [0.4, 0.35, 0.3, 0.25, 0.2]
-                    : planarJoints.length === 3
-                    ? [LINK_LENGTHS[0], LINK_LENGTHS[1], LINK_LENGTHS[2]]
-                    : planarJoints.map(() => 0.35)
-                }
-                dof={planarJoints.length}
-                isSingular={planarState.svd.isSingular}
-                mode={planarMode}
-                target={[currentDesiredTarget.x, currentDesiredTarget.y, currentDesiredTarget.z]}
+              <RobotArm3DCanvas
+                ricisState={ricisState}
+                dlsState={dlsState}
+                target={currentDesiredTarget}
+                balls={simMode === 'CATCH_FALLING_BALL' ? catchState.balls : pnpState.balls}
+                box={simMode === 'CATCH_FALLING_BALL' ? catchState.box : pnpState.box}
+                showDlsGhost={showDlsGhost}
+                showCannons={simMode === 'CATCH_FALLING_BALL'}
+                linkLengths={LINK_LENGTHS}
               />
             )}
           </div>
 
           {/* Walkthrough Scenario Script Controller (visible in TWO_STAGE_WALKTHROUGH mode) */}
-          {simMode === ('TWO_STAGE_WALKTHROUGH' as any) && (
+          {simMode === 'TWO_STAGE_WALKTHROUGH' && (
             <WalkthroughControllerPanel
               currentStepIndex={walkthroughIndex}
               isPlaying={isWalkthroughPlaying}
@@ -1376,7 +1670,7 @@ export const KinematicEnginePage: React.FC<Props> = ({ onBackToMap }) => {
               <MultiLinkJointController
                 dof={planarJoints.length}
                 jointAngles={planarJoints}
-                onChangeJoints={(newJoints) => setPlanarJoints(newJoints as any)}
+                onChangeJoints={(newJoints: number[]) => setPlanarJoints(newJoints)}
                 mode={planarMode}
                 onChangeMode={(m) => setPlanarMode(m)}
                 sigmaMin={planarState.svd.sigmaMin}
@@ -1392,20 +1686,31 @@ export const KinematicEnginePage: React.FC<Props> = ({ onBackToMap }) => {
                 <FourStagePipelineCard report={planarState.fourStageReport} />
               </WidgetCapabilityBoundary>
 
-              {/* Heatmap & SVD Landscape with Resilience Boundary */}
-              <WidgetCapabilityBoundary
-                componentName="SingularityLandscapeHeatmap"
-                title="Тепловая карта ландшафта сингулярностей"
-                mode="CARD_STUB"
-              >
-                <SingularityLandscapeHeatmap
-                  grid={heatmapGrid}
-                  mode={planarMode}
-                  currentTheta2={planarJoints[1]}
-                  currentTheta3={planarJoints[2]}
-                  onSelectAngles={(t2, t3) => setPlanarJoints([planarJoints[0], t2, t3])}
-                />
-              </WidgetCapabilityBoundary>
+              {/* Heatmap & SVD Landscape (θ₂×θ₃ slice) — mathematically defined only for the
+                  3-DOF module; gated both to avoid meaningless N-DOF rendering and to keep
+                  click-selection from truncating the joint vector (IoC capability SINGULAR_HEATMAP_2D). */}
+              {planarJoints.length === 3 ? (
+                <WidgetCapabilityBoundary
+                  componentName="SingularityLandscapeHeatmap"
+                  title="Тепловая карта ландшафта сингулярностей"
+                  mode="CARD_STUB"
+                >
+                  <SingularityLandscapeHeatmap
+                    grid={heatmapGrid}
+                    mode={planarMode}
+                    currentTheta2={planarJoints[1] ?? 0}
+                    currentTheta3={planarJoints[2] ?? 0}
+                    onSelectAngles={handleSelectHeatmapAngles}
+                  />
+                </WidgetCapabilityBoundary>
+              ) : (
+                <div className="bg-slate-900/90 border border-slate-700/80 rounded-lg p-3 text-[11px] font-mono text-slate-400 leading-relaxed">
+                  <span className="text-amber-400 font-bold">θ₂ × θ₃ срез недоступен:</span>{' '}
+                  ландшафт σ_min параметризован двумя свободными углами и определён только для
+                  3-DOF модуля (текущий: {planarJoints.length}-DOF). Выберите 3-Link Planar,
+                  чтобы исследовать тепловую карту сингулярностей.
+                </div>
+              )}
 
               {/* Stage 2: RICIS Reduction Overlay with Resilience Boundary */}
               <WidgetCapabilityBoundary

@@ -51,6 +51,59 @@ export function computeJacobianDeterminant3D(
   return planarDet;
 }
 
+/**
+ * World position of the elbow joint (shoulder sits at (0, 0, L0), link L1 at pitch q2
+ * inside the vertical arm plane rotated by azimuth q1).
+ */
+export function computeElbowPosition3D(
+  joints: JointState3D,
+  linkLengths: readonly [number, number, number]
+): Vector3D {
+  const [L0, L1] = linkLengths;
+  const radial = L1 * Math.cos(joints.q2);
+  return {
+    x: radial * Math.cos(joints.q1),
+    y: radial * Math.sin(joints.q1),
+    z: L0 + L1 * Math.sin(joints.q2),
+  };
+}
+
+/**
+ * ELBOW-OVER-FLOOR GUARD (kinematic branch selection).
+ * A planar 2-link arm has TWO exact inverse solutions for the same end-effector pose:
+ * the elbow-down branch (q3 > 0) and its mirror image about the shoulder→EE line
+ * (q3 < 0, q2' = 2·φ − q2, where φ is the shoulder→EE elevation angle). When the
+ * current branch drives the elbow below the room floor (visible as the elbow diving
+ * under the base on low pick points), the exact mirror solution keeps the elbow
+ * above it. The end-effector pose, and therefore every trajectory, is preserved
+ * bit-for-bit; only the elbow configuration changes.
+ * Hysteresis prevents flip-flopping when both branches graze the clearance band.
+ * Returns the SAME object reference when no flip is applied.
+ */
+export function enforceElbowFloorClearance(
+  joints: JointState3D,
+  linkLengths: readonly [number, number, number],
+  floorZ = 0
+): JointState3D {
+  const clearance = floorZ + KinematicConstants.ELBOW_FLOOR_CLEARANCE_METERS;
+  const elbowZ = computeElbowPosition3D(joints, linkLengths).z;
+  if (elbowZ >= clearance) return joints;
+
+  const [L0, L1] = linkLengths;
+  const ee = forwardKinematics3D(joints, linkLengths);
+  const radial = Math.hypot(ee.x, ee.y);
+  if (radial < 1e-9) return joints; // EE directly above the shoulder: mirror is degenerate.
+
+  const phi = Math.atan2(ee.z - L0, radial);
+  const mirroredQ2 = 2 * phi - joints.q2;
+  const mirroredQ3 = -joints.q3;
+  const mirroredElbowZ = L0 + L1 * Math.sin(mirroredQ2);
+  if (mirroredElbowZ <= elbowZ + KinematicConstants.ELBOW_FLIP_HYSTERESIS_METERS) {
+    return joints; // No strictly better branch: keep the highest available elbow.
+  }
+  return { q1: joints.q1, q2: mirroredQ2, q3: mirroredQ3 };
+}
+
 export function distance3D(a: Vector3D, b: Vector3D): number {
   const dx = a.x - b.x;
   const dy = a.y - b.y;
