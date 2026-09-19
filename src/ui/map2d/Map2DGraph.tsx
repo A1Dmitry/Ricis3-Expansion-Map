@@ -42,7 +42,7 @@ export function Map2DGraph({ nodes, zones, selectedNodeId, onSelectNode, proofs 
 
   const edges = useMemo(() => buildMap2DEdges(nodes), [nodes]);
   const layout = useMemo(() => computeMap2DLayout(nodes, zones), [nodes, zones]);
-  const { positions, width, height, zoneCentroids, ringRadii, center } = layout;
+  const { positions, width, height, zoneCentroids } = layout;
 
   const neighborhood = useMemo(
     () => (selectedNodeId ? collectMap2DNeighborhood(selectedNodeId, edges) : null),
@@ -226,25 +226,7 @@ export function Map2DGraph({ nodes, zones, selectedNodeId, onSelectNode, proofs 
         </defs>
 
         <g transform={`translate(${view.x}, ${view.y}) scale(${view.k})`}>
-          {/* Кольца глубины зависимости (центр = рутовые узлы) */}
-          {ringRadii.map((r, d) =>
-            r > 0 ? (
-              <circle
-                key={`ring-${d}`}
-                cx={center.x}
-                cy={center.y}
-                r={r}
-                fill="none"
-                stroke="#16233b"
-                strokeWidth="1"
-                strokeDasharray="3 6"
-                opacity="0.7"
-                className="pointer-events-none"
-              />
-            ) : null,
-          )}
-
-          {/* Подписи кластеров зон */}
+          {/* Подписи кластеров зон (в центроидах фактических групп) */}
           {zones.map(zone => {
             const c = zoneCentroids[zone.id];
             if (!c) return null;

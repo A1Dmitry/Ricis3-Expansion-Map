@@ -1,12 +1,18 @@
 // ============================================================================
-// DETERMINISTIC RADIAL TREE LAYOUT (DDD / pure domain)
-// Радиальная раскладка по эталону yFiles RadialLayout / PLANET / d3-cluster:
-//  • РУТОВЫЕ узлы — в ЦЕНТРЕ карты;
-//  • научные области — СЕКТОРА: чем больше узлов в области, тем больше её угол;
-//  • радиус = глубина рекурсивной зависимости (длиннейшая цепочка от рута):
-//    чем глубже узел в дереве зависимостей, тем дальше от центра;
-//  • сектор поддерева пропорционален числу узлов в поддереве → пространство
-//    между узлами распределяется равномерно (без скученности у периметра);
+// CLASSIC DETERMINISTIC RADIAL TREE LAYOUT (DDD / pure domain)
+// Классическая радиальная древовидная раскладка (образец: yFiles RadialLayout /
+// PLANET / d3-cluster в полярной форме) — ровно та геометрия, что используется
+// в эталонных радиальных демо: РУТ в центре, дети на концентрических кольцах
+// по глубине, угловой промежуток каждого поддерева пропорционален его весу и
+// распределяется по ПОЛНОМУ кругу (без зональных секторов-«ломтиков»).
+//  • Радиус = глубина рекурсивной зависимости (длиннейшая цепочка от рута):
+//    чем глубже узел, тем дальше от центра; все узлы глубины d — на кольце d;
+//  • углы: рекурсивное деление промежутка родителя ∝ весу поддерева
+//    (anti-sliver сглаживание ≥35% равной доли) → равномерное заполнение
+//    круга без скученности у периметра и без пустого внутреннего пространства;
+//  • радиусы колец адаптивны под фактическую численность кольца (целевое
+//    дуговое расстояние между соседями), холст зумируем и подгоняется под
+//    внешнее кольцо (без квадратного ограничения);
 //  • полностью детерминированно (без Math.random) — стабильно и тестируемо.
 // ============================================================================
 
@@ -30,12 +36,6 @@ export interface Map2DNeighborhood {
   readonly downstream: ReadonlySet<string>;
 }
 
-export interface Map2DZoneSector {
-  readonly startAngle: number;
-  readonly endAngle: number;
-  readonly midAngle: number;
-}
-
 export interface Map2DLayout {
   readonly positions: Readonly<Record<string, Map2DPoint>>;
   readonly width: number;
@@ -46,9 +46,9 @@ export interface Map2DLayout {
   readonly depthOf: Readonly<Record<string, number>>;
   /** Радиусы колец глубины: ringRadii[d] — радиус кольца глубины d. */
   readonly ringRadii: readonly number[];
-  /** Сектор каждой научной зоны (угол пропорционален числу узлов). */
-  readonly zoneSectors: Readonly<Record<string, Map2DZoneSector>>;
-  /** Центроиды кластеров зон (для подписей на плейне). */
+  /** Угловой промежуток поддерева каждого узла [startAngle, endAngle). */
+  readonly spanOf: Readonly<Record<string, { startAngle: number; endAngle: number }>>;
+  /** Центроиды кластеров зон — по фактическим позициям узлов (для подписей). */
   readonly zoneCentroids: Readonly<Record<string, Map2DPoint>>;
   /** Идентификаторы рутовых узлов (размещены в центре). */
   readonly rootIds: readonly string[];
@@ -60,7 +60,6 @@ export interface Map2DLayoutOptions {
   readonly padding?: number;
 }
 
-const UNZONED_ID = '__unzoned__';
 const TWO_PI = Math.PI * 2;
 
 /**
@@ -114,32 +113,24 @@ interface RadialPlacement {
  *  1) руты = узлы без предпосылок (с потомками); они — в центре;
  *  2) глубина = длиннейшая цепочка зависимостей от рута (релаксация по DAG);
  *  3) виртуальное дерево: primary-parent = глубочайшая предпосылка;
- *  4) сектора зон ∝ |узлов зоны|; внутри — рекурсивное деление сектора
- *     ∝ весу поддерева (узел в середине своего промежутка, дети — равномерно);
- *  5) сглаживание: каждому ребёнку ≥ 35% от равной доли (без «игольных ушек»).
+ *  4) рекурсивное угловое деление полного круга ∝ весу поддерева;
+ *  5) адаптивные радиусы колец под численность каждого кольца.
  */
 export function computeMap2DLayout(
   nodes: readonly ProblemNode[],
   zones: readonly ScienceZone[],
   options: Map2DLayoutOptions = {},
 ): Map2DLayout {
-  const baseWidth = options.width ?? 1680;
-  const baseHeight = options.height ?? 980;
   const padding = options.padding ?? 100;
 
-  let center: Map2DPoint = { x: baseWidth / 2, y: baseHeight / 2 };
-  // Итоговые размеры холста определяются после вычисления колец (ниже):
-  // прямоугольник зумируем, поэтому квадратное ограничение снято.
-  let width = baseWidth;
-  let height = baseHeight;
   const emptyLayout: Map2DLayout = {
     positions: {},
-    width,
-    height,
-    center,
+    width: 600,
+    height: 600,
+    center: { x: 300, y: 300 },
     depthOf: {},
     ringRadii: [],
-    zoneSectors: {},
+    spanOf: {},
     zoneCentroids: {},
     rootIds: [],
   };
@@ -176,21 +167,18 @@ export function computeMap2DLayout(
     )[0]!;
     rootIds = [central.id];
   }
-  const rootSet = new Set(rootIds);
 
   // --- 2) Глубина: длиннейшая цепочка зависимостей от рута ------------------
   const depthOf: Record<string, number> = {};
   for (const id of rootIds) depthOf[id] = 0;
-  // Релаксация по рёбрам (конечна, т.к. глубина растёт монотонно; верхняя
-  // граница итераций = число узлов — защита от теоретических циклов).
+  // Релаксация по рёбрам (конечна: глубина растёт монотонно; верхняя граница
+  // итераций = число узлов — защита от теоретических циклов).
   for (let sweep = 0; sweep < nodes.length; sweep++) {
     let changed = false;
     for (const node of nodes) {
       if (node.id in depthOf) continue;
-      const prereqDepths = [...(upstreamOf.get(node.id) ?? [])]
-        .filter(p => p in depthOf)
-        .map(p => depthOf[p]!);
       const prereqs = upstreamOf.get(node.id) ?? new Set<string>();
+      const prereqDepths = [...prereqs].filter(p => p in depthOf).map(p => depthOf[p]!);
       if (prereqs.size > 0 && prereqDepths.length === prereqs.size) {
         depthOf[node.id] = 1 + Math.max(...prereqDepths);
         changed = true;
@@ -216,63 +204,55 @@ export function computeMap2DLayout(
     primaryParent.set(node.id, prereqs[0]!);
   }
 
-  // --- 4) Зоны и сектора (∝ числу узлов области) ----------------------------
-  const zoneOrder: string[] = zones.map(z => z.id);
-  const zoneOf = new Map<string, string>();
+  // --- 4) Дерево и веса поддеревьев ----------------------------------------
+  // При вырожденных циклах (A⇄B) primary-parent сам может зациклиться:
+  // разрезаем такие связи — усечённый узел становится якорем своего кластера.
+  const childrenOf = new Map<string, string[]>();
+  const anchors: string[] = [];
+  const rebuildForest = (): void => {
+    for (const list of childrenOf.values()) list.length = 0;
+    anchors.length = 0;
+    for (const node of nodes) {
+      const parent = primaryParent.get(node.id);
+      if (parent && parent !== node.id) childrenOf.get(parent)!.push(node.id);
+      else anchors.push(node.id);
+    }
+  };
+  const reachFromAnchors = (): Set<string> => {
+    const seen = new Set<string>();
+    const stack = [...anchors];
+    while (stack.length > 0) {
+      const id = stack.pop()!;
+      if (seen.has(id)) continue;
+      seen.add(id);
+      for (const child of childrenOf.get(id) ?? []) stack.push(child);
+    }
+    return seen;
+  };
+  for (const node of nodes) childrenOf.set(node.id, []);
+  rebuildForest();
   for (const node of nodes) {
-    const primary = node.zoneIds?.[0];
-    zoneOf.set(node.id, primary && zoneOrder.includes(primary) ? primary : UNZONED_ID);
-  }
-  const zoneBuckets = new Map<string, string[]>();
-  for (const id of [...zoneOrder, UNZONED_ID]) zoneBuckets.set(id, []);
-  for (const node of nodes) zoneBuckets.get(zoneOf.get(node.id)!)!.push(node.id);
-
-  const orderedZoneIds = [...zoneOrder, UNZONED_ID].filter(
-    zid => (zoneBuckets.get(zid)?.length ?? 0) > 0,
-  );
-  const totalNodes = nodes.length;
-  const zoneSectors: Record<string, Map2DZoneSector> = {};
-  let cursor = -Math.PI / 2; // старт сверху
-  for (const zid of orderedZoneIds) {
-    const span = (zoneBuckets.get(zid)!.length / totalNodes) * TWO_PI;
-    zoneSectors[zid] = { startAngle: cursor, endAngle: cursor + span, midAngle: cursor + span / 2 };
-    cursor += span;
-  }
-
-  // --- 5) Рекурсивное угловое размещение внутри зоны ------------------------
-  // Дети узла внутри зоны = узлы зоны, чей primary-parent — этот узел.
-  const childrenInZone = new Map<string, string[]>();
-  for (const node of nodes) childrenInZone.set(node.id, []);
-  const zoneEntries = new Map<string, string[]>();
-  for (const zid of orderedZoneIds) zoneEntries.set(zid, []);
-  for (const node of nodes) {
-    const parent = primaryParent.get(node.id);
-    const zid = zoneOf.get(node.id)!;
-    if (parent && zoneOf.get(parent) === zid && !rootSet.has(node.id)) {
-      childrenInZone.get(parent)!.push(node.id);
-    } else if (!rootSet.has(node.id)) {
-      zoneEntries.get(zid)!.push(node.id);
+    if (!reachFromAnchors().has(node.id)) {
+      primaryParent.delete(node.id);
+      rebuildForest();
     }
   }
 
-  // Вес поддерева = число узлов; порядок детей детерминирован (глубина, id)
   const weightOf = new Map<string, number>();
   const computeWeight = (id: string): number => {
     const cached = weightOf.get(id);
     if (cached !== undefined) return cached;
     weightOf.set(id, 1); // guarded against degenerate cycles
     let w = 1;
-    for (const child of childrenInZone.get(id) ?? []) w += computeWeight(child);
+    for (const child of childrenOf.get(id) ?? []) w += computeWeight(child);
     weightOf.set(id, w);
     return w;
   };
   for (const node of nodes) computeWeight(node.id);
-  for (const [, list] of childrenInZone) {
+  for (const [, list] of childrenOf) {
     list.sort((a, b) => depthOf[a]! - depthOf[b]! || byId(a, b));
   }
-  for (const [, list] of zoneEntries) {
-    list.sort((a, b) => depthOf[a]! - depthOf[b]! || byId(a, b));
-  }
+  anchors.sort((a, b) => depthOf[a]! - depthOf[b]! || byId(a, b));
 
   // Деление промежутка родителя: доля ∝ весу, но каждому ребёнку ≥ 35% равной
   // доли с последующей ренормализацией (устраняет вырожденные «иглы»).
@@ -294,69 +274,69 @@ export function computeMap2DLayout(
     });
   };
 
-  const placements = new Map<string, RadialPlacement>();
+  // --- 5) Адаптивные радиусы колец ------------------------------------------
+  // Радиус кольца d подбирается под численность кольца, чтобы дуговое
+  // расстояние между соседями было не меньше целевого (равномерность), при
+  // этом кольца строго разнесены радиально.
+  const TARGET_ARC = 58; // целевое дуговое расстояние между узлами кольца
+  const MIN_BAND = 70;   // минимальная разница радиусов соседних колец
 
-  // --- Адаптивные радиусы колец (равномерность как в yFiles RadialLayout:
-  // радиус кольца подбирается под «эквивалентную плотность» кольца, чтобы
-  // дуговое расстояние между соседями на кольце было не меньше целевого) ---
-  const TARGET_ARC = 54; // целевое дуговое расстояние между узлами кольца
-  const MIN_BAND = 66;   // минимальная разница радиусов соседних колец
+  const depthCount: number[] = Array.from({ length: maxDepth + 1 }, () => 0);
+  for (const node of nodes) depthCount[Math.min(depthOf[node.id]!, maxDepth)]! += 1;
 
-  // Эквивалентная плотность кольца d: сколько узлов было бы на ПОЛНОМ круге,
-  // если бы плотность секторов кольца d была такой же, как фактическая.
-  const equivalentDensity = (d: number): number => {
-    let e = 0;
-    for (const zid of orderedZoneIds) {
-      const inZone = zoneBuckets.get(zid)!;
-      const atDepth = inZone.filter(id => depthOf[id] === d).length;
-      if (atDepth === 0) continue;
-      const fraction = inZone.length / totalNodes; // доля полного круга у зоны
-      e += atDepth / fraction;
-    }
-    return e;
-  };
-
-  const rootRadius = rootIds.length === 1 ? 0 : 70;
+  const rootRadius = anchors.length === 1 ? 0 : 70;
   const idealRadii: number[] = [rootRadius];
   for (let d = 1; d <= maxDepth; d++) {
-    const required = (TARGET_ARC / TWO_PI) * equivalentDensity(d);
+    const required = (TARGET_ARC / TWO_PI) * (depthCount[d] ?? 0);
     idealRadii.push(Math.max(idealRadii[d - 1]! + MIN_BAND, required, idealRadii[d - 1]! + 1));
   }
   // Мягкий предел общего радиуса (пропорциональное сжатие сохраняет
   // равномерность: относительные расстояния неизменны, зум добирает детали).
   const outerIdeal = idealRadii[maxDepth]!;
-  const softLimit = (Math.min(baseWidth, baseHeight) / 2 - padding) * 4;
+  const softLimit = 1560; // ~4× штатного радиуса — пропорции сохраняются, зум догоняет детали
   const squeeze = outerIdeal <= 0 ? 1 : Math.min(1, softLimit / outerIdeal);
   const ringRadii = idealRadii.map(r => r * squeeze);
 
-  // Холст подгоняется под фактический внешний радиус (зумируемая область:
-  // глубокие цепочки получают больше места, ничего не выходит за края).
-  const outerRadius = ringRadii[maxDepth]! + padding;
-  width = Math.max(baseWidth, Math.ceil(outerRadius * 2));
-  height = Math.max(baseHeight, Math.ceil(outerRadius * 2));
-  center = { x: width / 2, y: height / 2 };
+  // --- 6) Рекурсивное угловое размещение по ПОЛНОМУ кругу -------------------
+  const placements = new Map<string, RadialPlacement>();
+  const spanOf: Record<string, { startAngle: number; endAngle: number }> = {};
 
-  const assignNode = (id: string, a0: number, a1: number): void => {
+  const assignNode = (id: string, a0: number, a1: number, radius: number): void => {
     const angle = (a0 + a1) / 2;
-    placements.set(id, { angle, radius: ringRadii[Math.min(depthOf[id]!, maxDepth)]! });
-    const children = childrenInZone.get(id) ?? [];
-    for (const piece of splitSpan(children, a0, a1)) {
-      assignNode(piece.id, piece.a0, piece.a1);
+    placements.set(id, { angle, radius });
+    spanOf[id] = { startAngle: a0, endAngle: a1 };
+    for (const piece of splitSpan(childrenOf.get(id) ?? [], a0, a1)) {
+      assignNode(piece.id, piece.a0, piece.a1, ringRadii[Math.min(depthOf[piece.id]!, maxDepth)]!);
     }
   };
 
-  for (const zid of orderedZoneIds) {
-    const sector = zoneSectors[zid]!;
-    // Якоря сектора: руты этой зоны + «инородные» входы (parent в другой
-    // зоне). Каждый якорь получает долю сектора ∝ весу своего поддерева.
-    const rootsInZone = rootIds.filter(id => zoneOf.get(id) === zid).sort(byId);
-    const anchors = [...rootsInZone, ...(zoneEntries.get(zid) ?? [])];
-    for (const piece of splitSpan(anchors, sector.startAngle, sector.endAngle)) {
-      assignNode(piece.id, piece.a0, piece.a1);
+  const rootSet = new Set(rootIds);
+  if (rootIds.length === 1) {
+    // Единственный рут — точно в центре; круг делится ∝ весу между его
+    // поддеревом и (если есть) изолированными кластерами-якорями.
+    const root = rootIds[0]!;
+    const satellites = anchors.filter(id => !rootSet.has(id));
+    const topAnchors = [root, ...satellites];
+    for (const piece of splitSpan(topAnchors, -Math.PI, Math.PI)) {
+      const radius = piece.id === root ? 0 : ringRadii[Math.min(depthOf[piece.id]!, maxDepth)]!;
+      assignNode(piece.id, piece.a0, piece.a1, radius);
+    }
+  } else {
+    // Лес из нескольких корней: полный круг делится ∝ весу поддеревьев.
+    for (const piece of splitSpan(anchors, -Math.PI, Math.PI)) {
+      assignNode(piece.id, piece.a0, piece.a1, ringRadii[0]!);
     }
   }
 
   // --- Финализация в декартовы координаты -----------------------------------
+  // Холст обнимает радиальный диск: сторона = диаметр внешнего кольца плюс
+  // отступ (зумируемая область; глубокие цепочки получают больше места).
+  const outerRadius = ringRadii[maxDepth]! + padding;
+  const side = Math.max(600, Math.ceil(outerRadius * 2));
+  const width = side;
+  const height = side;
+  const center: Map2DPoint = { x: width / 2, y: height / 2 };
+
   const positions: Record<string, Map2DPoint> = {};
   for (const [id, p] of placements) {
     positions[id] = {
@@ -365,14 +345,25 @@ export function computeMap2DLayout(
     };
   }
 
+  // Центроид кластера зоны = среднее арифметическое позиций её узлов
+  // (зоны больше не владеют «ломтиками» круга — подпись ставится туда, где
+  // узлы зоны фактически сгруппированы деревом).
+  const zoneOrder: string[] = zones.map(z => z.id);
+  const zoneSums = new Map<string, { x: number; y: number; n: number }>();
+  for (const node of nodes) {
+    const zid = node.zoneIds?.[0];
+    if (!zid || !zoneOrder.includes(zid)) continue;
+    const pos = positions[node.id];
+    if (!pos) continue;
+    const acc = zoneSums.get(zid) ?? { x: 0, y: 0, n: 0 };
+    acc.x += pos.x; acc.y += pos.y; acc.n += 1;
+    zoneSums.set(zid, acc);
+  }
   const zoneCentroids: Record<string, Map2DPoint> = {};
-  // Подпись зоны — на биссектрисе её сектора, посередине занятого радиуса.
-  const labelRadius = Math.max(rootRadius, ringRadii[maxDepth]! * 0.5);
-  for (const zid of orderedZoneIds) {
-    const sector = zoneSectors[zid]!;
+  for (const [zid, acc] of zoneSums) {
     zoneCentroids[zid] = {
-      x: Math.round((center.x + labelRadius * Math.cos(sector.midAngle)) * 10) / 10,
-      y: Math.round((center.y + labelRadius * Math.sin(sector.midAngle)) * 10) / 10,
+      x: Math.round((acc.x / acc.n) * 10) / 10,
+      y: Math.round((acc.y / acc.n) * 10) / 10,
     };
   }
 
@@ -383,7 +374,7 @@ export function computeMap2DLayout(
     center,
     depthOf: { ...depthOf },
     ringRadii,
-    zoneSectors,
+    spanOf,
     zoneCentroids,
     rootIds,
   };

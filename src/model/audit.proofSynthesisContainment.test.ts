@@ -895,6 +895,28 @@ describe('OIR-03 — audit proof-synthesis containment', () => {
       '?? src/ui/map2d/twoDLayout.test.ts',
       '?? src/ui/map2d/Map2DGraph.tsx',
       '?? src/ui/map2d/MapTreeView.tsx',
+      // MAP-2D-CLASSIC-RADIAL (0.4.220, 2026-09-19): по фидбэку с образцом-
+      // картинкой («вот так, только без контуров») зоно-секторная радиальная
+      // раскладка заменена КЛАССИЧЕСКОЙ древовидной радиальной по ПОЛНОМУ
+      // кругу (образец — эталонные демо yFiles RadialLayout): рут точно в
+      // центре; угловой промежуток поддерева ∝ весу поддерева и рекурсивно
+      // делится по всему кругу; зоны НЕ владеют «ломтиками» — подписи зон
+      // ставятся в центроиды фактических групп; пунктирные кольца-контуры из
+      // рендера убраны; циклы primary-parent детерминированно разрезаются;
+      // канвас обнимает диск (сторона = диаметр + отступ, мин. 600). Только
+      // визуал 2D-сцены и его контракт; ядро/подписи зон/навигация сохранены.
+      ' M src/ui/map2d/twoDLayout.ts',
+      ' M src/ui/map2d/twoDLayout.test.ts',
+      ' M src/ui/map2d/Map2DGraph.tsx',
+      ' M package.json',
+      ' M package-lock.json',
+      ' M src/version.ts',
+      ' M index.html',
+      ' M README.md',
+      ' M CITATION.cff',
+      ' M docs/05-evidence/architecture/structural-hash-report.md',
+      ' M docs/05-evidence/architecture/telegram-tokenpool-remediation-2026-08-18.md',
+      ' M docs/05-evidence/proofs/lean-boundary-audit-2026-08-18.md',
       // MAP-2D-RADIAL (0.4.219, 2026-09-19): замена force-раскладки 2D-карты на
       // детерминированную РАДИАЛЬНУЮ раскладку по эталону yFiles RadialLayout /
       // PLANET / d3-cluster (по фидбэку: force-версия сбивала узлы «кашей» по
