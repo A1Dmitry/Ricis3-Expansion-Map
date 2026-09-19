@@ -107,6 +107,8 @@ function runCatchClosedLoop(solverMode: 'POLAR_GEOMETRIC' | 'SYMBOLIC_AST') {
       gripperClosed: catchStep.shouldGrip,
     };
     dlsState = result.dlsResult.nextState;
+    // Rigid grasp: pin the carried ball to the gripper pose the solver actually produced.
+    controller.syncCarriedBall(ricisState.endEffector, dt);
 
     assertFiniteAndInWorkspace(ricisState, `${solverMode} step ${step} (RICIS)`);
     assertFiniteAndInWorkspace(dlsState, `${solverMode} step ${step} (DLS ghost)`);

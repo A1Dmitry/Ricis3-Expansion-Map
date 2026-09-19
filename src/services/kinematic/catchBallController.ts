@@ -159,6 +159,17 @@ const CATCH_MIN_Z = 0.3;
 const CATCH_MAX_Z = 1.15;
 const GRASP_RADIUS = 0.12;
 const FLOOR_PICK_RADIUS = 0.07;
+/** Rigid grasp offset: the ball centre hangs this far below the fingertip. */
+const GRASP_CARRY_DROP_Z = 0.04;
+/**
+ * Height of the ball centre above the box floor at the moment of release.
+ *
+ * The release must leave room for an actual gravitational fall: the previous
+ * `boxFloorZ + 0.05` descent target combined with a 0.07 trigger radius let go of
+ * the ball 0.0031 m above the contact plane (measured), so the integrator never
+ * got a single free-fall frame — the ball "bounced" on the frame after release.
+ */
+const RELEASE_DROP_HEIGHT_M = 0.22;
 /** Effective closed-loop arm speed used for feasibility (servo + smoothing, m/s). */
 const ARM_SPEED_ESTIMATE = 1.05;
 /** Prediction horizon and resolution for the ballistic intercept search. */
@@ -176,6 +187,10 @@ export class CatchBallController {
   private releasedBody: IPhysicsBallBody | null = null;
   private scenarioTimeSec = 0;
   private lastInterceptPlan: IInterceptPlan | null = null;
+  /** Last gripper pose handed to `syncCarriedBall` (post-solve), used to derive its velocity. */
+  private gripperPose: Vector3D | null = null;
+  /** Gripper velocity at the last sync — what the ball inherits the instant it is released. */
+  private gripperVelocity: Vector3D = { x: 0, y: 0, z: 0 };
 
   constructor(
     dropPlan: readonly ICatchDropPlanEntry[],
@@ -216,6 +231,8 @@ export class CatchBallController {
     this.releasedBody = null;
     this.scenarioTimeSec = 0;
     this.lastInterceptPlan = null;
+    this.gripperPose = null;
+    this.gripperVelocity = { x: 0, y: 0, z: 0 };
     this.state = {
       phase: 'IDLE_WAIT',
       balls: [],
@@ -391,7 +408,8 @@ export class CatchBallController {
     shouldGrip: boolean;
     eventTriggered?: string;
   } {
-    this.followGripper(endEffector);
+    // The carried ball is pinned by `syncCarriedBall` AFTER the solve — never here,
+    // where `endEffector` is still the pre-solve pose (that lagged the ball behind the hand).
     const hover = this.boxHoverTarget();
     const horizontalToBox = Math.hypot(hover.x - endEffector.x, hover.y - endEffector.y);
     // CLIMB BEFORE TRAVEL: going straight from a floor pickup to the box crosses
@@ -419,24 +437,35 @@ export class CatchBallController {
     let eventTriggered: string | undefined;
 
     if (!this.releasedBody) {
-      // Descend towards the box floor, still holding the ball.
-      const boxFloorTarget: Vector3D = { x: box.position.x, y: box.position.y, z: boxFloorZ + 0.05 };
-      this.followGripper(endEffector);
-      if (distance3D(endEffector, boxFloorTarget) < 0.07 || this.phaseTimer > 2.5) {
-        // Physical release a few centimetres above the floor: visible drop + bounce.
+      // Descend to the release height, still holding the ball. The pin is applied by
+      // `syncCarriedBall` after the solve — `endEffector` here is the pre-solve pose.
+      // The gripper stands GRASP_CARRY_DROP_Z above the ball, so aiming it at
+      // releaseZ + GRASP_CARRY_DROP_Z puts the BALL at exactly releaseZ.
+      const releaseZ = boxFloorZ + RELEASE_DROP_HEIGHT_M;
+      const boxReleaseTarget: Vector3D = {
+        x: box.position.x,
+        y: box.position.y,
+        z: releaseZ + GRASP_CARRY_DROP_Z,
+      };
+      if (distance3D(endEffector, boxReleaseTarget) < 0.03 || this.phaseTimer > 2.5) {
+        // RELEASE: the ball leaves the hand with the hand's own velocity. A body let go
+        // from a moving gripper does not stop — it keeps that velocity and only then
+        // accelerates under gravity. The former hardcoded {0, 0, -0.2} discarded the
+        // horizontal carry entirely (measured mismatch against the gripper: 0.245 m/s).
         const ball = this.state.balls.find(b => b.id === ballId);
-        const startPos = ball ? ball.currentPosition : { x: box.position.x, y: box.position.y, z: boxFloorZ + 0.1 };
-        this.releasedBody = this.physics.createBody(startPos, ball?.radius ?? 0.06, { x: 0, y: 0, z: -0.2 });
+        const startPos = ball ? ball.currentPosition : { x: box.position.x, y: box.position.y, z: releaseZ };
+        const releaseVelocity: Vector3D = { ...this.gripperVelocity };
+        this.releasedBody = this.physics.createBody(startPos, ball?.radius ?? 0.06, releaseVelocity);
         this.state = {
           ...this.state,
           balls: this.state.balls.map(b =>
-            b.id === ballId ? { ...b, status: 'FALLING' as const, velocity: { x: 0, y: 0, z: -0.2 } } : b
+            b.id === ballId ? { ...b, status: 'FALLING' as const, velocity: { ...releaseVelocity } } : b
           ),
         };
         this.phaseTimer = 0;
-        eventTriggered = `Ball [${ballId}] released — free fall & bounce inside the box`;
+        eventTriggered = `Ball [${ballId}] released at z=${startPos.z.toFixed(3)} — free fall & bounce inside the box`;
       } else {
-        return { target: boxFloorTarget, shouldGrip: true };
+        return { target: boxReleaseTarget, shouldGrip: true };
       }
     }
 
@@ -572,15 +601,45 @@ export class CatchBallController {
   // Ball state synchronization
   // --------------------------------------------------------------------------
 
-  private followGripper(endEffector: Vector3D): void {
+  /**
+   * Rigidly pin the carried ball to the gripper.
+   *
+   * MUST be called AFTER the kinematic solve, with the resulting (post-solve)
+   * end-effector pose. The former private `followGripper` ran INSIDE `stepTarget`,
+   * i.e. with the PRE-solve pose, so the ball was re-drawn where the hand had been a
+   * frame earlier and the hand then moved away from it — measured lag over the tennis
+   * scenario: 0.0412 m mean, 0.1096 m peak. That is the visible "ball flies on its
+   * own, at a different speed".
+   *
+   * The gripper velocity derived here is a strict finite difference of consecutive
+   * gripper poses, and it is what the ball inherits on release: a body let go from a
+   * moving hand keeps the hand's velocity and only then accelerates under gravity.
+   */
+  public syncCarriedBall(endEffector: Vector3D, dt: number): void {
+    const previous = this.gripperPose;
+    this.gripperPose = { x: endEffector.x, y: endEffector.y, z: endEffector.z };
+    this.gripperVelocity =
+      previous && dt > 0
+        ? {
+            x: (endEffector.x - previous.x) / dt,
+            y: (endEffector.y - previous.y) / dt,
+            z: (endEffector.z - previous.z) / dt,
+          }
+        : { x: 0, y: 0, z: 0 };
+
     const ballId = this.state.activeBallId;
     if (!ballId) return;
-    const carryPos: Vector3D = { x: endEffector.x, y: endEffector.y, z: endEffector.z - 0.04 };
+    const carryPos: Vector3D = {
+      x: endEffector.x,
+      y: endEffector.y,
+      z: endEffector.z - GRASP_CARRY_DROP_Z,
+    };
+    const velocity = this.gripperVelocity;
     this.state = {
       ...this.state,
       balls: this.state.balls.map(b =>
         b.id === ballId && b.status === 'GRASPED'
-          ? { ...b, currentPosition: carryPos, velocity: { x: 0, y: 0, z: 0 } }
+          ? { ...b, currentPosition: carryPos, velocity: { ...velocity } }
           : b
       ),
     };

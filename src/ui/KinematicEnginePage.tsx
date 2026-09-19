@@ -573,6 +573,14 @@ export const KinematicEnginePage: React.FC<Props> = ({ onBackToMap }) => {
         ricisStateRef.current = nextRicisState;
         dlsStateRef.current = nextDlsState;
 
+        // RIGID GRASP: pin the carried ball to the gripper pose the solver ACTUALLY
+        // produced this frame. Doing it before the solve (as the old followGripper did
+        // inside stepTarget) left the ball a frame behind the hand — measured 0.0412 m
+        // mean / 0.1096 m peak lag over the tennis scenario.
+        if (simMode === 'CATCH_FALLING_BALL') {
+          catchControllerRef.current.syncCarriedBall(nextRicisState.endEffector, dt);
+        }
+
         telemetryLogger.pushEntry(stepResult.logEntry);
 
         // Throttle UI telemetry and DOM re-renders to 20Hz (50ms) or on advantage events

@@ -276,6 +276,8 @@ export function runInterceptionScenario(spec: IInterceptionScenarioSpec): IInter
     const result = engine.step(ricisState, dlsState, smoothedTarget, BENCHMARK_LINK_LENGTHS, dt, 'POLAR');
     ricisState = { ...result.ricisResult.nextState, gripperClosed: catchStep.shouldGrip };
     dlsState = result.dlsResult.nextState;
+    // Rigid grasp: pin the carried ball to the gripper pose the solver actually produced.
+    controller.syncCarriedBall(ricisState.endEffector, dt);
 
     const state = controller.getState();
 
