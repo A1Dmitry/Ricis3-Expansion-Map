@@ -99,7 +99,7 @@ const mockNodes: ProblemNode[] = [
 ];
 
 describe('AccessibleMapFallback Component', () => {
-  it('renders list of nodes and zones', async () => {
+  it('renders 2D graph view with node titles and header', async () => {
     const onSelect = vi.fn();
     const onEnable3d = vi.fn();
     const rendered = await render(
@@ -113,13 +113,15 @@ describe('AccessibleMapFallback Component', () => {
       />
     );
 
-    expect(rendered.textContent).toContain('Доступный режим карты');
+    expect(rendered.textContent).toContain('Всего: 2');
+    expect(rendered.textContent).toContain('Доказано:');
     expect(rendered.textContent).toContain('Деление на ноль');
     expect(rendered.textContent).toContain('Квантовая сингулярность');
     expect(rendered.textContent).toContain('3D-карту');
+    expect(rendered.querySelector('[data-testid="map-2d-graph"]')).not.toBeNull();
   });
 
-  it('selects a node when clicked', async () => {
+  it('selects a node in the 2D graph when its marker is clicked', async () => {
     const onSelect = vi.fn();
     const onEnable3d = vi.fn();
     const rendered = await render(
@@ -133,14 +135,97 @@ describe('AccessibleMapFallback Component', () => {
       />
     );
 
-    const buttons = Array.from(rendered.querySelectorAll('button'));
-    const nodeBtn = buttons.find(b => b.textContent?.includes('Деление на ноль'));
-    expect(nodeBtn).toBeDefined();
-
+    const nodeMarker = rendered.querySelector('[data-testid="m2d-node-p1"]');
+    expect(nodeMarker).not.toBeNull();
     await act(async () => {
-      nodeBtn?.click();
+      nodeMarker?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    });
+    expect(onSelect).toHaveBeenCalledWith('p1');
+  });
+
+  it('highlights selected node connections and mutes unrelated edges', async () => {
+    const onSelect = vi.fn();
+    const rendered = await render(
+      <AccessibleMapFallback
+        nodes={mockNodes}
+        zones={mockZones}
+        selectedNodeId="p2"
+        onSelectNode={onSelect}
+        onEnable3d={vi.fn()}
+        reason="user_selected"
+      />
+    );
+
+    // p2 зависит от p1: ребро p2→p1 активно (cyan, предпосылка)
+    const edge = rendered.querySelector<SVGLineElement>('[data-testid="m2d-edge-p2-p1"]');
+    expect(edge).not.toBeNull();
+    expect(edge?.getAttribute('stroke')).toBe('#22d3ee');
+    expect(edge?.getAttribute('opacity')).toBe('0.95');
+    // Сводка связей выбранного узла
+    const summary = rendered.querySelector('[data-testid="m2d-selection-summary"]');
+    expect(summary?.textContent).toContain('Квантовая сингулярность');
+    expect(summary?.textContent).toContain('предпосылок (до корня):');
+  });
+
+  it('tree view selects a node from an expanded zone', async () => {
+    const onSelect = vi.fn();
+    const onEnable3d = vi.fn();
+    const rendered = await render(
+      <AccessibleMapFallback
+        nodes={mockNodes}
+        zones={mockZones}
+        selectedNodeId={null}
+        onSelectNode={onSelect}
+        onEnable3d={onEnable3d}
+        reason="user_selected"
+      />
+    );
+
+    // Переключаемся на проводник и раскрываем зону «Математика»
+    const treeTabBtn = Array.from(rendered.querySelectorAll('button')).find(
+      b => b.textContent?.includes('Дерево'),
+    );
+    await act(async () => {
+      treeTabBtn?.click();
     });
 
+    expect(rendered.querySelector('[data-testid="map-tree-view"]')).not.toBeNull();
+
+    const zoneRow = rendered.querySelector('[data-testid="tree-zone-z1"]');
+    await act(async () => {
+      (zoneRow as HTMLButtonElement | null)?.click();
+    });
+
+    const nodeBtn = rendered.querySelector('[data-testid="tree-node-p1"]');
+    expect(nodeBtn).not.toBeNull();
+    await act(async () => {
+      (nodeBtn as HTMLButtonElement | null)?.click();
+    });
     expect(onSelect).toHaveBeenCalledWith('p1');
+  });
+
+  it('tree view auto-expands the zone of the selected node', async () => {
+    const rendered = await render(
+      <AccessibleMapFallback
+        nodes={mockNodes}
+        zones={mockZones}
+        selectedNodeId="p2"
+        onSelectNode={vi.fn()}
+        onEnable3d={vi.fn()}
+        reason="user_selected"
+      />
+    );
+
+    const treeTabBtn = Array.from(rendered.querySelectorAll('button')).find(
+      b => b.textContent?.includes('Дерево'),
+    );
+    await act(async () => {
+      treeTabBtn?.click();
+    });
+
+    // Зона «Физика» раскрыта автоматически: строка выбранного узла видна сразу
+    const zoneRow = rendered.querySelector('[data-testid="tree-zone-z2"]');
+    expect(zoneRow?.getAttribute('aria-expanded')).toBe('true');
+    expect(rendered.querySelector('[data-testid="tree-node-p2"]')).not.toBeNull();
   });
 });

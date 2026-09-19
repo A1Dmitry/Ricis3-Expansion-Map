@@ -30,6 +30,7 @@ import type {
 } from '../../../model/crawlerTesting.contracts';
 import { FloodFillCrawlerService } from '../../../services/testing/floodFillCrawlerService';
 import { copyTextToClipboard } from '../../../services/clipboard';
+import { buildAppletDeepLink } from '../../../services/appletDeepLinks';
 
 export interface AutomatedTestingModalProps {
   isOpen: boolean;
@@ -38,7 +39,6 @@ export interface AutomatedTestingModalProps {
   selectedNodeId?: string | null;
   proofs?: Record<string, Proof>;
   onSelectNode?: (nodeId: string) => void;
-  onNavigateToKinematics?: () => void;
 }
 
 export const AutomatedTestingModal: React.FC<AutomatedTestingModalProps> = ({
@@ -48,7 +48,6 @@ export const AutomatedTestingModal: React.FC<AutomatedTestingModalProps> = ({
   selectedNodeId,
   proofs = {},
   onSelectNode,
-  onNavigateToKinematics,
 }) => {
   const crawlerRef = useRef<FloodFillCrawlerService>(new FloodFillCrawlerService());
   const [sessionState, setSessionState] = useState<ICrawlerSessionState>(() =>
@@ -269,18 +268,19 @@ export const AutomatedTestingModal: React.FC<AutomatedTestingModalProps> = ({
               Сброс
             </button>
 
-            {onNavigateToKinematics && (
-              <button
-                onClick={() => {
-                  onClose();
-                  onNavigateToKinematics();
-                }}
-                className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-indigo-950/60 hover:bg-indigo-900 border border-indigo-500/30 text-indigo-300 text-sm transition-colors"
-              >
-                <Cpu className="w-4 h-4 text-indigo-400" />
-                3D Кинематика
-              </button>
-            )}
+            {/* Ссылочная кнопка: кинематика открывается в НОВОЙ вкладке,
+                QA-сессия и карта в текущей вкладке не прерываются
+                (UI_NAVIGATION_AUDIT.md §7). */}
+            <a
+              href={buildAppletDeepLink('kinematic')}
+              target="_blank"
+              rel="noopener noreferrer"
+              title="Открыть 3D Кинематику в новой вкладке — QA-сессия продолжится здесь"
+              className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-indigo-950/60 hover:bg-indigo-900 border border-indigo-500/30 text-indigo-300 text-sm transition-colors"
+            >
+              <Cpu className="w-4 h-4 text-indigo-400" />
+              3D Кинематика
+            </a>
           </div>
 
           {/* Configuration inline toggles */}

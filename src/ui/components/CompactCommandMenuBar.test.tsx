@@ -70,7 +70,7 @@ describe('CompactCommandMenuBar', () => {
     expect(rendered.textContent).toContain('3D Граф');
   });
 
-  it('opens kinematics dropdown and navigates to kinematic applet', async () => {
+  it('opens kinematics dropdown and offers a new-tab deep link to the kinematic applet', async () => {
     const onSelectApplet = vi.fn();
     const rendered = await render(
       <CompactCommandMenuBar
@@ -89,15 +89,59 @@ describe('CompactCommandMenuBar', () => {
       kinematicsMenuBtn?.click();
     });
 
-    const modelOption = Array.from(rendered.querySelectorAll('button')).find(
-      btn => btn.textContent?.includes('3-Link Planar')
+    // New-tab policy (UI_NAVIGATION_AUDIT.md §7): тяжёлые спутниковые апплеты
+    // открываются ссылкой в новой вкладке, рабочая область не переключается.
+    const modelOption = Array.from(rendered.querySelectorAll('a')).find(
+      a => a.textContent?.includes('3-Link Planar')
     );
     expect(modelOption).toBeDefined();
+    expect(modelOption?.getAttribute('target')).toBe('_blank');
+    expect(modelOption?.getAttribute('rel')).toContain('noopener');
+    expect(modelOption?.getAttribute('href')).toContain('applet=kinematic');
 
     await act(async () => {
       modelOption?.click();
     });
 
-    expect(onSelectApplet).toHaveBeenCalledWith('kinematic');
+    expect(onSelectApplet).not.toHaveBeenCalled();
+  });
+
+  it('keeps map navigation an in-place SPA button while satellites are new-tab links', async () => {
+    const onSelectApplet = vi.fn();
+    const rendered = await render(
+      <CompactCommandMenuBar
+        activeApplet="roadmap"
+        onSelectApplet={onSelectApplet}
+        commandContext={mockContext}
+      />
+    );
+
+    const fileMenuBtn = Array.from(rendered.querySelectorAll('button')).find(
+      btn => btn.textContent?.trim() === 'Файл'
+    );
+    expect(fileMenuBtn).toBeDefined();
+
+    await act(async () => {
+      fileMenuBtn?.click();
+    });
+
+    // «3D Граф» — домашняя поверхность: возврат остаётся in-place переключением
+    const mapOption = Array.from(rendered.querySelectorAll('button')).find(
+      btn => btn.textContent?.includes('3D Граф Сингулярностей')
+    );
+    expect(mapOption).toBeDefined();
+
+    // Спутники в том же меню — ссылки с маркером новой вкладки
+    const roadmapLink = Array.from(rendered.querySelectorAll('a')).find(
+      a => a.textContent?.includes('Дорожная карта (Roadmap)')
+    );
+    expect(roadmapLink).toBeDefined();
+    expect(roadmapLink?.getAttribute('target')).toBe('_blank');
+    expect(roadmapLink?.getAttribute('href')).toContain('applet=roadmap');
+
+    await act(async () => {
+      mapOption?.click();
+    });
+    expect(onSelectApplet).toHaveBeenCalledWith('map');
   });
 });
