@@ -11,7 +11,7 @@ import type { ProblemNode, ScienceZone, Proof } from '../../model/types';
 import { GraphColorStateManager, NODE_PROJECTIONS } from '../../model/colorMatrix';
 import {
   buildMap2DEdges,
-  collectMap2DNeighborhood,
+  collectMap2DClosure,
   computeMap2DLayout,
 } from './twoDLayout';
 
@@ -44,8 +44,10 @@ export function Map2DGraph({ nodes, zones, selectedNodeId, onSelectNode, proofs 
   const layout = useMemo(() => computeMap2DLayout(nodes, zones), [nodes, zones]);
   const { positions, width, height, zoneCentroids } = layout;
 
+  // Транзитивная подсветка: стрелки идут до самого корня (предпосылки, cyan)
+  // и от всех зависимых — к выбранному узлу (violet).
   const neighborhood = useMemo(
-    () => (selectedNodeId ? collectMap2DNeighborhood(selectedNodeId, edges) : null),
+    () => (selectedNodeId ? collectMap2DClosure(selectedNodeId, edges) : null),
     [selectedNodeId, edges],
   );
 
@@ -254,8 +256,9 @@ export function Map2DGraph({ nodes, zones, selectedNodeId, onSelectNode, proofs 
             const to = positions[edge.target];
             if (!from || !to) return null;
 
-            const isUpstream = selectedNodeId !== null && edge.source === selectedNodeId;
-            const isDownstream = selectedNodeId !== null && edge.target === selectedNodeId;
+            const edgeKey = `${edge.source}|${edge.target}`;
+            const isUpstream = neighborhood !== null && neighborhood.upstreamEdges.has(edgeKey);
+            const isDownstream = neighborhood !== null && neighborhood.downstreamEdges.has(edgeKey);
             const isActive = isUpstream || isDownstream;
             const muted = selectedNodeId !== null && !isActive;
 
@@ -357,8 +360,8 @@ export function Map2DGraph({ nodes, zones, selectedNodeId, onSelectNode, proofs 
             {nodeTitle(selectedNodeId)}
           </p>
           <p className="mt-0.5 text-[10px] text-slate-400">
-            предпосылок: <span className="text-cyan-300 font-mono">{neighborhood.upstream.size}</span>
-            {' · '}зависимых: <span className="text-violet-300 font-mono">{neighborhood.downstream.size}</span>
+            предпосылок (до корня): <span className="text-cyan-300 font-mono">{neighborhood.upstream.size}</span>
+            {' · '}зависимых (всего): <span className="text-violet-300 font-mono">{neighborhood.downstream.size}</span>
           </p>
         </div>
       )}

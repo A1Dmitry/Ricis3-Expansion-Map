@@ -104,6 +104,56 @@ export function collectMap2DNeighborhood(nodeId: string, edges: readonly Map2DEd
   return { upstream, downstream };
 }
 
+export interface Map2DClosure extends Map2DNeighborhood {
+  /** Рёбра путей предпосылок (selected → … → корень), ключ 'source|target'. */
+  readonly upstreamEdges: ReadonlySet<string>;
+  /** Рёбра путей зависимых (… → selected), ключ 'source|target'. */
+  readonly downstreamEdges: ReadonlySet<string>;
+}
+
+/**
+ * ТРАНЗИТИВНАЯ окрестность: все предпосылки по цепочке до корня и все
+ * зависимые по цепочке (стрелки идут до самого корня, а зависимые — к узлу).
+ * Детерминированный обход в глубину, устойчив к циклам (visited-наборы).
+ */
+export function collectMap2DClosure(nodeId: string, edges: readonly Map2DEdge[]): Map2DClosure {
+  const edgeKey = (source: string, target: string) => `${source}|${target}`;
+  const walk = (
+    follow: (edge: Map2DEdge, cur: string) => string | null,
+  ): { nodes: Set<string>; edgeKeys: Set<string> } => {
+    const nodes = new Set<string>();
+    const edgeKeys = new Set<string>();
+    const stack = [nodeId];
+    while (stack.length > 0) {
+      const cur = stack.pop()!;
+      for (const edge of edges) {
+        const next = follow(edge, cur);
+        if (next === null) continue;
+        edgeKeys.add(edgeKey(edge.source, edge.target));
+        if (!nodes.has(next) && next !== nodeId) {
+          nodes.add(next);
+          stack.push(next);
+        }
+      }
+    }
+    return { nodes, edgeKeys };
+  };
+
+  // Предпосылки: от узла по направлению «зависит от» (source → target) — вверх,
+  // пока стрелка не дойдёт до корня.
+  const up = walk((edge, cur) => (edge.source === cur ? edge.target : null));
+  // Зависимые: к узлу от всех опирающихся на него (target ← source) — вниз.
+  const down = walk((edge, cur) => (edge.target === cur ? edge.source : null));
+  up.nodes.delete(nodeId);
+  down.nodes.delete(nodeId);
+  return {
+    upstream: up.nodes,
+    downstream: down.nodes,
+    upstreamEdges: up.edgeKeys,
+    downstreamEdges: down.edgeKeys,
+  };
+}
+
 interface RadialPlacement {
   angle: number;
   radius: number;

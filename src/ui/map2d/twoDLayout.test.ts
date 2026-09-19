@@ -248,3 +248,44 @@ describe('twoDLayout — классическая радиальная раск�
     expect(Math.hypot(p.x - single.center.x, p.y - single.center.y)).toBeLessThanOrEqual(0);
   });
 });
+
+describe('collectMap2DClosure — транзитивная подсветка до корня и к узлу', () => {
+  const CHAIN_EDGES = [
+    { source: 'a', target: 'b' }, // a зависит от b
+    { source: 'b', target: 'c' }, // b зависит от c (c — корень)
+    { source: 'b', target: 'd' }, // и от d
+    { source: 'x', target: 'a' }, // x зависит от a
+  ];
+
+  it('стрелки предпосылок идут ТРАНЗИТИВНО до самого корня', async () => {
+    const { collectMap2DClosure } = await import('./twoDLayout');
+    const closure = collectMap2DClosure('a', CHAIN_EDGES);
+    expect([...closure.upstream].sort()).toEqual(['b', 'c', 'd']);
+    expect([...closure.upstreamEdges].sort()).toEqual(['a|b', 'b|c', 'b|d']);
+  });
+
+  it('зависимые идут ТРАНЗИТИВНО к узлу (все опирающиеся)', async () => {
+    const { collectMap2DClosure } = await import('./twoDLayout');
+    const closure = collectMap2DClosure('c', CHAIN_EDGES);
+    expect([...closure.downstream].sort()).toEqual(['a', 'b', 'x']);
+    expect([...closure.downstreamEdges].sort()).toEqual(['a|b', 'b|c', 'x|a']);
+  });
+
+  it('цикл не зацикливает обход и не включает сам узел', async () => {
+    const { collectMap2DClosure } = await import('./twoDLayout');
+    const closure = collectMap2DClosure('p', [
+      { source: 'p', target: 'q' },
+      { source: 'q', target: 'p' },
+    ]);
+    expect([...closure.upstream]).toEqual(['q']);
+    expect(closure.upstream.has('p')).toBe(false);
+    expect(closure.downstream.has('p')).toBe(false);
+  });
+
+  it('прямая окрестность по-прежнему доступна и ограничена одним шагом', async () => {
+    const { collectMap2DNeighborhood } = await import('./twoDLayout');
+    const nb = collectMap2DNeighborhood('a', CHAIN_EDGES);
+    expect([...nb.upstream]).toEqual(['b']);
+    expect([...nb.downstream]).toEqual(['x']);
+  });
+});

@@ -895,6 +895,27 @@ describe('OIR-03 — audit proof-synthesis containment', () => {
       '?? src/ui/map2d/twoDLayout.test.ts',
       '?? src/ui/map2d/Map2DGraph.tsx',
       '?? src/ui/map2d/MapTreeView.tsx',
+      // MAP-2D-CLOSURE-MINIMAL (0.4.223, 2026-09-19): по фидбэку — 1) выбор
+      // узла подсвечивает ТРАНЗИТИВНУЮ замыкание: стрелки предпосылок идут
+      // по цепочке до самого корня (cyan), стрелки всех зависимых — к узлу
+      // (violet); ранее подсвечивался только ближайший шаг. 2) Заголовок
+      // доступной 2D-карты упрощён до минимального: без служебных абзацев,
+      // только сводка «Всего: N · Доказано: M» (доказано = узлы с proof или
+      // state resolved) и мини-табы 2D/Дерево/3D. Только визуал.
+      ' M src/ui/map2d/twoDLayout.ts',
+      ' M src/ui/map2d/twoDLayout.test.ts',
+      ' M src/ui/map2d/Map2DGraph.tsx',
+      ' M src/ui/AccessibleMapFallback.tsx',
+      ' M src/ui/AccessibleMapFallback.test.tsx',
+      ' M package.json',
+      ' M package-lock.json',
+      ' M src/version.ts',
+      ' M index.html',
+      ' M README.md',
+      ' M CITATION.cff',
+      ' M docs/05-evidence/architecture/structural-hash-report.md',
+      ' M docs/05-evidence/architecture/telegram-tokenpool-remediation-2026-08-18.md',
+      ' M docs/05-evidence/proofs/lean-boundary-audit-2026-08-18.md',
       // MAP-2D-AREA-UNIFORM (0.4.222, 2026-09-19): по фидбэку «пространство
       // занято неравномерно» жёсткие кольца глубины заменены ПЛОЩАДНО-
       // ПРОПОРЦИОНАЛЬНЫМИ зонами глубины: площадь зоны ∝ числу узлов (порядок

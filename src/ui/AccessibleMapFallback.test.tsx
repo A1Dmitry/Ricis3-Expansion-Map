@@ -113,7 +113,8 @@ describe('AccessibleMapFallback Component', () => {
       />
     );
 
-    expect(rendered.textContent).toContain('Доступный режим карты');
+    expect(rendered.textContent).toContain('Всего: 2');
+    expect(rendered.textContent).toContain('Доказано:');
     expect(rendered.textContent).toContain('Деление на ноль');
     expect(rendered.textContent).toContain('Квантовая сингулярность');
     expect(rendered.textContent).toContain('3D-карту');
@@ -163,7 +164,7 @@ describe('AccessibleMapFallback Component', () => {
     // Сводка связей выбранного узла
     const summary = rendered.querySelector('[data-testid="m2d-selection-summary"]');
     expect(summary?.textContent).toContain('Квантовая сингулярность');
-    expect(summary?.textContent).toContain('предпосылок:');
+    expect(summary?.textContent).toContain('предпосылок (до корня):');
   });
 
   it('tree view selects a node from an expanded zone', async () => {
@@ -182,7 +183,7 @@ describe('AccessibleMapFallback Component', () => {
 
     // Переключаемся на проводник и раскрываем зону «Математика»
     const treeTabBtn = Array.from(rendered.querySelectorAll('button')).find(
-      b => b.textContent?.includes('Дерево (проводник)'),
+      b => b.textContent?.includes('Дерево'),
     );
     await act(async () => {
       treeTabBtn?.click();
@@ -216,7 +217,7 @@ describe('AccessibleMapFallback Component', () => {
     );
 
     const treeTabBtn = Array.from(rendered.querySelectorAll('button')).find(
-      b => b.textContent?.includes('Дерево (проводник)'),
+      b => b.textContent?.includes('Дерево'),
     );
     await act(async () => {
       treeTabBtn?.click();
