@@ -443,160 +443,233 @@ export const initialMap: MapState = {
       sourceUrl: 'https://doi.org/10.5281/zenodo.22124493',
       ricisSolvable: true
     },
+    // >>> NODE-CLAIM-ORCHESTRATION:task-elem-removable-zero
     {
-      id: 'task-elem-removable-zero',
-      title: 'Устранимая сингулярность: (x² - 4)/(x - 2) в x = 2',
-      description: 'Элементарная решенная задача: устранение сингулярности в x=2 через протокол SP1 (локальность), SP2 (факторизация до вычисления) и A4 (отношение нулей). Lean: removable_singularity_eval.',
-      state: 'resolved',
-      leanErrors: [],
-      type: 'scientific_task',
-      targetFunction: 'Eval_RICIS((x^2 - 4)/(x - 2), x=2) = 4 [O(1)]',
-      zoneIds: ['math'],
-      dependencyIds: ['math-singularity'],
-      dependentIds: ['task-twin-prime-plane-difference'],
-      fractalDepth: 1,
-      economic: {
-        costUnresolved: 1000000,
-        costToSolve: 50000,
-        marketGain: 10000000,
-        riskLoss: 500000
-      },
-      singularityHint: 'Факторизация (x-2)(x+2)/(x-2) -> 0_{x-2}/0_{x-2} * (x+2) = 1 * 4 = 4',
-      sourceUrl: 'https://doi.org/10.5281/zenodo.17872755',
-      ricisSolvable: true
+        "id": "task-elem-removable-zero",
+        "title": "Устранимая сингулярность (x²−4)/(x−2): ядровой закон устранения самоделения",
+        "description": "ЯДРОВОЙ ЗАКОН ПОДТВЕРЖДЁН; ЧИСЛОВОЙ ХВОСТ — АРИФМЕТИКА КОНКРЕТНОГО ПРИМЕРА: Устранимая сингулярность (x²−4)/(x−2): ядровой закон устранения самоделения\n\nЧТО ФАКТИЧЕСКИ ПОДТВЕРЖДЕНО: ядровые теоремы RICIS_Template.divSelf_one и RICIS.selfDivision_eliminated (артефакты ricis-universal-orchestration-template и ricis-backend-exact-reduction, прогоны 34891262489, exit 0): самоделение устраняется точно, без предельного перехода.\n\nЧТО НЕ УТВЕРЖДАЕТСЯ: числовое значение 4 — арифметика конкретного примера (2 + 2) после устранения сингулярности, отдельной ядровой теоремы для него нет; предельный переход Коши не используется (P1).",
+        "state": "resolved",
+        "leanErrors": [],
+        "type": "scientific_task",
+        "targetFunction": "StructuralReduce(divSelf(E)) = one (переход к несингулярному хвосту (x+2))",
+        "zoneIds": [
+            "math"
+        ],
+        "dependencyIds": [
+            "math-singularity"
+        ],
+        "dependentIds": [
+            "task-twin-prime-plane-difference"
+        ],
+        "fractalDepth": 1,
+        "economic": {
+            "costUnresolved": 1000000,
+            "costToSolve": 50000,
+            "marketGain": 10000000,
+            "riskLoss": 500000
+        },
+        "singularityHint": "Факторизация (x-2)(x+2)/(x-2) -> 0_{x-2}/0_{x-2} * (x+2) = 1 * 4 = 4",
+        "sourceUrl": "https://doi.org/10.5281/zenodo.17872755",
+        "ricisSolvable": true
     },
+    // <<< NODE-CLAIM-ORCHESTRATION:task-elem-removable-zero
+    // >>> NODE-CLAIM-ORCHESTRATION:task-elem-geometric-bridge-a6
     {
-      id: 'task-elem-geometric-bridge-a6',
-      title: 'Геометрический мост: 0_F × ∞_G = F · G',
-      description: 'Элементарная решенная задача: аксиома A6 через косое векторное произведение ортогональных монолитов (F,0) и (0,G) в плоскости R_RICIS^2. Детерминант O(1). Lean: theta_skew_product_eval.',
-      state: 'resolved',
-      leanErrors: [],
-      type: 'scientific_task',
-      targetFunction: '0_F \\times \\infty_G = \\det((F,0), (0,G)) = F \\cdot G',
-      zoneIds: ['math', 'physics'],
-      dependencyIds: ['math-singularity', 'contract-a6-product-proxy'],
-      dependentIds: ['task-goldbach-sieve-monolith', 'task-twin-prime-plane-difference', 'task-continuum-metric-hilbert'],
-      fractalDepth: 1,
-      economic: {
-        costUnresolved: 5000000,
-        costToSolve: 100000,
-        marketGain: 50000000,
-        riskLoss: 2000000
-      },
-      singularityHint: 'Определитель 2D-векторов u=(F,0) и v=(0,G) дает точную площадь F*G без предела',
-      sourceUrl: 'https://doi.org/10.5281/zenodo.22124493',
-      ricisSolvable: true
+        "id": "task-elem-geometric-bridge-a6",
+        "title": "Геометрический мост A6: ядровой закон 0_F · ∞_G = F · G",
+        "description": "ЯДРОВОЙ ЗАКОН ПОДТВЕРЖДЁН; ЧИСЛОВОЙ ПРИМЕР — ПОДСТАНОВКА ИНДЕКСОВ: Геометрический мост A6: ядровой закон 0_F · ∞_G = F · G\n\nЧТО ФАКТИЧЕСКИ ПОДТВЕРЖДЕНО: ядровая теорема RICIS_Template.A6_geometric_realization (артефакт ricis-universal-orchestration-template, прогон 34891262489, exit 0): неопределённость 0_F · ∞_G разрешается геометрической мерой μ(rect F G) = F · G.\n\nЧТО НЕ УТВЕРЖДАЕТСЯ: число 15 для F = 5, G = 3 — арифметическая подстановка в доказанный закон, а не отдельная ядровая теорема; никакого утверждения о физическом измерении узел не несёт.",
+        "state": "resolved",
+        "leanErrors": [],
+        "type": "scientific_task",
+        "targetFunction": "StructuralReduce(0_F · ∞_G) = mul F G (A6-геометрический мост)",
+        "zoneIds": [
+            "math",
+            "physics"
+        ],
+        "dependencyIds": [
+            "math-singularity",
+            "contract-a6-product-proxy"
+        ],
+        "dependentIds": [
+            "task-goldbach-sieve-monolith",
+            "task-twin-prime-plane-difference",
+            "task-continuum-metric-hilbert"
+        ],
+        "fractalDepth": 1,
+        "economic": {
+            "costUnresolved": 5000000,
+            "costToSolve": 100000,
+            "marketGain": 50000000,
+            "riskLoss": 2000000
+        },
+        "singularityHint": "Определитель 2D-векторов u=(F,0) и v=(0,G) дает точную площадь F*G без предела",
+        "sourceUrl": "https://doi.org/10.5281/zenodo.22124493",
+        "ricisSolvable": true
     },
+    // <<< NODE-CLAIM-ORCHESTRATION:task-elem-geometric-bridge-a6
+    // >>> NODE-CLAIM-ORCHESTRATION:task-goldbach-sieve-monolith
     {
-      id: 'task-goldbach-sieve-monolith',
-      title: 'Задача-дефицит: Мультипликативно-аддитивное решето Гольдбаха',
-      description: 'Промежуточный узел декомпозиции гипотезы Гольдбаха (registry-101). Формализует требование мультипликативно-аддитивного монолита порядка 2 над простыми числами с семантическим индексом SP4. Подключает решенные ресурсы task-elem-geometric-bridge-a6 и contract-sp4-path-index.',
-      state: 'resolved',
-      leanErrors: [],
-      type: 'scientific_task',
-      targetFunction: 'SieveMonolith_2(2k) = \\sum \\det((p_1, 0), (0, p_2)) \\cdot \\mathbf{1}_{p_1+p_2=2k}',
-      zoneIds: ['math'],
-      dependencyIds: ['task-elem-geometric-bridge-a6', 'contract-sp4-path-index', 'math-singularity'],
-      dependentIds: ['registry-101'],
-      fractalDepth: 2,
-      economic: {
-        costUnresolved: 100000000,
-        costToSolve: 5000000,
-        marketGain: 1000000000,
-        riskLoss: 50000000
-      },
-      singularityHint: 'Монолит 2 порядка для аддитивного сита; связывает SP4 и A6 с простыми числами',
-      sourceUrl: 'https://doi.org/10.5281/zenodo.21517353',
-      ricisSolvable: true
+        "id": "task-goldbach-sieve-monolith",
+        "title": "Спецификация монолита решета Гольдбаха (порядок 2) — не доказательство гипотезы",
+        "description": "СПЕЦИФИКАЦИЯ (контракт): узел описывает, что именно требуется для решения, а не решение: гипотеза Гольдбаха (требуемый монолит порядка 2 над решетом простых)\n\nЧТО ФАКТИЧЕСКИ ПОДТВЕРЖДЕНО: контракт сформулирован как требование и согласован с записью движка решений: гипотеза Гольдбаха — UNRESOLVED_CHALLENGE (src/model/taskResolutionEngine.ts), внешняя задача отсутствует в ядровом пути репозитория.\n\nЧТО НЕ УТВЕРЖДАЕТСЯ: гипотеза Гольдбаха не доказана: этот узел специфицирует необходимый монолит и его SP4/A4-требования; никакого формального доказательства для бесконечного множества чётных чисел здесь нет.",
+        "state": "partial",
+        "leanErrors": [],
+        "type": "scientific_task",
+        "targetFunction": "Spec(SieveMonolith_2) = mul Primes Sum — требование монолита, не теорема",
+        "zoneIds": [
+            "math"
+        ],
+        "dependencyIds": [
+            "task-elem-geometric-bridge-a6",
+            "contract-sp4-path-index",
+            "math-singularity"
+        ],
+        "dependentIds": [
+            "registry-101"
+        ],
+        "fractalDepth": 2,
+        "economic": {
+            "costUnresolved": 100000000,
+            "costToSolve": 5000000,
+            "marketGain": 1000000000,
+            "riskLoss": 50000000
+        },
+        "singularityHint": "Монолит 2 порядка для аддитивного сита; связывает SP4 и A6 с простыми числами",
+        "sourceUrl": "https://doi.org/10.5281/zenodo.21517353",
+        "ricisSolvable": false,
+        "informalExternalClaim": "INFORMAL: гипотеза Гольдбаха (требуемый монолит порядка 2 над решетом простых) — внешняя задача вне ядрового пути этого репозитория; узел не содержит и не может содержать её решения. Связь — неформальная мотивация, а не проверенный результат."
     },
+    // <<< NODE-CLAIM-ORCHESTRATION:task-goldbach-sieve-monolith
+    // >>> NODE-CLAIM-ORCHESTRATION:task-twin-prime-plane-difference
     {
-      id: 'task-twin-prime-plane-difference',
-      title: 'Задача-дефицит: Разностный оператор Δ_plane для простых близнецов',
-      description: 'Промежуточный узел декомпозиции простых близнецов (registry-102). Заменяет непрерывную асимптотику на дискретный разностный оператор плоскости Δ_plane. Ресурсные связи: task-elem-removable-zero и task-elem-geometric-bridge-a6.',
-      state: 'resolved',
-      leanErrors: [],
-      type: 'scientific_task',
-      targetFunction: '\\Delta_{\\text{plane}}(\\text{Primes}) := \\det((p, 0), (0, p+2)) \\neq \\emptyset',
-      zoneIds: ['math'],
-      dependencyIds: ['task-elem-removable-zero', 'task-elem-geometric-bridge-a6'],
-      dependentIds: ['registry-102'],
-      fractalDepth: 2,
-      economic: {
-        costUnresolved: 100000000,
-        costToSolve: 5000000,
-        marketGain: 1000000000,
-        riskLoss: 50000000
-      },
-      singularityHint: 'Оператор плоскости Δ_plane связывает устранимую сингулярность и косое произведение',
-      sourceUrl: 'https://doi.org/10.5281/zenodo.21517353',
-      ricisSolvable: true
+        "id": "task-twin-prime-plane-difference",
+        "title": "Спецификация разностного оператора плоскости для простых близнецов — не доказательство гипотезы",
+        "description": "СПЕЦИФИКАЦИЯ (контракт): узел описывает требуемый оператор, а не решение: гипотеза о простых близнецах (требуемый Δ_plane-монолит)\n\nЧТО ФАКТИЧЕСКИ ПОДТВЕРЖДЕНО: контракт согласован с ядровым законом A7 (ядерная теорема RICIS_Template.A7_inf_sub, прогон 34891262489) в части разностного оператора над индексами.\n\nЧТО НЕ УТВЕРЖДАЕТСЯ: гипотеза о бесконечности пар простых близнецов не доказана: узел специфицирует требуемый разностный оператор и его инвариант, а не глобальную меру множества пар.",
+        "state": "partial",
+        "leanErrors": [],
+        "type": "scientific_task",
+        "targetFunction": "Spec(DeltaPlane) = sub (infF P) (infF (add P two)) — требование оператора, не теорема",
+        "zoneIds": [
+            "math"
+        ],
+        "dependencyIds": [
+            "task-elem-removable-zero",
+            "task-elem-geometric-bridge-a6"
+        ],
+        "dependentIds": [
+            "registry-102"
+        ],
+        "fractalDepth": 2,
+        "economic": {
+            "costUnresolved": 100000000,
+            "costToSolve": 5000000,
+            "marketGain": 1000000000,
+            "riskLoss": 50000000
+        },
+        "singularityHint": "Оператор плоскости Δ_plane связывает устранимую сингулярность и косое произведение",
+        "sourceUrl": "https://doi.org/10.5281/zenodo.21517353",
+        "ricisSolvable": false,
+        "informalExternalClaim": "INFORMAL: гипотеза о простых близнецах (требуемый Δ_plane-монолит) — внешняя задача вне ядрового пути этого репозитория; узел не содержит и не может содержать её решения. Связь — неформальная мотивация, а не проверенный результат."
     },
+    // <<< NODE-CLAIM-ORCHESTRATION:task-twin-prime-plane-difference
+    // >>> NODE-CLAIM-ORCHESTRATION:task-collatz-ancestor-tree-invariant
     {
-      id: 'task-collatz-ancestor-tree-invariant',
-      title: 'Задача-дефицит: Инвариант обратного дерева ветвления Коллатца',
-      description: 'Промежуточный узел декомпозиции гипотезы Коллатца (registry-107). Определяет монолит обратного бинарного дерева предков n ↦ (2n, (n-1)/3) с сохранением идентичности L1 и AST-редукцией без пределов.',
-      state: 'resolved',
-      leanErrors: [],
-      type: 'scientific_task',
-      targetFunction: 'CollatzTreeMonolith(n) := \\text{L1\\_Preserve}(\\text{TreeAncestor}(n))',
-      zoneIds: ['math'],
-      dependencyIds: ['contract-l1-field-monolith', 'ricis-ast-reduction-pattern'],
-      dependentIds: ['registry-107'],
-      fractalDepth: 2,
-      economic: {
-        costUnresolved: 100000000,
-        costToSolve: 5000000,
-        marketGain: 1000000000,
-        riskLoss: 50000000
-      },
-      singularityHint: 'Дерево предков как монолит порядка 2; исключение нетривиальных циклов через L1',
-      sourceUrl: 'https://doi.org/10.5281/zenodo.21517353',
-      ricisSolvable: true
+        "id": "task-collatz-ancestor-tree-invariant",
+        "title": "Спецификация L1-инварианта дерева предков Коллатца — не доказательство гипотезы",
+        "description": "СПЕЦИФИКАЦИЯ (контракт): узел описывает требуемый инвариант дерева, а не решение: гипотеза Коллатца (требуемый инвариант дерева предков)\n\nЧТО ФАКТИЧЕСКИ ПОДТВЕРЖДЕНО: контракт согласован с L0-законом редукции (ядерная теорема RICIS_Template.L0_continuity_divSelf, прогон 34891262489) в части непрерывности устранения самоделения.\n\nЧТО НЕ УТВЕРЖДАЕТСЯ: гипотеза Коллатца не доказана: узел специфицирует требуемый инвариант дерева предков; анализ нетривиальных циклов и роста траекторий здесь отсутствует.",
+        "state": "partial",
+        "leanErrors": [],
+        "type": "scientific_task",
+        "targetFunction": "Spec(CollatzTreeMonolith) = L1Preserve(ancestorTree n) — требование инварианта",
+        "zoneIds": [
+            "math"
+        ],
+        "dependencyIds": [
+            "contract-l1-field-monolith",
+            "ricis-ast-reduction-pattern"
+        ],
+        "dependentIds": [
+            "registry-107"
+        ],
+        "fractalDepth": 2,
+        "economic": {
+            "costUnresolved": 100000000,
+            "costToSolve": 5000000,
+            "marketGain": 1000000000,
+            "riskLoss": 50000000
+        },
+        "singularityHint": "Дерево предков как монолит порядка 2; исключение нетривиальных циклов через L1",
+        "sourceUrl": "https://doi.org/10.5281/zenodo.21517353",
+        "ricisSolvable": false,
+        "informalExternalClaim": "INFORMAL: гипотеза Коллатца (требуемый инвариант дерева предков) — внешняя задача вне ядрового пути этого репозитория; узел не содержит и не может содержать её решения. Связь — неформальная мотивация, а не проверенный результат."
     },
+    // <<< NODE-CLAIM-ORCHESTRATION:task-collatz-ancestor-tree-invariant
+    // >>> NODE-CLAIM-ORCHESTRATION:task-continuum-metric-hilbert
     {
-      id: 'task-continuum-metric-hilbert',
-      title: 'Задача-дефицит: Континуумный метрико-гильбертов оператор (QM-GR)',
-      description: 'Промежуточный узел формулировки недостающего континуумного слоя для phys-unified: связывает оператор кривизны пространства-времени с оператором плотности гильбертова пространства через геометрический мост A6 и тензорный индекс SP4.',
-      state: 'resolved',
-      leanErrors: [],
-      type: 'scientific_task',
-      targetFunction: '\\hat{H}_{\\text{metric}} \\otimes \\det(g_{\\mu\\nu}) \\longleftrightarrow \\text{FieldMonolith}',
-      zoneIds: ['physics', 'math'],
-      dependencyIds: ['phys-field-bridge-contract', 'task-elem-geometric-bridge-a6'],
-      dependentIds: ['phys-unified'],
-      fractalDepth: 2,
-      economic: {
-        costUnresolved: 500000000,
-        costToSolve: 25000000,
-        marketGain: 5000000000,
-        riskLoss: 250000000
-      },
-      singularityHint: 'Связь дискретного Int-proxy моста с непрерывным метрико-гильбертовым пространством',
-      sourceUrl: 'https://doi.org/10.5281/zenodo.22124493',
-      ricisSolvable: true
+        "id": "task-continuum-metric-hilbert",
+        "title": "Спецификация континуального метрико-гильбертова слоя — не объединение QM и GR",
+        "description": "СПЕЦИФИКАЦИЯ (контракт): узел описывает требуемый слой, а не его построение: континуальное объединение квантовой механики и гравитации\n\nЧТО ФАКТИЧЕСКИ ПОДТВЕРЖДЕНО: контракт согласован со SP4-инвариантом (ядерная теорема RICIS_Template.SP4_preserves_parent, прогон 34891262489) на дискретном прокси-уровне.\n\nЧТО НЕ УТВЕРЖДАЕТСЯ: объединение квантовой механики и гравитации не построено и не доказано: узел phys-unified остаётся partial by design, континуальный метрико-гильбертов слой отсутствует, дискретный прокси A6 его не заменяет.",
+        "state": "partial",
+        "leanErrors": [],
+        "type": "scientific_task",
+        "targetFunction": "Spec(ContinuumLayer) = tensor metric Hilbert — требование слоя, не построение",
+        "zoneIds": [
+            "physics",
+            "math"
+        ],
+        "dependencyIds": [
+            "phys-field-bridge-contract",
+            "task-elem-geometric-bridge-a6"
+        ],
+        "dependentIds": [
+            "phys-unified"
+        ],
+        "fractalDepth": 2,
+        "economic": {
+            "costUnresolved": 500000000,
+            "costToSolve": 25000000,
+            "marketGain": 5000000000,
+            "riskLoss": 250000000
+        },
+        "singularityHint": "Связь дискретного Int-proxy моста с непрерывным метрико-гильбертовым пространством",
+        "sourceUrl": "https://doi.org/10.5281/zenodo.22124493",
+        "ricisSolvable": false,
+        "informalExternalClaim": "INFORMAL: континуальное объединение квантовой механики и гравитации — внешняя задача вне ядрового пути этого репозитория; узел не содержит и не может содержать её решения. Связь — неформальная мотивация, а не проверенный результат."
     },
+    // <<< NODE-CLAIM-ORCHESTRATION:task-continuum-metric-hilbert
+    // >>> NODE-CLAIM-ORCHESTRATION:task-turing-meta-monolith
     {
-      id: 'task-turing-meta-monolith',
-      title: 'Задача-дефицит: Мета-монолит машины Тьюринга (уровни L0/L1)',
-      description: 'Промежуточный узел декомпозиции проблемы остановки (registry-114). Формализует мета-уровневую иерархию для разрешения диагонального парадокса без классической бесконечной рекурсии.',
-      state: 'resolved',
-      leanErrors: [],
-      type: 'scientific_task',
-      targetFunction: 'TuringMetaMonolith(M, w) \\longrightarrow \\text{L0-Invariant}',
-      zoneIds: ['informatics', 'math'],
-      dependencyIds: ['contract-l1-field-monolith', 'math-singularity'],
-      dependentIds: ['registry-114'],
-      fractalDepth: 2,
-      economic: {
-        costUnresolved: 100000000,
-        costToSolve: 5000000,
-        marketGain: 1000000000,
-        riskLoss: 50000000
-      },
-      singularityHint: 'Мета-монолит разрешает парадокс остановки без расхождения путей',
-      sourceUrl: 'https://doi.org/10.5281/zenodo.21517353',
-      ricisSolvable: true
+        "id": "task-turing-meta-monolith",
+        "title": "Спецификация мета-монолита уровней для проблемы остановки — не её разрешение",
+        "description": "СПЕЦИФИКАЦИЯ (контракт): узел описывает требуемый мета-уровень, а не решение: проблема остановки (требуемая иерархия мета-монолитов)\n\nЧТО ФАКТИЧЕСКИ ПОДТВЕРЖДЕНО: контракт согласован с L1-законом типизации (ядровая теорема RICIS_Template.L1_identity, прогон 34891262489, не зависит от аксиом).\n\nЧТО НЕ УТВЕРЖДАЕТСЯ: неразрешимость проблемы остановки — классический результат Тьюринга (1936), здесь не доказывается; узел специфицирует требуемый мета-монолит и не воспроизводит диагональное доказательство.",
+        "state": "partial",
+        "leanErrors": [],
+        "type": "scientific_task",
+        "targetFunction": "Spec(TuringMetaMonolith) = separate L0 L1 (типизация страт) — требование",
+        "zoneIds": [
+            "informatics",
+            "math"
+        ],
+        "dependencyIds": [
+            "contract-l1-field-monolith",
+            "math-singularity"
+        ],
+        "dependentIds": [
+            "registry-114"
+        ],
+        "fractalDepth": 2,
+        "economic": {
+            "costUnresolved": 100000000,
+            "costToSolve": 5000000,
+            "marketGain": 1000000000,
+            "riskLoss": 50000000
+        },
+        "singularityHint": "Мета-монолит разрешает парадокс остановки без расхождения путей",
+        "sourceUrl": "https://doi.org/10.5281/zenodo.21517353",
+        "ricisSolvable": false,
+        "informalExternalClaim": "INFORMAL: проблема остановки (требуемая иерархия мета-монолитов) — внешняя задача вне ядрового пути этого репозитория; узел не содержит и не может содержать её решения. Связь — неформальная мотивация, а не проверенный результат."
     },
+    // <<< NODE-CLAIM-ORCHESTRATION:task-turing-meta-monolith
     {
       id: 'econ-value',
       title: 'Абсолютная Теория Стоимости',
@@ -655,36 +728,40 @@ export const initialMap: MapState = {
       }
     }
 ,
+// >>> NODE-CLAIM-ORCHESTRATION:registry-100
 {
-        "id": "registry-100",
-        "title": "abc Conjecture",
-        "description": "The $abc$ conjecture concerns coprime integers $a + b = c$ and their radical $\\text{rad}(abc)$. In classical arithmetic, divisibility at critical prime bounds exhibits asymptotic gaps.",
-        "state": "resolved",
-        "type": "scientific_task",
-        "targetFunction": "frac{0F}{0G} = frac{F}{G}.",
-        "zoneIds": [
-            "math"
-        ],
-        "dependencyIds": [
-            "math-singularity"
-        ],
-        "dependentIds": [],
-        "fractalDepth": 1,
-        "economic": {
-            "costUnresolved": 1000000000,
-            "costToSolve": 50000000,
-            "marketGain": 5000000000,
-            "riskLoss": 2000000000
-        },
-        "ricisSolvable": true
+    "id": "registry-100",
+    "title": "abc-гипотеза: структурная редукция отношения индексированных нулей (внешняя задача открыта)",
+    "description": "ВНЕШНЯЯ ЗАДАЧА ОТКРЫТА: abc-гипотеза (радикал rad(abc) и критические границы делимости)\n\nЧТО ФАКТИЧЕСКИ ПОДТВЕРЖДЕНО: ядровая теорема RICIS_Template.A4_indexed_zero_div (артефакт ricis-universal-orchestration-template, прогон 34891262489, exit 0, без sorryAx): класс неопределённости 0_F / 0_G разрешается в порождающих индексах.\n\nЧТО НЕ УТВЕРЖДАЕТСЯ: abc-гипотеза не доказана и не затрагивается: в RExpr нет ни радикала rad(abc), ни асимптотических оценок делимости; редукция — структурная, а не арифметическая.",
+    "state": "partial",
+    "type": "derived_problem",
+    "targetFunction": "StructuralReduce(0_F / 0_G) = div F G in RExpr AST",
+    "zoneIds": [
+        "math"
+    ],
+    "dependencyIds": [
+        "math-singularity"
+    ],
+    "dependentIds": [],
+    "fractalDepth": 1,
+    "economic": {
+        "costUnresolved": 1000000000,
+        "costToSolve": 50000000,
+        "marketGain": 5000000000,
+        "riskLoss": 2000000000
     },
+    "ricisSolvable": false,
+    "informalExternalClaim": "INFORMAL: abc-гипотеза (радикал rad(abc) и критические границы делимости) — внешняя задача вне ядрового пути этого репозитория; узел не содержит и не может содержать её решения. Связь — неформальная мотивация, а не проверенный результат."
+},
+// <<< NODE-CLAIM-ORCHESTRATION:registry-100
+    // >>> NODE-CLAIM-ORCHESTRATION:registry-101
     {
         "id": "registry-101",
-        "title": "Goldbach's Conjecture",
-        "description": "Every even integer $n > 2$ is expressible as the sum of two primes $p + q = n$.",
-        "state": "resolved",
-        "type": "scientific_task",
-        "targetFunction": "Resolve()",
+        "title": "Гипотеза Гольдбаха: структурная редукция аддитивного баланса (внешняя задача открыта)",
+        "description": "ВНЕШНЯЯ ЗАДАЧА ОТКРЫТА: гипотеза Гольдбаха (разложение всех чётных 2k > 2 в сумму двух простых)\n\nЧТО ФАКТИЧЕСКИ ПОДТВЕРЖДЕНО: ядровая теорема RICIS_Template.A4_indexed_zero_div (артефакт ricis-universal-orchestration-template, прогон 34891262489, exit 0): отношение индексированных нулей разрешается в индексах.\n\nЧТО НЕ УТВЕРЖДАЕТСЯ: гипотеза Гольдбаха не доказана: узел не содержит ни решета простых, ни доказательства непустоты пересечения для всех чётных 2k > 2. Требуемый монолит порядка 2 остаётся спецификацией (task-goldbach-sieve-monolith), а сама задача зарегистрирована как UNRESOLVED_CHALLENGE в src/model/taskResolutionEngine.ts.",
+        "state": "partial",
+        "type": "derived_problem",
+        "targetFunction": "StructuralReduce(0_sum / 0_primes) = div Sum Primes in RExpr AST",
         "zoneIds": [
             "math"
         ],
@@ -700,15 +777,18 @@ export const initialMap: MapState = {
             "marketGain": 5000000000,
             "riskLoss": 2000000000
         },
-        "ricisSolvable": true
+        "ricisSolvable": false,
+        "informalExternalClaim": "INFORMAL: гипотеза Гольдбаха (разложение всех чётных 2k > 2 в сумму двух простых) — внешняя задача вне ядрового пути этого репозитория; узел не содержит и не может содержать её решения. Связь — неформальная мотивация, а не проверенный результат."
     },
+    // <<< NODE-CLAIM-ORCHESTRATION:registry-101
+    // >>> NODE-CLAIM-ORCHESTRATION:registry-102
     {
         "id": "registry-102",
-        "title": "Twin Prime Conjecture",
-        "description": "There exist infinitely many prime pairs $(p, p+2)$.",
-        "state": "resolved",
-        "type": "scientific_task",
-        "targetFunction": "Resolve()",
+        "title": "Гипотеза о простых близнецах: структурная редукция разностного оператора (внешняя задача открыта)",
+        "description": "ВНЕШНЯЯ ЗАДАЧА ОТКРЫТА: гипотеза о бесконечности пар простых (p, p+2)\n\nЧТО ФАКТИЧЕСКИ ПОДТВЕРЖДЕНО: ядровая теорема RICIS_Template.A7_inf_sub (артефакт ricis-universal-orchestration-template, прогон 34891262489, exit 0): разность индексированных бесконечностей остаётся индексированной.\n\nЧТО НЕ УТВЕРЖДАЕТСЯ: бесконечность множества пар близнецов не доказана: узел не содержит глобального аналитического функционала плотности; Δ_plane — оператор над индексами AST, а не мера множества простых.",
+        "state": "partial",
+        "type": "derived_problem",
+        "targetFunction": "StructuralReduce(∞_F − ∞_G) = infF (sub F G) in RExpr AST",
         "zoneIds": [
             "math"
         ],
@@ -724,15 +804,18 @@ export const initialMap: MapState = {
             "marketGain": 5000000000,
             "riskLoss": 2000000000
         },
-        "ricisSolvable": true
+        "ricisSolvable": false,
+        "informalExternalClaim": "INFORMAL: гипотеза о бесконечности пар простых (p, p+2) — внешняя задача вне ядрового пути этого репозитория; узел не содержит и не может содержать её решения. Связь — неформальная мотивация, а не проверенный результат."
     },
+    // <<< NODE-CLAIM-ORCHESTRATION:registry-102
+    // >>> NODE-CLAIM-ORCHESTRATION:registry-103
     {
         "id": "registry-103",
-        "title": "Odd Perfect Numbers",
-        "description": "A number $n$ is perfect if $\\sigma(n) = 2n$.",
-        "state": "resolved",
-        "type": "scientific_task",
-        "targetFunction": "Resolve()",
+        "title": "Нечётные совершенные числа: структурная редукция делительного отношения (внешняя задача открыта)",
+        "description": "ВНЕШНЯЯ ЗАДАЧА ОТКРЫТА: существование нечётных совершенных чисел\n\nЧТО ФАКТИЧЕСКИ ПОДТВЕРЖДЕНО: ядровая теорема RICIS_Template.A4_indexed_zero_div (артефакт ricis-universal-orchestration-template, прогон 34891262489, exit 0): делительное отношение разрешается в индексах.\n\nЧТО НЕ УТВЕРЖДАЕТСЯ: существование нечётного совершенного числа не опровергнуто и не доказано: σ(n) = 2n в RExpr не интерпретируется как арифметическая функция делителей.",
+        "state": "partial",
+        "type": "derived_problem",
+        "targetFunction": "StructuralReduce(0_σ / 0_n) = div Sigma N in RExpr AST",
         "zoneIds": [
             "math"
         ],
@@ -747,15 +830,18 @@ export const initialMap: MapState = {
             "marketGain": 5000000000,
             "riskLoss": 2000000000
         },
-        "ricisSolvable": true
+        "ricisSolvable": false,
+        "informalExternalClaim": "INFORMAL: существование нечётных совершенных чисел — внешняя задача вне ядрового пути этого репозитория; узел не содержит и не может содержать её решения. Связь — неформальная мотивация, а не проверенный результат."
     },
+    // <<< NODE-CLAIM-ORCHESTRATION:registry-103
+    // >>> NODE-CLAIM-ORCHESTRATION:registry-104
     {
         "id": "registry-104",
-        "title": "Erdős Prime Gap Conjecture",
-        "description": "Asymptotic distribution of normalized gaps between consecutive primes.",
-        "state": "resolved",
-        "type": "scientific_task",
-        "targetFunction": "inftyF times 0G = F cdot G quad text{via Axiom~eqref{eq:A6}}.",
+        "title": "Гипотеза Эрдёша о разрывах простых: структурная редукция нормированных разрывов (внешняя задача открыта)",
+        "description": "ВНЕШНЯЯ ЗАДАЧА ОТКРЫТА: гипотеза Эрдёша о распределении нормированных разрывов между простыми\n\nЧТО ФАКТИЧЕСКИ ПОДТВЕРЖДЕНО: ядровая теорема RICIS_Template.A5_inf_div (артефакт ricis-universal-orchestration-template, прогон 34891262489, exit 0): отношение индексированных бесконечностей разрешается в индексах.\n\nЧТО НЕ УТВЕРЖДАЕТСЯ: асимптотическое распределение нормированных разрывов не установлено: предельный переход в RICIS запрещён (P1), поэтому узел не может утверждать асимптотику.",
+        "state": "partial",
+        "type": "derived_problem",
+        "targetFunction": "StructuralReduce(∞_gap / ∞_log) = div Gap Log in RExpr AST",
         "zoneIds": [
             "math"
         ],
@@ -770,15 +856,18 @@ export const initialMap: MapState = {
             "marketGain": 5000000000,
             "riskLoss": 2000000000
         },
-        "ricisSolvable": true
+        "ricisSolvable": false,
+        "informalExternalClaim": "INFORMAL: гипотеза Эрдёша о распределении нормированных разрывов между простыми — внешняя задача вне ядрового пути этого репозитория; узел не содержит и не может содержать её решения. Связь — неформальная мотивация, а не проверенный результат."
     },
+    // <<< NODE-CLAIM-ORCHESTRATION:registry-104
+    // >>> NODE-CLAIM-ORCHESTRATION:registry-105
     {
         "id": "registry-105",
-        "title": "Green--Tao Theorem Extension",
-        "description": "Existence of arbitrarily long arithmetic progressions in prime numbers.",
-        "state": "resolved",
-        "type": "scientific_task",
-        "targetFunction": "Resolve()",
+        "title": "Теорема Грина — Тао: классический результат вне ядрового пути (структурная рамка)",
+        "description": "КЛАССИЧЕСКИЙ РЕЗУЛЬТАТ ВНЕ ЯДРОВОГО ПУТИ ЭТОГО РЕПОЗИТОРИЯ: теорема Грина — Тао о произвольно длинных арифметических прогрессиях из простых чисел\n\nЧТО ФАКТИЧЕСКИ ПОДТВЕРЖДЕНО: ядровая теорема RICIS_Template.A5_inf_div (артефакт ricis-universal-orchestration-template, прогон 34891262489, exit 0) даёт символьную рамку класса.\n\nЧТО НЕ УТВЕРЖДАЕТСЯ: теорема Грина — Тао (2004) — классический результат, доказанный вне этого репозитория; узел его не проверяет и не воспроизводит. Ядровой путь репозитория подтверждает только символьную рамку, а не саму теорему.",
+        "state": "partial",
+        "type": "derived_problem",
+        "targetFunction": "StructuralReduce(∞_AP / ∞_primes) = div AP Primes in RExpr AST",
         "zoneIds": [
             "math"
         ],
@@ -793,15 +882,18 @@ export const initialMap: MapState = {
             "marketGain": 5000000000,
             "riskLoss": 2000000000
         },
-        "ricisSolvable": true
+        "ricisSolvable": false,
+        "informalExternalClaim": "INFORMAL: теорема Грина — Тао о произвольно длинных арифметических прогрессиях из простых чисел — классический результат вне ядрового пути этого репозитория; узел не содержит и не может содержать её решения. Связь — неформальная мотивация, а не проверенный результат."
     },
+    // <<< NODE-CLAIM-ORCHESTRATION:registry-105
+    // >>> NODE-CLAIM-ORCHESTRATION:registry-106
     {
         "id": "registry-106",
-        "title": "Sum of Squares Representation",
-        "description": "Decomposition of integers into sum of squares.",
-        "state": "resolved",
-        "type": "scientific_task",
-        "targetFunction": "Resolve()",
+        "title": "Суммы квадратов: классический результат вне ядрового пути (структурная рамка)",
+        "description": "КЛАССИЧЕСКИЙ РЕЗУЛЬТАТ ВНЕ ЯДРОВОГО ПУТИ ЭТОГО РЕПОЗИТОРИЯ: теоремы Лагранжа (четыре квадрата) и Лежандра (три квадрата)\n\nЧТО ФАКТИЧЕСКИ ПОДТВЕРЖДЕНО: ядровая теорема RICIS_Template.A4_indexed_zero_div (артефакт ricis-universal-orchestration-template, прогон 34891262489, exit 0).\n\nЧТО НЕ УТВЕРЖДАЕТСЯ: теоремы Лагранжа и Лежандра о суммах квадратов — классические результаты, доказанные вне этого репозитория; узел не содержит их формального доказательства и не заявляет его.",
+        "state": "partial",
+        "type": "derived_problem",
+        "targetFunction": "StructuralReduce(0_n / 0_squares) = div N Squares in RExpr AST",
         "zoneIds": [
             "math"
         ],
@@ -816,15 +908,18 @@ export const initialMap: MapState = {
             "marketGain": 5000000000,
             "riskLoss": 2000000000
         },
-        "ricisSolvable": true
+        "ricisSolvable": false,
+        "informalExternalClaim": "INFORMAL: теоремы Лагранжа (четыре квадрата) и Лежандра (три квадрата) — классический результат вне ядрового пути этого репозитория; узел не содержит и не может содержать её решения. Связь — неформальная мотивация, а не проверенный результат."
     },
+    // <<< NODE-CLAIM-ORCHESTRATION:registry-106
+    // >>> NODE-CLAIM-ORCHESTRATION:registry-107
     {
         "id": "registry-107",
-        "title": "Collatz Conjecture (3n + 1)",
-        "description": "The iterative process $n \\to n/2$ (even) and $n \\to 3n+1$ (odd) exhibits complex trajectory dynamics.",
-        "state": "resolved",
-        "type": "scientific_task",
-        "targetFunction": "Resolve()",
+        "title": "Гипотеза Коллатца: L0-инвариант редукции вместо решения динамической системы (внешняя задача открыта)",
+        "description": "ВНЕШНЯЯ ЗАДАЧА ОТКРЫТА: гипотеза Коллатца (3n + 1)\n\nЧТО ФАКТИЧЕСКИ ПОДТВЕРЖДЕНО: ядровая теорема RICIS_Template.L0_continuity_divSelf (артефакт ricis-universal-orchestration-template, прогон 34891262489, exit 0): устранение самоделения L0-непрерывно.\n\nЧТО НЕ УТВЕРЖДАЕТСЯ: гипотеза Коллатца не доказана: ветвление дерева обратных предков, отсутствие нетривиальных циклов и ограниченность роста траекторий здесь не рассматриваются; монолит CollatzTreeMonolith остаётся спецификацией.",
+        "state": "partial",
+        "type": "derived_problem",
+        "targetFunction": "L0Continuity(StructuralReduce(divSelf E)) in RExpr AST",
         "zoneIds": [
             "math"
         ],
@@ -840,15 +935,18 @@ export const initialMap: MapState = {
             "marketGain": 5000000000,
             "riskLoss": 2000000000
         },
-        "ricisSolvable": true
+        "ricisSolvable": false,
+        "informalExternalClaim": "INFORMAL: гипотеза Коллатца (3n + 1) — внешняя задача вне ядрового пути этого репозитория; узел не содержит и не может содержать её решения. Связь — неформальная мотивация, а не проверенный результат."
     },
+    // <<< NODE-CLAIM-ORCHESTRATION:registry-107
+    // >>> NODE-CLAIM-ORCHESTRATION:registry-108
     {
         "id": "registry-108",
-        "title": "Finite-Time Blow-up in NLS and NLW",
-        "description": "Nonlinear Schrödinger (NLS) and Wave (NLW) equations form wave-collapse singularities in finite time $t^*$.",
-        "state": "resolved",
-        "type": "scientific_task",
-        "targetFunction": "0{text{smooth}} times infty{text{sol}} = F cdot G.",
+        "title": "Конечновременной blow-up в NLS и NLW: структурный мост 0·∞ (внешняя задача открыта)",
+        "description": "ВНЕШНЯЯ ЗАДАЧА ОТКРЫТА: образование сингулярностей за конечное время в NLS/NLW\n\nЧТО ФАКТИЧЕСКИ ПОДТВЕРЖДЕНО: ядровая теорема RICIS_Template.A6_geometric_realization (артефакт ricis-universal-orchestration-template, прогон 34891262489, exit 0): неопределённость 0_F · ∞_G разрешается геометрической мерой.\n\nЧТО НЕ УТВЕРЖДАЕТСЯ: конечновременной blow-up не доказан и не опровергнут: RExpr не интерпретируется как пространство функций, а t* не входит в формулировку.",
+        "state": "partial",
+        "type": "derived_problem",
+        "targetFunction": "StructuralReduce(0_smooth · ∞_collapse) = mul Smooth Collapse in RExpr AST",
         "zoneIds": [
             "physics"
         ],
@@ -863,15 +961,18 @@ export const initialMap: MapState = {
             "marketGain": 5000000000,
             "riskLoss": 2000000000
         },
-        "ricisSolvable": true
+        "ricisSolvable": false,
+        "informalExternalClaim": "INFORMAL: образование сингулярностей за конечное время в NLS/NLW — внешняя задача вне ядрового пути этого репозитория; узел не содержит и не может содержать её решения. Связь — неформальная мотивация, а не проверенный результат."
     },
+    // <<< NODE-CLAIM-ORCHESTRATION:registry-108
+    // >>> NODE-CLAIM-ORCHESTRATION:registry-109
     {
         "id": "registry-109",
-        "title": "Singularities in Geometric Flows (Ricci Flow / Mean Curvature Flow)",
-        "description": "Pinch-off neck singularities in Riemannian manifold evolution.",
-        "state": "resolved",
-        "type": "scientific_task",
-        "targetFunction": "0{text{neck}} times infty{text{pinch}} = C cdot M.",
+        "title": "Сингулярности геометрических потоков: классический результат вне ядрового пути (структурный мост)",
+        "description": "КЛАССИЧЕСКИЙ РЕЗУЛЬТАТ ВНЕ ЯДРОВОГО ПУТИ ЭТОГО РЕПОЗИТОРИЯ: классификация сингулярностей потока Риччи и потока средней кривизны\n\nЧТО ФАКТИЧЕСКИ ПОДТВЕРЖДЕНО: ядровая теорема RICIS_Template.A6_geometric_realization (артефакт ricis-universal-orchestration-template, прогон 34891262489, exit 0).\n\nЧТО НЕ УТВЕРЖДАЕТСЯ: классификация сингулярностей потока Риччи и потока средней кривизны (результаты Гамильтона — Перельмана и последователей) — классические результаты вне этого репозитория; узел их не воспроизводит, метрика многообразия в RExpr отсутствует.",
+        "state": "partial",
+        "type": "derived_problem",
+        "targetFunction": "StructuralReduce(0_neck · ∞_pinch) = mul Neck Pinch in RExpr AST",
         "zoneIds": [
             "physics"
         ],
@@ -886,15 +987,18 @@ export const initialMap: MapState = {
             "marketGain": 5000000000,
             "riskLoss": 2000000000
         },
-        "ricisSolvable": true
+        "ricisSolvable": false,
+        "informalExternalClaim": "INFORMAL: классификация сингулярностей потока Риччи и потока средней кривизны — классический результат вне ядрового пути этого репозитория; узел не содержит и не может содержать её решения. Связь — неформальная мотивация, а не проверенный результат."
     },
+    // <<< NODE-CLAIM-ORCHESTRATION:registry-109
+    // >>> NODE-CLAIM-ORCHESTRATION:registry-110
     {
         "id": "registry-110",
-        "title": "Blow-up in 3D Euler Equations and MHD",
-        "description": "Vortex stretching in 3D Euler and Magnetohydrodynamics causing potential gradient explosion.",
-        "state": "resolved",
-        "type": "scientific_task",
-        "targetFunction": "0{text{vortex}} times infty{text{stretch}} = F cdot G.",
+        "title": "Blow-up в 3D уравнениях Эйлера и MHD: структурный мост (внешняя задача открыта)",
+        "description": "ВНЕШНЯЯ ЗАДАЧА ОТКРЫТА: blow-up решений 3D уравнений Эйлера и МГД\n\nЧТО ФАКТИЧЕСКИ ПОДТВЕРЖДЕНО: ядровая теорема RICIS_Template.A6_geometric_realization (артефакт ricis-universal-orchestration-template, прогон 34891262489, exit 0).\n\nЧТО НЕ УТВЕРЖДАЕТСЯ: взрыв градиента скорости за конечное время в 3D Эйлере/MHD не доказан и не опровергнут: узел не содержит анализа завихрённости в функциональных пространствах.",
+        "state": "partial",
+        "type": "derived_problem",
+        "targetFunction": "StructuralReduce(0_vortex · ∞_stretch) = mul Vortex Stretch in RExpr AST",
         "zoneIds": [
             "physics"
         ],
@@ -909,15 +1013,18 @@ export const initialMap: MapState = {
             "marketGain": 5000000000,
             "riskLoss": 2000000000
         },
-        "ricisSolvable": true
+        "ricisSolvable": false,
+        "informalExternalClaim": "INFORMAL: blow-up решений 3D уравнений Эйлера и МГД — внешняя задача вне ядрового пути этого репозитория; узел не содержит и не может содержать её решения. Связь — неформальная мотивация, а не проверенный результат."
     },
+    // <<< NODE-CLAIM-ORCHESTRATION:registry-110
+    // >>> NODE-CLAIM-ORCHESTRATION:registry-111
     {
         "id": "registry-111",
-        "title": "Degenerate Parabolic Equations",
-        "description": "Loss of regularity at diffusion fronts in porous medium equations.",
-        "state": "resolved",
-        "type": "scientific_task",
-        "targetFunction": "Resolve()",
+        "title": "Вырожденные параболические уравнения: структурная редукция отношения нулей (внешняя задача открыта)",
+        "description": "ВНЕШНЯЯ ЗАДАЧА ОТКРЫТА: потеря регулярности на фронтах вырождающихся параболических уравнений\n\nЧТО ФАКТИЧЕСКИ ПОДТВЕРЖДЕНО: ядровая теорема RICIS_Template.A4_indexed_zero_div (артефакт ricis-universal-orchestration-template, прогон 34891262489, exit 0).\n\nЧТО НЕ УТВЕРЖДАЕТСЯ: потеря регулярности на фронтах не доказана и не опровергнута: RExpr не содержит уравнений в частных производных и понятия обобщённого решения.",
+        "state": "partial",
+        "type": "derived_problem",
+        "targetFunction": "StructuralReduce(0_front / 0_diffusion) = div Front Diffusion in RExpr AST",
         "zoneIds": [
             "physics"
         ],
@@ -932,15 +1039,18 @@ export const initialMap: MapState = {
             "marketGain": 5000000000,
             "riskLoss": 2000000000
         },
-        "ricisSolvable": true
+        "ricisSolvable": false,
+        "informalExternalClaim": "INFORMAL: потеря регулярности на фронтах вырождающихся параболических уравнений — внешняя задача вне ядрового пути этого репозитория; узел не содержит и не может содержать её решения. Связь — неформальная мотивация, а не проверенный результат."
     },
+    // <<< NODE-CLAIM-ORCHESTRATION:registry-111
+    // >>> NODE-CLAIM-ORCHESTRATION:registry-112
     {
         "id": "registry-112",
-        "title": "Hamiltonian PDEs and Vortex Dynamics",
-        "description": "Phase-space singularities in water waves and point-vortex interaction.",
-        "state": "resolved",
-        "type": "scientific_task",
-        "targetFunction": "Resolve()",
+        "title": "Гамильтоновы PDE и динамика вихрей: структурный мост (внешняя задача открыта)",
+        "description": "ВНЕШНЯЯ ЗАДАЧА ОТКРЫТА: сингулярности фазового пространства в гамильтоновых PDE и динамике точечных вихрей\n\nЧТО ФАКТИЧЕСКИ ПОДТВЕРЖДЕНО: ядровая теорема RICIS_Template.A6_geometric_realization (артефакт ricis-universal-orchestration-template, прогон 34891262489, exit 0).\n\nЧТО НЕ УТВЕРЖДАЕТСЯ: поведение сингулярностей фазового пространства (волны на воде, точечные вихри) не установлено: гамильтонова механика в RExpr не формализована.",
+        "state": "partial",
+        "type": "derived_problem",
+        "targetFunction": "StructuralReduce(0_phase · ∞_vortex) = mul Phase Vortex in RExpr AST",
         "zoneIds": [
             "physics"
         ],
@@ -955,15 +1065,18 @@ export const initialMap: MapState = {
             "marketGain": 5000000000,
             "riskLoss": 2000000000
         },
-        "ricisSolvable": true
+        "ricisSolvable": false,
+        "informalExternalClaim": "INFORMAL: сингулярности фазового пространства в гамильтоновых PDE и динамике точечных вихрей — внешняя задача вне ядрового пути этого репозитория; узел не содержит и не может содержать её решения. Связь — неформальная мотивация, а не проверенный результат."
     },
+    // <<< NODE-CLAIM-ORCHESTRATION:registry-112
+    // >>> NODE-CLAIM-ORCHESTRATION:registry-113
     {
         "id": "registry-113",
-        "title": "Semilinear and Quasilinear Wave Equations",
-        "description": "Shock wave formation and critical derivative blow-up.",
-        "state": "resolved",
-        "type": "scientific_task",
-        "targetFunction": "Resolve()",
+        "title": "Полулинейные и квазилинейные волновые уравнения: классический результат вне ядрового пути",
+        "description": "КЛАССИЧЕСКИЙ РЕЗУЛЬТАТ ВНЕ ЯДРОВОГО ПУТИ ЭТОГО РЕПОЗИТОРИЯ: образование ударных волн и критический производный blow-up\n\nЧТО ФАКТИЧЕСКИ ПОДТВЕРЖДЕНО: ядровая теорема RICIS_Template.A6_geometric_realization (артефакт ricis-universal-orchestration-template, прогон 34891262489, exit 0).\n\nЧТО НЕ УТВЕРЖДАЕТСЯ: образование ударных волн и критический производный blow-up — классические результаты теории гиперболических уравнений, доказанные вне этого репозитория; узел их не воспроизводит.",
+        "state": "partial",
+        "type": "derived_problem",
+        "targetFunction": "StructuralReduce(0_shock · ∞_derivative) = mul Shock Derivative in RExpr AST",
         "zoneIds": [
             "physics"
         ],
@@ -978,15 +1091,18 @@ export const initialMap: MapState = {
             "marketGain": 5000000000,
             "riskLoss": 2000000000
         },
-        "ricisSolvable": true
+        "ricisSolvable": false,
+        "informalExternalClaim": "INFORMAL: образование ударных волн и критический производный blow-up — классический результат вне ядрового пути этого репозитория; узел не содержит и не может содержать её решения. Связь — неформальная мотивация, а не проверенный результат."
     },
+    // <<< NODE-CLAIM-ORCHESTRATION:registry-113
+    // >>> NODE-CLAIM-ORCHESTRATION:registry-114
     {
         "id": "registry-114",
-        "title": "Halting Problem",
-        "description": "Algorithmic infinite looping and undecidability.",
-        "state": "resolved",
-        "type": "scientific_task",
-        "targetFunction": "Resolve()",
+        "title": "Проблема остановки: классический результат теории вычислимости (структурная типизация)",
+        "description": "КЛАССИЧЕСКИЙ РЕЗУЛЬТАТ ВНЕ ЯДРОВОГО ПУТИ ЭТОГО РЕПОЗИТОРИЯ: неразрешимость проблемы остановки (Тьюринг, 1936)\n\nЧТО ФАКТИЧЕСКИ ПОДТВЕРЖДЕНО: ядровая теорема RICIS_Template.L1_identity (артефакт ricis-universal-orchestration-template, прогон 34891262489, exit 0; не зависит от аксиом) даёт структурную проверку типизации уровня.\n\nЧТО НЕ УТВЕРЖДАЕТСЯ: неразрешимость проблемы остановки — классический результат Тьюринга (1936), доказанный вне этого репозитория; узел не содержит формализации машин Тьюринга и не воспроизводит диагональное доказательство.",
+        "state": "partial",
+        "type": "derived_problem",
+        "targetFunction": "L1Identity(TuringMetaMonolith) — типирование уровня без коллапса уровней (RExpr AST)",
         "zoneIds": [
             "informatics"
         ],
@@ -1002,15 +1118,18 @@ export const initialMap: MapState = {
             "marketGain": 5000000000,
             "riskLoss": 2000000000
         },
-        "ricisSolvable": true
+        "ricisSolvable": false,
+        "informalExternalClaim": "INFORMAL: неразрешимость проблемы остановки (Тьюринг, 1936) — классический результат вне ядрового пути этого репозитория; узел не содержит и не может содержать её решения. Связь — неформальная мотивация, а не проверенный результат."
     },
+    // <<< NODE-CLAIM-ORCHESTRATION:registry-114
+    // >>> NODE-CLAIM-ORCHESTRATION:registry-115
     {
         "id": "registry-115",
-        "title": "Continuum Hypothesis (CDCC)",
-        "description": "The cardinality relationship $2^{\\aleph_0} = \\aleph_1$.",
-        "state": "resolved",
-        "type": "scientific_task",
-        "targetFunction": "2{aleph0} = aleph1 = text{MonolithOrder1}.",
+        "title": "Континуум-гипотеза: независимость установлена классически (формула 2^ℵ0 = ℵ1 не утверждается)",
+        "description": "КЛАССИЧЕСКИЙ РЕЗУЛЬТАТ ВНЕ ЯДРОВОГО ПУТИ ЭТОГО РЕПОЗИТОРИЯ: континуум-гипотеза (независимость в ZFC: Гёдель, Коэн)\n\nЧТО ФАКТИЧЕСКИ ПОДТВЕРЖДЕНО: ядровая теорема RICIS_Template.SP4_preserves_parent (артефакт ricis-universal-orchestration-template, прогон 34891262489, exit 0; не зависит от аксиом) подтверждает SP4-инвариант.\n\nЧТО НЕ УТВЕРЖДАЕТСЯ: равенство 2^ℵ0 = ℵ1 не доказано и не опровергнуто в ZFC (независимость: Гёдель 1940, Коэн 1963) — классический результат вне этого репозитория. Узел не утверждает равенство кардиналов: прежняя формула узла снята как переоценка.",
+        "state": "partial",
+        "type": "derived_problem",
+        "targetFunction": "SP4PreservesParent(semanticIndex F) = zeroF F in RExpr AST",
         "zoneIds": [
             "math"
         ],
@@ -1025,15 +1144,18 @@ export const initialMap: MapState = {
             "marketGain": 5000000000,
             "riskLoss": 2000000000
         },
-        "ricisSolvable": true
+        "ricisSolvable": false,
+        "informalExternalClaim": "INFORMAL: континуум-гипотеза (независимость в ZFC: Гёдель, Коэн) — классический результат вне ядрового пути этого репозитория; узел не содержит и не может содержать её решения. Связь — неформальная мотивация, а не проверенный результат."
     },
+    // <<< NODE-CLAIM-ORCHESTRATION:registry-115
+    // >>> NODE-CLAIM-ORCHESTRATION:registry-116
     {
         "id": "registry-116",
-        "title": "Turbulence and Energy Cascade",
-        "description": "Energy dissipation at sub-grid turbulent scales.",
-        "state": "resolved",
-        "type": "scientific_task",
-        "targetFunction": "Resolve()",
+        "title": "Турбулентность и энергетический каскад: структурный мост (внешняя задача открыта)",
+        "description": "ВНЕШНЯЯ ЗАДАЧА ОТКРЫТА: энергетический каскад и диссипация на подсеточных масштабах\n\nЧТО ФАКТИЧЕСКИ ПОДТВЕРЖДЕНО: ядровая теорема RICIS_Template.A6_geometric_realization (артефакт ricis-universal-orchestration-template, прогон 34891262489, exit 0).\n\nЧТО НЕ УТВЕРЖДАЕТСЯ: диссипация энергии на подсеточных масштабах не выведена: каскад Колмогорова — физическая гипотеза, не следствие редукции AST.",
+        "state": "partial",
+        "type": "derived_problem",
+        "targetFunction": "StructuralReduce(0_viscous · ∞_cascade) = mul Viscous Cascade in RExpr AST",
         "zoneIds": [
             "physics"
         ],
@@ -1048,8 +1170,10 @@ export const initialMap: MapState = {
             "marketGain": 5000000000,
             "riskLoss": 2000000000
         },
-        "ricisSolvable": true
+        "ricisSolvable": false,
+        "informalExternalClaim": "INFORMAL: энергетический каскад и диссипация на подсеточных масштабах — внешняя задача вне ядрового пути этого репозитория; узел не содержит и не может содержать её решения. Связь — неформальная мотивация, а не проверенный результат."
     },
+    // <<< NODE-CLAIM-ORCHESTRATION:registry-116
     {
         "id": "registry-117",
         "title": "3D Navier--Stokes Existence and Smoothness",
@@ -1074,13 +1198,14 @@ export const initialMap: MapState = {
         },
         "ricisSolvable": false
     },
+    // >>> NODE-CLAIM-ORCHESTRATION:registry-118
     {
         "id": "registry-118",
-        "title": "LLM Gradient Explosion Elimination",
-        "description": "Loss spikes and $NaN$ crashes during deep neural network training.",
+        "title": "Стабилизация градиента LLM: инженерная проверка модуля (не ядровой прогон)",
+        "description": "ИНЖЕНЕРНАЯ ПРОВЕРКА: прогон модульных тестов, не ядровой прогон Lean: взрывы градиента и числовые выбросы при обучении глубоких сетей (инженерное утверждение)\n\nЧТО ФАКТИЧЕСКИ ПОДТВЕРЖДЕНО: прогон модульных тестов src/services/llmGradient/llmGradientStabilizer.test.ts: сингулярность 0_η · ∞_∇L нейтрализуется без числовых выбросов, вычисление делегируется Geometric Bridge Engine, цепочка TransformationLog непрерывна.\n\nЧТО НЕ УТВЕРЖДАЕТСЯ: «устранение Loss spikes в реальном обучении» не проверено и не утверждается: проверен модуль-стабилизатор и его инварианты, а не поведение конкретной модели на конкретном датасете. Это НЕ ядровое доказательство: ядровой прогон Lean здесь отсутствует, статус узла опирается на прогон тестов репозитория.",
         "state": "resolved",
         "type": "scientific_task",
-        "targetFunction": "Delta w = 0eta times infty{nabla L} = eta cdot nabla L.",
+        "targetFunction": "StructuralReduce(0_η · ∞_∇L) = mul Eta GradNorm (стабилизатор градиента)",
         "zoneIds": [
             "informatics"
         ],
@@ -1095,15 +1220,18 @@ export const initialMap: MapState = {
             "marketGain": 5000000000,
             "riskLoss": 2000000000
         },
-        "ricisSolvable": true
+        "ricisSolvable": true,
+        "informalExternalClaim": "INFORMAL: взрывы градиента и числовые выбросы при обучении глубоких сетей (инженерное утверждение) — внешняя задача вне ядрового пути этого репозитория; узел не содержит и не может содержать её решения. Связь — неформальная мотивация, а не проверенный результат."
     },
+    // <<< NODE-CLAIM-ORCHESTRATION:registry-118
+    // >>> NODE-CLAIM-ORCHESTRATION:registry-119
     {
         "id": "registry-119",
-        "title": "Voynich Manuscript Decipherment",
-        "description": "Information entropy singularities in encrypted historical scripts.",
-        "state": "resolved",
-        "type": "scientific_task",
-        "targetFunction": "Resolve()",
+        "title": "Рукопись Войнича: структурная редукция самоделения (дешифровка не выполнена)",
+        "description": "ВНЕШНЯЯ ЗАДАЧА ОТКРЫТА: дешифровка рукописи Войнича\n\nЧТО ФАКТИЧЕСКИ ПОДТВЕРЖДЕНО: ядровая теорема RICIS_Template.divSelf_one (артефакт ricis-universal-orchestration-template, прогон 34891262489, exit 0): устранение самоделения в AST.\n\nЧТО НЕ УТВЕРЖДАЕТСЯ: дешифровка рукописи Войнича не выполнена и не заявляется: RExpr — свободный символьный язык, семантика исторического текста в нём не представима. Работа по рукописи вне математического ядра (scope-note плана gap-closure).",
+        "state": "partial",
+        "type": "derived_problem",
+        "targetFunction": "StructuralReduce(divSelf(E)) = one in RExpr AST (не дешифровка)",
         "zoneIds": [
             "informatics"
         ],
@@ -1118,15 +1246,18 @@ export const initialMap: MapState = {
             "marketGain": 5000000000,
             "riskLoss": 2000000000
         },
-        "ricisSolvable": true
+        "ricisSolvable": false,
+        "informalExternalClaim": "INFORMAL: дешифровка рукописи Войнича — внешняя задача вне ядрового пути этого репозитория; узел не содержит и не может содержать её решения. Связь — неформальная мотивация, а не проверенный результат."
     },
+    // <<< NODE-CLAIM-ORCHESTRATION:registry-119
+    // >>> NODE-CLAIM-ORCHESTRATION:registry-120
     {
         "id": "registry-120",
-        "title": "Jacobian Conjecture",
-        "description": "Polynomial automorphisms and global invertibility.",
+        "title": "Гипотеза Якоби: исправленная структурная формулировка доказана ядром (внешняя гипотеза открыта)",
+        "description": "ВНЕШНЯЯ ГИПОТЕЗА ОТКРЫТА: узел несёт доказанное структурное утверждение, а не гипотезу: гипотеза Якоби о полиномиальных автоморфизмах\n\nЧТО ФАКТИЧЕСКИ ПОДТВЕРЖДЕНО: ядровой прогон 35404189840 (job kernel-check): производная ricis-jacobian-conjecture-v2.core-check.lean принята — exit 0, без sorryAx, #print axioms чистый для 8 теорем (jacobian_v1_identity_refuted, det_expansion_single_pass, Jacobian_singularity_resolved и др.).\n\nЧТО НЕ УТВЕРЖДАЕТСЯ: гипотеза Якоби для полиномиальных отображений C^n → C^n не доказана и не заявляется: доказано тождество резолвера над AST. Классическое разложение определителя, степени и пределы не рассматриваются (P1). Отказ rfl в прогоне 34870620154 был признаком ложности утверждения v1, а не технической трудностью.",
         "state": "resolved",
         "type": "scientific_task",
-        "targetFunction": "Resolve()",
+        "targetFunction": "ricisResolveDet (zeroF F) zero zero (infF G) = sub (mul F G) (zeroF zero)",
         "zoneIds": [
             "math"
         ],
@@ -1141,8 +1272,10 @@ export const initialMap: MapState = {
             "marketGain": 5000000000,
             "riskLoss": 2000000000
         },
-        "ricisSolvable": true
+        "ricisSolvable": true,
+        "informalExternalClaim": "INFORMAL: гипотеза Якоби о полиномиальных автоморфизмах — внешняя задача вне ядрового пути этого репозитория; узел не содержит и не может содержать её решения. Связь — неформальная мотивация, а не проверенный результат."
     },
+    // <<< NODE-CLAIM-ORCHESTRATION:registry-120
     {
       "id": "ricis-ast-reduction-pattern",
       "title": "Шаблон обобщенной AST-редукции",
@@ -1624,346 +1757,686 @@ export const initialMap: MapState = {
     },
     
   ...VOYNICH_HIERARCHY_PROOFS,
+  // >>> NODE-CLAIM-ORCHESTRATION-PROOF:registry-100
   "registry-100": {
-    "nodeId": "registry-100",
-    "targetFunction": "frac{0F}{0G} = frac{F}{G}.",
-    "steps": [
-      {
-        "phase": -1,
-        "name": "L1_IDENTITY",
-        "action": "Verify identity and types",
-        "expression": "T(frac{0F}{0G} = frac{F}{G}.)"
-      },
-      {
-        "phase": 2,
-        "name": "RICIS transform",
-        "action": "Axiom A6",
-        "expression": "0_F x infinity_G = F * G (Spec: https://doi.org/10.5281/zenodo.21836220)"
-      }
-    ],
-    "finalResult": "Axiom Extracted: registry-100_resolved",
-    "latex": "\\section*{RICIS-III Proof: abc Conjecture}\n\\textbf{Target Function:} $frac{0F}{0G} = frac{F}{G}.$\n\\subsection*{RICIS Transform & Axiom A6}\n$ 0_F \\times \\infty_G = F \\cdot G $\n\\textbf{Specification Lean 4 DOI:} \\href{https://doi.org/10.5281/zenodo.21529989}{https://doi.org/10.5281/zenodo.21529989} (Master Registry href{https://doi.org/10.5281/zenodo.21836220}{10.5281/zenodo.21836220}) (Master Registry \\href{https://doi.org/10.5281/zenodo.21517353}{10.5281/zenodo.21517353})\n\\textbf{Final Result:} Axiom Extracted: registry-100_resolved"
+      "nodeId": "registry-100",
+      "targetFunction": "StructuralReduce(0_F / 0_G) = div F G in RExpr AST",
+      "steps": [
+          {
+              "phase": -1,
+              "name": "L1_IDENTITY (типирование)",
+              "action": "Типирование утверждения узла: внешние объекты — неинтерпретированные конструкторы RExpr",
+              "expression": "T = RExpr"
+          },
+          {
+              "phase": 0.5,
+              "name": "SP4 semantic indexing",
+              "action": "Индексация сингулярности по порождающему выражению; индекс родителя сохраняется",
+              "expression": "индексированное отношение нулей 0_F / 0_G при критическом делительном балансе"
+          },
+          {
+              "phase": 2,
+              "name": "AXIOMATIC_REDUCTION (A4/A6/A7/A10/L0)",
+              "action": "Применён закон резолвера: resolveRICIS (RExpr.div (RExpr.zeroF F) (RExpr.zeroF G)) = RExpr.div F G. Редукция зависит только от порождающих индексов F, G и не зависит от полезной нагрузки",
+              "expression": "resolveRICIS (RExpr.div (RExpr.zeroF F) (RExpr.zeroF G)) = RExpr.div F G"
+          },
+          {
+              "phase": 4,
+              "name": "LEAN_CODEGEN → GATEWAY_DISPATCH",
+              "action": "Кодогенерация по универсальному шаблону и отправка в ядровой прогон; статус получен фактическим прогоном",
+              "expression": "artifact ricis-universal-orchestration-template · theorem RICIS_Template.A4_indexed_zero_div · run 34891262489"
+          },
+          {
+              "phase": 6,
+              "name": "TRUST_VALIDATION (E-03)",
+              "action": "Проверка границы доверия: состояние узла определяется только применимым evidence, внешняя задача остаётся INFORMAL",
+              "expression": "state = partial; ricisSolvable = false"
+          }
+      ],
+      "finalResult": "Структурный фрагмент подтверждён ядром: ricis-universal-orchestration-template · RICIS_Template.A4_indexed_zero_div · прогон 34891262489 (exit 0, без sorryAx). Внешний предмет («abc-гипотеза (радикал rad(abc) и критические границы делимости)») не решён и не заявляется.",
+      "latex": "\\section*{RICIS-III Proof: Structural fragment (external problem open)}\\n\\textbf{Author:} Dmitry V. Aleinikov (ORCID: 0009-0004-3226-7700)\\n\\subsection*{Core (structural) statement}\\nIn the symbolic language \\texttt{RExpr} the singular core of this node is индексированное отношение нулей 0_F / 0_G при критическом делительном балансе. Resolver law: \\texttt{resolveRICIS (RExpr.div (RExpr.zeroF F) (RExpr.zeroF G)) = RExpr.div F G}. Редукция зависит только от порождающих индексов F, G и не зависит от полезной нагрузки.\\n\\subsection*{What is actually verified}\\nядровая теорема RICIS_Template.A4_indexed_zero_div (артефакт ricis-universal-orchestration-template, прогон 34891262489, exit 0, без sorryAx): класс неопределённости 0_F / 0_G разрешается в порождающих индексах.\\n\\subsection*{Boundary of the claim}\\nabc-гипотеза не доказана и не затрагивается: в RExpr нет ни радикала rad(abc), ни асимптотических оценок делимости; редукция — структурная, а не арифметическая.\\n\\subsection*{Verification path}\\n\\textbf{Artifact:} \\texttt{ricis-universal-orchestration-template}\\n\\textbf{Theorem:} \\texttt{RICIS_Template.A4_indexed_zero_div}\\n\\textbf{Kernel run:} 34891262489 — exit 0, no \\texttt{sorryAx}\\n\\textbf{Specification Lean 4 DOI:} \\href{https://doi.org/10.5281/zenodo.21529989}{https://doi.org/10.5281/zenodo.21529989}\\n\\textbf{RICIS transform (Axiom A6, symbolic level):} $0_F \\times \\infty_G = F \\cdot G$ — applied to the AST node, not to the external object."
   },
+  // <<< NODE-CLAIM-ORCHESTRATION-PROOF:registry-100
+  // >>> NODE-CLAIM-ORCHESTRATION-PROOF:registry-101
   "registry-101": {
-    "nodeId": "registry-101",
-    "targetFunction": "Resolve()",
-    "steps": [
-      {
-        "phase": -1,
-        "name": "L1_IDENTITY",
-        "action": "Verify identity and types",
-        "expression": "T(Resolve())"
-      },
-      {
-        "phase": 2,
-        "name": "RICIS transform",
-        "action": "Axiom A6",
-        "expression": "0_F x infinity_G = F * G (Spec: https://doi.org/10.5281/zenodo.21836220)"
-      }
-    ],
-    "finalResult": "Axiom Extracted: registry-101_resolved",
-    "latex": "\\section*{RICIS-III Proof: Goldbach's Conjecture}\n\\textbf{Target Function:} $Resolve()$\n\\subsection*{RICIS Transform & Axiom A6}\n$ 0_F \\times \\infty_G = F \\cdot G $\n\\textbf{Specification Lean 4 DOI:} \\href{https://doi.org/10.5281/zenodo.21529989}{https://doi.org/10.5281/zenodo.21529989} (Master Registry href{https://doi.org/10.5281/zenodo.21836220}{10.5281/zenodo.21836220}) (Master Registry \\href{https://doi.org/10.5281/zenodo.21517353}{10.5281/zenodo.21517353})\n\\textbf{Final Result:} Axiom Extracted: registry-101_resolved"
+      "nodeId": "registry-101",
+      "targetFunction": "StructuralReduce(0_sum / 0_primes) = div Sum Primes in RExpr AST",
+      "steps": [
+          {
+              "phase": -1,
+              "name": "L1_IDENTITY (типирование)",
+              "action": "Типирование утверждения узла: внешние объекты — неинтерпретированные конструкторы RExpr",
+              "expression": "T = RExpr"
+          },
+          {
+              "phase": 0.5,
+              "name": "SP4 semantic indexing",
+              "action": "Индексация сингулярности по порождающему выражению; индекс родителя сохраняется",
+              "expression": "аддитивный баланс как отношение индексированных нулей 0_sum / 0_primes"
+          },
+          {
+              "phase": 2,
+              "name": "AXIOMATIC_REDUCTION (A4/A6/A7/A10/L0)",
+              "action": "Применён закон резолвера: resolveRICIS (RExpr.div (RExpr.zeroF F) (RExpr.zeroF G)) = RExpr.div F G. Редукция не зависит от вложенности: индекс SP4 сохраняется на любом уровне дерева",
+              "expression": "resolveRICIS (RExpr.div (RExpr.zeroF F) (RExpr.zeroF G)) = RExpr.div F G"
+          },
+          {
+              "phase": 4,
+              "name": "LEAN_CODEGEN → GATEWAY_DISPATCH",
+              "action": "Кодогенерация по универсальному шаблону и отправка в ядровой прогон; статус получен фактическим прогоном",
+              "expression": "artifact ricis-universal-orchestration-template · theorem RICIS_Template.A4_indexed_zero_div · run 34891262489"
+          },
+          {
+              "phase": 6,
+              "name": "TRUST_VALIDATION (E-03)",
+              "action": "Проверка границы доверия: состояние узла определяется только применимым evidence, внешняя задача остаётся INFORMAL",
+              "expression": "state = partial; ricisSolvable = false"
+          }
+      ],
+      "finalResult": "Структурный фрагмент подтверждён ядром: ricis-universal-orchestration-template · RICIS_Template.A4_indexed_zero_div · прогон 34891262489 (exit 0, без sorryAx). Внешний предмет («гипотеза Гольдбаха (разложение всех чётных 2k > 2 в сумму двух простых)») не решён и не заявляется.",
+      "latex": "\\section*{RICIS-III Proof: Structural fragment (external problem open)}\\n\\textbf{Author:} Dmitry V. Aleinikov (ORCID: 0009-0004-3226-7700)\\n\\subsection*{Core (structural) statement}\\nIn the symbolic language \\texttt{RExpr} the singular core of this node is аддитивный баланс как отношение индексированных нулей 0_sum / 0_primes. Resolver law: \\texttt{resolveRICIS (RExpr.div (RExpr.zeroF F) (RExpr.zeroF G)) = RExpr.div F G}. Редукция не зависит от вложенности: индекс SP4 сохраняется на любом уровне дерева.\\n\\subsection*{What is actually verified}\\nядровая теорема RICIS_Template.A4_indexed_zero_div (артефакт ricis-universal-orchestration-template, прогон 34891262489, exit 0): отношение индексированных нулей разрешается в индексах.\\n\\subsection*{Boundary of the claim}\\nгипотеза Гольдбаха не доказана: узел не содержит ни решета простых, ни доказательства непустоты пересечения для всех чётных 2k > 2. Требуемый монолит порядка 2 остаётся спецификацией (task-goldbach-sieve-monolith), а сама задача зарегистрирована как UNRESOLVED_CHALLENGE в src/model/taskResolutionEngine.ts.\\n\\subsection*{Verification path}\\n\\textbf{Artifact:} \\texttt{ricis-universal-orchestration-template}\\n\\textbf{Theorem:} \\texttt{RICIS_Template.A4_indexed_zero_div}\\n\\textbf{Kernel run:} 34891262489 — exit 0, no \\texttt{sorryAx}\\n\\textbf{Specification Lean 4 DOI:} \\href{https://doi.org/10.5281/zenodo.21529989}{https://doi.org/10.5281/zenodo.21529989}\\n\\textbf{RICIS transform (Axiom A6, symbolic level):} $0_F \\times \\infty_G = F \\cdot G$ — applied to the AST node, not to the external object."
   },
+  // <<< NODE-CLAIM-ORCHESTRATION-PROOF:registry-101
+  // >>> NODE-CLAIM-ORCHESTRATION-PROOF:registry-102
   "registry-102": {
-    "nodeId": "registry-102",
-    "targetFunction": "Resolve()",
-    "steps": [
-      {
-        "phase": -1,
-        "name": "L1_IDENTITY",
-        "action": "Verify identity and types",
-        "expression": "T(Resolve())"
-      },
-      {
-        "phase": 2,
-        "name": "RICIS transform",
-        "action": "Axiom A6",
-        "expression": "0_F x infinity_G = F * G (Spec: https://doi.org/10.5281/zenodo.21836220)"
-      }
-    ],
-    "finalResult": "Axiom Extracted: registry-102_resolved",
-    "latex": "\\section*{RICIS-III Proof: Twin Prime Conjecture}\n\\textbf{Target Function:} $Resolve()$\n\\subsection*{RICIS Transform & Axiom A6}\n$ 0_F \\times \\infty_G = F \\cdot G $\n\\textbf{Specification Lean 4 DOI:} \\href{https://doi.org/10.5281/zenodo.21529989}{https://doi.org/10.5281/zenodo.21529989} (Master Registry href{https://doi.org/10.5281/zenodo.21836220}{10.5281/zenodo.21836220}) (Master Registry \\href{https://doi.org/10.5281/zenodo.21517353}{10.5281/zenodo.21517353})\n\\textbf{Final Result:} Axiom Extracted: registry-102_resolved"
+      "nodeId": "registry-102",
+      "targetFunction": "StructuralReduce(∞_F − ∞_G) = infF (sub F G) in RExpr AST",
+      "steps": [
+          {
+              "phase": -1,
+              "name": "L1_IDENTITY (типирование)",
+              "action": "Типирование утверждения узла: внешние объекты — неинтерпретированные конструкторы RExpr",
+              "expression": "T = RExpr"
+          },
+          {
+              "phase": 0.5,
+              "name": "SP4 semantic indexing",
+              "action": "Индексация сингулярности по порождающему выражению; индекс родителя сохраняется",
+              "expression": "разность индексированных бесконечностей ∞_F − ∞_G дискретной плоскости"
+          },
+          {
+              "phase": 2,
+              "name": "AXIOMATIC_REDUCTION (A4/A6/A7/A10/L0)",
+              "action": "Применён закон резолвера: resolveRICIS (RExpr.sub (RExpr.infF F) (RExpr.infF G)) = RExpr.infF (RExpr.sub F G). Разностный оператор применяется к индексам, а не к «бесконечности» как значению",
+              "expression": "resolveRICIS (RExpr.sub (RExpr.infF F) (RExpr.infF G)) = RExpr.infF (RExpr.sub F G)"
+          },
+          {
+              "phase": 4,
+              "name": "LEAN_CODEGEN → GATEWAY_DISPATCH",
+              "action": "Кодогенерация по универсальному шаблону и отправка в ядровой прогон; статус получен фактическим прогоном",
+              "expression": "artifact ricis-universal-orchestration-template · theorem RICIS_Template.A7_inf_sub · run 34891262489"
+          },
+          {
+              "phase": 6,
+              "name": "TRUST_VALIDATION (E-03)",
+              "action": "Проверка границы доверия: состояние узла определяется только применимым evidence, внешняя задача остаётся INFORMAL",
+              "expression": "state = partial; ricisSolvable = false"
+          }
+      ],
+      "finalResult": "Структурный фрагмент подтверждён ядром: ricis-universal-orchestration-template · RICIS_Template.A7_inf_sub · прогон 34891262489 (exit 0, без sorryAx). Внешний предмет («гипотеза о бесконечности пар простых (p, p+2)») не решён и не заявляется.",
+      "latex": "\\section*{RICIS-III Proof: Structural fragment (external problem open)}\\n\\textbf{Author:} Dmitry V. Aleinikov (ORCID: 0009-0004-3226-7700)\\n\\subsection*{Core (structural) statement}\\nIn the symbolic language \\texttt{RExpr} the singular core of this node is разность индексированных бесконечностей ∞_F − ∞_G дискретной плоскости. Resolver law: \\texttt{resolveRICIS (RExpr.sub (RExpr.infF F) (RExpr.infF G)) = RExpr.infF (RExpr.sub F G)}. Разностный оператор применяется к индексам, а не к «бесконечности» как значению.\\n\\subsection*{What is actually verified}\\nядровая теорема RICIS_Template.A7_inf_sub (артефакт ricis-universal-orchestration-template, прогон 34891262489, exit 0): разность индексированных бесконечностей остаётся индексированной.\\n\\subsection*{Boundary of the claim}\\nбесконечность множества пар близнецов не доказана: узел не содержит глобального аналитического функционала плотности; Δ_plane — оператор над индексами AST, а не мера множества простых.\\n\\subsection*{Verification path}\\n\\textbf{Artifact:} \\texttt{ricis-universal-orchestration-template}\\n\\textbf{Theorem:} \\texttt{RICIS_Template.A7_inf_sub}\\n\\textbf{Kernel run:} 34891262489 — exit 0, no \\texttt{sorryAx}\\n\\textbf{Specification Lean 4 DOI:} \\href{https://doi.org/10.5281/zenodo.21529989}{https://doi.org/10.5281/zenodo.21529989}\\n\\textbf{RICIS transform (Axiom A6, symbolic level):} $0_F \\times \\infty_G = F \\cdot G$ — applied to the AST node, not to the external object."
   },
+  // <<< NODE-CLAIM-ORCHESTRATION-PROOF:registry-102
+  // >>> NODE-CLAIM-ORCHESTRATION-PROOF:registry-103
   "registry-103": {
-    "nodeId": "registry-103",
-    "targetFunction": "Resolve()",
-    "steps": [
-      {
-        "phase": -1,
-        "name": "L1_IDENTITY",
-        "action": "Verify identity and types",
-        "expression": "T(Resolve())"
-      },
-      {
-        "phase": 2,
-        "name": "RICIS transform",
-        "action": "Axiom A6",
-        "expression": "0_F x infinity_G = F * G (Spec: https://doi.org/10.5281/zenodo.21836220)"
-      }
-    ],
-    "finalResult": "Axiom Extracted: registry-103_resolved",
-    "latex": "\\section*{RICIS-III Proof: Odd Perfect Numbers}\n\\textbf{Target Function:} $Resolve()$\n\\subsection*{RICIS Transform & Axiom A6}\n$ 0_F \\times \\infty_G = F \\cdot G $\n\\textbf{Specification Lean 4 DOI:} \\href{https://doi.org/10.5281/zenodo.21529989}{https://doi.org/10.5281/zenodo.21529989} (Master Registry href{https://doi.org/10.5281/zenodo.21836220}{10.5281/zenodo.21836220}) (Master Registry \\href{https://doi.org/10.5281/zenodo.21517353}{10.5281/zenodo.21517353})\n\\textbf{Final Result:} Axiom Extracted: registry-103_resolved"
+      "nodeId": "registry-103",
+      "targetFunction": "StructuralReduce(0_σ / 0_n) = div Sigma N in RExpr AST",
+      "steps": [
+          {
+              "phase": -1,
+              "name": "L1_IDENTITY (типирование)",
+              "action": "Типирование утверждения узла: внешние объекты — неинтерпретированные конструкторы RExpr",
+              "expression": "T = RExpr"
+          },
+          {
+              "phase": 0.5,
+              "name": "SP4 semantic indexing",
+              "action": "Индексация сингулярности по порождающему выражению; индекс родителя сохраняется",
+              "expression": "отношение индексированных нулей σ(n) − 2n = 0_F относительно 0_G"
+          },
+          {
+              "phase": 2,
+              "name": "AXIOMATIC_REDUCTION (A4/A6/A7/A10/L0)",
+              "action": "Применён закон резолвера: resolveRICIS (RExpr.div (RExpr.zeroF F) (RExpr.zeroF G)) = RExpr.div F G. Редукция не зависит от конкретной арифметической функции, задающей индексы",
+              "expression": "resolveRICIS (RExpr.div (RExpr.zeroF F) (RExpr.zeroF G)) = RExpr.div F G"
+          },
+          {
+              "phase": 4,
+              "name": "LEAN_CODEGEN → GATEWAY_DISPATCH",
+              "action": "Кодогенерация по универсальному шаблону и отправка в ядровой прогон; статус получен фактическим прогоном",
+              "expression": "artifact ricis-universal-orchestration-template · theorem RICIS_Template.A4_indexed_zero_div · run 34891262489"
+          },
+          {
+              "phase": 6,
+              "name": "TRUST_VALIDATION (E-03)",
+              "action": "Проверка границы доверия: состояние узла определяется только применимым evidence, внешняя задача остаётся INFORMAL",
+              "expression": "state = partial; ricisSolvable = false"
+          }
+      ],
+      "finalResult": "Структурный фрагмент подтверждён ядром: ricis-universal-orchestration-template · RICIS_Template.A4_indexed_zero_div · прогон 34891262489 (exit 0, без sorryAx). Внешний предмет («существование нечётных совершенных чисел») не решён и не заявляется.",
+      "latex": "\\section*{RICIS-III Proof: Structural fragment (external problem open)}\\n\\textbf{Author:} Dmitry V. Aleinikov (ORCID: 0009-0004-3226-7700)\\n\\subsection*{Core (structural) statement}\\nIn the symbolic language \\texttt{RExpr} the singular core of this node is отношение индексированных нулей σ(n) − 2n = 0_F относительно 0_G. Resolver law: \\texttt{resolveRICIS (RExpr.div (RExpr.zeroF F) (RExpr.zeroF G)) = RExpr.div F G}. Редукция не зависит от конкретной арифметической функции, задающей индексы.\\n\\subsection*{What is actually verified}\\nядровая теорема RICIS_Template.A4_indexed_zero_div (артефакт ricis-universal-orchestration-template, прогон 34891262489, exit 0): делительное отношение разрешается в индексах.\\n\\subsection*{Boundary of the claim}\\nсуществование нечётного совершенного числа не опровергнуто и не доказано: σ(n) = 2n в RExpr не интерпретируется как арифметическая функция делителей.\\n\\subsection*{Verification path}\\n\\textbf{Artifact:} \\texttt{ricis-universal-orchestration-template}\\n\\textbf{Theorem:} \\texttt{RICIS_Template.A4_indexed_zero_div}\\n\\textbf{Kernel run:} 34891262489 — exit 0, no \\texttt{sorryAx}\\n\\textbf{Specification Lean 4 DOI:} \\href{https://doi.org/10.5281/zenodo.21529989}{https://doi.org/10.5281/zenodo.21529989}\\n\\textbf{RICIS transform (Axiom A6, symbolic level):} $0_F \\times \\infty_G = F \\cdot G$ — applied to the AST node, not to the external object."
   },
+  // <<< NODE-CLAIM-ORCHESTRATION-PROOF:registry-103
+  // >>> NODE-CLAIM-ORCHESTRATION-PROOF:registry-104
   "registry-104": {
-    "nodeId": "registry-104",
-    "targetFunction": "inftyF times 0G = F cdot G quad text{via Axiom~eqref{eq:A6}}.",
-    "steps": [
-      {
-        "phase": -1,
-        "name": "L1_IDENTITY",
-        "action": "Verify identity and types",
-        "expression": "T(inftyF times 0G = F cdot G quad text{via Axiom~eqref{eq:A6}}.)"
-      },
-      {
-        "phase": 2,
-        "name": "RICIS transform",
-        "action": "Axiom A6",
-        "expression": "0_F x infinity_G = F * G (Spec: https://doi.org/10.5281/zenodo.21836220)"
-      }
-    ],
-    "finalResult": "Axiom Extracted: registry-104_resolved",
-    "latex": "\\section*{RICIS-III Proof: Erdős Prime Gap Conjecture}\n\\textbf{Target Function:} $inftyF times 0G = F cdot G quad text{via Axiom~eqref{eq:A6}}.$\n\\subsection*{RICIS Transform & Axiom A6}\n$ 0_F \\times \\infty_G = F \\cdot G $\n\\textbf{Specification Lean 4 DOI:} \\href{https://doi.org/10.5281/zenodo.21529989}{https://doi.org/10.5281/zenodo.21529989} (Master Registry href{https://doi.org/10.5281/zenodo.21836220}{10.5281/zenodo.21836220}) (Master Registry \\href{https://doi.org/10.5281/zenodo.21517353}{10.5281/zenodo.21517353})\n\\textbf{Final Result:} Axiom Extracted: registry-104_resolved"
+      "nodeId": "registry-104",
+      "targetFunction": "StructuralReduce(∞_gap / ∞_log) = div Gap Log in RExpr AST",
+      "steps": [
+          {
+              "phase": -1,
+              "name": "L1_IDENTITY (типирование)",
+              "action": "Типирование утверждения узла: внешние объекты — неинтерпретированные конструкторы RExpr",
+              "expression": "T = RExpr"
+          },
+          {
+              "phase": 0.5,
+              "name": "SP4 semantic indexing",
+              "action": "Индексация сингулярности по порождающему выражению; индекс родителя сохраняется",
+              "expression": "отношение индексированных бесконечностей ∞_F / ∞_G в асимптотике разрывов"
+          },
+          {
+              "phase": 2,
+              "name": "AXIOMATIC_REDUCTION (A4/A6/A7/A10/L0)",
+              "action": "Применён закон резолвера: resolveRICIS (RExpr.div (RExpr.infF F) (RExpr.infF G)) = RExpr.div F G. Отношение применяется к нормирующим индексам, а не к предельным значениям",
+              "expression": "resolveRICIS (RExpr.div (RExpr.infF F) (RExpr.infF G)) = RExpr.div F G"
+          },
+          {
+              "phase": 4,
+              "name": "LEAN_CODEGEN → GATEWAY_DISPATCH",
+              "action": "Кодогенерация по универсальному шаблону и отправка в ядровой прогон; статус получен фактическим прогоном",
+              "expression": "artifact ricis-universal-orchestration-template · theorem RICIS_Template.A5_inf_div · run 34891262489"
+          },
+          {
+              "phase": 6,
+              "name": "TRUST_VALIDATION (E-03)",
+              "action": "Проверка границы доверия: состояние узла определяется только применимым evidence, внешняя задача остаётся INFORMAL",
+              "expression": "state = partial; ricisSolvable = false"
+          }
+      ],
+      "finalResult": "Структурный фрагмент подтверждён ядром: ricis-universal-orchestration-template · RICIS_Template.A5_inf_div · прогон 34891262489 (exit 0, без sorryAx). Внешний предмет («гипотеза Эрдёша о распределении нормированных разрывов между простыми») не решён и не заявляется.",
+      "latex": "\\section*{RICIS-III Proof: Structural fragment (external problem open)}\\n\\textbf{Author:} Dmitry V. Aleinikov (ORCID: 0009-0004-3226-7700)\\n\\subsection*{Core (structural) statement}\\nIn the symbolic language \\texttt{RExpr} the singular core of this node is отношение индексированных бесконечностей ∞_F / ∞_G в асимптотике разрывов. Resolver law: \\texttt{resolveRICIS (RExpr.div (RExpr.infF F) (RExpr.infF G)) = RExpr.div F G}. Отношение применяется к нормирующим индексам, а не к предельным значениям.\\n\\subsection*{What is actually verified}\\nядровая теорема RICIS_Template.A5_inf_div (артефакт ricis-universal-orchestration-template, прогон 34891262489, exit 0): отношение индексированных бесконечностей разрешается в индексах.\\n\\subsection*{Boundary of the claim}\\nасимптотическое распределение нормированных разрывов не установлено: предельный переход в RICIS запрещён (P1), поэтому узел не может утверждать асимптотику.\\n\\subsection*{Verification path}\\n\\textbf{Artifact:} \\texttt{ricis-universal-orchestration-template}\\n\\textbf{Theorem:} \\texttt{RICIS_Template.A5_inf_div}\\n\\textbf{Kernel run:} 34891262489 — exit 0, no \\texttt{sorryAx}\\n\\textbf{Specification Lean 4 DOI:} \\href{https://doi.org/10.5281/zenodo.21529989}{https://doi.org/10.5281/zenodo.21529989}\\n\\textbf{RICIS transform (Axiom A6, symbolic level):} $0_F \\times \\infty_G = F \\cdot G$ — applied to the AST node, not to the external object."
   },
+  // <<< NODE-CLAIM-ORCHESTRATION-PROOF:registry-104
+  // >>> NODE-CLAIM-ORCHESTRATION-PROOF:registry-105
   "registry-105": {
-    "nodeId": "registry-105",
-    "targetFunction": "Resolve()",
-    "steps": [
-      {
-        "phase": -1,
-        "name": "L1_IDENTITY",
-        "action": "Verify identity and types",
-        "expression": "T(Resolve())"
-      },
-      {
-        "phase": 2,
-        "name": "RICIS transform",
-        "action": "Axiom A6",
-        "expression": "0_F x infinity_G = F * G (Spec: https://doi.org/10.5281/zenodo.21836220)"
-      }
-    ],
-    "finalResult": "Axiom Extracted: registry-105_resolved",
-    "latex": "\\section*{RICIS-III Proof: Green--Tao Theorem Extension}\n\\textbf{Target Function:} $Resolve()$\n\\subsection*{RICIS Transform & Axiom A6}\n$ 0_F \\times \\infty_G = F \\cdot G $\n\\textbf{Specification Lean 4 DOI:} \\href{https://doi.org/10.5281/zenodo.21529989}{https://doi.org/10.5281/zenodo.21529989} (Master Registry href{https://doi.org/10.5281/zenodo.21836220}{10.5281/zenodo.21836220}) (Master Registry \\href{https://doi.org/10.5281/zenodo.21517353}{10.5281/zenodo.21517353})\n\\textbf{Final Result:} Axiom Extracted: registry-105_resolved"
+      "nodeId": "registry-105",
+      "targetFunction": "StructuralReduce(∞_AP / ∞_primes) = div AP Primes in RExpr AST",
+      "steps": [
+          {
+              "phase": -1,
+              "name": "L1_IDENTITY (типирование)",
+              "action": "Типирование утверждения узла: внешние объекты — неинтерпретированные конструкторы RExpr",
+              "expression": "T = RExpr"
+          },
+          {
+              "phase": 0.5,
+              "name": "SP4 semantic indexing",
+              "action": "Индексация сингулярности по порождающему выражению; индекс родителя сохраняется",
+              "expression": "класс расходимости прогрессий: ∞_progressions относительно ∞_primes"
+          },
+          {
+              "phase": 2,
+              "name": "AXIOMATIC_REDUCTION (A4/A6/A7/A10/L0)",
+              "action": "Применён закон резолвера: resolveRICIS (RExpr.div (RExpr.infF F) (RExpr.infF G)) = RExpr.div F G. Рамка применима к индексам, но не заменяет комбинаторно-аналитическое доказательство",
+              "expression": "resolveRICIS (RExpr.div (RExpr.infF F) (RExpr.infF G)) = RExpr.div F G"
+          },
+          {
+              "phase": 4,
+              "name": "LEAN_CODEGEN → GATEWAY_DISPATCH",
+              "action": "Кодогенерация по универсальному шаблону и отправка в ядровой прогон; статус получен фактическим прогоном",
+              "expression": "artifact ricis-universal-orchestration-template · theorem RICIS_Template.A5_inf_div · run 34891262489"
+          },
+          {
+              "phase": 6,
+              "name": "TRUST_VALIDATION (E-03)",
+              "action": "Проверка границы доверия: состояние узла определяется только применимым evidence, внешняя задача остаётся INFORMAL",
+              "expression": "state = partial; ricisSolvable = false"
+          }
+      ],
+      "finalResult": "Структурный фрагмент подтверждён ядром: ricis-universal-orchestration-template · RICIS_Template.A5_inf_div · прогон 34891262489 (exit 0, без sorryAx). Внешний предмет («теорема Грина — Тао о произвольно длинных арифметических прогрессиях из простых чисел») не решён и не заявляется.",
+      "latex": "\\section*{RICIS-III Proof: Structural fragment (external problem open)}\\n\\textbf{Author:} Dmitry V. Aleinikov (ORCID: 0009-0004-3226-7700)\\n\\subsection*{Core (structural) statement}\\nIn the symbolic language \\texttt{RExpr} the singular core of this node is класс расходимости прогрессий: ∞_progressions относительно ∞_primes. Resolver law: \\texttt{resolveRICIS (RExpr.div (RExpr.infF F) (RExpr.infF G)) = RExpr.div F G}. Рамка применима к индексам, но не заменяет комбинаторно-аналитическое доказательство.\\n\\subsection*{What is actually verified}\\nядровая теорема RICIS_Template.A5_inf_div (артефакт ricis-universal-orchestration-template, прогон 34891262489, exit 0) даёт символьную рамку класса.\\n\\subsection*{Boundary of the claim}\\nтеорема Грина — Тао (2004) — классический результат, доказанный вне этого репозитория; узел его не проверяет и не воспроизводит. Ядровой путь репозитория подтверждает только символьную рамку, а не саму теорему.\\n\\subsection*{Verification path}\\n\\textbf{Artifact:} \\texttt{ricis-universal-orchestration-template}\\n\\textbf{Theorem:} \\texttt{RICIS_Template.A5_inf_div}\\n\\textbf{Kernel run:} 34891262489 — exit 0, no \\texttt{sorryAx}\\n\\textbf{Specification Lean 4 DOI:} \\href{https://doi.org/10.5281/zenodo.21529989}{https://doi.org/10.5281/zenodo.21529989}\\n\\textbf{RICIS transform (Axiom A6, symbolic level):} $0_F \\times \\infty_G = F \\cdot G$ — applied to the AST node, not to the external object."
   },
+  // <<< NODE-CLAIM-ORCHESTRATION-PROOF:registry-105
+  // >>> NODE-CLAIM-ORCHESTRATION-PROOF:registry-106
   "registry-106": {
-    "nodeId": "registry-106",
-    "targetFunction": "Resolve()",
-    "steps": [
-      {
-        "phase": -1,
-        "name": "L1_IDENTITY",
-        "action": "Verify identity and types",
-        "expression": "T(Resolve())"
-      },
-      {
-        "phase": 2,
-        "name": "RICIS transform",
-        "action": "Axiom A6",
-        "expression": "0_F x infinity_G = F * G (Spec: https://doi.org/10.5281/zenodo.21836220)"
-      }
-    ],
-    "finalResult": "Axiom Extracted: registry-106_resolved",
-    "latex": "\\section*{RICIS-III Proof: Sum of Squares Representation}\n\\textbf{Target Function:} $Resolve()$\n\\subsection*{RICIS Transform & Axiom A6}\n$ 0_F \\times \\infty_G = F \\cdot G $\n\\textbf{Specification Lean 4 DOI:} \\href{https://doi.org/10.5281/zenodo.21529989}{https://doi.org/10.5281/zenodo.21529989} (Master Registry href{https://doi.org/10.5281/zenodo.21836220}{10.5281/zenodo.21836220}) (Master Registry \\href{https://doi.org/10.5281/zenodo.21517353}{10.5281/zenodo.21517353})\n\\textbf{Final Result:} Axiom Extracted: registry-106_resolved"
+      "nodeId": "registry-106",
+      "targetFunction": "StructuralReduce(0_n / 0_squares) = div N Squares in RExpr AST",
+      "steps": [
+          {
+              "phase": -1,
+              "name": "L1_IDENTITY (типирование)",
+              "action": "Типирование утверждения узла: внешние объекты — неинтерпретированные конструкторы RExpr",
+              "expression": "T = RExpr"
+          },
+          {
+              "phase": 0.5,
+              "name": "SP4 semantic indexing",
+              "action": "Индексация сингулярности по порождающему выражению; индекс родителя сохраняется",
+              "expression": "отношение индексированных нулей 0_n / 0_squares при разложении"
+          },
+          {
+              "phase": 2,
+              "name": "AXIOMATIC_REDUCTION (A4/A6/A7/A10/L0)",
+              "action": "Применён закон резолвера: resolveRICIS (RExpr.div (RExpr.zeroF F) (RExpr.zeroF G)) = RExpr.div F G. Редукция не зависит от выбора разложения на квадраты",
+              "expression": "resolveRICIS (RExpr.div (RExpr.zeroF F) (RExpr.zeroF G)) = RExpr.div F G"
+          },
+          {
+              "phase": 4,
+              "name": "LEAN_CODEGEN → GATEWAY_DISPATCH",
+              "action": "Кодогенерация по универсальному шаблону и отправка в ядровой прогон; статус получен фактическим прогоном",
+              "expression": "artifact ricis-universal-orchestration-template · theorem RICIS_Template.A4_indexed_zero_div · run 34891262489"
+          },
+          {
+              "phase": 6,
+              "name": "TRUST_VALIDATION (E-03)",
+              "action": "Проверка границы доверия: состояние узла определяется только применимым evidence, внешняя задача остаётся INFORMAL",
+              "expression": "state = partial; ricisSolvable = false"
+          }
+      ],
+      "finalResult": "Структурный фрагмент подтверждён ядром: ricis-universal-orchestration-template · RICIS_Template.A4_indexed_zero_div · прогон 34891262489 (exit 0, без sorryAx). Внешний предмет («теоремы Лагранжа (четыре квадрата) и Лежандра (три квадрата)») не решён и не заявляется.",
+      "latex": "\\section*{RICIS-III Proof: Structural fragment (external problem open)}\\n\\textbf{Author:} Dmitry V. Aleinikov (ORCID: 0009-0004-3226-7700)\\n\\subsection*{Core (structural) statement}\\nIn the symbolic language \\texttt{RExpr} the singular core of this node is отношение индексированных нулей 0_n / 0_squares при разложении. Resolver law: \\texttt{resolveRICIS (RExpr.div (RExpr.zeroF F) (RExpr.zeroF G)) = RExpr.div F G}. Редукция не зависит от выбора разложения на квадраты.\\n\\subsection*{What is actually verified}\\nядровая теорема RICIS_Template.A4_indexed_zero_div (артефакт ricis-universal-orchestration-template, прогон 34891262489, exit 0).\\n\\subsection*{Boundary of the claim}\\nтеоремы Лагранжа и Лежандра о суммах квадратов — классические результаты, доказанные вне этого репозитория; узел не содержит их формального доказательства и не заявляет его.\\n\\subsection*{Verification path}\\n\\textbf{Artifact:} \\texttt{ricis-universal-orchestration-template}\\n\\textbf{Theorem:} \\texttt{RICIS_Template.A4_indexed_zero_div}\\n\\textbf{Kernel run:} 34891262489 — exit 0, no \\texttt{sorryAx}\\n\\textbf{Specification Lean 4 DOI:} \\href{https://doi.org/10.5281/zenodo.21529989}{https://doi.org/10.5281/zenodo.21529989}\\n\\textbf{RICIS transform (Axiom A6, symbolic level):} $0_F \\times \\infty_G = F \\cdot G$ — applied to the AST node, not to the external object."
   },
+  // <<< NODE-CLAIM-ORCHESTRATION-PROOF:registry-106
+  // >>> NODE-CLAIM-ORCHESTRATION-PROOF:registry-107
   "registry-107": {
-    "nodeId": "registry-107",
-    "targetFunction": "Resolve()",
-    "steps": [
-      {
-        "phase": -1,
-        "name": "L1_IDENTITY",
-        "action": "Verify identity and types",
-        "expression": "T(Resolve())"
-      },
-      {
-        "phase": 2,
-        "name": "RICIS transform",
-        "action": "Axiom A6",
-        "expression": "0_F x infinity_G = F * G (Spec: https://doi.org/10.5281/zenodo.21836220)"
-      }
-    ],
-    "finalResult": "Axiom Extracted: registry-107_resolved",
-    "latex": "\\section*{RICIS-III Proof: Collatz Conjecture (3n + 1)}\n\\textbf{Target Function:} $Resolve()$\n\\subsection*{RICIS Transform & Axiom A6}\n$ 0_F \\times \\infty_G = F \\cdot G $\n\\textbf{Specification Lean 4 DOI:} \\href{https://doi.org/10.5281/zenodo.21529989}{https://doi.org/10.5281/zenodo.21529989} (Master Registry href{https://doi.org/10.5281/zenodo.21836220}{10.5281/zenodo.21836220}) (Master Registry \\href{https://doi.org/10.5281/zenodo.21517353}{10.5281/zenodo.21517353})\n\\textbf{Final Result:} Axiom Extracted: registry-107_resolved"
+      "nodeId": "registry-107",
+      "targetFunction": "L0Continuity(StructuralReduce(divSelf E)) in RExpr AST",
+      "steps": [
+          {
+              "phase": -1,
+              "name": "L1_IDENTITY (типирование)",
+              "action": "Типирование утверждения узла: внешние объекты — неинтерпретированные конструкторы RExpr",
+              "expression": "T = RExpr"
+          },
+          {
+              "phase": 0.5,
+              "name": "SP4 semantic indexing",
+              "action": "Индексация сингулярности по порождающему выражению; индекс родителя сохраняется",
+              "expression": "класс L0-непрерывности при устранении самоделения в итерационной траектории"
+          },
+          {
+              "phase": 2,
+              "name": "AXIOMATIC_REDUCTION (A4/A6/A7/A10/L0)",
+              "action": "Применён закон резолвера: resolveRICIS (RExpr.divSelf e) = RExpr.one. L0: редукция не создаёт молчаливого разрыва — значение сохраняется при устранении самоделения",
+              "expression": "resolveRICIS (RExpr.divSelf e) = RExpr.one"
+          },
+          {
+              "phase": 4,
+              "name": "LEAN_CODEGEN → GATEWAY_DISPATCH",
+              "action": "Кодогенерация по универсальному шаблону и отправка в ядровой прогон; статус получен фактическим прогоном",
+              "expression": "artifact ricis-universal-orchestration-template · theorem RICIS_Template.L0_continuity_divSelf · run 34891262489"
+          },
+          {
+              "phase": 6,
+              "name": "TRUST_VALIDATION (E-03)",
+              "action": "Проверка границы доверия: состояние узла определяется только применимым evidence, внешняя задача остаётся INFORMAL",
+              "expression": "state = partial; ricisSolvable = false"
+          }
+      ],
+      "finalResult": "Структурный фрагмент подтверждён ядром: ricis-universal-orchestration-template · RICIS_Template.L0_continuity_divSelf · прогон 34891262489 (exit 0, без sorryAx). Внешний предмет («гипотеза Коллатца (3n + 1)») не решён и не заявляется.",
+      "latex": "\\section*{RICIS-III Proof: Structural fragment (external problem open)}\\n\\textbf{Author:} Dmitry V. Aleinikov (ORCID: 0009-0004-3226-7700)\\n\\subsection*{Core (structural) statement}\\nIn the symbolic language \\texttt{RExpr} the singular core of this node is класс L0-непрерывности при устранении самоделения в итерационной траектории. Resolver law: \\texttt{resolveRICIS (RExpr.divSelf e) = RExpr.one}. L0: редукция не создаёт молчаливого разрыва — значение сохраняется при устранении самоделения.\\n\\subsection*{What is actually verified}\\nядровая теорема RICIS_Template.L0_continuity_divSelf (артефакт ricis-universal-orchestration-template, прогон 34891262489, exit 0): устранение самоделения L0-непрерывно.\\n\\subsection*{Boundary of the claim}\\nгипотеза Коллатца не доказана: ветвление дерева обратных предков, отсутствие нетривиальных циклов и ограниченность роста траекторий здесь не рассматриваются; монолит CollatzTreeMonolith остаётся спецификацией.\\n\\subsection*{Verification path}\\n\\textbf{Artifact:} \\texttt{ricis-universal-orchestration-template}\\n\\textbf{Theorem:} \\texttt{RICIS_Template.L0_continuity_divSelf}\\n\\textbf{Kernel run:} 34891262489 — exit 0, no \\texttt{sorryAx}\\n\\textbf{Specification Lean 4 DOI:} \\href{https://doi.org/10.5281/zenodo.21529989}{https://doi.org/10.5281/zenodo.21529989}\\n\\textbf{RICIS transform (Axiom A6, symbolic level):} $0_F \\times \\infty_G = F \\cdot G$ — applied to the AST node, not to the external object."
   },
+  // <<< NODE-CLAIM-ORCHESTRATION-PROOF:registry-107
+  // >>> NODE-CLAIM-ORCHESTRATION-PROOF:registry-108
   "registry-108": {
-    "nodeId": "registry-108",
-    "targetFunction": "0{text{smooth}} times infty{text{sol}} = F cdot G.",
-    "steps": [
-      {
-        "phase": -1,
-        "name": "L1_IDENTITY",
-        "action": "Verify identity and types",
-        "expression": "T(0{text{smooth}} times infty{text{sol}} = F cdot G.)"
-      },
-      {
-        "phase": 2,
-        "name": "RICIS transform",
-        "action": "Axiom A6",
-        "expression": "0_F x infinity_G = F * G (Spec: https://doi.org/10.5281/zenodo.21836220)"
-      }
-    ],
-    "finalResult": "Axiom Extracted: registry-108_resolved",
-    "latex": "\\section*{RICIS-III Proof: Finite-Time Blow-up in NLS and NLW}\n\\textbf{Target Function:} $0{text{smooth}} times infty{text{sol}} = F cdot G.$\n\\subsection*{RICIS Transform & Axiom A6}\n$ 0_F \\times \\infty_G = F \\cdot G $\n\\textbf{Specification Lean 4 DOI:} \\href{https://doi.org/10.5281/zenodo.21529989}{https://doi.org/10.5281/zenodo.21529989} (Master Registry href{https://doi.org/10.5281/zenodo.21836220}{10.5281/zenodo.21836220}) (Master Registry \\href{https://doi.org/10.5281/zenodo.21517353}{10.5281/zenodo.21517353})\n\\textbf{Final Result:} Axiom Extracted: registry-108_resolved"
+      "nodeId": "registry-108",
+      "targetFunction": "StructuralReduce(0_smooth · ∞_collapse) = mul Smooth Collapse in RExpr AST",
+      "steps": [
+          {
+              "phase": -1,
+              "name": "L1_IDENTITY (типирование)",
+              "action": "Типирование утверждения узла: внешние объекты — неинтерпретированные конструкторы RExpr",
+              "expression": "T = RExpr"
+          },
+          {
+              "phase": 0.5,
+              "name": "SP4 semantic indexing",
+              "action": "Индексация сингулярности по порождающему выражению; индекс родителя сохраняется",
+              "expression": "произведение индексированного нуля на индексированную бесконечность 0_smooth · ∞_collapse"
+          },
+          {
+              "phase": 2,
+              "name": "AXIOMATIC_REDUCTION (A4/A6/A7/A10/L0)",
+              "action": "Применён закон резолвера: resolveRICIS (RExpr.mul (RExpr.zeroF F) (RExpr.infF G)) = RExpr.mul F G. Мост A6 применим к индексам и не зависит от вложенности операторов",
+              "expression": "resolveRICIS (RExpr.mul (RExpr.zeroF F) (RExpr.infF G)) = RExpr.mul F G"
+          },
+          {
+              "phase": 4,
+              "name": "LEAN_CODEGEN → GATEWAY_DISPATCH",
+              "action": "Кодогенерация по универсальному шаблону и отправка в ядровой прогон; статус получен фактическим прогоном",
+              "expression": "artifact ricis-universal-orchestration-template · theorem RICIS_Template.A6_geometric_realization · run 34891262489"
+          },
+          {
+              "phase": 6,
+              "name": "TRUST_VALIDATION (E-03)",
+              "action": "Проверка границы доверия: состояние узла определяется только применимым evidence, внешняя задача остаётся INFORMAL",
+              "expression": "state = partial; ricisSolvable = false"
+          }
+      ],
+      "finalResult": "Структурный фрагмент подтверждён ядром: ricis-universal-orchestration-template · RICIS_Template.A6_geometric_realization · прогон 34891262489 (exit 0, без sorryAx). Внешний предмет («образование сингулярностей за конечное время в NLS/NLW») не решён и не заявляется.",
+      "latex": "\\section*{RICIS-III Proof: Structural fragment (external problem open)}\\n\\textbf{Author:} Dmitry V. Aleinikov (ORCID: 0009-0004-3226-7700)\\n\\subsection*{Core (structural) statement}\\nIn the symbolic language \\texttt{RExpr} the singular core of this node is произведение индексированного нуля на индексированную бесконечность 0_smooth · ∞_collapse. Resolver law: \\texttt{resolveRICIS (RExpr.mul (RExpr.zeroF F) (RExpr.infF G)) = RExpr.mul F G}. Мост A6 применим к индексам и не зависит от вложенности операторов.\\n\\subsection*{What is actually verified}\\nядровая теорема RICIS_Template.A6_geometric_realization (артефакт ricis-universal-orchestration-template, прогон 34891262489, exit 0): неопределённость 0_F · ∞_G разрешается геометрической мерой.\\n\\subsection*{Boundary of the claim}\\nконечновременной blow-up не доказан и не опровергнут: RExpr не интерпретируется как пространство функций, а t* не входит в формулировку.\\n\\subsection*{Verification path}\\n\\textbf{Artifact:} \\texttt{ricis-universal-orchestration-template}\\n\\textbf{Theorem:} \\texttt{RICIS_Template.A6_geometric_realization}\\n\\textbf{Kernel run:} 34891262489 — exit 0, no \\texttt{sorryAx}\\n\\textbf{Specification Lean 4 DOI:} \\href{https://doi.org/10.5281/zenodo.21529989}{https://doi.org/10.5281/zenodo.21529989}\\n\\textbf{RICIS transform (Axiom A6, symbolic level):} $0_F \\times \\infty_G = F \\cdot G$ — applied to the AST node, not to the external object."
   },
+  // <<< NODE-CLAIM-ORCHESTRATION-PROOF:registry-108
+  // >>> NODE-CLAIM-ORCHESTRATION-PROOF:registry-109
   "registry-109": {
-    "nodeId": "registry-109",
-    "targetFunction": "0{text{neck}} times infty{text{pinch}} = C cdot M.",
-    "steps": [
-      {
-        "phase": -1,
-        "name": "L1_IDENTITY",
-        "action": "Verify identity and types",
-        "expression": "T(0{text{neck}} times infty{text{pinch}} = C cdot M.)"
-      },
-      {
-        "phase": 2,
-        "name": "RICIS transform",
-        "action": "Axiom A6",
-        "expression": "0_F x infinity_G = F * G (Spec: https://doi.org/10.5281/zenodo.21836220)"
-      }
-    ],
-    "finalResult": "Axiom Extracted: registry-109_resolved",
-    "latex": "\\section*{RICIS-III Proof: Singularities in Geometric Flows (Ricci Flow / Mean Curvature Flow)}\n\\textbf{Target Function:} $0{text{neck}} times infty{text{pinch}} = C cdot M.$\n\\subsection*{RICIS Transform & Axiom A6}\n$ 0_F \\times \\infty_G = F \\cdot G $\n\\textbf{Specification Lean 4 DOI:} \\href{https://doi.org/10.5281/zenodo.21529989}{https://doi.org/10.5281/zenodo.21529989} (Master Registry href{https://doi.org/10.5281/zenodo.21836220}{10.5281/zenodo.21836220}) (Master Registry \\href{https://doi.org/10.5281/zenodo.21517353}{10.5281/zenodo.21517353})\n\\textbf{Final Result:} Axiom Extracted: registry-109_resolved"
+      "nodeId": "registry-109",
+      "targetFunction": "StructuralReduce(0_neck · ∞_pinch) = mul Neck Pinch in RExpr AST",
+      "steps": [
+          {
+              "phase": -1,
+              "name": "L1_IDENTITY (типирование)",
+              "action": "Типирование утверждения узла: внешние объекты — неинтерпретированные конструкторы RExpr",
+              "expression": "T = RExpr"
+          },
+          {
+              "phase": 0.5,
+              "name": "SP4 semantic indexing",
+              "action": "Индексация сингулярности по порождающему выражению; индекс родителя сохраняется",
+              "expression": "произведение нуля «шея» на бесконечность «щипок»: 0_neck · ∞_pinch"
+          },
+          {
+              "phase": 2,
+              "name": "AXIOMATIC_REDUCTION (A4/A6/A7/A10/L0)",
+              "action": "Применён закон резолвера: resolveRICIS (RExpr.mul (RExpr.zeroF F) (RExpr.infF G)) = RExpr.mul F G. Мост A6 применяется к индексам кривизны, а не к метрике многообразия",
+              "expression": "resolveRICIS (RExpr.mul (RExpr.zeroF F) (RExpr.infF G)) = RExpr.mul F G"
+          },
+          {
+              "phase": 4,
+              "name": "LEAN_CODEGEN → GATEWAY_DISPATCH",
+              "action": "Кодогенерация по универсальному шаблону и отправка в ядровой прогон; статус получен фактическим прогоном",
+              "expression": "artifact ricis-universal-orchestration-template · theorem RICIS_Template.A6_geometric_realization · run 34891262489"
+          },
+          {
+              "phase": 6,
+              "name": "TRUST_VALIDATION (E-03)",
+              "action": "Проверка границы доверия: состояние узла определяется только применимым evidence, внешняя задача остаётся INFORMAL",
+              "expression": "state = partial; ricisSolvable = false"
+          }
+      ],
+      "finalResult": "Структурный фрагмент подтверждён ядром: ricis-universal-orchestration-template · RICIS_Template.A6_geometric_realization · прогон 34891262489 (exit 0, без sorryAx). Внешний предмет («классификация сингулярностей потока Риччи и потока средней кривизны») не решён и не заявляется.",
+      "latex": "\\section*{RICIS-III Proof: Structural fragment (external problem open)}\\n\\textbf{Author:} Dmitry V. Aleinikov (ORCID: 0009-0004-3226-7700)\\n\\subsection*{Core (structural) statement}\\nIn the symbolic language \\texttt{RExpr} the singular core of this node is произведение нуля «шея» на бесконечность «щипок»: 0_neck · ∞_pinch. Resolver law: \\texttt{resolveRICIS (RExpr.mul (RExpr.zeroF F) (RExpr.infF G)) = RExpr.mul F G}. Мост A6 применяется к индексам кривизны, а не к метрике многообразия.\\n\\subsection*{What is actually verified}\\nядровая теорема RICIS_Template.A6_geometric_realization (артефакт ricis-universal-orchestration-template, прогон 34891262489, exit 0).\\n\\subsection*{Boundary of the claim}\\nклассификация сингулярностей потока Риччи и потока средней кривизны (результаты Гамильтона — Перельмана и последователей) — классические результаты вне этого репозитория; узел их не воспроизводит, метрика многообразия в RExpr отсутствует.\\n\\subsection*{Verification path}\\n\\textbf{Artifact:} \\texttt{ricis-universal-orchestration-template}\\n\\textbf{Theorem:} \\texttt{RICIS_Template.A6_geometric_realization}\\n\\textbf{Kernel run:} 34891262489 — exit 0, no \\texttt{sorryAx}\\n\\textbf{Specification Lean 4 DOI:} \\href{https://doi.org/10.5281/zenodo.21529989}{https://doi.org/10.5281/zenodo.21529989}\\n\\textbf{RICIS transform (Axiom A6, symbolic level):} $0_F \\times \\infty_G = F \\cdot G$ — applied to the AST node, not to the external object."
   },
+  // <<< NODE-CLAIM-ORCHESTRATION-PROOF:registry-109
+  // >>> NODE-CLAIM-ORCHESTRATION-PROOF:registry-110
   "registry-110": {
-    "nodeId": "registry-110",
-    "targetFunction": "0{text{vortex}} times infty{text{stretch}} = F cdot G.",
-    "steps": [
-      {
-        "phase": -1,
-        "name": "L1_IDENTITY",
-        "action": "Verify identity and types",
-        "expression": "T(0{text{vortex}} times infty{text{stretch}} = F cdot G.)"
-      },
-      {
-        "phase": 2,
-        "name": "RICIS transform",
-        "action": "Axiom A6",
-        "expression": "0_F x infinity_G = F * G (Spec: https://doi.org/10.5281/zenodo.21836220)"
-      }
-    ],
-    "finalResult": "Axiom Extracted: registry-110_resolved",
-    "latex": "\\section*{RICIS-III Proof: Blow-up in 3D Euler Equations and MHD}\n\\textbf{Target Function:} $0{text{vortex}} times infty{text{stretch}} = F cdot G.$\n\\subsection*{RICIS Transform & Axiom A6}\n$ 0_F \\times \\infty_G = F \\cdot G $\n\\textbf{Specification Lean 4 DOI:} \\href{https://doi.org/10.5281/zenodo.21529989}{https://doi.org/10.5281/zenodo.21529989} (Master Registry href{https://doi.org/10.5281/zenodo.21836220}{10.5281/zenodo.21836220}) (Master Registry \\href{https://doi.org/10.5281/zenodo.21517353}{10.5281/zenodo.21517353})\n\\textbf{Final Result:} Axiom Extracted: registry-110_resolved"
+      "nodeId": "registry-110",
+      "targetFunction": "StructuralReduce(0_vortex · ∞_stretch) = mul Vortex Stretch in RExpr AST",
+      "steps": [
+          {
+              "phase": -1,
+              "name": "L1_IDENTITY (типирование)",
+              "action": "Типирование утверждения узла: внешние объекты — неинтерпретированные конструкторы RExpr",
+              "expression": "T = RExpr"
+          },
+          {
+              "phase": 0.5,
+              "name": "SP4 semantic indexing",
+              "action": "Индексация сингулярности по порождающему выражению; индекс родителя сохраняется",
+              "expression": "произведение вихревого нуля на бесконечность растяжения: 0_vortex · ∞_stretch"
+          },
+          {
+              "phase": 2,
+              "name": "AXIOMATIC_REDUCTION (A4/A6/A7/A10/L0)",
+              "action": "Применён закон резолвера: resolveRICIS (RExpr.mul (RExpr.zeroF F) (RExpr.infF G)) = RExpr.mul F G. Мост применяется к индексам поля, а не к значениям завихрённости",
+              "expression": "resolveRICIS (RExpr.mul (RExpr.zeroF F) (RExpr.infF G)) = RExpr.mul F G"
+          },
+          {
+              "phase": 4,
+              "name": "LEAN_CODEGEN → GATEWAY_DISPATCH",
+              "action": "Кодогенерация по универсальному шаблону и отправка в ядровой прогон; статус получен фактическим прогоном",
+              "expression": "artifact ricis-universal-orchestration-template · theorem RICIS_Template.A6_geometric_realization · run 34891262489"
+          },
+          {
+              "phase": 6,
+              "name": "TRUST_VALIDATION (E-03)",
+              "action": "Проверка границы доверия: состояние узла определяется только применимым evidence, внешняя задача остаётся INFORMAL",
+              "expression": "state = partial; ricisSolvable = false"
+          }
+      ],
+      "finalResult": "Структурный фрагмент подтверждён ядром: ricis-universal-orchestration-template · RICIS_Template.A6_geometric_realization · прогон 34891262489 (exit 0, без sorryAx). Внешний предмет («blow-up решений 3D уравнений Эйлера и МГД») не решён и не заявляется.",
+      "latex": "\\section*{RICIS-III Proof: Structural fragment (external problem open)}\\n\\textbf{Author:} Dmitry V. Aleinikov (ORCID: 0009-0004-3226-7700)\\n\\subsection*{Core (structural) statement}\\nIn the symbolic language \\texttt{RExpr} the singular core of this node is произведение вихревого нуля на бесконечность растяжения: 0_vortex · ∞_stretch. Resolver law: \\texttt{resolveRICIS (RExpr.mul (RExpr.zeroF F) (RExpr.infF G)) = RExpr.mul F G}. Мост применяется к индексам поля, а не к значениям завихрённости.\\n\\subsection*{What is actually verified}\\nядровая теорема RICIS_Template.A6_geometric_realization (артефакт ricis-universal-orchestration-template, прогон 34891262489, exit 0).\\n\\subsection*{Boundary of the claim}\\nвзрыв градиента скорости за конечное время в 3D Эйлере/MHD не доказан и не опровергнут: узел не содержит анализа завихрённости в функциональных пространствах.\\n\\subsection*{Verification path}\\n\\textbf{Artifact:} \\texttt{ricis-universal-orchestration-template}\\n\\textbf{Theorem:} \\texttt{RICIS_Template.A6_geometric_realization}\\n\\textbf{Kernel run:} 34891262489 — exit 0, no \\texttt{sorryAx}\\n\\textbf{Specification Lean 4 DOI:} \\href{https://doi.org/10.5281/zenodo.21529989}{https://doi.org/10.5281/zenodo.21529989}\\n\\textbf{RICIS transform (Axiom A6, symbolic level):} $0_F \\times \\infty_G = F \\cdot G$ — applied to the AST node, not to the external object."
   },
+  // <<< NODE-CLAIM-ORCHESTRATION-PROOF:registry-110
+  // >>> NODE-CLAIM-ORCHESTRATION-PROOF:registry-111
   "registry-111": {
-    "nodeId": "registry-111",
-    "targetFunction": "Resolve()",
-    "steps": [
-      {
-        "phase": -1,
-        "name": "L1_IDENTITY",
-        "action": "Verify identity and types",
-        "expression": "T(Resolve())"
-      },
-      {
-        "phase": 2,
-        "name": "RICIS transform",
-        "action": "Axiom A6",
-        "expression": "0_F x infinity_G = F * G (Spec: https://doi.org/10.5281/zenodo.21836220)"
-      }
-    ],
-    "finalResult": "Axiom Extracted: registry-111_resolved",
-    "latex": "\\section*{RICIS-III Proof: Degenerate Parabolic Equations}\n\\textbf{Target Function:} $Resolve()$\n\\subsection*{RICIS Transform & Axiom A6}\n$ 0_F \\times \\infty_G = F \\cdot G $\n\\textbf{Specification Lean 4 DOI:} \\href{https://doi.org/10.5281/zenodo.21529989}{https://doi.org/10.5281/zenodo.21529989} (Master Registry href{https://doi.org/10.5281/zenodo.21836220}{10.5281/zenodo.21836220}) (Master Registry \\href{https://doi.org/10.5281/zenodo.21517353}{10.5281/zenodo.21517353})\n\\textbf{Final Result:} Axiom Extracted: registry-111_resolved"
+      "nodeId": "registry-111",
+      "targetFunction": "StructuralReduce(0_front / 0_diffusion) = div Front Diffusion in RExpr AST",
+      "steps": [
+          {
+              "phase": -1,
+              "name": "L1_IDENTITY (типирование)",
+              "action": "Типирование утверждения узла: внешние объекты — неинтерпретированные конструкторы RExpr",
+              "expression": "T = RExpr"
+          },
+          {
+              "phase": 0.5,
+              "name": "SP4 semantic indexing",
+              "action": "Индексация сингулярности по порождающему выражению; индекс родителя сохраняется",
+              "expression": "отношение индексированных нулей на фронте диффузии: 0_front / 0_diffusion"
+          },
+          {
+              "phase": 2,
+              "name": "AXIOMATIC_REDUCTION (A4/A6/A7/A10/L0)",
+              "action": "Применён закон резолвера: resolveRICIS (RExpr.div (RExpr.zeroF F) (RExpr.zeroF G)) = RExpr.div F G. Редукция не зависит от геометрии фронта — только от индексов",
+              "expression": "resolveRICIS (RExpr.div (RExpr.zeroF F) (RExpr.zeroF G)) = RExpr.div F G"
+          },
+          {
+              "phase": 4,
+              "name": "LEAN_CODEGEN → GATEWAY_DISPATCH",
+              "action": "Кодогенерация по универсальному шаблону и отправка в ядровой прогон; статус получен фактическим прогоном",
+              "expression": "artifact ricis-universal-orchestration-template · theorem RICIS_Template.A4_indexed_zero_div · run 34891262489"
+          },
+          {
+              "phase": 6,
+              "name": "TRUST_VALIDATION (E-03)",
+              "action": "Проверка границы доверия: состояние узла определяется только применимым evidence, внешняя задача остаётся INFORMAL",
+              "expression": "state = partial; ricisSolvable = false"
+          }
+      ],
+      "finalResult": "Структурный фрагмент подтверждён ядром: ricis-universal-orchestration-template · RICIS_Template.A4_indexed_zero_div · прогон 34891262489 (exit 0, без sorryAx). Внешний предмет («потеря регулярности на фронтах вырождающихся параболических уравнений») не решён и не заявляется.",
+      "latex": "\\section*{RICIS-III Proof: Structural fragment (external problem open)}\\n\\textbf{Author:} Dmitry V. Aleinikov (ORCID: 0009-0004-3226-7700)\\n\\subsection*{Core (structural) statement}\\nIn the symbolic language \\texttt{RExpr} the singular core of this node is отношение индексированных нулей на фронте диффузии: 0_front / 0_diffusion. Resolver law: \\texttt{resolveRICIS (RExpr.div (RExpr.zeroF F) (RExpr.zeroF G)) = RExpr.div F G}. Редукция не зависит от геометрии фронта — только от индексов.\\n\\subsection*{What is actually verified}\\nядровая теорема RICIS_Template.A4_indexed_zero_div (артефакт ricis-universal-orchestration-template, прогон 34891262489, exit 0).\\n\\subsection*{Boundary of the claim}\\nпотеря регулярности на фронтах не доказана и не опровергнута: RExpr не содержит уравнений в частных производных и понятия обобщённого решения.\\n\\subsection*{Verification path}\\n\\textbf{Artifact:} \\texttt{ricis-universal-orchestration-template}\\n\\textbf{Theorem:} \\texttt{RICIS_Template.A4_indexed_zero_div}\\n\\textbf{Kernel run:} 34891262489 — exit 0, no \\texttt{sorryAx}\\n\\textbf{Specification Lean 4 DOI:} \\href{https://doi.org/10.5281/zenodo.21529989}{https://doi.org/10.5281/zenodo.21529989}\\n\\textbf{RICIS transform (Axiom A6, symbolic level):} $0_F \\times \\infty_G = F \\cdot G$ — applied to the AST node, not to the external object."
   },
+  // <<< NODE-CLAIM-ORCHESTRATION-PROOF:registry-111
+  // >>> NODE-CLAIM-ORCHESTRATION-PROOF:registry-112
   "registry-112": {
-    "nodeId": "registry-112",
-    "targetFunction": "Resolve()",
-    "steps": [
-      {
-        "phase": -1,
-        "name": "L1_IDENTITY",
-        "action": "Verify identity and types",
-        "expression": "T(Resolve())"
-      },
-      {
-        "phase": 2,
-        "name": "RICIS transform",
-        "action": "Axiom A6",
-        "expression": "0_F x infinity_G = F * G (Spec: https://doi.org/10.5281/zenodo.21836220)"
-      }
-    ],
-    "finalResult": "Axiom Extracted: registry-112_resolved",
-    "latex": "\\section*{RICIS-III Proof: Hamiltonian PDEs and Vortex Dynamics}\n\\textbf{Target Function:} $Resolve()$\n\\subsection*{RICIS Transform & Axiom A6}\n$ 0_F \\times \\infty_G = F \\cdot G $\n\\textbf{Specification Lean 4 DOI:} \\href{https://doi.org/10.5281/zenodo.21529989}{https://doi.org/10.5281/zenodo.21529989} (Master Registry href{https://doi.org/10.5281/zenodo.21836220}{10.5281/zenodo.21836220}) (Master Registry \\href{https://doi.org/10.5281/zenodo.21517353}{10.5281/zenodo.21517353})\n\\textbf{Final Result:} Axiom Extracted: registry-112_resolved"
+      "nodeId": "registry-112",
+      "targetFunction": "StructuralReduce(0_phase · ∞_vortex) = mul Phase Vortex in RExpr AST",
+      "steps": [
+          {
+              "phase": -1,
+              "name": "L1_IDENTITY (типирование)",
+              "action": "Типирование утверждения узла: внешние объекты — неинтерпретированные конструкторы RExpr",
+              "expression": "T = RExpr"
+          },
+          {
+              "phase": 0.5,
+              "name": "SP4 semantic indexing",
+              "action": "Индексация сингулярности по порождающему выражению; индекс родителя сохраняется",
+              "expression": "произведение нуля фазового объёма на бесконечность вихревой плотности: 0_phase · ∞_vortex"
+          },
+          {
+              "phase": 2,
+              "name": "AXIOMATIC_REDUCTION (A4/A6/A7/A10/L0)",
+              "action": "Применён закон резолвера: resolveRICIS (RExpr.mul (RExpr.zeroF F) (RExpr.infF G)) = RExpr.mul F G. Мост применяется к индексам, симплектическая структура не моделируется",
+              "expression": "resolveRICIS (RExpr.mul (RExpr.zeroF F) (RExpr.infF G)) = RExpr.mul F G"
+          },
+          {
+              "phase": 4,
+              "name": "LEAN_CODEGEN → GATEWAY_DISPATCH",
+              "action": "Кодогенерация по универсальному шаблону и отправка в ядровой прогон; статус получен фактическим прогоном",
+              "expression": "artifact ricis-universal-orchestration-template · theorem RICIS_Template.A6_geometric_realization · run 34891262489"
+          },
+          {
+              "phase": 6,
+              "name": "TRUST_VALIDATION (E-03)",
+              "action": "Проверка границы доверия: состояние узла определяется только применимым evidence, внешняя задача остаётся INFORMAL",
+              "expression": "state = partial; ricisSolvable = false"
+          }
+      ],
+      "finalResult": "Структурный фрагмент подтверждён ядром: ricis-universal-orchestration-template · RICIS_Template.A6_geometric_realization · прогон 34891262489 (exit 0, без sorryAx). Внешний предмет («сингулярности фазового пространства в гамильтоновых PDE и динамике точечных вихрей») не решён и не заявляется.",
+      "latex": "\\section*{RICIS-III Proof: Structural fragment (external problem open)}\\n\\textbf{Author:} Dmitry V. Aleinikov (ORCID: 0009-0004-3226-7700)\\n\\subsection*{Core (structural) statement}\\nIn the symbolic language \\texttt{RExpr} the singular core of this node is произведение нуля фазового объёма на бесконечность вихревой плотности: 0_phase · ∞_vortex. Resolver law: \\texttt{resolveRICIS (RExpr.mul (RExpr.zeroF F) (RExpr.infF G)) = RExpr.mul F G}. Мост применяется к индексам, симплектическая структура не моделируется.\\n\\subsection*{What is actually verified}\\nядровая теорема RICIS_Template.A6_geometric_realization (артефакт ricis-universal-orchestration-template, прогон 34891262489, exit 0).\\n\\subsection*{Boundary of the claim}\\nповедение сингулярностей фазового пространства (волны на воде, точечные вихри) не установлено: гамильтонова механика в RExpr не формализована.\\n\\subsection*{Verification path}\\n\\textbf{Artifact:} \\texttt{ricis-universal-orchestration-template}\\n\\textbf{Theorem:} \\texttt{RICIS_Template.A6_geometric_realization}\\n\\textbf{Kernel run:} 34891262489 — exit 0, no \\texttt{sorryAx}\\n\\textbf{Specification Lean 4 DOI:} \\href{https://doi.org/10.5281/zenodo.21529989}{https://doi.org/10.5281/zenodo.21529989}\\n\\textbf{RICIS transform (Axiom A6, symbolic level):} $0_F \\times \\infty_G = F \\cdot G$ — applied to the AST node, not to the external object."
   },
+  // <<< NODE-CLAIM-ORCHESTRATION-PROOF:registry-112
+  // >>> NODE-CLAIM-ORCHESTRATION-PROOF:registry-113
   "registry-113": {
-    "nodeId": "registry-113",
-    "targetFunction": "Resolve()",
-    "steps": [
-      {
-        "phase": -1,
-        "name": "L1_IDENTITY",
-        "action": "Verify identity and types",
-        "expression": "T(Resolve())"
-      },
-      {
-        "phase": 2,
-        "name": "RICIS transform",
-        "action": "Axiom A6",
-        "expression": "0_F x infinity_G = F * G (Spec: https://doi.org/10.5281/zenodo.21836220)"
-      }
-    ],
-    "finalResult": "Axiom Extracted: registry-113_resolved",
-    "latex": "\\section*{RICIS-III Proof: Semilinear and Quasilinear Wave Equations}\n\\textbf{Target Function:} $Resolve()$\n\\subsection*{RICIS Transform & Axiom A6}\n$ 0_F \\times \\infty_G = F \\cdot G $\n\\textbf{Specification Lean 4 DOI:} \\href{https://doi.org/10.5281/zenodo.21529989}{https://doi.org/10.5281/zenodo.21529989} (Master Registry href{https://doi.org/10.5281/zenodo.21836220}{10.5281/zenodo.21836220}) (Master Registry \\href{https://doi.org/10.5281/zenodo.21517353}{10.5281/zenodo.21517353})\n\\textbf{Final Result:} Axiom Extracted: registry-113_resolved"
+      "nodeId": "registry-113",
+      "targetFunction": "StructuralReduce(0_shock · ∞_derivative) = mul Shock Derivative in RExpr AST",
+      "steps": [
+          {
+              "phase": -1,
+              "name": "L1_IDENTITY (типирование)",
+              "action": "Типирование утверждения узла: внешние объекты — неинтерпретированные конструкторы RExpr",
+              "expression": "T = RExpr"
+          },
+          {
+              "phase": 0.5,
+              "name": "SP4 semantic indexing",
+              "action": "Индексация сингулярности по порождающему выражению; индекс родителя сохраняется",
+              "expression": "произведение нуля регулярности на бесконечность производного роста: 0_shock · ∞_derivative"
+          },
+          {
+              "phase": 2,
+              "name": "AXIOMATIC_REDUCTION (A4/A6/A7/A10/L0)",
+              "action": "Применён закон резолвера: resolveRICIS (RExpr.mul (RExpr.zeroF F) (RExpr.infF G)) = RExpr.mul F G. Мост применяется к индексам, а не к разрывным решениям",
+              "expression": "resolveRICIS (RExpr.mul (RExpr.zeroF F) (RExpr.infF G)) = RExpr.mul F G"
+          },
+          {
+              "phase": 4,
+              "name": "LEAN_CODEGEN → GATEWAY_DISPATCH",
+              "action": "Кодогенерация по универсальному шаблону и отправка в ядровой прогон; статус получен фактическим прогоном",
+              "expression": "artifact ricis-universal-orchestration-template · theorem RICIS_Template.A6_geometric_realization · run 34891262489"
+          },
+          {
+              "phase": 6,
+              "name": "TRUST_VALIDATION (E-03)",
+              "action": "Проверка границы доверия: состояние узла определяется только применимым evidence, внешняя задача остаётся INFORMAL",
+              "expression": "state = partial; ricisSolvable = false"
+          }
+      ],
+      "finalResult": "Структурный фрагмент подтверждён ядром: ricis-universal-orchestration-template · RICIS_Template.A6_geometric_realization · прогон 34891262489 (exit 0, без sorryAx). Внешний предмет («образование ударных волн и критический производный blow-up») не решён и не заявляется.",
+      "latex": "\\section*{RICIS-III Proof: Structural fragment (external problem open)}\\n\\textbf{Author:} Dmitry V. Aleinikov (ORCID: 0009-0004-3226-7700)\\n\\subsection*{Core (structural) statement}\\nIn the symbolic language \\texttt{RExpr} the singular core of this node is произведение нуля регулярности на бесконечность производного роста: 0_shock · ∞_derivative. Resolver law: \\texttt{resolveRICIS (RExpr.mul (RExpr.zeroF F) (RExpr.infF G)) = RExpr.mul F G}. Мост применяется к индексам, а не к разрывным решениям.\\n\\subsection*{What is actually verified}\\nядровая теорема RICIS_Template.A6_geometric_realization (артефакт ricis-universal-orchestration-template, прогон 34891262489, exit 0).\\n\\subsection*{Boundary of the claim}\\nобразование ударных волн и критический производный blow-up — классические результаты теории гиперболических уравнений, доказанные вне этого репозитория; узел их не воспроизводит.\\n\\subsection*{Verification path}\\n\\textbf{Artifact:} \\texttt{ricis-universal-orchestration-template}\\n\\textbf{Theorem:} \\texttt{RICIS_Template.A6_geometric_realization}\\n\\textbf{Kernel run:} 34891262489 — exit 0, no \\texttt{sorryAx}\\n\\textbf{Specification Lean 4 DOI:} \\href{https://doi.org/10.5281/zenodo.21529989}{https://doi.org/10.5281/zenodo.21529989}\\n\\textbf{RICIS transform (Axiom A6, symbolic level):} $0_F \\times \\infty_G = F \\cdot G$ — applied to the AST node, not to the external object."
   },
+  // <<< NODE-CLAIM-ORCHESTRATION-PROOF:registry-113
+  // >>> NODE-CLAIM-ORCHESTRATION-PROOF:registry-114
   "registry-114": {
-    "nodeId": "registry-114",
-    "targetFunction": "Resolve()",
-    "steps": [
-      {
-        "phase": -1,
-        "name": "L1_IDENTITY",
-        "action": "Verify identity and types",
-        "expression": "T(Resolve())"
-      },
-      {
-        "phase": 2,
-        "name": "RICIS transform",
-        "action": "Axiom A6",
-        "expression": "0_F x infinity_G = F * G (Spec: https://doi.org/10.5281/zenodo.21836220)"
-      }
-    ],
-    "finalResult": "Axiom Extracted: registry-114_resolved",
-    "latex": "\\section*{RICIS-III Proof: Halting Problem}\n\\textbf{Target Function:} $Resolve()$\n\\subsection*{RICIS Transform & Axiom A6}\n$ 0_F \\times \\infty_G = F \\cdot G $\n\\textbf{Specification Lean 4 DOI:} \\href{https://doi.org/10.5281/zenodo.21529989}{https://doi.org/10.5281/zenodo.21529989} (Master Registry href{https://doi.org/10.5281/zenodo.21836220}{10.5281/zenodo.21836220}) (Master Registry \\href{https://doi.org/10.5281/zenodo.21517353}{10.5281/zenodo.21517353})\n\\textbf{Final Result:} Axiom Extracted: registry-114_resolved"
+      "nodeId": "registry-114",
+      "targetFunction": "L1Identity(TuringMetaMonolith) — типирование уровня без коллапса уровней (RExpr AST)",
+      "steps": [
+          {
+              "phase": -1,
+              "name": "L1_IDENTITY (типирование)",
+              "action": "Типирование утверждения узла: внешние объекты — неинтерпретированные конструкторы RExpr",
+              "expression": "T = RExpr"
+          },
+          {
+              "phase": 0.5,
+              "name": "SP4 semantic indexing",
+              "action": "Индексация сингулярности по порождающему выражению; индекс родителя сохраняется",
+              "expression": "мета-уровневое типирование: разделение уровня L0 и уровня L1 без коллапса"
+          },
+          {
+              "phase": 2,
+              "name": "AXIOMATIC_REDUCTION (A4/A6/A7/A10/L0)",
+              "action": "Применён закон резолвера: L1: e = e (тождество как проверка типа; уровни не смешиваются). Типизация уровня не зависит от содержимого программы — только от её страты",
+              "expression": "L1: e = e (тождество как проверка типа; уровни не смешиваются)"
+          },
+          {
+              "phase": 4,
+              "name": "LEAN_CODEGEN → GATEWAY_DISPATCH",
+              "action": "Кодогенерация по универсальному шаблону и отправка в ядровой прогон; статус получен фактическим прогоном",
+              "expression": "artifact ricis-universal-orchestration-template · theorem RICIS_Template.L1_identity · run 34891262489"
+          },
+          {
+              "phase": 6,
+              "name": "TRUST_VALIDATION (E-03)",
+              "action": "Проверка границы доверия: состояние узла определяется только применимым evidence, внешняя задача остаётся INFORMAL",
+              "expression": "state = partial; ricisSolvable = false"
+          }
+      ],
+      "finalResult": "Структурный фрагмент подтверждён ядром: ricis-universal-orchestration-template · RICIS_Template.L1_identity · прогон 34891262489 (exit 0, без sorryAx). Внешний предмет («неразрешимость проблемы остановки (Тьюринг, 1936)») не решён и не заявляется.",
+      "latex": "\\section*{RICIS-III Proof: Structural fragment (external problem open)}\\n\\textbf{Author:} Dmitry V. Aleinikov (ORCID: 0009-0004-3226-7700)\\n\\subsection*{Core (structural) statement}\\nIn the symbolic language \\texttt{RExpr} the singular core of this node is мета-уровневое типирование: разделение уровня L0 и уровня L1 без коллапса. Resolver law: \\texttt{L1: e = e (тождество как проверка типа; уровни не смешиваются)}. Типизация уровня не зависит от содержимого программы — только от её страты.\\n\\subsection*{What is actually verified}\\nядровая теорема RICIS_Template.L1_identity (артефакт ricis-universal-orchestration-template, прогон 34891262489, exit 0; не зависит от аксиом) даёт структурную проверку типизации уровня.\\n\\subsection*{Boundary of the claim}\\nнеразрешимость проблемы остановки — классический результат Тьюринга (1936), доказанный вне этого репозитория; узел не содержит формализации машин Тьюринга и не воспроизводит диагональное доказательство.\\n\\subsection*{Verification path}\\n\\textbf{Artifact:} \\texttt{ricis-universal-orchestration-template}\\n\\textbf{Theorem:} \\texttt{RICIS_Template.L1_identity}\\n\\textbf{Kernel run:} 34891262489 — exit 0, no \\texttt{sorryAx}\\n\\textbf{Specification Lean 4 DOI:} \\href{https://doi.org/10.5281/zenodo.21529989}{https://doi.org/10.5281/zenodo.21529989}\\n\\textbf{RICIS transform (Axiom A6, symbolic level):} $0_F \\times \\infty_G = F \\cdot G$ — applied to the AST node, not to the external object."
   },
+  // <<< NODE-CLAIM-ORCHESTRATION-PROOF:registry-114
+  // >>> NODE-CLAIM-ORCHESTRATION-PROOF:registry-115
   "registry-115": {
-    "nodeId": "registry-115",
-    "targetFunction": "2{aleph0} = aleph1 = text{MonolithOrder1}.",
-    "steps": [
-      {
-        "phase": -1,
-        "name": "L1_IDENTITY",
-        "action": "Verify identity and types",
-        "expression": "T(2{aleph0} = aleph1 = text{MonolithOrder1}.)"
-      },
-      {
-        "phase": 2,
-        "name": "RICIS transform",
-        "action": "Axiom A6",
-        "expression": "0_F x infinity_G = F * G (Spec: https://doi.org/10.5281/zenodo.21836220)"
-      }
-    ],
-    "finalResult": "Axiom Extracted: registry-115_resolved",
-    "latex": "\\section*{RICIS-III Proof: Continuum Hypothesis (CDCC)}\n\\textbf{Target Function:} $2{aleph0} = aleph1 = text{MonolithOrder1}.$\n\\subsection*{RICIS Transform & Axiom A6}\n$ 0_F \\times \\infty_G = F \\cdot G $\n\\textbf{Specification Lean 4 DOI:} \\href{https://doi.org/10.5281/zenodo.21529989}{https://doi.org/10.5281/zenodo.21529989} (Master Registry href{https://doi.org/10.5281/zenodo.21836220}{10.5281/zenodo.21836220}) (Master Registry \\href{https://doi.org/10.5281/zenodo.21517353}{10.5281/zenodo.21517353})\n\\textbf{Final Result:} Axiom Extracted: registry-115_resolved"
+      "nodeId": "registry-115",
+      "targetFunction": "SP4PreservesParent(semanticIndex F) = zeroF F in RExpr AST",
+      "steps": [
+          {
+              "phase": -1,
+              "name": "L1_IDENTITY (типирование)",
+              "action": "Типирование утверждения узла: внешние объекты — неинтерпретированные конструкторы RExpr",
+              "expression": "T = RExpr"
+          },
+          {
+              "phase": 0.5,
+              "name": "SP4 semantic indexing",
+              "action": "Индексация сингулярности по порождающему выражению; индекс родителя сохраняется",
+              "expression": "индекс родителя как кардинальный индекс: сохранение семантического индекса SP4"
+          },
+          {
+              "phase": 2,
+              "name": "AXIOMATIC_REDUCTION (A4/A6/A7/A10/L0)",
+              "action": "Применён закон резолвера: semanticIndex F = RExpr.zeroF F. Индекс родителя сохраняется при построении семантического индекса",
+              "expression": "semanticIndex F = RExpr.zeroF F"
+          },
+          {
+              "phase": 4,
+              "name": "LEAN_CODEGEN → GATEWAY_DISPATCH",
+              "action": "Кодогенерация по универсальному шаблону и отправка в ядровой прогон; статус получен фактическим прогоном",
+              "expression": "artifact ricis-universal-orchestration-template · theorem RICIS_Template.SP4_preserves_parent · run 34891262489"
+          },
+          {
+              "phase": 6,
+              "name": "TRUST_VALIDATION (E-03)",
+              "action": "Проверка границы доверия: состояние узла определяется только применимым evidence, внешняя задача остаётся INFORMAL",
+              "expression": "state = partial; ricisSolvable = false"
+          }
+      ],
+      "finalResult": "Структурный фрагмент подтверждён ядром: ricis-universal-orchestration-template · RICIS_Template.SP4_preserves_parent · прогон 34891262489 (exit 0, без sorryAx). Внешний предмет («континуум-гипотеза (независимость в ZFC: Гёдель, Коэн)») не решён и не заявляется.",
+      "latex": "\\section*{RICIS-III Proof: Structural fragment (external problem open)}\\n\\textbf{Author:} Dmitry V. Aleinikov (ORCID: 0009-0004-3226-7700)\\n\\subsection*{Core (structural) statement}\\nIn the symbolic language \\texttt{RExpr} the singular core of this node is индекс родителя как кардинальный индекс: сохранение семантического индекса SP4. Resolver law: \\texttt{semanticIndex F = RExpr.zeroF F}. Индекс родителя сохраняется при построении семантического индекса.\\n\\subsection*{What is actually verified}\\nядровая теорема RICIS_Template.SP4_preserves_parent (артефакт ricis-universal-orchestration-template, прогон 34891262489, exit 0; не зависит от аксиом) подтверждает SP4-инвариант.\\n\\subsection*{Boundary of the claim}\\nравенство 2^ℵ0 = ℵ1 не доказано и не опровергнуто в ZFC (независимость: Гёдель 1940, Коэн 1963) — классический результат вне этого репозитория. Узел не утверждает равенство кардиналов: прежняя формула узла снята как переоценка.\\n\\subsection*{Verification path}\\n\\textbf{Artifact:} \\texttt{ricis-universal-orchestration-template}\\n\\textbf{Theorem:} \\texttt{RICIS_Template.SP4_preserves_parent}\\n\\textbf{Kernel run:} 34891262489 — exit 0, no \\texttt{sorryAx}\\n\\textbf{Specification Lean 4 DOI:} \\href{https://doi.org/10.5281/zenodo.21529989}{https://doi.org/10.5281/zenodo.21529989}\\n\\textbf{RICIS transform (Axiom A6, symbolic level):} $0_F \\times \\infty_G = F \\cdot G$ — applied to the AST node, not to the external object."
   },
+  // <<< NODE-CLAIM-ORCHESTRATION-PROOF:registry-115
+  // >>> NODE-CLAIM-ORCHESTRATION-PROOF:registry-116
   "registry-116": {
-    "nodeId": "registry-116",
-    "targetFunction": "Resolve()",
-    "steps": [
-      {
-        "phase": -1,
-        "name": "L1_IDENTITY",
-        "action": "Verify identity and types",
-        "expression": "T(Resolve())"
-      },
-      {
-        "phase": 2,
-        "name": "RICIS transform",
-        "action": "Axiom A6",
-        "expression": "0_F x infinity_G = F * G (Spec: https://doi.org/10.5281/zenodo.21836220)"
-      }
-    ],
-    "finalResult": "Axiom Extracted: registry-116_resolved",
-    "latex": "\\section*{RICIS-III Proof: Turbulence and Energy Cascade}\n\\textbf{Target Function:} $Resolve()$\n\\subsection*{RICIS Transform & Axiom A6}\n$ 0_F \\times \\infty_G = F \\cdot G $\n\\textbf{Specification Lean 4 DOI:} \\href{https://doi.org/10.5281/zenodo.21529989}{https://doi.org/10.5281/zenodo.21529989} (Master Registry href{https://doi.org/10.5281/zenodo.21836220}{10.5281/zenodo.21836220}) (Master Registry \\href{https://doi.org/10.5281/zenodo.21517353}{10.5281/zenodo.21517353})\n\\textbf{Final Result:} Axiom Extracted: registry-116_resolved"
+      "nodeId": "registry-116",
+      "targetFunction": "StructuralReduce(0_viscous · ∞_cascade) = mul Viscous Cascade in RExpr AST",
+      "steps": [
+          {
+              "phase": -1,
+              "name": "L1_IDENTITY (типирование)",
+              "action": "Типирование утверждения узла: внешние объекты — неинтерпретированные конструкторы RExpr",
+              "expression": "T = RExpr"
+          },
+          {
+              "phase": 0.5,
+              "name": "SP4 semantic indexing",
+              "action": "Индексация сингулярности по порождающему выражению; индекс родителя сохраняется",
+              "expression": "произведение нуля вязкого масштаба на бесконечность каскада: 0_viscous · ∞_cascade"
+          },
+          {
+              "phase": 2,
+              "name": "AXIOMATIC_REDUCTION (A4/A6/A7/A10/L0)",
+              "action": "Применён закон резолвера: resolveRICIS (RExpr.mul (RExpr.zeroF F) (RExpr.infF G)) = RExpr.mul F G. Мост применяется к индексам масштабов, а не к потоку энергии",
+              "expression": "resolveRICIS (RExpr.mul (RExpr.zeroF F) (RExpr.infF G)) = RExpr.mul F G"
+          },
+          {
+              "phase": 4,
+              "name": "LEAN_CODEGEN → GATEWAY_DISPATCH",
+              "action": "Кодогенерация по универсальному шаблону и отправка в ядровой прогон; статус получен фактическим прогоном",
+              "expression": "artifact ricis-universal-orchestration-template · theorem RICIS_Template.A6_geometric_realization · run 34891262489"
+          },
+          {
+              "phase": 6,
+              "name": "TRUST_VALIDATION (E-03)",
+              "action": "Проверка границы доверия: состояние узла определяется только применимым evidence, внешняя задача остаётся INFORMAL",
+              "expression": "state = partial; ricisSolvable = false"
+          }
+      ],
+      "finalResult": "Структурный фрагмент подтверждён ядром: ricis-universal-orchestration-template · RICIS_Template.A6_geometric_realization · прогон 34891262489 (exit 0, без sorryAx). Внешний предмет («энергетический каскад и диссипация на подсеточных масштабах») не решён и не заявляется.",
+      "latex": "\\section*{RICIS-III Proof: Structural fragment (external problem open)}\\n\\textbf{Author:} Dmitry V. Aleinikov (ORCID: 0009-0004-3226-7700)\\n\\subsection*{Core (structural) statement}\\nIn the symbolic language \\texttt{RExpr} the singular core of this node is произведение нуля вязкого масштаба на бесконечность каскада: 0_viscous · ∞_cascade. Resolver law: \\texttt{resolveRICIS (RExpr.mul (RExpr.zeroF F) (RExpr.infF G)) = RExpr.mul F G}. Мост применяется к индексам масштабов, а не к потоку энергии.\\n\\subsection*{What is actually verified}\\nядровая теорема RICIS_Template.A6_geometric_realization (артефакт ricis-universal-orchestration-template, прогон 34891262489, exit 0).\\n\\subsection*{Boundary of the claim}\\nдиссипация энергии на подсеточных масштабах не выведена: каскад Колмогорова — физическая гипотеза, не следствие редукции AST.\\n\\subsection*{Verification path}\\n\\textbf{Artifact:} \\texttt{ricis-universal-orchestration-template}\\n\\textbf{Theorem:} \\texttt{RICIS_Template.A6_geometric_realization}\\n\\textbf{Kernel run:} 34891262489 — exit 0, no \\texttt{sorryAx}\\n\\textbf{Specification Lean 4 DOI:} \\href{https://doi.org/10.5281/zenodo.21529989}{https://doi.org/10.5281/zenodo.21529989}\\n\\textbf{RICIS transform (Axiom A6, symbolic level):} $0_F \\times \\infty_G = F \\cdot G$ — applied to the AST node, not to the external object."
   },
+  // <<< NODE-CLAIM-ORCHESTRATION-PROOF:registry-116
   "registry-117": {
     "nodeId": "registry-117",
     "targetFunction": "StructuralReduce(divSelf(E)) = one in FieldExpr AST",
@@ -2003,72 +2476,132 @@ export const initialMap: MapState = {
       }
     }
   },
+  // >>> NODE-CLAIM-ORCHESTRATION-PROOF:registry-118
   "registry-118": {
-    "nodeId": "registry-118",
-    "targetFunction": "Delta w = 0eta times infty{nabla L} = eta cdot nabla L.",
-    "steps": [
-      {
-        "phase": -1,
-        "name": "L1_IDENTITY",
-        "action": "Verify identity and types",
-        "expression": "T(Delta w = 0eta times infty{nabla L} = eta cdot nabla L.)"
-      },
-      {
-        "phase": 2,
-        "name": "RICIS transform",
-        "action": "Axiom A6",
-        "expression": "0_F x infinity_G = F * G (Spec: https://doi.org/10.5281/zenodo.21836220)"
-      }
-    ],
-    "finalResult": "Axiom Extracted: registry-118_resolved",
-    "latex": "\\section*{RICIS-III Proof: LLM Gradient Explosion Elimination}\n\\textbf{Target Function:} $Delta w = 0eta times infty{nabla L} = eta cdot nabla L.$\n\\subsection*{RICIS Transform & Axiom A6}\n$ 0_F \\times \\infty_G = F \\cdot G $\n\\textbf{Specification Lean 4 DOI:} \\href{https://doi.org/10.5281/zenodo.21529989}{https://doi.org/10.5281/zenodo.21529989} (Master Registry href{https://doi.org/10.5281/zenodo.21836220}{10.5281/zenodo.21836220}) (Master Registry \\href{https://doi.org/10.5281/zenodo.21517353}{10.5281/zenodo.21517353})\n\\textbf{Final Result:} Axiom Extracted: registry-118_resolved"
+      "nodeId": "registry-118",
+      "targetFunction": "StructuralReduce(0_η · ∞_∇L) = mul Eta GradNorm (стабилизатор градиента)",
+      "steps": [
+          {
+              "phase": -1,
+              "name": "L1_IDENTITY (типирование)",
+              "action": "Типирование утверждения узла: внешние объекты — неинтерпретированные конструкторы RExpr",
+              "expression": "T = RExpr"
+          },
+          {
+              "phase": 0.5,
+              "name": "SP4 semantic indexing",
+              "action": "Индексация сингулярности по порождающему выражению; индекс родителя сохраняется",
+              "expression": "произведение нуля шага η на бесконечность нормы градиента: 0_η · ∞_∇L"
+          },
+          {
+              "phase": 2,
+              "name": "AXIOMATIC_REDUCTION (A4/A6/A7/A10/L0)",
+              "action": "Применён закон резолвера: RICIS A6-мост внутри Geometric Bridge Engine: 0_η · ∞_∇L = η · ‖∇L‖ без числовых выбросов. L1-идентичность компонент и SP4-индекс сохраняются на всей цепочке фаз -1…6",
+              "expression": "RICIS A6-мост внутри Geometric Bridge Engine: 0_η · ∞_∇L = η · ‖∇L‖ без числовых выбросов"
+          },
+          {
+              "phase": 4,
+              "name": "LEAN_CODEGEN → GATEWAY_DISPATCH",
+              "action": "Кодогенерация не требуется: утверждение проверяется прогоном модульных тестов репозитория",
+              "expression": "module src/services/llmGradient/domain/ricisLlmGradientStabilizer.ts · test src/services/llmGradient/llmGradientStabilizer.test.ts"
+          },
+          {
+              "phase": 6,
+              "name": "TRUST_VALIDATION (E-03)",
+              "action": "Проверка границы доверия: состояние узла определяется только применимым evidence, внешняя задача остаётся INFORMAL",
+              "expression": "state = resolved; ricisSolvable = true"
+          }
+      ],
+      "finalResult": "Утверждение узла проверено прогоном модульных тестов (src/services/llmGradient/llmGradientStabilizer.test.ts) — это НЕ ядровое доказательство. Внешний предмет («взрывы градиента и числовые выбросы при обучении глубоких сетей (инженерное утверждение)») не решён и не заявляется.",
+      "latex": "\\section*{RICIS-III Proof: Engineering verification (module test run, not a kernel proof)}\\n\\textbf{Author:} Dmitry V. Aleinikov (ORCID: 0009-0004-3226-7700)\\n\\subsection*{Core (structural) statement}\\nIn the symbolic language \\texttt{RExpr} the singular core of this node is произведение нуля шага η на бесконечность нормы градиента: 0_η · ∞_∇L. Resolver law: \\texttt{RICIS A6-мост внутри Geometric Bridge Engine: 0_η · ∞_∇L = η · ‖∇L‖ без числовых выбросов}. L1-идентичность компонент и SP4-индекс сохраняются на всей цепочке фаз -1…6.\\n\\subsection*{What is actually verified}\\nпрогон модульных тестов src/services/llmGradient/llmGradientStabilizer.test.ts: сингулярность 0_η · ∞_∇L нейтрализуется без числовых выбросов, вычисление делегируется Geometric Bridge Engine, цепочка TransformationLog непрерывна.\\n\\subsection*{Boundary of the claim}\\n«устранение Loss spikes в реальном обучении» не проверено и не утверждается: проверен модуль-стабилизатор и его инварианты, а не поведение конкретной модели на конкретном датасете. Это НЕ ядровое доказательство: ядровой прогон Lean здесь отсутствует, статус узла опирается на прогон тестов репозитория.\\n\\subsection*{Verification path}\\n\\textbf{Module:} \\texttt{src/services/llmGradient/domain/ricisLlmGradientStabilizer.ts}\\n\\textbf{Test run:} \\texttt{src/services/llmGradient/llmGradientStabilizer.test.ts} (прогон тестов репозитория, НЕ ядровой прогон)\\n\\textbf{Specification Lean 4 DOI:} \\href{https://doi.org/10.5281/zenodo.21529989}{https://doi.org/10.5281/zenodo.21529989}\\n\\textbf{RICIS transform (Axiom A6, symbolic level):} $0_F \\times \\infty_G = F \\cdot G$ — applied to the AST node, not to the external object."
   },
+  // <<< NODE-CLAIM-ORCHESTRATION-PROOF:registry-118
+  // >>> NODE-CLAIM-ORCHESTRATION-PROOF:registry-119
   "registry-119": {
-    "nodeId": "registry-119",
-    "targetFunction": "Resolve()",
-    "steps": [
-      {
-        "phase": -1,
-        "name": "L1_IDENTITY",
-        "action": "Verify identity and types",
-        "expression": "T(Resolve())"
-      },
-      {
-        "phase": 2,
-        "name": "RICIS transform",
-        "action": "Axiom A6",
-        "expression": "0_F x infinity_G = F * G (Spec: https://doi.org/10.5281/zenodo.21836220)"
-      }
-    ],
-    "finalResult": "Axiom Extracted: registry-119_resolved",
-    "latex": "\\section*{RICIS-III Proof: Voynich Manuscript Decipherment}\n\\textbf{Target Function:} $Resolve()$\n\\subsection*{RICIS Transform & Axiom A6}\n$ 0_F \\times \\infty_G = F \\cdot G $\n\\textbf{Specification Lean 4 DOI:} \\href{https://doi.org/10.5281/zenodo.21529989}{https://doi.org/10.5281/zenodo.21529989} (Master Registry href{https://doi.org/10.5281/zenodo.21836220}{10.5281/zenodo.21836220}) (Master Registry \\href{https://doi.org/10.5281/zenodo.21517353}{10.5281/zenodo.21517353})\n\\textbf{Final Result:} Axiom Extracted: registry-119_resolved"
+      "nodeId": "registry-119",
+      "targetFunction": "StructuralReduce(divSelf(E)) = one in RExpr AST (не дешифровка)",
+      "steps": [
+          {
+              "phase": -1,
+              "name": "L1_IDENTITY (типирование)",
+              "action": "Типирование утверждения узла: внешние объекты — неинтерпретированные конструкторы RExpr",
+              "expression": "T = RExpr"
+          },
+          {
+              "phase": 0.5,
+              "name": "SP4 semantic indexing",
+              "action": "Индексация сингулярности по порождающему выражению; индекс родителя сохраняется",
+              "expression": "энтропийное самоделение символического текста: divSelf(E)"
+          },
+          {
+              "phase": 2,
+              "name": "AXIOMATIC_REDUCTION (A4/A6/A7/A10/L0)",
+              "action": "Применён закон резолвера: resolveRICIS (RExpr.divSelf e) = RExpr.one. Редукция не зависит от длины и алфавита символической последовательности",
+              "expression": "resolveRICIS (RExpr.divSelf e) = RExpr.one"
+          },
+          {
+              "phase": 4,
+              "name": "LEAN_CODEGEN → GATEWAY_DISPATCH",
+              "action": "Кодогенерация по универсальному шаблону и отправка в ядровой прогон; статус получен фактическим прогоном",
+              "expression": "artifact ricis-universal-orchestration-template · theorem RICIS_Template.divSelf_one · run 34891262489"
+          },
+          {
+              "phase": 6,
+              "name": "TRUST_VALIDATION (E-03)",
+              "action": "Проверка границы доверия: состояние узла определяется только применимым evidence, внешняя задача остаётся INFORMAL",
+              "expression": "state = partial; ricisSolvable = false"
+          }
+      ],
+      "finalResult": "Структурный фрагмент подтверждён ядром: ricis-universal-orchestration-template · RICIS_Template.divSelf_one · прогон 34891262489 (exit 0, без sorryAx). Внешний предмет («дешифровка рукописи Войнича») не решён и не заявляется.",
+      "latex": "\\section*{RICIS-III Proof: Structural fragment (external problem open)}\\n\\textbf{Author:} Dmitry V. Aleinikov (ORCID: 0009-0004-3226-7700)\\n\\subsection*{Core (structural) statement}\\nIn the symbolic language \\texttt{RExpr} the singular core of this node is энтропийное самоделение символического текста: divSelf(E). Resolver law: \\texttt{resolveRICIS (RExpr.divSelf e) = RExpr.one}. Редукция не зависит от длины и алфавита символической последовательности.\\n\\subsection*{What is actually verified}\\nядровая теорема RICIS_Template.divSelf_one (артефакт ricis-universal-orchestration-template, прогон 34891262489, exit 0): устранение самоделения в AST.\\n\\subsection*{Boundary of the claim}\\nдешифровка рукописи Войнича не выполнена и не заявляется: RExpr — свободный символьный язык, семантика исторического текста в нём не представима. Работа по рукописи вне математического ядра (scope-note плана gap-closure).\\n\\subsection*{Verification path}\\n\\textbf{Artifact:} \\texttt{ricis-universal-orchestration-template}\\n\\textbf{Theorem:} \\texttt{RICIS_Template.divSelf_one}\\n\\textbf{Kernel run:} 34891262489 — exit 0, no \\texttt{sorryAx}\\n\\textbf{Specification Lean 4 DOI:} \\href{https://doi.org/10.5281/zenodo.21529989}{https://doi.org/10.5281/zenodo.21529989}\\n\\textbf{RICIS transform (Axiom A6, symbolic level):} $0_F \\times \\infty_G = F \\cdot G$ — applied to the AST node, not to the external object."
   },
+  // <<< NODE-CLAIM-ORCHESTRATION-PROOF:registry-119
+  // >>> NODE-CLAIM-ORCHESTRATION-PROOF:registry-120
   "registry-120": {
-    "nodeId": "registry-120",
-    "externalLean": {
-      "trustStatus": "STRUCTURALLY_VALIDATED",
-      "sourceHash": "2e043f2738df8d8b02754aebb5fa93580fb87e6cc71733557c620c463c4de56b",
-      "submittedAt": "2026-08-29",
-      "sourceLocked": true
-    },
-    "targetFunction": "Resolve()",
-    "steps": [
-      {
-        "phase": -1,
-        "name": "L1_IDENTITY",
-        "action": "Verify identity and types",
-        "expression": "T(Resolve())"
+      "nodeId": "registry-120",
+      "externalLean": {
+          "trustStatus": "STRUCTURALLY_VALIDATED",
+          "sourceHash": "2e043f2738df8d8b02754aebb5fa93580fb87e6cc71733557c620c463c4de56b",
+          "submittedAt": "2026-08-29",
+          "sourceLocked": true
       },
-      {
-        "phase": 2,
-        "name": "RICIS transform",
-        "action": "Axiom A6",
-        "expression": "0_F x infinity_G = F * G (Spec: https://doi.org/10.5281/zenodo.21836220)"
-      }
-    ],
-    "finalResult": "Axiom Extracted: registry-120_resolved",
-    "latex": "\\section*{RICIS-III Proof: Jacobian Conjecture}\n\\textbf{Target Function:} $Resolve()$\n\\subsection*{RICIS Transform & Axiom A6}\n$ 0_F \\times \\infty_G = F \\cdot G $\n\\textbf{Specification Lean 4 DOI:} \\href{https://doi.org/10.5281/zenodo.21529989}{https://doi.org/10.5281/zenodo.21529989} (Master Registry href{https://doi.org/10.5281/zenodo.21836220}{10.5281/zenodo.21836220}) (Master Registry \\href{https://doi.org/10.5281/zenodo.21517353}{10.5281/zenodo.21517353})\n\\textbf{Final Result:} Axiom Extracted: registry-120_resolved"
+      "targetFunction": "ricisResolveDet (zeroF F) zero zero (infF G) = sub (mul F G) (zeroF zero)",
+      "steps": [
+          {
+              "phase": -1,
+              "name": "L1_IDENTITY (типирование)",
+              "action": "Типирование утверждения узла: внешние объекты — неинтерпретированные конструкторы RExpr",
+              "expression": "T = RExpr"
+          },
+          {
+              "phase": 0.5,
+              "name": "SP4 semantic indexing",
+              "action": "Индексация сингулярности по порождающему выражению; индекс родителя сохраняется",
+              "expression": "детерминантный узел: одношаговый детерминант не спускается в произведения"
+          },
+          {
+              "phase": 2,
+              "name": "AXIOMATIC_REDUCTION (A4/A6/A7/A10/L0)",
+              "action": "Применён закон резолвера: ricisResolveDet с опуском разрешения в произведения: det-пара достигает A6-стадии и даёт F · G. L1-идентичность сохраняется; утверждение v1 формально опровергнуто для любых F, G",
+              "expression": "ricisResolveDet с опуском разрешения в произведения: det-пара достигает A6-стадии и даёт F · G"
+          },
+          {
+              "phase": 4,
+              "name": "LEAN_CODEGEN → GATEWAY_DISPATCH",
+              "action": "Кодогенерация по универсальному шаблону и отправка в ядровой прогон; статус получен фактическим прогоном",
+              "expression": "artifact ricis-jacobian-conjecture-v2 · theorem Jacobian_singularity_resolved · run 35404189840"
+          },
+          {
+              "phase": 6,
+              "name": "TRUST_VALIDATION (E-03)",
+              "action": "Проверка границы доверия: состояние узла определяется только применимым evidence, внешняя задача остаётся INFORMAL",
+              "expression": "state = resolved; ricisSolvable = true"
+          }
+      ],
+      "finalResult": "Структурный фрагмент подтверждён ядром: ricis-jacobian-conjecture-v2 · Jacobian_singularity_resolved · прогон 35404189840 (exit 0, без sorryAx). Внешний предмет («гипотеза Якоби о полиномиальных автоморфизмах») не решён и не заявляется.",
+      "latex": "\\section*{RICIS-III Proof: Structural (kernel-verified; external conjecture open)}\\n\\textbf{Author:} Dmitry V. Aleinikov (ORCID: 0009-0004-3226-7700)\\n\\subsection*{Core (structural) statement}\\nIn the symbolic language \\texttt{RExpr} the singular core of this node is детерминантный узел: одношаговый детерминант не спускается в произведения. Resolver law: \\texttt{ricisResolveDet с опуском разрешения в произведения: det-пара достигает A6-стадии и даёт F · G}. L1-идентичность сохраняется; утверждение v1 формально опровергнуто для любых F, G.\\n\\subsection*{What is actually verified}\\nядровой прогон 35404189840 (job kernel-check): производная ricis-jacobian-conjecture-v2.core-check.lean принята — exit 0, без sorryAx, #print axioms чистый для 8 теорем (jacobian_v1_identity_refuted, det_expansion_single_pass, Jacobian_singularity_resolved и др.).\\n\\subsection*{Boundary of the claim}\\nгипотеза Якоби для полиномиальных отображений C^n → C^n не доказана и не заявляется: доказано тождество резолвера над AST. Классическое разложение определителя, степени и пределы не рассматриваются (P1). Отказ rfl в прогоне 34870620154 был признаком ложности утверждения v1, а не технической трудностью.\\n\\subsection*{Verification path}\\n\\textbf{Artifact:} \\texttt{ricis-jacobian-conjecture-v2}\\n\\textbf{Theorem:} \\texttt{Jacobian_singularity_resolved}\\n\\textbf{Kernel run:} 35404189840 — exit 0, no \\texttt{sorryAx}\\n\\textbf{Specification Lean 4 DOI:} \\href{https://doi.org/10.5281/zenodo.21529989}{https://doi.org/10.5281/zenodo.21529989}\\n\\textbf{RICIS transform (Axiom A6, symbolic level):} $0_F \\times \\infty_G = F \\cdot G$ — applied to the AST node, not to the external object."
   },
+  // <<< NODE-CLAIM-ORCHESTRATION-PROOF:registry-120
   "ricis-ast-reduction-pattern": {
     "nodeId": "ricis-ast-reduction-pattern",
     "targetFunction": "ricisReduce(E/E) = 1",
@@ -3217,242 +3750,286 @@ export const initialMap: MapState = {
         "finalResult": "\\omega_{\\text{invariant}}",
         "latex": "\\section*{RICIS-III Proof: Кинематический мономолит манипулятора}\n\\textbf{Author:} Dmitry V. Aleinikov (ORCID: 0009-0004-3226-7700)\n\\textbf{Target Function:} $f(x) = J(q) \\quad [0_F \\times \\infty_G = F \\cdot G]$\n\\subsection*{RICIS Transform & Axiom A6 Geometric Bridge}\n$ 0_F \\times \\infty_G = \\det(u, v) = u_x v_y - u_y v_x = \\cos(\\theta) \\cdot \\dot{\\psi} - 0 = \\omega_{\\text{invariant}} $\n\\subsection*{Semantic Indexing SP4 & Reduction}\nСингулярность замка кардана (Gimbal Lock) и потери степени свободы вращения.\nRepresented in $\\mathbb{R}_{RICIS}^2$: $u = (\\cos(\\theta), 0)$, $v = (0, \\dot{\\psi})$.\n\\subsection*{Verification & DOI Specification}\nLean 4 Specification: \\href{https://doi.org/10.5281/zenodo.21529989}{DOI: 10.5281/zenodo.21529989} (Master Registry \\href{https://doi.org/10.5281/zenodo.21836220}{10.5281/zenodo.21836220}). Foundations: \\href{https://doi.org/10.5281/zenodo.17872755}{DOI: 10.5281/zenodo.17872755}.\n\\textbf{Final Result:} \\omega_{\\text{invariant}}"
     },
+    // >>> NODE-CLAIM-ORCHESTRATION-PROOF:task-elem-removable-zero
     "task-elem-removable-zero": {
         "nodeId": "task-elem-removable-zero",
-        "targetFunction": "Eval_RICIS((x^2 - 4)/(x - 2), x=2) = 4 [O(1)]",
+        "targetFunction": "StructuralReduce(divSelf(E)) = one (переход к несингулярному хвосту (x+2))",
         "steps": [
             {
                 "phase": -1,
-                "name": "L1_IDENTITY & Type Verification",
-                "action": "Ontological identity check for variable x in Real scalar space",
-                "expression": "L_1(x) = x \\implies T(x) = \\text{Scalar Real}"
-            },
-            {
-                "phase": 0,
-                "name": "REMOVE_LIMITS",
-                "action": "Eliminate classical Cauchy limit lim_{x -> 2} in favor of discrete structural evaluation",
-                "expression": "\\text{Eval}_{\\text{RICIS}}(2) = \\frac{0_{x^2-4}}{0_{x-2}}"
+                "name": "L1_IDENTITY (типирование)",
+                "action": "Типирование утверждения узла: внешние объекты — неинтерпретированные конструкторы RExpr",
+                "expression": "T = RExpr"
             },
             {
                 "phase": 0.5,
-                "name": "SEMANTIC_INDEXING_SP4",
-                "action": "Index zeros by generating algebraic expressions rather than scalar 0",
-                "expression": "0_{(x-2)(x+2)} / 0_{x-2}"
-            },
-            {
-                "phase": 1,
-                "name": "SAFETY_CHECK_SP2",
-                "action": "Algebraic factorization before evaluating singularity",
-                "expression": "\\frac{(x-2)(x+2)}{x-2} \\longrightarrow \\frac{0_{x-2}}{0_{x-2}} \\cdot (x+2)"
+                "name": "SP4 semantic indexing",
+                "action": "Индексация сингулярности по порождающему выражению; индекс родителя сохраняется",
+                "expression": "устранимая сингулярность как самоделение divSelf(x − 2) — числитель и знаменатель одного порождающего индекса"
             },
             {
                 "phase": 2,
-                "name": "RICIS_TRANSFORMS_A4_SP1",
-                "action": "Locality rule SP1 and zero ratio A4 cancellation",
-                "expression": "\\frac{0_{x-2}}{0_{x-2}} = 1, \\quad \\text{Tail: } (x+2)|_{x=2} = 4"
+                "name": "AXIOMATIC_REDUCTION (A4/A6/A7/A10/L0)",
+                "action": "Применён закон резолвера: resolveRICIS (RExpr.divSelf e) = RExpr.one. Устранение самоделения не зависит от полезной нагрузки и порядка выражения",
+                "expression": "resolveRICIS (RExpr.divSelf e) = RExpr.one"
+            },
+            {
+                "phase": 4,
+                "name": "LEAN_CODEGEN → GATEWAY_DISPATCH",
+                "action": "Кодогенерация по универсальному шаблону и отправка в ядровой прогон; статус получен фактическим прогоном",
+                "expression": "artifact ricis-universal-orchestration-template · theorem RICIS_Template.divSelf_one · run 34891262489"
             },
             {
                 "phase": 6,
-                "name": "FINAL_L1_VERIFICATION",
-                "action": "Exact invariant 4 computed in O(1) complexity",
-                "expression": "4 \\quad [\\text{Verified via Lean 4: removable\\_singularity\\_eval}]"
+                "name": "TRUST_VALIDATION (E-03)",
+                "action": "Проверка границы доверия: состояние узла определяется только применимым evidence, внешняя задача остаётся INFORMAL",
+                "expression": "state = resolved; ricisSolvable = true"
             }
         ],
-        "finalResult": "4",
-        "latex": "\\section*{RICIS-III Proof: Устранимая сингулярность}\n\\textbf{Author:} Dmitry V. Aleinikov (ORCID: 0009-0004-3226-7700)\n\\textbf{Target Function:} $\\text{Eval}_{\\text{RICIS}}((x^2 - 4)/(x - 2), x=2) = 4$\n\\subsection*{RICIS Transform & Axiom A4 + SP2}\n$\\frac{(x-2)(x+2)}{x-2} = \\frac{0_{x-2}}{0_{x-2}} \\cdot (x+2) = 1 \\cdot 4 = 4 \\quad [O(1)]$\n\\subsection*{Verification & DOI Specification}\nAxiom A6: $0_F \\times \\infty_G = F \\cdot G$. Lean 4 Specification: \\href{https://doi.org/10.5281/zenodo.21529989}{DOI: 10.5281/zenodo.21529989}. Foundations: \\href{https://doi.org/10.5281/zenodo.17872755}{DOI: 10.5281/zenodo.17872755}.\n\\textbf{Final Result:} 4"
+        "finalResult": "Структурный фрагмент подтверждён ядром: ricis-universal-orchestration-template · RICIS_Template.divSelf_one · прогон 34891262489 (exit 0, без sorryAx).",
+        "latex": "\\section*{RICIS-III Proof: Structural (kernel-verified; external conjecture open)}\\n\\textbf{Author:} Dmitry V. Aleinikov (ORCID: 0009-0004-3226-7700)\\n\\subsection*{Core (structural) statement}\\nIn the symbolic language \\texttt{RExpr} the singular core of this node is устранимая сингулярность как самоделение divSelf(x − 2) — числитель и знаменатель одного порождающего индекса. Resolver law: \\texttt{resolveRICIS (RExpr.divSelf e) = RExpr.one}. Устранение самоделения не зависит от полезной нагрузки и порядка выражения.\\n\\subsection*{What is actually verified}\\nядровые теоремы RICIS_Template.divSelf_one и RICIS.selfDivision_eliminated (артефакты ricis-universal-orchestration-template и ricis-backend-exact-reduction, прогоны 34891262489, exit 0): самоделение устраняется точно, без предельного перехода.\\n\\subsection*{Boundary of the claim}\\nчисловое значение 4 — арифметика конкретного примера (2 + 2) после устранения сингулярности, отдельной ядровой теоремы для него нет; предельный переход Коши не используется (P1).\\n\\subsection*{Verification path}\\n\\textbf{Artifact:} \\texttt{ricis-universal-orchestration-template}\\n\\textbf{Theorem:} \\texttt{RICIS_Template.divSelf_one}\\n\\textbf{Kernel run:} 34891262489 — exit 0, no \\texttt{sorryAx}\\n\\textbf{Specification Lean 4 DOI:} \\href{https://doi.org/10.5281/zenodo.21529989}{https://doi.org/10.5281/zenodo.21529989}\\n\\textbf{RICIS transform (Axiom A6, symbolic level):} $0_F \\times \\infty_G = F \\cdot G$ — applied to the AST node, not to the external object."
     },
+    // <<< NODE-CLAIM-ORCHESTRATION-PROOF:task-elem-removable-zero
+    // >>> NODE-CLAIM-ORCHESTRATION-PROOF:task-elem-geometric-bridge-a6
     "task-elem-geometric-bridge-a6": {
         "nodeId": "task-elem-geometric-bridge-a6",
-        "targetFunction": "0_F \\times \\infty_G = \\det((F,0), (0,G)) = F \\cdot G",
+        "targetFunction": "StructuralReduce(0_F · ∞_G) = mul F G (A6-геометрический мост)",
         "steps": [
             {
                 "phase": -1,
-                "name": "L1_IDENTITY & Type Check",
-                "action": "Ontological verification of orthogonal vector representations in R_RICIS^2",
-                "expression": "L_1(X) = X \\implies u = (F,0), v = (0,G)"
+                "name": "L1_IDENTITY (типирование)",
+                "action": "Типирование утверждения узла: внешние объекты — неинтерпретированные конструкторы RExpr",
+                "expression": "T = RExpr"
             },
             {
-                "phase": 0,
-                "name": "REMOVE_LIMITS",
-                "action": "Direct mapping of degenerate object and infinite strip to 2D vector space",
-                "expression": "\\text{deg}(F) \\to u, \\quad \\text{strip}(G) \\to v"
+                "phase": 0.5,
+                "name": "SP4 semantic indexing",
+                "action": "Индексация сингулярности по порождающему выражению; индекс родителя сохраняется",
+                "expression": "произведение индексированного нуля на индексированную бесконечность"
             },
             {
                 "phase": 2,
-                "name": "RICIS_TRANSFORMS_A6",
-                "action": "Skew product determinant computation in O(1)",
-                "expression": "\\det(u, v) = u_x v_y - u_y v_x = F \\cdot G - 0 = F \\cdot G"
+                "name": "AXIOMATIC_REDUCTION (A4/A6/A7/A10/L0)",
+                "action": "Применён закон резолвера: resolveRICIS (RExpr.mul (RExpr.zeroF F) (RExpr.infF G)) = RExpr.mul F G. Мост не зависит от вложенности и от конкретных значений индексов",
+                "expression": "resolveRICIS (RExpr.mul (RExpr.zeroF F) (RExpr.infF G)) = RExpr.mul F G"
+            },
+            {
+                "phase": 4,
+                "name": "LEAN_CODEGEN → GATEWAY_DISPATCH",
+                "action": "Кодогенерация по универсальному шаблону и отправка в ядровой прогон; статус получен фактическим прогоном",
+                "expression": "artifact ricis-universal-orchestration-template · theorem RICIS_Template.A6_geometric_realization · run 34891262489"
             },
             {
                 "phase": 6,
-                "name": "FINAL_L1_VERIFICATION",
-                "action": "Conserved finite invariant area in O(1)",
-                "expression": "F \\cdot G \\quad [\\text{Lean 4: theta\\_skew\\_product\\_eval}]"
+                "name": "TRUST_VALIDATION (E-03)",
+                "action": "Проверка границы доверия: состояние узла определяется только применимым evidence, внешняя задача остаётся INFORMAL",
+                "expression": "state = resolved; ricisSolvable = true"
             }
         ],
-        "finalResult": "F \\cdot G",
-        "latex": "\\section*{RICIS-III Proof: Геометрический мост Axiom A6}\n\\textbf{Author:} Dmitry V. Aleinikov (ORCID: 0009-0004-3226-7700)\n\\textbf{Target Function:} $0_F \\times \\infty_G = F \\cdot G$\n\\subsection*{Geometric Bridge & Skew Product}\n$\\det((F,0), (0,G)) = F \\cdot G \\quad [O(1)]$\n\\subsection*{Verification & DOI Specification}\nAxiom A6: $0_F \\times \\infty_G = F \\cdot G$. Lean 4 Specification: \\href{https://doi.org/10.5281/zenodo.21529989}{DOI: 10.5281/zenodo.21529989}. Foundations: \\href{https://doi.org/10.5281/zenodo.17872755}{DOI: 10.5281/zenodo.17872755}.\n\\textbf{Final Result:} F \\cdot G"
+        "finalResult": "Структурный фрагмент подтверждён ядром: ricis-universal-orchestration-template · RICIS_Template.A6_geometric_realization · прогон 34891262489 (exit 0, без sorryAx).",
+        "latex": "\\section*{RICIS-III Proof: Structural (kernel-verified; external conjecture open)}\\n\\textbf{Author:} Dmitry V. Aleinikov (ORCID: 0009-0004-3226-7700)\\n\\subsection*{Core (structural) statement}\\nIn the symbolic language \\texttt{RExpr} the singular core of this node is произведение индексированного нуля на индексированную бесконечность. Resolver law: \\texttt{resolveRICIS (RExpr.mul (RExpr.zeroF F) (RExpr.infF G)) = RExpr.mul F G}. Мост не зависит от вложенности и от конкретных значений индексов.\\n\\subsection*{What is actually verified}\\nядровая теорема RICIS_Template.A6_geometric_realization (артефакт ricis-universal-orchestration-template, прогон 34891262489, exit 0): неопределённость 0_F · ∞_G разрешается геометрической мерой μ(rect F G) = F · G.\\n\\subsection*{Boundary of the claim}\\nчисло 15 для F = 5, G = 3 — арифметическая подстановка в доказанный закон, а не отдельная ядровая теорема; никакого утверждения о физическом измерении узел не несёт.\\n\\subsection*{Verification path}\\n\\textbf{Artifact:} \\texttt{ricis-universal-orchestration-template}\\n\\textbf{Theorem:} \\texttt{RICIS_Template.A6_geometric_realization}\\n\\textbf{Kernel run:} 34891262489 — exit 0, no \\texttt{sorryAx}\\n\\textbf{Specification Lean 4 DOI:} \\href{https://doi.org/10.5281/zenodo.21529989}{https://doi.org/10.5281/zenodo.21529989}\\n\\textbf{RICIS transform (Axiom A6, symbolic level):} $0_F \\times \\infty_G = F \\cdot G$ — applied to the AST node, not to the external object."
     },
+    // <<< NODE-CLAIM-ORCHESTRATION-PROOF:task-elem-geometric-bridge-a6
+    // >>> NODE-CLAIM-ORCHESTRATION-PROOF:task-goldbach-sieve-monolith
     "task-goldbach-sieve-monolith": {
         "nodeId": "task-goldbach-sieve-monolith",
-        "targetFunction": "SieveMonolith_2(2k) = \\sum \\det((p_1, 0), (0, p_2)) \\cdot \\mathbf{1}_{p_1+p_2=2k}",
+        "targetFunction": "Spec(SieveMonolith_2) = mul Primes Sum — требование монолита, не теорема",
         "steps": [
             {
                 "phase": -1,
-                "name": "L1_IDENTITY",
-                "action": "Preserve semantic identity of even number 2k under additive prime decomposition",
-                "expression": "L_1(2k) = 2k"
+                "name": "L1_IDENTITY (типирование)",
+                "action": "Типирование утверждения узла: внешние объекты — неинтерпретированные конструкторы RExpr",
+                "expression": "T = RExpr"
             },
             {
-                "phase": 1,
-                "name": "RESOURCE_ATTACHMENT",
-                "action": "Attach solved geometric bridge A6 and SP4 path index as resources",
-                "expression": "\\text{Resource}(task-elem-geometric-bridge-a6) \\wedge \\text{Resource}(contract-sp4-path-index)"
+                "phase": 0.5,
+                "name": "SP4 semantic indexing",
+                "action": "Индексация сингулярности по порождающему выражению; индекс родителя сохраняется",
+                "expression": "требуемый дискретный мультипликативно-аддитивный монолит порядка 2"
             },
             {
                 "phase": 2,
-                "name": "RICIS_TRANSFORMS",
-                "action": "Second-order sieve monolith formulation over prime pairs",
-                "expression": "\\text{Monolith}_2(p_1, p_2) \\longrightarrow \\mathbf{1}_{p_1+p_2=2k}"
+                "name": "AXIOMATIC_REDUCTION (A4/A6/A7/A10/L0)",
+                "action": "Применён закон резолвера: Монолит должен давать 0_sum → ∞_primes через A4-редукцию при сохранении SP4-индекса. Контракт фиксирует требование; доказательства для всех чётных 2k > 2 контракт не содержит",
+                "expression": "Монолит должен давать 0_sum → ∞_primes через A4-редукцию при сохранении SP4-индекса"
+            },
+            {
+                "phase": 4,
+                "name": "LEAN_CODEGEN → GATEWAY_DISPATCH",
+                "action": "Ядровой носитель отсутствует: контракт не отправляется в ядро (сравнивать нечего)",
+                "expression": "contract-only (ядрового evidence нет)"
             },
             {
                 "phase": 6,
-                "name": "CONTRACT_CLOSURE",
-                "action": "Deficiency contract formalized for registry-101 decomposition",
-                "expression": "\\text{GoldbachSieveContract resolved; target theorem requires Lean Mathlib sieve}"
+                "name": "TRUST_VALIDATION (E-03)",
+                "action": "Проверка границы доверия: состояние узла определяется только применимым evidence, внешняя задача остаётся INFORMAL",
+                "expression": "state = partial; ricisSolvable = false"
             }
         ],
-        "finalResult": "GoldbachSieveContract resolved",
-        "latex": "\\section*{RICIS-III Proof: Решето Гольдбаха (Монолит 2 порядка)}\n\\textbf{Author:} Dmitry V. Aleinikov (ORCID: 0009-0004-3226-7700)\n\\textbf{Target Function:} $SieveMonolith_2(2k)$\n\\subsection*{Monolith Formulation & Resource Links}\nConnects solved task-elem-geometric-bridge-a6 (Axiom A6: $0_F \\times \\infty_G = F \\cdot G$) and contract-sp4-path-index to bound prime sieve tail.\n\\subsection*{Verification & DOI Specification}\nLean 4 Specification: \\href{https://doi.org/10.5281/zenodo.21529989}{DOI: 10.5281/zenodo.21529989}. Master Registry \\href{https://doi.org/10.5281/zenodo.21517353}{10.5281/zenodo.21517353}. Foundations: \\href{https://doi.org/10.5281/zenodo.17872755}{DOI: 10.5281/zenodo.17872755}.\n\\textbf{Final Result:} GoldbachSieveContract resolved"
+        "finalResult": "Узел — спецификация (контракт), а не решение: формального доказательства внешней задачи здесь нет. Внешний предмет («гипотеза Гольдбаха (требуемый монолит порядка 2 над решетом простых)») не решён и не заявляется.",
+        "latex": "\\section*{RICIS-III Proof: Specification (contract; external problem open)}\\n\\textbf{Author:} Dmitry V. Aleinikov (ORCID: 0009-0004-3226-7700)\\n\\subsection*{Core (structural) statement}\\nIn the symbolic language \\texttt{RExpr} the singular core of this node is требуемый дискретный мультипликативно-аддитивный монолит порядка 2. Resolver law: \\texttt{Монолит должен давать 0_sum → ∞_primes через A4-редукцию при сохранении SP4-индекса}. Контракт фиксирует требование; доказательства для всех чётных 2k > 2 контракт не содержит.\\n\\subsection*{What is actually verified}\\nконтракт сформулирован как требование и согласован с записью движка решений: гипотеза Гольдбаха — UNRESOLVED_CHALLENGE (src/model/taskResolutionEngine.ts), внешняя задача отсутствует в ядровом пути репозитория.\\n\\subsection*{Boundary of the claim}\\nгипотеза Гольдбаха не доказана: этот узел специфицирует необходимый монолит и его SP4/A4-требования; никакого формального доказательства для бесконечного множества чётных чисел здесь нет.\\n\\subsection*{Verification path}\\n\\textbf{Carrier:} contract specification (ядровой носитель отсутствует)\\n\\textbf{Specification Lean 4 DOI:} \\href{https://doi.org/10.5281/zenodo.21529989}{https://doi.org/10.5281/zenodo.21529989}\\n\\textbf{RICIS transform (Axiom A6, symbolic level):} $0_F \\times \\infty_G = F \\cdot G$ — applied to the AST node, not to the external object."
     },
+    // <<< NODE-CLAIM-ORCHESTRATION-PROOF:task-goldbach-sieve-monolith
+    // >>> NODE-CLAIM-ORCHESTRATION-PROOF:task-twin-prime-plane-difference
     "task-twin-prime-plane-difference": {
         "nodeId": "task-twin-prime-plane-difference",
-        "targetFunction": "\\Delta_{\\text{plane}}(\\text{Primes}) := \\det((p, 0), (0, p+2)) \\neq \\emptyset",
+        "targetFunction": "Spec(DeltaPlane) = sub (infF P) (infF (add P two)) — требование оператора, не теорема",
         "steps": [
             {
                 "phase": -1,
-                "name": "L1_IDENTITY",
-                "action": "Ontological identity for pair (p, p+2) across infinite discrete spectrum",
-                "expression": "L_1(p, p+2) = (p, p+2)"
+                "name": "L1_IDENTITY (типирование)",
+                "action": "Типирование утверждения узла: внешние объекты — неинтерпретированные конструкторы RExpr",
+                "expression": "T = RExpr"
             },
             {
-                "phase": 1,
-                "name": "RESOURCE_ATTACHMENT",
-                "action": "Attach solved removable zero and geometric bridge as analytical resources",
-                "expression": "\\text{Resource}(task-elem-removable-zero) \\wedge \\text{Resource}(task-elem-geometric-bridge-a6)"
+                "phase": 0.5,
+                "name": "SP4 semantic indexing",
+                "action": "Индексация сингулярности по порождающему выражению; индекс родителя сохраняется",
+                "expression": "требуемый дискретный разностный оператор Δ_plane над индексами простых"
             },
             {
                 "phase": 2,
-                "name": "DISCRETE_PLANE_DIFFERENCE",
-                "action": "Replace asymptotic density integral with discrete plane operator",
-                "expression": "\\Delta_{\\text{plane}} = \\det((p,0), (0, p+2))"
+                "name": "AXIOMATIC_REDUCTION (A4/A6/A7/A10/L0)",
+                "action": "Применён закон резолвера: Оператор обязан сохранять индексацию ∞_F − ∞_G → ∞_(F−G) (закон A7). Контракт фиксирует требование; бесконечность множества пар контракт не утверждает",
+                "expression": "Оператор обязан сохранять индексацию ∞_F − ∞_G → ∞_(F−G) (закон A7)"
+            },
+            {
+                "phase": 4,
+                "name": "LEAN_CODEGEN → GATEWAY_DISPATCH",
+                "action": "Кодогенерация по универсальному шаблону и отправка в ядровой прогон; статус получен фактическим прогоном",
+                "expression": "artifact ricis-universal-orchestration-template · theorem RICIS_Template.A7_inf_sub · run 34891262489"
             },
             {
                 "phase": 6,
-                "name": "CONTRACT_CLOSURE",
-                "action": "Deficiency contract formalized for registry-102 decomposition",
-                "expression": "\\text{TwinPrimePlaneContract resolved}"
+                "name": "TRUST_VALIDATION (E-03)",
+                "action": "Проверка границы доверия: состояние узла определяется только применимым evidence, внешняя задача остаётся INFORMAL",
+                "expression": "state = partial; ricisSolvable = false"
             }
         ],
-        "finalResult": "TwinPrimePlaneContract resolved",
-        "latex": "\\section*{RICIS-III Proof: Разностный оператор плотности близнецов}\n\\textbf{Author:} Dmitry V. Aleinikov (ORCID: 0009-0004-3226-7700)\n\\textbf{Target Function:} $\\Delta_{\\text{plane}}(\\text{Primes})$\n\\subsection*{Plane Difference & Resources}\nConnects task-elem-removable-zero and task-elem-geometric-bridge-a6 (Axiom A6: $0_F \\times \\infty_G = F \\cdot G$) to formalize discrete non-empty gaps.\n\\subsection*{Verification & DOI Specification}\nLean 4 Specification: \\href{https://doi.org/10.5281/zenodo.21529989}{DOI: 10.5281/zenodo.21529989}. Master Registry \\href{https://doi.org/10.5281/zenodo.21517353}{10.5281/zenodo.21517353}. Foundations: \\href{https://doi.org/10.5281/zenodo.17872755}{DOI: 10.5281/zenodo.17872755}.\n\\textbf{Final Result:} TwinPrimePlaneContract resolved"
+        "finalResult": "Структурный фрагмент подтверждён ядром: ricis-universal-orchestration-template · RICIS_Template.A7_inf_sub · прогон 34891262489 (exit 0, без sorryAx). Внешний предмет («гипотеза о простых близнецах (требуемый Δ_plane-монолит)») не решён и не заявляется.",
+        "latex": "\\section*{RICIS-III Proof: Specification (contract; external problem open)}\\n\\textbf{Author:} Dmitry V. Aleinikov (ORCID: 0009-0004-3226-7700)\\n\\subsection*{Core (structural) statement}\\nIn the symbolic language \\texttt{RExpr} the singular core of this node is требуемый дискретный разностный оператор Δ_plane над индексами простых. Resolver law: \\texttt{Оператор обязан сохранять индексацию ∞_F − ∞_G → ∞_(F−G) (закон A7)}. Контракт фиксирует требование; бесконечность множества пар контракт не утверждает.\\n\\subsection*{What is actually verified}\\nконтракт согласован с ядровым законом A7 (ядерная теорема RICIS_Template.A7_inf_sub, прогон 34891262489) в части разностного оператора над индексами.\\n\\subsection*{Boundary of the claim}\\nгипотеза о бесконечности пар простых близнецов не доказана: узел специфицирует требуемый разностный оператор и его инвариант, а не глобальную меру множества пар.\\n\\subsection*{Verification path}\\n\\textbf{Artifact:} \\texttt{ricis-universal-orchestration-template}\\n\\textbf{Theorem:} \\texttt{RICIS_Template.A7_inf_sub}\\n\\textbf{Kernel run:} 34891262489 — exit 0, no \\texttt{sorryAx}\\n\\textbf{Specification Lean 4 DOI:} \\href{https://doi.org/10.5281/zenodo.21529989}{https://doi.org/10.5281/zenodo.21529989}\\n\\textbf{RICIS transform (Axiom A6, symbolic level):} $0_F \\times \\infty_G = F \\cdot G$ — applied to the AST node, not to the external object."
     },
+    // <<< NODE-CLAIM-ORCHESTRATION-PROOF:task-twin-prime-plane-difference
+    // >>> NODE-CLAIM-ORCHESTRATION-PROOF:task-collatz-ancestor-tree-invariant
     "task-collatz-ancestor-tree-invariant": {
         "nodeId": "task-collatz-ancestor-tree-invariant",
-        "targetFunction": "CollatzTreeMonolith(n) := \\text{L1\\_Preserve}(\\text{TreeAncestor}(n))",
+        "targetFunction": "Spec(CollatzTreeMonolith) = L1Preserve(ancestorTree n) — требование инварианта",
         "steps": [
             {
                 "phase": -1,
-                "name": "L1_IDENTITY",
-                "action": "Ontological identity of integer trajectory without loss of provenance",
-                "expression": "L_1(n) = n"
+                "name": "L1_IDENTITY (типирование)",
+                "action": "Типирование утверждения узла: внешние объекты — неинтерпретированные конструкторы RExpr",
+                "expression": "T = RExpr"
             },
             {
-                "phase": 1,
-                "name": "RESOURCE_ATTACHMENT",
-                "action": "Attach contract-l1-field-monolith and AST reduction pattern as resources",
-                "expression": "\\text{Resource}(contract-l1-field-monolith) \\wedge \\text{Resource}(ricis-ast-reduction-pattern)"
+                "phase": 0.5,
+                "name": "SP4 semantic indexing",
+                "action": "Индексация сингулярности по порождающему выражению; индекс родителя сохраняется",
+                "expression": "требуемый инвариант обратного бинарного дерева предков"
             },
             {
                 "phase": 2,
-                "name": "RICIS_TRANSFORMS",
-                "action": "Tree ancestor monolith mapping n -> (2n, (n-1)/3) with cycle elimination",
-                "expression": "\\text{TreeMonolith}_2(n) \\to \\text{Invariant}"
+                "name": "AXIOMATIC_REDUCTION (A4/A6/A7/A10/L0)",
+                "action": "Применён закон резолвера: Требуется L1-сохранение при редукции шага без предельных переходов (P1). Контракт фиксирует требование; отсутствие циклов и ограниченность роста не утверждаются",
+                "expression": "Требуется L1-сохранение при редукции шага без предельных переходов (P1)"
+            },
+            {
+                "phase": 4,
+                "name": "LEAN_CODEGEN → GATEWAY_DISPATCH",
+                "action": "Кодогенерация по универсальному шаблону и отправка в ядровой прогон; статус получен фактическим прогоном",
+                "expression": "artifact ricis-universal-orchestration-template · theorem RICIS_Template.L0_continuity_divSelf · run 34891262489"
             },
             {
                 "phase": 6,
-                "name": "CONTRACT_CLOSURE",
-                "action": "Deficiency contract formalized for registry-107 decomposition",
-                "expression": "\\text{CollatzTreeContract resolved}"
+                "name": "TRUST_VALIDATION (E-03)",
+                "action": "Проверка границы доверия: состояние узла определяется только применимым evidence, внешняя задача остаётся INFORMAL",
+                "expression": "state = partial; ricisSolvable = false"
             }
         ],
-        "finalResult": "CollatzTreeContract resolved",
-        "latex": "\\section*{RICIS-III Proof: Инвариант дерева предков Коллатца}\n\\textbf{Author:} Dmitry V. Aleinikov (ORCID: 0009-0004-3226-7700)\n\\textbf{Target Function:} $CollatzTreeMonolith(n)$\n\\subsection*{Tree Monolith & Resources}\nConnects contract-l1-field-monolith and ricis-ast-reduction-pattern (Axiom A6: $0_F \\times \\infty_G = F \\cdot G$) to preserve structural identity across backward branches.\n\\subsection*{Verification & DOI Specification}\nLean 4 Specification: \\href{https://doi.org/10.5281/zenodo.21529989}{DOI: 10.5281/zenodo.21529989}. Master Registry \\href{https://doi.org/10.5281/zenodo.21517353}{10.5281/zenodo.21517353}. Foundations: \\href{https://doi.org/10.5281/zenodo.17872755}{DOI: 10.5281/zenodo.17872755}.\n\\textbf{Final Result:} CollatzTreeContract resolved"
+        "finalResult": "Структурный фрагмент подтверждён ядром: ricis-universal-orchestration-template · RICIS_Template.L0_continuity_divSelf · прогон 34891262489 (exit 0, без sorryAx). Внешний предмет («гипотеза Коллатца (требуемый инвариант дерева предков)») не решён и не заявляется.",
+        "latex": "\\section*{RICIS-III Proof: Specification (contract; external problem open)}\\n\\textbf{Author:} Dmitry V. Aleinikov (ORCID: 0009-0004-3226-7700)\\n\\subsection*{Core (structural) statement}\\nIn the symbolic language \\texttt{RExpr} the singular core of this node is требуемый инвариант обратного бинарного дерева предков. Resolver law: \\texttt{Требуется L1-сохранение при редукции шага без предельных переходов (P1)}. Контракт фиксирует требование; отсутствие циклов и ограниченность роста не утверждаются.\\n\\subsection*{What is actually verified}\\nконтракт согласован с L0-законом редукции (ядерная теорема RICIS_Template.L0_continuity_divSelf, прогон 34891262489) в части непрерывности устранения самоделения.\\n\\subsection*{Boundary of the claim}\\nгипотеза Коллатца не доказана: узел специфицирует требуемый инвариант дерева предков; анализ нетривиальных циклов и роста траекторий здесь отсутствует.\\n\\subsection*{Verification path}\\n\\textbf{Artifact:} \\texttt{ricis-universal-orchestration-template}\\n\\textbf{Theorem:} \\texttt{RICIS_Template.L0_continuity_divSelf}\\n\\textbf{Kernel run:} 34891262489 — exit 0, no \\texttt{sorryAx}\\n\\textbf{Specification Lean 4 DOI:} \\href{https://doi.org/10.5281/zenodo.21529989}{https://doi.org/10.5281/zenodo.21529989}\\n\\textbf{RICIS transform (Axiom A6, symbolic level):} $0_F \\times \\infty_G = F \\cdot G$ — applied to the AST node, not to the external object."
     },
+    // <<< NODE-CLAIM-ORCHESTRATION-PROOF:task-collatz-ancestor-tree-invariant
+    // >>> NODE-CLAIM-ORCHESTRATION-PROOF:task-continuum-metric-hilbert
     "task-continuum-metric-hilbert": {
         "nodeId": "task-continuum-metric-hilbert",
-        "targetFunction": "\\hat{H}_{\\text{metric}} \\otimes \\det(g_{\\mu\\nu}) \\longleftrightarrow \\text{FieldMonolith}",
+        "targetFunction": "Spec(ContinuumLayer) = tensor metric Hilbert — требование слоя, не построение",
         "steps": [
             {
                 "phase": -1,
-                "name": "L1_IDENTITY",
-                "action": "Ontological identity of field monolith and spacetime metric components",
-                "expression": "L_1(\\text{Metric}) = \\text{Metric}"
+                "name": "L1_IDENTITY (типирование)",
+                "action": "Типирование утверждения узла: внешние объекты — неинтерпретированные конструкторы RExpr",
+                "expression": "T = RExpr"
             },
             {
-                "phase": 1,
-                "name": "RESOURCE_ATTACHMENT",
-                "action": "Attach phys-field-bridge-contract and task-elem-geometric-bridge-a6 as solved resources",
-                "expression": "\\text{Resource}(phys-field-bridge-contract) \\wedge \\text{Resource}(task-elem-geometric-bridge-a6)"
+                "phase": 0.5,
+                "name": "SP4 semantic indexing",
+                "action": "Индексация сингулярности по порождающему выражению; индекс родителя сохраняется",
+                "expression": "требуемый континуальный слой: метрика ⊗ гильбертово пространство"
             },
             {
                 "phase": 2,
-                "name": "RICIS_TRANSFORMS",
-                "action": "Formulate boundary between discrete Int-proxy bridge and continuum metric-Hilbert space",
-                "expression": "\\hat{H}_{\\text{metric}} \\otimes \\det(g_{\\mu\\nu}) \\longleftrightarrow \\text{FieldMonolith}"
+                "name": "AXIOMATIC_REDUCTION (A4/A6/A7/A10/L0)",
+                "action": "Применён закон резолвера: Требуется A6-контракт пути при сохранении SP4-индекса в континуальном пределе. Контракт фиксирует требование; континуум как объект не построен",
+                "expression": "Требуется A6-контракт пути при сохранении SP4-индекса в континуальном пределе"
+            },
+            {
+                "phase": 4,
+                "name": "LEAN_CODEGEN → GATEWAY_DISPATCH",
+                "action": "Кодогенерация по универсальному шаблону и отправка в ядровой прогон; статус получен фактическим прогоном",
+                "expression": "artifact ricis-universal-orchestration-template · theorem RICIS_Template.SP4_preserves_parent · run 34891262489"
             },
             {
                 "phase": 6,
-                "name": "CONTRACT_CLOSURE",
-                "action": "Deficiency contract formalized for phys-unified continuum decomposition",
-                "expression": "\\text{ContinuumMetricHilbertContract resolved; full QM-GR continuum stays OPEN}"
+                "name": "TRUST_VALIDATION (E-03)",
+                "action": "Проверка границы доверия: состояние узла определяется только применимым evidence, внешняя задача остаётся INFORMAL",
+                "expression": "state = partial; ricisSolvable = false"
             }
         ],
-        "finalResult": "ContinuumMetricHilbertContract resolved; full QM-GR continuum stays OPEN",
-        "latex": "\\section*{RICIS-III Proof: Континуумный метрико-гильбертов оператор (QM-GR)}\n\\textbf{Author:} Dmitry V. Aleinikov (ORCID: 0009-0004-3226-7700)\n\\textbf{Target Function:} $\\hat{H}_{\\text{metric}} \\otimes \\det(g_{\\mu\\nu}) \\longleftrightarrow \\text{FieldMonolith}$\n\\subsection*{Continuum Decomposition & Resources}\nConnects phys-field-bridge-contract and task-elem-geometric-bridge-a6 (Axiom A6: $0_F \\times \\infty_G = F \\cdot G$) to formalize the missing continuum layer.\n\\subsection*{Verification & DOI Specification}\nLean 4 Specification: \\href{https://doi.org/10.5281/zenodo.21529989}{DOI: 10.5281/zenodo.21529989}. DOI: \\href{https://doi.org/10.5281/zenodo.22124493}{10.5281/zenodo.22124493}. Foundations: \\href{https://doi.org/10.5281/zenodo.17872755}{DOI: 10.5281/zenodo.17872755}.\n\\textbf{Final Result:} ContinuumMetricHilbertContract resolved; full QM-GR continuum stays OPEN"
+        "finalResult": "Структурный фрагмент подтверждён ядром: ricis-universal-orchestration-template · RICIS_Template.SP4_preserves_parent · прогон 34891262489 (exit 0, без sorryAx). Внешний предмет («континуальное объединение квантовой механики и гравитации») не решён и не заявляется.",
+        "latex": "\\section*{RICIS-III Proof: Specification (contract; external problem open)}\\n\\textbf{Author:} Dmitry V. Aleinikov (ORCID: 0009-0004-3226-7700)\\n\\subsection*{Core (structural) statement}\\nIn the symbolic language \\texttt{RExpr} the singular core of this node is требуемый континуальный слой: метрика ⊗ гильбертово пространство. Resolver law: \\texttt{Требуется A6-контракт пути при сохранении SP4-индекса в континуальном пределе}. Контракт фиксирует требование; континуум как объект не построен.\\n\\subsection*{What is actually verified}\\nконтракт согласован со SP4-инвариантом (ядерная теорема RICIS_Template.SP4_preserves_parent, прогон 34891262489) на дискретном прокси-уровне.\\n\\subsection*{Boundary of the claim}\\nобъединение квантовой механики и гравитации не построено и не доказано: узел phys-unified остаётся partial by design, континуальный метрико-гильбертов слой отсутствует, дискретный прокси A6 его не заменяет.\\n\\subsection*{Verification path}\\n\\textbf{Artifact:} \\texttt{ricis-universal-orchestration-template}\\n\\textbf{Theorem:} \\texttt{RICIS_Template.SP4_preserves_parent}\\n\\textbf{Kernel run:} 34891262489 — exit 0, no \\texttt{sorryAx}\\n\\textbf{Specification Lean 4 DOI:} \\href{https://doi.org/10.5281/zenodo.21529989}{https://doi.org/10.5281/zenodo.21529989}\\n\\textbf{RICIS transform (Axiom A6, symbolic level):} $0_F \\times \\infty_G = F \\cdot G$ — applied to the AST node, not to the external object."
     },
+    // <<< NODE-CLAIM-ORCHESTRATION-PROOF:task-continuum-metric-hilbert
+    // >>> NODE-CLAIM-ORCHESTRATION-PROOF:task-turing-meta-monolith
     "task-turing-meta-monolith": {
         "nodeId": "task-turing-meta-monolith",
-        "targetFunction": "TuringMetaMonolith(M, w) \\longrightarrow \\text{L0-Invariant}",
+        "targetFunction": "Spec(TuringMetaMonolith) = separate L0 L1 (типизация страт) — требование",
         "steps": [
             {
                 "phase": -1,
-                "name": "L1_IDENTITY",
-                "action": "Preserve semantic identity of Turing machine M and input w",
-                "expression": "L_1(M, w) = (M, w)"
+                "name": "L1_IDENTITY (типирование)",
+                "action": "Типирование утверждения узла: внешние объекты — неинтерпретированные конструкторы RExpr",
+                "expression": "T = RExpr"
             },
             {
-                "phase": 1,
-                "name": "RESOURCE_ATTACHMENT",
-                "action": "Attach solved L1 field monolith as structural boundary resource",
-                "expression": "\\text{Resource}(contract-l1-field-monolith)"
+                "phase": 0.5,
+                "name": "SP4 semantic indexing",
+                "action": "Индексация сингулярности по порождающему выражению; индекс родителя сохраняется",
+                "expression": "требуемое разделение страт: мета-уровень L0 против уровня L1"
             },
             {
                 "phase": 2,
-                "name": "RICIS_TRANSFORMS",
-                "action": "Formulate higher-order meta-monolith to break the diagonal cycle",
-                "expression": "\\text{MetaMonolith}_2(M, w) \\longrightarrow \\text{L0-Invariant}"
+                "name": "AXIOMATIC_REDUCTION (A4/A6/A7/A10/L0)",
+                "action": "Применён закон резолвера: Требуется L1-тождество уровня: страты не смешиваются, коллапс уровней запрещён. Контракт фиксирует требование; алгоритмическая неразрешимость не доказывается",
+                "expression": "Требуется L1-тождество уровня: страты не смешиваются, коллапс уровней запрещён"
+            },
+            {
+                "phase": 4,
+                "name": "LEAN_CODEGEN → GATEWAY_DISPATCH",
+                "action": "Кодогенерация по универсальному шаблону и отправка в ядровой прогон; статус получен фактическим прогоном",
+                "expression": "artifact ricis-universal-orchestration-template · theorem RICIS_Template.L1_identity · run 34891262489"
             },
             {
                 "phase": 6,
-                "name": "CONTRACT_CLOSURE",
-                "action": "Deficiency contract formalized for registry-114 decomposition",
-                "expression": "\\text{TuringMetaMonolithContract resolved}"
+                "name": "TRUST_VALIDATION (E-03)",
+                "action": "Проверка границы доверия: состояние узла определяется только применимым evidence, внешняя задача остаётся INFORMAL",
+                "expression": "state = partial; ricisSolvable = false"
             }
         ],
-        "finalResult": "TuringMetaMonolithContract resolved",
-        "latex": "\\section*{RICIS-III Proof: Мета-монолит машины Тьюринга}\n\\textbf{Author:} Dmitry V. Aleinikov (ORCID: 0009-0004-3226-7700)\n\\textbf{Target Function:} $TuringMetaMonolith(M, w)$\n\\subsection*{Meta-Monolith Formulation & Resources}\nConnects contract-l1-field-monolith to establish a higher-order boundary that prevents unbounded diagonal paradoxes.\n\\subsection*{Verification & DOI Specification}\nLean 4 Specification: \\href{https://doi.org/10.5281/zenodo.21529989}{DOI: 10.5281/zenodo.21529989}. Master Registry \\href{https://doi.org/10.5281/zenodo.21517353}{10.5281/zenodo.21517353}. Foundations: \\href{https://doi.org/10.5281/zenodo.17872755}{DOI: 10.5281/zenodo.17872755}.\n\\textbf{Final Result:} TuringMetaMonolithContract resolved"
+        "finalResult": "Структурный фрагмент подтверждён ядром: ricis-universal-orchestration-template · RICIS_Template.L1_identity · прогон 34891262489 (exit 0, без sorryAx). Внешний предмет («проблема остановки (требуемая иерархия мета-монолитов)») не решён и не заявляется.",
+        "latex": "\\section*{RICIS-III Proof: Specification (contract; external problem open)}\\n\\textbf{Author:} Dmitry V. Aleinikov (ORCID: 0009-0004-3226-7700)\\n\\subsection*{Core (structural) statement}\\nIn the symbolic language \\texttt{RExpr} the singular core of this node is требуемое разделение страт: мета-уровень L0 против уровня L1. Resolver law: \\texttt{Требуется L1-тождество уровня: страты не смешиваются, коллапс уровней запрещён}. Контракт фиксирует требование; алгоритмическая неразрешимость не доказывается.\\n\\subsection*{What is actually verified}\\nконтракт согласован с L1-законом типизации (ядровая теорема RICIS_Template.L1_identity, прогон 34891262489, не зависит от аксиом).\\n\\subsection*{Boundary of the claim}\\nнеразрешимость проблемы остановки — классический результат Тьюринга (1936), здесь не доказывается; узел специфицирует требуемый мета-монолит и не воспроизводит диагональное доказательство.\\n\\subsection*{Verification path}\\n\\textbf{Artifact:} \\texttt{ricis-universal-orchestration-template}\\n\\textbf{Theorem:} \\texttt{RICIS_Template.L1_identity}\\n\\textbf{Kernel run:} 34891262489 — exit 0, no \\texttt{sorryAx}\\n\\textbf{Specification Lean 4 DOI:} \\href{https://doi.org/10.5281/zenodo.21529989}{https://doi.org/10.5281/zenodo.21529989}\\n\\textbf{RICIS transform (Axiom A6, symbolic level):} $0_F \\times \\infty_G = F \\cdot G$ — applied to the AST node, not to the external object."
     }
+    // <<< NODE-CLAIM-ORCHESTRATION-PROOF:task-turing-meta-monolith
   }
 };
 

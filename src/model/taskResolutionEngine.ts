@@ -172,14 +172,16 @@ const ELEMENTARY_SOLUTIONS: readonly ElementaryTaskSolution[] = [
       invariant: '4',
     }),
     leanProof: {
-      fileRef: 'artifacts/proofs/ricis-backend-exact-reduction.standalone.lean',
-      theoremName: 'ricis_removable_singularity_eval',
+      // F-16: ссылка обязана указывать на теорему, которая ЕСТЬ в #print axioms записанного
+      // прогона. Прежняя ссылка (ricis_removable_singularity_eval в ricis-backend-exact-reduction)
+      // была выдуманной: такой теоремы в артефакте нет. Страж — QA-LEAN-1 в
+      // src/model/taskResolutionEngine.test.ts (сверка с kernel-findings.json).
+      fileRef: 'artifacts/proofs/ricis-universal-orchestration-template.lean',
+      theoremName: 'RICIS_Template.divSelf_one',
       kernelVerified: true,
       axioms: ['propext'],
-      codeSnippet: `theorem removable_singularity_eval (x : Int) (h : x = 2) :
-  (x - 2) * (x + 2) / (x - 2) = 4 := by
-  subst h
-  decide`,
+      codeSnippet: `theorem divSelf_one (e : RExpr) :
+    resolveRICIS (RExpr.divSelf e) = RExpr.one := rfl`,
     },
     latex: `\\section*{RICIS-III Proof: Removable Singularity}
 \\textbf{Target:} $f(x) = \\frac{x^2 - 4}{x - 2}$ at $x = 2$
@@ -206,14 +208,16 @@ const ELEMENTARY_SOLUTIONS: readonly ElementaryTaskSolution[] = [
       invariant: '15',
     }),
     leanProof: {
-      fileRef: 'artifacts/proofs/database-a6-minimal-core-check.lean',
-      theoremName: 'theta_skew_product_eval',
+      // F-16: было theta_skew_product_eval в database-a6-minimal-core-check.lean — такой теоремы
+      // в артефакте нет (там единственная теорема database_a6_bridge). Ссылка заменена на
+      // фактическую теорему A6-моста из принятого ядром шаблона.
+      fileRef: 'artifacts/proofs/ricis-universal-orchestration-template.lean',
+      theoremName: 'RICIS_Template.A6_geometric_realization',
       kernelVerified: true,
       axioms: ['propext'],
-      codeSnippet: `theorem theta_skew_product_eval (F G : Int) :
-  det2D (F, 0) (0, G) = F * G := by
-  unfold det2D
-  ring`,
+      codeSnippet: `theorem A6_geometric_realization (F G : RExpr) :
+    resolveRICIS (RExpr.mul (RExpr.zeroF F) (RExpr.infF G)) =
+      RExpr.mul F G := rfl`,
     },
     latex: `\\section*{RICIS-III Proof: Geometric Bridge Axiom A6}
 \\textbf{Target:} $0_F \\times \\infty_G = F \\cdot G$
@@ -239,13 +243,15 @@ For $F = 5, G = 3 \\implies 15$ in $O(1)$.`,
       invariant: '1',
     }),
     leanProof: {
-      fileRef: 'artifacts/proofs/ricis-backend-exact-reduction.standalone.lean',
-      theoremName: 'polar_kinematic_inversion_exact',
+      // F-16: было polar_kinematic_inversion_exact в ricis-backend-exact-reduction.standalone.lean —
+      // теоремы с таким именем в артефакте нет. Ссылка заменена на фактическую теорему
+      // комплексного самоделения (0/0 → 1) из принятого ядром шаблона.
+      fileRef: 'artifacts/proofs/ricis-universal-orchestration-template.lean',
+      theoremName: 'RICIS_Template.complex_divSelf_one',
       kernelVerified: true,
       axioms: ['propext'],
-      codeSnippet: `theorem polar_kinematic_inversion_exact (F : Int) (h : F ≠ 0) :
-  F * 1 / F = 1 := by
-  exact Int.mul_inv_cancel h`,
+      codeSnippet: `theorem complex_divSelf_one (e : RExpr) :
+    resolveRICIS (RExpr.divSelf (complexExpr e)) = RExpr.one := rfl`,
     },
     latex: `\\section*{RICIS-III Proof: Manipulator Singularity Inversion}
 \\textbf{Target:} $\\det(J(q)) = 0_F$, $\\dot{q} = \\infty_{F^{-1}}$

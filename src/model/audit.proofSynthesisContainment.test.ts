@@ -841,6 +841,25 @@ describe('OIR-03 — audit proof-synthesis containment', () => {
       // UNKNOWN seed 7 ≥ 8/10.
       '?? src/services/kinematic/interceptionBenchmark.test.ts',
       '?? src/services/kinematic/interceptionBenchmark.ts',
+      // NODE-CLAIM-ORCHESTRATION / РЕЕСТР v4 (2026-09-19): прогон 35404189840 (PR #78),
+      // находка F-16 (FABRICATED_KERNEL_REFERENCE) и её ремонт, план оркестрации узлов,
+      // правило «базис RICIS-III — данность» (AGENTS.md §14) и запись такта в ACTIVE_TASKS.
+      ' M artifacts/proofs/ricis-general-resolution-v4.json',
+      ' M artifacts/proofs/ricis-jacobian-conjecture-v2.json',
+      ' M artifacts/proofs/ricis-yang-mills-v2.json',
+      ' M src/model/taskResolutionEngine.ts',
+      ' M src/model/taskResolutionEngine.test.ts',
+      ' M tools/tpsStandardWork.ts',
+      '?? docs/05-evidence/proofs/lean-kernel-run-35404189840-mathlib.pr-comment.txt',
+      '?? docs/05-evidence/proofs/lean-kernel-run-35404189840.pr-comment.txt',
+      ' M src/model/recursiveTaskChain.test.ts',
+      ' M docs/02-sprints/GAP_CLOSURE_PLAN_SINGULARITY_2026-09-18.json',
+      '?? scripts/applyNodeClaimOrchestration.ts',
+      '?? src/model/nodeClaimOrchestration.ts',
+      '?? src/model/nodeClaimOrchestration.test.ts',
+      ' M docs/00-governance/RICIS_IMMUTABILITY_MANIFEST.md',
+      ' M docs/00-governance/RICIS_PROOF_ORCHESTRATION_TEMPLATE.md',
+      ' M src/model/ricisImmutabilityManifest.test.ts',
     ]);
     if (status.length > 0 && status.every(entry => entry.startsWith('?? '))) {
       // In clean container environments git status may return all files as untracked

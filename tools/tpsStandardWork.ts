@@ -651,9 +651,12 @@ export interface RegistryFinding {
   readonly affected?: readonly string[];
 }
 
-/** A recorded kernel run; superseded runs are chained via `priorMathlibRun`. */
+/** A recorded kernel run; superseded runs are chained via `priorCoreRun` / `priorMathlibRun`. */
 export interface RegistryRunRecord {
   readonly runId?: number;
+  /** Core-check chain: a superseding core run pushes the previous one one level down. */
+  readonly priorCoreRun?: RegistryRunRecord;
+  /** Mathlib-check chain: same rule on the pinned-Mathlib path. */
   readonly priorMathlibRun?: RegistryRunRecord;
 }
 
@@ -699,6 +702,12 @@ export function isFindingRecordedClosed(finding: RegistryFinding): boolean {
  * run 35240479485): three honest artifacts still referenced their own recorded run and were
  * flagged. The walk below generalizes the rule without weakening it: an id that the registry
  * does not record anywhere in the chain is still rejected.
+ *
+ * The same blindness had a second shape: the CORE chain (`generatedFrom`) grew its own
+ * `priorCoreRun` link when run 35404189840 superseded run 34891262489. A walk that follows only
+ * `mathlibRun → priorMathlibRun` therefore still sees just the newest core run, and a core-chain
+ * artifact whose metadata points one level down would be flagged for telling the truth. Both
+ * chains are walked; the rule is the same on the core and the Mathlib path.
  */
 export function collectRecordedRunIds(registry: {
   readonly generatedFrom?: RegistryRunRecord;
@@ -709,6 +718,7 @@ export function collectRecordedRunIds(registry: {
     if (!record) return;
     if (typeof record.runId === 'number') ids.push(record.runId);
     walk(record.priorMathlibRun);
+    walk(record.priorCoreRun);
   };
   walk(registry.generatedFrom);
   walk(registry.mathlibRun);

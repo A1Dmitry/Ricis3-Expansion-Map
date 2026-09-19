@@ -552,3 +552,65 @@ error(lean.unknownIdentifier): Unknown constant trusted_full_jacobian_contract`.
 `docs/05-evidence/proofs/lean-kernel-run-35145205870.pr-comment.txt`); статусы повышены только там,
 где есть двойной факт (исходник + производная, оба exit 0, без sorryAx). Прогнозов компилируемости
 в статусы не конвертируется (класс F-13 остаётся в силе).
+
+## 14. Addendum 2026-09-19 — прогон run 35404189840 (PR #78): запись фактов v2/v4 и находка F-16
+
+### 14.1 Факты прогона (run 35404189840, PR #78, ветка 0.4.216)
+
+Прогон `Lean Artifact Kernel Check` на head `4322c31e11bb658b501c94b674938b40fa0edda1`
+(ветка `arena/01a0b641-ricis3-expansion-map`, 2026-09-18T23:03:54Z): обе джобы —
+`success`. Дословные логи сохранены как evidence-файлы:
+
+* `docs/05-evidence/proofs/lean-kernel-run-35404189840.pr-comment.txt` — джоба `Lean 4.33.1 kernel run`
+  (`kernel-check`): `Kernel outcome: OK (no unexpected failures; sorryAx-free)`;
+* `docs/05-evidence/proofs/lean-kernel-run-35404189840-mathlib.pr-comment.txt` — джоба
+  `Lean kernel run with pinned Mathlib` (`mathlib-kernel-check`): `Job outcome: success`.
+
+Новые факты, записанные в реестр этим аддендумом:
+
+* **`ricis-jacobian-conjecture-v2.lean`** (джоба `kernel-check`): производная принята ядром —
+  `exit 0`, ошибок компилятора 0, `sorryAx` отсутствует; `#print axioms` напечатал 8 теорем
+  (2 без аксиом, 6 × `propext`). Утверждение v1 формально опровергнуто
+  (`jacobian_v1_identity_refuted`), исправленное структурное утверждение доказано
+  (`Jacobian_singularity_resolved` через `ricisResolveDet`). Артефактный уровень —
+  `LEAN_VERIFIED`; уровень заявления — `STRUCTURALLY_VALIDATED` (гипотеза Якоби для
+  полиномиальных отображений C^n → C^n не доказана и не заявляется).
+* **`ricis-general-resolution-v4.lean`** (джоба `mathlib-kernel-check`): исходник как предоставлен и
+  производная — оба `exit 0`, ошибок компилятора 0, `sorryAx` отсутствует; 10 теорем напечатаны,
+  все — только стандартные аксиомы (`propext`, `Classical.choice`, `Quot.sound`), объявленных
+  аксиом в файле нет. Побайтовое тождество префикса производной исходнику подтверждено прогоном
+  (`source sha256 = 1e89cbc8…`). Артефактный уровень — `LEAN_VERIFIED`, claim —
+  `STRUCTURALLY_VALIDATED` (классический предел не строится, P1).
+* **`ricis-yang-mills-v2.lean`** (джоба `mathlib-kernel-check`): исходник и производная — `exit 0`,
+  `sorryAx` отсутствует, 3 теоремы только со стандартными аксиомами (`source sha256 = cfac8b97…`).
+  Ремонт импорта F-14 подтверждён фактическим прогоном. Байты v1 (`ricis-yang-mills.lean`,
+  `sha256 a191db2b…`) не изменены и остаются единственной целью `pendingKernelRun`: v1 не входит в
+  allowlist `MATHLIB_ARTIFACTS`.
+* **Ожидаемый отказ сохранён:** `ricis-jacobian-conjecture` (v1) — по-прежнему `EXPECTED_FAIL`
+  (`exit 1`, `SORRY_DETECTED`); его утверждение не отремонтировано на месте, а опровергнуто, и
+  замена выполнена новой версией (AGENTS.md §7, §12.5).
+
+### 14.2 Находка F-16 (HIGH) — выдуманная ядровая ссылка в движке решений
+
+Сверка `ELEMENTARY_SOLUTIONS` (`src/model/taskResolutionEngine.ts`) с фактическими выводами
+`#print axioms` реестра показала три фиктивные ссылки: `ricis_removable_singularity_eval` и
+`polar_kinematic_inversion_exact` (якобы в `ricis-backend-exact-reduction.standalone.lean`,
+22 теоремы) и `theta_skew_product_eval` (якобы в `database-a6-minimal-core-check.lean`,
+единственная теорема которого — `RICIS3.MinimalA6Check.Regression.database_a6_bridge`).
+При `kernelVerified: true` это заявление о ядровом пути, которого не существует.
+
+Ремонт: ссылки перенаправлены на фактические теоремы принятого ядром артефакта
+`ricis-universal-orchestration-template` (прогон 34891262489, 27 теорем) —
+`RICIS_Template.divSelf_one`, `RICIS_Template.A6_geometric_realization`,
+`RICIS_Template.complex_divSelf_one`; `axioms` приведены к фактическому выводу (`[propext]`);
+`codeSnippet` — дословная формулировка теоремы из неизменяемого исходника. Страж `QA-LEAN-1`
+(`src/model/taskResolutionEngine.test.ts`) проверяет каждую ссылку против
+`artifacts/proofs/core-checks/kernel-findings.json` и падает на имени, которого нет в прогоне.
+
+### 14.3 Граница доверия аддендума
+
+Записаны только факты из комментариев PR #78 (сохранены дословно как evidence-файлы выше);
+статусы артефактов повышены только там, где есть фактический прогон, а уровень заявления
+(`STRUCTURALLY_VALIDATED`) не повышен нигде. Ни одна классическая гипотеза (Якоби, Янг—Миллс,
+Риман, Навье—Стокс) этим аддендумом не разрешается: прогон подтверждает структурные теоремы
+артефактов, и границы записаны в реестре и README.

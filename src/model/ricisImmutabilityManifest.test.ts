@@ -9,7 +9,7 @@ describe('RICIS-III Immutability Manifest (Core Invariance)', () => {
     expect(existsSync(manifestPath)).toBe(true);
   });
 
-  it('verifies the 7 fundamental immutable principles in the manifest', () => {
+  it('verifies the fundamental immutable principles in the manifest', () => {
     const content = readFileSync(manifestPath, 'utf8');
 
     // Principle 1
@@ -40,6 +40,42 @@ describe('RICIS-III Immutability Manifest (Core Invariance)', () => {
     // Principle 7
     expect(content).toContain('7. Принцип нерушимости ядра (Core Invariance)');
     expect(content).toContain('Ядро либо принимается целиком, либо не принимается вовсе');
+
+    // Principle 8 (2026-09-19, требование владельца): базис доказан извне и не перепроверяется.
+    expect(content).toContain('8. Базис не перепроверяется: доказанное извне — данность');
+    expect(content).toContain('Повторное доказательство');
+    expect(content).toContain('DRY');
+    expect(content).toContain('бритва Оккама');
+    expect(content).toContain('Данность относится только к базису');
+  });
+
+  /**
+   * Экономия ресурса исполнителя: правило «базис — данность» обязано жить в каноническом
+   * документе агентов (AGENTS.md §14), быть связанным с §11/§12 и указывать на РЕАЛЬНУЮ
+   * запись прогона, а не на обещание. Иначе LLM-исполнитель снова потратит ресурс на
+   * повторное доказывание RICIS III (DRY/бритва Оккама).
+   */
+  it('keeps the concept-basis rule (AGENTS.md §14) recorded, cross-linked and pointing at a real run record', () => {
+    const agentsContent = readFileSync(join(process.cwd(), 'AGENTS.md'), 'utf8');
+    expect(agentsContent).toContain('14. БАЗИС RICIS-III — ДАННОСТЬ: НЕ ПЕРЕДОКАЗЫВАТЬ (DRY, БРИТВА ОККАМА)');
+    expect(agentsContent).toContain('доказан извне и повторного');
+    expect(agentsContent).toContain('отклоняется как избыточная');
+    expect(agentsContent).toContain('**DRY (не повторяйся).**');
+    expect(agentsContent).toContain('**Бритва Оккама.**');
+    // Граница правила: данность не отменяет §12/§13 для новых утверждений.
+    expect(agentsContent).toContain('Новое утверждение (новая теорема, новая версия артефакта, новая формулировка узла)');
+    expect(agentsContent).toContain('§12. Ссылка на §14 не является');
+    // Обратные ссылки: §11 и §12 не читаются как «передоказывай всё».
+    expect(agentsContent).toContain('Базис не требует повторного доказательства');
+    expect(agentsContent).toContain('повторного прогона не требует: см. §14');
+
+    // Правило ссылается на запись, которая действительно существует.
+    const registryPath = join(process.cwd(), 'artifacts/proofs/core-checks/kernel-findings.json');
+    expect(existsSync(registryPath)).toBe(true);
+    const registry = JSON.parse(readFileSync(registryPath, 'utf8')) as {
+      artifacts: readonly { artifactId: string; outcome: string }[];
+    };
+    expect(registry.artifacts.some((artifact) => artifact.outcome === 'LEAN_VERIFIED')).toBe(true);
   });
 
   it('verifies manifest registration in the Documentation Catalog and Agents governance', () => {

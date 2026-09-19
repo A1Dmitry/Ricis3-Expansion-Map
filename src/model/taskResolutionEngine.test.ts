@@ -1,4 +1,7 @@
 import { describe, it, expect } from 'vitest';
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
+
 import { TaskResolutionEngine } from './taskResolutionEngine';
 
 describe('RICIS-III v7.7 Task Resolution Engine (DDD / SOLID / Anti-Tukhta)', () => {
@@ -72,6 +75,56 @@ describe('RICIS-III v7.7 Task Resolution Engine (DDD / SOLID / Anti-Tukhta)', ()
       const ratioRes = engine.evaluateSafeSingularity('0_12 / 0_3');
       expect(ratioRes.invariant).toBe('4');
       expect(ratioRes.appliedAxiom).toBe('A4_ZERO_RATIO');
+    });
+  });
+
+  /**
+   * F-16 (HIGH, FABRICATED_KERNEL_REFERENCE): движок ссылался на ядровые теоремы, которых нет
+   * ни в одном записанном прогоне (ricis_removable_singularity_eval, theta_skew_product_eval,
+   * polar_kinematic_inversion_exact). Страж независим от текста ссылки: он берёт реестр фактов
+   * прогона (артефакт → #print axioms) и требует, чтобы каждая ссылка движка там существовала.
+   */
+  describe('QA-LEAN-1: каждая ядровая ссылка движка существует в реестре прогонов (F-16)', () => {
+    const registryPath = join(__dirname, '../../artifacts/proofs/core-checks/kernel-findings.json');
+    const registry = JSON.parse(readFileSync(registryPath, 'utf8')) as {
+      readonly artifacts: readonly {
+        readonly artifactId: string;
+        readonly theorems: readonly { readonly name: string; readonly axioms: readonly string[] }[];
+      }[];
+    };
+
+    it('не ссылается на выдуманное имя: artifactId + theoremName находятся в #print axioms', () => {
+      let checked = 0;
+      for (const task of engine.getResolvedElementaryTasks()) {
+        const { fileRef, theoremName, axioms } = task.leanProof;
+        const artifactId = fileRef.split('/').pop()?.replace(/\.lean$/u, '') ?? '';
+
+        const fact = registry.artifacts.find((item) => item.artifactId === artifactId);
+        expect(fact, `${task.taskId}: артефакт ${artifactId} отсутствует в реестре прогонов`).toBeDefined();
+
+        const theorem = fact?.theorems.find((item) => item.name === theoremName);
+        expect(
+          theorem,
+          `${task.taskId}: ${theoremName} не встречается в #print axioms артефакта ${artifactId} — ядровая ссылка выдумана`,
+        ).toBeDefined();
+        // Заявленные аксиомы обязаны совпадать с фактическим выводом ядра, а не с ожиданием автора.
+        expect(theorem?.axioms ?? [], `${task.taskId}: ${theoremName}`).toEqual([...axioms]);
+        expect(task.leanProof.kernelVerified, `${task.taskId}: ядровая ссылка без подтверждённого прогона`).toBe(true);
+        checked += 1;
+      }
+      expect(checked).toBeGreaterThanOrEqual(3);
+    });
+
+    it('реестр прогонов содержит запись шаблона, на которую указывают ссылки (страховка от пустого реестра)', () => {
+      const template = registry.artifacts.find((item) => item.artifactId === 'ricis-universal-orchestration-template');
+      expect(template, 'реестр не содержит артефакт шаблона — страж был бы слепым').toBeDefined();
+      expect(template?.theorems.map((item) => item.name)).toEqual(
+        expect.arrayContaining([
+          'RICIS_Template.divSelf_one',
+          'RICIS_Template.A6_geometric_realization',
+          'RICIS_Template.complex_divSelf_one',
+        ]),
+      );
     });
   });
 

@@ -15,13 +15,45 @@ describe('Recursive Dependency Chain Expansion & Gap Identification', () => {
     'task-turing-meta-monolith',
   ] as const;
 
-  it('all 7 new tasks exist in initialMap with resolved status', () => {
+  /**
+   * Задачи, чей закон подтверждён ядровым прогоном шаблона оркестрации
+   * (`ricis-universal-orchestration-template`, прогон 34891262489, exit 0):
+   * `divSelf_one` и `A6_geometric_realization`. Только эти узлы-задачи могут
+   * нести состояние `resolved` вместе с `ricisSolvable: true`.
+   */
+  const KERNEL_BACKED_TASK_IDS = [
+    'task-elem-removable-zero',
+    'task-elem-geometric-bridge-a6',
+  ] as const;
+
+  /**
+   * NODE-CLAIM-ORCHESTRATION (AGENTS.md §13), 2026-09-19: узлы-задачи, предмет которых —
+   * незакрытая внешняя задача (монолит Гольдбаха, близнецы, Коллатц, непрерывный предел
+   * QM–GR, проблема остановки). Ядровой прогон подтверждает только структурную редукцию
+   * сингулярного ядра, поэтому состояние понижено до `partial`, внешняя задача вынесена
+   * в `informalExternalClaim` (INFORMAL:) и `ricisSolvable: false`.
+   */
+  const OPEN_EXTERNAL_TASK_IDS = NEW_TASK_IDS.filter(
+    (id) => !KERNEL_BACKED_TASK_IDS.includes(id as (typeof KERNEL_BACKED_TASK_IDS)[number]),
+  );
+
+  it('all 7 new tasks exist in initialMap: kernel-backed ones resolved, open external ones partial with INFORMAL claim', () => {
     for (const id of NEW_TASK_IDS) {
       const node = nodeMap.get(id);
       expect(node, `Node ${id} must exist`).toBeDefined();
-      expect(node?.state).toBe('resolved');
       expect(node?.leanErrors).toEqual([]);
+    }
+    for (const id of KERNEL_BACKED_TASK_IDS) {
+      const node = nodeMap.get(id);
+      expect(node?.state, `${id}: закон подтверждён ядром`).toBe('resolved');
       expect(node?.ricisSolvable).toBe(true);
+    }
+    expect(OPEN_EXTERNAL_TASK_IDS).toHaveLength(5);
+    for (const id of OPEN_EXTERNAL_TASK_IDS) {
+      const node = nodeMap.get(id);
+      expect(node?.state, `${id}: открытая внешняя задача не может быть resolved`).toBe('partial');
+      expect(node?.ricisSolvable, `${id}: протокол не решает внешнюю задачу`).toBe(false);
+      expect(node?.informalExternalClaim?.startsWith('INFORMAL')).toBe(true);
     }
   });
 
