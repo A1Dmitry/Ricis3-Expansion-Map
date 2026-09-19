@@ -1,0 +1,49 @@
+import { writeFileSync, mkdirSync } from 'node:fs';
+import { dirname } from 'node:path';
+
+const patch = {
+  '@type': 'RICIS.MapStatePatch',
+  meta: {
+    method: 'external_research_catalog_add',
+    generated: '2026-09-19',
+    baseSeed: 'src/model/initialMap.ts @ main',
+    provenance: [
+      'https://pmc.ncbi.nlm.nih.gov/articles/PMC7122721/',
+      'https://irislab.tech/course_robotics/lec15/inverse_vk.html'
+    ],
+    trustPolicy:
+      'External problem is added unresolved. No RICIS proof or Lean status is inferred from the source. The candidate is accepted only as a semantically meaningful benchmark for inverse-operator blow-up at Jacobian rank loss.'
+  },
+  nodePatches: [
+    {
+      id: 'external-ik-pseudoinverse-singularity',
+      name: 'Inverse Jacobian blow-up at rank loss',
+      description:
+        'External benchmark: for inverse-velocity kinematics v = J(q) qdot, a singular configuration makes J rank-deficient. In SVD form the Moore-Penrose pseudoinverse contains reciprocal singular values; as sigma_min -> 0, the corresponding joint-velocity component can diverge for a compatible finite task-space velocity. This is structurally an inverse-operator singularity: finite input / vanishing singular value -> indexed infinity of the inverse response. It is deliberately unresolved and is not identified with A6 0×infinity.',
+      state: 'unresolved',
+      type: 'scientific_task',
+      targetFunction:
+        'J⁺(q)v: sigma_min(J(q)) -> 0, with nonzero projection onto the corresponding singular direction => ||qdot|| -> infinity',
+      zoneIds: ['math', 'informatics'],
+      dependencyIds: ['math-singularity', 'manipulator-singularities'],
+      dependentIds: [],
+      fractalDepth: 2,
+      economic: {
+        costUnresolved: 1000000,
+        costToSolve: 100000,
+        marketGain: 5000000,
+        riskLoss: 1000000
+      },
+      ricisSolvable: true
+    }
+  ],
+  edges: [
+    { fromId: 'math-singularity', toId: 'external-ik-pseudoinverse-singularity' },
+    { fromId: 'manipulator-singularities', toId: 'external-ik-pseudoinverse-singularity' }
+  ]
+};
+
+const output = 'docs/02-sprints/generated/external-singularity-task-jacobian-pseudoinverse.json';
+mkdirSync(dirname(output), { recursive: true });
+writeFileSync(output, JSON.stringify(patch, null, 2) + '\n', 'utf8');
+console.log(output);
