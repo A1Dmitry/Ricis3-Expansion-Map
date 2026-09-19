@@ -3,11 +3,15 @@
   "claim": "Для параметризованной мероморфной сингулярности: при положительных порядках m, n в центре a сингулярность 0/0 предъявлена явно (N a = 0 ∧ D a = 0); значение структурной редукции ricis_reduce в центре равно RICIS-вычислению ricis_eval_general; контракты A4/SP1 входят видимыми элементами нормативного отношения RicisContract — при 0 объявленных аксиом в файле.",
   "method": "reduction_evaluation_bridge_with_normative_contract_relation",
   "verification": {
-    "valid": false,
-    "validNote": "Ядровой прогон ещё не выполнялся: valid=false означает «не проверено». Значение будет записано по факту прогона job mathlib-kernel-check.",
-    "verifiedAxioms": [],
+    "valid": true,
+    "validNote": "Прогон ядра 35404189840, job mathlib-kernel-check (PR #78): исходник как предоставлен и производная — exit 0, ошибок компилятора 0, sorryAx отсутствует; #print axioms напечатал 10 теорем, все — только со стандартными аксиомами Lean (propext, Classical.choice, Quot.sound); объявленных аксиом в файле нет. Запись — artifacts/proofs/core-checks/kernel-findings.json (artifactId ricis-general-resolution-v4).",
+    "verifiedAxioms": [
+      "propext",
+      "Classical.choice",
+      "Quot.sound"
+    ],
     "contentHash": "1e89cbc83d2c06a8abffcf5e59b4d88b83a02bf35909ce59306660cace0be3a3",
-    "trustStatus": "REQUIRES_CORE_LEAN",
+    "trustStatus": "LEAN_VERIFIED",
     "claimLevel": "STRUCTURALLY_VALIDATED",
     "claimLevelNote": "Уровень заявления — структурный (даже при зелёном прогоне): контракты A4/SP1 остаются нормативными входами RICIS (теперь — конструкторы отношения RicisContract, а не аксиомы-уравнения), классический предел не определяется и не заявляется (P1)."
   },
@@ -37,6 +41,51 @@
     "job": "mathlib-kernel-check",
     "checkedFile": "artifacts/proofs/mathlib-checks/ricis-general-resolution-v4.mathlib-check.lean",
     "artifactCheckedAsProvided": true,
-    "status": "PENDING_KERNEL_RUN"
+    "run": 35404189840,
+    "runUrl": "https://github.com/A1Dmitry/Ricis3-Expansion-Map/actions/runs/35404189840",
+    "status": "LEAN_VERIFIED"
+  },
+  "kernelCheck": {
+    "addedBy": "AGENTS.md §7 — статус записывается снаружи неизменяемого исходника (присоединение metadata)",
+    "registry": "artifacts/proofs/core-checks/kernel-findings.json",
+    "evidence": "docs/05-evidence/proofs/lean-kernel-run-35404189840-mathlib.pr-comment.txt",
+    "rawEvidence": "docs/05-evidence/proofs/lean-kernel-run-35404189840-mathlib.pr-comment.txt",
+    "run": 35404189840,
+    "runUrl": "https://github.com/A1Dmitry/Ricis3-Expansion-Map/actions/runs/35404189840",
+    "job": "mathlib-kernel-check",
+    "toolchain": "leanprover/lean4:v4.33.0 — lean-toolchain закреплённой ревизии Mathlib @ 6f1ef4e5dd604a435bddba4747b13970cd65d2a1 (oleans готовыми, lake exe cache get)",
+    "command": "(cd mathlib-check && lake env lean artifacts/proofs/ricis-general-resolution-v4.lean) — исходник как предоставлен; та же команда для производной",
+    "immutableSource": "artifacts/proofs/ricis-general-resolution-v4.lean",
+    "immutableSourceSha256": "1e89cbc83d2c06a8abffcf5e59b4d88b83a02bf35909ce59306660cace0be3a3",
+    "checkedFile": "artifacts/proofs/mathlib-checks/ricis-general-resolution-v4.mathlib-check.lean",
+    "sourceCheckedAsProvided": true,
+    "integrityNote": "Побайтовое тождество префикса производной и исходника подтверждено прогоном (source sha256 = sha256 в эпилоге = 1e89cbc8…); производная = исходник байт-в-байт + эпилог #print axioms, подстановок нет.",
+    "substitutionsApplied": [],
+    "compilerExit": 0,
+    "compilerErrorCount": 0,
+    "theorems": {
+      "total": 10,
+      "provenWithoutSorryAx": 10,
+      "withSorryAx": 0,
+      "axiomFree": 0,
+      "withStandardAxiomsOnly": 10
+    },
+    "declaredContracts": [],
+    "printAxiomsOutput": [
+      "'RicisExpr_div_ne_val' depends on axioms: [propext, Classical.choice, Quot.sound]",
+      "'a4_equation_form_is_refutable' depends on axioms: [propext, Classical.choice, Quot.sound]",
+      "'no_universal_a4_equation' depends on axioms: [propext, Classical.choice, Quot.sound]",
+      "'ricis_contract_inhabited' depends on axioms: [propext, Classical.choice, Quot.sound]",
+      "'ricis_reduce_at_center_eq_eval' depends on axioms: [propext, Classical.choice, Quot.sound]",
+      "'singularity_is_zero_over_zero' depends on axioms: [propext, Classical.choice, Quot.sound]",
+      "'regular_factor_quotient_uses_A4' depends on axioms: [propext, Classical.choice, Quot.sound]",
+      "'common_zero_factor_uses_SP1' depends on axioms: [propext, Classical.choice, Quot.sound]",
+      "'ricis_eval_value_form' depends on axioms: [propext, Classical.choice, Quot.sound]",
+      "'ricis_resolution_bridge' depends on axioms: [propext, Classical.choice, Quot.sound]"
+    ],
+    "statusAfterKernelRun": "LEAN_VERIFIED",
+    "rootCause": null,
+    "trustBoundary": "Проверено: нормативные контракты A4/SP1 как отношение RicisContract (0 объявленных аксиом), явная сингулярность 0/0 в центре, совпадение структурной редукции и RICIS-вычисления, опровержение аксиом-уравнений (no_universal_a4_equation). Не проверено и не заявляется: классический предел и совпадение с мероморфной функцией — уровень заявления остаётся структурным (P1).",
+    "relationToDeclaredTrustStatus": "Было REQUIRES_CORE_LEAN/PENDING_KERNEL_RUN (gap-closure PR #78) → стало LEAN_VERIFIED по факту run 35404189840. Повышение только артефактного уровня: claimLevel = STRUCTURALLY_VALIDATED."
   }
 }

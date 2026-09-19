@@ -1,5 +1,8 @@
 # Общая оркестрация доказательства RICIS-III (Два согласованных слоя)
 
+> **Базис не перепроверяется.** Ядро RICIS-III и его законы редукции доказаны извне и приняты целиком: повторное доказательство, повторный прогон и оспаривание базиса запрещены как расход ресурса — [`AGENTS.md` §14](../../AGENTS.md), пункт 8 [манифеста неизменности](./RICIS_IMMUTABILITY_MANIFEST.md). Оркестрация ниже применяется к **новым** утверждениям.
+
+
 **Статус:** Нормативное общепроектное правило и канонический шаблон создания доказательств в RICIS-III.  
 **Связанные документы:** [`AGENTS.md`](../../AGENTS.md), [`WORK_PATTERNS.md`](WORK_PATTERNS.md) (паттерны P-02, P-04, P-12), [`RICIS_SEMANTIC_AUTHORITY.md`](RICIS_SEMANTIC_AUTHORITY.md).  
 **Код и артефакты:** [`src/model/orchestrationPipeline.ts`](../../src/model/orchestrationPipeline.ts), [`artifacts/proofs/ricis-universal-orchestration-template.lean`](../../artifacts/proofs/ricis-universal-orchestration-template.lean).

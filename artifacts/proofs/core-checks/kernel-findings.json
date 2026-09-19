@@ -1,21 +1,38 @@
 {
-  "registryVersion": 3,
+  "registryVersion": "4",
   "title": "Реестр фактов ядрового прогона Lean 4.33.1 по core-check производным",
   "generatedFrom": {
     "kind": "github-actions-run",
     "workflow": ".github/workflows/lean-artifact-kernel-check.yml",
-    "runId": 34891262489,
-    "runUrl": "https://github.com/A1Dmitry/Ricis3-Expansion-Map/actions/runs/34891262489",
-    "jobUrl": "https://github.com/A1Dmitry/Ricis3-Expansion-Map/actions/runs/34891262489/job/104134259426",
-    "pullRequest": 38,
-    "branch": "arena/01a0a116-ricis3-expansion-map",
-    "runStartedAtUtc": "2026-09-14T20:10:25Z",
+    "runId": 35404189840,
+    "runUrl": "https://github.com/A1Dmitry/Ricis3-Expansion-Map/actions/runs/35404189840",
+    "jobUrl": "https://github.com/A1Dmitry/Ricis3-Expansion-Map/actions/runs/35404189840/job/105790400531",
+    "pullRequest": 78,
+    "branch": "arena/01a0b641-ricis3-expansion-map",
+    "commit": "4322c31e11bb658b501c94b674938b40fa0edda1",
+    "runStartedAtUtc": "2026-09-18T23:03:54Z",
     "toolchain": "Lean 4.33.1, x86_64-unknown-linux-gnu, commit 819816b2e0a3bf405af45ae5c7af2491d8f5bee6, Release (elan, --default-toolchain 4.33.1)",
     "command": "lean +4.33.1 <artifact>",
     "host": "ubuntu-latest (GitHub Actions)",
-    "evidenceChannel": "Комментарий PR #38 (step summary + полный лог компилятора). Логи раннера и загруженный артефакт из среды агента не читаются: results-receiver.actions.githubusercontent.com недоступен.",
-    "rawEvidence": "docs/05-evidence/proofs/lean-kernel-run-34891262489.pr-comment.txt",
-    "note": "Полный прогон всех 12 целей на ветке 0.4.189 (PR #38): 10 целей exit 0 без sorryAx (v79 — после F-06-ремонта, SP5 — после перегенерации с deriving DecidableEq); 2 цели — EXPECTED_FAIL по ciPolicy (jacobian — F-01, A11 — F-08), основания — дословные ошибки run 34870620154. Общая картина предшествующих прогонов: 34851801990 (пакет 0), 34858902595 (пакет 1), 34870620154 (пакет 2, ветка PR #37), 34877214125 (SP5 на main, 8665a06)."
+    "evidenceChannel": "Комментарий PR #78 (step summary + полный лог компилятора по каждой цели). Логи раннера и загруженный артефакт из среды агента не читаются.",
+    "rawEvidence": "docs/05-evidence/proofs/lean-kernel-run-35404189840.pr-comment.txt",
+    "note": "Прогон gap-closure (PR #78, ветка 0.4.216): ядровой итог — OK (no unexpected failures; sorryAx-free). Новая цель ricis-jacobian-conjecture-v2 принята ядром (exit 0, 8 теорем, без sorryAx) — v2 фиксируется в реестре как факт. Цель ricis-jacobian-conjecture (v1) остаётся EXPECTED_FAIL по ciPolicy: её утверждение формально опровергнуто новой версией, а не отремонтировано. Остальные цели прогона — без изменений против предыдущего прогона (см. priorCoreRun).",
+    "priorCoreRun": {
+      "kind": "github-actions-run",
+      "workflow": ".github/workflows/lean-artifact-kernel-check.yml",
+      "runId": 34891262489,
+      "runUrl": "https://github.com/A1Dmitry/Ricis3-Expansion-Map/actions/runs/34891262489",
+      "jobUrl": "https://github.com/A1Dmitry/Ricis3-Expansion-Map/actions/runs/34891262489/job/104134259426",
+      "pullRequest": 38,
+      "branch": "arena/01a0a116-ricis3-expansion-map",
+      "runStartedAtUtc": "2026-09-14T20:10:25Z",
+      "toolchain": "Lean 4.33.1, x86_64-unknown-linux-gnu, commit 819816b2e0a3bf405af45ae5c7af2491d8f5bee6, Release (elan, --default-toolchain 4.33.1)",
+      "command": "lean +4.33.1 <artifact>",
+      "host": "ubuntu-latest (GitHub Actions)",
+      "evidenceChannel": "Комментарий PR #38 (step summary + полный лог компилятора). Логи раннера и загруженный артефакт из среды агента не читаются: results-receiver.actions.githubusercontent.com недоступен.",
+      "rawEvidence": "docs/05-evidence/proofs/lean-kernel-run-34891262489.pr-comment.txt",
+      "note": "Полный прогон всех 12 целей на ветке 0.4.189 (PR #38): 10 целей exit 0 без sorryAx (v79 — после F-06-ремонта, SP5 — после перегенерации с deriving DecidableEq); 2 цели — EXPECTED_FAIL по ciPolicy (jacobian — F-01, A11 — F-08), основания — дословные ошибки run 34870620154. Общая картина предшествующих прогонов: 34851801990 (пакет 0), 34858902595 (пакет 1), 34870620154 (пакет 2, ветка PR #37), 34877214125 (SP5 на main, 8665a06)."
+    }
   },
   "classification": {
     "LEAN_VERIFIED_AXIOM_FREE": "Ядро приняло доказательство; #print axioms: does not depend on any axioms.",
@@ -1088,7 +1105,90 @@
           "RICIS_Jacobian.Jacobian_singularity_resolved"
         ],
         "rootCause": "Двухуровневый отказ. (1) Неизменяемый исходник не парсится: конструктор `| partial (F x : RExpr)` использует зарезервированное слово Lean (24:12 expected token). (2) После заявленного переименования неиспользуемого конструктора (partial → partialDeriv) файл парсится, но центральное утверждение не доказывается: 62:2 «Tactic `rfl` failed: resolveRICIS (F.zeroF.det RExpr.zero RExpr.zero G.infF) is not definitionally equal to (F.mul G).sub RExpr.zero.zeroF» → Jacobian_singularity_resolved несёт sorryAx. Тождество не является определительным (rfl — ядровая тактика, Mathlib здесь ни при чём), поэтому заявленный TRUSTED_AXIOM не имеет основания ни в одной конфигурации."
+      },
+      "successor": {
+        "artifactId": "ricis-jacobian-conjecture-v2",
+        "immutableSource": "artifacts/proofs/ricis-jacobian-conjecture-v2.lean",
+        "runId": 35404189840,
+        "outcome": "LEAN_VERIFIED",
+        "note": "Новая версия закрывает F-01 со стороны факта: утверждение v1 формально опровергнуто (jacobian_v1_identity_refuted), а исправленное структурное утверждение принято ядром (exit 0, без sorryAx). Запись v1 сохраняется как EXPECTED_FAIL: её файл по-прежнему не парсится без подстановки и не несёт доказательства."
       }
+    },
+    {
+      "artifactId": "ricis-jacobian-conjecture-v2",
+      "immutableSource": "artifacts/proofs/ricis-jacobian-conjecture-v2.lean",
+      "sourceSha256": "cc7d8d44551e4120bda8b504b3ad6cbcb99734ac3a0a1809139cff25ae20b364",
+      "checkedFile": "artifacts/proofs/core-checks/ricis-jacobian-conjecture-v2.core-check.lean",
+      "substitutionsApplied": [],
+      "compilerExit": 0,
+      "resultLine": "OK (compiler exit 0, no compiler errors, no sorryAx)",
+      "compilerErrorCount": 0,
+      "firstCompilerErrors": [],
+      "theoremCount": 8,
+      "theorems": [
+        {
+          "name": "RICIS_Jacobian.det_expansion_single_pass",
+          "status": "LEAN_VERIFIED_WITH_STANDARD_AXIOMS",
+          "axioms": [
+            "propext"
+          ]
+        },
+        {
+          "name": "RICIS_Jacobian.RExpr_mul_ne_zeroF",
+          "status": "LEAN_VERIFIED_AXIOM_FREE",
+          "axioms": []
+        },
+        {
+          "name": "RICIS_Jacobian.jacobian_v1_identity_refuted",
+          "status": "LEAN_VERIFIED_WITH_STANDARD_AXIOMS",
+          "axioms": [
+            "propext"
+          ]
+        },
+        {
+          "name": "RICIS_Jacobian.A6_pair_reaches_geometric_measure",
+          "status": "LEAN_VERIFIED_WITH_STANDARD_AXIOMS",
+          "axioms": [
+            "propext"
+          ]
+        },
+        {
+          "name": "RICIS_Jacobian.A6_geometric_realization",
+          "status": "LEAN_VERIFIED_WITH_STANDARD_AXIOMS",
+          "axioms": [
+            "propext"
+          ]
+        },
+        {
+          "name": "RICIS_Jacobian.A10_mul_zero",
+          "status": "LEAN_VERIFIED_WITH_STANDARD_AXIOMS",
+          "axioms": [
+            "propext"
+          ]
+        },
+        {
+          "name": "RICIS_Jacobian.Jacobian_singularity_resolved",
+          "status": "LEAN_VERIFIED_WITH_STANDARD_AXIOMS",
+          "axioms": [
+            "propext"
+          ]
+        },
+        {
+          "name": "RICIS_Jacobian.Jacobian_L1_identity",
+          "status": "LEAN_VERIFIED_AXIOM_FREE",
+          "axioms": []
+        }
+      ],
+      "outcome": "LEAN_VERIFIED",
+      "rootCause": null,
+      "claimLevel": "STRUCTURALLY_VALIDATED",
+      "supersedes": {
+        "artifactId": "ricis-jacobian-conjecture",
+        "immutableSource": "artifacts/proofs/ricis-jacobian-conjecture.standalone.lean",
+        "immutableSourceSha256": "2e043f2738df8d8b02754aebb5fa93580fb87e6cc71733557c620c463c4de56b",
+        "note": "Байты v1 не изменены (§7). v1 остаётся EXPECTED_FAIL по ciPolicy: его центральное утверждение опровергнуто теоремой jacobian_v1_identity_refuted этого артефакта, а не отремонтировано на месте. Замена выполнена НОВОЙ версией."
+      },
+      "trustBoundary": "Проверено: (1) утверждение v1 ложно для любых F, G (jacobian_v1_identity_refuted) — формально, ядро-нативными средствами; (2) исправленное структурное утверждение истинно при опуске разрешения в произведения (ricisResolveDet); (3) тождества моста A6 и A10. Не проверено и не заявляется: гипотеза Якоби для полиномиальных отображений C^n → C^n; классическое разложение определителя, степени и пределы не рассматриваются (P1)."
     },
     {
       "artifactId": "ricis-kernel-ast-sp5",
@@ -1486,6 +1586,117 @@
       ]
     },
     {
+      "artifactId": "ricis-general-resolution-v4",
+      "immutableSource": "artifacts/proofs/ricis-general-resolution-v4.lean",
+      "sourceSha256": "1e89cbc83d2c06a8abffcf5e59b4d88b83a02bf35909ce59306660cace0be3a3",
+      "checkedFile": "artifacts/proofs/mathlib-checks/ricis-general-resolution-v4.mathlib-check.lean",
+      "sourceCheckedAsProvided": "artifacts/proofs/ricis-general-resolution-v4.lean",
+      "substitutionsApplied": [],
+      "compilerExit": 0,
+      "resultLine": "OK (source exit 0, derivative exit 0, no compiler errors)",
+      "compilerErrorCount": 0,
+      "firstCompilerErrors": [],
+      "theoremCount": 10,
+      "theorems": [
+        {
+          "name": "RicisExpr_div_ne_val",
+          "status": "LEAN_VERIFIED_WITH_STANDARD_AXIOMS",
+          "axioms": [
+            "propext",
+            "Classical.choice",
+            "Quot.sound"
+          ]
+        },
+        {
+          "name": "a4_equation_form_is_refutable",
+          "status": "LEAN_VERIFIED_WITH_STANDARD_AXIOMS",
+          "axioms": [
+            "propext",
+            "Classical.choice",
+            "Quot.sound"
+          ]
+        },
+        {
+          "name": "no_universal_a4_equation",
+          "status": "LEAN_VERIFIED_WITH_STANDARD_AXIOMS",
+          "axioms": [
+            "propext",
+            "Classical.choice",
+            "Quot.sound"
+          ]
+        },
+        {
+          "name": "ricis_contract_inhabited",
+          "status": "LEAN_VERIFIED_WITH_STANDARD_AXIOMS",
+          "axioms": [
+            "propext",
+            "Classical.choice",
+            "Quot.sound"
+          ]
+        },
+        {
+          "name": "ricis_reduce_at_center_eq_eval",
+          "status": "LEAN_VERIFIED_WITH_STANDARD_AXIOMS",
+          "axioms": [
+            "propext",
+            "Classical.choice",
+            "Quot.sound"
+          ]
+        },
+        {
+          "name": "singularity_is_zero_over_zero",
+          "status": "LEAN_VERIFIED_WITH_STANDARD_AXIOMS",
+          "axioms": [
+            "propext",
+            "Classical.choice",
+            "Quot.sound"
+          ]
+        },
+        {
+          "name": "regular_factor_quotient_uses_A4",
+          "status": "LEAN_VERIFIED_WITH_STANDARD_AXIOMS",
+          "axioms": [
+            "propext",
+            "Classical.choice",
+            "Quot.sound"
+          ]
+        },
+        {
+          "name": "common_zero_factor_uses_SP1",
+          "status": "LEAN_VERIFIED_WITH_STANDARD_AXIOMS",
+          "axioms": [
+            "propext",
+            "Classical.choice",
+            "Quot.sound"
+          ]
+        },
+        {
+          "name": "ricis_eval_value_form",
+          "status": "LEAN_VERIFIED_WITH_STANDARD_AXIOMS",
+          "axioms": [
+            "propext",
+            "Classical.choice",
+            "Quot.sound"
+          ]
+        },
+        {
+          "name": "ricis_resolution_bridge",
+          "status": "LEAN_VERIFIED_WITH_STANDARD_AXIOMS",
+          "axioms": [
+            "propext",
+            "Classical.choice",
+            "Quot.sound"
+          ]
+        }
+      ],
+      "outcome": "LEAN_VERIFIED",
+      "rootCause": null,
+      "claimLevel": "STRUCTURALLY_VALIDATED",
+      "declaredContracts": [],
+      "contractDependencyFacts": [],
+      "trustBoundary": "Проверено: контракты A4/SP1 как нормативное отношение RicisContract (0 объявленных аксиом в файле), явная сингулярность 0/0 в центре (singularity_is_zero_over_zero), совпадение структурной редукции и RICIS-вычисления (ricis_reduce_at_center_eq_eval), обитаемость отношения (ricis_contract_inhabited) и опровержение аксиом-уравнений (no_universal_a4_equation). Не проверено и не заявляется: классический предел и связь с мероморфной функцией как таковой — уровень заявления остаётся структурным (P1)."
+    },
+    {
       "artifactId": "Schwarzschild_GeometricBridge",
       "immutableSource": "artifacts/proofs/Schwarzschild_GeometricBridge.lean",
       "sourceSha256": "1df6b21df93cf2e5e822156a151929d849dd553979ef32c8992045d2a5b3de63",
@@ -1696,6 +1907,54 @@
         "outcome": "PENDING_FIX",
         "note": "Первый двойной прогон: исходник как предоставлен принят ядром (10 теорем, #print axioms напечатан), производная — exit 1 по неквалифицированной аксиоме внутри неймспейса (162:14 unknown constant) — дефект генератора, не дефект доказательства. Ремонт (единый скоуп-трекер), перегенерация; фактический повторный прогон — run 35240479485 (текущая запись)."
       }
+    },
+    {
+      "artifactId": "ricis-yang-mills-v2",
+      "immutableSource": "artifacts/proofs/ricis-yang-mills-v2.lean",
+      "sourceSha256": "cfac8b97f3051366b77b6fe09ab92c02d674861b5c5f42b408e647f1631579bf",
+      "checkedFile": "artifacts/proofs/mathlib-checks/ricis-yang-mills-v2.mathlib-check.lean",
+      "sourceCheckedAsProvided": "artifacts/proofs/ricis-yang-mills-v2.lean",
+      "substitutionsApplied": [],
+      "compilerExit": 0,
+      "resultLine": "OK (source exit 0, derivative exit 0, no compiler errors)",
+      "compilerErrorCount": 0,
+      "firstCompilerErrors": [],
+      "theoremCount": 3,
+      "theorems": [
+        {
+          "name": "RICIS.skew_product_orthogonal_pair_eq_div",
+          "status": "LEAN_VERIFIED_WITH_STANDARD_AXIOMS",
+          "axioms": [
+            "propext",
+            "Classical.choice",
+            "Quot.sound"
+          ]
+        },
+        {
+          "name": "RICIS.skew_product_conjugate_pair_eq_square",
+          "status": "LEAN_VERIFIED_WITH_STANDARD_AXIOMS",
+          "axioms": [
+            "propext",
+            "Classical.choice",
+            "Quot.sound"
+          ]
+        },
+        {
+          "name": "RICIS.orthogonal_bridge_invariant_eq_div",
+          "status": "LEAN_VERIFIED_WITH_STANDARD_AXIOMS",
+          "axioms": [
+            "propext",
+            "Classical.choice",
+            "Quot.sound"
+          ]
+        }
+      ],
+      "outcome": "LEAN_VERIFIED",
+      "rootCause": null,
+      "claimLevel": "STRUCTURALLY_VALIDATED",
+      "declaredContracts": [],
+      "contractDependencyFacts": [],
+      "trustBoundary": "Проверено: тождества 2×2-детерминанта над ℝ для ортогональной пары (skew_product_orthogonal_pair_eq_div, skew_product_conjugate_pair_eq_square) и инвариант моста (orthogonal_bridge_invariant_eq_div); исходник исправлен ремонтом импорта Mathlib.Basic.Real.Basic → Mathlib.Data.Real.Basic (F-14), байты v1 не тронуты. Не проверено и не заявляется: массовый гэп Янга—Миллса, калибровочные поля, квантование и классические пределы (P1) — связь с внешней задачей остаётся неформальной мотивацией."
     }
   ],
   "pendingKernelRun": [
@@ -1713,50 +1972,6 @@
       "evidenceTarget": "artifacts/proofs/README.md (раздел Mathlib Artifacts — Kernel Path), findings[F-14]",
       "expectedOutcome": "UNKNOWN. Файл в предоставленном виде не элаборируется (F-14: модуль Mathlib.Basic.Real.Basic отсутствует в закреплённой Mathlib) — байты v1 остаются неизменяемыми (§7), поэтому прогон v1 не даёт evidence о теоремах. Замена выполнена как НОВАЯ версия: artifacts/proofs/ricis-yang-mills-v2.lean (TASK-02, исправленный импорт Mathlib.Data.Real.Basic), внесена в allowlist MATHLIB_ARTIFACTS и ожидает собственного прогона. Компилируемость v2 до прогона — UNVERIFIED_PREDICTION (TASK-07).",
       "status": "PENDING_KERNEL_RUN"
-    },
-    {
-      "artifactId": "ricis-jacobian-conjecture-v2",
-      "immutableSource": "artifacts/proofs/ricis-jacobian-conjecture-v2.lean",
-      "sourceSha256": "cc7d8d44551e4120bda8b504b3ad6cbcb99734ac3a0a1809139cff25ae20b364",
-      "job": "kernel-check",
-      "toolchain": "lean 4.33.1 (pinned via elan, GitHub Actions ubuntu-latest)",
-      "commands": [
-        "lean +4.33.1 artifacts/proofs/core-checks/ricis-jacobian-conjecture-v2.core-check.lean"
-      ],
-      "metadata": "artifacts/proofs/ricis-jacobian-conjecture-v2.json (trustStatus REQUIRES_CORE_LEAN до прогона)",
-      "evidenceTarget": "artifacts/proofs/README.md (раздел Jacobian), findings[F-01], docs/05-evidence/proofs/",
-      "expectedOutcome": "UNKNOWN. Новая версия заявляет: опровержение утверждения v1 (jacobian_v1_identity_refuted), первопричина (det_expansion_single_pass) и исправленное утверждение Jacobian_singularity_resolved с опуском разрешения в произведения детерминанта. Производная сгенерирована (scripts/generateLeanCoreChecks.ts, drift 0); локального тулчейна нет (A-0007) — статус появится только из прогона CI.",
-      "status": "PENDING_KERNEL_RUN"
-    },
-    {
-      "artifactId": "ricis-yang-mills-v2",
-      "immutableSource": "artifacts/proofs/ricis-yang-mills-v2.lean",
-      "sourceSha256": "cfac8b97f3051366b77b6fe09ab92c02d674861b5c5f42b408e647f1631579bf",
-      "job": "mathlib-kernel-check",
-      "toolchain": "leanprover/lean4:v4.33.0 (Mathlib @ 6f1ef4e5dd604a435bddba4747b13970cd65d2a1)",
-      "commands": [
-        "(cd mathlib-check && lake env lean artifacts/proofs/ricis-yang-mills-v2.lean)",
-        "(cd mathlib-check && lake env lean artifacts/proofs/mathlib-checks/ricis-yang-mills-v2.mathlib-check.lean)"
-      ],
-      "metadata": "artifacts/proofs/ricis-yang-mills-v2.json (trustStatus REQUIRES_CORE_LEAN до прогона)",
-      "evidenceTarget": "artifacts/proofs/README.md (раздел Mathlib Artifacts — Kernel Path), findings[F-14]",
-      "expectedOutcome": "UNKNOWN. Исправленный импорт (Mathlib.Data.Real.Basic) и переименованные теоремы; тела доказательств сохранены. До прогона компилируемость не заявляется (F-13/TASK-07: статический прогноз не является статусом).",
-      "status": "PENDING_KERNEL_RUN"
-    },
-    {
-      "artifactId": "ricis-general-resolution-v4",
-      "immutableSource": "artifacts/proofs/ricis-general-resolution-v4.lean",
-      "sourceSha256": "1e89cbc83d2c06a8abffcf5e59b4d88b83a02bf35909ce59306660cace0be3a3",
-      "job": "mathlib-kernel-check",
-      "toolchain": "leanprover/lean4:v4.33.0 (Mathlib @ 6f1ef4e5dd604a435bddba4747b13970cd65d2a1)",
-      "commands": [
-        "(cd mathlib-check && lake env lean artifacts/proofs/ricis-general-resolution-v4.lean)",
-        "(cd mathlib-check && lake env lean artifacts/proofs/mathlib-checks/ricis-general-resolution-v4.mathlib-check.lean)"
-      ],
-      "metadata": "artifacts/proofs/ricis-general-resolution-v4.json (trustStatus REQUIRES_CORE_LEAN до прогона)",
-      "evidenceTarget": "artifacts/proofs/README.md (раздел Mathlib Artifacts — Kernel Path), findings[F-09, F-10, F-11]",
-      "expectedOutcome": "UNKNOWN. 0 объявленных аксиом (контракты — конструкторы отношения RicisContract), связь ricis_reduce ↔ ricis_eval_general, предъявленная сингулярность 0/0, опровержение аксиомы-уравнения A4 и переименование ricis_equals_classical_limit → ricis_eval_value_form. До прогона компилируемость — UNVERIFIED_PREDICTION.",
-      "status": "PENDING_KERNEL_RUN"
     }
   ],
   "findings": [
@@ -1772,7 +1987,7 @@
         "src/model/jacobianProof.test.ts (QA-1 проверяет лишь ТЕКСТОВОЕ присутствие строки `theorem Jacobian_singularity_resolved`, QA-2/QA-3 утверждают сам статус)"
       ],
       "requiredDecision": "Владелец выбирает: (а) признать статус TRUSTED_AXIOM необоснованным и понизить его (с обновлением initialMap и QA-контрактов jacobianProof), либо (б) поручить построение нового доказательства тождества 62:2 (rfl недостаточен). Автоматически ремонтировать нельзя: тождество не определительно.",
-      "resolution": "Решение владельца 2026-09-14 (артефактный уровень, README artifacts/proofs): классификация ricis-jacobian-conjecture.standalone.lean и database-registry-120-jacobian.* — STRUCTURALLY_VALIDATED (структурная модель; не MATHEMATICALLY_PROVEN). trustStatus метаданных ricis-jacobian-conjecture.json понижен до STRUCTURALLY_VALIDATED; QA-контракт src/model/jacobianProof.test.ts обновлён (QA-2 + связь с реестром). Запись узла registry-120 в src/model/initialMap.ts (externalLean.trustStatus = TRUSTED_AXIOM) — отдельное узел-уровневое решение владельца (L9), т.к. затрагивает состояние узла карты и контракт E-03. Центральное тождество не является определительным (rfl failed, run 34870620154) — основание TRUSTED_AXIOM отсутствует ни в одной конфигурации; молчаливого демонтажа не выполнено.\n\n[2026-09-19 · gap-closure, TASK-01] Выполнена вторая ветвь плана (переформулировка, а не ремонт утверждения v1). Новая версия artifacts/proofs/ricis-jacobian-conjecture-v2.lean: (а) формально доказывает, что тождество v1 ложно для ЛЮБЫХ F и G — jacobian_v1_identity_refuted (injection + несовместимость конструкторов mul и zeroF); (б) фиксирует первопричину — det_expansion_single_pass: ветвь `det` одношагового ricisResolve разворачивает детерминант, но НЕ спускается в произведения, поэтому A6-пара zeroF F · infF G не попадает ни в A6-стадию, ни в geometricMeasure; (в) доказывает исправленное утверждение Jacobian_singularity_resolved через ricisResolveDet (опуск разрешения в произведения — та же A6-стадия, что в универсальном шаблоне) посредством dsimp + rw [A6_geometric_realization, A10_mul_zero]. Статус артефакта — PENDING_KERNEL_RUN: производная core-checks/ricis-jacobian-conjecture-v2.core-check.lean внесена целью прогона, локального тулчейна нет (A-0007). Байты v1, его метаданные и запись реестра (NOT_VERIFIED_CORE_ONLY, run 34891262489) не изменялись; производная v1 остаётся зарегистрированным ожидаемым отказом до фактического прогона.\n\n[2026-09-19 · gap-closure, TASK-01 · метаданные] Создан внешний файл метаданных artifacts/proofs/ricis-jacobian-conjecture-v2.json (AGENTS.md §7: статус записывается снаружи неизменяемых байтов): contentHash cc7d8d44551e4120bda8b504b3ad6cbcb99734ac3a0a1809139cff25ae20b364, trustStatus REQUIRES_CORE_LEAN (до прогона), claimLevel STRUCTURALLY_VALIDATED, declaredAxioms [], секция refutedV1 с точной формулировкой опровергнутого утверждения v1 и секция boundary (changedAgainstV1 / provenIfKernelAccepts / notProven). Блок kernelCheck сознательно отсутствует: он появляется только после фактического прогона (тест tools/leanKernelCoreChecks.test.ts требует, чтобы run входил в записанную цепочку прогонов реестра)."
+      "resolution": "Решение владельца 2026-09-14 (артефактный уровень, README artifacts/proofs): классификация ricis-jacobian-conjecture.standalone.lean и database-registry-120-jacobian.* — STRUCTURALLY_VALIDATED (структурная модель; не MATHEMATICALLY_PROVEN). trustStatus метаданных ricis-jacobian-conjecture.json понижен до STRUCTURALLY_VALIDATED; QA-контракт src/model/jacobianProof.test.ts обновлён (QA-2 + связь с реестром). Запись узла registry-120 в src/model/initialMap.ts (externalLean.trustStatus = TRUSTED_AXIOM) — отдельное узел-уровневое решение владельца (L9), т.к. затрагивает состояние узла карты и контракт E-03. Центральное тождество не является определительным (rfl failed, run 34870620154) — основание TRUSTED_AXIOM отсутствует ни в одной конфигурации; молчаливого демонтажа не выполнено.\n\n[2026-09-19 · gap-closure, TASK-01] Выполнена вторая ветвь плана (переформулировка, а не ремонт утверждения v1). Новая версия artifacts/proofs/ricis-jacobian-conjecture-v2.lean: (а) формально доказывает, что тождество v1 ложно для ЛЮБЫХ F и G — jacobian_v1_identity_refuted (injection + несовместимость конструкторов mul и zeroF); (б) фиксирует первопричину — det_expansion_single_pass: ветвь `det` одношагового ricisResolve разворачивает детерминант, но НЕ спускается в произведения, поэтому A6-пара zeroF F · infF G не попадает ни в A6-стадию, ни в geometricMeasure; (в) доказывает исправленное утверждение Jacobian_singularity_resolved через ricisResolveDet (опуск разрешения в произведения — та же A6-стадия, что в универсальном шаблоне) посредством dsimp + rw [A6_geometric_realization, A10_mul_zero]. Статус артефакта — PENDING_KERNEL_RUN: производная core-checks/ricis-jacobian-conjecture-v2.core-check.lean внесена целью прогона, локального тулчейна нет (A-0007). Байты v1, его метаданные и запись реестра (NOT_VERIFIED_CORE_ONLY, run 34891262489) не изменялись; производная v1 остаётся зарегистрированным ожидаемым отказом до фактического прогона.\n\n[2026-09-19 · gap-closure, TASK-01 · метаданные] Создан внешний файл метаданных artifacts/proofs/ricis-jacobian-conjecture-v2.json (AGENTS.md §7: статус записывается снаружи неизменяемых байтов): contentHash cc7d8d44551e4120bda8b504b3ad6cbcb99734ac3a0a1809139cff25ae20b364, trustStatus REQUIRES_CORE_LEAN (до прогона), claimLevel STRUCTURALLY_VALIDATED, declaredAxioms [], секция refutedV1 с точной формулировкой опровергнутого утверждения v1 и секция boundary (changedAgainstV1 / provenIfKernelAccepts / notProven). Блок kernelCheck сознательно отсутствует: он появляется только после фактического прогона (тест tools/leanKernelCoreChecks.test.ts требует, чтобы run входил в записанную цепочку прогонов реестра).  [2026-09-19 · kernel run 35404189840, PR #78] Факт закрытия получен: ricis-jacobian-conjecture-v2 принят ядром (exit 0, 8 теорем, без sorryAx), утверждение v1 опровергнуто формально (jacobian_v1_identity_refuted), исправленное структурное утверждение доказано. Уровень заявления остаётся STRUCTURALLY_VALIDATED: доказано тождество резолвера над AST (claimLevel в записи артефакта), а не гипотеза Якоби для полиномиальных отображений."
     },
     {
       "id": "F-02",
@@ -1786,7 +2001,7 @@
         "src/model/ricisV79Monolith.test.ts",
         "src/model/riemannZetaProof.test.ts"
       ],
-      "resolution": "Частично закрыто этим PR: для chatbot-monetization, navier-stokes, riemann-zeta, universal-orchestration-template получен фактический прогон ядра (exit 0, без sorryAx). Для v79-monolith и backend-exact-reduction прогон выявил первопричину (ℕ) и требует повторного run с подстановкой; для jacobian-conjecture — см. F-01.\n\n[2026-09-19 · gap-closure] Новые цели прогона внесены честно, без повышения статуса: pendingKernelRun теперь содержит ricis-jacobian-conjecture-v2 (job kernel-check), ricis-yang-mills-v2 и ricis-general-resolution-v4 (job mathlib-kernel-check) с expectedOutcome UNKNOWN; ни одна из них не добавлена в artifacts[] до фактического прогона. Ни один статус LEAN_VERIFIED/TRUSTED_AXIOM не выставлен по тексту файла."
+      "resolution": "Частично закрыто этим PR: для chatbot-monetization, navier-stokes, riemann-zeta, universal-orchestration-template получен фактический прогон ядра (exit 0, без sorryAx). Для v79-monolith и backend-exact-reduction прогон выявил первопричину (ℕ) и требует повторного run с подстановкой; для jacobian-conjecture — см. F-01.\n\n[2026-09-19 · gap-closure] Новые цели прогона внесены честно, без повышения статуса: pendingKernelRun теперь содержит ricis-jacobian-conjecture-v2 (job kernel-check), ricis-yang-mills-v2 и ricis-general-resolution-v4 (job mathlib-kernel-check) с expectedOutcome UNKNOWN; ни одна из них не добавлена в artifacts[] до фактического прогона. Ни один статус LEAN_VERIFIED/TRUSTED_AXIOM не выставлен по тексту файла.  [2026-09-19 · kernel run 35404189840, PR #78] Пересказ заменён фактом: две цели из pendingKernelRun получили фактический прогон и записаны в artifacts (ricis-jacobian-conjecture-v2 — core, exit 0, 8 теорем; ricis-general-resolution-v4 и ricis-yang-mills-v2 — mathlib, исходник + производная exit 0). Пункт остаётся частично закрытым: ricis-yang-mills (v1) не в allowlist MATHLIB_ARTIFACTS и ожидает прогона."
     },
     {
       "id": "F-03",
@@ -1810,7 +2025,7 @@
       "kind": "SEMANTIC_BOUNDARY",
       "title": "Kernel-прогон структурных AST-теорем не доказывает заявленные узлами карты результаты",
       "evidence": "Проверенные теоремы имеют вид `ricisReduce (divSelf e) = one`, `resolveRICIS (mul (zeroF F) (infG G)) = mul F G`; узлы карты и LaTeX-отчёты по тем же хешам формулируют это как доказательство гипотезы Римана / Навье–Стокса / якобиана",
-      "resolution": "Граница доверия зафиксирована в эпилоге каждой производной, в этом реестре и в evidence-документе. Изменение формулировок узлов карты — отдельное решение владельца (E-03: resolved только при kernel-backed LEAN_VERIFIED для самого утверждения).\n\n[2026-09-19 · gap-closure, TASK-05] Узел-уровневая часть по трём LEAN_VERIFIED-узлам выполнена в src/model/initialMap.ts и src/model/catalog.ts. real-catalog-3 (гипотеза Римана) и registry-117 (Навье–Стокс): state resolved → partial, type → derived_problem, ricisSolvable → false, внешняя задача вынесена в новое поле informalExternalClaim с префиксом INFORMAL; riemann-complex-pole-regularizer: resolved → partial (аналитическая регулярность ζ(s) в s=1 ядром не проверялась). targetFunction/finalResult/latex всех трёх узлов переписаны на фактически проверенное утверждение (структурная редукция divSelf → one в ZetaExpr/FieldExpr) с явным разделом «Boundary of the claim»; ссылки на артефакты, их хеши и externalLean-провенанс не изменялись (sourceLocked). QA-контракты обновлены намеренно: src/model/riemannZetaProof.test.ts (QA-3…QA-6, включая запрет формулировки «Resolution of the Riemann Hypothesis») и src/model/__tests__/ProvenNodesIntegrity.test.ts (открытые внешние задачи обязаны оставаться partial с informalExternalClaim). Ремонт зафиксирован в artifacts/proofs/README.md (таблица классификации). ОСТАЁТСЯ ЗА ПРЕДЕЛАМИ TASK-05: (1) запись узла registry-120 (якобиан) — узел-уровневое решение владельца (L9/F-01), отдельно от артефакта v2; (2) авто-сгенерированные узлы registry-100…registry-116 (state=resolved, LaTeX «RICIS-III Proof: <открытая задача>»), не входившие в план gap-closure, — требуют отдельного решения владельца по политике E-03; (3) узлы, ссылающиеся на артефакты v1-якобиана, ждут прогона v2."
+      "resolution": "Граница доверия зафиксирована в эпилоге каждой производной, в этом реестре и в evidence-документе. Изменение формулировок узлов карты — отдельное решение владельца (E-03: resolved только при kernel-backed LEAN_VERIFIED для самого утверждения).\n\n[2026-09-19 · gap-closure, TASK-05] Узел-уровневая часть по трём LEAN_VERIFIED-узлам выполнена в src/model/initialMap.ts и src/model/catalog.ts. real-catalog-3 (гипотеза Римана) и registry-117 (Навье–Стокс): state resolved → partial, type → derived_problem, ricisSolvable → false, внешняя задача вынесена в новое поле informalExternalClaim с префиксом INFORMAL; riemann-complex-pole-regularizer: resolved → partial (аналитическая регулярность ζ(s) в s=1 ядром не проверялась). targetFunction/finalResult/latex всех трёх узлов переписаны на фактически проверенное утверждение (структурная редукция divSelf → one в ZetaExpr/FieldExpr) с явным разделом «Boundary of the claim»; ссылки на артефакты, их хеши и externalLean-провенанс не изменялись (sourceLocked). QA-контракты обновлены намеренно: src/model/riemannZetaProof.test.ts (QA-3…QA-6, включая запрет формулировки «Resolution of the Riemann Hypothesis») и src/model/__tests__/ProvenNodesIntegrity.test.ts (открытые внешние задачи обязаны оставаться partial с informalExternalClaim). Ремонт зафиксирован в artifacts/proofs/README.md (таблица классификации). ОСТАЁТСЯ ЗА ПРЕДЕЛАМИ TASK-05: (1) запись узла registry-120 (якобиан) — узел-уровневое решение владельца (L9/F-01), отдельно от артефакта v2; (2) авто-сгенерированные узлы registry-100…registry-116 (state=resolved, LaTeX «RICIS-III Proof: <открытая задача>»), не входившие в план gap-closure, — требуют отдельного решения владельца по политике E-03; (3) узлы, ссылающиеся на артефакты v1-якобиана, ждут прогона v2.  [2026-09-19 · node claim orchestration] Узел-уровневая часть расширена на все узлы авто-генерации и декомпозиции: см. F-16 и src/model/nodeClaimOrchestration.ts — состояние узла определяется применимым evidence, внешняя задача остаётся INFORMAL."
     },
     {
       "id": "F-06",
@@ -1894,7 +2109,7 @@
       "title": "Артефакт ricis-yang-mills.lean (пришёл из main) заявляет полную компилируемость, но импортирует несуществующий модуль Mathlib; метаданных, статуса и пути проверки нет",
       "artifact": "artifacts/proofs/ricis-yang-mills.lean",
       "evidence": "artifacts/proofs/ricis-yang-mills.lean, строки 11-12: `import  Mathlib.Basic.Real.Basic` и `import Mathlib.Tactic.Ring`; строка 4 (комментарий-шапка): «Статус: 100% компилируется, 0% sorry, строго по каноническому шаблону RICIS-III». Проверка дерева закреплённой ревизии Mathlib 6f1ef4e5dd604a435bddba4747b13970cd65d2a1 (GitHub contents API): Mathlib/Basic.lean — отсутствует, Mathlib/Basic/Real/Basic.lean — отсутствует, Mathlib/Real/Basic.lean — отсутствует; существуют Mathlib/Tactic/Ring.lean и Mathlib/Data/Real/Basic.lean. Т. к. Lean отображает имя модуля Mathlib.Basic.Real.Basic в файл Mathlib/Basic/Real/Basic.lean, файл в предоставленном виде не элаборируется: заявление шапки не подтверждено и на текущем дереве невыполнимо. Дополнительно: у артефакта нет метаданных (нет ricis-yang-mills.json), нет trustStatus, нет записи в прогонах — то есть нет и границы доверия, которую требует §7.",
-      "status": "Зафиксировано без изменения чужих байтов (§7): артефакт внесён как REQUIRES_CORE_LEAN, в реестр добавлен pendingKernelRun с expectedOutcome UNKNOWN. В allowlist MATHLIB_ARTIFACTS не внесён сознательно: запуск цели, у которой не существует целевого модуля, не даёт evidence о теоремах, а решение о расширении allowlist и о регистрации ожидаемого отказа — за владельцем. Ремонт (исправление импорта на существующий модуль) возможен только как НОВАЯ версия доказательства, а не правка предоставленных байтов.\n\n[2026-09-19 · gap-closure, TASK-02] Ремонт импорта выполнен как НОВАЯ версия (байты v1 не тронуты): artifacts/proofs/ricis-yang-mills-v2.lean импортирует существующий модуль Mathlib.Data.Real.Basic; руководящие узел-карты имена теорем заменены описательными (skew_product_orthogonal_pair_eq_div, skew_product_conjugate_pair_eq_square, orthogonal_bridge_invariant, orthogonal_bridge_invariant_eq_div), шапка больше не заявляет статус компиляции. Метаданные (contentHash, trustStatus REQUIRES_CORE_LEAN, claimLevel STRUCTURALLY_VALIDATED, boundary) созданы; файл внесён в allowlist MATHLIB_ARTIFACTS и в LEAN_MATHLIB_CHECK_PLAN. Утверждение о компилируемости до фактического прогона — UNVERIFIED_PREDICTION (TASK-07); статус записывается реестром по итогу прогона, а не шапкой файла. Внешний v1 остаётся неизменяемым и не элаборируемым."
+      "status": "Зафиксировано без изменения чужих байтов (§7): артефакт внесён как REQUIRES_CORE_LEAN, в реестр добавлен pendingKernelRun с expectedOutcome UNKNOWN. В allowlist MATHLIB_ARTIFACTS не внесён сознательно: запуск цели, у которой не существует целевого модуля, не даёт evidence о теоремах, а решение о расширении allowlist и о регистрации ожидаемого отказа — за владельцем. Ремонт (исправление импорта на существующий модуль) возможен только как НОВАЯ версия доказательства, а не правка предоставленных байтов.\n\n[2026-09-19 · gap-closure, TASK-02] Ремонт импорта выполнен как НОВАЯ версия (байты v1 не тронуты): artifacts/proofs/ricis-yang-mills-v2.lean импортирует существующий модуль Mathlib.Data.Real.Basic; руководящие узел-карты имена теорем заменены описательными (skew_product_orthogonal_pair_eq_div, skew_product_conjugate_pair_eq_square, orthogonal_bridge_invariant, orthogonal_bridge_invariant_eq_div), шапка больше не заявляет статус компиляции. Метаданные (contentHash, trustStatus REQUIRES_CORE_LEAN, claimLevel STRUCTURALLY_VALIDATED, boundary) созданы; файл внесён в allowlist MATHLIB_ARTIFACTS и в LEAN_MATHLIB_CHECK_PLAN. Утверждение о компилируемости до фактического прогона — UNVERIFIED_PREDICTION (TASK-07); статус записывается реестром по итогу прогона, а не шапкой файла. Внешний v1 остаётся неизменяемым и не элаборируемым.  [2026-09-19 · kernel run 35404189840] Ремонт подтверждён фактическим прогоном: ricis-yang-mills-v2 (импорт Mathlib.Data.Real.Basic) — исходник и производная exit 0, 3 теоремы, стандартные аксиомы; запись в artifacts. Байты v1 остаются неизменяемыми и по-прежнему ожидают прогона."
     },
     {
       "id": "F-15",
@@ -1903,6 +2118,20 @@
       "evidence": "run 35145205870 (mathlib-kernel-check, PR #59, дословно): `artifacts/proofs/mathlib-checks/jacobian-counterexample-full.mathlib-check.lean:162:14: error(lean.unknownIdentifier): Unknown constant trusted_full_jacobian_contract`. Аксиома объявлена внутри `namespace JacobianCounterexample`, эпилог стоит после `end …`; исходник при этом — exit 0. Первопричина: `collectDeclaredAxioms` не отслеживал неймспейсы (пилотные артефакты объявляли аксиомы только на верхнем уровне), а страж сверял цели эпилога против того же сборщика (самосогласованно, не независимо). Ремонт: единый скоуп-трекер `collectScopedNames` для теорем и аксиом + независимый структурный страж квалификации (tools/leanMathlibChecks.test.ts, A-0011); производная перегенерирована, ожидает повторного прогона.",
       "status": "ЗАКРЫТО ФАКТИЧЕСКИМ ПРОГОНОМ (независимый повторный прогон исправленной производной): run 35240479485 (job mathlib-kernel-check, push main@5748c378, 2026-09-17T15:28:35Z) — conclusion success; содержимое headSha побайтово тождественно (sha256-таблица в evidence-файле), mathlibExpectedFailures пуст, семантика скрипта ⇒ исправленная производная exit 0, sorryAx отсутствует. Контрмеры действуют: единый скоуп-трекер collectScopedNames + независимый структурный страж (tools/leanMathlibChecks.test.ts, A-0011).",
       "artifact": "artifacts/proofs/jacobian-counterexample-full.lean"
+    },
+    {
+      "id": "F-16",
+      "severity": "HIGH",
+      "kind": "FABRICATED_KERNEL_REFERENCE",
+      "title": "Движок решений ссылался на ядровые теоремы, которых нет ни в одном прогоне: три записи leanProof были фиктивными ссылками",
+      "artifact": "src/model/taskResolutionEngine.ts",
+      "evidence": "Сверка 2026-09-19 записей ELEMENTARY_SOLUTIONS с фактическими выводами #print axioms реестра (прогоны 34891262489, 35404189840): leanProof.theoremName «ricis_removable_singularity_eval» и «polar_kinematic_inversion_exact» (fileRef artifacts/proofs/ricis-backend-exact-reduction.standalone.lean, 22 теоремы) и «theta_skew_product_eval» (fileRef artifacts/proofs/database-a6-minimal-core-check.lean, 1 теорема RICIS3.MinimalA6Check.Regression.database_a6_bridge) в этих артефактах отсутствуют. kernelVerified: true при такой ссылке — заявление о ядровом пути, которого не существует: ядровая ссылка не выдерживает сверки с реестром прогонов.",
+      "affected": [
+        "src/model/taskResolutionEngine.ts (ELEMENTARY_SOLUTIONS[].leanProof)",
+        "src/model/taskResolutionEngine.test.ts"
+      ],
+      "requiredDecision": "Заменить фиктивные ссылки на реальные теоремы принятых ядром артефактов и закрепить сверку ссылки с реестром прогонов отдельным стражем, чтобы выдуманное имя не могло появиться снова.",
+      "resolution": "ИСПРАВЛЕНО 2026-09-19: все три записи leanProof перенаправлены на фактические теоремы принятого ядром артефакта ricis-universal-orchestration-template (прогон 34891262489, 27 теорем): RICIS_Template.divSelf_one, RICIS_Template.A6_geometric_realization, RICIS_Template.complex_divSelf_one; axioms приведены к фактическому выводу #print axioms ([propext]); codeSnippet — дословная формулировка теоремы из исходника. Страж QA-LEAN-1 в src/model/taskResolutionEngine.test.ts проверяет каждую ссылку против artifacts/proofs/core-checks/kernel-findings.json и падает на выдуманном имени."
     }
   ],
   "ciPolicy": {
@@ -1911,7 +2140,7 @@
       {
         "artifactId": "ricis-jacobian-conjecture",
         "checkedFile": "artifacts/proofs/core-checks/ricis-jacobian-conjecture.standalone.core-check.lean",
-        "basis": "run 34870620154 (Lean 4.33.1, дословно): исходник не парсится (конструктор `partial` — зарезервированное слово, 24:12 expected token); после переименования partial → partialDeriv файл парсится, но 62:2 «Tactic `rfl` failed: resolveRICIS (F.zeroF.det …) is not definitionally equal to (F.mul G).sub …» — центральная теорема Jacobian_singularity_resolved несёт sorryAx. Тождество не является определительным; заявленный TRUSTED_AXIOM не имеет основания ни в одной конфигурации (F-01). Решение владельца 2026-09-14 (README): классификация STRUCTURALLY_VALIDATED; построение нового доказательства — отдельная задача."
+        "basis": "run 34870620154 (Lean 4.33.1, дословно): исходник не парсится (конструктор `partial` — зарезервированное слово, 24:12 expected token); после переименования partial → partialDeriv файл парсится, но 62:2 «Tactic `rfl` failed: resolveRICIS (F.zeroF.det …) is not definitionally equal to (F.mul G).sub …» — центральная теорема Jacobian_singularity_resolved несёт sorryAx. Тождество не является определительным; заявленный TRUSTED_AXIOM не имеет основания ни в одной конфигурации (F-01). Решение владельца 2026-09-14 (README): классификация STRUCTURALLY_VALIDATED; построение нового доказательства — отдельная задача. Подтверждено прогоном 35404189840 (PR #78): v1 — EXPECTED_FAIL (exit 1, SORRY_DETECTED), при этом центральное утверждение v1 формально опровергнуто новой версией ricis-jacobian-conjecture-v2 (jacobian_v1_identity_refuted), которая принята ядром в том же прогоне (exit 0, 8 теорем, без sorryAx). Ожидаемый отказ сохраняется: файл v1 не парсится без подстановки и доказательства не несёт (§7 — байты не изменяются)."
       }
     ],
     "mathlibRule": "Тот же закон, что и для core-check, отдельный список: единственный источник «ожидаемых отказов» Mathlib-целей — ciPolicy.mathlibExpectedFailures[].checkedFile (workflow извлекает его jq-выражением `(.ciPolicy.mathlibExpectedFailures // [])[].checkedFile`). Цель не из списка, упавшая в прогоне, рвёт прогон; скомпилированный файл с sorryAx рвёт прогон всегда; зарегистрированная цель, которая скомпилировалась, отдаётся как OK с NOTE об обновлении реестра. Список остаётся пустым до первого фактического прогона: прогноз не является основанием для регистрации ожидаемого отказа.",
@@ -1921,43 +2150,62 @@
     "kind": "github-actions-run",
     "workflow": ".github/workflows/lean-artifact-kernel-check.yml",
     "job": "mathlib-kernel-check",
-    "runId": 35240479485,
-    "runUrl": "https://github.com/A1Dmitry/Ricis3-Expansion-Map/actions/runs/35240479485",
-    "branch": "main",
-    "commit": "5748c378f1bff0b43fd6d1dede5d9daa7bd129c4",
-    "trigger": "push",
-    "runStartedAtUtc": "2026-09-17T15:28:35Z",
-    "toolchain": "leanprover/lean4:v4.33.0 (lean-toolchain закреплённой ревизии Mathlib); global default на раннере — 4.33.1, для компиляции не использовался",
+    "runId": 35404189840,
+    "runUrl": "https://github.com/A1Dmitry/Ricis3-Expansion-Map/actions/runs/35404189840",
+    "jobUrl": "https://github.com/A1Dmitry/Ricis3-Expansion-Map/actions/runs/35404189840/job/105790400643",
+    "pullRequest": 78,
+    "branch": "arena/01a0b641-ricis3-expansion-map",
+    "commit": "4322c31e11bb658b501c94b674938b40fa0edda1",
+    "trigger": "pull_request",
+    "runStartedAtUtc": "2026-09-18T23:03:54Z",
+    "toolchain": "leanprover/lean4:v4.33.0 (lean-toolchain закреплённой ревизии Mathlib), Mathlib @ 6f1ef4e5dd604a435bddba4747b13970cd65d2a1",
     "command": "(cd mathlib-check && lake env lean <artifact>)",
     "host": "ubuntu-latest (GitHub Actions)",
-    "evidenceChannel": "CI-артефакт lean-kernel-evidence-mathlib (7.13 KB, sha256:6c34fc3d0e92f9232ffdb06dea7f6e33d2e4fa29b71ad1cdbf1c3238f8f4be60; недоступен из песочницы — A-0007) + evidence-файл с АПИ-измеренными фактами и таблицей тождества содержимого.",
-    "rawEvidence": "docs/05-evidence/proofs/lean-kernel-run-35240479485-mathlib.api-evidence.txt",
-    "contentIdentity": {
-      "method": "GitHub API: raw-получение файлов headSha 5748c378… и побайтовое сравнение (cmp) со срезом цикла TPS-0014/0015 (a6f3d34/464d209); запрошено 2026-09-17T19:56Z-20:10Z",
-      "targets": "все 4 источника + все 4 производные MATHLIB_ARTIFACTS побайтово тождественны (sha256 — в evidence-файле §3); также тождественны kernel-findings.json (ciPolicy.mathlibExpectedFailures = []), workflow (MATHLIB_ARTIFACTS), manifest.json, scripts/generateLeanMathlibChecks.ts, scripts/mathlibKernelCheck.sh",
-      "derivation": "mathlibKernelCheck.sh: overall=0 (job success) + пустой ciPolicy.mathlibExpectedFailures + все 4 цели присутствуют в дереве headSha ⇒ для всех целей исходник exit 0, производная exit 0, sorryAx отсутствует (SORRY_DETECTED и незарегистрированный отказ всегда рвут прогон)"
-    },
-    "note": "Джоба success: все цели зелёные — ricis-general-resolution, ricis-general-resolution-v3, RicisAgiTarget, jacobian-counterexample-full (исходник + производная, sorryAx отсутствует). Исправленная производная Якоби (квалифицированный эпилог, F-15/A-0011) прогнана фактически: ожидающий прогон закрыт фактом. Дословный лог компилятора — в CI-артефакте (загрузка из песочницы недоступна, A-0007); вывод — см. contentIdentity и evidence-файл.",
+    "evidenceChannel": "Комментарий PR #78 (job summary + полный лог компилятора по каждой цели: исходник как предоставлен + производная, побайтовое тождество префикса).",
+    "rawEvidence": "docs/05-evidence/proofs/lean-kernel-run-35404189840-mathlib.pr-comment.txt",
+    "note": "Джоба success: шесть целей allowlist MATHLIB_ARTIFACTS (ricis-general-resolution, -v3, -v4, ricis-yang-mills-v2, RicisAgiTarget, jacobian-counterexample-full) — исходник exit 0 и производная exit 0, sorryAx отсутствует. Закрыты ожидающие прогоны ricis-general-resolution-v4 и ricis-yang-mills-v2: оба факта записаны в artifacts с фактическим выводом #print axioms. ricis-yang-mills (v1) остаётся вне allowlist и ожидает прогона: компилируемость v1 по-прежнему не подтверждена (F-14 в части v1).",
     "priorMathlibRun": {
       "kind": "github-actions-run",
       "workflow": ".github/workflows/lean-artifact-kernel-check.yml",
       "job": "mathlib-kernel-check",
-      "runId": 35145205870,
-      "runUrl": "https://github.com/A1Dmitry/Ricis3-Expansion-Map/actions/runs/35145205870",
-      "pullRequest": 59,
-      "branch": "arena/01a0abc2-ricis3-expansion-map",
-      "runStartedAtUtc": "2026-09-16T20:13:00Z",
+      "runId": 35240479485,
+      "runUrl": "https://github.com/A1Dmitry/Ricis3-Expansion-Map/actions/runs/35240479485",
+      "branch": "main",
+      "commit": "5748c378f1bff0b43fd6d1dede5d9daa7bd129c4",
+      "trigger": "push",
+      "runStartedAtUtc": "2026-09-17T15:28:35Z",
       "toolchain": "leanprover/lean4:v4.33.0 (lean-toolchain закреплённой ревизии Mathlib); global default на раннере — 4.33.1, для компиляции не использовался",
       "command": "(cd mathlib-check && lake env lean <artifact>)",
       "host": "ubuntu-latest (GitHub Actions)",
-      "evidenceChannel": "Комментарий PR #59 (step summary + полный лог компилятора).",
-      "rawEvidence": "docs/05-evidence/proofs/lean-kernel-run-35145205870.pr-comment.txt",
-      "priorMathlibRun": {
-        "runId": 34950902412,
-        "pullRequest": 40,
-        "rawEvidence": "docs/05-evidence/proofs/lean-kernel-run-34950902412-mathlib.pr-comment.txt"
+      "evidenceChannel": "CI-артефакт lean-kernel-evidence-mathlib (7.13 KB, sha256:6c34fc3d0e92f9232ffdb06dea7f6e33d2e4fa29b71ad1cdbf1c3238f8f4be60; недоступен из песочницы — A-0007) + evidence-файл с АПИ-измеренными фактами и таблицей тождества содержимого.",
+      "rawEvidence": "docs/05-evidence/proofs/lean-kernel-run-35240479485-mathlib.api-evidence.txt",
+      "contentIdentity": {
+        "method": "GitHub API: raw-получение файлов headSha 5748c378… и побайтовое сравнение (cmp) со срезом цикла TPS-0014/0015 (a6f3d34/464d209); запрошено 2026-09-17T19:56Z-20:10Z",
+        "targets": "все 4 источника + все 4 производные MATHLIB_ARTIFACTS побайтово тождественны (sha256 — в evidence-файле §3); также тождественны kernel-findings.json (ciPolicy.mathlibExpectedFailures = []), workflow (MATHLIB_ARTIFACTS), manifest.json, scripts/generateLeanMathlibChecks.ts, scripts/mathlibKernelCheck.sh",
+        "derivation": "mathlibKernelCheck.sh: overall=0 (job success) + пустой ciPolicy.mathlibExpectedFailures + все 4 цели присутствуют в дереве headSha ⇒ для всех целей исходник exit 0, производная exit 0, sorryAx отсутствует (SORRY_DETECTED и незарегистрированный отказ всегда рвут прогон)"
       },
-      "note": "Итог джобы — failure по ОДНОЙ цели: производная jacobian-counterexample-full — exit 1 (unknown constant trusted_full_jacobian_contract, A-0011: эпилог генератора не квалифицировал аксиому внутри неймспейса; дефект генератора, не дефект артефакта — исходник вышел с exit 0). Остальные цели зелёные: ricis-general-resolution, ricis-general-resolution-v3, RicisAgiTarget — исходник и производная exit 0, sorryAx отсутствует. Генератор исправлен (единый скоуп-трекер), производная перегенерирована и ожидает повторного прогона."
+      "note": "Джоба success: все цели зелёные — ricis-general-resolution, ricis-general-resolution-v3, RicisAgiTarget, jacobian-counterexample-full (исходник + производная, sorryAx отсутствует). Исправленная производная Якоби (квалифицированный эпилог, F-15/A-0011) прогнана фактически: ожидающий прогон закрыт фактом. Дословный лог компилятора — в CI-артефакте (загрузка из песочницы недоступна, A-0007); вывод — см. contentIdentity и evidence-файл.",
+      "priorMathlibRun": {
+        "kind": "github-actions-run",
+        "workflow": ".github/workflows/lean-artifact-kernel-check.yml",
+        "job": "mathlib-kernel-check",
+        "runId": 35145205870,
+        "runUrl": "https://github.com/A1Dmitry/Ricis3-Expansion-Map/actions/runs/35145205870",
+        "pullRequest": 59,
+        "branch": "arena/01a0abc2-ricis3-expansion-map",
+        "runStartedAtUtc": "2026-09-16T20:13:00Z",
+        "toolchain": "leanprover/lean4:v4.33.0 (lean-toolchain закреплённой ревизии Mathlib); global default на раннере — 4.33.1, для компиляции не использовался",
+        "command": "(cd mathlib-check && lake env lean <artifact>)",
+        "host": "ubuntu-latest (GitHub Actions)",
+        "evidenceChannel": "Комментарий PR #59 (step summary + полный лог компилятора).",
+        "rawEvidence": "docs/05-evidence/proofs/lean-kernel-run-35145205870.pr-comment.txt",
+        "priorMathlibRun": {
+          "runId": 34950902412,
+          "pullRequest": 40,
+          "rawEvidence": "docs/05-evidence/proofs/lean-kernel-run-34950902412-mathlib.pr-comment.txt"
+        },
+        "note": "Итог джобы — failure по ОДНОЙ цели: производная jacobian-counterexample-full — exit 1 (unknown constant trusted_full_jacobian_contract, A-0011: эпилог генератора не квалифицировал аксиому внутри неймспейса; дефект генератора, не дефект артефакта — исходник вышел с exit 0). Остальные цели зелёные: ricis-general-resolution, ricis-general-resolution-v3, RicisAgiTarget — исходник и производная exit 0, sorryAx отсутствует. Генератор исправлен (единый скоуп-трекер), производная перегенерирована и ожидает повторного прогона."
+      }
     }
   }
 }

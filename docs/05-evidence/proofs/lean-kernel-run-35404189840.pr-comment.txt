@@ -1,0 +1,760 @@
+### Lean kernel evidence — run `35404189840`
+
+Kernel outcome: `OK (no unexpected failures; sorryAx-free)`
+
+Toolchain: Lean 4.33.1 (pinned via elan). Command: `lean +4.33.1 <artifact>` for every self-contained artifact.
+
+```text
+--- toolchain.txt ---
+Lean kernel run — 2026-09-18T23:04:14Z
+Lean (version 4.33.1, x86_64-unknown-linux-gnu, commit 819816b2e0a3bf405af45ae5c7af2491d8f5bee6, Release)
+toolchain: lean 4.33.1 (pinned via elan, default-toolchain)
+host: ubuntu-latest (GitHub Actions)
+--- summary.txt ---
+--- environment diagnostics ---
+pwd: /home/runner/work/Ricis3-Expansion-Map/Ricis3-Expansion-Map
+NO_MATHLIB_ARTIFACTS: artifacts/proofs/database-a6-minimal-core-check.lean
+CORE_CHECK_DIR: artifacts/proofs/core-checks
+which lean: /home/runner/.elan/bin/lean
+Lean (version 4.33.1, x86_64-unknown-linux-gnu, commit 819816b2e0a3bf405af45ae5c7af2491d8f5bee6, Release)
+leanprover/lean4:v4.33.1
+allowlist files:
+  present: artifacts/proofs/database-a6-minimal-core-check.lean
+core-check files:
+  artifacts/proofs/core-checks/Schwarzschild_GeometricBridge.core-check.lean
+  artifacts/proofs/core-checks/database-a6-0_5_inf_3.standalone.core-check.lean
+  artifacts/proofs/core-checks/database-registry-120-jacobian.standalone.core-check.lean
+  artifacts/proofs/core-checks/ricis-backend-exact-reduction.standalone.core-check.lean
+  artifacts/proofs/core-checks/ricis-chatbot-monetization.core-check.lean
+  artifacts/proofs/core-checks/ricis-jacobian-conjecture-v2.core-check.lean
+  artifacts/proofs/core-checks/ricis-jacobian-conjecture.standalone.core-check.lean
+  artifacts/proofs/core-checks/ricis-kernel-ast-sp5.standalone.core-check.lean
+  artifacts/proofs/core-checks/ricis-navier-stokes-ast-bridge.standalone.core-check.lean
+  artifacts/proofs/core-checks/ricis-riemann-zeta-ast-bridge.standalone.core-check.lean
+  artifacts/proofs/core-checks/ricis-seed-expansion-a11.core-check.lean
+  artifacts/proofs/core-checks/ricis-universal-orchestration-template.core-check.lean
+  artifacts/proofs/core-checks/ricis-v79-monolith.standalone.core-check.lean
+kernel targets: 14 file(s)
+  artifacts/proofs/core-checks/Schwarzschild_GeometricBridge.core-check.lean
+  artifacts/proofs/core-checks/database-a6-0_5_inf_3.standalone.core-check.lean
+  artifacts/proofs/core-checks/database-registry-120-jacobian.standalone.core-check.lean
+  artifacts/proofs/core-checks/ricis-backend-exact-reduction.standalone.core-check.lean
+  artifacts/proofs/core-checks/ricis-chatbot-monetization.core-check.lean
+  artifacts/proofs/core-checks/ricis-jacobian-conjecture-v2.core-check.lean
+  artifacts/proofs/core-checks/ricis-jacobian-conjecture.standalone.core-check.lean
+  artifacts/proofs/core-checks/ricis-kernel-ast-sp5.standalone.core-check.lean
+  artifacts/proofs/core-checks/ricis-navier-stokes-ast-bridge.standalone.core-check.lean
+  artifacts/proofs/core-checks/ricis-riemann-zeta-ast-bridge.standalone.core-check.lean
+  artifacts/proofs/core-checks/ricis-seed-expansion-a11.core-check.lean
+  artifacts/proofs/core-checks/ricis-universal-orchestration-template.core-check.lean
+  artifacts/proofs/core-checks/ricis-v79-monolith.standalone.core-check.lean
+  artifacts/proofs/database-a6-minimal-core-check.lean
+expected-failure targets (from kernel-findings.json ciPolicy): 1 file(s)
+  artifacts/proofs/core-checks/ricis-jacobian-conjecture.standalone.core-check.lean
+=== Schwarzschild_GeometricBridge.core-check: lean +4.33.1 artifacts/proofs/core-checks/Schwarzschild_GeometricBridge.core-check.lean
+    result: OK (compiler exit 0, no compiler errors, no sorryAx)
+    result: OK (compiler exit 0, no compiler errors)
+--- #print axioms output (Schwarzschild_GeometricBridge.core-check) ---
+'RICIS3.SchwarzschildBridge.l1_trivial' does not depend on any axioms
+'RICIS3.SchwarzschildBridge.sp4_no_silent_collapse' does not depend on any axioms
+'RICIS3.SchwarzschildBridge.preservesPath_iff' does not depend on any axioms
+'RICIS3.SchwarzschildBridge.measure_eq_mul' does not depend on any axioms
+'RICIS3.SchwarzschildBridge.a6_product_eq_mul' does not depend on any axioms
+'RICIS3.SchwarzschildBridge.a6_product_self' does not depend on any axioms
+'RICIS3.SchwarzschildBridge.a6_ratio_proxy_def' does not depend on any axioms
+'RICIS3.SchwarzschildBridge.eval_product_ok' depends on axioms: [propext]
+'RICIS3.SchwarzschildBridge.eval_product_none_foreign' depends on axioms: [propext]
+'RICIS3.SchwarzschildBridge.eval_ratio_ok' depends on axioms: [propext]
+'RICIS3.SchwarzschildBridge.eval_ratio_none_foreign' depends on axioms: [propext]
+--- compiler output tail (Schwarzschild_GeometricBridge.core-check) ---
+'RICIS3.SchwarzschildBridge.l1_trivial' does not depend on any axioms
+'RICIS3.SchwarzschildBridge.sp4_no_silent_collapse' does not depend on any axioms
+'RICIS3.SchwarzschildBridge.preservesPath_iff' does not depend on any axioms
+'RICIS3.SchwarzschildBridge.measure_eq_mul' does not depend on any axioms
+'RICIS3.SchwarzschildBridge.a6_product_eq_mul' does not depend on any axioms
+'RICIS3.SchwarzschildBridge.a6_product_self' does not depend on any axioms
+'RICIS3.SchwarzschildBridge.a6_ratio_proxy_def' does not depend on any axioms
+'RICIS3.SchwarzschildBridge.eval_product_ok' depends on axioms: [propext]
+'RICIS3.SchwarzschildBridge.eval_product_none_foreign' depends on axioms: [propext]
+'RICIS3.SchwarzschildBridge.eval_ratio_ok' depends on axioms: [propext]
+'RICIS3.SchwarzschildBridge.eval_ratio_none_foreign' depends on axioms: [propext]
+
+=== database-a6-0_5_inf_3.standalone.core-check: lean +4.33.1 artifacts/proofs/core-checks/database-a6-0_5_inf_3.standalone.core-check.lean
+    result: OK (compiler exit 0, no compiler errors, no sorryAx)
+    result: OK (compiler exit 0, no compiler errors)
+--- #print axioms output (database-a6-0_5_inf_3.standalone.core-check) ---
+'RICIS3.GeneratedDatabaseProof.generated_claim_is_a6_bridge' does not depend on any axioms
+'RICIS3.GeneratedDatabaseProof.generated_claim_indices_are_finite' depends on axioms: [propext]
+'RICIS3.ExtendedKernel.RExpr.sp3_zero_valid' depends on axioms: [propext]
+'RICIS3.ExtendedKernel.RExpr.sp3_inf_valid' depends on axioms: [propext]
+'RICIS3.ExtendedKernel.RExpr.l0_payload_preserved' does not depend on any axioms
+'RICIS3.ExtendedKernel.RExpr.l1_identity' does not depend on any axioms
+'RICIS3.ExtendedKernel.RExpr.sp2_common_right' does not depend on any axioms
+'RICIS3.ExtendedKernel.RExpr.sp2_common_left' does not depend on any axioms
+'RICIS3.ExtendedKernel.RExpr.o1_bridge_mul_zero' does not depend on any axioms
+'RICIS3.ExtendedKernel.RExpr.o1_bridge_div_zero' does not depend on any axioms
+'RICIS3.ExtendedKernel.RExpr.a1_indexed_infinity' does not depend on any axioms
+'RICIS3.ExtendedKernel.RExpr.a4_distinct_payload' does not depend on any axioms
+'RICIS3.ExtendedKernel.RExpr.a4_same_identity' does not depend on any axioms
+'RICIS3.ExtendedKernel.RExpr.sp4_retains_source' does not depend on any axioms
+'RICIS3.ExtendedKernel.RExpr.a5_distinct_payload' does not depend on any axioms
+'RICIS3.ExtendedKernel.RExpr.a6_geometric_bridge' does not depend on any axioms
+'RICIS3.ExtendedKernel.RExpr.a6_coupled_reciprocal' does not depend on any axioms
+'RICIS3.ExtendedKernel.RExpr.fallback_requires_gate' does not depend on any axioms
+'RICIS3.ExtendedKernel.RExpr.priority_blocks_fallback' does not depend on any axioms
+'RICIS3.GeneratedDatabaseProof.generated_claim_is_a6_bridge' does not depend on any axioms
+'RICIS3.GeneratedDatabaseProof.generated_claim_indices_are_finite' depends on axioms: [propext]
+--- compiler output tail (database-a6-0_5_inf_3.standalone.core-check) ---
+'RICIS3.GeneratedDatabaseProof.generated_claim_indices_are_finite' depends on axioms: [propext]
+'RICIS3.ExtendedKernel.RExpr.sp3_zero_valid' depends on axioms: [propext]
+'RICIS3.ExtendedKernel.RExpr.sp3_inf_valid' depends on axioms: [propext]
+'RICIS3.ExtendedKernel.RExpr.l0_payload_preserved' does not depend on any axioms
+'RICIS3.ExtendedKernel.RExpr.l1_identity' does not depend on any axioms
+'RICIS3.ExtendedKernel.RExpr.sp2_common_right' does not depend on any axioms
+'RICIS3.ExtendedKernel.RExpr.sp2_common_left' does not depend on any axioms
+'RICIS3.ExtendedKernel.RExpr.o1_bridge_mul_zero' does not depend on any axioms
+'RICIS3.ExtendedKernel.RExpr.o1_bridge_div_zero' does not depend on any axioms
+'RICIS3.ExtendedKernel.RExpr.a1_indexed_infinity' does not depend on any axioms
+'RICIS3.ExtendedKernel.RExpr.a4_distinct_payload' does not depend on any axioms
+'RICIS3.ExtendedKernel.RExpr.a4_same_identity' does not depend on any axioms
+'RICIS3.ExtendedKernel.RExpr.sp4_retains_source' does not depend on any axioms
+'RICIS3.ExtendedKernel.RExpr.a5_distinct_payload' does not depend on any axioms
+'RICIS3.ExtendedKernel.RExpr.a6_geometric_bridge' does not depend on any axioms
+'RICIS3.ExtendedKernel.RExpr.a6_coupled_reciprocal' does not depend on any axioms
+'RICIS3.ExtendedKernel.RExpr.fallback_requires_gate' does not depend on any axioms
+'RICIS3.ExtendedKernel.RExpr.priority_blocks_fallback' does not depend on any axioms
+'RICIS3.GeneratedDatabaseProof.generated_claim_is_a6_bridge' does not depend on any axioms
+'RICIS3.GeneratedDatabaseProof.generated_claim_indices_are_finite' depends on axioms: [propext]
+
+=== database-registry-120-jacobian.standalone.core-check: lean +4.33.1 artifacts/proofs/core-checks/database-registry-120-jacobian.standalone.core-check.lean
+    result: OK (compiler exit 0, no compiler errors, no sorryAx)
+    result: OK (compiler exit 0, no compiler errors)
+--- #print axioms output (database-registry-120-jacobian.standalone.core-check) ---
+'RICIS3.GeneratedJacobianRegistry120.jacobian_registry120_a6_bridge' does not depend on any axioms
+'RICIS3.GeneratedJacobianRegistry120.jacobian_registry120_indices_valid' depends on axioms: [propext]
+'RICIS3.ExtendedKernel.RExpr.sp3_zero_valid' depends on axioms: [propext]
+'RICIS3.ExtendedKernel.RExpr.sp3_inf_valid' depends on axioms: [propext]
+'RICIS3.ExtendedKernel.RExpr.l0_payload_preserved' does not depend on any axioms
+'RICIS3.ExtendedKernel.RExpr.l1_identity' does not depend on any axioms
+'RICIS3.ExtendedKernel.RExpr.sp2_common_right' does not depend on any axioms
+'RICIS3.ExtendedKernel.RExpr.sp2_common_left' does not depend on any axioms
+'RICIS3.ExtendedKernel.RExpr.o1_bridge_mul_zero' does not depend on any axioms
+'RICIS3.ExtendedKernel.RExpr.o1_bridge_div_zero' does not depend on any axioms
+'RICIS3.ExtendedKernel.RExpr.a1_indexed_infinity' does not depend on any axioms
+'RICIS3.ExtendedKernel.RExpr.a4_distinct_payload' does not depend on any axioms
+'RICIS3.ExtendedKernel.RExpr.a4_same_identity' does not depend on any axioms
+'RICIS3.ExtendedKernel.RExpr.sp4_retains_source' does not depend on any axioms
+'RICIS3.ExtendedKernel.RExpr.a5_distinct_payload' does not depend on any axioms
+'RICIS3.ExtendedKernel.RExpr.a6_geometric_bridge' does not depend on any axioms
+'RICIS3.ExtendedKernel.RExpr.a6_coupled_reciprocal' does not depend on any axioms
+'RICIS3.ExtendedKernel.RExpr.fallback_requires_gate' does not depend on any axioms
+'RICIS3.ExtendedKernel.RExpr.priority_blocks_fallback' does not depend on any axioms
+'RICIS3.GeneratedJacobianRegistry120.jacobian_registry120_a6_bridge' does not depend on any axioms
+'RICIS3.GeneratedJacobianRegistry120.jacobian_registry120_indices_valid' depends on axioms: [propext]
+--- compiler output tail (database-registry-120-jacobian.standalone.core-check) ---
+'RICIS3.GeneratedJacobianRegistry120.jacobian_registry120_indices_valid' depends on axioms: [propext]
+'RICIS3.ExtendedKernel.RExpr.sp3_zero_valid' depends on axioms: [propext]
+'RICIS3.ExtendedKernel.RExpr.sp3_inf_valid' depends on axioms: [propext]
+'RICIS3.ExtendedKernel.RExpr.l0_payload_preserved' does not depend on any axioms
+'RICIS3.ExtendedKernel.RExpr.l1_identity' does not depend on any axioms
+'RICIS3.ExtendedKernel.RExpr.sp2_common_right' does not depend on any axioms
+'RICIS3.ExtendedKernel.RExpr.sp2_common_left' does not depend on any axioms
+'RICIS3.ExtendedKernel.RExpr.o1_bridge_mul_zero' does not depend on any axioms
+'RICIS3.ExtendedKernel.RExpr.o1_bridge_div_zero' does not depend on any axioms
+'RICIS3.ExtendedKernel.RExpr.a1_indexed_infinity' does not depend on any axioms
+'RICIS3.ExtendedKernel.RExpr.a4_distinct_payload' does not depend on any axioms
+'RICIS3.ExtendedKernel.RExpr.a4_same_identity' does not depend on any axioms
+'RICIS3.ExtendedKernel.RExpr.sp4_retains_source' does not depend on any axioms
+'RICIS3.ExtendedKernel.RExpr.a5_distinct_payload' does not depend on any axioms
+'RICIS3.ExtendedKernel.RExpr.a6_geometric_bridge' does not depend on any axioms
+'RICIS3.ExtendedKernel.RExpr.a6_coupled_reciprocal' does not depend on any axioms
+'RICIS3.ExtendedKernel.RExpr.fallback_requires_gate' does not depend on any axioms
+'RICIS3.ExtendedKernel.RExpr.priority_blocks_fallback' does not depend on any axioms
+'RICIS3.GeneratedJacobianRegistry120.jacobian_registry120_a6_bridge' does not depend on any axioms
+'RICIS3.GeneratedJacobianRegistry120.jacobian_registry120_indices_valid' depends on axioms: [propext]
+
+=== ricis-backend-exact-reduction.standalone.core-check: lean +4.33.1 artifacts/proofs/core-checks/ricis-backend-exact-reduction.standalone.core-check.lean
+    result: OK (compiler exit 0, no compiler errors, no sorryAx)
+    result: OK (compiler exit 0, no compiler errors)
+--- #print axioms output (ricis-backend-exact-reduction.standalone.core-check) ---
+'RICIS.identity' depends on axioms: [propext]
+'RICIS.structure_irrelevant' depends on axioms: [propext]
+'RICIS.selfDivision_one_step' depends on axioms: [propext]
+'RICIS.reduction_independent_of_size' depends on axioms: [propext]
+'RICIS.selfDivision_eliminated' depends on axioms: [propext]
+'RICIS.eliminated_error_zero' does not depend on any axioms
+'RICIS.eliminated_error_independent_of_size' does not depend on any axioms
+'RICIS.complex_selfDivision' depends on axioms: [propext]
+'RICIS.complex_eliminated_error' does not depend on any axioms
+'RICIS.repeated_selfDivision' depends on axioms: [propext]
+'RICIS.repeated_error_zero' does not depend on any axioms
+'RICIS.billion_iterations_zero_error' does not depend on any axioms
+'RICIS.error_independent_of_iterations' does not depend on any axioms
+'RICIS.prepare_selfDivision' depends on axioms: [propext]
+'RICIS.execute_prepared_selfDivision' depends on axioms: [propext]
+'RICIS.CPU_correct' depends on axioms: [propext]
+'RICIS.CUDA_correct' depends on axioms: [propext]
+'RICIS.CPU_CUDA_same_semantics' depends on axioms: [propext]
+'RICIS.selfDivision_CPU' depends on axioms: [propext]
+'RICIS.selfDivision_CUDA' depends on axioms: [propext]
+'RICIS.selfDivision_all_backends' depends on axioms: [propext]
+'RICIS.RICIS_exact_structural_reduction' depends on axioms: [propext]
+--- compiler output tail (ricis-backend-exact-reduction.standalone.core-check) ---
+'RICIS.selfDivision_one_step' depends on axioms: [propext]
+'RICIS.reduction_independent_of_size' depends on axioms: [propext]
+'RICIS.selfDivision_eliminated' depends on axioms: [propext]
+'RICIS.eliminated_error_zero' does not depend on any axioms
+'RICIS.eliminated_error_independent_of_size' does not depend on any axioms
+'RICIS.complex_selfDivision' depends on axioms: [propext]
+'RICIS.complex_eliminated_error' does not depend on any axioms
+'RICIS.repeated_selfDivision' depends on axioms: [propext]
+'RICIS.repeated_error_zero' does not depend on any axioms
+'RICIS.billion_iterations_zero_error' does not depend on any axioms
+'RICIS.error_independent_of_iterations' does not depend on any axioms
+'RICIS.prepare_selfDivision' depends on axioms: [propext]
+'RICIS.execute_prepared_selfDivision' depends on axioms: [propext]
+'RICIS.CPU_correct' depends on axioms: [propext]
+'RICIS.CUDA_correct' depends on axioms: [propext]
+'RICIS.CPU_CUDA_same_semantics' depends on axioms: [propext]
+'RICIS.selfDivision_CPU' depends on axioms: [propext]
+'RICIS.selfDivision_CUDA' depends on axioms: [propext]
+'RICIS.selfDivision_all_backends' depends on axioms: [propext]
+'RICIS.RICIS_exact_structural_reduction' depends on axioms: [propext]
+
+=== ricis-chatbot-monetization.core-check: lean +4.33.1 artifacts/proofs/core-checks/ricis-chatbot-monetization.core-check.lean
+    result: OK (compiler exit 0, no compiler errors, no sorryAx)
+    result: OK (compiler exit 0, no compiler errors)
+--- #print axioms output (ricis-chatbot-monetization.core-check) ---
+'RICIS_Monetization.Chatbot_Monetization_Resolution' depends on axioms: [propext]
+'RICIS_Monetization.L1_identity' does not depend on any axioms
+--- compiler output tail (ricis-chatbot-monetization.core-check) ---
+'RICIS_Monetization.Chatbot_Monetization_Resolution' depends on axioms: [propext]
+'RICIS_Monetization.L1_identity' does not depend on any axioms
+
+=== ricis-jacobian-conjecture-v2.core-check: lean +4.33.1 artifacts/proofs/core-checks/ricis-jacobian-conjecture-v2.core-check.lean
+    result: OK (compiler exit 0, no compiler errors, no sorryAx)
+    result: OK (compiler exit 0, no compiler errors)
+--- #print axioms output (ricis-jacobian-conjecture-v2.core-check) ---
+'RICIS_Jacobian.det_expansion_single_pass' depends on axioms: [propext]
+'RICIS_Jacobian.RExpr_mul_ne_zeroF' does not depend on any axioms
+'RICIS_Jacobian.jacobian_v1_identity_refuted' depends on axioms: [propext]
+'RICIS_Jacobian.A6_pair_reaches_geometric_measure' depends on axioms: [propext]
+'RICIS_Jacobian.A6_geometric_realization' depends on axioms: [propext]
+'RICIS_Jacobian.A10_mul_zero' depends on axioms: [propext]
+'RICIS_Jacobian.Jacobian_singularity_resolved' depends on axioms: [propext]
+'RICIS_Jacobian.Jacobian_L1_identity' does not depend on any axioms
+--- compiler output tail (ricis-jacobian-conjecture-v2.core-check) ---
+'RICIS_Jacobian.det_expansion_single_pass' depends on axioms: [propext]
+'RICIS_Jacobian.RExpr_mul_ne_zeroF' does not depend on any axioms
+'RICIS_Jacobian.jacobian_v1_identity_refuted' depends on axioms: [propext]
+'RICIS_Jacobian.A6_pair_reaches_geometric_measure' depends on axioms: [propext]
+'RICIS_Jacobian.A6_geometric_realization' depends on axioms: [propext]
+'RICIS_Jacobian.A10_mul_zero' depends on axioms: [propext]
+'RICIS_Jacobian.Jacobian_singularity_resolved' depends on axioms: [propext]
+'RICIS_Jacobian.Jacobian_L1_identity' does not depend on any axioms
+
+=== ricis-jacobian-conjecture.standalone.core-check: lean +4.33.1 artifacts/proofs/core-checks/ricis-jacobian-conjecture.standalone.core-check.lean
+    result: EXPECTED_FAIL (compiler exit 1; первопричина/основание прогноза зафиксированы в core-checks/kernel-findings.json ciPolicy)
+--- #print axioms output (ricis-jacobian-conjecture.standalone.core-check) ---
+'RICIS_Jacobian.Jacobian_singularity_resolved' depends on axioms: [propext, sorryAx]
+'RICIS_Jacobian.Jacobian_L1_identity' does not depend on any axioms
+--- compiler output tail (ricis-jacobian-conjecture.standalone.core-check) ---
+artifacts/proofs/core-checks/ricis-jacobian-conjecture.standalone.core-check.lean:62:2: error: Tactic `rfl` failed: The left-hand side
+  resolveRICIS (F.zeroF.det RExpr.zero RExpr.zero G.infF)
+is not definitionally equal to the right-hand side
+  (F.mul G).sub RExpr.zero.zeroF
+
+F G : RExpr
+⊢ resolveRICIS (F.zeroF.det RExpr.zero RExpr.zero G.infF) = (F.mul G).sub RExpr.zero.zeroF
+'RICIS_Jacobian.Jacobian_singularity_resolved' depends on axioms: [propext, sorryAx]
+'RICIS_Jacobian.Jacobian_L1_identity' does not depend on any axioms
+
+=== ricis-kernel-ast-sp5.standalone.core-check: lean +4.33.1 artifacts/proofs/core-checks/ricis-kernel-ast-sp5.standalone.core-check.lean
+    result: OK (compiler exit 0, no compiler errors, no sorryAx)
+    result: OK (compiler exit 0, no compiler errors)
+--- #print axioms output (ricis-kernel-ast-sp5.standalone.core-check) ---
+'RICIS.KernelAST.SP5.singular_div_identity' depends on axioms: [propext]
+'RICIS.KernelAST.SP5.ricis_reduce_divself' depends on axioms: [propext]
+--- compiler output tail (ricis-kernel-ast-sp5.standalone.core-check) ---
+'RICIS.KernelAST.SP5.singular_div_identity' depends on axioms: [propext]
+'RICIS.KernelAST.SP5.ricis_reduce_divself' depends on axioms: [propext]
+
+=== ricis-navier-stokes-ast-bridge.standalone.core-check: lean +4.33.1 artifacts/proofs/core-checks/ricis-navier-stokes-ast-bridge.standalone.core-check.lean
+    result: OK (compiler exit 0, no compiler errors, no sorryAx)
+    result: OK (compiler exit 0, no compiler errors)
+--- #print axioms output (ricis-navier-stokes-ast-bridge.standalone.core-check) ---
+'RICIS.NavierStokes.singularEnergyBridge_reduced' depends on axioms: [propext]
+'RICIS.NavierStokes.bridge_independent_of_complexity' depends on axioms: [propext]
+--- compiler output tail (ricis-navier-stokes-ast-bridge.standalone.core-check) ---
+'RICIS.NavierStokes.singularEnergyBridge_reduced' depends on axioms: [propext]
+'RICIS.NavierStokes.bridge_independent_of_complexity' depends on axioms: [propext]
+
+=== ricis-riemann-zeta-ast-bridge.standalone.core-check: lean +4.33.1 artifacts/proofs/core-checks/ricis-riemann-zeta-ast-bridge.standalone.core-check.lean
+    result: OK (compiler exit 0, no compiler errors, no sorryAx)
+    result: OK (compiler exit 0, no compiler errors)
+--- #print axioms output (ricis-riemann-zeta-ast-bridge.standalone.core-check) ---
+'RICIS.RiemannZeta.riemann_bridge_reduced' depends on axioms: [propext]
+'RICIS.RiemannZeta.riemann_bridge_independent_of_complexity' depends on axioms: [propext]
+--- compiler output tail (ricis-riemann-zeta-ast-bridge.standalone.core-check) ---
+'RICIS.RiemannZeta.riemann_bridge_reduced' depends on axioms: [propext]
+'RICIS.RiemannZeta.riemann_bridge_independent_of_complexity' depends on axioms: [propext]
+
+=== ricis-seed-expansion-a11.core-check: lean +4.33.1 artifacts/proofs/core-checks/ricis-seed-expansion-a11.core-check.lean
+    result: OK (compiler exit 0, no compiler errors, no sorryAx)
+    result: OK (compiler exit 0, no compiler errors)
+--- #print axioms output (ricis-seed-expansion-a11.core-check) ---
+'RICIS.Seed.monotonic_growth' depends on axioms: [propext]
+'RICIS.Seed.rejection_preserves_generation' depends on axioms: [propext]
+'RICIS.Seed.no_commit_without_proof' depends on axioms: [propext]
+'RICIS.Seed.core_rule_never_commits' depends on axioms: [propext]
+'RICIS.Seed.identity_violation_never_commits' depends on axioms: [propext]
+'RICIS.Seed.identity_ok_preserves_expansion' depends on axioms: [propext]
+--- compiler output tail (ricis-seed-expansion-a11.core-check) ---
+artifacts/proofs/core-checks/ricis-seed-expansion-a11.core-check.lean:229:5: warning: Variable name `hok` is not explicitly referenced.
+
+Hint: The binding can be removed (if unused) or named `_` (if used implicitly). Alternatively, prefix the name with `_` to silence this warning:
+  [apply] _hok
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+'RICIS.Seed.monotonic_growth' depends on axioms: [propext]
+'RICIS.Seed.rejection_preserves_generation' depends on axioms: [propext]
+'RICIS.Seed.no_commit_without_proof' depends on axioms: [propext]
+'RICIS.Seed.core_rule_never_commits' depends on axioms: [propext]
+'RICIS.Seed.identity_violation_never_commits' depends on axioms: [propext]
+'RICIS.Seed.identity_ok_preserves_expansion' depends on axioms: [propext]
+
+=== ricis-universal-orchestration-template.core-check: lean +4.33.1 artifacts/proofs/core-checks/ricis-universal-orchestration-template.core-check.lean
+    result: OK (compiler exit 0, no compiler errors, no sorryAx)
+    result: OK (compiler exit 0, no compiler errors)
+--- #print axioms output (ricis-universal-orchestration-template.core-check) ---
+'RICIS_Template.L1_identity' does not depend on any axioms
+'RICIS_Template.divSelf_one' depends on axioms: [propext]
+'RICIS_Template.SP2_subSelf_zero' depends on axioms: [propext]
+'RICIS_Template.A1_div_zero' depends on axioms: [propext]
+'RICIS_Template.A2_inf_zero_one' depends on axioms: [propext]
+'RICIS_Template.zero_div_zero_step1' depends on axioms: [propext]
+'RICIS_Template.zero_div_zero_step2' depends on axioms: [propext]
+'RICIS_Template.zero_div_zero_one' depends on axioms: [propext]
+'RICIS_Template.A4_indexed_zero_div' depends on axioms: [propext]
+'RICIS_Template.A5_inf_div' depends on axioms: [propext]
+'RICIS_Template.A6_geometric_realization' depends on axioms: [propext]
+'RICIS_Template.A7_inf_sub' depends on axioms: [propext]
+'RICIS_Template.A10_mul_zero' depends on axioms: [propext]
+'RICIS_Template.A10_zero_mul' depends on axioms: [propext]
+'RICIS_Template.L0_continuity_divSelf' depends on axioms: [propext]
+'RICIS_Template.L0_continuity_subSelf' depends on axioms: [propext]
+'RICIS_Template.L0_continuity_A6_rect' depends on axioms: [propext]
+'RICIS_Template.L0_continuity_A6_measure' depends on axioms: [propext]
+'RICIS_Template.SP4_preserves_parent' does not depend on any axioms
+'RICIS_Template.mySystem_4D_resolved' depends on axioms: [propext]
+'RICIS_Template.L0_mySystem_no_discontinuity' depends on axioms: [propext]
+'RICIS_Template.mySystem_steps_4D' depends on axioms: [propext]
+'RICIS_Template.mySystem_error_zero' does not depend on any axioms
+'RICIS_Template.CPU_CUDA_same' depends on axioms: [propext]
+'RICIS_Template.complex_divSelf_one' depends on axioms: [propext]
+'RICIS_Template.complex_subSelf_zero' depends on axioms: [propext]
+'RICIS_Template.RICIS_unified' depends on axioms: [propext]
+--- compiler output tail (ricis-universal-orchestration-template.core-check) ---
+'RICIS_Template.zero_div_zero_one' depends on axioms: [propext]
+'RICIS_Template.A4_indexed_zero_div' depends on axioms: [propext]
+'RICIS_Template.A5_inf_div' depends on axioms: [propext]
+'RICIS_Template.A6_geometric_realization' depends on axioms: [propext]
+'RICIS_Template.A7_inf_sub' depends on axioms: [propext]
+'RICIS_Template.A10_mul_zero' depends on axioms: [propext]
+'RICIS_Template.A10_zero_mul' depends on axioms: [propext]
+'RICIS_Template.L0_continuity_divSelf' depends on axioms: [propext]
+'RICIS_Template.L0_continuity_subSelf' depends on axioms: [propext]
+'RICIS_Template.L0_continuity_A6_rect' depends on axioms: [propext]
+'RICIS_Template.L0_continuity_A6_measure' depends on axioms: [propext]
+'RICIS_Template.SP4_preserves_parent' does not depend on any axioms
+'RICIS_Template.mySystem_4D_resolved' depends on axioms: [propext]
+'RICIS_Template.L0_mySystem_no_discontinuity' depends on axioms: [propext]
+'RICIS_Template.mySystem_steps_4D' depends on axioms: [propext]
+'RICIS_Template.mySystem_error_zero' does not depend on any axioms
+'RICIS_Template.CPU_CUDA_same' depends on axioms: [propext]
+'RICIS_Template.complex_divSelf_one' depends on axioms: [propext]
+'RICIS_Template.complex_subSelf_zero' depends on axioms: [propext]
+'RICIS_Template.RICIS_unified' depends on axioms: [propext]
+
+=== ricis-v79-monolith.standalone.core-check: lean +4.33.1 artifacts/proofs/core-checks/ricis-v79-monolith.standalone.core-check.lean
+    result: OK (compiler exit 0, no compiler errors, no sorryAx)
+    result: OK (compiler exit 0, no compiler errors)
+--- #print axioms output (ricis-v79-monolith.standalone.core-check) ---
+'RICIS_v79.L1_identity' does not depend on any axioms
+'RICIS_v79.divSelf_one' depends on axioms: [propext]
+'RICIS_v79.SP2_subSelf_zero' depends on axioms: [propext]
+'RICIS_v79.A1_div_zero' depends on axioms: [propext]
+'RICIS_v79.A2_inf_zero_one' depends on axioms: [propext]
+'RICIS_v79.zero_div_zero_step1' depends on axioms: [propext]
+'RICIS_v79.zero_div_zero_step2' depends on axioms: [propext]
+'RICIS_v79.zero_div_zero_one' depends on axioms: [propext]
+'RICIS_v79.A4_indexed_zero_div' depends on axioms: [propext]
+'RICIS_v79.A5_inf_div' depends on axioms: [propext]
+'RICIS_v79.A6_geometric_realization' depends on axioms: [propext]
+'RICIS_v79.A7_inf_sub' depends on axioms: [propext]
+'RICIS_v79.A10_mul_zero' depends on axioms: [propext]
+'RICIS_v79.A10_zero_mul' depends on axioms: [propext]
+'RICIS_v79.L0_continuity_divSelf' depends on axioms: [propext]
+'RICIS_v79.L0_continuity_subSelf' depends on axioms: [propext]
+'RICIS_v79.L0_continuity_A6_rect' depends on axioms: [propext]
+'RICIS_v79.L0_continuity_A6_measure' depends on axioms: [propext]
+'RICIS_v79.SP4_preserves_parent' does not depend on any axioms
+'RICIS_v79.ns_R1_resolved' depends on axioms: [propext]
+'RICIS_v79.ns_R2_resolved' depends on axioms: [propext]
+'RICIS_v79.ns_R3_resolved' depends on axioms: [propext]
+'RICIS_v79.ns_Rt_resolved' depends on axioms: [propext]
+'RICIS_v79.ns_4D_resolved' depends on axioms: [propext]
+'RICIS_v79.L0_4D_no_discontinuity' depends on axioms: [propext]
+'RICIS_v79.ns_steps_4D' depends on axioms: [propext]
+'RICIS_v79.ns_error_zero' does not depend on any axioms
+'RICIS_v79.CPU_CUDA_same' depends on axioms: [propext]
+'RICIS_v79.complex_divSelf_one' depends on axioms: [propext]
+'RICIS_v79.complex_subSelf_zero' depends on axioms: [propext]
+'RICIS_v79.RICIS_v79_unified' depends on axioms: [propext]
+--- compiler output tail (ricis-v79-monolith.standalone.core-check) ---
+'RICIS_v79.A7_inf_sub' depends on axioms: [propext]
+'RICIS_v79.A10_mul_zero' depends on axioms: [propext]
+'RICIS_v79.A10_zero_mul' depends on axioms: [propext]
+'RICIS_v79.L0_continuity_divSelf' depends on axioms: [propext]
+'RICIS_v79.L0_continuity_subSelf' depends on axioms: [propext]
+'RICIS_v79.L0_continuity_A6_rect' depends on axioms: [propext]
+'RICIS_v79.L0_continuity_A6_measure' depends on axioms: [propext]
+'RICIS_v79.SP4_preserves_parent' does not depend on any axioms
+'RICIS_v79.ns_R1_resolved' depends on axioms: [propext]
+'RICIS_v79.ns_R2_resolved' depends on axioms: [propext]
+'RICIS_v79.ns_R3_resolved' depends on axioms: [propext]
+'RICIS_v79.ns_Rt_resolved' depends on axioms: [propext]
+'RICIS_v79.ns_4D_resolved' depends on axioms: [propext]
+'RICIS_v79.L0_4D_no_discontinuity' depends on axioms: [propext]
+'RICIS_v79.ns_steps_4D' depends on axioms: [propext]
+'RICIS_v79.ns_error_zero' does not depend on any axioms
+'RICIS_v79.CPU_CUDA_same' depends on axioms: [propext]
+'RICIS_v79.complex_divSelf_one' depends on axioms: [propext]
+'RICIS_v79.complex_subSelf_zero' depends on axioms: [propext]
+'RICIS_v79.RICIS_v79_unified' depends on axioms: [propext]
+
+=== database-a6-minimal-core-check: lean +4.33.1 artifacts/proofs/database-a6-minimal-core-check.lean
+    result: OK (compiler exit 0, no compiler errors, no sorryAx)
+    result: OK (compiler exit 0, no compiler errors)
+--- #print axioms output (database-a6-minimal-core-check) ---
+'RICIS3.MinimalA6Check.Regression.database_a6_bridge' does not depend on any axioms
+--- compiler output tail (database-a6-minimal-core-check) ---
+'RICIS3.MinimalA6Check.Regression.database_a6_bridge' does not depend on any axioms
+
+--- not checked (require a Mathlib build; remain REQUIRES_CORE_LEAN) ---
+  RicisAgiTarget.lean: import(s) present — no pinned Mathlib build available on this runner
+  Schwarzschild_GeometricBridge.lean: import(s) present — no pinned Mathlib build available on this runner
+  database-a6-0_5_inf_3.standalone.lean: import(s) present — no pinned Mathlib build available on this runner
+  database-registry-120-jacobian.standalone.lean: import(s) present — no pinned Mathlib build available on this runner
+  jacobian-counterexample-full.lean: import(s) present — no pinned Mathlib build available on this runner
+  ricis-backend-exact-reduction.standalone.lean: import(s) present — no pinned Mathlib build available on this runner
+  ricis-chatbot-monetization.lean: import(s) present — no pinned Mathlib build available on this runner
+  ricis-general-resolution-v3.lean: import(s) present — no pinned Mathlib build available on this runner
+  ricis-general-resolution-v4.lean: import(s) present — no pinned Mathlib build available on this runner
+  ricis-general-resolution.lean: import(s) present — no pinned Mathlib build available on this runner
+  ricis-jacobian-conjecture-v2.lean: import(s) present — no pinned Mathlib build available on this runner
+  ricis-jacobian-conjecture.standalone.lean: import(s) present — no pinned Mathlib build available on this runner
+  ricis-kernel-ast-sp5.standalone.lean: import(s) present — no pinned Mathlib build available on this runner
+  ricis-navier-stokes-ast-bridge.standalone.lean: import(s) present — no pinned Mathlib build available on this runner
+  ricis-riemann-zeta-ast-bridge.standalone.lean: import(s) present — no pinned Mathlib build available on this runner
+  ricis-seed-expansion-a11.lean: import(s) present — no pinned Mathlib build available on this runner
+  ricis-universal-orchestration-template.lean: import(s) present — no pinned Mathlib build available on this runner
+  ricis-v79-monolith.standalone.lean: import(s) present — no pinned Mathlib build available on this runner
+  ricis-yang-mills-v2.lean: import(s) present — no pinned Mathlib build available on this runner
+  ricis-yang-mills.lean: import(s) present — no pinned Mathlib build available on this runner
+--- sha256.txt ---
+4002d1c900271d7526f8b455c277f32a91ac99a613e55d8d25f09edcd7860073  artifacts/proofs/RicisAgiTarget.lean
+1df6b21df93cf2e5e822156a151929d849dd553979ef32c8992045d2a5b3de63  artifacts/proofs/Schwarzschild_GeometricBridge.lean
+cc4097efd4aca8aea0061738fd02078ea87d91af0a59726e03baaf7612245e62  artifacts/proofs/database-a6-0_5-inf_3.generated.lean
+963f701f3c87f7994f3784944250b46df5026e71be4ae8279bf41cf4d4e99d2c  artifacts/proofs/database-a6-0_5_inf_3.standalone.lean
+502e8a3852dae2e7aa78a92157be031f120c7f22fc4a01daf87ca83fe9f2d5c2  artifacts/proofs/database-a6-minimal-core-check.lean
+adde2c29a7ac44592a611678f1e1a9630fc73f131ac3663b5e7eb219bd64bbde  artifacts/proofs/database-registry-120-jacobian.generated.lean
+4d974e643b4480169897685d21254e10ca607416912e43275491c6dd3cdd1617  artifacts/proofs/database-registry-120-jacobian.standalone.lean
+e6ab1b1db54ff04cdc3fb5a647cb6beedd7daba84bcd1272b51123519244339a  artifacts/proofs/jacobian-counterexample-full.lean
+7607fe7bb27a55c68c9120fe9c5a8c2f693eb5a83c57b0c2ce9a8e5897947c2d  artifacts/proofs/ricis-backend-exact-reduction.standalone.lean
+f48f78a3021e94314b5e73729b92721ac10d38b867fca6a18d01aa3dac3c1c2a  artifacts/proofs/ricis-chatbot-monetization.lean
+fb792af15e8d4f2c090940a5430a26a0c696ad028200d8c2c6a4b8771058b44a  artifacts/proofs/ricis-general-resolution-v3.lean
+1e89cbc83d2c06a8abffcf5e59b4d88b83a02bf35909ce59306660cace0be3a3  artifacts/proofs/ricis-general-resolution-v4.lean
+e92ebe52a85af838205a6bdb950ff4517f959cbfc4f38c1d0e7c4cb65cc35db3  artifacts/proofs/ricis-general-resolution.lean
+cc7d8d44551e4120bda8b504b3ad6cbcb99734ac3a0a1809139cff25ae20b364  artifacts/proofs/ricis-jacobian-conjecture-v2.lean
+2e043f2738df8d8b02754aebb5fa93580fb87e6cc71733557c620c463c4de56b  artifacts/proofs/ricis-jacobian-conjecture.standalone.lean
+6ee144b7e438a112b1590c65625da5b88baf615cb53315f52b6935d91cacda57  artifacts/proofs/ricis-kernel-ast-sp5.standalone.lean
+85edafc2dd5fdcd3fc694cd246f8faf9337e9b036fe05f9fcd105b95cc6cc77a  artifacts/proofs/ricis-navier-stokes-ast-bridge.standalone.lean
+85fd84aca47bf193245a65617c64a5d5b47c101863e868d3260b1e71e4c9798b  artifacts/proofs/ricis-riemann-zeta-ast-bridge.standalone.lean
+368dc0359e3f37391e3e830fc1abf9107b8e3f1f37d0a7f3ac6d2b3bc36839f2  artifacts/proofs/ricis-seed-expansion-a11.lean
+cebe44f3e058d6d68b9b6df267300162aa53d4ce5730e3e98d623991a4363849  artifacts/proofs/ricis-universal-orchestration-template.lean
+fbd99bbdefd05aaff83fe4325377681f7e3b7099a3c9f5234b3ff4def86077e2  artifacts/proofs/ricis-v79-monolith.standalone.lean
+cfac8b97f3051366b77b6fe09ab92c02d674861b5c5f42b408e647f1631579bf  artifacts/proofs/ricis-yang-mills-v2.lean
+a191db2b9195dad0d0610d66fa8eeb5f0179f1166f48c9546c27239c5f273dbe  artifacts/proofs/ricis-yang-mills.lean
+721b505ef6cbdc39e3c2e5e14935db2267fe33ce75dd3fed8e70e4acd1f63679  artifacts/proofs/core-checks/Schwarzschild_GeometricBridge.core-check.lean
+6492bb813a4d70b49b5b6af7c82ed178fcf55de5de5bd4e7993ae97de276813d  artifacts/proofs/core-checks/database-a6-0_5_inf_3.standalone.core-check.lean
+90af6930a987316c331a0f5b0e4e15e07650a1d489dacc91073c330803816c9e  artifacts/proofs/core-checks/database-registry-120-jacobian.standalone.core-check.lean
+25bbc11959ca575e3edc344990685f8e2e50821aa2d45f9301fb28cac3fd3994  artifacts/proofs/core-checks/ricis-backend-exact-reduction.standalone.core-check.lean
+af73d37fb95d78711601fa1e41463e8001ac10d72284d0a72ad1f6a256a25c6c  artifacts/proofs/core-checks/ricis-chatbot-monetization.core-check.lean
+15728ca63e9b0dc66501d185c07f53288cbd2c29bf89b66137a05b0d8590103c  artifacts/proofs/core-checks/ricis-jacobian-conjecture-v2.core-check.lean
+31d5c137f4b738460e43ef3b7dc9627c3be92c91a9f275ee4015f87642ed8fd8  artifacts/proofs/core-checks/ricis-jacobian-conjecture.standalone.core-check.lean
+894d8278d035a8fc123b7c3d7719db6b4d947ea44ef6623c548579a05361b129  artifacts/proofs/core-checks/ricis-kernel-ast-sp5.standalone.core-check.lean
+2dad043dcd107e389609accddea30422cb98607d016d654b2d834829d03b026a  artifacts/proofs/core-checks/ricis-navier-stokes-ast-bridge.standalone.core-check.lean
+c2b705e97d019630dd1becb7691583a693fbd56862fa9e038970f60310a16cec  artifacts/proofs/core-checks/ricis-riemann-zeta-ast-bridge.standalone.core-check.lean
+c92cf224a95c1f75432e27177323ce7dacc782cb52e63ecc795850f2ac5a911d  artifacts/proofs/core-checks/ricis-seed-expansion-a11.core-check.lean
+fa6eb66d90b5202a7fbd1920c784585b1cf408634564f6b6faf3e0e271654195  artifacts/proofs/core-checks/ricis-universal-orchestration-template.core-check.lean
+f8d7487b79e8557534c0f50fb2654e3a6578644b70375b38a4b145b4461600dd  artifacts/proofs/core-checks/ricis-v79-monolith.standalone.core-check.lean
+--- full compiler log: Schwarzschild_GeometricBridge.core-check ---
+'RICIS3.SchwarzschildBridge.l1_trivial' does not depend on any axioms
+'RICIS3.SchwarzschildBridge.sp4_no_silent_collapse' does not depend on any axioms
+'RICIS3.SchwarzschildBridge.preservesPath_iff' does not depend on any axioms
+'RICIS3.SchwarzschildBridge.measure_eq_mul' does not depend on any axioms
+'RICIS3.SchwarzschildBridge.a6_product_eq_mul' does not depend on any axioms
+'RICIS3.SchwarzschildBridge.a6_product_self' does not depend on any axioms
+'RICIS3.SchwarzschildBridge.a6_ratio_proxy_def' does not depend on any axioms
+'RICIS3.SchwarzschildBridge.eval_product_ok' depends on axioms: [propext]
+'RICIS3.SchwarzschildBridge.eval_product_none_foreign' depends on axioms: [propext]
+'RICIS3.SchwarzschildBridge.eval_ratio_ok' depends on axioms: [propext]
+'RICIS3.SchwarzschildBridge.eval_ratio_none_foreign' depends on axioms: [propext]
+--- full compiler log: database-a6-0_5_inf_3.standalone.core-check ---
+artifacts/proofs/core-checks/database-a6-0_5_inf_3.standalone.core-check.lean:178:11: warning: Variable name `g` is not explicitly referenced.
+
+Hint: The binding can be removed (if unused) or named `_` (if used implicitly). Alternatively, prefix the name with `_` to silence this warning:
+  [apply] _g
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+artifacts/proofs/core-checks/database-a6-0_5_inf_3.standalone.core-check.lean:223:6: warning: try 'simp' instead of 'simpa'
+
+Note: This linter can be disabled with `set_option linter.unnecessarySimpa false`
+artifacts/proofs/core-checks/database-a6-0_5_inf_3.standalone.core-check.lean:227:6: warning: try 'simp' instead of 'simpa'
+
+Note: This linter can be disabled with `set_option linter.unnecessarySimpa false`
+'RICIS3.GeneratedDatabaseProof.generated_claim_is_a6_bridge' does not depend on any axioms
+'RICIS3.GeneratedDatabaseProof.generated_claim_indices_are_finite' depends on axioms: [propext]
+'RICIS3.ExtendedKernel.RExpr.sp3_zero_valid' depends on axioms: [propext]
+'RICIS3.ExtendedKernel.RExpr.sp3_inf_valid' depends on axioms: [propext]
+'RICIS3.ExtendedKernel.RExpr.l0_payload_preserved' does not depend on any axioms
+'RICIS3.ExtendedKernel.RExpr.l1_identity' does not depend on any axioms
+'RICIS3.ExtendedKernel.RExpr.sp2_common_right' does not depend on any axioms
+'RICIS3.ExtendedKernel.RExpr.sp2_common_left' does not depend on any axioms
+'RICIS3.ExtendedKernel.RExpr.o1_bridge_mul_zero' does not depend on any axioms
+'RICIS3.ExtendedKernel.RExpr.o1_bridge_div_zero' does not depend on any axioms
+'RICIS3.ExtendedKernel.RExpr.a1_indexed_infinity' does not depend on any axioms
+'RICIS3.ExtendedKernel.RExpr.a4_distinct_payload' does not depend on any axioms
+'RICIS3.ExtendedKernel.RExpr.a4_same_identity' does not depend on any axioms
+'RICIS3.ExtendedKernel.RExpr.sp4_retains_source' does not depend on any axioms
+'RICIS3.ExtendedKernel.RExpr.a5_distinct_payload' does not depend on any axioms
+'RICIS3.ExtendedKernel.RExpr.a6_geometric_bridge' does not depend on any axioms
+'RICIS3.ExtendedKernel.RExpr.a6_coupled_reciprocal' does not depend on any axioms
+'RICIS3.ExtendedKernel.RExpr.fallback_requires_gate' does not depend on any axioms
+'RICIS3.ExtendedKernel.RExpr.priority_blocks_fallback' does not depend on any axioms
+'RICIS3.GeneratedDatabaseProof.generated_claim_is_a6_bridge' does not depend on any axioms
+'RICIS3.GeneratedDatabaseProof.generated_claim_indices_are_finite' depends on axioms: [propext]
+--- full compiler log: database-registry-120-jacobian.standalone.core-check ---
+artifacts/proofs/core-checks/database-registry-120-jacobian.standalone.core-check.lean:178:11: warning: Variable name `g` is not explicitly referenced.
+
+Hint: The binding can be removed (if unused) or named `_` (if used implicitly). Alternatively, prefix the name with `_` to silence this warning:
+  [apply] _g
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+artifacts/proofs/core-checks/database-registry-120-jacobian.standalone.core-check.lean:223:6: warning: try 'simp' instead of 'simpa'
+
+Note: This linter can be disabled with `set_option linter.unnecessarySimpa false`
+artifacts/proofs/core-checks/database-registry-120-jacobian.standalone.core-check.lean:227:6: warning: try 'simp' instead of 'simpa'
+
+Note: This linter can be disabled with `set_option linter.unnecessarySimpa false`
+'RICIS3.GeneratedJacobianRegistry120.jacobian_registry120_a6_bridge' does not depend on any axioms
+'RICIS3.GeneratedJacobianRegistry120.jacobian_registry120_indices_valid' depends on axioms: [propext]
+'RICIS3.ExtendedKernel.RExpr.sp3_zero_valid' depends on axioms: [propext]
+'RICIS3.ExtendedKernel.RExpr.sp3_inf_valid' depends on axioms: [propext]
+'RICIS3.ExtendedKernel.RExpr.l0_payload_preserved' does not depend on any axioms
+'RICIS3.ExtendedKernel.RExpr.l1_identity' does not depend on any axioms
+'RICIS3.ExtendedKernel.RExpr.sp2_common_right' does not depend on any axioms
+'RICIS3.ExtendedKernel.RExpr.sp2_common_left' does not depend on any axioms
+'RICIS3.ExtendedKernel.RExpr.o1_bridge_mul_zero' does not depend on any axioms
+'RICIS3.ExtendedKernel.RExpr.o1_bridge_div_zero' does not depend on any axioms
+'RICIS3.ExtendedKernel.RExpr.a1_indexed_infinity' does not depend on any axioms
+'RICIS3.ExtendedKernel.RExpr.a4_distinct_payload' does not depend on any axioms
+'RICIS3.ExtendedKernel.RExpr.a4_same_identity' does not depend on any axioms
+'RICIS3.ExtendedKernel.RExpr.sp4_retains_source' does not depend on any axioms
+'RICIS3.ExtendedKernel.RExpr.a5_distinct_payload' does not depend on any axioms
+'RICIS3.ExtendedKernel.RExpr.a6_geometric_bridge' does not depend on any axioms
+'RICIS3.ExtendedKernel.RExpr.a6_coupled_reciprocal' does not depend on any axioms
+'RICIS3.ExtendedKernel.RExpr.fallback_requires_gate' does not depend on any axioms
+'RICIS3.ExtendedKernel.RExpr.priority_blocks_fallback' does not depend on any axioms
+'RICIS3.GeneratedJacobianRegistry120.jacobian_registry120_a6_bridge' does not depend on any axioms
+'RICIS3.GeneratedJacobianRegistry120.jacobian_registry120_indices_valid' depends on axioms: [propext]
+--- full compiler log: ricis-backend-exact-reduction.standalone.core-check ---
+'RICIS.identity' depends on axioms: [propext]
+'RICIS.structure_irrelevant' depends on axioms: [propext]
+'RICIS.selfDivision_one_step' depends on axioms: [propext]
+'RICIS.reduction_independent_of_size' depends on axioms: [propext]
+'RICIS.selfDivision_eliminated' depends on axioms: [propext]
+'RICIS.eliminated_error_zero' does not depend on any axioms
+'RICIS.eliminated_error_independent_of_size' does not depend on any axioms
+'RICIS.complex_selfDivision' depends on axioms: [propext]
+'RICIS.complex_eliminated_error' does not depend on any axioms
+'RICIS.repeated_selfDivision' depends on axioms: [propext]
+'RICIS.repeated_error_zero' does not depend on any axioms
+'RICIS.billion_iterations_zero_error' does not depend on any axioms
+'RICIS.error_independent_of_iterations' does not depend on any axioms
+'RICIS.prepare_selfDivision' depends on axioms: [propext]
+'RICIS.execute_prepared_selfDivision' depends on axioms: [propext]
+'RICIS.CPU_correct' depends on axioms: [propext]
+'RICIS.CUDA_correct' depends on axioms: [propext]
+'RICIS.CPU_CUDA_same_semantics' depends on axioms: [propext]
+'RICIS.selfDivision_CPU' depends on axioms: [propext]
+'RICIS.selfDivision_CUDA' depends on axioms: [propext]
+'RICIS.selfDivision_all_backends' depends on axioms: [propext]
+'RICIS.RICIS_exact_structural_reduction' depends on axioms: [propext]
+--- full compiler log: ricis-chatbot-monetization.core-check ---
+'RICIS_Monetization.Chatbot_Monetization_Resolution' depends on axioms: [propext]
+'RICIS_Monetization.L1_identity' does not depend on any axioms
+--- full compiler log: ricis-jacobian-conjecture-v2.core-check ---
+'RICIS_Jacobian.det_expansion_single_pass' depends on axioms: [propext]
+'RICIS_Jacobian.RExpr_mul_ne_zeroF' does not depend on any axioms
+'RICIS_Jacobian.jacobian_v1_identity_refuted' depends on axioms: [propext]
+'RICIS_Jacobian.A6_pair_reaches_geometric_measure' depends on axioms: [propext]
+'RICIS_Jacobian.A6_geometric_realization' depends on axioms: [propext]
+'RICIS_Jacobian.A10_mul_zero' depends on axioms: [propext]
+'RICIS_Jacobian.Jacobian_singularity_resolved' depends on axioms: [propext]
+'RICIS_Jacobian.Jacobian_L1_identity' does not depend on any axioms
+--- full compiler log: ricis-jacobian-conjecture.standalone.core-check ---
+artifacts/proofs/core-checks/ricis-jacobian-conjecture.standalone.core-check.lean:62:2: error: Tactic `rfl` failed: The left-hand side
+  resolveRICIS (F.zeroF.det RExpr.zero RExpr.zero G.infF)
+is not definitionally equal to the right-hand side
+  (F.mul G).sub RExpr.zero.zeroF
+
+F G : RExpr
+⊢ resolveRICIS (F.zeroF.det RExpr.zero RExpr.zero G.infF) = (F.mul G).sub RExpr.zero.zeroF
+'RICIS_Jacobian.Jacobian_singularity_resolved' depends on axioms: [propext, sorryAx]
+'RICIS_Jacobian.Jacobian_L1_identity' does not depend on any axioms
+--- full compiler log: ricis-kernel-ast-sp5.standalone.core-check ---
+'RICIS.KernelAST.SP5.singular_div_identity' depends on axioms: [propext]
+'RICIS.KernelAST.SP5.ricis_reduce_divself' depends on axioms: [propext]
+--- full compiler log: ricis-navier-stokes-ast-bridge.standalone.core-check ---
+'RICIS.NavierStokes.singularEnergyBridge_reduced' depends on axioms: [propext]
+'RICIS.NavierStokes.bridge_independent_of_complexity' depends on axioms: [propext]
+--- full compiler log: ricis-riemann-zeta-ast-bridge.standalone.core-check ---
+'RICIS.RiemannZeta.riemann_bridge_reduced' depends on axioms: [propext]
+'RICIS.RiemannZeta.riemann_bridge_independent_of_complexity' depends on axioms: [propext]
+--- full compiler log: ricis-seed-expansion-a11.core-check ---
+artifacts/proofs/core-checks/ricis-seed-expansion-a11.core-check.lean:229:5: warning: Variable name `hok` is not explicitly referenced.
+
+Hint: The binding can be removed (if unused) or named `_` (if used implicitly). Alternatively, prefix the name with `_` to silence this warning:
+  [apply] _hok
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+'RICIS.Seed.monotonic_growth' depends on axioms: [propext]
+'RICIS.Seed.rejection_preserves_generation' depends on axioms: [propext]
+'RICIS.Seed.no_commit_without_proof' depends on axioms: [propext]
+'RICIS.Seed.core_rule_never_commits' depends on axioms: [propext]
+'RICIS.Seed.identity_violation_never_commits' depends on axioms: [propext]
+'RICIS.Seed.identity_ok_preserves_expansion' depends on axioms: [propext]
+--- full compiler log: ricis-universal-orchestration-template.core-check ---
+'RICIS_Template.L1_identity' does not depend on any axioms
+'RICIS_Template.divSelf_one' depends on axioms: [propext]
+'RICIS_Template.SP2_subSelf_zero' depends on axioms: [propext]
+'RICIS_Template.A1_div_zero' depends on axioms: [propext]
+'RICIS_Template.A2_inf_zero_one' depends on axioms: [propext]
+'RICIS_Template.zero_div_zero_step1' depends on axioms: [propext]
+'RICIS_Template.zero_div_zero_step2' depends on axioms: [propext]
+'RICIS_Template.zero_div_zero_one' depends on axioms: [propext]
+'RICIS_Template.A4_indexed_zero_div' depends on axioms: [propext]
+'RICIS_Template.A5_inf_div' depends on axioms: [propext]
+'RICIS_Template.A6_geometric_realization' depends on axioms: [propext]
+'RICIS_Template.A7_inf_sub' depends on axioms: [propext]
+'RICIS_Template.A10_mul_zero' depends on axioms: [propext]
+'RICIS_Template.A10_zero_mul' depends on axioms: [propext]
+'RICIS_Template.L0_continuity_divSelf' depends on axioms: [propext]
+'RICIS_Template.L0_continuity_subSelf' depends on axioms: [propext]
+'RICIS_Template.L0_continuity_A6_rect' depends on axioms: [propext]
+'RICIS_Template.L0_continuity_A6_measure' depends on axioms: [propext]
+'RICIS_Template.SP4_preserves_parent' does not depend on any axioms
+'RICIS_Template.mySystem_4D_resolved' depends on axioms: [propext]
+'RICIS_Template.L0_mySystem_no_discontinuity' depends on axioms: [propext]
+'RICIS_Template.mySystem_steps_4D' depends on axioms: [propext]
+'RICIS_Template.mySystem_error_zero' does not depend on any axioms
+'RICIS_Template.CPU_CUDA_same' depends on axioms: [propext]
+'RICIS_Template.complex_divSelf_one' depends on axioms: [propext]
+'RICIS_Template.complex_subSelf_zero' depends on axioms: [propext]
+'RICIS_Template.RICIS_unified' depends on axioms: [propext]
+--- full compiler log: ricis-v79-monolith.standalone.core-check ---
+artifacts/proofs/core-checks/ricis-v79-monolith.standalone.core-check.lean:191:17: warning: Variable name `p` is not explicitly referenced.
+
+Hint: The binding can be removed (if unused) or named `_` (if used implicitly). Alternatively, prefix the name with `_` to silence this warning:
+  [apply] _p
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+artifacts/proofs/core-checks/ricis-v79-monolith.standalone.core-check.lean:212:36: warning: Variable name `p` is not explicitly referenced.
+
+Hint: The binding can be removed (if unused) or named `_` (if used implicitly). Alternatively, prefix the name with `_` to silence this warning:
+  [apply] _p
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+artifacts/proofs/core-checks/ricis-v79-monolith.standalone.core-check.lean:223:36: warning: Variable name `p` is not explicitly referenced.
+
+Hint: The binding can be removed (if unused) or named `_` (if used implicitly). Alternatively, prefix the name with `_` to silence this warning:
+  [apply] _p
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+artifacts/proofs/core-checks/ricis-v79-monolith.standalone.core-check.lean:234:36: warning: Variable name `p` is not explicitly referenced.
+
+Hint: The binding can be removed (if unused) or named `_` (if used implicitly). Alternatively, prefix the name with `_` to silence this warning:
+  [apply] _p
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+artifacts/proofs/core-checks/ricis-v79-monolith.standalone.core-check.lean:245:28: warning: Variable name `u_y` is not explicitly referenced.
+
+Hint: The binding can be removed (if unused) or named `_` (if used implicitly). Alternatively, prefix the name with `_` to silence this warning:
+  [apply] _u_y
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+artifacts/proofs/core-checks/ricis-v79-monolith.standalone.core-check.lean:245:32: warning: Variable name `u_z` is not explicitly referenced.
+
+Hint: The binding can be removed (if unused) or named `_` (if used implicitly). Alternatively, prefix the name with `_` to silence this warning:
+  [apply] _u_z
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+artifacts/proofs/core-checks/ricis-v79-monolith.standalone.core-check.lean:245:36: warning: Variable name `p` is not explicitly referenced.
+
+Hint: The binding can be removed (if unused) or named `_` (if used implicitly). Alternatively, prefix the name with `_` to silence this warning:
+  [apply] _p
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+artifacts/proofs/core-checks/ricis-v79-monolith.standalone.core-check.lean:245:48: warning: Variable name `nu` is not explicitly referenced.
+
+Hint: The binding can be removed (if unused) or named `_` (if used implicitly). Alternatively, prefix the name with `_` to silence this warning:
+  [apply] _nu
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+'RICIS_v79.L1_identity' does not depend on any axioms
+'RICIS_v79.divSelf_one' depends on axioms: [propext]
+'RICIS_v79.SP2_subSelf_zero' depends on axioms: [propext]
+'RICIS_v79.A1_div_zero' depends on axioms: [propext]
+'RICIS_v79.A2_inf_zero_one' depends on axioms: [propext]
+'RICIS_v79.zero_div_zero_step1' depends on axioms: [propext]
+'RICIS_v79.zero_div_zero_step2' depends on axioms: [propext]
+'RICIS_v79.zero_div_zero_one' depends on axioms: [propext]
+'RICIS_v79.A4_indexed_zero_div' depends on axioms: [propext]
+'RICIS_v79.A5_inf_div' depends on axioms: [propext]
+'RICIS_v79.A6_geometric_realization' depends on axioms: [propext]
+'RICIS_v79.A7_inf_sub' depends on axioms: [propext]
+'RICIS_v79.A10_mul_zero' depends on axioms: [propext]
+'RICIS_v79.A10_zero_mul' depends on axioms: [propext]
+'RICIS_v79.L0_continuity_divSelf' depends on axioms: [propext]
+'RICIS_v79.L0_continuity_subSelf' depends on axioms: [propext]
+'RICIS_v79.L0_continuity_A6_rect' depends on axioms: [propext]
+'RICIS_v79.L0_continuity_A6_measure' depends on axioms: [propext]
+'RICIS_v79.SP4_preserves_parent' does not depend on any axioms
+'RICIS_v79.ns_R1_resolved' depends on axioms: [propext]
+'RICIS_v79.ns_R2_resolved' depends on axioms: [propext]
+'RICIS_v79.ns_R3_resolved' depends on axioms: [propext]
+'RICIS_v79.ns_Rt_resolved' depends on axioms: [propext]
+'RICIS_v79.ns_4D_resolved' depends on axioms: [propext]
+'RICIS_v79.L0_4D_no_discontinuity' depends on axioms: [propext]
+'RICIS_v79.ns_steps_4D' depends on axioms: [propext]
+'RICIS_v79.ns_error_zero' does not depend on any axioms
+'RICIS_v79.CPU_CUDA_same' depends on axioms: [propext]
+'RICIS_v79.complex_divSelf_one' depends on axioms: [propext]
+'RICIS_v79.complex_subSelf_zero' depends on axioms: [propext]
+'RICIS_v79.RICIS_v79_unified' depends on axioms: [propext]
+--- full compiler log: database-a6-minimal-core-check ---
+'RICIS3.MinimalA6Check.Regression.database_a6_bridge' does not depend on any axioms
+```
+

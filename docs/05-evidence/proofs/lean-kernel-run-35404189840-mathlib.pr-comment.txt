@@ -1,0 +1,599 @@
+### Lean kernel evidence (pinned Mathlib) — run `35404189840`
+
+Job outcome: `success`
+
+Toolchain: `leanprover/lean4:v4.33.0`, Mathlib @ `6f1ef4e5dd604a435bddba4747b13970cd65d2a1`. Command: `(cd mathlib-check && lake env lean <artifact>)` for the artifact as provided and for its generated `mathlib-check` derivative (byte-identical body + additive `#print axioms` epilogue).
+
+```text
+--- toolchain.txt ---
+Lean kernel run with Mathlib — 2026-09-18T23:05:51Z
+toolchain: leanprover/lean4 (mathlib lean-toolchain)
+command: (cd mathlib-check && lake env lean <file>)
+host: ubuntu-latest (GitHub Actions)
+--- summary.txt ---
+--- environment diagnostics ---
+pwd: /home/runner/work/Ricis3-Expansion-Map/Ricis3-Expansion-Map
+MATHLIB_ARTIFACTS: artifacts/proofs/ricis-general-resolution.lean artifacts/proofs/ricis-general-resolution-v3.lean artifacts/proofs/ricis-general-resolution-v4.lean artifacts/proofs/ricis-yang-mills-v2.lean artifacts/proofs/RicisAgiTarget.lean artifacts/proofs/jacobian-counterexample-full.lean
+LEAN_PROJECT_DIR: mathlib-check
+MATHLIB_CHECK_DIR: artifacts/proofs/mathlib-checks
+which lean: /home/runner/.elan/bin/lean
+global default toolchain (NOT used for compilation):
+    Lean (version 4.33.1, x86_64-unknown-linux-gnu, commit 819816b2e0a3bf405af45ae5c7af2491d8f5bee6, Release)
+effective toolchain in mathlib-check (used for compilation):
+    lean-toolchain file: leanprover/lean4:v4.33.0
+    Lean (version 4.33.0, x86_64-unknown-linux-gnu, commit d8b18978322de05a8f3dba51ef03cf5461676c17, Release)
+disk: /dev/root       145G   72G   73G  50% /
+=== RicisAgiTarget: source as provided + generated mathlib-check derivative
+    integrity: OK (производная побайтово выведена из этого исходника)
+    result: OK (source exit 0, derivative exit 0, no compiler errors)
+--- #print axioms output (RicisAgiTarget) ---
+'RICIS3.AgiTarget.detBridge_eq_mul' depends on axioms: [propext, Classical.choice, Quot.sound]
+'RICIS3.AgiTarget.sp4_no_silent_collapse' depends on axioms: [propext, Classical.choice, Quot.sound]
+'RICIS3.AgiTarget.evaluateGoal_eq_product' depends on axioms: [propext, Classical.choice, Quot.sound]
+--- compiler output tail (RicisAgiTarget) ---
+--- source (as provided, immutable): artifacts/proofs/RicisAgiTarget.lean
+$ (cd mathlib-check && lake env lean artifacts/proofs/RicisAgiTarget.lean)
+--- declared axiom contracts in the source (trusted, NOT proven by this run) ---
+  (none)
+--- generated derivative (source + #print axioms epilogue): artifacts/proofs/mathlib-checks/RicisAgiTarget.mathlib-check.lean
+--- integrity: derivative prefix vs immutable source ---
+source sha256            : 4002d1c900271d7526f8b455c277f32a91ac99a613e55d8d25f09edcd7860073
+sha256 recorded in epilogue: 4002d1c900271d7526f8b455c277f32a91ac99a613e55d8d25f09edcd7860073
+byte-for-byte prefix: OK (тело производной = исходник без изменений)
+$ (cd mathlib-check && lake env lean artifacts/proofs/mathlib-checks/RicisAgiTarget.mathlib-check.lean)
+'RICIS3.AgiTarget.detBridge_eq_mul' depends on axioms: [propext, Classical.choice, Quot.sound]
+'RICIS3.AgiTarget.sp4_no_silent_collapse' depends on axioms: [propext, Classical.choice, Quot.sound]
+'RICIS3.AgiTarget.evaluateGoal_eq_product' depends on axioms: [propext, Classical.choice, Quot.sound]
+
+=== jacobian-counterexample-full: source as provided + generated mathlib-check derivative
+    integrity: OK (производная побайтово выведена из этого исходника)
+    result: OK (source exit 0, derivative exit 0, no compiler errors)
+--- #print axioms output (jacobian-counterexample-full) ---
+'JacobianCounterexample.full_jacobian_counterexample' depends on axioms: [propext, Classical.choice, Quot.sound]
+'JacobianCounterexample.trusted_contract_no_left_inverse' depends on axioms: [propext,
+'JacobianCounterexample.full_jacobian_counterexample' depends on axioms: [propext, Classical.choice, Quot.sound]
+'JacobianCounterexample.trusted_contract_no_left_inverse' depends on axioms: [propext,
+'JacobianCounterexample.jacobian_entries_match_formal_partials' depends on axioms: [propext,
+'JacobianCounterexample.jacobian_det_is_constant' depends on axioms: [propext, Classical.choice, Quot.sound]
+'JacobianCounterexample.point_a_maps_to' depends on axioms: [propext, Classical.choice, Quot.sound]
+'JacobianCounterexample.point_b_maps_to' depends on axioms: [propext, Classical.choice, Quot.sound]
+'JacobianCounterexample.point_c_maps_to' depends on axioms: [propext, Classical.choice, Quot.sound]
+'JacobianCounterexample.points_are_distinct' depends on axioms: [propext, Classical.choice, Quot.sound]
+'JacobianCounterexample.field_is_noninjective' depends on axioms: [propext, Classical.choice, Quot.sound]
+'JacobianCounterexample.no_left_inverse' depends on axioms: [propext, Classical.choice, Quot.sound]
+'JacobianCounterexample.full_jacobian_counterexample' depends on axioms: [propext, Classical.choice, Quot.sound]
+'JacobianCounterexample.trusted_contract_no_left_inverse' depends on axioms: [propext,
+'JacobianCounterexample.trusted_full_jacobian_contract' depends on axioms: [propext,
+--- compiler output tail (jacobian-counterexample-full) ---
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+'JacobianCounterexample.full_jacobian_counterexample' depends on axioms: [propext, Classical.choice, Quot.sound]
+'JacobianCounterexample.trusted_contract_no_left_inverse' depends on axioms: [propext,
+ Classical.choice,
+ trusted_full_jacobian_contract,
+ Quot.sound]
+'JacobianCounterexample.jacobian_entries_match_formal_partials' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'JacobianCounterexample.jacobian_det_is_constant' depends on axioms: [propext, Classical.choice, Quot.sound]
+'JacobianCounterexample.point_a_maps_to' depends on axioms: [propext, Classical.choice, Quot.sound]
+'JacobianCounterexample.point_b_maps_to' depends on axioms: [propext, Classical.choice, Quot.sound]
+'JacobianCounterexample.point_c_maps_to' depends on axioms: [propext, Classical.choice, Quot.sound]
+'JacobianCounterexample.points_are_distinct' depends on axioms: [propext, Classical.choice, Quot.sound]
+'JacobianCounterexample.field_is_noninjective' depends on axioms: [propext, Classical.choice, Quot.sound]
+'JacobianCounterexample.no_left_inverse' depends on axioms: [propext, Classical.choice, Quot.sound]
+'JacobianCounterexample.full_jacobian_counterexample' depends on axioms: [propext, Classical.choice, Quot.sound]
+'JacobianCounterexample.trusted_contract_no_left_inverse' depends on axioms: [propext,
+ Classical.choice,
+ JacobianCounterexample.trusted_full_jacobian_contract,
+ Quot.sound]
+'JacobianCounterexample.trusted_full_jacobian_contract' depends on axioms: [propext,
+ Classical.choice,
+ JacobianCounterexample.trusted_full_jacobian_contract,
+ Quot.sound]
+
+=== ricis-general-resolution-v3: source as provided + generated mathlib-check derivative
+    integrity: OK (производная побайтово выведена из этого исходника)
+    result: OK (source exit 0, derivative exit 0, no compiler errors)
+--- #print axioms output (ricis-general-resolution-v3) ---
+'ricis_reduce_at_center_eq_eval' depends on axioms: [propext, Classical.choice, Quot.sound]
+'regular_factor_quotient_uses_A4' depends on axioms: [ax_A4_general, propext, Classical.choice, Quot.sound]
+'common_zero_factor_uses_SP1' depends on axioms: [ax_SP1_general, propext, Classical.choice, Quot.sound]
+'singularity_is_zero_over_zero' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ricis_resolution_bridge' depends on axioms: [ax_A4_general, ax_SP1_general, propext, Classical.choice, Quot.sound]
+'ax_A4_general' depends on axioms: [ax_A4_general, propext, Classical.choice, Quot.sound]
+'ax_SP1_general' depends on axioms: [ax_SP1_general, propext, Classical.choice, Quot.sound]
+--- compiler output tail (ricis-general-resolution-v3) ---
+--- source (as provided, immutable): artifacts/proofs/ricis-general-resolution-v3.lean
+$ (cd mathlib-check && lake env lean artifacts/proofs/ricis-general-resolution-v3.lean)
+--- declared axiom contracts in the source (trusted, NOT proven by this run) ---
+33:axiom ax_A4_general (F G : IndexSpace) (a : ℂ) (hF : F a ≠ 0) (hG : G a ≠ 0) :
+37:axiom ax_SP1_general (a : ℂ) (k : ℕ) (hk : k > 0) :
+--- generated derivative (source + #print axioms epilogue): artifacts/proofs/mathlib-checks/ricis-general-resolution-v3.mathlib-check.lean
+--- integrity: derivative prefix vs immutable source ---
+source sha256            : fb792af15e8d4f2c090940a5430a26a0c696ad028200d8c2c6a4b8771058b44a
+sha256 recorded in epilogue: fb792af15e8d4f2c090940a5430a26a0c696ad028200d8c2c6a4b8771058b44a
+byte-for-byte prefix: OK (тело производной = исходник без изменений)
+$ (cd mathlib-check && lake env lean artifacts/proofs/mathlib-checks/ricis-general-resolution-v3.mathlib-check.lean)
+'ricis_reduce_at_center_eq_eval' depends on axioms: [propext, Classical.choice, Quot.sound]
+'regular_factor_quotient_uses_A4' depends on axioms: [ax_A4_general, propext, Classical.choice, Quot.sound]
+'common_zero_factor_uses_SP1' depends on axioms: [ax_SP1_general, propext, Classical.choice, Quot.sound]
+'singularity_is_zero_over_zero' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ricis_resolution_bridge' depends on axioms: [ax_A4_general, ax_SP1_general, propext, Classical.choice, Quot.sound]
+'ax_A4_general' depends on axioms: [ax_A4_general, propext, Classical.choice, Quot.sound]
+'ax_SP1_general' depends on axioms: [ax_SP1_general, propext, Classical.choice, Quot.sound]
+
+=== ricis-general-resolution-v4: source as provided + generated mathlib-check derivative
+    integrity: OK (производная побайтово выведена из этого исходника)
+    result: OK (source exit 0, derivative exit 0, no compiler errors)
+--- #print axioms output (ricis-general-resolution-v4) ---
+'RicisExpr_div_ne_val' depends on axioms: [propext, Classical.choice, Quot.sound]
+'a4_equation_form_is_refutable' depends on axioms: [propext, Classical.choice, Quot.sound]
+'no_universal_a4_equation' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ricis_contract_inhabited' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ricis_reduce_at_center_eq_eval' depends on axioms: [propext, Classical.choice, Quot.sound]
+'singularity_is_zero_over_zero' depends on axioms: [propext, Classical.choice, Quot.sound]
+'regular_factor_quotient_uses_A4' depends on axioms: [propext, Classical.choice, Quot.sound]
+'common_zero_factor_uses_SP1' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ricis_eval_value_form' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ricis_resolution_bridge' depends on axioms: [propext, Classical.choice, Quot.sound]
+--- compiler output tail (ricis-general-resolution-v4) ---
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+--- generated derivative (source + #print axioms epilogue): artifacts/proofs/mathlib-checks/ricis-general-resolution-v4.mathlib-check.lean
+--- integrity: derivative prefix vs immutable source ---
+source sha256            : 1e89cbc83d2c06a8abffcf5e59b4d88b83a02bf35909ce59306660cace0be3a3
+sha256 recorded in epilogue: 1e89cbc83d2c06a8abffcf5e59b4d88b83a02bf35909ce59306660cace0be3a3
+byte-for-byte prefix: OK (тело производной = исходник без изменений)
+$ (cd mathlib-check && lake env lean artifacts/proofs/mathlib-checks/ricis-general-resolution-v4.mathlib-check.lean)
+/home/runner/work/Ricis3-Expansion-Map/Ricis3-Expansion-Map/artifacts/proofs/mathlib-checks/ricis-general-resolution-v4.mathlib-check.lean:203:10: warning: This simp argument is unused:
+  h_k_zero
+
+Hint: Omit it from the simp argument list.
+  [apply] simp [h_eq]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+'RicisExpr_div_ne_val' depends on axioms: [propext, Classical.choice, Quot.sound]
+'a4_equation_form_is_refutable' depends on axioms: [propext, Classical.choice, Quot.sound]
+'no_universal_a4_equation' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ricis_contract_inhabited' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ricis_reduce_at_center_eq_eval' depends on axioms: [propext, Classical.choice, Quot.sound]
+'singularity_is_zero_over_zero' depends on axioms: [propext, Classical.choice, Quot.sound]
+'regular_factor_quotient_uses_A4' depends on axioms: [propext, Classical.choice, Quot.sound]
+'common_zero_factor_uses_SP1' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ricis_eval_value_form' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ricis_resolution_bridge' depends on axioms: [propext, Classical.choice, Quot.sound]
+
+=== ricis-general-resolution: source as provided + generated mathlib-check derivative
+    integrity: OK (производная побайтово выведена из этого исходника)
+    result: OK (source exit 0, derivative exit 0, no compiler errors)
+--- #print axioms output (ricis-general-resolution) ---
+'ricis_general_resolution' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ricis_equals_classical_limit' depends on axioms: [propext, Classical.choice, Quot.sound]
+'specific_case_from_general' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ax_A4_general' depends on axioms: [ax_A4_general, propext, Classical.choice, Quot.sound]
+'ax_SP1_general' depends on axioms: [ax_SP1_general, propext, Classical.choice, Quot.sound]
+--- compiler output tail (ricis-general-resolution) ---
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+/home/runner/work/Ricis3-Expansion-Map/Ricis3-Expansion-Map/artifacts/proofs/mathlib-checks/ricis-general-resolution.mathlib-check.lean:160:8: warning: this tactic is never executed
+
+Note: This linter can be disabled with `set_option linter.unreachableTactic false`
+/home/runner/work/Ricis3-Expansion-Map/Ricis3-Expansion-Map/artifacts/proofs/mathlib-checks/ricis-general-resolution.mathlib-check.lean:161:8: warning: this tactic is never executed
+
+Note: This linter can be disabled with `set_option linter.unreachableTactic false`
+/home/runner/work/Ricis3-Expansion-Map/Ricis3-Expansion-Map/artifacts/proofs/mathlib-checks/ricis-general-resolution.mathlib-check.lean:138:4: warning: Used `tac1 <;> tac2` where `(tac1; tac2)` would suffice
+
+Note: This linter can be disabled with `set_option linter.unnecessarySeqFocus false`
+/home/runner/work/Ricis3-Expansion-Map/Ricis3-Expansion-Map/artifacts/proofs/mathlib-checks/ricis-general-resolution.mathlib-check.lean:159:4: warning: Used `tac1 <;> tac2` where `(tac1; tac2)` would suffice
+
+Note: This linter can be disabled with `set_option linter.unnecessarySeqFocus false`
+/home/runner/work/Ricis3-Expansion-Map/Ricis3-Expansion-Map/artifacts/proofs/mathlib-checks/ricis-general-resolution.mathlib-check.lean:160:8: warning: Unused tactic linter: `simp [Complex.ext_iff]` does nothing
+
+Note: This linter can be disabled with `set_option linter.unusedTactic false`
+/home/runner/work/Ricis3-Expansion-Map/Ricis3-Expansion-Map/artifacts/proofs/mathlib-checks/ricis-general-resolution.mathlib-check.lean:161:8: warning: Unused tactic linter: `norm_num` does nothing
+
+Note: This linter can be disabled with `set_option linter.unusedTactic false`
+'ricis_general_resolution' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ricis_equals_classical_limit' depends on axioms: [propext, Classical.choice, Quot.sound]
+'specific_case_from_general' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ax_A4_general' depends on axioms: [ax_A4_general, propext, Classical.choice, Quot.sound]
+'ax_SP1_general' depends on axioms: [ax_SP1_general, propext, Classical.choice, Quot.sound]
+
+=== ricis-yang-mills-v2: source as provided + generated mathlib-check derivative
+    integrity: OK (производная побайтово выведена из этого исходника)
+    result: OK (source exit 0, derivative exit 0, no compiler errors)
+--- #print axioms output (ricis-yang-mills-v2) ---
+'RICIS.skew_product_orthogonal_pair_eq_div' depends on axioms: [propext, Classical.choice, Quot.sound]
+'RICIS.skew_product_conjugate_pair_eq_square' depends on axioms: [propext, Classical.choice, Quot.sound]
+'RICIS.orthogonal_bridge_invariant_eq_div' depends on axioms: [propext, Classical.choice, Quot.sound]
+--- compiler output tail (ricis-yang-mills-v2) ---
+--- source (as provided, immutable): artifacts/proofs/ricis-yang-mills-v2.lean
+$ (cd mathlib-check && lake env lean artifacts/proofs/ricis-yang-mills-v2.lean)
+--- declared axiom contracts in the source (trusted, NOT proven by this run) ---
+  (none)
+--- generated derivative (source + #print axioms epilogue): artifacts/proofs/mathlib-checks/ricis-yang-mills-v2.mathlib-check.lean
+--- integrity: derivative prefix vs immutable source ---
+source sha256            : cfac8b97f3051366b77b6fe09ab92c02d674861b5c5f42b408e647f1631579bf
+sha256 recorded in epilogue: cfac8b97f3051366b77b6fe09ab92c02d674861b5c5f42b408e647f1631579bf
+byte-for-byte prefix: OK (тело производной = исходник без изменений)
+$ (cd mathlib-check && lake env lean artifacts/proofs/mathlib-checks/ricis-yang-mills-v2.mathlib-check.lean)
+'RICIS.skew_product_orthogonal_pair_eq_div' depends on axioms: [propext, Classical.choice, Quot.sound]
+'RICIS.skew_product_conjugate_pair_eq_square' depends on axioms: [propext, Classical.choice, Quot.sound]
+'RICIS.orthogonal_bridge_invariant_eq_div' depends on axioms: [propext, Classical.choice, Quot.sound]
+
+--- Mathlib artifacts NOT checked by this job (not in the explicit allowlist) ---
+  Schwarzschild_GeometricBridge.lean: вне allowlist — статус не повышается по факту существования механизма
+  database-a6-0_5_inf_3.standalone.lean: вне allowlist — статус не повышается по факту существования механизма
+  database-registry-120-jacobian.standalone.lean: вне allowlist — статус не повышается по факту существования механизма
+  ricis-backend-exact-reduction.standalone.lean: вне allowlist — статус не повышается по факту существования механизма
+  ricis-chatbot-monetization.lean: вне allowlist — статус не повышается по факту существования механизма
+  ricis-jacobian-conjecture-v2.lean: вне allowlist — статус не повышается по факту существования механизма
+  ricis-jacobian-conjecture.standalone.lean: вне allowlist — статус не повышается по факту существования механизма
+  ricis-kernel-ast-sp5.standalone.lean: вне allowlist — статус не повышается по факту существования механизма
+  ricis-navier-stokes-ast-bridge.standalone.lean: вне allowlist — статус не повышается по факту существования механизма
+  ricis-riemann-zeta-ast-bridge.standalone.lean: вне allowlist — статус не повышается по факту существования механизма
+  ricis-seed-expansion-a11.lean: вне allowlist — статус не повышается по факту существования механизма
+  ricis-universal-orchestration-template.lean: вне allowlist — статус не повышается по факту существования механизма
+  ricis-v79-monolith.standalone.lean: вне allowlist — статус не повышается по факту существования механизма
+  ricis-yang-mills.lean: вне allowlist — статус не повышается по факту существования механизма
+--- sha256.txt ---
+4002d1c900271d7526f8b455c277f32a91ac99a613e55d8d25f09edcd7860073  artifacts/proofs/RicisAgiTarget.lean
+e6ab1b1db54ff04cdc3fb5a647cb6beedd7daba84bcd1272b51123519244339a  artifacts/proofs/jacobian-counterexample-full.lean
+fb792af15e8d4f2c090940a5430a26a0c696ad028200d8c2c6a4b8771058b44a  artifacts/proofs/ricis-general-resolution-v3.lean
+1e89cbc83d2c06a8abffcf5e59b4d88b83a02bf35909ce59306660cace0be3a3  artifacts/proofs/ricis-general-resolution-v4.lean
+e92ebe52a85af838205a6bdb950ff4517f959cbfc4f38c1d0e7c4cb65cc35db3  artifacts/proofs/ricis-general-resolution.lean
+cfac8b97f3051366b77b6fe09ab92c02d674861b5c5f42b408e647f1631579bf  artifacts/proofs/ricis-yang-mills-v2.lean
+692ab0bf841859127a0831446993b49ac357272e1012443efc2dcbc1d84465f2  artifacts/proofs/mathlib-checks/RicisAgiTarget.mathlib-check.lean
+fc98f45b79736318f415de2a9b0830976e0318b2bdfc712c0f0e271128b4c7f3  artifacts/proofs/mathlib-checks/jacobian-counterexample-full.mathlib-check.lean
+e27fede8381d91f4efe267414039ddf5229a2d457abaf85ef199c37df238aeda  artifacts/proofs/mathlib-checks/ricis-general-resolution-v3.mathlib-check.lean
+c3dcf8eaed57ce859e9ddd4f0c04b2dd89031579d32b07fd58dee041d7d262b0  artifacts/proofs/mathlib-checks/ricis-general-resolution-v4.mathlib-check.lean
+8424eebe279444e4f70c210189783c6fce64809f9b422a637c4568b690707d03  artifacts/proofs/mathlib-checks/ricis-general-resolution.mathlib-check.lean
+477731cb579086a00eac0471ac4e14a5e09d33ec4b8b9a53845024514dd095ab  artifacts/proofs/mathlib-checks/ricis-yang-mills-v2.mathlib-check.lean
+--- full compiler log: RicisAgiTarget ---
+--- source (as provided, immutable): artifacts/proofs/RicisAgiTarget.lean
+$ (cd mathlib-check && lake env lean artifacts/proofs/RicisAgiTarget.lean)
+--- declared axiom contracts in the source (trusted, NOT proven by this run) ---
+  (none)
+--- generated derivative (source + #print axioms epilogue): artifacts/proofs/mathlib-checks/RicisAgiTarget.mathlib-check.lean
+--- integrity: derivative prefix vs immutable source ---
+source sha256            : 4002d1c900271d7526f8b455c277f32a91ac99a613e55d8d25f09edcd7860073
+sha256 recorded in epilogue: 4002d1c900271d7526f8b455c277f32a91ac99a613e55d8d25f09edcd7860073
+byte-for-byte prefix: OK (тело производной = исходник без изменений)
+$ (cd mathlib-check && lake env lean artifacts/proofs/mathlib-checks/RicisAgiTarget.mathlib-check.lean)
+'RICIS3.AgiTarget.detBridge_eq_mul' depends on axioms: [propext, Classical.choice, Quot.sound]
+'RICIS3.AgiTarget.sp4_no_silent_collapse' depends on axioms: [propext, Classical.choice, Quot.sound]
+'RICIS3.AgiTarget.evaluateGoal_eq_product' depends on axioms: [propext, Classical.choice, Quot.sound]
+--- full compiler log: jacobian-counterexample-full ---
+--- source (as provided, immutable): artifacts/proofs/jacobian-counterexample-full.lean
+$ (cd mathlib-check && lake env lean artifacts/proofs/jacobian-counterexample-full.lean)
+--- declared axiom contracts in the source (trusted, NOT proven by this run) ---
+118:    axiom is an explicit boundary for downstream derivations: consumers may
+121:axiom trusted_full_jacobian_contract : FullJacobianCounterexample
+/home/runner/work/Ricis3-Expansion-Map/Ricis3-Expansion-Map/artifacts/proofs/jacobian-counterexample-full.lean:24:12: warning: Variable name `z` is not explicitly referenced.
+
+Hint: The binding can be removed (if unused) or named `_` (if used implicitly). Alternatively, prefix the name with `_` to silence this warning:
+  [apply] _z
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+/home/runner/work/Ricis3-Expansion-Map/Ricis3-Expansion-Map/artifacts/proofs/jacobian-counterexample-full.lean:30:12: warning: Variable name `z` is not explicitly referenced.
+
+Hint: The binding can be removed (if unused) or named `_` (if used implicitly). Alternatively, prefix the name with `_` to silence this warning:
+  [apply] _z
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+/home/runner/work/Ricis3-Expansion-Map/Ricis3-Expansion-Map/artifacts/proofs/jacobian-counterexample-full.lean:33:10: warning: Variable name `y` is not explicitly referenced.
+
+Hint: The binding can be removed (if unused) or named `_` (if used implicitly). Alternatively, prefix the name with `_` to silence this warning:
+  [apply] _y
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+/home/runner/work/Ricis3-Expansion-Map/Ricis3-Expansion-Map/artifacts/proofs/jacobian-counterexample-full.lean:33:12: warning: Variable name `z` is not explicitly referenced.
+
+Hint: The binding can be removed (if unused) or named `_` (if used implicitly). Alternatively, prefix the name with `_` to silence this warning:
+  [apply] _z
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+/home/runner/work/Ricis3-Expansion-Map/Ricis3-Expansion-Map/artifacts/proofs/jacobian-counterexample-full.lean:34:10: warning: Variable name `y` is not explicitly referenced.
+
+Hint: The binding can be removed (if unused) or named `_` (if used implicitly). Alternatively, prefix the name with `_` to silence this warning:
+  [apply] _y
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+/home/runner/work/Ricis3-Expansion-Map/Ricis3-Expansion-Map/artifacts/proofs/jacobian-counterexample-full.lean:34:12: warning: Variable name `z` is not explicitly referenced.
+
+Hint: The binding can be removed (if unused) or named `_` (if used implicitly). Alternatively, prefix the name with `_` to silence this warning:
+  [apply] _z
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+/home/runner/work/Ricis3-Expansion-Map/Ricis3-Expansion-Map/artifacts/proofs/jacobian-counterexample-full.lean:40:14: warning: Variable name `z` is not explicitly referenced.
+
+Hint: The binding can be removed (if unused) or named `_` (if used implicitly). Alternatively, prefix the name with `_` to silence this warning:
+  [apply] _z
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+/home/runner/work/Ricis3-Expansion-Map/Ricis3-Expansion-Map/artifacts/proofs/jacobian-counterexample-full.lean:46:14: warning: Variable name `z` is not explicitly referenced.
+
+Hint: The binding can be removed (if unused) or named `_` (if used implicitly). Alternatively, prefix the name with `_` to silence this warning:
+  [apply] _z
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+/home/runner/work/Ricis3-Expansion-Map/Ricis3-Expansion-Map/artifacts/proofs/jacobian-counterexample-full.lean:49:12: warning: Variable name `y` is not explicitly referenced.
+
+Hint: The binding can be removed (if unused) or named `_` (if used implicitly). Alternatively, prefix the name with `_` to silence this warning:
+  [apply] _y
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+/home/runner/work/Ricis3-Expansion-Map/Ricis3-Expansion-Map/artifacts/proofs/jacobian-counterexample-full.lean:49:14: warning: Variable name `z` is not explicitly referenced.
+
+Hint: The binding can be removed (if unused) or named `_` (if used implicitly). Alternatively, prefix the name with `_` to silence this warning:
+  [apply] _z
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+/home/runner/work/Ricis3-Expansion-Map/Ricis3-Expansion-Map/artifacts/proofs/jacobian-counterexample-full.lean:50:12: warning: Variable name `y` is not explicitly referenced.
+
+Hint: The binding can be removed (if unused) or named `_` (if used implicitly). Alternatively, prefix the name with `_` to silence this warning:
+  [apply] _y
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+/home/runner/work/Ricis3-Expansion-Map/Ricis3-Expansion-Map/artifacts/proofs/jacobian-counterexample-full.lean:50:14: warning: Variable name `z` is not explicitly referenced.
+
+Hint: The binding can be removed (if unused) or named `_` (if used implicitly). Alternatively, prefix the name with `_` to silence this warning:
+  [apply] _z
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+'JacobianCounterexample.full_jacobian_counterexample' depends on axioms: [propext, Classical.choice, Quot.sound]
+'JacobianCounterexample.trusted_contract_no_left_inverse' depends on axioms: [propext,
+ Classical.choice,
+ trusted_full_jacobian_contract,
+ Quot.sound]
+--- generated derivative (source + #print axioms epilogue): artifacts/proofs/mathlib-checks/jacobian-counterexample-full.mathlib-check.lean
+--- integrity: derivative prefix vs immutable source ---
+source sha256            : e6ab1b1db54ff04cdc3fb5a647cb6beedd7daba84bcd1272b51123519244339a
+sha256 recorded in epilogue: e6ab1b1db54ff04cdc3fb5a647cb6beedd7daba84bcd1272b51123519244339a
+byte-for-byte prefix: OK (тело производной = исходник без изменений)
+$ (cd mathlib-check && lake env lean artifacts/proofs/mathlib-checks/jacobian-counterexample-full.mathlib-check.lean)
+/home/runner/work/Ricis3-Expansion-Map/Ricis3-Expansion-Map/artifacts/proofs/mathlib-checks/jacobian-counterexample-full.mathlib-check.lean:24:12: warning: Variable name `z` is not explicitly referenced.
+
+Hint: The binding can be removed (if unused) or named `_` (if used implicitly). Alternatively, prefix the name with `_` to silence this warning:
+  [apply] _z
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+/home/runner/work/Ricis3-Expansion-Map/Ricis3-Expansion-Map/artifacts/proofs/mathlib-checks/jacobian-counterexample-full.mathlib-check.lean:30:12: warning: Variable name `z` is not explicitly referenced.
+
+Hint: The binding can be removed (if unused) or named `_` (if used implicitly). Alternatively, prefix the name with `_` to silence this warning:
+  [apply] _z
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+/home/runner/work/Ricis3-Expansion-Map/Ricis3-Expansion-Map/artifacts/proofs/mathlib-checks/jacobian-counterexample-full.mathlib-check.lean:33:10: warning: Variable name `y` is not explicitly referenced.
+
+Hint: The binding can be removed (if unused) or named `_` (if used implicitly). Alternatively, prefix the name with `_` to silence this warning:
+  [apply] _y
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+/home/runner/work/Ricis3-Expansion-Map/Ricis3-Expansion-Map/artifacts/proofs/mathlib-checks/jacobian-counterexample-full.mathlib-check.lean:33:12: warning: Variable name `z` is not explicitly referenced.
+
+Hint: The binding can be removed (if unused) or named `_` (if used implicitly). Alternatively, prefix the name with `_` to silence this warning:
+  [apply] _z
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+/home/runner/work/Ricis3-Expansion-Map/Ricis3-Expansion-Map/artifacts/proofs/mathlib-checks/jacobian-counterexample-full.mathlib-check.lean:34:10: warning: Variable name `y` is not explicitly referenced.
+
+Hint: The binding can be removed (if unused) or named `_` (if used implicitly). Alternatively, prefix the name with `_` to silence this warning:
+  [apply] _y
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+/home/runner/work/Ricis3-Expansion-Map/Ricis3-Expansion-Map/artifacts/proofs/mathlib-checks/jacobian-counterexample-full.mathlib-check.lean:34:12: warning: Variable name `z` is not explicitly referenced.
+
+Hint: The binding can be removed (if unused) or named `_` (if used implicitly). Alternatively, prefix the name with `_` to silence this warning:
+  [apply] _z
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+/home/runner/work/Ricis3-Expansion-Map/Ricis3-Expansion-Map/artifacts/proofs/mathlib-checks/jacobian-counterexample-full.mathlib-check.lean:40:14: warning: Variable name `z` is not explicitly referenced.
+
+Hint: The binding can be removed (if unused) or named `_` (if used implicitly). Alternatively, prefix the name with `_` to silence this warning:
+  [apply] _z
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+/home/runner/work/Ricis3-Expansion-Map/Ricis3-Expansion-Map/artifacts/proofs/mathlib-checks/jacobian-counterexample-full.mathlib-check.lean:46:14: warning: Variable name `z` is not explicitly referenced.
+
+Hint: The binding can be removed (if unused) or named `_` (if used implicitly). Alternatively, prefix the name with `_` to silence this warning:
+  [apply] _z
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+/home/runner/work/Ricis3-Expansion-Map/Ricis3-Expansion-Map/artifacts/proofs/mathlib-checks/jacobian-counterexample-full.mathlib-check.lean:49:12: warning: Variable name `y` is not explicitly referenced.
+
+Hint: The binding can be removed (if unused) or named `_` (if used implicitly). Alternatively, prefix the name with `_` to silence this warning:
+  [apply] _y
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+/home/runner/work/Ricis3-Expansion-Map/Ricis3-Expansion-Map/artifacts/proofs/mathlib-checks/jacobian-counterexample-full.mathlib-check.lean:49:14: warning: Variable name `z` is not explicitly referenced.
+
+Hint: The binding can be removed (if unused) or named `_` (if used implicitly). Alternatively, prefix the name with `_` to silence this warning:
+  [apply] _z
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+/home/runner/work/Ricis3-Expansion-Map/Ricis3-Expansion-Map/artifacts/proofs/mathlib-checks/jacobian-counterexample-full.mathlib-check.lean:50:12: warning: Variable name `y` is not explicitly referenced.
+
+Hint: The binding can be removed (if unused) or named `_` (if used implicitly). Alternatively, prefix the name with `_` to silence this warning:
+  [apply] _y
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+/home/runner/work/Ricis3-Expansion-Map/Ricis3-Expansion-Map/artifacts/proofs/mathlib-checks/jacobian-counterexample-full.mathlib-check.lean:50:14: warning: Variable name `z` is not explicitly referenced.
+
+Hint: The binding can be removed (if unused) or named `_` (if used implicitly). Alternatively, prefix the name with `_` to silence this warning:
+  [apply] _z
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+'JacobianCounterexample.full_jacobian_counterexample' depends on axioms: [propext, Classical.choice, Quot.sound]
+'JacobianCounterexample.trusted_contract_no_left_inverse' depends on axioms: [propext,
+ Classical.choice,
+ trusted_full_jacobian_contract,
+ Quot.sound]
+'JacobianCounterexample.jacobian_entries_match_formal_partials' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'JacobianCounterexample.jacobian_det_is_constant' depends on axioms: [propext, Classical.choice, Quot.sound]
+'JacobianCounterexample.point_a_maps_to' depends on axioms: [propext, Classical.choice, Quot.sound]
+'JacobianCounterexample.point_b_maps_to' depends on axioms: [propext, Classical.choice, Quot.sound]
+'JacobianCounterexample.point_c_maps_to' depends on axioms: [propext, Classical.choice, Quot.sound]
+'JacobianCounterexample.points_are_distinct' depends on axioms: [propext, Classical.choice, Quot.sound]
+'JacobianCounterexample.field_is_noninjective' depends on axioms: [propext, Classical.choice, Quot.sound]
+'JacobianCounterexample.no_left_inverse' depends on axioms: [propext, Classical.choice, Quot.sound]
+'JacobianCounterexample.full_jacobian_counterexample' depends on axioms: [propext, Classical.choice, Quot.sound]
+'JacobianCounterexample.trusted_contract_no_left_inverse' depends on axioms: [propext,
+ Classical.choice,
+ JacobianCounterexample.trusted_full_jacobian_contract,
+ Quot.sound]
+'JacobianCounterexample.trusted_full_jacobian_contract' depends on axioms: [propext,
+ Classical.choice,
+ JacobianCounterexample.trusted_full_jacobian_contract,
+ Quot.sound]
+--- full compiler log: ricis-general-resolution-v3 ---
+--- source (as provided, immutable): artifacts/proofs/ricis-general-resolution-v3.lean
+$ (cd mathlib-check && lake env lean artifacts/proofs/ricis-general-resolution-v3.lean)
+--- declared axiom contracts in the source (trusted, NOT proven by this run) ---
+33:axiom ax_A4_general (F G : IndexSpace) (a : ℂ) (hF : F a ≠ 0) (hG : G a ≠ 0) :
+37:axiom ax_SP1_general (a : ℂ) (k : ℕ) (hk : k > 0) :
+--- generated derivative (source + #print axioms epilogue): artifacts/proofs/mathlib-checks/ricis-general-resolution-v3.mathlib-check.lean
+--- integrity: derivative prefix vs immutable source ---
+source sha256            : fb792af15e8d4f2c090940a5430a26a0c696ad028200d8c2c6a4b8771058b44a
+sha256 recorded in epilogue: fb792af15e8d4f2c090940a5430a26a0c696ad028200d8c2c6a4b8771058b44a
+byte-for-byte prefix: OK (тело производной = исходник без изменений)
+$ (cd mathlib-check && lake env lean artifacts/proofs/mathlib-checks/ricis-general-resolution-v3.mathlib-check.lean)
+'ricis_reduce_at_center_eq_eval' depends on axioms: [propext, Classical.choice, Quot.sound]
+'regular_factor_quotient_uses_A4' depends on axioms: [ax_A4_general, propext, Classical.choice, Quot.sound]
+'common_zero_factor_uses_SP1' depends on axioms: [ax_SP1_general, propext, Classical.choice, Quot.sound]
+'singularity_is_zero_over_zero' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ricis_resolution_bridge' depends on axioms: [ax_A4_general, ax_SP1_general, propext, Classical.choice, Quot.sound]
+'ax_A4_general' depends on axioms: [ax_A4_general, propext, Classical.choice, Quot.sound]
+'ax_SP1_general' depends on axioms: [ax_SP1_general, propext, Classical.choice, Quot.sound]
+--- full compiler log: ricis-general-resolution-v4 ---
+--- source (as provided, immutable): artifacts/proofs/ricis-general-resolution-v4.lean
+$ (cd mathlib-check && lake env lean artifacts/proofs/ricis-general-resolution-v4.lean)
+--- declared axiom contracts in the source (trusted, NOT proven by this run) ---
+  (none)
+/home/runner/work/Ricis3-Expansion-Map/Ricis3-Expansion-Map/artifacts/proofs/ricis-general-resolution-v4.lean:203:10: warning: This simp argument is unused:
+  h_k_zero
+
+Hint: Omit it from the simp argument list.
+  [apply] simp [h_eq]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+--- generated derivative (source + #print axioms epilogue): artifacts/proofs/mathlib-checks/ricis-general-resolution-v4.mathlib-check.lean
+--- integrity: derivative prefix vs immutable source ---
+source sha256            : 1e89cbc83d2c06a8abffcf5e59b4d88b83a02bf35909ce59306660cace0be3a3
+sha256 recorded in epilogue: 1e89cbc83d2c06a8abffcf5e59b4d88b83a02bf35909ce59306660cace0be3a3
+byte-for-byte prefix: OK (тело производной = исходник без изменений)
+$ (cd mathlib-check && lake env lean artifacts/proofs/mathlib-checks/ricis-general-resolution-v4.mathlib-check.lean)
+/home/runner/work/Ricis3-Expansion-Map/Ricis3-Expansion-Map/artifacts/proofs/mathlib-checks/ricis-general-resolution-v4.mathlib-check.lean:203:10: warning: This simp argument is unused:
+  h_k_zero
+
+Hint: Omit it from the simp argument list.
+  [apply] simp [h_eq]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+'RicisExpr_div_ne_val' depends on axioms: [propext, Classical.choice, Quot.sound]
+'a4_equation_form_is_refutable' depends on axioms: [propext, Classical.choice, Quot.sound]
+'no_universal_a4_equation' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ricis_contract_inhabited' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ricis_reduce_at_center_eq_eval' depends on axioms: [propext, Classical.choice, Quot.sound]
+'singularity_is_zero_over_zero' depends on axioms: [propext, Classical.choice, Quot.sound]
+'regular_factor_quotient_uses_A4' depends on axioms: [propext, Classical.choice, Quot.sound]
+'common_zero_factor_uses_SP1' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ricis_eval_value_form' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ricis_resolution_bridge' depends on axioms: [propext, Classical.choice, Quot.sound]
+--- full compiler log: ricis-general-resolution ---
+--- source (as provided, immutable): artifacts/proofs/ricis-general-resolution.lean
+$ (cd mathlib-check && lake env lean artifacts/proofs/ricis-general-resolution.lean)
+--- declared axiom contracts in the source (trusted, NOT proven by this run) ---
+44:axiom ax_A4_general (F G : IndexSpace) (a : ℂ) (hF : F a ≠ 0) (hG : G a ≠ 0) :
+48:axiom ax_SP1_general (a : ℂ) (k : ℕ) (hk : k > 0) :
+/home/runner/work/Ricis3-Expansion-Map/Ricis3-Expansion-Map/artifacts/proofs/ricis-general-resolution.lean:87:10: warning: This simp argument is unused:
+  h_k_zero
+
+Hint: Omit it from the simp argument list.
+  [apply] simp [h_eq]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+/home/runner/work/Ricis3-Expansion-Map/Ricis3-Expansion-Map/artifacts/proofs/ricis-general-resolution.lean:109:29: warning: Variable name `z` is not explicitly referenced.
+
+Hint: The binding can be removed (if unused) or named `_` (if used implicitly). Alternatively, prefix the name with `_` to silence this warning:
+  [apply] _z
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+/home/runner/work/Ricis3-Expansion-Map/Ricis3-Expansion-Map/artifacts/proofs/ricis-general-resolution.lean:160:8: warning: this tactic is never executed
+
+Note: This linter can be disabled with `set_option linter.unreachableTactic false`
+/home/runner/work/Ricis3-Expansion-Map/Ricis3-Expansion-Map/artifacts/proofs/ricis-general-resolution.lean:161:8: warning: this tactic is never executed
+
+Note: This linter can be disabled with `set_option linter.unreachableTactic false`
+/home/runner/work/Ricis3-Expansion-Map/Ricis3-Expansion-Map/artifacts/proofs/ricis-general-resolution.lean:138:4: warning: Used `tac1 <;> tac2` where `(tac1; tac2)` would suffice
+
+Note: This linter can be disabled with `set_option linter.unnecessarySeqFocus false`
+/home/runner/work/Ricis3-Expansion-Map/Ricis3-Expansion-Map/artifacts/proofs/ricis-general-resolution.lean:159:4: warning: Used `tac1 <;> tac2` where `(tac1; tac2)` would suffice
+
+Note: This linter can be disabled with `set_option linter.unnecessarySeqFocus false`
+/home/runner/work/Ricis3-Expansion-Map/Ricis3-Expansion-Map/artifacts/proofs/ricis-general-resolution.lean:160:8: warning: Unused tactic linter: `simp [Complex.ext_iff]` does nothing
+
+Note: This linter can be disabled with `set_option linter.unusedTactic false`
+/home/runner/work/Ricis3-Expansion-Map/Ricis3-Expansion-Map/artifacts/proofs/ricis-general-resolution.lean:161:8: warning: Unused tactic linter: `norm_num` does nothing
+
+Note: This linter can be disabled with `set_option linter.unusedTactic false`
+--- generated derivative (source + #print axioms epilogue): artifacts/proofs/mathlib-checks/ricis-general-resolution.mathlib-check.lean
+--- integrity: derivative prefix vs immutable source ---
+source sha256            : e92ebe52a85af838205a6bdb950ff4517f959cbfc4f38c1d0e7c4cb65cc35db3
+sha256 recorded in epilogue: e92ebe52a85af838205a6bdb950ff4517f959cbfc4f38c1d0e7c4cb65cc35db3
+byte-for-byte prefix: OK (тело производной = исходник без изменений)
+$ (cd mathlib-check && lake env lean artifacts/proofs/mathlib-checks/ricis-general-resolution.mathlib-check.lean)
+/home/runner/work/Ricis3-Expansion-Map/Ricis3-Expansion-Map/artifacts/proofs/mathlib-checks/ricis-general-resolution.mathlib-check.lean:87:10: warning: This simp argument is unused:
+  h_k_zero
+
+Hint: Omit it from the simp argument list.
+  [apply] simp [h_eq]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+/home/runner/work/Ricis3-Expansion-Map/Ricis3-Expansion-Map/artifacts/proofs/mathlib-checks/ricis-general-resolution.mathlib-check.lean:109:29: warning: Variable name `z` is not explicitly referenced.
+
+Hint: The binding can be removed (if unused) or named `_` (if used implicitly). Alternatively, prefix the name with `_` to silence this warning:
+  [apply] _z
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+/home/runner/work/Ricis3-Expansion-Map/Ricis3-Expansion-Map/artifacts/proofs/mathlib-checks/ricis-general-resolution.mathlib-check.lean:160:8: warning: this tactic is never executed
+
+Note: This linter can be disabled with `set_option linter.unreachableTactic false`
+/home/runner/work/Ricis3-Expansion-Map/Ricis3-Expansion-Map/artifacts/proofs/mathlib-checks/ricis-general-resolution.mathlib-check.lean:161:8: warning: this tactic is never executed
+
+Note: This linter can be disabled with `set_option linter.unreachableTactic false`
+/home/runner/work/Ricis3-Expansion-Map/Ricis3-Expansion-Map/artifacts/proofs/mathlib-checks/ricis-general-resolution.mathlib-check.lean:138:4: warning: Used `tac1 <;> tac2` where `(tac1; tac2)` would suffice
+
+Note: This linter can be disabled with `set_option linter.unnecessarySeqFocus false`
+/home/runner/work/Ricis3-Expansion-Map/Ricis3-Expansion-Map/artifacts/proofs/mathlib-checks/ricis-general-resolution.mathlib-check.lean:159:4: warning: Used `tac1 <;> tac2` where `(tac1; tac2)` would suffice
+
+Note: This linter can be disabled with `set_option linter.unnecessarySeqFocus false`
+/home/runner/work/Ricis3-Expansion-Map/Ricis3-Expansion-Map/artifacts/proofs/mathlib-checks/ricis-general-resolution.mathlib-check.lean:160:8: warning: Unused tactic linter: `simp [Complex.ext_iff]` does nothing
+
+Note: This linter can be disabled with `set_option linter.unusedTactic false`
+/home/runner/work/Ricis3-Expansion-Map/Ricis3-Expansion-Map/artifacts/proofs/mathlib-checks/ricis-general-resolution.mathlib-check.lean:161:8: warning: Unused tactic linter: `norm_num` does nothing
+
+Note: This linter can be disabled with `set_option linter.unusedTactic false`
+'ricis_general_resolution' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ricis_equals_classical_limit' depends on axioms: [propext, Classical.choice, Quot.sound]
+'specific_case_from_general' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ax_A4_general' depends on axioms: [ax_A4_general, propext, Classical.choice, Quot.sound]
+'ax_SP1_general' depends on axioms: [ax_SP1_general, propext, Classical.choice, Quot.sound]
+--- full compiler log: ricis-yang-mills-v2 ---
+--- source (as provided, immutable): artifacts/proofs/ricis-yang-mills-v2.lean
+$ (cd mathlib-check && lake env lean artifacts/proofs/ricis-yang-mills-v2.lean)
+--- declared axiom contracts in the source (trusted, NOT proven by this run) ---
+  (none)
+--- generated derivative (source + #print axioms epilogue): artifacts/proofs/mathlib-checks/ricis-yang-mills-v2.mathlib-check.lean
+--- integrity: derivative prefix vs immutable source ---
+source sha256            : cfac8b97f3051366b77b6fe09ab92c02d674861b5c5f42b408e647f1631579bf
+sha256 recorded in epilogue: cfac8b97f3051366b77b6fe09ab92c02d674861b5c5f42b408e647f1631579bf
+byte-for-byte prefix: OK (тело производной = исходник без изменений)
+$ (cd mathlib-check && lake env lean artifacts/proofs/mathlib-checks/ricis-yang-mills-v2.mathlib-check.lean)
+'RICIS.skew_product_orthogonal_pair_eq_div' depends on axioms: [propext, Classical.choice, Quot.sound]
+'RICIS.skew_product_conjugate_pair_eq_square' depends on axioms: [propext, Classical.choice, Quot.sound]
+'RICIS.orthogonal_bridge_invariant_eq_div' depends on axioms: [propext, Classical.choice, Quot.sound]
+```
+

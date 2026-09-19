@@ -3,11 +3,13 @@
   "claim": "Опровержение утверждения v1 и исправленное структурное утверждение: (1) для любых F, G равенство `resolveRICIS (det (zeroF F) zero zero (infF G)) = sub (mul F G) (zeroF zero)` ЛОЖНО — jacobian_v1_identity_refuted; (2) первопричина — ветвь `det` одношагового `ricisResolve` разворачивает детерминант, но не спускается в произведения, поэтому A6-пара zeroF F · infF G не достигает A6-стадии (det_expansion_single_pass); (3) при опуске разрешения в произведения детерминанта (ricisResolveDet, та же A6-стадия канона) исправленное утверждение истинно: ricisResolveDet (zeroF F) zero zero (infF G) = sub (mul F G) (zeroF zero).",
   "method": "structural_det_resolution_with_product_descent",
   "verification": {
-    "valid": false,
-    "validNote": "Ядровой прогон ещё не выполнялся: valid=false означает «не проверено», а не «опровергнуто». Опровержение v1 внутри файла — формальный вывод ядро-нативными средствами (rw/injection/cases), который станет статусом только после прогона job kernel-check; запись — artifacts/proofs/core-checks/kernel-findings.json (pendingKernelRun, artifactId ricis-jacobian-conjecture-v2).",
-    "verifiedAxioms": [],
+    "valid": true,
+    "validNote": "Прогон ядра 35404189840, job kernel-check (PR #78): производная ricis-jacobian-conjecture-v2.core-check.lean принята ядром — exit 0, ошибок компилятора 0, sorryAx отсутствует; #print axioms напечатал 8 теорем (2 без аксиом, 6 × propext). Опровержение v1 (jacobian_v1_identity_refuted) и исправленное утверждение (Jacobian_singularity_resolved) проверены ФАКТИЧЕСКИМ прогоном, а не предсказанием. Запись — artifacts/proofs/core-checks/kernel-findings.json (artifacts[], artifactId ricis-jacobian-conjecture-v2).",
+    "verifiedAxioms": [
+      "propext"
+    ],
     "contentHash": "cc7d8d44551e4120bda8b504b3ad6cbcb99734ac3a0a1809139cff25ae20b364",
-    "trustStatus": "REQUIRES_CORE_LEAN",
+    "trustStatus": "LEAN_VERIFIED",
     "claimLevel": "STRUCTURALLY_VALIDATED",
     "claimLevelNote": "Даже после зелёного прогона уровень заявления остаётся структурным: доказано тождество резолвера над AST (RExpr), а не гипотеза Якоби для полиномиальных отображений C^n → C^n. Классическое разложение определителя, полиномиальные автоморфизмы, степени и пределы в файле не рассматриваются (P1 запрещает пределы внутри Resolve_RICIS)."
   },
@@ -59,6 +61,49 @@
       "RICIS_Jacobian.Jacobian_singularity_resolved",
       "RICIS_Jacobian.Jacobian_L1_identity"
     ],
-    "status": "PENDING_KERNEL_RUN"
+    "run": 35404189840,
+    "runUrl": "https://github.com/A1Dmitry/Ricis3-Expansion-Map/actions/runs/35404189840",
+    "status": "LEAN_VERIFIED"
+  },
+  "kernelCheck": {
+    "addedBy": "AGENTS.md §7 — статус записывается снаружи неизменяемого исходника (присоединение metadata)",
+    "registry": "artifacts/proofs/core-checks/kernel-findings.json",
+    "evidence": "docs/05-evidence/proofs/lean-kernel-run-35404189840.pr-comment.txt",
+    "rawEvidence": "docs/05-evidence/proofs/lean-kernel-run-35404189840.pr-comment.txt",
+    "run": 35404189840,
+    "runUrl": "https://github.com/A1Dmitry/Ricis3-Expansion-Map/actions/runs/35404189840",
+    "job": "kernel-check",
+    "toolchain": "lean 4.33.1 (pinned via elan, GitHub Actions ubuntu-latest)",
+    "command": "lean +4.33.1 artifacts/proofs/core-checks/ricis-jacobian-conjecture-v2.core-check.lean",
+    "immutableSource": "artifacts/proofs/ricis-jacobian-conjecture-v2.lean",
+    "immutableSourceSha256": "cc7d8d44551e4120bda8b504b3ad6cbcb99734ac3a0a1809139cff25ae20b364",
+    "checkedFile": "artifacts/proofs/core-checks/ricis-jacobian-conjecture-v2.core-check.lean",
+    "sourceCheckedAsProvided": false,
+    "transformNote": "Проверяется производная: исходник минус неиспользуемая строка `import Mathlib` плюс эпилог #print axioms (тело байт-в-байт, генератор scripts/generateLeanCoreChecks.ts, подстановок нет).",
+    "substitutionsApplied": [],
+    "compilerExit": 0,
+    "compilerErrorCount": 0,
+    "theorems": {
+      "total": 8,
+      "provenWithoutSorryAx": 8,
+      "withSorryAx": 0,
+      "axiomFree": 2,
+      "withStandardAxiomsOnly": 6
+    },
+    "declaredContracts": [],
+    "printAxiomsOutput": [
+      "'RICIS_Jacobian.det_expansion_single_pass' depends on axioms: [propext]",
+      "'RICIS_Jacobian.RExpr_mul_ne_zeroF' does not depend on any axioms",
+      "'RICIS_Jacobian.jacobian_v1_identity_refuted' depends on axioms: [propext]",
+      "'RICIS_Jacobian.A6_pair_reaches_geometric_measure' depends on axioms: [propext]",
+      "'RICIS_Jacobian.A6_geometric_realization' depends on axioms: [propext]",
+      "'RICIS_Jacobian.A10_mul_zero' depends on axioms: [propext]",
+      "'RICIS_Jacobian.Jacobian_singularity_resolved' depends on axioms: [propext]",
+      "'RICIS_Jacobian.Jacobian_L1_identity' does not depend on any axioms"
+    ],
+    "statusAfterKernelRun": "LEAN_VERIFIED",
+    "rootCause": null,
+    "trustBoundary": "Проверено: ложность утверждения v1 для любых F, G и истинность исправленного структурного утверждения при опуске разрешения в произведения. Не проверено и не заявляется: гипотеза Якоби для полиномиальных отображений C^n → C^n и любая связь с классическим разложением определителя (P1 запрещает пределы).",
+    "relationToDeclaredTrustStatus": "Было REQUIRES_CORE_LEAN/PENDING_KERNEL_RUN (gap-closure PR #78) → стало LEAN_VERIFIED по факту run 35404189840. Повышение только артефактного уровня: claimLevel = STRUCTURALLY_VALIDATED."
   }
 }

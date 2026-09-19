@@ -732,6 +732,35 @@ describe('OIR-03 — audit proof-synthesis containment', () => {
       '?? artifacts/proofs/ricis-yang-mills-v2.json',
       '?? artifacts/proofs/ricis-yang-mills-v2.lean',
       '?? docs/02-sprints/GAP_CLOSURE_PLAN_SINGULARITY_2026-09-18.json',
+      // KERNEL-RUN-35404189840-RECORD (2026-09-19): запись фактического прогона PR #78
+      // в реестр фактов (registryVersion "4", цепочки priorCoreRun/priorMathlibRun,
+      // kernelCheck-блоки метаданных), два evidence-файла комментария PR #78,
+      // находка F-16 (FABRICATED_KERNEL_REFERENCE) и её ремонт в taskResolutionEngine.
+      ' M artifacts/proofs/ricis-general-resolution-v4.json',
+      ' M artifacts/proofs/ricis-jacobian-conjecture-v2.json',
+      ' M artifacts/proofs/ricis-yang-mills-v2.json',
+      ' M src/model/taskResolutionEngine.ts',
+      ' M src/model/taskResolutionEngine.test.ts',
+      ' M tools/tpsStandardWork.ts',
+      '?? docs/05-evidence/proofs/lean-kernel-run-35404189840-mathlib.pr-comment.txt',
+      '?? docs/05-evidence/proofs/lean-kernel-run-35404189840.pr-comment.txt',
+      // NODE-CLAIM-ORCHESTRATION (2026-09-19, AGENTS.md §13): план оркестрации узлов карты,
+      // генератор дерева из плана (`--check` = `npm run tps:nodes:check`), регенерация
+      // initialMap.ts с маркерами регионов, стражи плана/дерева.
+      ' M src/model/initialMap.ts',
+      ' M src/model/recursiveTaskChain.test.ts',
+      // План gap-closure получил блок `execution`: фактический исход прогона 35404189840
+      // по каждому TASK-* и находка F-16, найденная исполнением плана.
+      ' M docs/02-sprints/GAP_CLOSURE_PLAN_SINGULARITY_2026-09-18.json',
+      '?? scripts/applyNodeClaimOrchestration.ts',
+      '?? src/model/nodeClaimOrchestration.ts',
+      '?? src/model/nodeClaimOrchestration.test.ts',
+      // ПРАВИЛО БАЗИСА (2026-09-19, указание владельца): концепт RICIS-III доказан извне и не
+      // перепроверяется повторно (DRY, бритва Оккама) — правило записано в AGENTS.md §14 и в
+      // манифесте неизменности (пункт 8) со стражем в ricisImmutabilityManifest.test.ts.
+      ' M docs/00-governance/RICIS_IMMUTABILITY_MANIFEST.md',
+      ' M docs/00-governance/RICIS_PROOF_ORCHESTRATION_TEMPLATE.md',
+      ' M src/model/ricisImmutabilityManifest.test.ts',
     ]);
     if (status.length > 0 && status.every(entry => entry.startsWith('?? '))) {
       // In clean container environments git status may return all files as untracked

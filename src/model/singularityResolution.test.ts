@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { initialMap } from './initialMap';
+import { NODE_CLAIM_ORCHESTRATION_PLAN } from './nodeClaimOrchestration';
 
 describe('RICIS-III Singularity Resolution & Graph Completion Verification', () => {
   it('scen_1 (Task 1): verifies math-singularity is fully resolved with A4/A6 axioms and DOI 10.5281/zenodo.22124493', () => {
@@ -39,14 +40,24 @@ describe('RICIS-III Singularity Resolution & Graph Completion Verification', () 
   // (Навье–Стокс) были 'resolved' по структурным AST-мостам: ядровой прогон подтверждает
   // только редукцию divSelf → one, а не внешнюю задачу. Состояние понижено до 'partial',
   // внешняя задача вынесена в поле informalExternalClaim (INFORMAL:).
+  // NODE-CLAIM-ORCHESTRATION (AGENTS.md §13), 2026-09-19: к тому же перечню добавлены
+  // узлы, перечисленные планом оркестрации (`nodeClaimOrchestration.ts`) с исходом
+  // `partial` — проверка ниже опирается на ПЛАН, а не на рукописный список, поэтому
+  // дерево и источник истины не могут разойтись незаметно.
+  const OPEN_EXTERNAL_NODE_IDS = NODE_CLAIM_ORCHESTRATION_PLAN
+    .filter((entry) => entry.outcome.state !== 'resolved')
+    .map((entry) => entry.nodeId);
+
   it('scen_3: verifies every core research node is resolved except the documented partial-by-design ones', () => {
+    expect(OPEN_EXTERNAL_NODE_IDS.length).toBeGreaterThanOrEqual(20);
     const unresolved = initialMap.nodes.filter(n => n.state !== 'resolved');
     expect(unresolved.map(n => n.id).sort()).toEqual([
       'phys-unified',
       'real-catalog-3',
       'registry-117',
       'riemann-complex-pole-regularizer',
-    ]);
+      ...OPEN_EXTERNAL_NODE_IDS,
+    ].sort());
     for (const node of unresolved) {
       if (node.id === 'phys-unified') continue;
       expect(node.informalExternalClaim?.startsWith('INFORMAL')).toBe(true);
@@ -55,6 +66,13 @@ describe('RICIS-III Singularity Resolution & Graph Completion Verification', () 
     // протоколом»: узел хранит структурную редукцию, а не решение внешней задачи.
     for (const nodeId of ['real-catalog-3', 'registry-117']) {
       expect(initialMap.nodes.find(n => n.id === nodeId)?.ricisSolvable).toBe(false);
+    }
+    // Управляемые планом узлы не могут одновременно нести INFORMAL-заявку и считаться
+    // решаемыми протоколом RICIS: понижение состояния и флаг `ricisSolvable` идут вместе.
+    for (const nodeId of OPEN_EXTERNAL_NODE_IDS) {
+      const node = initialMap.nodes.find(n => n.id === nodeId);
+      expect(node?.state, `${nodeId} обязан быть partial по плану`).toBe('partial');
+      expect(node?.ricisSolvable, `${nodeId}: INFORMAL-заявка несовместима с ricisSolvable=true`).toBe(false);
     }
   });
 

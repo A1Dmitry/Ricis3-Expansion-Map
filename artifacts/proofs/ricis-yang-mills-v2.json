@@ -3,11 +3,15 @@
   "claim": "Тождества 2×2-детерминанта над ℝ для ортогональной пары: skew_product ⟨f'(a),0,0,1/g'(a)⟩ = f'(a)/g'(a) при g'(a) ≠ 0, и сопряжённый случай F = G: skew_product ⟨f',0,0,f'⟩ = (f')².",
   "method": "determinant_bridge_identity_on_real_pair",
   "verification": {
-    "valid": false,
-    "validNote": "Ядровой прогон ещё не выполнялся: значение valid=false означает «не проверено», а не «опровергнуто». Статус будет записан прогоном job mathlib-kernel-check и реестром kernel-findings.json.",
-    "verifiedAxioms": [],
+    "valid": true,
+    "validNote": "Прогон ядра 35404189840, job mathlib-kernel-check (PR #78): исходник как предоставлен и производная — exit 0, ошибок компилятора 0, sorryAx отсутствует; #print axioms напечатал 3 теоремы, все — только со стандартными аксиомами Lean. Ремонт импорта (F-14) подтверждён фактическим прогоном, а не предсказанием. Запись — artifacts/proofs/core-checks/kernel-findings.json (artifactId ricis-yang-mills-v2).",
+    "verifiedAxioms": [
+      "propext",
+      "Classical.choice",
+      "Quot.sound"
+    ],
     "contentHash": "cfac8b97f3051366b77b6fe09ab92c02d674861b5c5f42b408e647f1631579bf",
-    "trustStatus": "REQUIRES_CORE_LEAN",
+    "trustStatus": "LEAN_VERIFIED",
     "claimLevel": "STRUCTURALLY_VALIDATED",
     "claimLevelNote": "Даже после зелёного прогона уровень заявления остаётся структурным: доказаны тождества детерминанта над ℝ (A6-мость в вещественной модели). Массовый гэп Янга—Миллса, калибровочные поля, квантование и пределы здесь НЕ рассматриваются (TASK-02, known_content_risk)."
   },
@@ -34,6 +38,44 @@
     "job": "mathlib-kernel-check",
     "checkedFile": "artifacts/proofs/mathlib-checks/ricis-yang-mills-v2.mathlib-check.lean",
     "artifactCheckedAsProvided": true,
-    "status": "PENDING_KERNEL_RUN"
+    "run": 35404189840,
+    "runUrl": "https://github.com/A1Dmitry/Ricis3-Expansion-Map/actions/runs/35404189840",
+    "status": "LEAN_VERIFIED"
+  },
+  "kernelCheck": {
+    "addedBy": "AGENTS.md §7 — статус записывается снаружи неизменяемого исходника (присоединение metadata)",
+    "registry": "artifacts/proofs/core-checks/kernel-findings.json",
+    "evidence": "docs/05-evidence/proofs/lean-kernel-run-35404189840-mathlib.pr-comment.txt",
+    "rawEvidence": "docs/05-evidence/proofs/lean-kernel-run-35404189840-mathlib.pr-comment.txt",
+    "run": 35404189840,
+    "runUrl": "https://github.com/A1Dmitry/Ricis3-Expansion-Map/actions/runs/35404189840",
+    "job": "mathlib-kernel-check",
+    "toolchain": "leanprover/lean4:v4.33.0 — lean-toolchain закреплённой ревизии Mathlib @ 6f1ef4e5dd604a435bddba4747b13970cd65d2a1 (oleans готовыми, lake exe cache get)",
+    "command": "(cd mathlib-check && lake env lean artifacts/proofs/ricis-yang-mills-v2.lean) — исходник как предоставлен; та же команда для производной",
+    "immutableSource": "artifacts/proofs/ricis-yang-mills-v2.lean",
+    "immutableSourceSha256": "cfac8b97f3051366b77b6fe09ab92c02d674861b5c5f42b408e647f1631579bf",
+    "checkedFile": "artifacts/proofs/mathlib-checks/ricis-yang-mills-v2.mathlib-check.lean",
+    "sourceCheckedAsProvided": true,
+    "integrityNote": "Побайтовое тождество префикса производной и исходника подтверждено прогоном (source sha256 = sha256 в эпилоге = cfac8b97…); подстановок нет, объявленных аксиом нет.",
+    "substitutionsApplied": [],
+    "compilerExit": 0,
+    "compilerErrorCount": 0,
+    "theorems": {
+      "total": 3,
+      "provenWithoutSorryAx": 3,
+      "withSorryAx": 0,
+      "axiomFree": 0,
+      "withStandardAxiomsOnly": 3
+    },
+    "declaredContracts": [],
+    "printAxiomsOutput": [
+      "'RICIS.skew_product_orthogonal_pair_eq_div' depends on axioms: [propext, Classical.choice, Quot.sound]",
+      "'RICIS.skew_product_conjugate_pair_eq_square' depends on axioms: [propext, Classical.choice, Quot.sound]",
+      "'RICIS.orthogonal_bridge_invariant_eq_div' depends on axioms: [propext, Classical.choice, Quot.sound]"
+    ],
+    "statusAfterKernelRun": "LEAN_VERIFIED",
+    "rootCause": null,
+    "trustBoundary": "Проверено: тождества 2×2-детерминанта над ℝ для ортогональной пары и инвариант моста (3 теоремы, стандартные аксиомы). Не проверено и не заявляется: массовый гэп Янга—Миллса, калибровочные поля, квантование и классические пределы (P1). Байты v1 (ricis-yang-mills.lean) не изменены и по-прежнему ожидают прогона.",
+    "relationToDeclaredTrustStatus": "Было REQUIRES_CORE_LEAN/PENDING_KERNEL_RUN (gap-closure PR #78) → стало LEAN_VERIFIED по факту run 35404189840. Повреждённый импорт v1 (Mathlib.Basic.Real.Basic, F-14) не изменялся: исправление внесено НОВОЙ версией, как требует §7."
   }
 }

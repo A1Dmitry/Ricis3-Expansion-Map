@@ -232,6 +232,27 @@ from-scratch build; prebuilt oleans of a pinned revision do.
   * Both files are in the `MATHLIB_ARTIFACTS` allowlist with generated `artifacts/proofs/mathlib-checks/`
     derivatives (`--check` drift 0). Compilability before the run is an **UNVERIFIED_PREDICTION**
     (TASK-07 rule); the statuses above are recorded by the run itself, never by static review.
+* **Run 35404189840 (2026-09-18, PR #78) — прогон gap-closure, обе джобы `success`:** `PENDING_KERNEL_RUN`
+  переведён в факт для всех трёх новых версий; статусы записаны прогоном, а не прогнозом.
+  * `kernel-check`: `ricis-jacobian-conjecture-v2` — производная принята ядром (`exit 0`, 0 ошибок,
+    `sorryAx` отсутствует, 8 теорем: 2 без аксиом, 6 × `propext`), включая
+    `jacobian_v1_identity_refuted` (утверждение v1 ложно для любых `F`, `G`) и
+    `Jacobian_singularity_resolved` (исправленная формулировка через `ricisResolveDet`).
+    Артефактный уровень — `LEAN_VERIFIED`, claim — `STRUCTURALLY_VALIDATED`; v1 остаётся
+    `EXPECTED_FAIL` (замена выполнена НОВОЙ версией, §7).
+  * `mathlib-kernel-check`: `ricis-general-resolution-v4` — исходник как предоставлен и производная
+    `exit 0`, `sorryAx` отсутствует, 10 теорем только со стандартными аксиомами, 0 объявленных
+    аксиом; `ricis-yang-mills-v2` — `exit 0`, 3 теоремы, только стандартные аксиомы (ремонт импорта
+    F-14 подтверждён прогоном). Побайтовое тождество префикса производной исходнику подтверждено.
+  * `ricis-yang-mills.lean` (v1) остаётся единственным `pendingKernelRun` и вне allowlist;
+    его байты (`a191db2b…`) не изменялись.
+  * Дословные логи: [`lean-kernel-run-35404189840.pr-comment.txt`](../../docs/05-evidence/proofs/lean-kernel-run-35404189840.pr-comment.txt)
+    (core) и [`…-mathlib.pr-comment.txt`](../../docs/05-evidence/proofs/lean-kernel-run-35404189840-mathlib.pr-comment.txt)
+    (Mathlib); запись фактов — `artifacts/proofs/core-checks/kernel-findings.json`
+    (`registryVersion` 4, `generatedFrom`/`mathlibRun` — цепочки прогонов).
+  * **Граница.** Прогон подтверждает структурные теоремы артефактов; он не разрешает ни гипотезу
+    Якоби, ни массовый гэп Янга—Миллса, ни одну классическую задачу — уровни заявления остаются
+    `STRUCTURALLY_VALIDATED`, внешние задачи — `INFORMAL:` и вне доказательства.
 
 ---
 

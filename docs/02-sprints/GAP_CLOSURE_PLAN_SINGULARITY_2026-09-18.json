@@ -75,5 +75,106 @@
     "Physical construction of devices (Monolith, vortex engine) -- not part of the mathematical core.",
     "Decoding of the Voynich manuscript -- not part of the mathematical core.",
     "Claims about third-party companies 'adopting' the methodology (adopters.md) -- a communications question, not an engineering task."
-  ]
+  ],
+  "execution": {
+    "recordedAt": "2026-09-19",
+    "recordedBy": "agent:arena (исполнитель цикла), AUDITOR: SELF (same-pipeline)",
+    "status": "EXECUTED — TASK-01…05 и TASK-07 закрыты фактом прогона ядра; решения владельца не подменялись",
+    "kernelRun": {
+      "runId": 35404189840,
+      "pullRequest": 78,
+      "commit": "4322c31e11bb658b501c94b674938b40fa0edda1",
+      "branch": "arena/01a0b641-ricis3-expansion-map",
+      "workflow": ".github/workflows/lean-artifact-kernel-check.yml",
+      "toolchain": "core: Lean 4.33.1 (pinned via elan); mathlib: leanprover/lean4:v4.33.0 + Mathlib @ 6f1ef4e5dd604a435bddba4747b13970cd65d2a1",
+      "jobs": {
+        "core": {
+          "jobId": 105790400531,
+          "conclusion": "success",
+          "note": "Новая цель ricis-jacobian-conjecture-v2 принята (exit 0, 8 теорем, без sorryAx); ricis-jacobian-conjecture (v1) — EXPECTED_FAIL по ciPolicy, без маскировки."
+        },
+        "mathlib": {
+          "jobId": 105790400643,
+          "conclusion": "success",
+          "note": "ricis-general-resolution-v4 (10 теорем) и ricis-yang-mills-v2 (3 теоремы) приняты; зависимости только от стандартных аксиом (propext, Classical.choice, Quot.sound), объявленных аксиом 0."
+        }
+      },
+      "evidence": [
+        "docs/05-evidence/proofs/lean-kernel-run-35404189840.pr-comment.txt",
+        "docs/05-evidence/proofs/lean-kernel-run-35404189840-mathlib.pr-comment.txt"
+      ],
+      "registry": "artifacts/proofs/core-checks/kernel-findings.json",
+      "registryVersion": "4",
+      "chains": {
+        "core": [
+          35404189840,
+          34891262489
+        ],
+        "mathlib": [
+          35404189840,
+          35240479485
+        ]
+      },
+      "immutableSourcesUntouched": {
+        "ricis-jacobian-conjecture.standalone.lean": "2e043f2738df8d8b02754aebb5fa93580fb87e6cc71733557c620c463c4de56b",
+        "ricis-yang-mills.lean": "a191db2b9195dad0d0610d66fa8eeb5f0179f1166f48c9546c27239c5f273dbe"
+      }
+    },
+    "taskOutcomes": [
+      {
+        "id": "TASK-01",
+        "findingRef": "F-01",
+        "outcome": "CLOSED_BY_FACT",
+        "result": "Байты v1 не изменены (§7). Утверждение v1 формально опровергнуто теоремой jacobian_v1_identity_refuted новой версии, исправленное структурное утверждение принято ядром: ricis-jacobian-conjecture-v2 — exit 0, 8 теорем, sorryAx отсутствует. В реестре у v1 появилась запись successor; сам v1 остаётся EXPECTED_FAIL по ciPolicy."
+      },
+      {
+        "id": "TASK-02",
+        "findingRef": "F-14",
+        "outcome": "CLOSED_BY_FACT",
+        "result": "Импорт отремонтирован в НОВОЙ версии: ricis-yang-mills-v2 принята mathlib-джобой (exit 0, 3 теоремы, только стандартные аксиомы). v1 остаётся единственным pendingKernelRun: его байты не тронуты, ожидаемый исход не выдан за факт."
+      },
+      {
+        "id": "TASK-03",
+        "findingRef": "F-09, F-11",
+        "outcome": "CLOSED_BY_FACT",
+        "result": "В v4 разрыв «редукция ↔ вычисление» закрыт: ricis_reduce входит и в формулировку, и в доказательство (ricis_reduce_at_center_eq_eval), сингулярность 0/0 предъявлена (singularity_is_zero_over_zero). Прогон принял v4 (10 теорем, 0 объявленных аксиом)."
+      },
+      {
+        "id": "TASK-04",
+        "findingRef": "F-10",
+        "outcome": "CLOSED_BY_FACT",
+        "result": "Аксиомы-уравнения A4/SP1 в v4 отсутствуют: контракты выражены отношением RicisContract, объявленных аксиом 0. Прогон дополнительно показал опровержимость универсального уравнения A4 (RicisExpr_div_ne_val, no_universal_a4_equation) — ремонт был необходим, а не косметичен."
+      },
+      {
+        "id": "TASK-05",
+        "findingRef": "F-05",
+        "outcome": "CLOSED_BY_FACT",
+        "result": "Формулировки узлов приведены к фактическому покрытию: узлы real-catalog-3, registry-117, riemann-complex-pole-regularizer понижены до partial с полем informalExternalClaim; продолжение — такт NODE-CLAIM-ORCHESTRATION (27 управляемых узлов, AGENTS.md §13)."
+      },
+      {
+        "id": "TASK-07",
+        "findingRef": "F-13",
+        "outcome": "CLOSED_BY_PROCESS",
+        "result": "Правило внесено в AGENTS.md §12: статус Lean-артефакта записывается только по фактическому ядровому прогону; прогноз без прогона помечается UNVERIFIED_PREDICTION и в реестр статусом не попадает."
+      }
+    ],
+    "newFindings": [
+      {
+        "id": "F-16",
+        "severity": "HIGH",
+        "kind": "FABRICATED_KERNEL_REFERENCE",
+        "outcome": "CLOSED",
+        "note": "Найдена исполнением плана: три записи leanProof в src/model/taskResolutionEngine.ts называли теоремы, которых нет ни в одном прогоне. Ссылки сведены к фактическим теоремам принятого ядром шаблона; страж QA-LEAN-1 сверяет каждую ссылку с реестром."
+      }
+    ],
+    "followUp": {
+      "takt": "NODE-CLAIM-ORCHESTRATION",
+      "plan": "src/model/nodeClaimOrchestration.ts",
+      "generator": "scripts/applyNodeClaimOrchestration.ts",
+      "driftGate": "npm run tps:nodes:check",
+      "governance": "AGENTS.md §13",
+      "managedNodes": 27,
+      "loweredToPartial": 23
+    }
+  }
 }

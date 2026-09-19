@@ -8,7 +8,7 @@
 > и новый канал дрейфа. Если строки отчёта и реестра расходятся, бракованной считается попытка
 > править этот файл руками. AUDITOR: SELF (same-pipeline).
 
-**Реестр:** Реестр фактов ядрового прогона Lean 4.33.1 по core-check производным · `registryVersion` 3
+**Реестр:** Реестр фактов ядрового прогона Lean 4.33.1 по core-check производным · `registryVersion` 4
 **Toolchain прогонов:** lean 4.33.1 (pinned via elan, GitHub Actions ubuntu-latest) · команда: `lean +4.33.1 <artifact>` · генератор производных: `scripts/generateLeanCoreChecks.ts`
 
 ## Классификация статусов (дословно из реестра)
@@ -37,6 +37,7 @@
 | F-13 | MEDIUM | — | открыто или закрыто частично — см. реестр | — | — |
 | F-14 | HIGH | — | открыто или закрыто частично — см. реестр | — | TPS-0007 (waiting_owner) |
 | F-15 | MEDIUM | — | закрыто (поле `resolution`/`status` начинается с маркера закрытия) | — | TPS-0013 (waiting_owner) |
+| F-16 | HIGH | FABRICATED_KERNEL_REFERENCE | закрыто (поле `resolution`/`status` начинается с маркера закрытия) | src/model/taskResolutionEngine.ts (ELEMENTARY_SOLUTIONS[].leanProof), src/model/taskResolutionEngine.test.ts | — |
 
 > Класс закрытости вычисляется той же функцией `isFindingRecordedClosed`, что и правило
 > `CARD_FINDING_ALREADY_CLOSED`: доска и отчёт не могут расходиться, потому что проверка одна.
@@ -54,13 +55,16 @@
 | ricis-chatbot-monetization | LEAN_VERIFIED | 0 | 0 | 2 | `artifacts/proofs/core-checks/ricis-chatbot-monetization.core-check.lean` |
 | ricis-general-resolution | LEAN_VERIFIED | 0 | 0 | 3 | `artifacts/proofs/mathlib-checks/ricis-general-resolution.mathlib-check.lean` |
 | ricis-general-resolution-v3 | LEAN_VERIFIED | 0 | 0 | 5 | `artifacts/proofs/mathlib-checks/ricis-general-resolution-v3.mathlib-check.lean` |
+| ricis-general-resolution-v4 | LEAN_VERIFIED | 0 | 0 | 10 | `artifacts/proofs/mathlib-checks/ricis-general-resolution-v4.mathlib-check.lean` |
 | ricis-jacobian-conjecture | NOT_VERIFIED_CORE_ONLY | 1 | 1 | 2 | `artifacts/proofs/core-checks/ricis-jacobian-conjecture.standalone.core-check.lean` |
+| ricis-jacobian-conjecture-v2 | LEAN_VERIFIED | 0 | 0 | 8 | `artifacts/proofs/core-checks/ricis-jacobian-conjecture-v2.core-check.lean` |
 | ricis-kernel-ast-sp5 | LEAN_VERIFIED | 0 | 0 | 2 | `artifacts/proofs/core-checks/ricis-kernel-ast-sp5.standalone.core-check.lean` |
 | ricis-navier-stokes-ast-bridge | LEAN_VERIFIED | 0 | 0 | 2 | `artifacts/proofs/core-checks/ricis-navier-stokes-ast-bridge.standalone.core-check.lean` |
 | ricis-riemann-zeta-ast-bridge | LEAN_VERIFIED | 0 | 0 | 2 | `artifacts/proofs/core-checks/ricis-riemann-zeta-ast-bridge.standalone.core-check.lean` |
 | ricis-seed-expansion-a11 | LEAN_VERIFIED | 0 | 0 | 6 | `artifacts/proofs/core-checks/ricis-seed-expansion-a11.core-check.lean` |
 | ricis-universal-orchestration-template | LEAN_VERIFIED | 0 | 0 | 27 | `artifacts/proofs/core-checks/ricis-universal-orchestration-template.core-check.lean` |
 | ricis-v79-monolith | LEAN_VERIFIED | 0 | 0 | 31 | `artifacts/proofs/core-checks/ricis-v79-monolith.standalone.core-check.lean` |
+| ricis-yang-mills-v2 | LEAN_VERIFIED | 0 | 0 | 3 | `artifacts/proofs/mathlib-checks/ricis-yang-mills-v2.mathlib-check.lean` |
 | RicisAgiTarget | LEAN_VERIFIED | 0 | 0 | 3 | `artifacts/proofs/mathlib-checks/RicisAgiTarget.mathlib-check.lean` |
 | Schwarzschild_GeometricBridge | LEAN_VERIFIED | 0 | 0 | 11 | `artifacts/proofs/core-checks/Schwarzschild_GeometricBridge.core-check.lean` |
 
@@ -70,10 +74,7 @@
 ## Политика CI: ожидаемые отказы и ожидающие прогоны
 
 - `ciPolicy.expectedFailures` (падение этих целей не рвёт прогон, потому что первопричина зафиксирована): `ricis-jacobian-conjecture`
-- ожидает прогона: `ricis-general-resolution-v4` · job `mathlib-kernel-check` · статус PENDING_KERNEL_RUN
-- ожидает прогона: `ricis-jacobian-conjecture-v2` · job `kernel-check` · статус PENDING_KERNEL_RUN
 - ожидает прогона: `ricis-yang-mills` · job `mathlib-kernel-check` · статус PENDING_KERNEL_RUN
-- ожидает прогона: `ricis-yang-mills-v2` · job `mathlib-kernel-check` · статус PENDING_KERNEL_RUN
 - `sorryAx` в скопилированном файле рвёт прогон всегда — ожидаемый отказ его не легализует.
 
 ## Что этот отчёт не делает
