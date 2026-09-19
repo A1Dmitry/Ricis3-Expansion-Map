@@ -77,20 +77,22 @@ describe('twoDLayout — классическая радиальная раск�
     expect(layout.depthOf['root']).toBe(0);
   });
 
-  it('радиус строго растёт с глубиной: узлы одной глубины — на одном кольце', () => {
+  it('глубже = дальше: узлы глубины d лежат строго внутри своей площадной зоны, зоны упорядочены', () => {
     const layout = computeMap2DLayout(NODES, ZONES);
     expect(layout.depthOf['A3']).toBe(4); // цепочка root→A→A1→A2→A3
-    const ringOf = (id: string) => layout.ringRadii[layout.depthOf[id]!]!;
+    const eps = 1;
     for (const node of NODES) {
-      expect(distFromCenter(layout, node.id), node.id).toBeCloseTo(ringOf(node.id), 0);
+      const d = layout.depthOf[node.id]!;
+      const r = distFromCenter(layout, node.id);
+      expect(r, node.id).toBeGreaterThanOrEqual(layout.depthBandLo[d]! - eps);
+      expect(r, node.id).toBeLessThanOrEqual(layout.depthBandHi[d]! + eps);
     }
-    // Монотонность колец
-    for (let d = 1; d < layout.ringRadii.length; d++) {
-      expect(layout.ringRadii[d]!, `ring ${d}`).toBeGreaterThan(layout.ringRadii[d - 1]!);
+    // Зоны упорядочены по глубине (границы неубывают)
+    for (let d = 1; d < layout.depthBandLo.length; d++) {
+      expect(layout.depthBandLo[d]!, `zone ${d}`).toBeGreaterThanOrEqual(layout.depthBandLo[d - 1]! - 1e-9);
     }
-    // Дальше от центра = глубже
+    // Глубокая цепочка дальше от центра, чем её звенья помельче
     expect(distFromCenter(layout, 'A3')).toBeGreaterThan(distFromCenter(layout, 'A1'));
-    expect(distFromCenter(layout, 'C2')).toBeGreaterThan(distFromCenter(layout, 'C'));
   });
 
   it('угловой промежуток ветви ∝ весу её поддерева', () => {
@@ -120,10 +122,6 @@ describe('twoDLayout — классическая радиальная раск�
       const p = layout.spanOf[parent]!;
       expect(c.startAngle, child).toBeGreaterThanOrEqual(p.startAngle - eps);
       expect(c.endAngle, child).toBeLessThanOrEqual(p.endAngle + eps);
-      // Абсолютный угол узла — внутри его промежутка
-      const a = angleOf(layout, child);
-      expect(a, child).toBeGreaterThanOrEqual(c.startAngle - eps);
-      expect(a, child).toBeLessThanOrEqual(c.endAngle + eps);
     };
     inside('A1', 'A');
     inside('A2', 'A1');
@@ -156,10 +154,10 @@ describe('twoDLayout — классическая радиальная раск�
       NODES.some(n => layout.positions[n.id]!.x > cx && layout.positions[n.id]!.y > cy),
     ];
     expect(quadrants.every(Boolean)).toBe(true);
-    // Самое глубокое кольцо достигает рабочего края (минус отступ)
+    // Самая глубокая зона — у внешней границы контент-диска
     const deepest = NODES.find(n => layout.depthOf[n.id] === Math.max(...Object.values(layout.depthOf)))!;
     expect(distFromCenter(layout, deepest.id)).toBeGreaterThanOrEqual(
-      Math.min(layout.width, layout.height) / 2 - 100 - 1,
+      layout.depthBandLo[layout.depthOf[deepest.id]!] - 1,
     );
   });
 
@@ -180,7 +178,7 @@ describe('twoDLayout — классическая радиальная раск�
     expect([...layout.rootIds].sort()).toEqual(['rootA', 'rootB']);
     expect(distFromCenter(layout, 'rootA')).toBeGreaterThan(0);
     expect(distFromCenter(layout, 'rootA')).toBeLessThan(distFromCenter(layout, 'leaf'));
-    expect(distFromCenter(layout, 'rootA')).toBeCloseTo(distFromCenter(layout, 'rootB'), 0);
+    expect(distFromCenter(layout, 'rootB')).toBeLessThan(distFromCenter(layout, 'leaf'));
     // Якорные промежутки покрывают полный круг
     const anchorsTotal = ['rootA', 'rootB'].reduce(
       (s, id) => s + (layout.spanOf[id]!.endAngle - layout.spanOf[id]!.startAngle),

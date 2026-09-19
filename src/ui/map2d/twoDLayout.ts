@@ -44,8 +44,11 @@ export interface Map2DLayout {
   readonly center: Map2DPoint;
   /** Глубина зависимости каждого узла (0 = рутовый, в центре). */
   readonly depthOf: Readonly<Record<string, number>>;
-  /** Радиусы колец глубины: ringRadii[d] — радиус кольца глубины d. */
+  /** Строго возрастающие границы площадно-пропорциональных зон глубины. */
   readonly ringRadii: readonly number[];
+  /** Радиальная зона глубины d: узел глубины d лежит в [depthBandLo[d], depthBandHi[d]). */
+  readonly depthBandLo: readonly number[];
+  readonly depthBandHi: readonly number[];
   /** Угловой промежуток поддерева каждого узла [startAngle, endAngle). */
   readonly spanOf: Readonly<Record<string, { startAngle: number; endAngle: number }>>;
   /** Центроиды кластеров зон — по фактическим позициям узлов (для подписей). */
@@ -130,6 +133,8 @@ export function computeMap2DLayout(
     center: { x: 300, y: 300 },
     depthOf: {},
     ringRadii: [],
+    depthBandLo: [],
+    depthBandHi: [],
     spanOf: {},
     zoneCentroids: {},
     rootIds: [],
@@ -274,64 +279,205 @@ export function computeMap2DLayout(
     });
   };
 
-  // --- 5) Адаптивные радиусы колец ------------------------------------------
-  // Радиус кольца d подбирается под численность кольца, чтобы дуговое
-  // расстояние между соседями было не меньше целевого (равномерность), при
-  // этом кольца строго разнесены радиально.
-  const TARGET_ARC = 58; // целевое дуговое расстояние между узлами кольца
-  const MIN_BAND = 70;   // минимальная разница радиусов соседних колец
+  // --- 5) Площадно-пропорциональные глубинные зоны ---------------------------
+  // Жёсткие «кольца» при перекосе численности по глубинам дают пустой центр
+  // и бусы по одному радиусу (см. фидбэк). Вместо этого подряд идущие
+  // КОЛЬЦЕВЫЕ ЗОНЫ глубины: площадь зоны ∝ суммарному числу её узлов, порядок
+  // «глубже → дальше» жёсткий, внутри зоны каждый узел занимает одинаковую
+  // ПЛОЩАДЬ. «Лезвия» (зоны с 1–2 узлами) сливаются с соседями, пока радиаль-
+  // ная ширина зоны не станет ≥ SLOT — иначе у узла нет места разойтись.
+  const SLOT = 54;                    // целевой линейный шаг между соседями
+  const AREA_PER_NODE = 1.6 * SLOT * SLOT;
 
   const depthCount: number[] = Array.from({ length: maxDepth + 1 }, () => 0);
   for (const node of nodes) depthCount[Math.min(depthOf[node.id]!, maxDepth)]! += 1;
 
-  const rootRadius = anchors.length === 1 ? 0 : 70;
-  const idealRadii: number[] = [rootRadius];
-  for (let d = 1; d <= maxDepth; d++) {
-    const required = (TARGET_ARC / TWO_PI) * (depthCount[d] ?? 0);
-    idealRadii.push(Math.max(idealRadii[d - 1]! + MIN_BAND, required, idealRadii[d - 1]! + 1));
+  const singleRoot = rootIds.length === 1;
+  // Кумулятивные границы по площади
+  const edgeR: number[] = [0];
+  for (let d = 0; d <= maxDepth; d++) {
+    const prev = edgeR[d]!;
+    const area = singleRoot && d === 0 ? 0 : (depthCount[d] ?? 0) * AREA_PER_NODE;
+    edgeR.push(Math.sqrt(prev * prev + area / Math.PI));
   }
-  // Мягкий предел общего радиуса (пропорциональное сжатие сохраняет
-  // равномерность: относительные расстояния неизменны, зум добирает детали).
-  const outerIdeal = idealRadii[maxDepth]!;
-  const softLimit = 1560; // ~4× штатного радиуса — пропорции сохраняются, зум догоняет детали
-  const squeeze = outerIdeal <= 0 ? 1 : Math.min(1, softLimit / outerIdeal);
-  const ringRadii = idealRadii.map(r => r * squeeze);
+  const outerIdeal = edgeR[maxDepth + 1]!;
+  const squeeze = outerIdeal <= 1550 ? 1 : 1550 / outerIdeal;
+  for (let i = 0; i < edgeR.length; i++) edgeR[i] = edgeR[i]! * squeeze;
 
-  // --- 6) Рекурсивное угловое размещение по ПОЛНОМУ кругу -------------------
-  const placements = new Map<string, RadialPlacement>();
+  // Слияние «лезвий»: зона поглощает следующие глубины, пока её радиальная
+  // ширина не достигнет минимальной.
+  const MIN_W = 0.95 * SLOT * squeeze;
+  const depthBandLo: number[] = []; // lo-граница зоны глубины d
+  const depthBandHi: number[] = []; // hi-граница зоны глубины d
+  const zoneEdges: number[] = [];   // строго возрастающие границы зон
+  let gStart = 0;
+  for (let d = 0; d <= maxDepth; d++) {
+    const isLast = d === maxDepth;
+    const width = edgeR[d + 1]! - edgeR[gStart]!;
+    if (width >= MIN_W || isLast) {
+      for (let k = gStart; k <= d; k++) {
+        depthBandLo[k] = edgeR[gStart]!;
+        depthBandHi[k] = edgeR[d + 1]!;
+      }
+      if (zoneEdges.length === 0) zoneEdges.push(edgeR[gStart]!);
+      zoneEdges.push(edgeR[d + 1]!);
+      gStart = d + 1;
+    }
+  }
+  const ringRadii = zoneEdges;
+
+  // --- 6) Углы: рекурсивное деление полного круга ∝ весу поддерева ----------
   const spanOf: Record<string, { startAngle: number; endAngle: number }> = {};
-
-  const assignNode = (id: string, a0: number, a1: number, radius: number): void => {
-    const angle = (a0 + a1) / 2;
-    placements.set(id, { angle, radius });
+  // Промежуток ВЕРХНЕГО предка (ветвь первого уровня) — именно он служит
+  // границами свободы узла при финальной репульсивной доводке: мелкие
+  // поддеревья-близнецы имеют слишком узкие промежутки, чтобы в них разойтись.
+  const topSpanOf: Record<string, { startAngle: number; endAngle: number }> = {};
+  const assignAngles = (id: string, a0: number, a1: number, topA0?: number, topA1?: number): void => {
     spanOf[id] = { startAngle: a0, endAngle: a1 };
+    const t0 = topA0 ?? a0;
+    const t1 = topA1 ?? a1;
+    topSpanOf[id] = { startAngle: t0, endAngle: t1 };
     for (const piece of splitSpan(childrenOf.get(id) ?? [], a0, a1)) {
-      assignNode(piece.id, piece.a0, piece.a1, ringRadii[Math.min(depthOf[piece.id]!, maxDepth)]!);
+      assignAngles(piece.id, piece.a0, piece.a1, t0, t1);
     }
   };
 
   const rootSet = new Set(rootIds);
-  if (rootIds.length === 1) {
-    // Единственный рут — точно в центре; круг делится ∝ весу между его
-    // поддеревом и (если есть) изолированными кластерами-якорями.
+  if (singleRoot) {
+    // Единственный рут — якорь центра; круг делится ∝ весу между его
+    // поддеревом и (если есть) изолированными кластерами-спутниками.
     const root = rootIds[0]!;
     const satellites = anchors.filter(id => !rootSet.has(id));
-    const topAnchors = [root, ...satellites];
-    for (const piece of splitSpan(topAnchors, -Math.PI, Math.PI)) {
-      const radius = piece.id === root ? 0 : ringRadii[Math.min(depthOf[piece.id]!, maxDepth)]!;
-      assignNode(piece.id, piece.a0, piece.a1, radius);
+    for (const piece of splitSpan([root, ...satellites], -Math.PI, Math.PI)) {
+      // Корень центра не пленяет ветви: их верхний промежуток = своя доля
+      // (у splitSpan выше уже выдана); для детей корня topSpan — их доля.
+      assignAngles(piece.id, piece.a0, piece.a1, piece.a0, piece.a1);
     }
   } else {
     // Лес из нескольких корней: полный круг делится ∝ весу поддеревьев.
     for (const piece of splitSpan(anchors, -Math.PI, Math.PI)) {
-      assignNode(piece.id, piece.a0, piece.a1, ringRadii[0]!);
+      assignAngles(piece.id, piece.a0, piece.a1, piece.a0, piece.a1);
     }
   }
+
+  // --- 7) Радиусы: равномерная ПЛОЩАДЬ внутри зоны глубины -----------------
+  // Узлы глубины d (в порядке обхода по углу) получают площадно-равномерные
+  // радиальные слоты своей зоны: радиус растёт корнем квадратным от индекса —
+  // каждому узлу достаётся одинаковая площадь на любом радиусе (равномерное
+  // заполнение диска вместо «бус» на кольце).
+  const midAngleOf = (id: string): number => {
+    const s = spanOf[id]!;
+    return (s.startAngle + s.endAngle) / 2;
+  };
+  const byDepth = new Map<number, string[]>();
+  for (const node of nodes) {
+    const d = Math.min(depthOf[node.id]!, maxDepth);
+    const list = byDepth.get(d) ?? [];
+    list.push(node.id);
+    byDepth.set(d, list);
+  }
+  const placements = new Map<string, RadialPlacement>();
+  for (const [d, ids] of byDepth) {
+    ids.sort((a, b) => midAngleOf(a) - midAngleOf(b) || byId(a, b));
+    // Слоты — внутри средних 50% зоны: 25%-ские радиальные маржи по краям
+    // гарантируют стыкам соседних глубин разнос ≥ ~0.5·SLOT (цепочки A→B не
+    // слипаются на границе зон).
+    const r0z = depthBandLo[d]!;
+    const r1z = depthBandHi[d]!;
+    const wq = (r1z - r0z) * 0.25;
+    const r0 = r0z + wq;
+    const r1 = r1z - wq;
+    const n = ids.length;
+    ids.forEach((id, j) => {
+      const radius = Math.sqrt(r0 * r0 + ((j + 0.5) / n) * (r1 * r1 - r0 * r0));
+      placements.set(id, { angle: midAngleOf(id), radius });
+    });
+  }
+  // Единственный рут — точно в центре (его точечная зона площади не занимала).
+  if (singleRoot) placements.set(rootIds[0]!, { angle: midAngleOf(rootIds[0]!), radius: 0 });
+
+  // --- 8) Детерминированная репульсивная доводка (как в 3D: seed + отталки-
+  // вание) -------------------------------------------------------------
+  // Спиральная разводка равномерна «в среднем», но углово-соседние узлы на
+  // больших радиусах могут получить соседние слоты → расстояние затухает.
+  // Repulsion-итерации (spatial grid) с зажимами: радиус — внутри зоны
+  // глубины, угол — внутри промежутка поддерева (±10% ширины по краям).
+  // Цель: min-расстояние ≈ SLOT при сохранении структуры; детерминированно.
+  const idsSorted = [...placements.keys()].sort();
+  const minDist = SLOT * squeeze;
+  const xy = new Map<string, { x: number; y: number }>();
+  const toXY = (p: RadialPlacement) => ({ x: p.radius * Math.cos(p.angle), y: p.radius * Math.sin(p.angle) });
+  const toPolar = (p: { x: number; y: number }): RadialPlacement => ({
+    angle: Math.atan2(p.y, p.x),
+    radius: Math.hypot(p.x, p.y),
+  });
+  for (const id of idsSorted) xy.set(id, toXY(placements.get(id)!));
+
+  const cell = minDist;
+  for (let iter = 0; iter < 150; iter++) {
+    const grid = new Map<string, string[]>();
+    for (const id of idsSorted) {
+      const p = xy.get(id)!;
+      const key = `${Math.floor(p.x / cell)},${Math.floor(p.y / cell)}`;
+      (grid.get(key) ?? grid.set(key, []).get(key)!).push(id);
+    }
+    let maxMove = 0;
+    for (const id of idsSorted) {
+      const p = xy.get(id)!;
+      const cx = Math.floor(p.x / cell);
+      const cy = Math.floor(p.y / cell);
+      let fx = 0;
+      let fy = 0;
+      for (let gx = cx - 1; gx <= cx + 1; gx++) {
+        for (let gy = cy - 1; gy <= cy + 1; gy++) {
+          for (const other of grid.get(`${gx},${gy}`) ?? []) {
+            if (other === id) continue;
+            let dx = p.x - xy.get(other)!.x;
+            let dy = p.y - xy.get(other)!.y;
+            let dist = Math.hypot(dx, dy);
+            if (dist >= minDist) continue;
+            if (dist < 1e-6) {
+              // Полное совпадение: детерминированное направление разноса.
+              const h = 2.399963 * (idsSorted.indexOf(id) + 1);
+              dx = Math.cos(h); dy = Math.sin(h); dist = 1;
+            }
+            const push = (minDist - dist) / dist;
+            fx += dx * push * 0.5;
+            fy += dy * push * 0.5;
+          }
+        }
+      }
+      if (fx !== 0 || fy !== 0) {
+        maxMove = Math.max(maxMove, Math.hypot(fx, fy));
+        xy.set(id, { x: p.x + fx, y: p.y + fy });
+        // Зажим: радиус — в зоне глубины, угол — в промежуток ВЕРХНЕЙ ветви
+        // (ветви первого уровня не пересекаются, мелкие близнецы свободны).
+        const d = Math.min(depthOf[id]!, maxDepth);
+        const s = topSpanOf[id]!;
+        const w = s.endAngle - s.startAngle;
+        const polar = toPolar(xy.get(id)!);
+        const zoneW = depthBandHi[d]! - depthBandLo[d]!;
+        const rMin = Math.max(0, depthBandLo[d]! + 0.25 * zoneW);
+        const rMax = Math.max(rMin, depthBandHi[d]! - 0.25 * zoneW);
+        polar.radius = Math.min(rMax, Math.max(rMin, polar.radius));
+        const aMin = s.startAngle - 0.10 * w;
+        const aMax = s.endAngle + 0.10 * w;
+        const ang = Math.min(aMax, Math.max(aMin, polar.angle));
+        polar.angle = ang;
+        xy.set(id, toXY(polar));
+      }
+    }
+    if (maxMove < 0.25) break;
+  }
+  // Обратно в полярные координаты
+  placements.clear();
+  for (const id of idsSorted) placements.set(id, toPolar(xy.get(id)!));
+  if (singleRoot) placements.set(rootIds[0]!, { angle: midAngleOf(rootIds[0]!), radius: 0 });
 
   // --- Финализация в декартовы координаты -----------------------------------
   // Холст обнимает радиальный диск: сторона = диаметр внешнего кольца плюс
   // отступ (зумируемая область; глубокие цепочки получают больше места).
-  const outerRadius = ringRadii[maxDepth]! + padding;
+  const outerRadius = depthBandHi[maxDepth]! + padding;
   const side = Math.max(600, Math.ceil(outerRadius * 2));
   const width = side;
   const height = side;
@@ -374,6 +520,8 @@ export function computeMap2DLayout(
     center,
     depthOf: { ...depthOf },
     ringRadii,
+    depthBandLo,
+    depthBandHi,
     spanOf,
     zoneCentroids,
     rootIds,

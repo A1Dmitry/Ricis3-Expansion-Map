@@ -326,6 +326,9 @@ export function Map2DGraph({ nodes, zones, selectedNodeId, onSelectNode, proofs 
                 />
                 <circle r={isSelected ? 6.5 : 4.5} fill={projection.hexColor} />
 
+                {/* Подпись — только при детальном зуме или для выбранного
+                    узла: на общем обзоре подписи не засоряют плоскость */}
+                {(isSelected || view.k >= 1.4) && (
                 <text
                   y={isSelected ? 27 : 24}
                   textAnchor="middle"
@@ -337,6 +340,7 @@ export function Map2DGraph({ nodes, zones, selectedNodeId, onSelectNode, proofs 
                 >
                   {node.title.length > 26 ? `${node.title.slice(0, 24)}…` : node.title}
                 </text>
+                )}
               </g>
             );
           })}
