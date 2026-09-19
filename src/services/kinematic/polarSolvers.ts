@@ -561,6 +561,23 @@ export class KinematicDualDebuggerEngine {
       };
     };
 
+    // The shoulder is a REVOLUTE joint: q2 and q2 + 2*pi are the same physical pose, and
+    // forwardKinematics3D reads only sin/cos of q2 and of q2+q3, so moving the mirror target
+    // by a whole turn preserves the end-effector pose exactly. `2*phi - q2` comes back
+    // UNWRAPPED and can sit a full turn away from the current angle; slewing that raw value
+    // drags the elbow through the floor even though BOTH endpoints are above it, because
+    // elbowZ = L0 + L1*sin(q2) is not convex in q2. Measured on the tennis scenario: the raw
+    // mirror travelled dq2 = -6.34 rad and put the elbow at -0.3928 m, while the nearest
+    // equivalent is only -0.057 rad away. Nearest-turn selection is exact — it uses the 2*pi
+    // period of the joint, not a proximity threshold.
+    const nearestTurn = (angle: number, reference: number): number =>
+      reference + Math.atan2(Math.sin(angle - reference), Math.cos(angle - reference));
+
+    const reconfigurationTarget = (from: JointState3D, to: JointState3D): JointState3D => ({
+      ...to,
+      q2: nearestTurn(to.q2, from.q2),
+    });
+
     const active = this.branchTransitions[arm];
     if (active) {
       const elapsedSec = active.elapsedSec + dt;
@@ -576,11 +593,14 @@ export class KinematicDualDebuggerEngine {
     const mirroredJoints = enforceElbowFloorClearance(nextState.joints, linkLengths);
     if (mirroredJoints === nextState.joints) return result;
 
+    // Same physical pose, nearest turn of the shoulder — see `nearestTurn` above.
+    const target = reconfigurationTarget(nextState.joints, mirroredJoints);
+
     const progress = dt / KinematicConstants.ELBOW_BRANCH_TRANSITION_SECONDS;
     if (progress >= 1) {
-      return commit(mirroredJoints);
+      return commit(target);
     }
-    this.branchTransitions[arm] = { from: nextState.joints, to: mirroredJoints, elapsedSec: dt };
-    return commit(slew(nextState.joints, mirroredJoints, progress));
+    this.branchTransitions[arm] = { from: nextState.joints, to: target, elapsedSec: dt };
+    return commit(slew(nextState.joints, target, progress));
   }
 }

@@ -89,10 +89,14 @@ export function enforceElbowFloorClearance(
   const elbowZ = computeElbowPosition3D(joints, linkLengths).z;
   if (elbowZ >= clearance) return joints;
 
-  const [L0, L1] = linkLengths;
+  const [L0, L1, L2] = linkLengths;
   const ee = forwardKinematics3D(joints, linkLengths);
   const radial = Math.hypot(ee.x, ee.y);
-  if (radial < 1e-9) return joints; // EE directly above the shoulder: mirror is degenerate.
+  // Degenerate pole test. `radial` is a length folded from L1*cos + L2*cos, so its own
+  // representation residual is (L1 + L2) * Number.EPSILON — the real epsilon of the double
+  // that stores it. Comparing against that is a comparison of two reals at machine
+  // precision; a hand-picked 1e-9 was an invented magnitude.
+  if (radial <= (L1 + L2) * Number.EPSILON) return joints; // EE on the shoulder axis: mirror is degenerate.
 
   const phi = Math.atan2(ee.z - L0, radial);
   const mirroredQ2 = 2 * phi - joints.q2;

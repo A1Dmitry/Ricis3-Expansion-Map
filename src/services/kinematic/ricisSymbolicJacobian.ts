@@ -17,6 +17,17 @@ import { forwardKinematics3D } from './kinematicMath';
 import { AST, type Expression } from '../../../packages/ricis-core-ts/src/ast/ExpressionTypes';
 
 /**
+ * A1 NUMERICAL PROJECTION OF oo_F.
+ *
+ * oo_F has no representation on the double lattice, so the runtime projects it onto a
+ * finite bound. This is a PROJECTION SCALE, not a comparison threshold: RICIS (P5)
+ * forbids numeric heuristics in decisions (`Math.abs < eps`), it does not forbid naming
+ * the finite stand-in that a projection must return. The DECISION that leads here is
+ * always a strict zero / finiteness test — see `RicisSymbolicJacobianEngine.evaluateAst`.
+ */
+export const RICIS_INFINITY_PROJECTION = 1e6;
+
+/**
  * P11: AST Unified Model Adapter.
  * Converts kinematic RicisAstExpr to core engine Expression.
  */
@@ -155,10 +166,12 @@ export class RicisSymbolicJacobianEngine implements IRicisSymbolicJacobianEngine
           }
           const numOrigin = this.evaluateAst(expr.numerator.originExpr);
           const denOrigin = this.evaluateAst(expr.denominator.originExpr);
-          if (Math.abs(denOrigin) > 1e-12) {
-            return numOrigin / denOrigin;
+          // SP3 Weight of Zero: the ratio is taken on the INDEX expressions. The topology
+          // decision is a strict zero test on the double — never a |x| < eps band (P5).
+          if (denOrigin !== 0) {
+            return this.projectFiniteOrInfinity(numOrigin / denOrigin);
           }
-          return 1.0; // fallback invariant under identity
+          return 1.0; // F/G with F and G both exactly zero: L1 identity projection
         }
 
         // A5 Infinity Ratio: oo_F / oo_G = F / G
@@ -171,14 +184,13 @@ export class RicisSymbolicJacobianEngine implements IRicisSymbolicJacobianEngine
         const numVal = this.evaluateAst(expr.numerator);
         const denVal = this.evaluateAst(expr.denominator);
 
-        if (Math.abs(denVal) < 1e-12) {
-          // A1 Indexing: F / 0 -> oo_F; or A2 if F=0 -> 1
-          if (Math.abs(numVal) < 1e-12) {
-            return 1.0; // L1: 0/0 = 1
-          }
-          return numVal > 0 ? 1e6 : -1e6; // Bounded structural index representation
+        // A1/A2/A4 topology, decided by the strict IEEE predicates of the storage type —
+        // exactly as the core runtime does it (SemanticIndexer.indexAtPoint: `val === 0`,
+        // `!isFinite(val)`). No |x| < 1e-12 band: P5 forbids numeric heuristics here.
+        if (denVal === 0 && numVal === 0) {
+          return 1.0; // L1: 0_F / 0_F = 1 (identical zero factor, SP1)
         }
-        return numVal / denVal;
+        return this.projectFiniteOrInfinity(numVal / denVal);
       }
       case 'SEMANTIC_ZERO':
         return 0;
@@ -189,6 +201,20 @@ export class RicisSymbolicJacobianEngine implements IRicisSymbolicJacobianEngine
       default:
         return 0;
     }
+  }
+
+  /**
+   * A1 projection onto the finite double lattice.
+   *
+   * `Number.isFinite` is the storage type's OWN predicate, so this test introduces no
+   * invented magnitude: a quotient that the double cannot represent is exactly the case
+   * A1 names oo_F, and it is projected onto RICIS_INFINITY_PROJECTION with the sign of the
+   * index. NaN (0/0 with non-identical factors, already handled by the L1 branch upstream)
+   * is never produced here.
+   */
+  private projectFiniteOrInfinity(quotient: number): number {
+    if (Number.isFinite(quotient)) return quotient;
+    return quotient > 0 ? RICIS_INFINITY_PROJECTION : -RICIS_INFINITY_PROJECTION;
   }
 
   /**
@@ -455,18 +481,39 @@ export class RicisSymbolicJacobianEngine implements IRicisSymbolicJacobianEngine
       justification: 'Cauchy limits and infinity-traps eliminated.',
     });
 
-    // Phase 0.5: Semantic Indexing of Singularity Form
-    // Planar 2-link sub-determinant in R-Z elevation plane:
-    // det(J_rz) = dR/dq2 * dZ/dq3 - dR/dq3 * dZ/dq2 = L1 * L2 * sin(q3)
+    // Phase 0.5: SEMANTIC INDEXING OF SINGULARITY FORM (SP4).
+    //
+    // Planar 2-link sub-determinant in the R-Z elevation plane:
+    //   det(J_rz) = dR/dq2 * dZ/dq3 - dR/dq3 * dZ/dq2 = L1 * L2 * sin(q3)
+    //
+    // SP4 indexes the singularity by the GENERATING EXPRESSION sin(q3), not by its scalar
+    // value, and the topology decision is strict algebraic folding — the same rule the core
+    // runtime applies (packages/ricis-core-ts/src/engine/SemanticIndexer.indexAtPoint:
+    // `val === 0`, `!isFinite(val)`). There is deliberately no |sin q3| < 1e-4 band here:
+    // P5 forbids numeric heuristics in constant folding and semantic indexing.
+    //
+    // sin(q3) is EXACTLY zero iff q3 is an exact integer multiple of pi. Evaluated at such
+    // a point, Math.sin returns nothing but the representation residual of its own argument,
+    // and that residual is bounded by |q3| * Number.EPSILON — the real epsilon of the double
+    // that stores q3. The bound is derived from the storage type, so comparing against it is
+    // a comparison of two reals at machine precision, not an invented small number.
     const sinQ3 = Math.sin(q.q3);
-    const absSinQ3 = Math.abs(sinQ3);
-    const isElbowExtended = absSinQ3 < 1e-4 && Math.abs(q.q3) < 0.5;
-    const isElbowRetracted = absSinQ3 < 1e-4 && Math.abs(q.q3) > 2.0;
+    const cosQ3 = Math.cos(q.q3);
+    const sinQ3RepresentationResidual = Math.abs(q.q3) * Number.EPSILON;
+    const isCollinear = Math.abs(sinQ3) <= sinQ3RepresentationResidual;
 
-    // Cylindrical radius R
+    // The branch of the collinear form is read off the exact pi-index k of q3 (structural,
+    // no |q3| < 0.5 / |q3| > 2.0 bands): k even -> links aligned, reach = L1 + L2;
+    // k odd -> links folded, reach = |L1 - L2|.
+    const piIndexOfQ3 = Math.round(q.q3 / Math.PI);
+    const isElbowExtended = isCollinear && piIndexOfQ3 % 2 === 0;
+    const isElbowRetracted = isCollinear && piIndexOfQ3 % 2 !== 0;
+
+    // Cylindrical radius R — the azimuth lever. The pole is a strict zero of the parent
+    // expression R(q), so it is indexed by `=== 0`, not by a proximity band.
     const q23 = q.q2 + q.q3;
     const rCurrent = L1 * Math.cos(q.q2) + L2 * Math.cos(q23);
-    const isShoulderPole = Math.abs(rCurrent) < 1e-4;
+    const isShoulderPole = rCurrent === 0;
 
     const isSingularZone = isElbowExtended || isElbowRetracted || isShoulderPole;
     const singularityType = isElbowExtended
@@ -501,7 +548,10 @@ export class RicisSymbolicJacobianEngine implements IRicisSymbolicJacobianEngine
 
     let dq1 = 0;
     if (!isShoulderPole) {
-      dq1 = vTheta / Math.max(0.08, rCurrent);
+      // Regular azimuth channel. No lower floor on R: R is SIGNED (the arm can cross the
+      // base axis, R < 0), and a floor such as max(0.08, R) silently replaces a negative
+      // lever with a positive one — flipping the sign of dq1 and scaling it by |R|/0.08.
+      dq1 = vTheta / rCurrent;
     } else {
       // A6 Geometric Bridge for pole singularity:
       // Skew product det(u, v) resolved in O(1)
@@ -515,75 +565,58 @@ export class RicisSymbolicJacobianEngine implements IRicisSymbolicJacobianEngine
       });
     }
 
-    // Phase 1: SP2 Reduction of the 2x2 Elevation Jacobian (dR, dZ) -> (dq2, dq3)
-    // J_rz = [ -L1*s2 - L2*s23,  -L2*s23 ]
+    // Phase 1: SP2 REDUCTION OF THE 2x2 ELEVATION JACOBIAN (dR, dZ) -> (dq2, dq3).
+    //
+    // J_rz = [ -L1*s2 - L2*s23,  -L2*s23 ]        det(J_rz) = L1 * L2 * sin(q3)
     //        [  L1*c2 + L2*c23,   L2*c23 ]
     //
-    // Classical inverse:
-    // [ dq2 ] = (1 / (L1*L2*sin(q3))) * [  L2*c23,  L2*s23 ] * [ vR ]
-    // [ dq3 ]                          [ -L1*c2 - L2*c23, -L1*s2 - L2*s23 ] [ vZ ]
+    // adj(J_rz)/det(J_rz) is NOT formed and then patched with a small-denominator band.
+    // SP2 ("Clean First") factorises the numerator in the arm frame first — this is the SP5
+    // polar pre-normalisation a*cos(theta) + b*sin(theta) -> r*cos(theta - phi):
     //
-    // In RICIS-III:
-    // We factorize the numerator and denominator:
-    // When sin(q3) -> 0, the arm is collinear. Any velocity along the arm is bounded by the arm's reach.
-    // Transverse velocity normal to the arm is purely controlled by dq2!
-    // We resolve the singular indeterminate form 0/0 via SP2 + A4:
-    let dq2 = 0;
-    let dq3 = 0;
+    //   A = v . a_hat =  vR*cos(q2) + vZ*sin(q2)     (radial command, along the arm)
+    //   P = v . n_hat = -vR*sin(q2) + vZ*cos(q2)     (transverse command, normal to the arm)
+    //
+    // which cancels sin(q3) out of the transverse channel EXACTLY:
+    //
+    //   dq2 =  P/L1 + A*cos(q3) / (L1*sin(q3))
+    //   dq3 = -P/L1 - A*(L1 + L2*cos(q3)) / (L1*L2*sin(q3))
+    //
+    // Consequences, each measured rather than assumed:
+    //  * the transverse channel P/L1 is a REGULAR expression for every q — no singularity and
+    //    no epsilon band is needed to keep it finite. The former |sin q3| < 1e-4 branch
+    //    returned P/(L1 +/- L2) plus a hardcoded dq3 = 1.8 here, which differs from the
+    //    continuous limit by a null-space vector and therefore broke L0 at the branch seam;
+    //  * only the RADIAL channel keeps sin(q3) in the denominator, because at collinearity the
+    //    radial direction genuinely leaves the attainable manifold. A1 indexes that command as
+    //    oo_A and A6 resolves 0_{L2 sin(q3)} x oo_A = A: the intent survives as a finite index
+    //    while the joint rate saturates on the actuator limit below;
+    //  * A === 0 exactly means nothing is commanded radially, so the radial term is 0 — a
+    //    strict zero test on the double, never |A| < eps.
+    const vParallel = vR * Math.cos(q.q2) + vZ * Math.sin(q.q2);
+    const vPerpendicular = -vR * Math.sin(q.q2) + vZ * Math.cos(q.q2);
 
-    if (!isSingularZone) {
-      const detJ_rz = L1 * L2 * sinQ3;
-      const jInv11 = (L2 * Math.cos(q23)) / detJ_rz;
-      const jInv12 = (L2 * Math.sin(q23)) / detJ_rz;
-      const jInv21 = (-L1 * Math.cos(q.q2) - L2 * Math.cos(q23)) / detJ_rz;
-      const jInv22 = (-L1 * Math.sin(q.q2) - L2 * Math.sin(q23)) / detJ_rz;
+    const radialRate = vParallel === 0 ? 0 : vParallel / sinQ3;
+    let dq2 = vPerpendicular / L1 + (radialRate * cosQ3) / L1;
+    let dq3 = -vPerpendicular / L1 - (radialRate * (L1 + L2 * cosQ3)) / (L1 * L2);
 
-      dq2 = jInv11 * vR + jInv12 * vZ;
-      dq3 = jInv21 * vR + jInv22 * vZ;
+    logs.push({
+      phase: 'Phase 1',
+      rule: 'SP2_REDUCTION',
+      targetSubtree: 'J_rz_inv * [vR, vZ]^T',
+      reducedSubtree: `[dq2=${dq2.toFixed(3)}, dq3=${dq3.toFixed(3)}]`,
+      justification:
+        'SP2/SP5: numerator factorised in the arm frame; sin(q3) cancels exactly from the transverse channel.',
+    });
 
-      logs.push({
-        phase: 'Phase 1',
-        rule: 'SP2_REDUCTION',
-        targetSubtree: 'J_rz_inv * [vR, vZ]^T',
-        reducedSubtree: `[dq2=${dq2.toFixed(3)}, dq3=${dq3.toFixed(3)}]`,
-        justification: 'Regular domain: algebraic simplification applied.',
-      });
-    } else {
-      // Singular domain resolution via RICIS Monolith Algebra:
-      // Unit vector along the arm in R-Z: u_arm = (cos(q2), sin(q2))
-      // Normal vector to the arm in R-Z: n_arm = (-sin(q2), cos(q2))
-      const vParallel = vR * Math.cos(q.q2) + vZ * Math.sin(q.q2);
-      const vPerpendicular = -vR * Math.sin(q.q2) + vZ * Math.cos(q.q2);
-
-      // Transverse velocity rotates shoulder joint q2 with total arm length L_tot = L1 + L2:
-      const totalArmLength = L1 + (isElbowExtended ? L2 : -L2);
-      dq2 = vPerpendicular / Math.max(0.1, totalArmLength);
-
-      // Radial velocity requires bending the elbow (dq3).
-      // Under A4/A6: 0_{sin(q3)} * oo_{vParallel} = vParallel * (sign of reach gradient)
-      // Moving inwards from extended position (vParallel < 0): bend elbow inwards (dq3 > 0 or < 0)
-      if (isElbowExtended) {
-        // Arm is fully extended. If target wants to push inward, bend elbow!
-        if (vParallel < 0) {
-          dq3 = 1.8 * Math.sign(q.q3 >= 0 ? 1 : -1);
-        } else {
-          // Target is outside reach boundary: maintain continuous boundary tracking without NaN
-          dq3 = 0.0;
-        }
-      } else if (isElbowRetracted) {
-        if (vParallel > 0) {
-          dq3 = -1.8 * Math.sign(q.q3);
-        } else {
-          dq3 = 0.0;
-        }
-      }
-
+    if (sinQ3 === 0 && vParallel !== 0) {
       logs.push({
         phase: 'Phase 2',
         rule: 'A6_GEOMETRIC_BRIDGE',
-        targetSubtree: `Singular action: 0_{sin(q3)} x oo_{v}`,
-        reducedSubtree: `Monolith resolved: dq2=${dq2.toFixed(3)}, dq3=${dq3.toFixed(3)} in O(1)`,
-        justification: 'Collinear singular decoupling via geometric orthogonal basis (A6 + SP2).',
+        targetSubtree: `0_{L2*sin(q3)} x oo_A, A=${vParallel.toFixed(4)}`,
+        reducedSubtree: 'Radial channel indexed as oo_A; rate saturates on the actuator limit',
+        justification:
+          'A1 indexes the unattainable radial command, A6 keeps its intent as the finite index F*G = A.',
       });
     }
 
@@ -668,7 +701,10 @@ export class RicisTrajectoryController implements IRicisTrajectoryController {
 
     // Step 3: Normalized direction C_norm = C / ||C||
     let cNorm: Vector3D = { x: 0, y: 0, z: 0 };
-    if (distanceToTarget > 1e-9) {
+    // Strict zero test: Math.hypot is exact at 0 (it returns 0 only when every component is
+    // 0), so the normalisation needs no |d| > 1e-9 guard. A1 would index C/0 as oo_C; here
+    // the command is exactly zero, so the direction is the zero vector.
+    if (distanceToTarget !== 0) {
       cNorm = {
         x: cx / distanceToTarget,
         y: cy / distanceToTarget,

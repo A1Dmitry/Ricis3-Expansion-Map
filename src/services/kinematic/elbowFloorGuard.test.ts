@@ -16,7 +16,8 @@ import {
   distance3D,
 } from './kinematicMath';
 import { KinematicConstants } from './kinematicConstants';
-import { PolarRicisConstraintSolver } from './polarSolvers';
+import { PolarRicisConstraintSolver, KinematicDualDebuggerEngine } from './polarSolvers';
+import { RicisSymbolicJacobianSolver3D } from './kinematicSolvers';
 import { computeJacobianDeterminant3D } from './kinematicMath';
 import type { IKinematicState3D } from '../../model/kinematicEngine.contracts';
 
@@ -104,5 +105,68 @@ describe('Polar solver branch selection (elbow-over-floor inside the closed form
     expect(elbowZ).toBeGreaterThanOrEqual(KinematicConstants.ELBOW_FLOOR_CLEARANCE_METERS - 1e-9);
     // ...and it chose the elbow-up branch (q3 < 0), the human-like "pick from above".
     expect(state.joints.q3).toBeLessThan(0);
+  });
+});
+
+describe('branch reconfiguration travels the NEAREST turn of the shoulder', () => {
+  // Measured pose (search over q2 x q3): the mirror 2*phi - q2 lands 12.509 rad away from
+  // the current shoulder angle, while the nearest physically identical turn is 0.057 rad
+  // away. q2 and q2 + 2*pi are the same revolute pose, and forwardKinematics3D reads only
+  // sin/cos of q2 and q2+q3, so the two are indistinguishable to the end-effector.
+  const joints = { q1: 0.4, q2: 5.749114556069321, q3: 0.06126105674500071 };
+
+  it('the raw mirror really is more than a half turn away, and preserves the pose', () => {
+    const mirrored = enforceElbowFloorClearance(joints, LINK_LENGTHS);
+    expect(mirrored).not.toBe(joints);
+    expect(Math.abs(mirrored.q2 - joints.q2)).toBeGreaterThan(Math.PI);
+    expect(computeElbowPosition3D(joints, LINK_LENGTHS).z).toBeLessThan(0);
+    expect(computeElbowPosition3D(mirrored, LINK_LENGTHS).z).toBeGreaterThan(
+      KinematicConstants.ELBOW_FLOOR_CLEARANCE_METERS
+    );
+    expect(
+      distance3D(forwardKinematics3D(joints, LINK_LENGTHS), forwardKinematics3D(mirrored, LINK_LENGTHS))
+    ).toBeLessThan(1e-12);
+  });
+
+  it('slews the short way, so the shoulder never teleports during the reconfiguration', () => {
+    const MAX_SHOULDER_STEP_RAD = 0.4;
+    const engine = new KinematicDualDebuggerEngine();
+    engine.setRicisSolver(new RicisSymbolicJacobianSolver3D(), 'SYMBOLIC_AST');
+
+    const makeState = (): IKinematicState3D => ({
+      timestamp: 0,
+      joints: { ...joints },
+      endEffector: forwardKinematics3D(joints, LINK_LENGTHS),
+      jacobianDeterminant: computeJacobianDeterminant3D(joints, LINK_LENGTHS),
+      isSingularZone: false,
+      isWorkspaceBoundaryExceeded: false,
+      gripperClosed: false,
+    });
+
+    // Hold the current pose: the reconfiguration is the only thing that may move q2.
+    const target = forwardKinematics3D(joints, LINK_LENGTHS);
+    let ricis = makeState();
+    let dls = makeState();
+    let previousQ2 = joints.q2;
+    let maxStep = 0;
+    let finalElbowZ = 0;
+
+    for (let frame = 0; frame < 60; frame++) {
+      const result = engine.step(ricis, dls, target, LINK_LENGTHS, 1 / 60, 'POLAR');
+      ricis = result.ricisResult.nextState;
+      dls = result.dlsResult.nextState;
+      const step = Math.abs(ricis.joints.q2 - previousQ2);
+      maxStep = Math.max(maxStep, step);
+      expect(step, `frame ${frame}: shoulder teleported ${step.toFixed(4)} rad`).toBeLessThanOrEqual(
+        MAX_SHOULDER_STEP_RAD
+      );
+      previousQ2 = ricis.joints.q2;
+      finalElbowZ = computeElbowPosition3D(ricis.joints, LINK_LENGTHS).z;
+    }
+
+    // The raw (unwrapped) mirror travels 12.509 rad in 0.35 s: peak 0.894 rad/frame.
+    expect(maxStep).toBeLessThan(0.05);
+    // ...and it lands on the elbow-up branch, above the floor.
+    expect(finalElbowZ).toBeGreaterThanOrEqual(KinematicConstants.ELBOW_FLOOR_CLEARANCE_METERS - 1e-9);
   });
 });
