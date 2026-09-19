@@ -64,6 +64,16 @@ export class KinematicConstants {
   /** Hysteresis margin for elbow branch flipping: mirror only when it is strictly higher (m). */
   public static readonly ELBOW_FLIP_HYSTERESIS_METERS = 0.04;
 
+  /**
+   * Duration of a joint-space elbow-branch reconfiguration (seconds).
+   * Switching IK branch is unavoidable for an iterative solver (a 3-DOF arm chasing a
+   * 3-DOF Cartesian target has no null-space), but applying the mirror to the state in a
+   * single frame teleports the shoulder by up to 2 rad — a visible snap at 60 FPS.
+   * The engine therefore slews q2/q3 from the active branch to the mirrored branch over
+   * this window (bounded joint velocity, same order as the polar solver's lerp).
+   */
+  public static readonly ELBOW_BRANCH_TRANSITION_SECONDS = 0.35;
+
   /** Workspace reach boundary margin multiplier for validity checks */
   public static readonly WORKSPACE_BOUNDARY_MARGIN_RATIO = 1.05;
 

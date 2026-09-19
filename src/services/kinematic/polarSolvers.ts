@@ -312,6 +312,13 @@ export class ClassicDlsGhostSolver extends BaseKinematicSolver3D {
   }
 }
 
+/** In-flight elbow-branch reconfiguration: a bounded-velocity slew between IK branches. */
+interface IElbowBranchTransition {
+  readonly from: JointState3D;
+  readonly to: JointState3D;
+  readonly elapsedSec: number;
+}
+
 /**
  * Dual Debugger Engine that runs RICIS and Ghost Arm simultaneously,
  * comparing telemetry and recording QA validation traces.
@@ -320,6 +327,15 @@ export class KinematicDualDebuggerEngine {
   private ricisSolver: IKinematicSolver3D;
   private readonly dlsGhostSolver: IKinematicSolver3D;
   private _ricisMode: RicisSolverMode;
+  /**
+   * In-flight elbow-branch reconfiguration per arm. While active the engine owns the
+   * joints and slews them from the elbow-down branch to its exact mirror, so the branch
+   * change costs bounded joint velocity instead of a single-frame teleport.
+   */
+  private readonly branchTransitions: {
+    ricis: IElbowBranchTransition | null;
+    dls: IElbowBranchTransition | null;
+  } = { ricis: null, dls: null };
 
   constructor(
     ricisSolver?: IKinematicSolver3D,
@@ -338,6 +354,10 @@ export class KinematicDualDebuggerEngine {
   public setRicisSolver(solver: IKinematicSolver3D, mode: RicisSolverMode): void {
     this.ricisSolver = solver;
     this._ricisMode = mode;
+    // A different solver starts from a different configuration: drop any in-flight
+    // elbow-branch reconfiguration so it cannot slew towards a stale branch.
+    this.branchTransitions.ricis = null;
+    this.branchTransitions.dls = null;
   }
 
   public stepDual(
@@ -432,12 +452,14 @@ export class KinematicDualDebuggerEngine {
     // ELBOW-OVER-FLOOR: the polar closed-form solver selects its elbow branch
     // internally (branch-aware IK target) — applying the mirror guard to it would
     // fight its lerp convergence. Iterative solvers (symbolic RICIS, DLS ghost) hold
-    // whatever branch they are on, so the engine applies the exact mirror guard to
-    // them; their joint limits admit the elbow-up branch (see GhostDls clamp).
+    // whatever branch they are on, so the engine reconfigures them onto the mirrored
+    // branch — but SLEWED in joint space, never as a single-frame state swap (that
+    // teleported the shoulder by 1.0–2.1 rad: measured regression, see
+    // docs/05-evidence/architecture/incident-2026-09-19-elbow-branch-teleport.md).
     const guardedRicisResult = this.ricisSolver instanceof PolarRicisConstraintSolver
       ? ricisResult
-      : this.applyElbowFloorGuard(ricisResult, linkLengths);
-    const guardedDlsResult = this.applyElbowFloorGuard(dlsResult, linkLengths);
+      : this.applyElbowFloorGuard(ricisResult, linkLengths, dt, 'ricis');
+    const guardedDlsResult = this.applyElbowFloorGuard(dlsResult, linkLengths, dt, 'dls');
 
     const advantageEvent = detectAdvantageEvent(
       ricisResult.nextState.jacobianDeterminant,
@@ -487,28 +509,78 @@ export class KinematicDualDebuggerEngine {
   }
 
   /**
-   * Elbow-over-floor guard applied to a solver result: swaps the joints to the exact
-   * mirrored inverse branch when the elbow would pierce the room floor. The joint
-   * solution changes, the end-effector pose does not (verified by construction in
-   * enforceElbowFloorClearance — the mirror is a geometric identity of a planar 2R arm).
+   * Elbow-over-floor guard for the iterative solvers.
+   *
+   * A planar 2R arm has two exact inverse solutions per end-effector pose; `
+   * enforceElbowFloorClearance` returns the mirrored one when the active branch would
+   * pierce the room floor. A 3-DOF arm chasing a 3-DOF Cartesian target has NO null-space,
+   * so switching branch is the only way out — but swapping the state in a single frame
+   * teleports the shoulder by 1.0–2.1 rad (measured: 12.5×–36× the baseline per-frame
+   * joint step), which is the visible "kinematics snapped" defect. The mirror is therefore
+   * applied as a bounded-velocity joint-space slew with zero joint velocity at both ends.
+   * The end-effector temporarily leaves the target during the reconfiguration and is
+   * re-acquired afterwards — reported honestly through recomputed FK.
    */
   private applyElbowFloorGuard<T extends ISolverResult3D>(
     result: T,
-    linkLengths: readonly [number, number, number]
+    linkLengths: readonly [number, number, number],
+    dt: number,
+    arm: 'ricis' | 'dls'
   ): T {
     const nextState = result.nextState;
-    const guardedJoints = enforceElbowFloorClearance(nextState.joints, linkLengths);
-    if (guardedJoints === nextState.joints) return result;
-    return {
-      ...result,
-      nextState: {
-        ...nextState,
-        joints: guardedJoints,
-        // Recomputed honestly for the mirrored branch (EE is identical by identity;
-        // det(J) flips sign because det ∝ sin(q3), magnitude preserved).
-        endEffector: forwardKinematics3D(guardedJoints, linkLengths),
-        jacobianDeterminant: computeJacobianDeterminant3D(guardedJoints, linkLengths),
-      },
+    const [L0, L1, L2] = linkLengths;
+
+    const commit = (joints: JointState3D): T => {
+      const endEffector = forwardKinematics3D(joints, linkLengths);
+      const jacobianDeterminant = computeJacobianDeterminant3D(joints, linkLengths);
+      const radial = Math.hypot(endEffector.x, endEffector.y);
+      const planar = Math.hypot(radial, endEffector.z - L0);
+      const maxReach = L1 + L2;
+      const minReach = Math.abs(L1 - L2) + KinematicConstants.MIN_REACH_BUFFER_METERS;
+      return {
+        ...result,
+        nextState: {
+          ...nextState,
+          joints,
+          endEffector,
+          jacobianDeterminant,
+          isSingularZone: Math.abs(jacobianDeterminant) < KinematicConstants.SINGULARITY_DETERMINANT_THRESHOLD,
+          isWorkspaceBoundaryExceeded: planar > maxReach || planar < minReach,
+        },
+      };
     };
+
+    const slew = (from: JointState3D, to: JointState3D, progress: number): JointState3D => {
+      // smoothstep — zero joint velocity at both ends, so the reconfiguration neither
+      // starts nor finishes with a velocity jump.
+      const s = progress * progress * (3 - 2 * progress);
+      return {
+        q1: to.q1, // azimuth is invariant under the mirror
+        q2: from.q2 + (to.q2 - from.q2) * s,
+        q3: from.q3 + (to.q3 - from.q3) * s,
+      };
+    };
+
+    const active = this.branchTransitions[arm];
+    if (active) {
+      const elapsedSec = active.elapsedSec + dt;
+      const progress = elapsedSec / KinematicConstants.ELBOW_BRANCH_TRANSITION_SECONDS;
+      if (progress >= 1) {
+        this.branchTransitions[arm] = null;
+        return commit(active.to);
+      }
+      this.branchTransitions[arm] = { ...active, elapsedSec };
+      return commit(slew(active.from, active.to, progress));
+    }
+
+    const mirroredJoints = enforceElbowFloorClearance(nextState.joints, linkLengths);
+    if (mirroredJoints === nextState.joints) return result;
+
+    const progress = dt / KinematicConstants.ELBOW_BRANCH_TRANSITION_SECONDS;
+    if (progress >= 1) {
+      return commit(mirroredJoints);
+    }
+    this.branchTransitions[arm] = { from: nextState.joints, to: mirroredJoints, elapsedSec: dt };
+    return commit(slew(nextState.joints, mirroredJoints, progress));
   }
 }
