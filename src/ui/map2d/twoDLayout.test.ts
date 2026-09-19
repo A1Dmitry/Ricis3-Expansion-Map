@@ -32,112 +32,201 @@ const makeZone = (id: string, name: string): ScienceZone => ({
 
 const ZONES = [makeZone('z1', 'Математика'), makeZone('z2', 'Физика'), makeZone('z3', 'Экономика')];
 
-// Репрезентативный набор: 3 зоны по 8 узлов + связи между кластерами
-const NODES: ProblemNode[] = [];
-for (const [zoneIdx, zone] of ZONES.entries()) {
-  for (let i = 0; i < 8; i++) {
-    const id = `${zone.id}-n${i}`;
-    const deps: string[] = [];
-    if (i > 0) deps.push(`${zone.id}-n${i - 1}`); // цепочка внутри зоны
-    if (zoneIdx > 0 && i === 0) deps.push(`${ZONES[zoneIdx - 1]!.id}-n7`); // мост между зонами
-    NODES.push(makeNode(id, zone.id, deps));
-  }
-}
+// Репрезентативная структура: рут «root» в z1; цепочки и веера зависимостей
+// разной глубины в трёх зонах + мосты между зонами.
+const NODES: ProblemNode[] = [
+  makeNode('root', 'z1'),
+  ...Array.from({ length: 6 }, (_, i) => makeNode(`z1-l1-${i}`, 'z1', ['root'])),
+  ...Array.from({ length: 4 }, (_, i) => makeNode(`z1-l2-${i}`, 'z1', [`z1-l1-${i % 3}`])),
+  makeNode('z2-r', 'z2', ['root']),
+  ...Array.from({ length: 5 }, (_, i) =>
+    i === 0 ? makeNode('z2-l1-0', 'z2', ['z2-r']) : makeNode(`z2-l1-${i}`, 'z2', [`z2-l1-${i - 1}`]),
+  ),
+  makeNode('z3-r', 'z3', ['root']),
+  ...Array.from({ length: 7 }, (_, i) => makeNode(`z3-l1-${i}`, 'z3', ['z3-r'])),
+];
 
-describe('twoDLayout — детерминированная раскладка 2D-карты', () => {
+const distFromCenter = (layout: ReturnType<typeof computeMap2DLayout>, id: string) => {
+  const p = layout.positions[id]!;
+  return Math.hypot(p.x - layout.center.x, p.y - layout.center.y);
+};
+
+describe('twoDLayout — радиальная раскладка (рут в центре, сектора ∝ областям)', () => {
   it('раскладка полностью детерминирована: повторный прогон даёт те же позиции', () => {
     const a = computeMap2DLayout(NODES, ZONES);
     const b = computeMap2DLayout(NODES, ZONES);
     expect(a.positions).toEqual(b.positions);
   });
 
-  it('размещает каждый узел внутри холста с полями', () => {
+  it('рутовые узлы размещаются в центре карты', () => {
     const layout = computeMap2DLayout(NODES, ZONES);
-    for (const node of NODES) {
-      const pos = layout.positions[node.id];
-      expect(pos, node.id).toBeDefined();
-      expect(pos!.x).toBeGreaterThanOrEqual(0);
-      expect(pos!.x).toBeLessThanOrEqual(layout.width);
-      expect(pos!.y).toBeGreaterThanOrEqual(0);
-      expect(pos!.y).toBeLessThanOrEqual(layout.height);
+    expect(layout.rootIds).toContain('root');
+    expect(distFromCenter(layout, 'root')).toBe(0);
+    expect(layout.depthOf['root']).toBe(0);
+  });
+
+  it('радиус растёт строго с глубиной рекурсивной зависимости', () => {
+    const layout = computeMap2DLayout(NODES, ZONES);
+    // z2-l1-4 — конец цепочки длины 6 (z2-r → z2-l1-0 → … → z2-l1-4)
+    expect(layout.depthOf['z2-l1-4']).toBe(6);
+    expect(layout.depthOf['z2-r']).toBe(1);
+    // Монотонность: чем глубже — тем дальше от центра
+    expect(distFromCenter(layout, 'z2-l1-4')).toBeGreaterThan(distFromCenter(layout, 'z2-l1-2'));
+    expect(distFromCenter(layout, 'z2-l1-2')).toBeGreaterThan(distFromCenter(layout, 'z2-r'));
+    expect(distFromCenter(layout, 'z2-r')).toBeGreaterThan(distFromCenter(layout, 'root'));
+    // Все узлы одной глубины — на одном кольце (даже из разных областей)
+    for (const id of ['z1-l1-0', 'z1-l1-5', 'z2-r', 'z3-r']) {
+      expect(distFromCenter(layout, id)).toBeCloseTo(distFromCenter(layout, 'z1-l1-1'), 0);
     }
   });
 
-  it('равномерно распределяет узлы: нет попарных наложений', () => {
+  it('угол сектора области пропорционален числу узлов в ней', () => {
+    const layout = computeMap2DLayout(NODES, ZONES);
+    const counts = { z1: 11, z2: 6, z3: 8 };
+    const total = counts.z1 + counts.z2 + counts.z3;
+    for (const zid of Object.keys(counts) as Array<keyof typeof counts>) {
+      const sector = layout.zoneSectors[zid]!;
+      const span = sector.endAngle - sector.startAngle;
+      expect(span).toBeCloseTo(((counts[zid] as number) / total) * Math.PI * 2, 5);
+    }
+    // Сектора покрывают ровно полный круг без дыр
+    const sum = ZONES.reduce(
+      (s, z) => s + (layout.zoneSectors[z.id]!.endAngle - layout.zoneSectors[z.id]!.startAngle),
+      0,
+    );
+    expect(sum).toBeCloseTo(Math.PI * 2, 5);
+  });
+
+  it('узлы области лежат внутри сектора своей области, области не пересекаются', () => {
+    const layout = computeMap2DLayout(NODES, ZONES);
+    const angleOf = (id: string) => {
+      const p = layout.positions[id]!;
+      let a = Math.atan2(p.y - layout.center.y, p.x - layout.center.x);
+      if (a < -Math.PI / 2) a += Math.PI * 2;
+      return a;
+    };
+    for (const node of NODES) {
+      if (node.id === 'root') continue; // рут — вне углов, в центре
+      const zone = node.zoneIds[0]!;
+      const sector = layout.zoneSectors[zone]!;
+      let a = angleOf(node.id);
+      if (a < sector.startAngle) a += Math.PI * 2;
+      // Допуск в полградуса на округления
+      const eps = Math.PI / 360;
+      expect(a, node.id).toBeGreaterThanOrEqual(sector.startAngle - eps);
+      expect(a, node.id).toBeLessThanOrEqual(sector.endAngle + eps);
+    }
+  });
+
+  it('равномерность: нет попарных наложений узлов', () => {
     const layout = computeMap2DLayout(NODES, ZONES);
     const pts = NODES.map(n => layout.positions[n.id]!);
     let minPair = Infinity;
     for (let i = 0; i < pts.length; i++) {
       for (let j = i + 1; j < pts.length; j++) {
-        const dx = pts[i]!.x - pts[j]!.x;
-        const dy = pts[i]!.y - pts[j]!.y;
-        minPair = Math.min(minPair, Math.hypot(dx, dy));
+        minPair = Math.min(minPair, Math.hypot(pts[i]!.x - pts[j]!.x, pts[i]!.y - pts[j]!.y));
       }
     }
-    // Все узлы разнесены минимум на 45 единиц viewBox (метки/кружки не слипаются)
-    expect(minPair).toBeGreaterThan(45);
+    expect(minPair).toBeGreaterThan(30);
   });
 
-  it('раскладка покрывает значимую долю площади отображения', () => {
+  it('раскладка покрывает площадь широко (без скученности у периметра прямоугольника)', () => {
     const layout = computeMap2DLayout(NODES, ZONES);
     const xs = NODES.map(n => layout.positions[n.id]!.x);
     const ys = NODES.map(n => layout.positions[n.id]!.y);
     const spanX = Math.max(...xs) - Math.min(...xs);
     const spanY = Math.max(...ys) - Math.min(...ys);
-    expect(spanX).toBeGreaterThan(layout.width * 0.45);
-    expect(spanY).toBeGreaterThan(layout.height * 0.35);
+    // Радиальный диск использует канвас: глубочайшее кольцо достигает рабочего
+    // края (минус отступ), а все четыре квадранта заселены → равномерное
+    // заполнение, а не «каша по периметру прямоугольника».
+    expect(spanX).toBeGreaterThan(layout.width * 0.25);
+    expect(spanY).toBeGreaterThan(layout.height * 0.5);
+    expect(distFromCenter(layout, 'z2-l1-4')).toBeGreaterThanOrEqual(
+      Math.min(layout.width, layout.height) / 2 - 100 - 1,
+    );
+    const cx = layout.center.x;
+    const cy = layout.center.y;
+    const quadrants = [
+      NODES.some(n => layout.positions[n.id]!.x < cx && layout.positions[n.id]!.y < cy),
+      NODES.some(n => layout.positions[n.id]!.x > cx && layout.positions[n.id]!.y < cy),
+      NODES.some(n => layout.positions[n.id]!.x < cx && layout.positions[n.id]!.y > cy),
+      NODES.some(n => layout.positions[n.id]!.x > cx && layout.positions[n.id]!.y > cy),
+    ];
+    expect(quadrants.every(Boolean)).toBe(true);
   });
 
-  it('узлы одной зоны кластеризуются: средняя внутризонная дистанция меньше межзонной', () => {
+  it('узлы зоны кластеризуются углово: средний внутризонный угловой разброс меньше межзонного', () => {
     const layout = computeMap2DLayout(NODES, ZONES);
-    const pos = (id: string) => layout.positions[id]!;
-    const avgDist = (idsA: string[], idsB: string[]) => {
-      let sum = 0;
-      let count = 0;
-      for (const a of idsA) {
-        for (const b of idsB) {
-          if (a === b) continue;
-          sum += Math.hypot(pos(a).x - pos(b).x, pos(a).y - pos(b).y);
-          count += 1;
-        }
-      }
-      return sum / Math.max(1, count);
+    const angles = new Map<string, number>();
+    for (const node of NODES) {
+      if (node.id === 'root') continue;
+      const p = layout.positions[node.id]!;
+      angles.set(node.id, Math.atan2(p.y - layout.center.y, p.x - layout.center.x));
+    }
+    const angularSpread = (ids: string[]) => {
+      const list = ids.map(id => angles.get(id)!).sort((a, b) => a - b);
+      return list.length > 1 ? list[list.length - 1]! - list[0]! : 0;
     };
-    const z1 = NODES.filter(n => n.zoneIds[0] === 'z1').map(n => n.id);
-    const z2 = NODES.filter(n => n.zoneIds[0] === 'z2').map(n => n.id);
-    expect(avgDist(z1, z1)).toBeLessThan(avgDist(z1, z2));
+    const z1 = NODES.filter(n => n.zoneIds[0] === 'z1' && n.id !== 'root').map(n => n.id);
+    expect(angularSpread(z1)).toBeLessThan(Math.PI); // сектор z1 < 2π·11/25 ≈ 158°
   });
 
-  it('строит дедуплицированные рёбра из dependencyIds и dependentIds', () => {
+  it('изолированный узел (без рёбер) не занимает центр у рутов', () => {
+    const nodes = [makeNode('root', 'z1'), makeNode('child', 'z1', ['root']), makeNode('solo', 'z2')];
+    const layout = computeMap2DLayout(nodes, ZONES);
+    expect(layout.rootIds).toEqual(['root']);
+    expect(distFromCenter(layout, 'solo')).toBeGreaterThan(distFromCenter(layout, 'root'));
+  });
+
+  it('несколько рутов — малым кольцом вокруг центра', () => {
+    const nodes = [
+      makeNode('rootA', 'z1'),
+      makeNode('rootB', 'z2'),
+      makeNode('leaf', 'z2', ['rootA', 'rootB']),
+    ];
+    const layout = computeMap2DLayout(nodes, ZONES);
+    expect([...layout.rootIds].sort()).toEqual(['rootA', 'rootB']);
+    expect(distFromCenter(layout, 'rootA')).toBeGreaterThan(0);
+    expect(distFromCenter(layout, 'rootA')).toBeLessThan(distFromCenter(layout, 'leaf'));
+    expect(distFromCenter(layout, 'rootA')).toBeCloseTo(distFromCenter(layout, 'rootB'), 0);
+  });
+
+  it('каждый узел внутри холста', () => {
+    const layout = computeMap2DLayout(NODES, ZONES);
+    for (const node of NODES) {
+      const pos = layout.positions[node.id]!;
+      expect(pos.x).toBeGreaterThanOrEqual(0);
+      expect(pos.x).toBeLessThanOrEqual(layout.width);
+      expect(pos.y).toBeGreaterThanOrEqual(0);
+      expect(pos.y).toBeLessThanOrEqual(layout.height);
+    }
+  });
+
+  it('строит дедуплицированные рёбра и игнорирует самопетли/призраков', () => {
     const nodes = [
       makeNode('a', 'z1', ['b']),
-      makeNode('b', 'z1', [], ['a']), // зеркальная запись той же связи
-      makeNode('c', 'z2'),
+      makeNode('b', 'z1', [], ['a']),
+      makeNode('c', 'z2', ['ghost', 'c']),
     ];
-    const edges = buildMap2DEdges(nodes);
-    expect(edges).toEqual([{ source: 'a', target: 'b' }]);
-  });
-
-  it('игнорирует рёбра на несуществующие узлы и самопетли', () => {
-    const nodes = [makeNode('a', 'z1', ['ghost', 'a'])];
-    expect(buildMap2DEdges(nodes)).toEqual([]);
+    expect(buildMap2DEdges(nodes)).toEqual([{ source: 'a', target: 'b' }]);
   });
 
   it('собирает окрестность выбранного узла по обоим направлениям', () => {
     const edges = [
-      { source: 'a', target: 'b' }, // a зависит от b
-      { source: 'c', target: 'a' }, // c зависит от a
-      { source: 'x', target: 'y' }, // постороннее
+      { source: 'a', target: 'b' },
+      { source: 'c', target: 'a' },
+      { source: 'x', target: 'y' },
     ];
     const nb = collectMap2DNeighborhood('a', edges);
-    expect([...nb.upstream].sort()).toEqual(['b']);
-    expect([...nb.downstream].sort()).toEqual(['c']);
-    expect(nb.upstream.has('x')).toBe(false);
-    expect(nb.downstream.has('y')).toBe(false);
+    expect([...nb.upstream]).toEqual(['b']);
+    expect([...nb.downstream]).toEqual(['c']);
   });
 
-  it('пустая карта даёт пустую раскладку без ошибок', () => {
-    const layout = computeMap2DLayout([], ZONES);
-    expect(Object.keys(layout.positions)).toHaveLength(0);
+  it('пустая и одноузелная карты не ломаются', () => {
+    const empty = computeMap2DLayout([], ZONES);
+    expect(Object.keys(empty.positions)).toHaveLength(0);
+    const single = computeMap2DLayout([makeNode('only', 'z1')], ZONES);
+    const p = single.positions['only']!;
+    expect(Math.hypot(p.x - single.center.x, p.y - single.center.y)).toBeLessThanOrEqual(0);
   });
 });

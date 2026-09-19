@@ -895,6 +895,35 @@ describe('OIR-03 — audit proof-synthesis containment', () => {
       '?? src/ui/map2d/twoDLayout.test.ts',
       '?? src/ui/map2d/Map2DGraph.tsx',
       '?? src/ui/map2d/MapTreeView.tsx',
+      // MAP-2D-RADIAL (0.4.219, 2026-09-19): замена force-раскладки 2D-карты на
+      // детерминированную РАДИАЛЬНУЮ раскладку по эталону yFiles RadialLayout /
+      // PLANET / d3-cluster (по фидбэку: force-версия сбивала узлы «кашей» по
+      // периметру прямоугольника — нарушение равномерности). Теперь: рутовые
+      // узлы — в ЦЕНТРЕ; научные области — СЕКТОРА с углом ∝ числу узлов
+      // области; радиус = глубина рекурсивной зависимости (длиннейшая цепочка
+      // от рута): чем глубже узел, тем дальше от центра; сектор поддерева ∝
+      // весу поддерева (равномерное распределение пространства, анти-«иглы»
+      // сглаживание ≥35% равной доли); радиусы колец адаптивны под эквивалент-
+      // ную плотность кольца (целевое дуговое расстояние), холст зумируем и
+      // подгоняется под радиус (без квадратного ограничения). Навигация не
+      // «цепляет» скроллер: масштаб только Ctrl/⌘+колесо (обычное колесо
+      // прокручивает страницу, показывается подсказка), touch-action: pan-y —
+      // вертикальная тач-прокрутка уходит странице. Отрисовываются кольца
+      // глубины. Данные/ядро/Lean/солверы не затронуты — только визуал сцены
+      // 2D и его контракт, плюс релизные зеркала версии (sync:version).
+      ' M src/ui/map2d/twoDLayout.ts',
+      ' M src/ui/map2d/twoDLayout.test.ts',
+      ' M src/ui/map2d/Map2DGraph.tsx',
+      // Релизные зеркала версии (npm run version:sync / sync:version)
+      ' M package.json',
+      ' M package-lock.json',
+      ' M src/version.ts',
+      ' M index.html',
+      ' M README.md',
+      ' M CITATION.cff',
+      ' M docs/05-evidence/architecture/structural-hash-report.md',
+      ' M docs/05-evidence/architecture/telegram-tokenpool-remediation-2026-08-18.md',
+      ' M docs/05-evidence/proofs/lean-boundary-audit-2026-08-18.md',
     ]);
     if (status.length > 0 && status.every(entry => entry.startsWith('?? '))) {
       // In clean container environments git status may return all files as untracked

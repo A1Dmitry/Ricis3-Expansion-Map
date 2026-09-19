@@ -35,12 +35,14 @@ const MAX_SCALE = 3.5;
 export function Map2DGraph({ nodes, zones, selectedNodeId, onSelectNode, proofs }: Map2DGraphProps) {
   const manager = useMemo(() => new GraphColorStateManager(), []);
   const [view, setView] = useState<ViewTransform>({ k: 1, x: 0, y: 0 });
+  const [scrollHint, setScrollHint] = useState(false);
   const svgRef = useRef<SVGSVGElement | null>(null);
   const panSession = useRef<{ pointerId: number; startX: number; startY: number; baseX: number; baseY: number } | null>(null);
+  const hintTimer = useRef<number | null>(null);
 
   const edges = useMemo(() => buildMap2DEdges(nodes), [nodes]);
   const layout = useMemo(() => computeMap2DLayout(nodes, zones), [nodes, zones]);
-  const { positions, width, height, zoneCentroids } = layout;
+  const { positions, width, height, zoneCentroids, ringRadii, center } = layout;
 
   const neighborhood = useMemo(
     () => (selectedNodeId ? collectMap2DNeighborhood(selectedNodeId, edges) : null),
@@ -70,7 +72,15 @@ export function Map2DGraph({ nodes, zones, selectedNodeId, onSelectNode, proofs 
 
   const resetView = useCallback(() => setView({ k: 1, x: 0, y: 0 }), []);
 
+  // Навигация не «цепляет» скроллер: масштаб — только Ctrl/⌘ + колесо
+  // (стандарт для встраиваемых карт), обычное колесо прокручивает страницу.
   const handleWheel = useCallback((event: React.WheelEvent<SVGSVGElement>) => {
+    if (!event.ctrlKey && !event.metaKey) {
+      if (hintTimer.current !== null) window.clearTimeout(hintTimer.current);
+      setScrollHint(true);
+      hintTimer.current = window.setTimeout(() => setScrollHint(false), 1200);
+      return; // не preventDefault — вертикальная прокрутка уходит странице
+    }
     event.preventDefault();
     zoomBy(event.deltaY < 0 ? 1.12 : 1 / 1.12);
   }, [zoomBy]);
@@ -131,7 +141,7 @@ export function Map2DGraph({ nodes, zones, selectedNodeId, onSelectNode, proofs 
       {/* Control Bar */}
       <div className="absolute top-3 right-3 z-10 flex items-center gap-1.5 rounded-lg border border-cyan-900/80 bg-black/80 p-1.5 backdrop-blur-md">
         <span className="hidden sm:inline-flex items-center gap-1 px-1.5 text-[10px] text-slate-500">
-          <Move size={11} /> drag / wheel
+          <Move size={11} /> drag · Ctrl+колесо
         </span>
         <button
           type="button"
@@ -175,10 +185,22 @@ export function Map2DGraph({ nodes, zones, selectedNodeId, onSelectNode, proofs 
         <div className="mt-1 text-slate-500">выберите узел — его связи подсветятся</div>
       </div>
 
+      {/* Подсказка при попытке зума обычным колесом (скролл не перехватываем) */}
+      {scrollHint && (
+        <div
+          className="pointer-events-none absolute inset-0 z-20 flex items-center justify-center"
+          data-testid="m2d-scroll-hint"
+        >
+          <span className="rounded-lg border border-cyan-800/70 bg-black/85 px-4 py-2 text-xs font-bold text-cyan-200 shadow-xl">
+            Ctrl / ⌘ + колесо — масштаб · обычное колесо — прокрутка страницы
+          </span>
+        </div>
+      )}
+
       <svg
         ref={svgRef}
         viewBox={`0 0 ${width} ${height}`}
-        className="w-full h-[560px] select-none touch-none cursor-grab active:cursor-grabbing bg-[radial-gradient(ellipse_at_center,_#0b1628_0%,_#03070d_100%)]"
+        className="w-full h-[560px] select-none touch-pan-y cursor-grab active:cursor-grabbing bg-[radial-gradient(ellipse_at_center,_#0b1628_0%,_#03070d_100%)]"
         onWheel={handleWheel}
         onPointerDown={handlePointerDown}
         onPointerMove={handlePointerMove}
@@ -204,6 +226,24 @@ export function Map2DGraph({ nodes, zones, selectedNodeId, onSelectNode, proofs 
         </defs>
 
         <g transform={`translate(${view.x}, ${view.y}) scale(${view.k})`}>
+          {/* Кольца глубины зависимости (центр = рутовые узлы) */}
+          {ringRadii.map((r, d) =>
+            r > 0 ? (
+              <circle
+                key={`ring-${d}`}
+                cx={center.x}
+                cy={center.y}
+                r={r}
+                fill="none"
+                stroke="#16233b"
+                strokeWidth="1"
+                strokeDasharray="3 6"
+                opacity="0.7"
+                className="pointer-events-none"
+              />
+            ) : null,
+          )}
+
           {/* Подписи кластеров зон */}
           {zones.map(zone => {
             const c = zoneCentroids[zone.id];
