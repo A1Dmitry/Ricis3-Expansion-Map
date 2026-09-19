@@ -37,6 +37,12 @@ jobs:
         # process itself is violated (WIP overflow, open andon, "done" without a real run,
         # declared-vs-actual drift in normative docs, hand-edited board, hand-edited digest).
         run: npm run tps:gate && npm run tps:board:check && npm run tps:digest:check
+      - name: Executor traceability gate (commit header «исполнитель : ключ», registered key)
+        # docs/00-governance/EXECUTION_TRACEABILITY_GATES.md: every commit on a PR branch must
+        # carry the executor key in its header, matching the key registered in
+        # docs/00-governance/EXECUTOR_KEY.md as of that commit; this keeps GitHub-history
+        # attribution possible and enables G2 forensics (bisect -> verdict) on breakage.
+        run: npm run executor:gate -- --check-headers --base origin/main
       - name: Run test suite
         run: npm test
       - name: Build static application without deployment

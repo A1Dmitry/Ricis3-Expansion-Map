@@ -1,0 +1,24 @@
+#!/bin/sh
+# Executor traceability commit-msg hook (§G3 of
+# docs/00-governance/EXECUTION_TRACEABILITY_GATES.md).
+#
+# Rule: the commit header must start with «исполнитель : <ключ>», where <ключ>
+# is the 64-lowercase-hex executor key registered in
+# docs/00-governance/EXECUTOR_KEY.md as of this commit.
+#
+# Activate locally: git config core.hooksPath hooks
+# The CI gate (pr-verify.yml -> npm run executor:gate) enforces the rule even
+# if the hook is bypassed with --no-verify.
+
+subject=$(head -n 1 "$1")
+
+if printf '%s\n' "$subject" | LC_ALL=C grep -qE '^исполнитель : [0-9a-f]{64}( .*)?$'; then
+  exit 0
+fi
+
+echo "EXECUTOR GATE (commit-msg): исключение — коммит без ключа отклонён." >&2
+echo "Надо создать ключ по вышеописанному протоколу (docs/00-governance/EXECUTION_TRACEABILITY_GATES.md §1–§2," >&2
+echo "регистрация — docs/00-governance/EXECUTOR_KEY.md), а лучше еще и пройти обучение —" >&2
+echo "обязательное изучение всей документации (перечень — MANDATORY_STUDY_DOCUMENTS и отчёт ворот G2)." >&2
+echo "Форма заголовка: «исполнитель : <ключ>», где <ключ> — 64 строчных hex-символа." >&2
+exit 1
