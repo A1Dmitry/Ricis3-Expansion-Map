@@ -732,6 +732,14 @@ describe('OIR-03 — audit proof-synthesis containment', () => {
       '?? artifacts/proofs/ricis-yang-mills-v2.json',
       '?? artifacts/proofs/ricis-yang-mills-v2.lean',
       '?? docs/02-sprints/GAP_CLOSURE_PLAN_SINGULARITY_2026-09-18.json',
+      // MERGE-MAIN-SNAPSHOT-2026-09-19: main переписан в единичный корневой
+      // снимок (7e00e1a) без общей истории; слияние собрано с явной базой
+      // (129081a). Рефактор EditNodeModal у main потерял поля паритета с формой
+      // создания (сфера науки/NEW_ZONE/ссылка на первоисточник + маршрутизация
+      // assignNodeZone) — pre-merge UIRF-04/05 были красными на самом снимке;
+      // блок восстановлен поверх рефактора (регрессия закрыта компонентом,
+      // а не ослаблением стражей).
+      ' M src/ui/EditNodeModal.tsx',
       // KINEMATIC-VIEWPORT-REPAIR (0.4.213, 2026-09-18): ремонт отсоединённой
       // визуализации кинематического апплета. Первопричина «полностью сломанной
       // кинематики»: страница рендерила ModularManipulator3DCanvas, привязанный
