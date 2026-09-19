@@ -732,6 +732,115 @@ describe('OIR-03 — audit proof-synthesis containment', () => {
       '?? artifacts/proofs/ricis-yang-mills-v2.json',
       '?? artifacts/proofs/ricis-yang-mills-v2.lean',
       '?? docs/02-sprints/GAP_CLOSURE_PLAN_SINGULARITY_2026-09-18.json',
+      // MERGE-MAIN-SNAPSHOT-2026-09-19: main переписан в единичный корневой
+      // снимок (7e00e1a) без общей истории; слияние собрано с явной базой
+      // (129081a). Рефактор EditNodeModal у main потерял поля паритета с формой
+      // создания (сфера науки/NEW_ZONE/ссылка на первоисточник + маршрутизация
+      // assignNodeZone) — pre-merge UIRF-04/05 были красными на самом снимке;
+      // блок восстановлен поверх рефактора (регрессия закрыта компонентом,
+      // а не ослаблением стражей).
+      ' M src/ui/EditNodeModal.tsx',
+      // KINEMATIC-VIEWPORT-REPAIR (0.4.213, 2026-09-18): ремонт отсоединённой
+      // визуализации кинематического апплета. Первопричина «полностью сломанной
+      // кинематики»: страница рендерила ModularManipulator3DCanvas, привязанный
+      // к статическому walkthrough-состоянию planarJoints, а живой цикл
+      // pick-and-place (ricisState/dlsState, шары, коробка, DLS-призрак) не
+      // выводился никуда — RobotArm3DCanvas (731 строка рабочего рендерера)
+      // был импортирован, но не использовался. Маршрутизация viewport'а по
+      // simMode восстановлена; heatmap θ₂×θ₃ ограничена 3-DOF (ранее клик по
+      // ней урезал 5-звенный вектор суставов до 3); клешня отражает
+      // gripperClosed; маркер цели скрывается без цели; GPU-ресурсы
+      // освобождаются при перестроении цепи; «Сброс» стал полным.
+      // Регрессионные стражи: closed-loop тесты симуляции (оба RICIS-солвера
+      // доезжают 4/4 шаров без NaN и не выходят за границу рабочей зоны) +
+      // UI-маршрутизация viewports.
+      ' M src/ui/KinematicEnginePage.test.tsx',
+      ' M src/ui/components/kinematic/ModularManipulator3DCanvas.tsx',
+      ' M src/ui/components/kinematic/RobotArm3DCanvas.tsx',
+      '?? src/services/kinematic/pickAndPlaceSimulation.test.ts',
+      // KINEMATIC-SMOOTH-MOTION-AND-BALL-PHYSICS (0.4.214, 2026-09-18): ответ на
+      // замечание пользователя «это тухта» — движения были рывками между фазными
+      // якорями, шар телепортировался (Math.random) в коробку без гравитации.
+      // 1) CartesianMotionSmoother: дискретные якоря фаз-машин превращаются в
+      // C1-непрерывный поток целей с трапецеидальным профилем скорости и жёстким
+      // anti-overshoot-фиксатором — рука летит по оптимальной плавной траектории,
+      // все суставы вращаются одновременно. 2) BallPhysicsWorld: полу-неявный
+      // Эйлер с гравитацией, реституцией, confinement-ом в коробке; плоскость
+      // контакта = дно коробки при boxBounds (шар не проваливается сквозь дно).
+      // 3) Pick-and-place RELEASING: сброс с реальным падением+отскоком внутри
+      // коробки до покоя (телепортация удалена). 4) Новый сценарий
+      // «Перехват падающих» (CATCH_FALLING_BALL): плановые сбросы шаров,
+      // баллистический предиктор predictTrajectory, перехват в полёте (fallback —
+      // подбор с пола), доставка с отскоком в коробку; BallStatus += 'FALLING',
+      // IBallEntity += velocity. Регрессионные стражи: замкнутый цикл
+      // контроллер→сглаживатель→двойной солвер (оба RICIS-солвера, ≥3 перехвата
+      // на лету из 4, шары в покое внутри коробки), аналитика физики
+      // (½gt², вершина ~e²h, rest, wall-clamp), контракты сглаживателя
+      // (непрерывность, точное settle, ноль overshoot, ретаргетинг в полёте),
+      // UI-тест переключателя сценария.
+      ' M src/model/kinematicEngine.contracts.ts',
+      ' M src/services/kinematic/pickAndPlaceController.ts',
+      ' M src/services/kinematic/pickAndPlaceSimulation.test.ts',
+      ' M src/ui/KinematicEnginePage.tsx',
+      '?? src/services/kinematic/ballPhysics.test.ts',
+      '?? src/services/kinematic/ballPhysics.ts',
+      '?? src/services/kinematic/catchBallController.test.ts',
+      '?? src/services/kinematic/catchBallController.ts',
+      '?? src/services/kinematic/motionSmoothing.test.ts',
+      '?? src/services/kinematic/motionSmoothing.ts',
+      // KINEMATIC-ROOM-TENNIS-CANNON-ELBOW-GUARD (0.4.215, 2026-09-19): комната и
+      // теннисные автоматы по ТЗ владельца. 1) Сцена — комната: пол, потолок и 4
+      // стены полупрозрачные (deepWrite off, DoubleSide) — камера смотрит СКВОЗЬ
+      // ближнюю стену с любого ракурса; сетка пола доведена до габарита комнаты,
+      // 2D-схема получила контур стен и линию потолка. 2) Два слабых пневматических
+      // автомата (пропсы-пьедесталы со стволом и дулом) отстреливают шарики с
+      // РАЗНОЙ силой (1.45–2.05 м/с, разные высоты дула 1.35/0.62 м) — отскоки
+      // заметно разные (страж измеряет разброс скорости отскока > 0.25 м/с).
+      // 3) Шары летают по баллистике, отскакивают от пола и стен
+      // (room-confinement в живой интеграции и в предикторе), манипулятор ловит
+      // их на лету или собирает с пола — closed-loop измеряет ОБА исхода (3+3).
+      // 4) «Локоть уходит ниже основания» — корневая причина: закрытая форма IK
+      // всегда брала ветвь elbow-down. Ремонт: выбор ветви локтя (elbow-up зеркало,
+      // тождество планарного 2R) внутри полярного солвера с гистерезисом; зеркальный
+      // гард движка для итеративных солверов (симметричный лимит q3 у DLS-призрака);
+      // подъём груза вертикально перед переносом к коробке (транзит вблизи
+      // полюса-складки — обёртка q3→±π с обвалом локтя в обеих ветвях). Замер:
+      // локоть ≥ 0 на каждом кадре closed-loop обоих солверов и обоих сценариев.
+      // Стражи: юнит-страж зеркала (EE сохраняется побитово, гистерезис, вырождение
+      // на полюсе), инвариант локтя в симуляциях, удержание комнаты, покой в
+      // коробке. Классические лимиты/динамика бенчмарка НЕ менялись (SOLVERS DlsSolver3D
+      // и RicisSymbolicJacobianSolver3D оставлены в калиброванных ограничениях).
+      // 1B.9-session-memory — сессионная память (cursor rule 0.3.2, рабочий артефакт).
+      ' M src/services/kinematic/ballPhysics.ts',
+      ' M src/services/kinematic/catchBallController.test.ts',
+      ' M src/services/kinematic/catchBallController.ts',
+      ' M src/services/kinematic/kinematicConstants.ts',
+      ' M src/services/kinematic/kinematicMath.ts',
+      ' M src/services/kinematic/pickAndPlaceSimulation.test.ts',
+      ' M src/services/kinematic/polarSolvers.ts',
+      ' M src/ui/KinematicEnginePage.test.tsx',
+      ' M src/ui/KinematicEnginePage.tsx',
+      ' M src/ui/components/kinematic/RobotArm3DCanvas.tsx',
+      '?? "1B.9-session-memory/SM MP81-uncertain-map.md"',
+      ' M "1B.9-session-memory/SM MP81-uncertain-map.md"',
+      '?? src/services/kinematic/elbowFloorGuard.test.ts',
+      // INTERCEPTION-BENCHMARK (0.4.216, 2026-09-19): бенчмарк-карниз по
+      // спецификации LLM-бенчмарка владельца — стандартная батарея из 10
+      // сценариев перехвата (T01–T10: slow/high-lob/low-throw/fast-lateral/
+      // bounce/multi-bounce/free-form + два заведомо недостижимых) и seeded
+      // UNKNOWN-батч (mulberry32, случайные позиция/скорость/угол/restitution)
+      // прогоняются ЖИВЫМ пайплайном (controller→smoother→engine, 60 Гц) без
+      // ручных правок между кейсами. Контроллер научился декларировать
+      // недостижимость (покоящийся шар вне кольца охвата → статус UNREACHABLE,
+      // переход к следующей задаче — зависания нет) и штамповать план перехвата
+      // (getLastInterceptPlan) для метрик prediction/timing error. Отчёт:
+      // catch rate, IK error, FK-drift, joint-limit/collision violations,
+      // replan count, determinism signature. UI-панель «📊 Бенчмарк перехвата»
+      // показывает таблицу метрик. Стражи: ожидания батареи (10/10), детект
+      // UNREACHABLE < 400 шагов, нулевые нарушения, детерминизм двух прогонов,
+      // UNKNOWN seed 7 ≥ 8/10.
+      '?? src/services/kinematic/interceptionBenchmark.test.ts',
+      '?? src/services/kinematic/interceptionBenchmark.ts',
     ]);
     if (status.length > 0 && status.every(entry => entry.startsWith('?? '))) {
       // In clean container environments git status may return all files as untracked

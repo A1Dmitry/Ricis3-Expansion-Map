@@ -53,7 +53,7 @@ export interface IKinematicSolver3D {
   ): ISolverResult3D;
 }
 
-export type BallStatus = 'ON_SPAWN' | 'GRASPED' | 'IN_BOX';
+export type BallStatus = 'ON_SPAWN' | 'GRASPED' | 'IN_BOX' | 'FALLING' | 'UNREACHABLE';
 
 export interface IBallEntity {
   readonly id: string;
@@ -63,6 +63,8 @@ export interface IBallEntity {
   readonly color: string;
   readonly status: BallStatus;
   readonly isSingularZone: boolean;
+  /** Live physics velocity (m/s) — present while the ball is integrated by BallPhysicsWorld (FALLING / bouncing in box). */
+  readonly velocity?: Vector3D;
 }
 
 export interface IBoxContainer {

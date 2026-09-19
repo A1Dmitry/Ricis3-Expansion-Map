@@ -19,6 +19,21 @@ interface ModularManipulator3DCanvasProps {
   readonly onSelectAngles?: (angles: number[]) => void;
 }
 
+/** Releases GPU-side geometry/material resources of a detached subtree (DRY). */
+function disposeObjectResources(root: THREE.Object3D): void {
+  root.traverse(obj => {
+    const mesh = obj as THREE.Mesh;
+    if (!mesh.isMesh) return;
+    mesh.geometry?.dispose();
+    const material = mesh.material;
+    if (Array.isArray(material)) {
+      material.forEach(m => m.dispose());
+    } else {
+      material?.dispose();
+    }
+  });
+}
+
 export const ModularManipulator3DCanvas: React.FC<ModularManipulator3DCanvasProps> = ({
   jointAngles,
   linkLengths,
@@ -112,6 +127,7 @@ export const ModularManipulator3DCanvas: React.FC<ModularManipulator3DCanvasProp
       emissiveIntensity: 0.8,
     });
     const targetMesh = new THREE.Mesh(targetGeo, targetMat);
+    targetMesh.visible = false; // Hidden until an explicit target is provided
     scene.add(targetMesh);
     targetMeshRef.current = targetMesh;
 
@@ -141,17 +157,24 @@ export const ModularManipulator3DCanvas: React.FC<ModularManipulator3DCanvasProp
     return () => {
       cancelAnimationFrame(animFrameId);
       window.removeEventListener('resize', handleResize);
+      disposeObjectResources(scene);
       renderer.dispose();
     };
   }, []);
 
-  // Update target marker
+  // Update target marker (hidden when no live target is supplied)
   useEffect(() => {
-    if (!targetMeshRef.current || !target) return;
+    const targetMesh = targetMeshRef.current;
+    if (!targetMesh) return;
+    if (!target) {
+      targetMesh.visible = false;
+      return;
+    }
+    targetMesh.visible = true;
     const tx = target[0] ?? 0;
     const ty = target[1] ?? 0;
     const tz = (target as readonly number[])[2] ?? 0;
-    targetMeshRef.current.position.set(tx, ty + 0.1, tz);
+    targetMesh.position.set(tx, ty + 0.1, tz);
   }, [target]);
 
   // Reconstruct 3D Arm Hierarchy whenever angles or lengths change
@@ -159,10 +182,11 @@ export const ModularManipulator3DCanvas: React.FC<ModularManipulator3DCanvasProp
     const group = armHierarchyGroupRef.current;
     if (!group) return;
 
-    // Clean previous children
+    // Clean previous children and release their GPU resources (no leak on rebuild)
     while (group.children.length > 0) {
       const child = group.children[0]!;
       group.remove(child);
+      disposeObjectResources(child);
     }
 
     let currentX = 0;

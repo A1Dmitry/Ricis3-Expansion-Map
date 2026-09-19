@@ -20,6 +20,7 @@ import {
   computeJacobianDeterminant3D,
   distance3D,
   calculateAngleDeviationDeg,
+  enforceElbowFloorClearance,
   wrapToPi,
 } from './kinematicMath';
 import { detectAdvantageEvent } from './advantageDetector';
@@ -72,12 +73,33 @@ export class PolarRicisConstraintSolver extends BaseKinematicSolver3D {
     // 5. Exact Law of Cosines closed-form reduction
     const cosQ3 = (clampedReach * clampedReach - L1 * L1 - L2 * L2) / (2 * L1 * L2);
     const clampedCosQ3 = Math.max(-1.0, Math.min(1.0, cosQ3));
-    const targetQ3 = Math.acos(clampedCosQ3);
+    const q3Magnitude = Math.acos(clampedCosQ3);
 
-    // 6. Shoulder pitch q2
+    // 6. Shoulder pitch q2 — with ELBOW BRANCH SELECTION.
+    // A planar 2R arm has two exact inverse solutions for the same end-effector pose:
+    // elbow-down (q3 > 0) and elbow-up (q3 < 0). The elbow-down branch drives the elbow
+    // UNDER THE ROOM FLOOR for low targets (the user-visible "elbow dives under the
+    // base" defect). We track the CURRENT branch for continuity (no branch dithering)
+    // and flip branches — with hysteresis — only when the current branch would pierce
+    // the floor and the mirror branch is strictly higher.
     const alpha = Math.atan2(targetZRel, Math.max(KinematicConstants.MIN_RADIAL_DISTANCE_GUARD, polarTarget.r));
-    const beta = Math.atan2(L2 * Math.sin(targetQ3), L1 + L2 * Math.cos(targetQ3));
-    const targetQ2 = alpha - beta;
+    const betaDown = Math.atan2(L2 * Math.sin(q3Magnitude), L1 + L2 * Math.cos(q3Magnitude));
+    const targetQ2Down = alpha - betaDown;
+    const targetQ2Up = alpha + betaDown;
+
+    const elbowZDown = L0 + L1 * Math.sin(targetQ2Down);
+    const elbowZUp = L0 + L1 * Math.sin(targetQ2Up);
+    const clearance = KinematicConstants.ELBOW_FLOOR_CLEARANCE_METERS;
+    const currentIsDown = currentState.joints.q3 >= 0;
+    const elbowZCurrent = currentIsDown ? elbowZDown : elbowZUp;
+    const elbowZAlt = currentIsDown ? elbowZUp : elbowZDown;
+    const mustFlipBranch =
+      elbowZCurrent < clearance &&
+      elbowZAlt > elbowZCurrent + KinematicConstants.ELBOW_FLIP_HYSTERESIS_METERS;
+    const useDownBranch = currentIsDown ? !mustFlipBranch : mustFlipBranch;
+
+    const targetQ2 = useDownBranch ? targetQ2Down : targetQ2Up;
+    const targetQ3 = useDownBranch ? q3Magnitude : -q3Magnitude;
 
     // 7. Smooth continuous Euler integration towards exact algebraic target via shortest arc
     const lerpRate = Math.min(1.0, KinematicConstants.RICIS_LERP_RATE_MULTIPLIER * dt);
@@ -244,8 +266,11 @@ export class ClassicDlsGhostSolver extends BaseKinematicSolver3D {
     const nextJoints: JointState3D = {
       q1: q1 + deltaQ1,
       q2: q2 + deltaQ2,
+      // Symmetric revolute elbow limits: the elbow-UP (negative) branch is the standard
+      // collision-avoidance branch for low targets — clamping it away used to drive the
+      // elbow under the floor (see enforceElbowFloorClearance in kinematicMath).
       q3: Math.max(
-        KinematicConstants.MIN_ELBOW_JOINT_LIMIT_RAD,
+        KinematicConstants.MIN_ELBOW_UP_JOINT_LIMIT_RAD,
         Math.min(Math.PI - KinematicConstants.MAX_ELBOW_JOINT_LIMIT_OFFSET_RAD, q3 + deltaQ3)
       ),
     };
@@ -404,6 +429,16 @@ export class KinematicDualDebuggerEngine {
       },
     };
 
+    // ELBOW-OVER-FLOOR: the polar closed-form solver selects its elbow branch
+    // internally (branch-aware IK target) — applying the mirror guard to it would
+    // fight its lerp convergence. Iterative solvers (symbolic RICIS, DLS ghost) hold
+    // whatever branch they are on, so the engine applies the exact mirror guard to
+    // them; their joint limits admit the elbow-up branch (see GhostDls clamp).
+    const guardedRicisResult = this.ricisSolver instanceof PolarRicisConstraintSolver
+      ? ricisResult
+      : this.applyElbowFloorGuard(ricisResult, linkLengths);
+    const guardedDlsResult = this.applyElbowFloorGuard(dlsResult, linkLengths);
+
     const advantageEvent = detectAdvantageEvent(
       ricisResult.nextState.jacobianDeterminant,
       dlsResult.metrics,
@@ -444,10 +479,36 @@ export class KinematicDualDebuggerEngine {
     };
 
     return {
-      ricisResult,
-      dlsResult,
+      ricisResult: guardedRicisResult,
+      dlsResult: guardedDlsResult,
       advantageEvent,
       logEntry,
+    };
+  }
+
+  /**
+   * Elbow-over-floor guard applied to a solver result: swaps the joints to the exact
+   * mirrored inverse branch when the elbow would pierce the room floor. The joint
+   * solution changes, the end-effector pose does not (verified by construction in
+   * enforceElbowFloorClearance — the mirror is a geometric identity of a planar 2R arm).
+   */
+  private applyElbowFloorGuard<T extends ISolverResult3D>(
+    result: T,
+    linkLengths: readonly [number, number, number]
+  ): T {
+    const nextState = result.nextState;
+    const guardedJoints = enforceElbowFloorClearance(nextState.joints, linkLengths);
+    if (guardedJoints === nextState.joints) return result;
+    return {
+      ...result,
+      nextState: {
+        ...nextState,
+        joints: guardedJoints,
+        // Recomputed honestly for the mirrored branch (EE is identical by identity;
+        // det(J) flips sign because det ∝ sin(q3), magnitude preserved).
+        endEffector: forwardKinematics3D(guardedJoints, linkLengths),
+        jacobianDeterminant: computeJacobianDeterminant3D(guardedJoints, linkLengths),
+      },
     };
   }
 }
