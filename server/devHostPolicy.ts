@@ -63,7 +63,7 @@ export function resolveDevAllowedHosts(raw: string | undefined | null): DevAllow
   const hosts = value
     .split(',')
     .map(host => host.trim())
-    .filter(host => host.length > 0);
+    .filter(host => host.length > 0 && !/^\d+$/.test(host));
 
   return hosts.length > 0 ? hosts : true;
 }

@@ -8,6 +8,8 @@ import { createEphemeralPassportSession, type EphemeralPassportSessionView } fro
 import { LeanPassportSessionDialog } from './LeanPassportSessionDialog';
 import { useMobileLayout } from '../hooks/useMobileLayout';
 import { SwipeDismissable } from './components/SwipeDismissable';
+import { presentMapNodeVisualStatus } from '../ricisSolutionCatalog';
+import { NodeResolutionStatusCode } from '../model/colorMatrix';
 
 type Props = {
   node: ProblemNode;
@@ -23,13 +25,12 @@ export const EditNodeModal: React.FC<Props> = ({ node, onClose, onSolveAfterSave
   const externalLeanReference = useMapStore(s => s.proofs[node.id]?.externalLean);
   const getLatexProof = useMapStore(s => s.getLatexProof);
   const solveNode = useMapStore(s => s.solveNode);
-  const zones = useMapStore(s => s.zones);
-  const assignNodeZone = useMapStore(s => s.assignNodeZone);
 
   // Mobile layout drives the swipe-to-close gesture on the nested passport dialog.
   const isMobileLayout = useMobileLayout();
 
   const currentProof = getLatexProof(node.id) || '';
+  const existingProof = useMapStore(s => s.proofs[node.id]);
 
   const [title, setTitle] = useState(node.title || '');
   const [targetFunction, setTargetFunction] = useState(node.targetFunction || '');
@@ -41,26 +42,9 @@ export const EditNodeModal: React.FC<Props> = ({ node, onClose, onSolveAfterSave
   const [type, setType] = useState(node.type || 'scientific_task');
   const [marketGain, setMarketGain] = useState(node.economic?.marketGain || 0);
   const [costToSolve, setCostToSolve] = useState(node.economic?.costToSolve || 0);
-  // Поля паритета с формой создания задачи: ссылка на первоисточник и сфера науки.
-  const [sourceUrl, setSourceUrl] = useState(node.sourceUrl || '');
-  const [zoneId, setZoneId] = useState(node.zoneIds[0] || zones[0]?.id || 'math');
-  const [newZoneName, setNewZoneName] = useState('');
   const [isSaving, setIsSaving] = useState(false);
   const [passportSession, setPassportSession] = useState<EphemeralPassportSessionView | null>(null);
   const canOpenPassportSession = externalLeanReference?.sourceLocked === true;
-
-  const originalZoneId = node.zoneIds[0] || zones[0]?.id || 'math';
-
-  const handleOpenPassportSession = () => {
-    if (!canOpenPassportSession || !externalLeanReference) return;
-    setPassportSession(createEphemeralPassportSession({
-      nodeId: node.id,
-      sourceFingerprint: externalLeanReference.sourceHash,
-      submittedAt: externalLeanReference.submittedAt,
-      trustStatus: externalLeanReference.trustStatus,
-      sourceLocked: true,
-    }));
-  };
 
   // Real-time auditing for compiler-style feedback
   const isLean = proofLatex && /\btheorem\b|\blemma\b|\bdef\b|\binductive\b|\bstructure\b|\baxiom\b|\bimport\b/i.test(proofLatex);
@@ -76,17 +60,95 @@ export const EditNodeModal: React.FC<Props> = ({ node, onClose, onSolveAfterSave
         };
       })();
 
+  const liveVisualStatus = presentMapNodeVisualStatus({
+    nodeId: node.id,
+    nodeState: state,
+    proof: existingProof,
+    hasSorry: realTimeAudit.errors.length > 0 || realTimeAudit.warnings.some(w => /sorry/i.test(w)),
+    isDerivative: type === 'derivative_claim' && state !== 'resolved',
+    isOnPath: false,
+    isLocked: false,
+    isCore: type === 'core_singularity' && state !== 'resolved',
+    nodeType: type,
+    fractalDepth: node.fractalDepth,
+  });
+
+  const getGranularStatusKey = (): string => {
+    if (state === 'resolved') {
+      if (liveVisualStatus.statusCode === NodeResolutionStatusCode.LEAN_VERIFIED) return 'resolved_lean';
+      if (liveVisualStatus.statusCode === NodeResolutionStatusCode.RESOLVED_WITH_WARNINGS) return 'resolved_warnings';
+      return 'resolved_proven';
+    }
+    if (type === 'derivative_claim') return 'derivative_claim';
+    if (type === 'core_singularity') return 'core_singularity';
+    if (type === 'derived_problem') {
+      if ((node.fractalDepth ?? 0) >= 2) return 'sub_subtask';
+      return 'subtask';
+    }
+    if (state === 'partial') {
+      if (realTimeAudit.warnings.some(w => /sorry/i.test(w)) || realTimeAudit.errors.length > 0) return 'partial_draft';
+      return 'partial_hypothesis';
+    }
+    return 'unresolved_singularity';
+  };
+
+  const handleGranularStatusChange = (newKey: string) => {
+    switch (newKey) {
+      case 'unresolved_singularity':
+        setState('unresolved');
+        if (type === 'derivative_claim') setType('scientific_task');
+        break;
+      case 'partial_draft':
+        setState('partial');
+        break;
+      case 'partial_hypothesis':
+        setState('partial');
+        if (type === 'derivative_claim') setType('scientific_task');
+        break;
+      case 'resolved_warnings':
+        setState('resolved');
+        if (type === 'derivative_claim') setType('scientific_task');
+        break;
+      case 'resolved_proven':
+        setState('resolved');
+        if (type === 'derivative_claim') setType('scientific_task');
+        break;
+      case 'resolved_lean':
+        setState('resolved');
+        if (type === 'derivative_claim') setType('scientific_task');
+        break;
+      case 'subtask':
+        setType('derived_problem');
+        if (state === 'resolved') setState('partial');
+        break;
+      case 'sub_subtask':
+        setType('derived_problem');
+        if (state === 'resolved') setState('partial');
+        break;
+      case 'core_singularity':
+        setType('core_singularity');
+        break;
+      case 'derivative_claim':
+        setType('derivative_claim');
+        if (state === 'resolved') setState('partial');
+        break;
+    }
+  };
+
+  const handleOpenPassportSession = () => {
+    if (!canOpenPassportSession || !externalLeanReference) return;
+    setPassportSession(createEphemeralPassportSession({
+      nodeId: node.id,
+      sourceFingerprint: externalLeanReference.sourceHash,
+      submittedAt: externalLeanReference.submittedAt,
+      trustStatus: externalLeanReference.trustStatus,
+      sourceLocked: true,
+    }));
+  };
+
   const handleSave = async (andSolve = false) => {
     setIsSaving(true);
     try {
-      // Нормализация ссылки на первоисточник — то же правило, что и при создании задачи.
-      const trimmedSourceUrl = sourceUrl.trim();
-      const normalizedSourceUrl = trimmedSourceUrl
-        ? (/^https?:\/\//i.test(trimmedSourceUrl)
-            ? trimmedSourceUrl
-            : 'https://' + trimmedSourceUrl.replace(/^\/+/, ''))
-        : undefined;
-
       const updates: Partial<ProblemNode> = {
         title: title.trim(),
         targetFunction: targetFunction.trim(),
@@ -94,29 +156,17 @@ export const EditNodeModal: React.FC<Props> = ({ node, onClose, onSolveAfterSave
         singularityHint: singularityHint.trim(),
         state,
         type,
+        isDerivativeClaim: type === 'derivative_claim' && state !== 'resolved',
         economic: {
           ...node.economic,
           marketGain: Number(marketGain) || 0,
           costToSolve: Number(costToSolve) || 0,
         },
-        sourceUrl: normalizedSourceUrl,
         leanErrors: realTimeAudit.errors,
         leanWarnings: realTimeAudit.warnings,
       };
 
       await updateNode(node.id, updates);
-
-      // Сфера науки — паритет с созданием задачи: выбор существующей или создание новой.
-      if (zoneId !== originalZoneId) {
-        if (zoneId === 'NEW_ZONE') {
-          if (!newZoneName.trim()) {
-            throw new Error('Укажите название новой сферы науки.');
-          }
-          await assignNodeZone(node.id, undefined, newZoneName.trim());
-        } else {
-          await assignNodeZone(node.id, zoneId, undefined);
-        }
-      }
 
       if (proofLatex !== currentProof) {
         if (sourceLocked) {
@@ -235,49 +285,6 @@ export const EditNodeModal: React.FC<Props> = ({ node, onClose, onSolveAfterSave
             />
           </div>
 
-          {/* Сфера науки — то же поле, что и при создании задачи */}
-          <div>
-            <label className="block text-[10px] font-bold text-gray-400 uppercase mb-1">
-              Сфера науки / Область знаний
-            </label>
-            <select
-              value={zoneId}
-              onChange={e => setZoneId(e.target.value)}
-              className="w-full bg-neutral-900 border border-neutral-700 rounded p-2 text-white focus:border-cyan-500 focus:outline-none"
-            >
-              {zones.map(z => (
-                <option key={z.id} value={z.id}>
-                  {z.name}
-                </option>
-              ))}
-              <option value="NEW_ZONE">+ Создать новую сферу науки...</option>
-            </select>
-
-            {zoneId === 'NEW_ZONE' && (
-              <input
-                type="text"
-                value={newZoneName}
-                onChange={e => setNewZoneName(e.target.value)}
-                placeholder="Название новой сферы..."
-                className="w-full mt-2 bg-neutral-900 border border-cyan-700/60 rounded p-2 text-white focus:border-cyan-500 focus:outline-none"
-              />
-            )}
-          </div>
-
-          {/* Ссылка на первоисточник — то же поле, что и при создании задачи */}
-          <div>
-            <label className="block text-[10px] font-bold text-gray-400 uppercase mb-1">
-              Ссылка на первоисточник / DOI (опционально)
-            </label>
-            <input
-              type="text"
-              value={sourceUrl}
-              onChange={e => setSourceUrl(e.target.value)}
-              placeholder="например, https://doi.org/10.5281/zenodo.17872755"
-              className="w-full bg-neutral-900 border border-neutral-700 rounded p-2 text-cyan-300 font-mono focus:border-cyan-500 focus:outline-none"
-            />
-          </div>
-
           <div>
             <div className="flex items-center justify-between mb-1">
               <label className="block text-[10px] font-bold text-amber-400 uppercase">
@@ -362,19 +369,68 @@ export const EditNodeModal: React.FC<Props> = ({ node, onClose, onSolveAfterSave
             )}
           </div>
 
+          {/* 3D Sphere Live Visual Status Indicator */}
+          <div className="p-3 rounded-lg bg-neutral-950 border border-neutral-800 flex items-center justify-between gap-3 shadow-inner">
+            <div className="flex items-center gap-3">
+              <div
+                className="w-5 h-5 rounded-full flex-shrink-0 animate-pulse transition-all duration-300"
+                style={{
+                  backgroundColor: liveVisualStatus.sphereColor,
+                  boxShadow: `0 0 14px ${liveVisualStatus.sphereColor}`,
+                }}
+              />
+              <div>
+                <div className="text-[12px] font-bold text-white flex items-center gap-1.5">
+                  <span>{liveVisualStatus.statusLabel}</span>
+                  <span className="font-mono text-[10px] text-gray-400">({liveVisualStatus.sphereColor})</span>
+                </div>
+                <div className="text-[10px] text-gray-400">
+                  {liveVisualStatus.sphereColor === '#ef4444' && '🔴 Красный: Открытая сингулярность (нерешено)'}
+                  {liveVisualStatus.sphereColor === '#f97316' && '🟠 Оранжевый: В процессе разработки / черновик (sorry)'}
+                  {liveVisualStatus.sphereColor === '#eab308' && '🟡 Желтый: Частичное решение / гипотеза'}
+                  {liveVisualStatus.sphereColor === '#84cc16' && '🟢 Желто-зеленый (салатовый): Решено / близко к доказанному'}
+                  {liveVisualStatus.sphereColor === '#22c55e' && '🟢 Зеленый: Полностью доказано (инвариант RICIS-III)'}
+                  {liveVisualStatus.sphereColor === '#10b981' && '🟢 Изумрудный: Формально верифицировано ядром Lean 4'}
+                  {liveVisualStatus.sphereColor === '#3b82f6' && '🔵 Синий: Подзадача (1-й уровень) / Монолит ядра'}
+                  {liveVisualStatus.sphereColor === '#06b6d4' && '🔷 Голубой: Подзадача подзадачи / Активный путь L1'}
+                  {liveVisualStatus.sphereColor === '#a855f7' && '🟣 Фиолетовый: Чужой-последователь (производное утверждение)'}
+                  {liveVisualStatus.sphereColor === '#64748b' && '⚪ Почти прозрачный: Не открыт (заблокирован)'}
+                  {liveVisualStatus.sphereColor === '#b91c1c' && '⚪ Почти прозрачный: Не открыт (заблокирован)'}
+                </div>
+              </div>
+            </div>
+            <span
+              className="text-[9px] font-mono font-bold uppercase tracking-wider px-2 py-0.5 rounded-full border shrink-0"
+              style={{
+                color: liveVisualStatus.sphereColor,
+                borderColor: `${liveVisualStatus.sphereColor}66`,
+                backgroundColor: `${liveVisualStatus.sphereColor}18`,
+              }}
+            >
+              {liveVisualStatus.statusCode}
+            </span>
+          </div>
+
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className="block text-[10px] font-bold text-gray-400 uppercase mb-1">
                 Статус решения (Шар на 3D-карте)
               </label>
               <select
-                value={state}
-                onChange={e => setState(e.target.value as any)}
-                className="w-full bg-neutral-900 border border-neutral-700 rounded p-2 text-white focus:border-cyan-500 focus:outline-none"
+                value={getGranularStatusKey()}
+                onChange={e => handleGranularStatusChange(e.target.value)}
+                className="w-full bg-neutral-900 border border-neutral-700 rounded p-2 text-white text-[11px] focus:border-cyan-500 focus:outline-none"
               >
-                <option value="unresolved">🔴 Нерешено (Unresolved - Красный)</option>
-                <option value="partial">🟡 Частично / Требуется RICIS (Partial - Желтый)</option>
-                <option value="resolved">🟢 Полностью решено (Resolved - Зеленый)</option>
+                <option value="unresolved_singularity">🔴 Красный: Открытая сингулярность (нерешено)</option>
+                <option value="partial_draft">🟠 Оранжевый: В процессе разработки / Черновик (sorry)</option>
+                <option value="partial_hypothesis">🟡 Желтый: Частично / Гипотеза</option>
+                <option value="resolved_warnings">🟢 Желто-зеленый: Решено / Близко к доказанному</option>
+                <option value="resolved_proven">🟢 Зеленый: Полностью доказано (RICIS-III)</option>
+                <option value="resolved_lean">🟢 Изумрудный: Lean 4 верифицировано</option>
+                <option value="subtask">🔵 Синий: Подзадача (1-й уровень)</option>
+                <option value="sub_subtask">🔷 Голубой: Подзадача подзадачи</option>
+                <option value="core_singularity">🔵 Синий: Аксиома ядра (Core Monolith)</option>
+                <option value="derivative_claim">🟣 Фиолетовый: Чужой-последователь (Аудит)</option>
               </select>
             </div>
 
@@ -385,7 +441,7 @@ export const EditNodeModal: React.FC<Props> = ({ node, onClose, onSolveAfterSave
               <select
                 value={type}
                 onChange={e => setType(e.target.value as any)}
-                className="w-full bg-neutral-900 border border-neutral-700 rounded p-2 text-white focus:border-cyan-500 focus:outline-none"
+                className="w-full bg-neutral-900 border border-neutral-700 rounded p-2 text-white text-[11px] focus:border-cyan-500 focus:outline-none"
               >
                 <option value="scientific_task">Научная задача</option>
                 <option value="core_singularity">Ядро / Сингулярность</option>

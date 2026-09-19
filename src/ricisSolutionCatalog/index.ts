@@ -1,4 +1,5 @@
 import type { NodeState, Proof } from '../model/types';
+import { NodeResolutionStatusCode } from '../model/colorMatrix';
 
 export type CalculatorMode =
   | 'CDCC' | 'P_VS_NP' | 'COMPLEX_ANALYSIS' | 'RIEMANN' | 'BSD' | 'HODGE'
@@ -121,10 +122,26 @@ export interface CalculatorLaunchResult {
 }
 
 export interface MapNodeVisualStatus {
-  readonly sphereColor: '#ef4444' | '#eab308' | '#22c55e' | '#a855f7' | '#6b7280' | '#22d3ee' | '#94a3b8';
+  readonly sphereColor:
+    | '#ef4444'
+    | '#eab308'
+    | '#22c55e'
+    | '#a855f7'
+    | '#6b7280'
+    | '#22d3ee'
+    | '#94a3b8'
+    | '#10b981'
+    | '#84cc16'
+    | '#f97316'
+    | '#b91c1c'
+    | '#3b82f6'
+    | '#06b6d4'
+    | string;
   readonly greenBasis: GreenBasis;
   readonly ariaLabelSuffix: string;
   readonly greenByCatalog: boolean;
+  readonly statusCode?: NodeResolutionStatusCode;
+  readonly statusLabel?: string;
 }
 
 export interface SolutionMonolithCardView {
@@ -371,6 +388,9 @@ export function presentMapNodeVisualStatus(input: {
   readonly isDerivative: boolean;
   readonly isOnPath: boolean;
   readonly isLocked: boolean;
+  readonly isCore?: boolean;
+  readonly nodeType?: string;
+  readonly fractalDepth?: number;
 }): MapNodeVisualStatus {
   const solution = getSolutionForNodeId(input.nodeId);
   const green = presentGreenMonolith({
@@ -381,10 +401,64 @@ export function presentMapNodeVisualStatus(input: {
 
   if (input.isOnPath) {
     return {
-      sphereColor: input.isLocked ? '#94a3b8' : '#22d3ee',
+      sphereColor: input.isLocked ? '#94a3b8' : '#06b6d4',
       greenBasis: green.basis,
       ariaLabelSuffix: 'navigation path highlighted',
       greenByCatalog: green.basis !== 'NONE',
+      statusCode: NodeResolutionStatusCode.ACTIVE_L1_PATH,
+      statusLabel: 'Голубой: Активный L1-путь',
+    };
+  }
+  if (!input.hasSorry && (input.proof?.externalLean?.trustStatus === 'LEAN_VERIFIED' || green.basis === 'LEAN_KERNEL_VERIFIED' || green.basis === 'RICIS_SOURCE_AND_LEAN_KERNEL_VERIFIED')) {
+    return {
+      sphereColor: '#10b981',
+      greenBasis: green.basis,
+      ariaLabelSuffix: green.evidenceLabels.join(', ') || 'lean verified',
+      greenByCatalog: green.basis !== 'NONE',
+      statusCode: NodeResolutionStatusCode.LEAN_VERIFIED,
+      statusLabel: 'Изумрудно-зеленый: Lean 4 верифицировано',
+    };
+  }
+  if (!input.hasSorry && green.color === '#22c55e' && (!input.isDerivative || input.nodeState === 'resolved')) {
+    return {
+      sphereColor: '#22c55e',
+      greenBasis: green.basis,
+      ariaLabelSuffix: green.evidenceLabels.join(', '),
+      greenByCatalog: true,
+      statusCode: NodeResolutionStatusCode.PROVEN_RESOLVED,
+      statusLabel: 'Зеленый: Полностью доказано (RICIS-III)',
+    };
+  }
+  if (input.nodeState === 'resolved' && !input.hasSorry) {
+    const hasValidSteps = Array.isArray(input.proof?.steps) && input.proof.steps.length > 0;
+    const hasTarget = typeof input.proof?.targetFunction === 'string' && input.proof.targetFunction.trim().length > 0;
+    if (hasValidSteps && hasTarget) {
+      return {
+        sphereColor: '#22c55e',
+        greenBasis: green.basis,
+        ariaLabelSuffix: 'proven resolved',
+        greenByCatalog: green.basis !== 'NONE',
+        statusCode: NodeResolutionStatusCode.PROVEN_RESOLVED,
+        statusLabel: 'Зеленый: Полностью доказано (RICIS-III)',
+      };
+    }
+    return {
+      sphereColor: '#84cc16',
+      greenBasis: green.basis,
+      ariaLabelSuffix: 'resolved with audit warnings',
+      greenByCatalog: green.basis !== 'NONE',
+      statusCode: NodeResolutionStatusCode.RESOLVED_WITH_WARNINGS,
+      statusLabel: 'Желто-зеленый: Решено / Близко к доказанному (с замечаниями)',
+    };
+  }
+  if (input.isLocked) {
+    return {
+      sphereColor: '#64748b',
+      greenBasis: 'NONE',
+      ariaLabelSuffix: 'locked state',
+      greenByCatalog: false,
+      statusCode: NodeResolutionStatusCode.LOCKED_BY_DEPENDENCIES,
+      statusLabel: 'Почти прозрачный: Не открыт (заблокирован)',
     };
   }
   if (input.isDerivative) {
@@ -393,26 +467,68 @@ export function presentMapNodeVisualStatus(input: {
       greenBasis: green.basis,
       ariaLabelSuffix: 'derivative claim',
       greenByCatalog: green.basis !== 'NONE',
+      statusCode: NodeResolutionStatusCode.DERIVATIVE_CLAIM,
+      statusLabel: 'Фиолетовый: Чужой-последователь',
     };
   }
-  if (!input.hasSorry && green.color === '#22c55e') {
+  if (input.nodeType === 'derived_problem') {
+    if ((input.fractalDepth ?? 0) >= 2) {
+      return {
+        sphereColor: '#06b6d4',
+        greenBasis: green.basis,
+        ariaLabelSuffix: 'sub-subtask',
+        greenByCatalog: green.basis !== 'NONE',
+        statusCode: NodeResolutionStatusCode.ACTIVE_L1_PATH,
+        statusLabel: 'Голубой: Подзадача подзадачи',
+      };
+    }
     return {
-      sphereColor: '#22c55e',
+      sphereColor: '#3b82f6',
       greenBasis: green.basis,
-      ariaLabelSuffix: green.evidenceLabels.join(', '),
-      greenByCatalog: true,
+      ariaLabelSuffix: 'subtask',
+      greenByCatalog: green.basis !== 'NONE',
+      statusCode: NodeResolutionStatusCode.CORE_AXIOM,
+      statusLabel: 'Синий: Подзадача (1-й уровень)',
     };
   }
-  if (input.nodeState === 'resolved' && !input.hasSorry) {
-    return { sphereColor: '#22c55e', greenBasis: 'NONE', ariaLabelSuffix: 'resolved state', greenByCatalog: false };
+  if (input.isCore) {
+    return {
+      sphereColor: '#3b82f6',
+      greenBasis: green.basis,
+      ariaLabelSuffix: 'core axiom monolith',
+      greenByCatalog: green.basis !== 'NONE',
+      statusCode: NodeResolutionStatusCode.CORE_AXIOM,
+      statusLabel: 'Синий: Аксиома ядра / Подзадача',
+    };
   }
   if (input.nodeState === 'partial' || input.hasSorry) {
-    return { sphereColor: '#eab308', greenBasis: 'NONE', ariaLabelSuffix: 'partial state', greenByCatalog: false };
+    if (input.hasSorry) {
+      return {
+        sphereColor: '#f97316',
+        greenBasis: 'NONE',
+        ariaLabelSuffix: 'draft with sorry / in progress',
+        greenByCatalog: false,
+        statusCode: NodeResolutionStatusCode.EARLY_DRAFT,
+        statusLabel: 'Оранжевый: В процессе разработки (sorry)',
+      };
+    }
+    return {
+      sphereColor: '#eab308',
+      greenBasis: 'NONE',
+      ariaLabelSuffix: 'partial hypothesis state',
+      greenByCatalog: false,
+      statusCode: NodeResolutionStatusCode.PARTIAL_HYPOTHESIS,
+      statusLabel: 'Желтый: Частичное решение / Гипотеза',
+    };
   }
-  if (input.isLocked) {
-    return { sphereColor: '#6b7280', greenBasis: 'NONE', ariaLabelSuffix: 'locked state', greenByCatalog: false };
-  }
-  return { sphereColor: '#ef4444', greenBasis: 'NONE', ariaLabelSuffix: 'unresolved state', greenByCatalog: false };
+  return {
+    sphereColor: '#ef4444',
+    greenBasis: 'NONE',
+    ariaLabelSuffix: 'unresolved state',
+    greenByCatalog: false,
+    statusCode: NodeResolutionStatusCode.UNRESOLVED_SINGULARITY,
+    statusLabel: 'Красный: Открытая сингулярность',
+  };
 }
 
 export function projectSolutionRelations(input: {
