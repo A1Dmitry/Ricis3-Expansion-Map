@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { MoreVertical } from 'lucide-react';
+import { ExternalLink, MoreVertical } from 'lucide-react';
 
 /**
  * Один пункт контекстного меню карточки задачи.
@@ -19,7 +19,14 @@ export type NodeContextMenuItem = {
   disabledReason?: string;
   /** Признак выполнения длительного действия (спиннер вместо иконки). */
   busy?: boolean;
-  onSelect: () => void;
+  /**
+   * Если задан, пункт рендерится как настоящая ссылка (`target=_blank`,
+   * `rel=noopener noreferrer`) и открывает deep-link в новой вкладке,
+   * не разрушая текущую рабочую область карты. Иконка-маркер ↗ добавляется
+   * автоматически. См. UI_NAVIGATION_AUDIT.md §7 (new-tab policy).
+   */
+  href?: string;
+  onSelect?: () => void;
 };
 
 type Props = {
@@ -104,47 +111,82 @@ export const NodeContextMenu: React.FC<Props> = ({
               <p className="px-3 pb-1 pt-2 text-[8px] font-bold uppercase tracking-[0.18em] text-slate-500">
                 {group}
               </p>
-              {groupItems.map(item => (
-                <button
-                  key={item.id}
-                  type="button"
-                  role="menuitem"
-                  data-testid={`node-context-menu-item-${item.id}`}
-                  disabled={item.disabled}
-                  title={item.disabled ? item.disabledReason : item.hint}
-                  onClick={() => {
-                    if (item.disabled) return;
-                    closeMenu();
-                    item.onSelect();
-                  }}
-                  className={`flex w-full items-start gap-2 px-3 py-2 text-left transition-colors ${
-                    item.disabled
-                      ? 'cursor-not-allowed opacity-45'
-                      : 'cursor-pointer hover:bg-cyan-950/60'
-                  }`}
-                >
-                  <span className="mt-0.5 shrink-0 text-cyan-400">
-                    {item.busy ? (
-                      <span
-                        aria-label="Выполняется"
-                        className="block h-3.5 w-3.5 animate-spin rounded-full border-2 border-cyan-300 border-t-transparent"
-                      />
-                    ) : (
-                      item.icon
-                    )}
-                  </span>
-                  <span className="min-w-0 flex-1">
-                    <span className="block text-[11px] font-bold leading-tight text-slate-100">
-                      {item.label}
+              {groupItems.map(item => {
+                const itemVisual = (
+                  <>
+                    <span className="mt-0.5 shrink-0 text-cyan-400">
+                      {item.busy ? (
+                        <span
+                          aria-label="Выполняется"
+                          className="block h-3.5 w-3.5 animate-spin rounded-full border-2 border-cyan-300 border-t-transparent"
+                        />
+                      ) : (
+                        item.icon
+                      )}
                     </span>
-                    {item.hint && (
-                      <span className="mt-0.5 block truncate text-[9px] leading-tight text-slate-500">
-                        {item.disabled && item.disabledReason ? item.disabledReason : item.hint}
+                    <span className="min-w-0 flex-1">
+                      <span className="block text-[11px] font-bold leading-tight text-slate-100">
+                        {item.label}
+                        {item.href && (
+                          <ExternalLink
+                            size={10}
+                            aria-hidden
+                            className="ml-1.5 inline-block align-baseline text-cyan-500"
+                          />
+                        )}
                       </span>
-                    )}
-                  </span>
-                </button>
-              ))}
+                      {item.hint && (
+                        <span className="mt-0.5 block truncate text-[9px] leading-tight text-slate-500">
+                          {item.disabled && item.disabledReason ? item.disabledReason : item.hint}
+                        </span>
+                      )}
+                    </span>
+                  </>
+                );
+
+                if (item.href && !item.disabled) {
+                  // Ссылочный пункт: deep-link в новой вкладке, карта в текущей
+                  // вкладке не уничтожается (UI_NAVIGATION_AUDIT.md §7).
+                  return (
+                    <a
+                      key={item.id}
+                      role="menuitem"
+                      data-testid={`node-context-menu-item-${item.id}`}
+                      href={item.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      title={`${item.hint ?? item.label} — открыть в новой вкладке`}
+                      onClick={closeMenu}
+                      className="flex w-full cursor-pointer items-start gap-2 px-3 py-2 text-left transition-colors hover:bg-cyan-950/60"
+                    >
+                      {itemVisual}
+                    </a>
+                  );
+                }
+
+                return (
+                  <button
+                    key={item.id}
+                    type="button"
+                    role="menuitem"
+                    data-testid={`node-context-menu-item-${item.id}`}
+                    disabled={item.disabled}
+                    title={item.disabled ? item.disabledReason : item.hint}
+                    onClick={() => {
+                      if (item.disabled) return;
+                      closeMenu();
+                      item.onSelect?.();
+                    }}
+                    className={`flex w-full items-start gap-2 px-3 py-2 text-left transition-colors ${
+                      item.disabled
+                        ? 'cursor-not-allowed opacity-45'
+                        : 'cursor-pointer hover:bg-cyan-950/60'
+                    }`}
+                  >
+                    {itemVisual}
+                  </button>
+                );
+              })}
             </div>
           ))}
         </div>

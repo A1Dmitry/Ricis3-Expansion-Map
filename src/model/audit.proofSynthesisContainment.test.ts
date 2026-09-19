@@ -860,6 +860,41 @@ describe('OIR-03 — audit proof-synthesis containment', () => {
       ' M docs/00-governance/RICIS_IMMUTABILITY_MANIFEST.md',
       ' M docs/00-governance/RICIS_PROOF_ORCHESTRATION_TEMPLATE.md',
       ' M src/model/ricisImmutabilityManifest.test.ts',
+      // UI-NAVIGATION-AUDIT-V2-NEW-TAB-POLICY (0.4.217, 2026-09-19): аудит
+      // перезагрузок интерфейса v2 — единственная оставшаяся «перезагрузка» на
+      // пути пользователя: уход с карты на апплет-спутник выгружает Map3D
+      // (WebGL/физика/камера инициализируются заново при возврате). Политика
+      // (src/services/appletDeepLinks.ts): спутники roadmap/kinematic/seed/
+      // comparison/voynich/qa-tests открываются в НОВОЙ вкладке браузера
+      // ссылочными пунктами (<a target=_blank>), карта остаётся живой;
+      // map/terminal/settings и возврат «к карте» остаются SPA-переключением
+      // (контекст через zustand/живую сессию). Математическое ядро, Lean-
+      // формализация и солверы не затронуты.
+      ' M UI_NAVIGATION_AUDIT.md',
+      ' M src/ui/NodeContextMenu.tsx',
+      ' M src/ui/NodeContextMenu.test.tsx',
+      ' M src/ui/components/CompactCommandMenuBar.tsx',
+      ' M src/ui/components/CompactCommandMenuBar.test.tsx',
+      ' M src/ui/components/testing/AutomatedTestingModal.tsx',
+      '?? src/services/appletDeepLinks.ts',
+      '?? src/services/appletDeepLinks.test.ts',
+      // MAP-2D-REBUILD (0.4.218, 2026-09-19): пересборка интерактивной 2D-карты.
+      // 1) Плоская карта: детерминированная force-раскладка (src/ui/map2d/
+      // twoDLayout.ts) — узлы равномерно заполняют площадь отображения (страж
+      // «нет попарных наложений», кластеризация по зонам), pan перетаскиванием,
+      // zoom колесом/кнопками; при выборе узла его связи подсвечиваются
+      // (предпосылки cyan / зависимые violet), посторонний граф приглушается,
+      // сводка связей рядом с курсором. 2) Проводниковый tree view (зоны —
+      // папки, узлы — элементы, раскрытие «Зависит от» / «От него зависят»,
+      // цикл-гард ↻ по цепочке предков, авто-раскрытие зоны выбранного узла).
+      // 3) Legacy-«список» и старая кластерная SVG-заглушка удалены из
+      // AccessibleMapFallback. Ядро/солверы/Lean не затронуты.
+      ' M src/ui/AccessibleMapFallback.tsx',
+      ' M src/ui/AccessibleMapFallback.test.tsx',
+      '?? src/ui/map2d/twoDLayout.ts',
+      '?? src/ui/map2d/twoDLayout.test.ts',
+      '?? src/ui/map2d/Map2DGraph.tsx',
+      '?? src/ui/map2d/MapTreeView.tsx',
     ]);
     if (status.length > 0 && status.every(entry => entry.startsWith('?? '))) {
       // In clean container environments git status may return all files as untracked

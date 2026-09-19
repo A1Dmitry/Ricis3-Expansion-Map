@@ -11,6 +11,7 @@ import { getRicisCoreEngine } from '../services/ricisCore';
 import { isCoreExecutionFailure } from '../services/ricisCore/IRicisCoreEngine';
 import { writeCoreRecovery } from '../services/coreRecovery';
 import { UrlShareService } from '../services/UrlShareService';
+import { buildAppletDeepLink } from '../services/appletDeepLinks';
 import { useI18nStore } from '../store/useI18nStore';
 import { ProofTrustBadge } from './ProofTrustBadge';
 import {
@@ -348,11 +349,10 @@ export const NodeCardDetails: React.FC<Props> = ({
       group: 'Выполнение',
       icon: <Activity size={14} />,
       label: isKinematicManipulator ? 'Launch Kinematic Constraint Engine' : '3D Кинематический Движок',
-      hint: 'Сравнение с DLS и Pick & Place',
-      onSelect: () => {
-        UrlShareService.updateBrowserUrl({ kinematic: true });
-        window.dispatchEvent(new PopStateEvent('popstate'));
-      },
+      hint: 'Сравнение с DLS и Pick & Place · новая вкладка',
+      // New-tab deep link: вход в тяжёлый 3D-движок больше не уничтожает
+      // рабочую область карты (UI_NAVIGATION_AUDIT.md §7).
+      href: buildAppletDeepLink('kinematic', { nodeId: node.id }),
     },
     {
       id: 'explore',
@@ -375,22 +375,27 @@ export const NodeCardDetails: React.FC<Props> = ({
       group: 'Исследование',
       icon: <Sparkles size={14} />,
       label: 'Challenge',
-      hint: 'Искать контрпример или открытую задачу',
-      onSelect: () => {
-        UrlShareService.updateBrowserUrl({ roadmap: true, rootNodeId: node.id, mode: 'challenge' });
-        window.dispatchEvent(new PopStateEvent('popstate'));
-      },
+      hint: 'Искать контрпример или открытую задачу · новая вкладка',
+      // New-tab deep link: контур challenge дорожной карты открывается рядом
+      // с картой, без разрушения 3D-рабочей области (UI_NAVIGATION_AUDIT.md §7).
+      href: buildAppletDeepLink('roadmap', {
+        nodeId: node.id,
+        rootNodeId: node.id,
+        mode: 'challenge',
+      }),
     },
     {
       id: 'roadmap',
       group: 'Навигация',
       icon: <LayersIcon size={14} />,
       label: 'Форма задачи & Roadmap',
-      hint: 'Детальный граф связей и доказательств',
-      onSelect: () => {
-        UrlShareService.updateBrowserUrl({ roadmap: true, rootNodeId: node.id });
-        window.dispatchEvent(new PopStateEvent('popstate'));
-      },
+      hint: 'Детальный граф связей и доказательств · новая вкладка',
+      // New-tab deep link: форма задачи открывается рядом с картой,
+      // без разрушения 3D-рабочей области (UI_NAVIGATION_AUDIT.md §7).
+      href: buildAppletDeepLink('roadmap', {
+        nodeId: node.id,
+        rootNodeId: node.id,
+      }),
     },
     {
       id: 'share',

@@ -43,6 +43,7 @@ import {
   Bug,
   GitBranch,
   Palette,
+  ExternalLink,
 } from 'lucide-react';
 import { SettingsModal } from './SettingsModal';
 import { RicisProofConsoleModal } from './RicisProofConsoleModal';
@@ -101,6 +102,7 @@ import { configureGraphTouchControls } from './orbitTouchControls';
 import { useTerminalStore } from '../store/useTerminalStore';
 import { RicisTerminalModal } from './RicisTerminalModal';
 import { UrlShareService } from '../services/UrlShareService';
+import { buildAppletDeepLink } from '../services/appletDeepLinks';
 import { AVAILABLE_GEMINI_MODELS } from '../model/modelPool.types';
 import { useI18nStore } from '../store/useI18nStore';
 import { LanguageToggle } from './LanguageToggle';
@@ -1710,39 +1712,38 @@ export const Map3D: React.FC = () => {
                 {searchQuery && <span className="text-[10px] font-mono text-cyan-300">{searchMatchCount}</span>}
               </label>
 
-              <button
-                type="button"
-                onClick={() => {
-                  UrlShareService.updateBrowserUrl({ roadmap: true, rootNodeId: null });
-                  window.dispatchEvent(new PopStateEvent('popstate'));
-                }}
+              {/* Ссылочные deep-link кнопки: спутниковые поверхности открываются
+                  в НОВОЙ вкладке, 3D-карта не выгружается (UI_NAVIGATION_AUDIT.md §7). */}
+              <a
+                href={buildAppletDeepLink('roadmap')}
+                target="_blank"
+                rel="noopener noreferrer"
                 aria-label={t('map.roadmap.aria')}
+                title="Открыть Roadmap в новой вкладке — карта сохранится в текущей"
                 className="min-h-12 w-full rounded-lg border border-violet-800/80 bg-violet-950/35 px-3 text-left text-xs font-bold text-violet-100 inline-flex items-center justify-between"
               >
-                <span className="inline-flex items-center gap-2"><List size={16} /> Roadmap: выбрать маршрут исследования</span><ChevronRight size={17} />
-              </button>
+                <span className="inline-flex items-center gap-2"><List size={16} /> Roadmap: выбрать маршрут исследования</span><ExternalLink size={16} className="text-violet-300/80" />
+              </a>
 
-              <button
-                type="button"
-                onClick={() => {
-                  UrlShareService.updateBrowserUrl({ seed: true });
-                  window.dispatchEvent(new PopStateEvent('popstate'));
-                }}
+              <a
+                href={buildAppletDeepLink('seed')}
+                target="_blank"
+                rel="noopener noreferrer"
+                title="Открыть RICIS SEED в новой вкладке — карта сохранится в текущей"
                 className="min-h-12 w-full rounded-lg border border-emerald-700/80 bg-emerald-950/35 px-3 text-left text-xs font-bold text-emerald-100 inline-flex items-center justify-between"
               >
-                <span className="inline-flex items-center gap-2"><Sprout size={16} className="text-emerald-300" /> RICIS SEED: развёртывание семени</span><ChevronRight size={17} />
-              </button>
+                <span className="inline-flex items-center gap-2"><Sprout size={16} className="text-emerald-300" /> RICIS SEED: развёртывание семени</span><ExternalLink size={16} className="text-emerald-300/80" />
+              </a>
 
-              <button
-                type="button"
-                onClick={() => {
-                  UrlShareService.updateBrowserUrl({ kinematic: true });
-                  window.dispatchEvent(new PopStateEvent('popstate'));
-                }}
+              <a
+                href={buildAppletDeepLink('kinematic')}
+                target="_blank"
+                rel="noopener noreferrer"
+                title="Открыть 3D Кинематику в новой вкладке — карта сохранится в текущей"
                 className="min-h-12 w-full rounded-lg border border-emerald-800/80 bg-emerald-950/35 px-3 text-left text-xs font-bold text-emerald-100 inline-flex items-center justify-between"
               >
-                <span className="inline-flex items-center gap-2"><Activity size={16} className="text-emerald-400" /> 3D Кинематика: Манипулятор и Singularity Engine</span><ChevronRight size={17} />
-              </button>
+                <span className="inline-flex items-center gap-2"><Activity size={16} className="text-emerald-400" /> 3D Кинематика: Манипулятор и Singularity Engine</span><ExternalLink size={16} className="text-emerald-300/80" />
+              </a>
 
               <button
                 type="button"
@@ -2772,11 +2773,6 @@ export const Map3D: React.FC = () => {
             proofs={map.proofs || {}}
             selectedNodeId={selectedNodeId}
             onSelectNode={handleNavigateToNode}
-            onNavigateToKinematics={() => {
-              setShowAutomatedTestingModal(false);
-              UrlShareService.updateBrowserUrl({ kinematic: true });
-              window.dispatchEvent(new PopStateEvent('popstate'));
-            }}
             onClose={() => setShowAutomatedTestingModal(false)}
           />
         </SwipeDismissable>

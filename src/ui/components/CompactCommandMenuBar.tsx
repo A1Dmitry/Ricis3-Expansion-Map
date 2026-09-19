@@ -39,9 +39,46 @@ import type { AppletId } from '../../types/appletRegistry';
 import { APPLET_DEFINITIONS } from '../../types/appletRegistry';
 import { AppletNavigationService } from '../../services/AppletNavigationService';
 import { UrlShareService } from '../../services/UrlShareService';
+import { buildAppletDeepLink } from '../../services/appletDeepLinks';
 import { copyTextToClipboard } from '../../services/clipboard';
 import type { CommandContext } from '../../types/commandTypes';
 import { CommandRegistry } from '../../services/commandRegistry';
+
+/**
+ * Пункт меню-ссылка: открывает апплет-спутник в НОВОЙ вкладке браузера,
+ * чтобы вход в тяжёлую/референсную поверхность не уничтожал текущую
+ * рабочую область (3D-карту). Рендерится настоящим якорем (middle-click,
+ * «копировать ссылку», предпросмотр URL доступны) и помечается иконкой ↗.
+ * Политика выбора апплетов — src/services/appletDeepLinks.ts,
+ * аудит — UI_NAVIGATION_AUDIT.md §7. Горячие клавиши Alt+N намеренно
+ * остаются in-place быстрым переключением для power-users.
+ */
+const AppletNewTabLink: React.FC<{
+  readonly applet: AppletId;
+  readonly isActive: boolean;
+  readonly hoverClasses: string;
+  readonly activeClasses: string;
+  readonly onAfterClick: () => void;
+  readonly children: React.ReactNode;
+}> = ({ applet, isActive, hoverClasses, activeClasses, onAfterClick, children }) => (
+  <a
+    href={buildAppletDeepLink(applet)}
+    target="_blank"
+    rel="noopener noreferrer"
+    onClick={onAfterClick}
+    title={`${APPLET_DEFINITIONS[applet]?.title ?? applet} — открыть в новой вкладке (текущая карта сохранится)`}
+    className={`w-full px-3 py-1.5 text-left flex items-center gap-2 transition-colors ${hoverClasses} ${
+      isActive ? activeClasses : 'text-slate-300'
+    }`}
+  >
+    {children}
+  </a>
+);
+
+/** Маркер «ссылочности» пункта меню, открывающего новую вкладку. */
+const NewTabMarker: React.FC = () => (
+  <ExternalLink size={10} aria-hidden className="shrink-0 opacity-60" />
+);
 
 interface CompactCommandMenuBarProps {
   readonly activeApplet: AppletId;
@@ -182,50 +219,54 @@ export const CompactCommandMenuBar: React.FC<CompactCommandMenuBarProps> = ({
                   <span className="flex-1">3D Граф Сингулярностей</span>
                   <span className="text-[10px] font-mono text-slate-500">Alt+1</span>
                 </button>
-                <button
-                  type="button"
-                  onClick={() => handleNavigate('kinematic')}
-                  className={`w-full px-3 py-1.5 text-left flex items-center gap-2 hover:bg-emerald-950/70 hover:text-emerald-200 transition-colors ${
-                    activeApplet === 'kinematic' ? 'bg-emerald-950/90 text-emerald-300 font-bold' : 'text-slate-300'
-                  }`}
+                <AppletNewTabLink
+                  applet="kinematic"
+                  isActive={activeApplet === 'kinematic'}
+                  hoverClasses="hover:bg-emerald-950/70 hover:text-emerald-200"
+                  activeClasses="bg-emerald-950/90 text-emerald-300 font-bold"
+                  onAfterClick={() => setOpenMenu(null)}
                 >
                   <Activity size={13} className="text-emerald-400" />
                   <span className="flex-1">3D Кинематика N-Link</span>
+                  <NewTabMarker />
                   <span className="text-[10px] font-mono text-slate-500">Alt+2</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => handleNavigate('seed')}
-                  className={`w-full px-3 py-1.5 text-left flex items-center gap-2 hover:bg-emerald-950/70 hover:text-emerald-200 transition-colors ${
-                    activeApplet === 'seed' ? 'bg-emerald-950/90 text-emerald-300 font-bold' : 'text-slate-300'
-                  }`}
+                </AppletNewTabLink>
+                <AppletNewTabLink
+                  applet="seed"
+                  isActive={activeApplet === 'seed'}
+                  hoverClasses="hover:bg-emerald-950/70 hover:text-emerald-200"
+                  activeClasses="bg-emerald-950/90 text-emerald-300 font-bold"
+                  onAfterClick={() => setOpenMenu(null)}
                 >
                   <Sprout size={13} className="text-emerald-400" />
                   <span className="flex-1">Seed Протокол</span>
+                  <NewTabMarker />
                   <span className="text-[10px] font-mono text-slate-500">Alt+3</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => handleNavigate('comparison')}
-                  className={`w-full px-3 py-1.5 text-left flex items-center gap-2 hover:bg-neutral-800 hover:text-white transition-colors ${
-                    activeApplet === 'comparison' ? 'bg-neutral-800 text-white font-bold' : 'text-slate-300'
-                  }`}
+                </AppletNewTabLink>
+                <AppletNewTabLink
+                  applet="comparison"
+                  isActive={activeApplet === 'comparison'}
+                  hoverClasses="hover:bg-neutral-800 hover:text-white"
+                  activeClasses="bg-neutral-800 text-white font-bold"
+                  onAfterClick={() => setOpenMenu(null)}
                 >
                   <GitBranch size={13} className="text-cyan-400" />
                   <span className="flex-1">Сравнение Графов</span>
+                  <NewTabMarker />
                   <span className="text-[10px] font-mono text-slate-500">Alt+4</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => handleNavigate('roadmap')}
-                  className={`w-full px-3 py-1.5 text-left flex items-center gap-2 hover:bg-neutral-800 hover:text-white transition-colors ${
-                    activeApplet === 'roadmap' ? 'bg-neutral-800 text-white font-bold' : 'text-slate-300'
-                  }`}
+                </AppletNewTabLink>
+                <AppletNewTabLink
+                  applet="roadmap"
+                  isActive={activeApplet === 'roadmap'}
+                  hoverClasses="hover:bg-neutral-800 hover:text-white"
+                  activeClasses="bg-neutral-800 text-white font-bold"
+                  onAfterClick={() => setOpenMenu(null)}
                 >
                   <List size={13} className="text-violet-400" />
                   <span className="flex-1">Дорожная карта (Roadmap)</span>
+                  <NewTabMarker />
                   <span className="text-[10px] font-mono text-slate-500">Alt+5</span>
-                </button>
+                </AppletNewTabLink>
 
                 <div className="my-1 border-t border-neutral-800" />
 
@@ -340,28 +381,34 @@ export const CompactCommandMenuBar: React.FC<CompactCommandMenuBarProps> = ({
                 <div className="px-3 py-1 text-[10px] font-mono uppercase tracking-wider text-slate-500">
                   Модели Манипуляторов
                 </div>
-                <button
-                  type="button"
-                  onClick={() => handleNavigate('kinematic')}
-                  className="w-full px-3 py-1.5 text-left flex items-center gap-2 text-slate-300 hover:bg-emerald-950/70 hover:text-emerald-200 transition-colors"
+                <AppletNewTabLink
+                  applet="kinematic"
+                  isActive={activeApplet === 'kinematic'}
+                  hoverClasses="hover:bg-emerald-950/70 hover:text-emerald-200"
+                  activeClasses="bg-emerald-950/90 text-emerald-300 font-bold"
+                  onAfterClick={() => setOpenMenu(null)}
                 >
                   <Activity size={13} className="text-emerald-400" />
-                  <div className="flex flex-col">
+                  <div className="flex-1 flex flex-col">
                     <span className="font-semibold">3-Link Planar</span>
                     <span className="text-[10px] text-slate-400">Полярная редукция O(1) и SVD</span>
                   </div>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => handleNavigate('kinematic')}
-                  className="w-full px-3 py-1.5 text-left flex items-center gap-2 text-slate-300 hover:bg-purple-950/70 hover:text-purple-200 transition-colors"
+                  <NewTabMarker />
+                </AppletNewTabLink>
+                <AppletNewTabLink
+                  applet="kinematic"
+                  isActive={activeApplet === 'kinematic'}
+                  hoverClasses="hover:bg-purple-950/70 hover:text-purple-200"
+                  activeClasses="bg-purple-950/90 text-purple-300 font-bold"
+                  onAfterClick={() => setOpenMenu(null)}
                 >
                   <Sparkles size={13} className="text-purple-400" />
-                  <div className="flex flex-col">
+                  <div className="flex-1 flex flex-col">
                     <span className="font-semibold">5-Link Hyper-Redundant</span>
                     <span className="text-[10px] text-slate-400">Null-space self-motion</span>
                   </div>
-                </button>
+                  <NewTabMarker />
+                </AppletNewTabLink>
               </div>
             )}
           </div>
@@ -381,33 +428,42 @@ export const CompactCommandMenuBar: React.FC<CompactCommandMenuBarProps> = ({
 
             {openMenu === 'foundations' && (
               <div className="absolute left-0 top-full mt-1 w-64 bg-neutral-900 border border-neutral-700/80 rounded-md shadow-2xl py-1 text-xs font-sans z-50">
-                <button
-                  type="button"
-                  onClick={() => handleNavigate('seed')}
-                  className="w-full px-3 py-1.5 text-left flex items-center gap-2 text-slate-300 hover:bg-emerald-950/70 hover:text-emerald-200 transition-colors"
+                <AppletNewTabLink
+                  applet="seed"
+                  isActive={activeApplet === 'seed'}
+                  hoverClasses="hover:bg-emerald-950/70 hover:text-emerald-200"
+                  activeClasses="bg-emerald-950/90 text-emerald-300 font-bold"
+                  onAfterClick={() => setOpenMenu(null)}
                 >
                   <Sprout size={13} className="text-emerald-300" />
                   <span className="flex-1">RICIS SEED (A11 Протокол)</span>
+                  <NewTabMarker />
                   <span className="text-[10px] font-mono text-slate-500">Alt+3</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => handleNavigate('comparison')}
-                  className="w-full px-3 py-1.5 text-left flex items-center gap-2 text-slate-300 hover:bg-cyan-950/70 hover:text-cyan-200 transition-colors"
+                </AppletNewTabLink>
+                <AppletNewTabLink
+                  applet="comparison"
+                  isActive={activeApplet === 'comparison'}
+                  hoverClasses="hover:bg-cyan-950/70 hover:text-cyan-200"
+                  activeClasses="bg-cyan-950/90 text-cyan-300 font-bold"
+                  onAfterClick={() => setOpenMenu(null)}
                 >
                   <GitBranch size={13} className="text-cyan-400" />
                   <span className="flex-1">RICIS vs Anthropic Граф</span>
+                  <NewTabMarker />
                   <span className="text-[10px] font-mono text-slate-500">Alt+4</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => handleNavigate('voynich')}
-                  className="w-full px-3 py-1.5 text-left flex items-center gap-2 text-slate-300 hover:bg-yellow-950/70 hover:text-yellow-200 transition-colors"
+                </AppletNewTabLink>
+                <AppletNewTabLink
+                  applet="voynich"
+                  isActive={activeApplet === 'voynich'}
+                  hoverClasses="hover:bg-yellow-950/70 hover:text-yellow-200"
+                  activeClasses="bg-yellow-950/90 text-yellow-300 font-bold"
+                  onAfterClick={() => setOpenMenu(null)}
                 >
                   <BookOpen size={13} className="text-yellow-400" />
                   <span className="flex-1">Манускрипт Войнича</span>
+                  <NewTabMarker />
                   <span className="text-[10px] font-mono text-slate-500">Alt+6</span>
-                </button>
+                </AppletNewTabLink>
               </div>
             )}
           </div>
@@ -427,15 +483,18 @@ export const CompactCommandMenuBar: React.FC<CompactCommandMenuBarProps> = ({
 
             {openMenu === 'diagnostics' && (
               <div className="absolute left-0 top-full mt-1 w-64 bg-neutral-900 border border-neutral-700/80 rounded-md shadow-2xl py-1 text-xs font-sans z-50">
-                <button
-                  type="button"
-                  onClick={() => handleNavigate('qa-tests')}
-                  className="w-full px-3 py-1.5 text-left flex items-center gap-2 text-slate-300 hover:bg-rose-950/70 hover:text-rose-200 transition-colors"
+                <AppletNewTabLink
+                  applet="qa-tests"
+                  isActive={activeApplet === 'qa-tests'}
+                  hoverClasses="hover:bg-rose-950/70 hover:text-rose-200"
+                  activeClasses="bg-rose-950/90 text-rose-300 font-bold"
+                  onAfterClick={() => setOpenMenu(null)}
                 >
                   <Bug size={13} className="text-rose-400" />
                   <span className="flex-1">QA Стресс-тест и Аудит</span>
+                  <NewTabMarker />
                   <span className="text-[10px] font-mono text-slate-500">Alt+8</span>
-                </button>
+                </AppletNewTabLink>
                 <button
                   type="button"
                   onClick={() => handleNavigate('terminal')}
