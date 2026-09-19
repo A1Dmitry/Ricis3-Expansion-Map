@@ -706,6 +706,32 @@ describe('OIR-03 — audit proof-synthesis containment', () => {
       ' M docs/05-evidence/architecture/telegram-tokenpool-remediation-2026-08-18.md',
       ' M docs/05-evidence/proofs/lean-boundary-audit-2026-08-18.md',
       ' M src/model/audit.proofSynthesisContainment.test.ts',
+      ' M AGENTS.md',
+      // GAP-CLOSURE-SINGULARITY (2026-09-19, plan
+      // docs/02-sprints/GAP_CLOSURE_PLAN_SINGULARITY_2026-09-18.json, TASK-01…05, 07):
+      // новые версии артефактов (v1-байты не изменялись, §7), производные ядрового
+      // прогона, реестр фактов, план gap-closure и намеренное понижение переоценённых
+      // формулировок узлов карты (F-05/TASK-05) вместо их «аккуратного» пересказа.
+      ' M artifacts/proofs/core-checks/manifest.json',
+      ' M artifacts/proofs/mathlib-checks/manifest.json',
+      ' M docs/00-governance/tps/FINDINGS_DIGEST.md',
+      ' M scripts/generateLeanCoreChecks.ts',
+      ' M scripts/generateLeanMathlibChecks.ts',
+      ' M src/model/singularityResolution.test.ts',
+      ' M src/nodeEntry/nodeEntryApplication.test.ts',
+      ' M src/model/__tests__/ProvenNodesIntegrity.test.ts',
+      ' M src/model/catalog.ts',
+      ' M src/model/riemannZetaProof.test.ts',
+      '?? artifacts/proofs/core-checks/ricis-jacobian-conjecture-v2.core-check.lean',
+      '?? artifacts/proofs/mathlib-checks/ricis-general-resolution-v4.mathlib-check.lean',
+      '?? artifacts/proofs/mathlib-checks/ricis-yang-mills-v2.mathlib-check.lean',
+      '?? artifacts/proofs/ricis-general-resolution-v4.json',
+      '?? artifacts/proofs/ricis-general-resolution-v4.lean',
+      '?? artifacts/proofs/ricis-jacobian-conjecture-v2.json',
+      '?? artifacts/proofs/ricis-jacobian-conjecture-v2.lean',
+      '?? artifacts/proofs/ricis-yang-mills-v2.json',
+      '?? artifacts/proofs/ricis-yang-mills-v2.lean',
+      '?? docs/02-sprints/GAP_CLOSURE_PLAN_SINGULARITY_2026-09-18.json',
       // KINEMATIC-VIEWPORT-REPAIR (0.4.213, 2026-09-18): ремонт отсоединённой
       // визуализации кинематического апплета. Первопричина «полностью сломанной
       // кинематики»: страница рендерила ModularManipulator3DCanvas, привязанный

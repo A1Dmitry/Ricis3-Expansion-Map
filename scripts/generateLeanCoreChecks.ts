@@ -198,6 +198,23 @@ export const LEAN_CORE_CHECK_PLAN: readonly LeanCoreCheckPlanEntry[] = [
     ],
   },
   {
+    artifactId: 'ricis-jacobian-conjecture-v2',
+    source: `${PROOFS_DIR}/ricis-jacobian-conjecture-v2.lean`,
+    output: `${CORE_CHECK_DIR}/ricis-jacobian-conjecture-v2.core-check.lean`,
+    metadataJson: `${PROOFS_DIR}/ricis-jacobian-conjecture-v2.json`,
+    substitutions: [],
+    rationale:
+      'Тело — НОВАЯ версия артефакта якобиана (F-01): опровержение утверждения v1 ' +
+      '(jacobian_v1_identity_refuted), формализованная первопричина (det_expansion_single_pass: ' +
+      'ветвь `det` одношагового резолвера не спускается в произведения) и исправленное утверждение ' +
+      'с опуском разрешения в произведения детерминанта (Jacobian_singularity_resolved через A6-стадию ' +
+      'канона). Использованы только ядро-нативные конструкции: индуктив, rfl, rw, injection, cases. ' +
+      'Ни ℝ/ℚ/ℂ, ни Mathlib-тактик в теле нет; строка `import Mathlib` телом не используется и ' +
+      'удаляется в производной. Фактическим основанием статуса будет прогон джобы kernel-check (A-0007: ' +
+      'локальный тулчейн недоступен из песочницы).',
+    sourceFindings: [],
+  },
+  {
     artifactId: 'ricis-navier-stokes-ast-bridge',
     source: `${PROOFS_DIR}/ricis-navier-stokes-ast-bridge.standalone.lean`,
     output: `${CORE_CHECK_DIR}/ricis-navier-stokes-ast-bridge.standalone.core-check.lean`,

@@ -232,5 +232,96 @@ describe('GraphColorStateManager & Enum State Topology', () => {
       expect(recalculated[1]?.stateCode).toBe(EdgeStateCode.TRANSITION_FRONT);
       expect(recalculated[1]?.stateColor).toBe('#f97316');
     });
+
+    it('QA-COLOR-11: verifies exact user-defined spectrum hierarchy (Red->Orange->Yellow->YellowGreen->Green, Blue subtask, Cyan sub-subtask, Purple follower, Ghost locked)', () => {
+      // 1. Red (Open unresolved singularity)
+      const unresNode: ProblemNode = {
+        id: 'unres-1',
+        title: 'Open',
+        description: '',
+        state: 'unresolved',
+        type: 'scientific_task',
+        targetFunction: '',
+        zoneIds: [],
+        dependencyIds: [],
+        dependentIds: [],
+        fractalDepth: 1,
+        economic: { costUnresolved: 0, costToSolve: 0, marketGain: 0, riskLoss: 0 },
+      };
+      expect(manager.resolveNodeStatusCode(unresNode)).toBe(NodeResolutionStatusCode.UNRESOLVED_SINGULARITY);
+      expect(NODE_PROJECTIONS[NodeResolutionStatusCode.UNRESOLVED_SINGULARITY].hexColor).toBe('#ef4444');
+
+      // 2. Orange (Draft with sorry)
+      const draftNode: ProblemNode = {
+        ...unresNode,
+        id: 'draft-1',
+        state: 'partial',
+      };
+      expect(manager.resolveNodeStatusCode(draftNode, { hasSorry: true })).toBe(NodeResolutionStatusCode.EARLY_DRAFT);
+      expect(NODE_PROJECTIONS[NodeResolutionStatusCode.EARLY_DRAFT].hexColor).toBe('#f97316');
+
+      // 3. Yellow (Partial hypothesis without sorry)
+      expect(manager.resolveNodeStatusCode(draftNode, { hasSorry: false })).toBe(NodeResolutionStatusCode.PARTIAL_HYPOTHESIS);
+      expect(NODE_PROJECTIONS[NodeResolutionStatusCode.PARTIAL_HYPOTHESIS].hexColor).toBe('#eab308');
+
+      // 4. Yellow-Green (Resolved with warnings)
+      const resWarningsNode: ProblemNode = {
+        ...unresNode,
+        id: 'res-warn-1',
+        state: 'resolved',
+      };
+      expect(manager.resolveNodeStatusCode(resWarningsNode, undefined)).toBe(NodeResolutionStatusCode.RESOLVED_WITH_WARNINGS);
+      expect(NODE_PROJECTIONS[NodeResolutionStatusCode.RESOLVED_WITH_WARNINGS].hexColor).toBe('#84cc16');
+
+      // 5. Green (Proven invariant & Lean verified)
+      const resProvenNode: ProblemNode = {
+        ...unresNode,
+        id: 'res-prov-1',
+        state: 'resolved',
+        targetFunction: 'F',
+      };
+      const validProof: Proof = {
+        nodeId: 'res-prov-1',
+        targetFunction: 'F',
+        steps: [{ phase: 1, name: 'S', action: 'A', expression: 'E' }],
+        finalResult: 'ok',
+        latex: 'ok',
+      };
+      expect(manager.resolveNodeStatusCode(resProvenNode, validProof)).toBe(NodeResolutionStatusCode.PROVEN_RESOLVED);
+      expect(NODE_PROJECTIONS[NodeResolutionStatusCode.PROVEN_RESOLVED].hexColor).toBe('#22c55e');
+
+      // 6. Blue (Subtask 1st level)
+      const subtaskNode: ProblemNode = {
+        ...unresNode,
+        id: 'subtask-1',
+        type: 'derived_problem',
+        fractalDepth: 1,
+      };
+      expect(manager.resolveNodeStatusCode(subtaskNode)).toBe(NodeResolutionStatusCode.CORE_AXIOM);
+      expect(NODE_PROJECTIONS[NodeResolutionStatusCode.CORE_AXIOM].hexColor).toBe('#3b82f6');
+
+      // 7. Cyan / Light Blue (Sub-subtask 2nd level)
+      const subSubtaskNode: ProblemNode = {
+        ...unresNode,
+        id: 'subsubtask-1',
+        type: 'derived_problem',
+        fractalDepth: 2,
+      };
+      expect(manager.resolveNodeStatusCode(subSubtaskNode)).toBe(NodeResolutionStatusCode.ACTIVE_L1_PATH);
+      expect(NODE_PROJECTIONS[NodeResolutionStatusCode.ACTIVE_L1_PATH].hexColor).toBe('#06b6d4');
+
+      // 8. Purple (Alien / Follower derivative claim)
+      const derivativeNode: ProblemNode = {
+        ...unresNode,
+        id: 'deriv-1',
+        type: 'derivative_claim',
+      };
+      expect(manager.resolveNodeStatusCode(derivativeNode)).toBe(NodeResolutionStatusCode.DERIVATIVE_CLAIM);
+      expect(NODE_PROJECTIONS[NodeResolutionStatusCode.DERIVATIVE_CLAIM].hexColor).toBe('#a855f7');
+
+      // 9. Almost Transparent (Not opened / locked)
+      expect(manager.resolveNodeStatusCode(unresNode, { isLocked: true })).toBe(NodeResolutionStatusCode.LOCKED_BY_DEPENDENCIES);
+      expect(NODE_PROJECTIONS[NodeResolutionStatusCode.LOCKED_BY_DEPENDENCIES].opacity).toBeLessThanOrEqual(0.25);
+    });
   });
 });

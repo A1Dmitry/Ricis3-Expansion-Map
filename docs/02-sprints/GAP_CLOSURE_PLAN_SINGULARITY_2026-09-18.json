@@ -1,0 +1,79 @@
+{
+  "title": "RICIS-III: Gap-closure plan for singularity resolution (0/0, infinity)",
+  "generated": "2026-09-18",
+  "basis": [
+    "artifacts/proofs/core-checks/kernel-findings.json (registryVersion 3, findings F-01..F-15)",
+    "AXIOMS_AND_TEST_FAILURES.md (axioms A1-A14, SP1-SP5, L0/L1)"
+  ],
+  "scope_note": "Tasks are limited to the mathematical core of RICIS (singularity axioms) and its formal verification in Lean. Goal is to actually close technical gaps, not to reformulate the claims.",
+  "tasks": [
+    {
+      "id": "TASK-01",
+      "priority": "CRITICAL",
+      "finding_ref": "F-01",
+      "artifact": "artifacts/proofs/ricis-jacobian-conjecture.standalone.lean",
+      "problem": "The central identity resolveRICIS(F.zeroF.det RExpr.zero RExpr.zero G.infF) is not definitionally equal (rfl failed, line 62). The theorem carries sorryAx. The declared TRUSTED_AXIOM has no basis in any configuration.",
+      "current_status": "STRUCTURALLY_VALIDATED (downgraded by owner on 2026-09-14)",
+      "action": "Construct a new proof of the identity without relying on rfl: either build an explicit simp/unfold chain with intermediate lemmas about F.zeroF.det/G.infF, or accept that the current A6-bridge formulation does not cover this case and reformulate the lemma.",
+      "acceptance_criteria": "exit 0, no sorryAx, #print axioms for Jacobian_singularity_resolved contains no sorryAx.",
+      "estimate": "not estimated -- verify the identity by hand before coding"
+    },
+    {
+      "id": "TASK-02",
+      "priority": "CRITICAL",
+      "finding_ref": "F-14",
+      "artifact": "artifacts/proofs/ricis-yang-mills.lean",
+      "problem": "import Mathlib.Basic.Real.Basic references a module that does not exist in the pinned Mathlib revision (correct path is Mathlib.Data.Real.Basic). File does not elaborate. No metadata, no trustStatus, no run record.",
+      "current_status": "PENDING_KERNEL_RUN, REQUIRES_CORE_LEAN",
+      "action": "1) Fix the import to Mathlib.Data.Real.Basic in a NEW version of the file (do not touch source bytes). 2) Create ricis-yang-mills.json with trustStatus. 3) Add to the MATHLIB_ARTIFACTS allowlist. 4) Run through the kernel and record the actual outcome.",
+      "acceptance_criteria": "Artifact receives a status based on an actual kernel run, not on the header claim in the file.",
+      "known_content_risk": "Even after the import fix: current file content is a 2x2 determinant identity (f'/g' via skew_product), unrelated to gauge fields or the mass gap. Fixing the import yields compilation, not a substantive link to the problem."
+    },
+    {
+      "id": "TASK-03",
+      "priority": "HIGH",
+      "finding_ref": "F-09, F-11",
+      "artifact": "artifacts/proofs/ricis-general-resolution.lean",
+      "problem": "ricis_general_resolution is proved via dsimp of its own definition ricis_eval_general (tautology). ricis_reduce is declared but used by no theorem -- there is no link between 'structural reduction of a singularity' and 'evaluating the value'. The singularity condition N(a)=0 and D(a)=0 is never asserted for the general case.",
+      "current_status": "LEAN_VERIFIED (artifact level) / claimLevel STRUCTURALLY_VALIDATED",
+      "action": "1) Formulate and prove a lemma linking ricis_reduce S to ricis_eval_general S for the case where S is actually singular at point a. 2) Explicitly exhibit the object being resolved (the singularity itself), not just the reduction mechanism.",
+      "acceptance_criteria": "A new theorem that uses ricis_reduce in both its statement and its proof.",
+      "blocks": [
+        "README/adopters.md should not characterize the current version of this file as a 'general resolution of singularities' until this task is closed."
+      ]
+    },
+    {
+      "id": "TASK-04",
+      "priority": "HIGH",
+      "finding_ref": "F-10",
+      "artifact": "ricis-general-resolution.lean, ricis-general-resolution-v3.lean",
+      "problem": "ax_A4_general and ax_SP1_general are declared as axiom (trusted contracts), not proved. The name ricis_equals_classical_limit creates the impression of a proved coincidence with the classical limit, although no limit expression is ever defined (and P1 forbids limits inside Resolve_RICIS).",
+      "current_status": "Contracts confirmed as actual dependencies (#print axioms), but not proved as lemmas",
+      "action": "1) Either prove A4_general and SP1_general from more basic axioms (A1-A10, SP1-SP5) instead of postulating them. 2) Or explicitly mark them as contracts/hypotheses in the source itself (not only in JSON metadata) and rename ricis_equals_classical_limit to something that does not imply a proved coincidence.",
+      "acceptance_criteria": "Either 0 declared axioms in the file, or explicit in-source marking plus renaming of misleading theorem names."
+    },
+    {
+      "id": "TASK-05",
+      "priority": "MEDIUM",
+      "finding_ref": "F-05",
+      "artifact": "src/model/initialMap.ts + all map nodes referencing *-ast-bridge artifacts",
+      "problem": "Verified theorems prove structural AST identities (ricisReduce(divSelf e) = one), while map nodes referencing the same hashes phrase this as a solution to Riemann/Navier-Stokes/Jacobian/Yang-Mills.",
+      "action": "For every map node referencing a *-ast-bridge artifact: rewrite the label/description so it describes the actually-proved statement (structural AST reduction), moving any reference to the external problem into a separate, explicitly informal field.",
+      "acceptance_criteria": "No LEAN_VERIFIED node phrases an open external mathematical problem as solved."
+    },
+    {
+      "id": "TASK-07",
+      "priority": "LOW",
+      "finding_ref": "F-13",
+      "artifact": "audit process",
+      "problem": "Static review of Lean code without an actual compiler run is unreliable (example: an incorrect prediction that the omega tactic was unavailable).",
+      "action": "Add a rule to AGENTS.md: any claim about a Lean file's status requires an actual kernel run before being recorded in any registry; predictions without a run are explicitly marked UNVERIFIED_PREDICTION.",
+      "acceptance_criteria": "Rule added to AGENTS.md."
+    }
+  ],
+  "explicitly_out_of_scope": [
+    "Physical construction of devices (Monolith, vortex engine) -- not part of the mathematical core.",
+    "Decoding of the Voynich manuscript -- not part of the mathematical core.",
+    "Claims about third-party companies 'adopting' the methodology (adopters.md) -- a communications question, not an engineering task."
+  ]
+}

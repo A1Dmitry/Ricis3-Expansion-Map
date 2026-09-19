@@ -125,7 +125,7 @@ export const NODE_PROJECTIONS: Record<NodeResolutionStatusCode, IVisualStateProj
     rgb: { r: 0.133, g: 0.773, b: 0.369 },
     glowColor: 'rgba(34, 197, 94, 0.6)',
     opacity: 1.0,
-    label: 'Полностью доказано (RICIS-III)',
+    label: 'Зеленый: Полностью доказано (RICIS-III)',
     description: 'Аксиоматически вычисленный O(1)-инвариант с проверенным L1-доказательством'
   },
   [NodeResolutionStatusCode.LEAN_VERIFIED]: {
@@ -134,7 +134,7 @@ export const NODE_PROJECTIONS: Record<NodeResolutionStatusCode, IVisualStateProj
     rgb: { r: 0.063, g: 0.725, b: 0.506 },
     glowColor: 'rgba(16, 185, 129, 0.6)',
     opacity: 0.95,
-    label: 'Lean 4 верифицировано',
+    label: 'Изумрудно-зеленый: Lean 4 верифицировано',
     description: 'Машинно-верифицированное доказательство в ядре Lean'
   },
   [NodeResolutionStatusCode.RESOLVED_WITH_WARNINGS]: {
@@ -143,7 +143,7 @@ export const NODE_PROJECTIONS: Record<NodeResolutionStatusCode, IVisualStateProj
     rgb: { r: 0.518, g: 0.8, b: 0.086 },
     glowColor: 'rgba(132, 204, 22, 0.5)',
     opacity: 0.9,
-    label: 'Решено (с замечаниями аудита)',
+    label: 'Желто-зеленый: Решено / Близко к доказанному (с замечаниями)',
     description: 'Узел отмечен как решённый, но доказательство требует формализации'
   },
   [NodeResolutionStatusCode.PARTIAL_HYPOTHESIS]: {
@@ -152,7 +152,7 @@ export const NODE_PROJECTIONS: Record<NodeResolutionStatusCode, IVisualStateProj
     rgb: { r: 0.918, g: 0.702, b: 0.031 },
     glowColor: 'rgba(234, 179, 8, 0.5)',
     opacity: 0.85,
-    label: 'Частичное решение / Гипотеза',
+    label: 'Желтый: Частичное решение / Гипотеза',
     description: 'Выполнен предварительный протокол SP2/SP4, требуется завершение A6'
   },
   [NodeResolutionStatusCode.EARLY_DRAFT]: {
@@ -161,7 +161,7 @@ export const NODE_PROJECTIONS: Record<NodeResolutionStatusCode, IVisualStateProj
     rgb: { r: 0.976, g: 0.451, b: 0.086 },
     glowColor: 'rgba(249, 115, 22, 0.5)',
     opacity: 0.8,
-    label: 'В процессе разработки',
+    label: 'Оранжевый: В процессе разработки / Черновик (sorry)',
     description: 'Сформулирована целевая функция, редукция начата'
   },
   [NodeResolutionStatusCode.UNRESOLVED_SINGULARITY]: {
@@ -170,16 +170,16 @@ export const NODE_PROJECTIONS: Record<NodeResolutionStatusCode, IVisualStateProj
     rgb: { r: 0.937, g: 0.267, b: 0.267 },
     glowColor: 'rgba(239, 68, 68, 0.6)',
     opacity: 0.85,
-    label: 'Открытая сингулярность',
+    label: 'Красный: Открытая сингулярность (нерешено)',
     description: 'Нерешённая задача графа'
   },
   [NodeResolutionStatusCode.LOCKED_BY_DEPENDENCIES]: {
     stateCode: NodeResolutionStatusCode.LOCKED_BY_DEPENDENCIES,
-    hexColor: '#b91c1c', // Dark Crimson Red
-    rgb: { r: 0.725, g: 0.11, b: 0.11 },
-    glowColor: 'rgba(185, 28, 28, 0.4)',
-    opacity: 0.75,
-    label: 'Топологически заблокирована',
+    hexColor: '#64748b', // Translucent Slate
+    rgb: { r: 0.392, g: 0.455, b: 0.545 },
+    glowColor: 'rgba(100, 116, 139, 0.2)',
+    opacity: 0.2,
+    label: 'Почти прозрачный: Не открыт (заблокирован)',
     description: 'Ожидает предварительного разрешения родительских узлов'
   },
   [NodeResolutionStatusCode.ACTIVE_L1_PATH]: {
@@ -188,8 +188,8 @@ export const NODE_PROJECTIONS: Record<NodeResolutionStatusCode, IVisualStateProj
     rgb: { r: 0.024, g: 0.714, b: 0.831 },
     glowColor: 'rgba(6, 182, 212, 0.7)',
     opacity: 1.0,
-    label: 'Активный доказательный путь',
-    description: 'Узел находится на выбранной траектории доказательства L1'
+    label: 'Голубой: Подзадача подзадачи / Активный доказательный путь',
+    description: 'Подзадача второго уровня декомпозиции либо активная траектория доказательства L1'
   },
   [NodeResolutionStatusCode.CORE_AXIOM]: {
     stateCode: NodeResolutionStatusCode.CORE_AXIOM,
@@ -197,8 +197,8 @@ export const NODE_PROJECTIONS: Record<NodeResolutionStatusCode, IVisualStateProj
     rgb: { r: 0.231, g: 0.51, b: 0.965 },
     glowColor: 'rgba(59, 130, 246, 0.6)',
     opacity: 0.95,
-    label: 'Аксиоматический монолит ядра',
-    description: 'Фундаментальная аксиома A1-A10 / L0-L1 монолита'
+    label: 'Синий: Подзадача (1-й уровень) / Аксиома ядра',
+    description: 'Подзадача первого уровня декомпозиции либо фундаментальная аксиома A1-A10 / L0-L1'
   },
   [NodeResolutionStatusCode.DERIVATIVE_CLAIM]: {
     stateCode: NodeResolutionStatusCode.DERIVATIVE_CLAIM,
@@ -206,8 +206,8 @@ export const NODE_PROJECTIONS: Record<NodeResolutionStatusCode, IVisualStateProj
     rgb: { r: 0.659, g: 0.333, b: 0.969 },
     glowColor: 'rgba(168, 85, 247, 0.6)',
     opacity: 0.9,
-    label: 'Производное внешнее утверждение',
-    description: 'Внешний результат, сопоставленный с семантикой RICIS'
+    label: 'Фиолетовый: Чужой-последователь (производное утверждение)',
+    description: 'Внешний результат или последователь, требующий аудита авторского приоритета'
   },
   [NodeResolutionStatusCode.ARCHIVED_DORMANT]: {
     stateCode: NodeResolutionStatusCode.ARCHIVED_DORMANT,
@@ -215,7 +215,7 @@ export const NODE_PROJECTIONS: Record<NodeResolutionStatusCode, IVisualStateProj
     rgb: { r: 0.42, g: 0.447, b: 0.502 },
     glowColor: 'rgba(107, 114, 128, 0.3)',
     opacity: 0.6,
-    label: 'Архивный / Фоновый узел',
+    label: 'Серый: Архивный / Фоновый узел',
     description: 'Пассивный узел структуры'
   }
 };
@@ -370,43 +370,116 @@ export const EDGE_PROJECTIONS: Record<EdgeStateCode, IVisualStateProjectionDTO> 
   }
 };
 
+export interface ResolveNodeStatusOptions {
+  proof?: Proof;
+  isLocked?: boolean;
+  isOnPath?: boolean;
+  hasSorry?: boolean;
+  isCore?: boolean;
+  isArchived?: boolean;
+  isDerivative?: boolean;
+}
+
 /**
  * Сервис управления состояниями и цветами графа (Color & State Authority).
  */
 export class GraphColorStateManager {
   /**
-   * Определение кода состояния узла по его свойствам и доказательству
+   * Определение кода состояния узла по его свойствам, доказательству и контексту
    */
-  resolveNodeStatusCode(node: ProblemNode, proof?: Proof): NodeResolutionStatusCode {
-    if (node.isDerivativeClaim || node.type === 'derivative_claim') {
-      return NodeResolutionStatusCode.DERIVATIVE_CLAIM;
+  resolveNodeStatusCode(
+    node: ProblemNode,
+    proofOrOptions?: Proof | ResolveNodeStatusOptions
+  ): NodeResolutionStatusCode {
+    let proof: Proof | undefined;
+    let options: ResolveNodeStatusOptions | undefined;
+
+    if (proofOrOptions) {
+      if ('steps' in proofOrOptions || 'targetFunction' in proofOrOptions || 'nodeId' in proofOrOptions) {
+        proof = proofOrOptions as Proof;
+      } else {
+        options = proofOrOptions as ResolveNodeStatusOptions;
+        proof = options.proof;
+      }
     }
 
-    if (node.type === 'core_singularity' && (node.state === 'resolved' || (node as unknown as { resolved?: boolean }).resolved)) {
-      return NodeResolutionStatusCode.CORE_AXIOM;
+    if (options?.isOnPath) {
+      return NodeResolutionStatusCode.ACTIVE_L1_PATH;
     }
 
+    // 1. Proven or close-to-proven tasks MUST be green!
+    // "доказанные или близкие к этому задачи должны быть зелеными"
     const isResolved = node.state === 'resolved' || (node as unknown as { resolved?: boolean }).resolved === true;
 
     if (isResolved) {
+      if (options?.hasSorry) {
+        return NodeResolutionStatusCode.EARLY_DRAFT;
+      }
+      if (proof?.externalLean?.trustStatus === 'LEAN_VERIFIED') {
+        return NodeResolutionStatusCode.LEAN_VERIFIED;
+      }
+      if (proof?.externalLean?.trustStatus === 'TRUSTED_AXIOM') {
+        return NodeResolutionStatusCode.PROVEN_RESOLVED;
+      }
       if (!proof) {
         return NodeResolutionStatusCode.RESOLVED_WITH_WARNINGS;
       }
       const hasValidSteps = Array.isArray(proof.steps) && proof.steps.length > 0;
       const hasTarget = typeof proof.targetFunction === 'string' && proof.targetFunction.trim().length > 0;
       if (hasValidSteps && hasTarget) {
-        if (proof.externalLean?.trustStatus === 'LEAN_VERIFIED' || proof.externalLean?.trustStatus === 'TRUSTED_AXIOM') {
-          return NodeResolutionStatusCode.LEAN_VERIFIED;
-        }
         return NodeResolutionStatusCode.PROVEN_RESOLVED;
       }
       return NodeResolutionStatusCode.RESOLVED_WITH_WARNINGS;
     }
 
+    // 2. Locked / Unopened nodes -> Почти прозрачный (не открыт)
+    if (options?.isLocked) {
+      return NodeResolutionStatusCode.LOCKED_BY_DEPENDENCIES;
+    }
+
+    // 3. Derivative claims (чужой-последователь) -> Фиолетовый
+    if (node.isDerivativeClaim || node.type === 'derivative_claim' || options?.isDerivative) {
+      return NodeResolutionStatusCode.DERIVATIVE_CLAIM;
+    }
+
+    // 4. Subtasks (подзадача: синий, подзадача подзадачи: голубой)
+    if (node.type === 'derived_problem') {
+      if ((node.fractalDepth ?? 0) >= 2) {
+        return NodeResolutionStatusCode.ACTIVE_L1_PATH; // Голубой (подзадача подзадачи)
+      }
+      return NodeResolutionStatusCode.CORE_AXIOM; // Синий (подзадача)
+    }
+
+    // 5. Core foundational axioms -> Синий (монолит ядра)
+    const isFoundationalAxiom =
+      node.id.startsWith('node-core') ||
+      node.id === 'l0-identity' ||
+      node.id === 'a1-indexing' ||
+      node.id === 'a4-zero-ratio' ||
+      node.id === 'a6-product';
+
+    if (isFoundationalAxiom) {
+      return NodeResolutionStatusCode.CORE_AXIOM;
+    }
+
+    // 6. Partial hypotheses -> Желтый
     if (node.state === 'partial') {
+      if (options?.hasSorry) {
+        return NodeResolutionStatusCode.EARLY_DRAFT; // Оранжевый
+      }
       return NodeResolutionStatusCode.PARTIAL_HYPOTHESIS;
     }
 
+    // 7. Draft with sorry -> Оранжевый
+    if (options?.hasSorry) {
+      return NodeResolutionStatusCode.EARLY_DRAFT;
+    }
+
+    if (options?.isArchived) {
+      return NodeResolutionStatusCode.ARCHIVED_DORMANT;
+    }
+
+    // 8. Open unresolved singularity -> Красный
     return NodeResolutionStatusCode.UNRESOLVED_SINGULARITY;
   }
 

@@ -14,6 +14,7 @@ import {
   type SolutionCatalogManifest,
   type SolutionMonolithDefinition,
 } from './index';
+import { NodeResolutionStatusCode } from '../model/colorMatrix';
 
 const CALCULATOR_COMMIT = '9806b7c97b57bd738301db459b8c8e72f73d1a23';
 const HASH = 'a'.repeat(64);
@@ -293,7 +294,7 @@ describe('CALC-EXP-01 — G3 source-bound dual-green solution catalogue', () => 
       nodeId: 'registry-117', nodeState: 'partial', hasSorry: false, isDerivative: true, isOnPath: false, isLocked: false,
     });
 
-    expect(path).toMatchObject({ sphereColor: '#22d3ee', greenBasis: 'RICIS_SOURCE_SOLVED', greenByCatalog: true });
+    expect(path).toMatchObject({ sphereColor: '#06b6d4', greenBasis: 'RICIS_SOURCE_SOLVED', greenByCatalog: true });
     expect(derivative).toMatchObject({ sphereColor: '#a855f7', greenBasis: 'RICIS_SOURCE_SOLVED', greenByCatalog: true });
   });
 
@@ -331,5 +332,72 @@ describe('CALC-EXP-01 — G3 source-bound dual-green solution catalogue', () => 
     expect(view.proofDisclosure.sourceAvailable).toBe(true);
     expect(view.proofDisclosure.leanEvidenceAvailable).toBe(false);
     expect(view.launch).toEqual({ kind: 'UNCONFIGURED', reason: 'calculator_base_url_missing' });
+  });
+
+  it('CEQA19: strictly guarantees proven or resolved tasks are green across all conditions', () => {
+    // 1. Proven resolved with steps and target is green (#22c55e)
+    const proven = presentMapNodeVisualStatus({
+      nodeId: 'custom-task',
+      nodeState: 'resolved',
+      hasSorry: false,
+      isDerivative: false,
+      isOnPath: false,
+      isLocked: false,
+      proof: {
+        targetFunction: '0/0',
+        steps: ['step 1', 'step 2'],
+      } as any,
+    });
+    expect(proven.sphereColor).toBe('#22c55e');
+    expect(proven.statusCode).toBe(NodeResolutionStatusCode.PROVEN_RESOLVED);
+
+    // 2. Lean verified is emerald green (#10b981)
+    const leanVerified = presentMapNodeVisualStatus({
+      nodeId: 'custom-task-2',
+      nodeState: 'resolved',
+      hasSorry: false,
+      isDerivative: false,
+      isOnPath: false,
+      isLocked: false,
+      proof: {
+        externalLean: { trustStatus: 'LEAN_VERIFIED' },
+      } as any,
+    });
+    expect(leanVerified.sphereColor).toBe('#10b981');
+    expect(leanVerified.statusCode).toBe(NodeResolutionStatusCode.LEAN_VERIFIED);
+
+    // 3. Resolved without full steps is lime green (#84cc16)
+    const resolvedSimple = presentMapNodeVisualStatus({
+      nodeId: 'custom-task-3',
+      nodeState: 'resolved',
+      hasSorry: false,
+      isDerivative: false,
+      isOnPath: false,
+      isLocked: false,
+    });
+    expect(resolvedSimple.sphereColor).toBe('#84cc16');
+    expect(resolvedSimple.statusCode).toBe(NodeResolutionStatusCode.RESOLVED_WITH_WARNINGS);
+
+    // 4. Resolved even if previously marked isDerivative or isCore must remain green!
+    const resolvedDerivative = presentMapNodeVisualStatus({
+      nodeId: 'custom-task-4',
+      nodeState: 'resolved',
+      hasSorry: false,
+      isDerivative: true,
+      isOnPath: false,
+      isLocked: false,
+    });
+    expect(['#22c55e', '#10b981', '#84cc16']).toContain(resolvedDerivative.sphereColor);
+
+    const resolvedCore = presentMapNodeVisualStatus({
+      nodeId: 'custom-task-5',
+      nodeState: 'resolved',
+      hasSorry: false,
+      isDerivative: false,
+      isOnPath: false,
+      isLocked: false,
+      isCore: true,
+    });
+    expect(['#22c55e', '#10b981', '#84cc16']).toContain(resolvedCore.sphereColor);
   });
 });

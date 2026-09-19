@@ -42,6 +42,7 @@ import {
   Sprout,
   Bug,
   GitBranch,
+  Palette,
 } from 'lucide-react';
 import { SettingsModal } from './SettingsModal';
 import { RicisProofConsoleModal } from './RicisProofConsoleModal';
@@ -66,7 +67,13 @@ import { AuditPanel } from './AuditPanel';
 import { NodeCardDetails } from './NodeCardDetails';
 import { CalculatorExplorer } from './CalculatorExplorer';
 import { MonolithGuidedCaseTrail } from './MonolithGuidedCaseTrail';
-import { graphColorManager, EdgeStateCode, NodeResolutionStatusCode } from '../model/colorMatrix';
+import {
+  graphColorManager,
+  EdgeStateCode,
+  NodeResolutionStatusCode,
+  GraphColorStateManager,
+  NODE_PROJECTIONS,
+} from '../model/colorMatrix';
 import { buildCalculatorExplorerProjection, getCalculatorExplorerEntryForNodeId } from '../calculatorExplorer/calculatorExplorer.domain';
 import { buildMonolithGuidedCaseTrail } from '../monolithGuidedCaseTrail/monolithGuidedCaseTrail.domain';
 import { EditNodeModal } from './EditNodeModal';
@@ -116,6 +123,7 @@ import { STATIC_ADMIN_CORE_SNAPSHOT } from '../adminCoreConnection/staticAdminCo
 import { isMissingTargetFunction, nodeHasSorry } from '../model/audit';
 import { ActionButton } from './ActionButton';
 import { presentMapNodeVisualStatus } from '../ricisSolutionCatalog';
+import { StatusLegendModal } from './StatusLegendModal';
 
 type PanelId = 'actions' | 'zones' | 'available' | 'agent' | 'persistence';
 
@@ -452,6 +460,8 @@ export const Map3D: React.FC = () => {
   const [leftPanelMode, setLeftPanelMode] = useState<'open' | 'rail'>('open');
   const [showProof, setShowProof] = useState(() => initialUrlParams.initialMode === 'verify' || initialUrlParams.initialMode === 'proof');
   const [showSettings, setShowSettings] = useState(false);
+  const [showStatusLegend, setShowStatusLegend] = useState(false);
+  const [activeStatusFilter, setActiveStatusFilter] = useState<NodeResolutionStatusCode | null>(null);
   const [showAddNode, setShowAddNode] = useState(false);
   const [isCalculatorExplorerOpen, setIsCalculatorExplorerOpen] = useState(false);
   const [isMonolithGuidedCaseTrailOpen, setIsMonolithGuidedCaseTrailOpen] = useState(false);
@@ -898,8 +908,26 @@ export const Map3D: React.FC = () => {
   const filteredNodeIds = useMemo(() => {
     const ids = new Set<string>();
     const q = searchQuery.toLowerCase().trim();
+    const colorManager = new GraphColorStateManager();
     for (const n of map.nodes) {
       if (nodeMatchesQuery(n, q, hiddenZones, showOnlyDerivatives)) {
+        if (activeStatusFilter) {
+          const isDeriv = isDerivativeNode(n);
+          const onPath = pathSet.has(n.id);
+          const available = isNodeAvailable(n, map);
+          const locked = !available && n.state !== 'resolved';
+          const isCore = isRicisCore(n);
+          const code = colorManager.resolveNodeStatusCode(n, {
+            proof: map.proofs?.[n.id],
+            isOnPath: onPath,
+            isDerivative: isDeriv,
+            isLocked: locked,
+            isCore: isCore,
+          });
+          if (code !== activeStatusFilter) {
+            continue;
+          }
+        }
         ids.add(n.id);
       }
     }
@@ -911,7 +939,7 @@ export const Map3D: React.FC = () => {
       }
     }
     return ids;
-  }, [map.nodes, hiddenZones, showOnlyDerivatives, searchQuery]);
+  }, [map.nodes, map.edges, map.proofs, hiddenZones, showOnlyDerivatives, searchQuery, activeStatusFilter, pathSet]);
 
   const deepLinkFocusOutcome = useMemo<DeepLinkFocusOutcome>(() => {
     if (!map.hydrated) return { kind: 'no_deep_link_request' };
@@ -1400,7 +1428,7 @@ export const Map3D: React.FC = () => {
               const available = isNodeAvailable(node, map);
               const onPath = pathSet.has(node.id);
               const locked = !available && node.state !== 'resolved';
-              const isDeriv = node.type === 'derivative_claim' || node.isDerivativeClaim === true;
+              const isDeriv = (node.type === 'derivative_claim' || node.isDerivativeClaim === true) && node.state !== 'resolved';
               const hasSorry = nodeHasSorry(node, map.proofs?.[node.id]);
 
               const visualStatus = presentMapNodeVisualStatus({
@@ -1411,13 +1439,44 @@ export const Map3D: React.FC = () => {
                 isDerivative: isDeriv,
                 isOnPath: onPath,
                 isLocked: locked,
+                isCore: isCore,
+                nodeType: node.type,
+                fractalDepth: node.fractalDepth,
               });
               const color = visualStatus.sphereColor;
 
+              const isResolvedNode =
+                'resolved' === node.state ||
+                visualStatus.statusCode === NodeResolutionStatusCode.PROVEN_RESOLVED ||
+                visualStatus.statusCode === NodeResolutionStatusCode.LEAN_VERIFIED ||
+                visualStatus.statusCode === NodeResolutionStatusCode.RESOLVED_WITH_WARNINGS;
+
               const baseR = nodeVisualRadius(node, map.nodes);
               const radius = isSelected ? baseR * 1.28 : onPath ? baseR * 1.12 : isDeriv ? baseR * 1.15 : baseR;
-              const emissive = isSelected ? '#22d3ee' : isDeriv ? '#7e22ce' : onPath ? '#0891b2' : isCore ? '#155e75' : color;
-              const emissiveIntensity = isSelected ? 0.65 : isDeriv ? 0.55 : onPath ? 0.45 : isCore ? 0.35 : locked ? 0.08 : 0.22;
+              const emissive = isSelected
+                ? '#22d3ee'
+                : onPath
+                ? '#0891b2'
+                : isResolvedNode
+                ? color
+                : isDeriv
+                ? '#7e22ce'
+                : isCore
+                ? '#1d4ed8'
+                : color;
+              const emissiveIntensity = isSelected
+                ? 0.65
+                : onPath
+                ? 0.45
+                : isResolvedNode
+                ? 0.42
+                : isDeriv
+                ? 0.55
+                : isCore
+                ? 0.35
+                : locked
+                ? 0.08
+                : 0.22;
 
               return (
                 <group
@@ -1436,7 +1495,7 @@ export const Map3D: React.FC = () => {
                     radius={radius}
                     emissive={emissive}
                     emissiveIntensity={emissiveIntensity}
-                    opacity={locked ? 0.5 : 0.92}
+                    opacity={locked ? 0.20 : 0.92}
                     locked={locked}
                     onClick={e => {
                       e.stopPropagation();
@@ -1462,6 +1521,7 @@ export const Map3D: React.FC = () => {
           selectedNodeId={selectedNodeId}
           reason={mapFallbackReason}
           onSelectNode={handleNavigateToNode}
+          proofs={map.proofs}
           onEnable3d={() => {
             setMapFallbackReason('user_selected');
             setMapPresentationMode('three_dimensional');
@@ -1532,6 +1592,15 @@ export const Map3D: React.FC = () => {
                   <button type="button" onClick={handleZoomOut} className="min-h-10 min-w-10 rounded-lg text-cyan-200 hover:bg-cyan-950/70" aria-label="Уменьшить масштаб">−</button>
                   <button type="button" onClick={handleResetCamera} className="min-h-10 min-w-10 rounded-lg text-cyan-200 hover:bg-cyan-950/70" aria-label="Сбросить вид"><Crosshair size={16} /></button>
                   <button type="button" onClick={handleZoomIn} className="min-h-10 min-w-10 rounded-lg text-cyan-200 hover:bg-cyan-950/70" aria-label="Увеличить масштаб">+</button>
+                  <button
+                    type="button"
+                    onClick={() => setShowStatusLegend(true)}
+                    className="min-h-10 min-w-10 rounded-lg text-cyan-200 hover:bg-cyan-950/70 flex items-center justify-center"
+                    aria-label="Палитра статусов RICIS-III"
+                    title="Палитра статусов RICIS-III"
+                  >
+                    <Palette size={16} />
+                  </button>
                 </div>
                 <div className="pointer-events-auto flex items-center gap-1.5 rounded-xl border border-cyan-900/60 bg-black/70 p-1.5 shadow-xl backdrop-blur-sm">
                   <button
@@ -1673,6 +1742,17 @@ export const Map3D: React.FC = () => {
                 className="min-h-12 w-full rounded-lg border border-emerald-800/80 bg-emerald-950/35 px-3 text-left text-xs font-bold text-emerald-100 inline-flex items-center justify-between"
               >
                 <span className="inline-flex items-center gap-2"><Activity size={16} className="text-emerald-400" /> 3D Кинематика: Манипулятор и Singularity Engine</span><ChevronRight size={17} />
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  setShowStatusLegend(true);
+                  openMobileView('map');
+                }}
+                className="min-h-12 w-full rounded-lg border border-cyan-700/80 bg-cyan-950/35 px-3 text-left text-xs font-bold text-cyan-100 inline-flex items-center justify-between"
+              >
+                <span className="inline-flex items-center gap-2"><Palette size={16} className="text-cyan-400" /> Онтологическая палитра статусов RICIS-III</span><ChevronRight size={17} />
               </button>
 
               {selectedNode && (
@@ -1822,6 +1902,26 @@ export const Map3D: React.FC = () => {
             )}
           </div>
 
+          {/* Active status filter banner */}
+          {activeStatusFilter && (
+            <div className="mb-2 flex items-center justify-between gap-2 rounded-lg border border-cyan-700/60 bg-cyan-950/40 px-2.5 py-1.5 text-xs text-cyan-200">
+              <span className="flex items-center gap-1.5 truncate">
+                <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: NODE_PROJECTIONS[activeStatusFilter].hexColor }} />
+                <span className="truncate text-[10px] font-bold">
+                  {locale === 'ru' ? 'Фильтр' : 'Filter'}: {NODE_PROJECTIONS[activeStatusFilter].label}
+                </span>
+              </span>
+              <button
+                type="button"
+                onClick={() => setActiveStatusFilter(null)}
+                className="text-neutral-400 hover:text-white text-[11px] px-1 font-mono cursor-pointer"
+                title="Сбросить фильтр статуса"
+              >
+                ✕
+              </button>
+            </div>
+          )}
+
           {/* Render active panels */}
           <div className="accordion-container flex flex-col gap-0 border-0 bg-transparent overflow-visible w-full">
           {[...projectedVisibleElements.map((el: any) => ({ ...el, isHidden: false })), ...hiddenElements.filter((el: any) => !projectedVisibleElements.some(visibleElement => visibleElement.id === el.id)).map((el: any) => ({ ...el, isHidden: true }))].map(({ id, isHidden }: any) => {
@@ -1952,6 +2052,14 @@ export const Map3D: React.FC = () => {
                         <ActionButton onClick={() => setShowAddNode(true)} variant="emerald" className="w-full uppercase font-bold tracking-wider cursor-pointer py-2 text-xs">
                           {t('filter.addNewTask')}
                         </ActionButton>
+                        <button
+                          type="button"
+                          onClick={() => setShowStatusLegend(true)}
+                          className="w-full flex items-center justify-center gap-2 py-2 px-3 rounded bg-neutral-900/80 hover:bg-neutral-800 border border-cyan-800/60 text-cyan-200 font-bold text-xs uppercase tracking-wider transition-colors cursor-pointer shadow-sm"
+                        >
+                          <Palette className="w-4 h-4 text-cyan-400" />
+                          Палитра статусов RICIS-III
+                        </button>
                         <button
                           type="button"
                           onClick={() => setShowProofConsole(true)}
@@ -2174,6 +2282,22 @@ export const Map3D: React.FC = () => {
               <span className="[writing-mode:vertical-rl] text-[9px] font-bold uppercase tracking-[0.16em]">Задача</span>
             </button>
           )}
+          <div className="absolute right-3 bottom-3 z-20 hidden md:flex items-center gap-1.5 rounded-xl border border-cyan-900/60 bg-black/80 p-1.5 shadow-2xl backdrop-blur-md">
+            <button type="button" onClick={handleZoomOut} className="min-h-8 min-w-8 rounded-lg text-cyan-200 hover:bg-cyan-950/70 flex items-center justify-center font-bold text-base" aria-label="Уменьшить масштаб">−</button>
+            <button type="button" onClick={handleResetCamera} className="min-h-8 min-w-8 rounded-lg text-cyan-200 hover:bg-cyan-950/70 flex items-center justify-center" aria-label="Сбросить вид" title="Сбросить вид"><Crosshair size={15} /></button>
+            <button type="button" onClick={handleZoomIn} className="min-h-8 min-w-8 rounded-lg text-cyan-200 hover:bg-cyan-950/70 flex items-center justify-center font-bold text-base" aria-label="Увеличить масштаб">+</button>
+            <div className="w-[1px] h-5 bg-cyan-900/60 mx-0.5" />
+            <button
+              type="button"
+              onClick={() => setShowStatusLegend(true)}
+              className="min-h-8 px-2.5 rounded-lg text-cyan-200 hover:bg-cyan-950/70 flex items-center gap-1.5 text-xs font-semibold"
+              aria-label="Палитра статусов"
+              title="Палитра статусов"
+            >
+              <Palette size={14} className="text-cyan-400" />
+              <span>Палитра статусов</span>
+            </button>
+          </div>
           {renderMapScene()}
           </div>
 
@@ -2194,9 +2318,36 @@ export const Map3D: React.FC = () => {
               ) : (
               <>
               <div className="flex shrink-0 items-start justify-between gap-3 border-b border-neutral-800/60 bg-neutral-950/80 px-3.5 py-3">
-                <div className="min-w-0 flex-1 text-left"
-                >
-                  <h2 className="truncate text-sm font-bold text-white leading-tight mb-1">{selectedNodePresentation?.title ?? selectedNode.title}</h2>
+                <div className="min-w-0 flex-1 text-left">
+                  <div className="flex items-center gap-2 mb-1 flex-wrap">
+                    <h2 className="truncate text-sm font-bold text-white leading-tight">{selectedNodePresentation?.title ?? selectedNode.title}</h2>
+                    {(() => {
+                      const selectedVisual = presentMapNodeVisualStatus({
+                        nodeId: selectedNode.id,
+                        nodeState: selectedNode.state,
+                        proof: map.proofs?.[selectedNode.id],
+                        hasSorry: nodeHasSorry(selectedNode, map.proofs?.[selectedNode.id]) || isMissingTargetFunction(selectedNode),
+                        isDerivative: (selectedNode.type === 'derivative_claim' || selectedNode.isDerivativeClaim === true) && selectedNode.state !== 'resolved',
+                        isOnPath: pathSet.has(selectedNode.id),
+                        isLocked: !isNodeAvailable(selectedNode, map) && selectedNode.state !== 'resolved',
+                        isCore: isRicisCore(selectedNode),
+                      });
+                      return (
+                        <span
+                          className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider border shrink-0"
+                          style={{
+                            color: selectedVisual.sphereColor,
+                            borderColor: `${selectedVisual.sphereColor}66`,
+                            backgroundColor: `${selectedVisual.sphereColor}18`,
+                          }}
+                          title={`Онтологический статус RICIS-III: ${selectedVisual.statusLabel}`}
+                        >
+                          <span className="w-1.5 h-1.5 rounded-full animate-pulse shrink-0" style={{ backgroundColor: selectedVisual.sphereColor }} />
+                          {selectedVisual.statusLabel}
+                        </span>
+                      );
+                    })()}
+                  </div>
                   <span className="text-[9px] font-mono text-cyan-400 block mb-1">Key: {getNodeIdentityPresentation(selectedNode).base64Key}</span>
                   <span className="text-[9px] font-mono text-neutral-500 block mb-1 truncate">Path: {getNodeIdentityPresentation(selectedNode).canonicalPath}</span>
                   {selectedNode.economic?.marketGain > 0 && (
@@ -2468,6 +2619,17 @@ export const Map3D: React.FC = () => {
           />
         </SwipeDismissable>
       )}
+      <StatusLegendModal
+        isOpen={showStatusLegend}
+        onClose={() => setShowStatusLegend(false)}
+        nodes={map.nodes}
+        proofs={map.proofs}
+        activeStatusFilter={activeStatusFilter}
+        onSelectStatusFilter={code => {
+          setActiveStatusFilter(code);
+        }}
+        locale={locale}
+      />
       {!isMobileLayout && !isImmersive && (
       <footer data-testid="desktop-status-strip" className="h-10 border-t border-cyan-900/40 bg-[#080808] flex items-center justify-between px-4 shrink-0 z-10 w-full overflow-visible">
         {/* Left Side: System Indicator, Arrow Button & Latest Agent Log Line */}

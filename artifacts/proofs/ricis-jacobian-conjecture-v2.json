@@ -1,0 +1,64 @@
+{
+  "source": "НОВАЯ версия артефакта якобиана. v1 (artifacts/proofs/ricis-jacobian-conjecture.standalone.lean, sha256 2e043f2738df8d8b02754aebb5fa93580fb87e6cc71733557c620c463c4de56b) не изменён ни на байт (AGENTS.md §7). Закрытие findings[F-01], TASK-01 плана gap-closure (CRITICAL).",
+  "claim": "Опровержение утверждения v1 и исправленное структурное утверждение: (1) для любых F, G равенство `resolveRICIS (det (zeroF F) zero zero (infF G)) = sub (mul F G) (zeroF zero)` ЛОЖНО — jacobian_v1_identity_refuted; (2) первопричина — ветвь `det` одношагового `ricisResolve` разворачивает детерминант, но не спускается в произведения, поэтому A6-пара zeroF F · infF G не достигает A6-стадии (det_expansion_single_pass); (3) при опуске разрешения в произведения детерминанта (ricisResolveDet, та же A6-стадия канона) исправленное утверждение истинно: ricisResolveDet (zeroF F) zero zero (infF G) = sub (mul F G) (zeroF zero).",
+  "method": "structural_det_resolution_with_product_descent",
+  "verification": {
+    "valid": false,
+    "validNote": "Ядровой прогон ещё не выполнялся: valid=false означает «не проверено», а не «опровергнуто». Опровержение v1 внутри файла — формальный вывод ядро-нативными средствами (rw/injection/cases), который станет статусом только после прогона job kernel-check; запись — artifacts/proofs/core-checks/kernel-findings.json (pendingKernelRun, artifactId ricis-jacobian-conjecture-v2).",
+    "verifiedAxioms": [],
+    "contentHash": "cc7d8d44551e4120bda8b504b3ad6cbcb99734ac3a0a1809139cff25ae20b364",
+    "trustStatus": "REQUIRES_CORE_LEAN",
+    "claimLevel": "STRUCTURALLY_VALIDATED",
+    "claimLevelNote": "Даже после зелёного прогона уровень заявления остаётся структурным: доказано тождество резолвера над AST (RExpr), а не гипотеза Якоби для полиномиальных отображений C^n → C^n. Классическое разложение определителя, полиномиальные автоморфизмы, степени и пределы в файле не рассматриваются (P1 запрещает пределы внутри Resolve_RICIS)."
+  },
+  "declaredAxioms": [],
+  "refutedV1": {
+    "immutableSource": "artifacts/proofs/ricis-jacobian-conjecture.standalone.lean",
+    "immutableSourceSha256": "2e043f2738df8d8b02754aebb5fa93580fb87e6cc71733557c620c463c4de56b",
+    "v1Statement": "resolveRICIS (RExpr.det (RExpr.zeroF F) RExpr.zero RExpr.zero (RExpr.infF G)) = RExpr.sub (RExpr.mul F G) (RExpr.zeroF RExpr.zero)",
+    "theoremRefuting": "RICIS_Jacobian.jacobian_v1_identity_refuted",
+    "rootCauseTheorem": "RICIS_Jacobian.det_expansion_single_pass",
+    "note": "Опровержение безусловно: после одношагового разворота det остаётся уравнение mul zero zero = zeroF zero, а RExpr.mul_ne_zeroF доказывает, что произведение не является zeroF-узлом ни при каких аргументах. Отказ rfl в run 34870620154 (62:2) был не технической трудностью, а признаком ложности утверждения."
+  },
+  "boundary": {
+    "changedAgainstV1": [
+      "Утверждение ИЗМЕНЕНО содержательно: v1 утверждал разрешимость детерминантного узла одним проходом resolveRICIS; v2 показывает, что это ложно, и доказывает исправленную формулировку с явным опуском разрешения в произведения (def ricisResolveDet). Registry/README обязаны хранить различие «опровергнуто v1 / доказано v2», а не подменять одно другим;",
+      "Конструктор `partial` (зарезервированное слово Lean) переименован в `partialDeriv` — как и в заявленной подстановке производной v1;",
+      "Добавлены теоремы, которых в v1 не было: det_expansion_single_pass, RExpr_mul_ne_zeroF, jacobian_v1_identity_refuted, A6_pair_reaches_geometric_measure, A10_mul_zero, Jacobian_L1_identity."
+    ],
+    "provenIfKernelAccepts": [
+      "det_expansion_single_pass: одношаговый resolveRICIS для det даёт sub (mul m11 m22) (mul m12 m21) без спуска в произведения;",
+      "RExpr_mul_ne_zeroF: RExpr.mul a b ≠ RExpr.zeroF c для любых a, b, c;",
+      "jacobian_v1_identity_refuted: утверждение v1 ложно для любых F, G;",
+      "A6_pair_reaches_geometric_measure и A6_geometric_realization: пара zeroF F · infF G проходит A6-стадию (mu (rect F G) → mul F G) — то же A6-определение, что в каноне ricis-universal-orchestration-template.lean;",
+      "A10_mul_zero: resolveRICIS (mul F zero) = zeroF F (разрешённый нуль второго произведения);",
+      "Jacobian_singularity_resolved: ricisResolveDet (zeroF F) zero zero (infF G) = sub (mul F G) (zeroF zero) — исправленная формулировка;",
+      "Jacobian_L1_identity: L1-тождество e = e."
+    ],
+    "notProven": [
+      "Гипотеза Якоби (Jacobian Conjecture) для полиномиальных отображений C^n → C^n и любая связь с классическим определителем Якоби;",
+      "Классическое разложение определителя по 4 элементам, миноры, алгебраические дополнения;",
+      "Пределы, правило Лопиталя, непрерывность (P1 запрещает пределы внутри Resolve_RICIS);",
+      "Узлы карты (registry-120) и их экономические/научные заявления: формулировки узлов — отдельное решение владельца (F-05, TASK-05)."
+    ]
+  },
+  "verificationPath": {
+    "workflow": ".github/workflows/lean-artifact-kernel-check.yml",
+    "job": "kernel-check",
+    "checkedFile": "artifacts/proofs/core-checks/ricis-jacobian-conjecture-v2.core-check.lean",
+    "immutableSourceSha256": "cc7d8d44551e4120bda8b504b3ad6cbcb99734ac3a0a1809139cff25ae20b364",
+    "artifactCheckedAsProvided": false,
+    "derivativeNote": "Производная удаляет неиспользуемую строку `import Mathlib` (§7: исходные байты не меняются); подстановок в теле нет (substitutions: []). Эпилог с `#print axioms` добавляет генератор scripts/generateLeanCoreChecks.ts.",
+    "expectedTheorems": [
+      "RICIS_Jacobian.det_expansion_single_pass",
+      "RICIS_Jacobian.RExpr_mul_ne_zeroF",
+      "RICIS_Jacobian.jacobian_v1_identity_refuted",
+      "RICIS_Jacobian.A6_pair_reaches_geometric_measure",
+      "RICIS_Jacobian.A6_geometric_realization",
+      "RICIS_Jacobian.A10_mul_zero",
+      "RICIS_Jacobian.Jacobian_singularity_resolved",
+      "RICIS_Jacobian.Jacobian_L1_identity"
+    ],
+    "status": "PENDING_KERNEL_RUN"
+  }
+}

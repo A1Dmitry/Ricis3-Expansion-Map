@@ -143,7 +143,8 @@ describe('resolveDevAllowedHosts', () => {
       'proxy.internal',
       '.example.test',
     ]);
-    // A value that carries no usable entries must not lock the preview out silently.
+    // A value that carries no usable entries (or numeric port strings like "3000") must not lock the preview out silently.
+    expect(resolveDevAllowedHosts('3000')).toBe(true);
     expect(resolveDevAllowedHosts(',,,')).toBe(true);
     expect(resolveDevAllowedHosts(' , , ')).toBe(true);
   });

@@ -70,7 +70,10 @@
 ## Политика CI: ожидаемые отказы и ожидающие прогоны
 
 - `ciPolicy.expectedFailures` (падение этих целей не рвёт прогон, потому что первопричина зафиксирована): `ricis-jacobian-conjecture`
+- ожидает прогона: `ricis-general-resolution-v4` · job `mathlib-kernel-check` · статус PENDING_KERNEL_RUN
+- ожидает прогона: `ricis-jacobian-conjecture-v2` · job `kernel-check` · статус PENDING_KERNEL_RUN
 - ожидает прогона: `ricis-yang-mills` · job `mathlib-kernel-check` · статус PENDING_KERNEL_RUN
+- ожидает прогона: `ricis-yang-mills-v2` · job `mathlib-kernel-check` · статус PENDING_KERNEL_RUN
 - `sorryAx` в скопилированном файле рвёт прогон всегда — ожидаемый отказ его не легализует.
 
 ## Что этот отчёт не делает

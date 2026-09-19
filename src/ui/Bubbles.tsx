@@ -407,8 +407,8 @@ export function NodeBubble({
             vec3 glow = uEmissive * uEmissiveIntensity * (0.4 + fresnel * 0.8);
             vec3 col = (base + rim + glow + vec3(spec * 0.85)) * pulse;
             col = mix(col, col * 0.45 + vec3(0.12), uLocked);
-            float alpha = mix(uOpacity * (0.72 + fresnel * 0.28), uOpacity * 0.5, uLocked);
-            gl_FragColor = vec4(col, clamp(alpha, 0.15, 1.0));
+            float alpha = mix(uOpacity * (0.72 + fresnel * 0.28), uOpacity * 0.6, uLocked);
+            gl_FragColor = vec4(col, clamp(alpha, 0.08, 1.0));
           }
         `}
       />

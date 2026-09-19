@@ -46,6 +46,21 @@ async function withServer(options: ZenodoRouteOptions, run: (baseUrl: string) =>
 const jsonBody = async (response: Response): Promise<Record<string, any>> =>
   JSON.parse(await response.text()) as Record<string, any>;
 
+let savedZenodoEnv: string | undefined;
+
+beforeEach(() => {
+  savedZenodoEnv = process.env.ZENODO_API_BASE_URL;
+  delete process.env.ZENODO_API_BASE_URL;
+});
+
+afterEach(() => {
+  if (savedZenodoEnv === undefined) {
+    delete process.env.ZENODO_API_BASE_URL;
+  } else {
+    process.env.ZENODO_API_BASE_URL = savedZenodoEnv;
+  }
+});
+
 afterAll(() => {
   vi.restoreAllMocks();
 });

@@ -11,7 +11,6 @@ export const RICIS_CORE_IDS = [
 
 export function isRicisCore(node: ProblemNode): boolean {
   return (
-    node.ricisSolvable === true ||
     node.type === 'core_singularity' ||
     RICIS_CORE_IDS.includes(node.id as (typeof RICIS_CORE_IDS)[number])
   );
