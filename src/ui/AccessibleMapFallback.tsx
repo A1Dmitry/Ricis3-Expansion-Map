@@ -1,3 +1,4 @@
+import { ContentButton } from './components/ContentButton';
 // ============================================================================
 // ACCESSIBLE / 2D MAP MODE (2D Graph + Explorer Tree)
 // Замена прежней «2D-заглушки»: полноценная интерактивная плоская карта
@@ -41,9 +42,10 @@ export function AccessibleMapFallback({
     >
       <div className="mx-auto max-w-6xl space-y-3">
         <header className="flex flex-wrap items-center gap-2 rounded-lg border border-cyan-900/60 bg-[#07111f]/90 px-2 py-1.5">
-          <button
+          <ContentButton
             type="button"
             onClick={() => setActiveTab('2d_graph')}
+            data-control-kind="tab"
             aria-pressed={activeTab === '2d_graph'}
             className={`inline-flex items-center gap-1.5 rounded-md border px-2.5 py-1 text-[11px] font-bold transition-all ${
               activeTab === '2d_graph'
@@ -53,10 +55,11 @@ export function AccessibleMapFallback({
           >
             <Network size={13} />
             2D Карта
-          </button>
-          <button
+          </ContentButton>
+          <ContentButton
             type="button"
             onClick={() => setActiveTab('tree')}
+            data-control-kind="tab"
             aria-pressed={activeTab === 'tree'}
             className={`inline-flex items-center gap-1.5 rounded-md border px-2.5 py-1 text-[11px] font-bold transition-all ${
               activeTab === 'tree'
@@ -66,14 +69,14 @@ export function AccessibleMapFallback({
           >
             <FolderTree size={13} />
             Дерево
-          </button>
-          <button
+          </ContentButton>
+          <ContentButton
             type="button"
             onClick={onEnable3d}
             className="rounded-md border border-cyan-600/70 bg-cyan-950 px-2.5 py-1 text-[11px] font-bold text-cyan-100 transition-colors hover:bg-cyan-900"
           >
             3D-карту
-          </button>
+          </ContentButton>
           <span className="ml-auto text-[11px] font-mono text-slate-400" data-testid="m2d-stats">
             Всего: <span className="text-slate-200">{nodes.length}</span>
             {' · '}Доказано: <span className="text-emerald-300">{provenCount}</span>

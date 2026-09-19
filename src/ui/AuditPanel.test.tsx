@@ -74,11 +74,11 @@ describe('AuditPanel UI & Accessibility Suite (Icon-only with Tooltips)', () => 
     for (const btnId of buttonIds) {
       const btn = renderedContainer.querySelector<HTMLButtonElement>(`#${btnId}`);
       expect(btn, `Button #${btnId} should exist`).not.toBeNull();
-      
+
       // Кнопка не должна иметь текстовых спанов
-      const span = btn?.querySelector('span');
+      const span = btn?.querySelector('span:not(.icon-button__glyph):not(.icon-button__label)');
       expect(span).toBeNull();
-      
+
       // Кнопка должна содержать SVG иконку
       const svg = btn?.querySelector('svg');
       expect(svg, `Button #${btnId} should have an SVG icon`).not.toBeNull();

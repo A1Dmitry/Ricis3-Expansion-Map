@@ -1,0 +1,163 @@
+
+ RUN  v5.0.1 /home/user/Ricis3-Expansion-Map
+
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+stderr | src/ui/KinematicEnginePage.test.tsx > KinematicEnginePage Component > keeps a 5-DOF joint vector in the 5-link module and hides the 3-DOF heatmap (joint truncation guard)
+THREE.WebGLRenderer: THREE.WebGLRenderer: Error creating WebGL context.
+
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+ ✓ src/ui/KinematicEnginePage.test.tsx (8 tests) 751ms
+ ✓ src/ui/components/iconButtonCoverage.test.ts (2 tests) 405ms
+   ✓ Application-wide control contracts (2)
+     ✓ does not replace labelled tabs, selection cards or menu items with icon-only controls 402ms
+Not implemented: navigation to another Document
+ ✓ src/ui/RicisSeedPage.test.tsx (7 tests) 361ms
+ ✓ src/ui/App.test.tsx (6 tests) 241ms
+ ✓ src/ui/RoadmapPage.test.tsx (5 tests) 226ms
+ ✓ src/ui/SettingsAppletPage.test.tsx (3 tests) 178ms
+ ✓ src/ui/RicisProofConsoleModal.test.tsx (5 tests) 167ms
+ ✓ src/ui/CalculatorExplorer.test.tsx (12 tests) 205ms
+ ✓ src/ui/components/CompactCommandMenuBar.test.tsx (6 tests) 170ms
+ ✓ src/ui/AccessibleMapFallback.test.tsx (5 tests) 141ms
+ ✓ src/ui/MonolithGuidedCaseTrail.test.tsx (14 tests) 129ms
+ ✓ src/ui/ProofGraphComparisonPage.test.tsx (3 tests) 126ms
+ ✓ src/ui/NodeCardDetails.headerMenu.test.tsx (1 test) 111ms
+ ✓ src/ui/VoynichDecryptionPanel.test.tsx (4 tests) 145ms
+ ✓ src/ui/StatusLegendModal.test.tsx (3 tests) 106ms
+ ✓ src/ui/CommunityReadinessNotice.test.tsx (15 tests) 105ms
+ ✓ src/ui/AgentLogModal.test.tsx (5 tests) 120ms
+ ✓ src/ui/LeanPassportSessionDialog.test.tsx (13 tests) 102ms
+ ✓ src/ui/NodeContextMenu.test.tsx (6 tests) 118ms
+ ✓ src/ui/components/IconButton.test.tsx (14 tests) 116ms
+stderr | src/ui/UniverseSkybox.test.ts
+THREE.WARNING: Multiple instances of Three.js being imported.
+
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+ ✓ src/ui/UniverseSkybox.test.ts (4 tests) 84ms
+ ✓ src/ui/AuditPanel.test.tsx (3 tests) 77ms
+ ✓ src/ui/MapPatchImportModal.test.tsx (3 tests) 62ms
+ ✓ src/ui/AutoProverModal.test.tsx (3 tests) 74ms
+ ✓ src/ui/map2d/twoDLayout.test.ts (20 tests) 65ms
+ ✓ src/ui/RicisTerminalModal.test.tsx (3 tests) 66ms
+ ✓ src/ui/SettingsModal.test.tsx (3 tests) 75ms
+ ✓ src/ui/i18nPresentation.test.tsx (2 tests) 47ms
+ ✓ src/ui/RecoveryDiagnosticsPanel.test.tsx (3 tests) 61ms
+ ✓ src/ui/components/AppletActionToolbar.test.tsx (2 tests) 40ms
+ ✓ src/ui/components/SwipeDismissable.test.tsx (3 tests) 37ms
+ ✓ src/ui/components/ContentButton.test.tsx (2 tests) 37ms
+stderr | src/ui/LanguageToggle.test.tsx > LanguageToggle Component > renders RU and EN buttons
+An update to LanguageToggle inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+stderr | src/ui/LanguageToggle.test.tsx > LanguageToggle Component > switches locale between RU and EN when clicked
+An update to LanguageToggle inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+ ✓ src/ui/LanguageToggle.test.tsx (2 tests) 31ms
+ ✓ src/ui/LeanPassportSessionDialog.nestedModal.test.tsx (2 tests) 44ms
+ ✓ src/ui/lazyNamedComponent.test.tsx (1 test) 29ms
+ ✓ src/ui/PhysicsControlPanel.test.ts (4 tests) 24ms
+ ✓ src/ui/RouteSurfaceBoundary.test.tsx (1 test) 21ms
+ ✓ src/ui/components/geometricBridge/GeometricBridgeVisualizerCard.test.tsx (5 tests) 23ms
+ ✓ src/ui/components/llmGradient/LLMGradientSingularityCard.test.tsx (3 tests) 22ms
+ ✓ src/ui/components/tcp/TcpFractalInspectorCard.test.tsx (3 tests) 20ms
+ ✓ src/ui/components/ActionTooltip.test.tsx (1 test) 14ms
+ ✓ src/ui/components/rationalSingularity/RationalSingularityInspectorCard.test.tsx (3 tests) 15ms
+ ✓ src/ui/components/resilience/widgetCapabilityBoundary.test.tsx (4 tests) 13ms
+ ✓ src/ui/EditNodeModal.passportSession.test.tsx (14 tests) 6ms
+ ✓ src/ui/Map3D.persistencePanel.test.ts (8 tests) 6ms
+ ✓ src/ui/Map3D.communityReadiness.test.ts (11 tests) 9ms
+ ✓ src/ui/uiRefactor.topology.test.ts (6 tests) 8ms
+ ✓ src/ui/solutionMonolithCard.topology.test.ts (3 tests) 4ms
+ ✓ src/ui/Map3D.mobileLayout.test.ts (6 tests) 7ms
+ ✓ src/services/appletDeepLinks.test.ts (5 tests) 6ms
+ ✓ src/ui/swipeDismissWiring.topology.test.ts (6 tests) 5ms
+ ✓ src/ui/recoveryDiagnostics.test.ts (4 tests) 5ms
+ ✓ src/ui/components/kinematic/RicisAstInspector.test.ts (5 tests) 3ms
+ ✓ src/ui/ProofTrustBadge.test.ts (6 tests) 5ms
+ ✓ src/ui/Map3D.communityRewardsStatus.test.ts (2 tests) 7ms
+ ✓ src/ui/uiControlWiring.topology.test.ts (2 tests) 3ms
+ ✓ src/ui/CoreRecoveryPage.diagnosticsTopology.test.ts (3 tests) 3ms
+ ✓ src/ui/recursiveUiAuditReport.test.ts (1 test) 4ms
+ ✓ src/ui/orbitTouchControls.test.ts (1 test) 3ms
+
+ Test Files  59 passed (59)
+      Tests  300 passed (300)
+   Start at  22:00:56
+   Duration  51.12s (environment 69%, import 13%, tests 11%, transform 6%, worker 1%)
+
+Environment  jsdom was created 59 times · 31.37s total, 69% of tracked time
+             create it once per worker with pool: 'vmThreads' (keeps per-file isolation) or isolate: false (shares it across files)
+             learn more: https://vitest.dev/guide/improving-performance#test-environments

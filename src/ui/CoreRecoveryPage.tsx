@@ -1,3 +1,5 @@
+import { ContentButton } from './components/ContentButton';
+import { IconButton } from './components/IconButton';
 import React, { useMemo, useState } from 'react';
 import { AlertTriangle, ArrowLeft, ServerCrash, ShieldAlert } from 'lucide-react';
 import {
@@ -201,14 +203,14 @@ export function CoreRecoveryPage() {
           </section>
 
           <div className="flex border-t border-neutral-800 pt-5">
-            <button
+            <ContentButton
               type="button"
               onClick={returnFromCoreRecovery}
               className="inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium text-slate-300 transition-colors hover:bg-neutral-900 hover:text-white"
             >
               <ArrowLeft size={16} aria-hidden="true" />
               Вернуться к карте
-            </button>
+            </ContentButton>
           </div>
         </div>
       </section>

@@ -1,5 +1,7 @@
+import { ContentButton } from './components/ContentButton';
+import { IconButton } from './components/IconButton';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { ExternalLink, MoreVertical } from 'lucide-react';
+import { ExternalLink, Menu } from 'lucide-react';
 
 /**
  * Один пункт контекстного меню карточки задачи.
@@ -35,6 +37,7 @@ type Props = {
   triggerLabel?: string;
   /** Общая доступность меню (например, во время решения задачи). */
   disabled?: boolean;
+  footer?: (closeMenu: () => void) => React.ReactNode;
 };
 
 /**
@@ -46,6 +49,7 @@ export const NodeContextMenu: React.FC<Props> = ({
   items,
   triggerLabel = 'Действия',
   disabled = false,
+  footer,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const rootRef = useRef<HTMLDivElement | null>(null);
@@ -85,7 +89,7 @@ export const NodeContextMenu: React.FC<Props> = ({
 
   return (
     <div ref={rootRef} className="relative inline-block text-left">
-      <button
+      <IconButton
         type="button"
         aria-haspopup="menu"
         aria-expanded={isOpen}
@@ -95,9 +99,9 @@ export const NodeContextMenu: React.FC<Props> = ({
         onClick={() => setIsOpen(prev => !prev)}
         className="inline-flex min-h-8 min-w-8 items-center justify-center gap-1 rounded-md border border-cyan-800/70 bg-cyan-950/50 px-2 text-cyan-300 transition-colors hover:border-cyan-400 hover:bg-cyan-900/60 hover:text-white disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer"
       >
-        <MoreVertical size={14} />
+        <Menu size={16} />
         <span className="text-[9px] font-bold uppercase tracking-wider">{triggerLabel}</span>
-      </button>
+      </IconButton>
 
       {isOpen && (
         <div
@@ -157,7 +161,7 @@ export const NodeContextMenu: React.FC<Props> = ({
                       rel="noopener noreferrer"
                       title={`${item.hint ?? item.label} — открыть в новой вкладке`}
                       onClick={closeMenu}
-                      className="flex w-full cursor-pointer items-start gap-2 px-3 py-2 text-left transition-colors hover:bg-cyan-950/60"
+                      className="menu-command flex w-full cursor-pointer items-start gap-2 px-3 py-2 text-left transition-colors hover:bg-cyan-950/60"
                     >
                       {itemVisual}
                     </a>
@@ -165,7 +169,7 @@ export const NodeContextMenu: React.FC<Props> = ({
                 }
 
                 return (
-                  <button
+                  <ContentButton
                     key={item.id}
                     type="button"
                     role="menuitem"
@@ -177,18 +181,19 @@ export const NodeContextMenu: React.FC<Props> = ({
                       closeMenu();
                       item.onSelect?.();
                     }}
-                    className={`flex w-full items-start gap-2 px-3 py-2 text-left transition-colors ${
+                    className={`menu-command flex w-full items-start gap-2 px-3 py-2 text-left transition-colors ${
                       item.disabled
                         ? 'cursor-not-allowed opacity-45'
                         : 'cursor-pointer hover:bg-cyan-950/60'
                     }`}
                   >
                     {itemVisual}
-                  </button>
+                  </ContentButton>
                 );
               })}
             </div>
           ))}
+          {footer?.(closeMenu)}
         </div>
       )}
     </div>

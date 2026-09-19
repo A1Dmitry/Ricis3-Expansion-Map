@@ -1,3 +1,7 @@
+import { ContentButton, ContentLink } from './components/ContentButton';
+
+import { IconButton } from './components/IconButton';
+
 import React, { useMemo, useState } from 'react';
 import { ArrowLeft, BookOpen, ChevronRight, Compass, ListTree, SearchCheck, ShieldCheck } from 'lucide-react';
 import type { ProblemNode } from '../model/types';
@@ -139,7 +143,7 @@ export function RoadmapPage({
   ];
 
   return (
-    <main className="min-h-screen overflow-y-auto bg-[radial-gradient(circle_at_top,_#10233a_0%,_#050505_45%)] px-4 py-4 text-slate-100 sm:px-8 sm:py-8">
+    <main className="h-full min-h-0 overflow-y-auto overflow-y-auto bg-[radial-gradient(circle_at_top,_#10233a_0%,_#050505_45%)] px-4 py-4 text-slate-100 sm:px-8 sm:py-8">
       <div className="mx-auto max-w-6xl">
         <header className="mb-7 flex flex-col gap-4 border-b border-cyan-900/50 pb-6 sm:flex-row sm:items-start sm:justify-between">
           <div className="max-w-3xl">
@@ -149,13 +153,13 @@ export function RoadmapPage({
               RICIS связывает математическую структуру, evidence и открытые исследовательские задачи. Начните с маршрута, который соответствует вашему вопросу, а не с обязательной последовательности шагов.
             </p>
           </div>
-          <button
+          <ContentButton
             type="button"
             onClick={onBackToMap}
             className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg border border-cyan-800/80 bg-cyan-950/40 px-4 text-sm font-bold text-cyan-100 transition-colors hover:border-cyan-400 hover:bg-cyan-900/50"
           >
             <ArrowLeft size={16} /> Вернуться к карте
-          </button>
+          </ContentButton>
         </header>
 
         {contextNode && (
@@ -166,13 +170,13 @@ export function RoadmapPage({
                 <p className="font-semibold text-white">{contextNode.title}</p>
                 <p className="font-mono text-xs text-slate-400">{contextNode.id}</p>
               </div>
-              <button
+              <ContentButton
                 type="button"
                 onClick={useContextAsRoot}
                 className="min-h-10 rounded-lg border border-violet-700/80 bg-violet-950/45 px-3 text-xs font-bold text-violet-100 hover:border-violet-300"
               >
                 Использовать как корневую цель
-              </button>
+              </ContentButton>
             </div>
             {challengeMode && (
               <p className="mt-3 rounded-lg border border-amber-700/70 bg-amber-950/25 px-3 py-2 text-xs leading-relaxed text-amber-200">
@@ -197,13 +201,13 @@ export function RoadmapPage({
                 </div>
                 <p className="mt-4 rounded-lg border border-white/10 bg-black/25 p-3 text-xs leading-relaxed text-slate-300">{card.result}</p>
                 <p className="mt-3 text-xs text-slate-400">{card.example}</p>
-                <button
+                <ContentButton
                   type="button"
                   onClick={card.onClick}
                   className="mt-4 inline-flex min-h-10 items-center gap-2 rounded-lg border border-white/15 bg-black/35 px-3 text-xs font-bold text-white transition-colors hover:border-cyan-300 hover:bg-cyan-950/60"
                 >
                   {card.action} <ChevronRight size={14} />
-                </button>
+                </ContentButton>
               </article>
             );
           })}
@@ -241,20 +245,20 @@ export function RoadmapPage({
                   Ссылка запрашивает узел <span className="font-mono text-amber-100">{missingRootNodeId}</span>, которого нет в текущем каталоге. Фильтр не применён и данные карты не изменялись.
                 </p>
                 <div className="mt-3 flex flex-wrap gap-2">
-                  <button
+                  <ContentButton
                     type="button"
                     onClick={() => setRootNodeId(null)}
                     className="min-h-9 rounded border border-amber-500/70 bg-black/25 px-3 text-xs font-bold text-amber-50 hover:border-amber-200"
                   >
                     Выбрать существующий корень
-                  </button>
-                  <button
+                  </ContentButton>
+                  <ContentButton
                     type="button"
                     onClick={() => navigateToMap()}
                     className="min-h-9 rounded border border-slate-500/70 bg-black/25 px-3 text-xs font-bold text-slate-100 hover:border-slate-200"
                   >
                     Открыть полную карту
-                  </button>
+                  </ContentButton>
                 </div>
               </div>
             )}
@@ -283,13 +287,13 @@ export function RoadmapPage({
                           <h3 className="font-semibold text-slate-100">{task.title}</h3>
                           <p className="mt-1 text-xs text-slate-400">{task.description || 'Описание задачи пока не добавлено.'}</p>
                         </div>
-                        <button
+                        <ContentButton
                           type="button"
                           onClick={() => navigateToMap(task.id, 'challenge')}
                           className="min-h-9 shrink-0 rounded border border-violet-700/80 bg-violet-950/45 px-3 text-xs font-bold text-violet-100 hover:border-violet-300"
                         >
                           Открыть задачу
-                        </button>
+                        </ContentButton>
                       </div>
                       <p className="mt-3 break-words rounded bg-black/45 px-2.5 py-2 font-mono text-[11px] text-violet-200" title={path.map(node => node.id).join(' → ')}>
                         {getRootPathLabel(path)}
@@ -305,9 +309,9 @@ export function RoadmapPage({
         <section className="mt-7 border-t border-neutral-800 pt-5">
           <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-slate-500">Быстрые ссылки</p>
           <div className="mt-3 flex flex-wrap gap-2">
-            <button type="button" onClick={onBackToMap} className="inline-flex min-h-10 items-center gap-2 rounded-lg border border-neutral-700 bg-neutral-900/70 px-3 text-xs font-bold text-slate-200 hover:border-cyan-600"><Compass size={14} /> Карта</button>
-            <button type="button" onClick={openRootRoute} className="inline-flex min-h-10 items-center gap-2 rounded-lg border border-neutral-700 bg-neutral-900/70 px-3 text-xs font-bold text-slate-200 hover:border-violet-600"><ListTree size={14} /> Связанные задачи</button>
-            <a href="https://github.com/A1Dmitry/Ricis3-Expansion-Map#readme" target="_blank" rel="noopener noreferrer" className="inline-flex min-h-10 items-center gap-2 rounded-lg border border-neutral-700 bg-neutral-900/70 px-3 text-xs font-bold text-slate-200 hover:border-cyan-600"><BookOpen size={14} /> Методология</a>
+            <ContentButton type="button" onClick={onBackToMap} className="inline-flex min-h-10 items-center gap-2 rounded-lg border border-neutral-700 bg-neutral-900/70 px-3 text-xs font-bold text-slate-200 hover:border-cyan-600"><Compass size={14} /> Карта</ContentButton>
+            <ContentButton type="button" onClick={openRootRoute} className="inline-flex min-h-10 items-center gap-2 rounded-lg border border-neutral-700 bg-neutral-900/70 px-3 text-xs font-bold text-slate-200 hover:border-violet-600"><ListTree size={14} /> Связанные задачи</ContentButton>
+            <ContentLink href="https://github.com/A1Dmitry/Ricis3-Expansion-Map#readme" target="_blank" rel="noopener noreferrer" className="inline-flex min-h-10 items-center gap-2 rounded-lg border border-neutral-700 bg-neutral-900/70 px-3 text-xs font-bold text-slate-200 hover:border-cyan-600"><BookOpen size={14} /> Методология</ContentLink>
           </div>
         </section>
       </div>

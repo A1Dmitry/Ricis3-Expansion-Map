@@ -122,14 +122,14 @@ describe('COMMUNITY-READINESS-01 G3 — controlled readiness notice', () => {
 
   it('CR01-QA-26: copy button вызывает только injected onCopyInvitation', async () => {
     const rendered = await renderNotice(await future());
-    await act(async () => (rendered.container.querySelector('button:not([aria-label])') as HTMLButtonElement).click());
+    await act(async () => (Array.from(rendered.container.querySelectorAll('button')).find(button => /Копир|копир/.test(button.textContent || '')) as HTMLButtonElement).click());
     expect(rendered.onCopyInvitation).toHaveBeenCalledTimes(1);
     expect(rendered.onClose).not.toHaveBeenCalled();
   });
 
   it('CR01-QA-27: copy button obeys isCopyingInvitation', async () => {
     const rendered = await renderNotice(await future(), { isCopyingInvitation: true });
-    const copyButton = rendered.container.querySelector('button:not([aria-label])') as HTMLButtonElement;
+    const copyButton = Array.from(rendered.container.querySelectorAll('button')).find(button => /Копир|копир/.test(button.textContent || '')) as HTMLButtonElement;
     expect(copyButton.disabled).toBe(true);
     expect(copyButton.textContent).toContain('Копирование');
   });

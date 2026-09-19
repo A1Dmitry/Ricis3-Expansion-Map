@@ -1,3 +1,4 @@
+import { IconButton } from '../components/IconButton';
 // ============================================================================
 // INTERACTIVE 2D MAP (SVG) — равномерная раскладка + подсветка связей
 // При выборе узла подсвечиваются его связи: предпосылки (cyan, «зависит от»)
@@ -140,12 +141,28 @@ export function Map2DGraph({ nodes, zones, selectedNodeId, onSelectNode, proofs 
       className="relative rounded-xl border border-cyan-900/50 bg-[#050b14] overflow-hidden shadow-2xl"
       data-testid="map-2d-graph"
     >
+      <div className="flex flex-wrap items-center gap-2 border-b border-cyan-900/40 p-3">
+      {/* Selected node connection summary */}
+      {selectedNodeId && neighborhood && (
+        <div
+          className="min-w-0 flex-[1_1_14rem] rounded-lg border border-cyan-900/70 bg-black/80 px-3 py-2 backdrop-blur-md"
+          data-testid="m2d-selection-summary"
+        >
+          <p className="text-[11px] font-bold text-cyan-200 truncate" title={nodeTitle(selectedNodeId)}>
+            {nodeTitle(selectedNodeId)}
+          </p>
+          <p className="mt-0.5 text-[10px] text-slate-400">
+            предпосылок (до корня): <span className="text-cyan-300 font-mono">{neighborhood.upstream.size}</span>
+            {' · '}зависимых (всего): <span className="text-violet-300 font-mono">{neighborhood.downstream.size}</span>
+          </p>
+        </div>
+      )}
       {/* Control Bar */}
-      <div className="absolute top-3 right-3 z-10 flex items-center gap-1.5 rounded-lg border border-cyan-900/80 bg-black/80 p-1.5 backdrop-blur-md">
+      <div className="ml-auto flex shrink-0 items-center gap-1.5 rounded-lg border border-cyan-900/80 bg-black/80 p-1.5 backdrop-blur-md">
         <span className="hidden sm:inline-flex items-center gap-1 px-1.5 text-[10px] text-slate-500">
           <Move size={11} /> drag · Ctrl+колесо
         </span>
-        <button
+        <IconButton
           type="button"
           onClick={() => zoomBy(1.25)}
           className="min-h-7 min-w-7 rounded text-cyan-300 hover:bg-cyan-950 flex items-center justify-center"
@@ -153,8 +170,8 @@ export function Map2DGraph({ nodes, zones, selectedNodeId, onSelectNode, proofs 
           aria-label="Увеличить"
         >
           <ZoomIn size={14} />
-        </button>
-        <button
+        </IconButton>
+        <IconButton
           type="button"
           onClick={() => zoomBy(1 / 1.25)}
           className="min-h-7 min-w-7 rounded text-cyan-300 hover:bg-cyan-950 flex items-center justify-center"
@@ -162,8 +179,8 @@ export function Map2DGraph({ nodes, zones, selectedNodeId, onSelectNode, proofs 
           aria-label="Уменьшить"
         >
           <ZoomOut size={14} />
-        </button>
-        <button
+        </IconButton>
+        <IconButton
           type="button"
           onClick={resetView}
           className="min-h-7 min-w-7 rounded text-cyan-300 hover:bg-cyan-950 flex items-center justify-center"
@@ -171,7 +188,9 @@ export function Map2DGraph({ nodes, zones, selectedNodeId, onSelectNode, proofs 
           aria-label="Сбросить вид"
         >
           <RotateCcw size={14} />
-        </button>
+        </IconButton>
+      </div>
+
       </div>
 
       {/* Legend: semantics of connection highlighting */}
@@ -350,21 +369,7 @@ export function Map2DGraph({ nodes, zones, selectedNodeId, onSelectNode, proofs 
         </g>
       </svg>
 
-      {/* Selected node connection summary */}
-      {selectedNodeId && neighborhood && (
-        <div
-          className="absolute top-3 left-3 z-10 max-w-[320px] rounded-lg border border-cyan-900/70 bg-black/80 px-3 py-2 backdrop-blur-md"
-          data-testid="m2d-selection-summary"
-        >
-          <p className="text-[11px] font-bold text-cyan-200 truncate" title={nodeTitle(selectedNodeId)}>
-            {nodeTitle(selectedNodeId)}
-          </p>
-          <p className="mt-0.5 text-[10px] text-slate-400">
-            предпосылок (до корня): <span className="text-cyan-300 font-mono">{neighborhood.upstream.size}</span>
-            {' · '}зависимых (всего): <span className="text-violet-300 font-mono">{neighborhood.downstream.size}</span>
-          </p>
-        </div>
-      )}
+
     </div>
   );
 }

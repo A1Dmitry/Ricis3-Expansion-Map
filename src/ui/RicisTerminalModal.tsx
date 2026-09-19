@@ -1,19 +1,22 @@
+import { ContentButton } from './components/ContentButton';
+import { IconButton } from './components/IconButton';
+
 import React, { useState } from 'react';
 import { useTerminalStore } from '../store/useTerminalStore';
 import type { ProofReportMode } from '../model/terminal.types';
-import { 
-  Terminal as TerminalIcon, 
-  X, 
-  Trash2, 
-  Play, 
-  ChevronUp, 
-  Sparkles, 
-  FileText, 
-  Award, 
-  FileCode2, 
-  PlusCircle, 
-  Share2, 
-  Check 
+import {
+  Terminal as TerminalIcon,
+  X,
+  Trash2,
+  Play,
+  ChevronUp,
+  Sparkles,
+  FileText,
+  Award,
+  FileCode2,
+  PlusCircle,
+  Share2,
+  Check
 } from 'lucide-react';
 import { PlainTerminalLogViewer } from './PlainTerminalLogViewer';
 import { TheoremReportViewer } from './TheoremReportViewer';
@@ -85,18 +88,18 @@ const REPORT_TABS: { id: ProofReportMode; label: string; icon: any }[] = [
 
 export function RicisTerminalModal() {
   const { t } = useI18nStore();
-  const { 
-    isOpen, 
-    toggleTerminal, 
-    activeReportMode, 
-    setReportMode, 
-    currentInput, 
-    setInput, 
-    evaluateExpression, 
-    isEvaluating, 
-    history, 
-    clearHistory, 
-    loadFromHistory 
+  const {
+    isOpen,
+    toggleTerminal,
+    activeReportMode,
+    setReportMode,
+    currentInput,
+    setInput,
+    evaluateExpression,
+    isEvaluating,
+    history,
+    clearHistory,
+    loadFromHistory
   } = useTerminalStore();
 
   const [prefillDataForMap, setPrefillDataForMap] = useState<AddNodePrefillData | null>(null);
@@ -150,7 +153,7 @@ export function RicisTerminalModal() {
     const formula = entry.expression;
     const invariant = entry.result?.finalInvariant || entry.formalProof?.conclusionInvariant || t('terminal.unknownInvariant');
     const title = t('terminal.mapTitle', { value: formula });
-    
+
     let description = `${t('terminal.mapDescription', { value: formula })}\n`;
     if (entry.formalProof) {
       description += `${t('terminal.hypothesis', { value: entry.formalProof.hypothesis })}\n`;
@@ -177,7 +180,7 @@ export function RicisTerminalModal() {
       {isOpen && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 backdrop-blur-sm p-4" {...terminalSwipeHandlers}>
           <div className="w-full max-w-4xl bg-slate-900 border border-cyan-900/40 rounded-xl shadow-[0_0_50px_rgba(0,0,0,0.5)] flex flex-col max-h-[85vh] overflow-hidden">
-            
+
             {/* Top Bar */}
             <div className="flex items-center justify-between px-4 py-2.5 border-b border-neutral-800 bg-[#0d1117]">
               <div className="flex items-center gap-2 text-cyan-400">
@@ -186,9 +189,9 @@ export function RicisTerminalModal() {
                   {t('sandbox.title')}
                 </h2>
               </div>
-              
+
               <div className="flex items-center gap-2">
-                <button
+                <ContentButton
                   type="button"
                   onClick={() => handleShareSandbox()}
                   className="flex items-center gap-1 px-2.5 py-1 rounded bg-neutral-900 hover:bg-neutral-800 border border-neutral-700 text-xs font-mono text-cyan-300 hover:text-white transition-colors cursor-pointer"
@@ -205,26 +208,26 @@ export function RicisTerminalModal() {
                       <span>{t('header.share')}</span>
                     </>
                   )}
-                </button>
+                </ContentButton>
 
                 {history.length > 0 && (
-                  <button 
+                  <IconButton
                     type="button"
                     onClick={clearHistory}
                     className="p-1.5 text-slate-400 hover:text-red-400 hover:bg-red-950/30 rounded transition-colors cursor-pointer"
                     title={t('sandbox.clearHistory')}
                   >
                     <Trash2 size={16} />
-                  </button>
+                  </IconButton>
                 )}
-                <button 
+                <IconButton
                   type="button"
                   onClick={() => toggleTerminal(false)}
                   className="p-1.5 text-slate-400 hover:text-white hover:bg-slate-800 rounded transition-colors cursor-pointer"
                   title={t('terminal.close')}
                 >
                   <X size={18} />
-                </button>
+                </IconButton>
               </div>
             </div>
 
@@ -239,7 +242,7 @@ export function RicisTerminalModal() {
                   const Icon = tab.icon;
                   const isActive = activeReportMode === tab.id;
                   return (
-                    <button
+                    <ContentButton
                       key={tab.id}
                       type="button"
                       onClick={() => setReportMode(tab.id)}
@@ -251,7 +254,7 @@ export function RicisTerminalModal() {
                     >
                       <Icon size={13} />
                       <span>{tab.label}</span>
-                    </button>
+                    </ContentButton>
                   );
                 })}
               </div>
@@ -269,7 +272,7 @@ export function RicisTerminalModal() {
               </div>
               <div className="flex items-center gap-2 shrink-0">
                 {SANDBOX_PRESETS.map((preset) => (
-                  <button
+                  <ContentButton
                     key={preset.id}
                     type="button"
                     onClick={() => handleSelectPreset(preset.expression)}
@@ -278,7 +281,7 @@ export function RicisTerminalModal() {
                   >
                     <span className="text-cyan-300 font-bold">[{preset.badge}]</span>
                     <span className="text-slate-100 font-medium">{preset.expression}</span>
-                  </button>
+                  </ContentButton>
                 ))}
               </div>
             </div>
@@ -301,11 +304,11 @@ export function RicisTerminalModal() {
                           {entry.expression}
                         </span>
                       </div>
-                      
+
                       <div className="flex items-center gap-2">
                         {/* Кнопка Добавить на карту */}
                         {(entry.result || entry.formalProof) && (
-                          <button
+                          <ContentButton
                             type="button"
                             onClick={() => handleSendToMap(entry)}
                             className="flex items-center gap-1.5 px-2.5 py-1 rounded bg-emerald-950/90 hover:bg-emerald-900 border border-emerald-700 text-xs font-sans text-emerald-200 hover:text-white transition-all cursor-pointer shadow-sm"
@@ -313,20 +316,20 @@ export function RicisTerminalModal() {
                           >
                             <PlusCircle size={13} className="text-emerald-400" />
                             <span>{t('sandbox.addToMap')}</span>
-                          </button>
+                          </ContentButton>
                         )}
 
-                        <button 
+                        <IconButton
                           type="button"
                           onClick={() => loadFromHistory(entry.expression)}
                           className="opacity-0 group-hover:opacity-100 p-1 text-slate-400 hover:text-cyan-300 transition-all cursor-pointer"
                           title={t('terminal.loadTitle')}
                         >
                           <ChevronUp size={14} />
-                        </button>
+                        </IconButton>
                       </div>
                     </div>
-                    
+
                     {entry.error ? (
                       <div className="ml-4 p-3 bg-red-950/30 border border-red-800/50 rounded-lg text-red-300 font-mono text-xs font-medium">
                         {t('terminal.error')}: {entry.error}
@@ -342,9 +345,9 @@ export function RicisTerminalModal() {
                         )}
 
                         {activeReportMode === 'lean4' && (
-                          <Lean4ReportViewer 
-                            lean4Code={entry.formalProof?.lean4CodeSnippet} 
-                            claim={entry.expression} 
+                          <Lean4ReportViewer
+                            lean4Code={entry.formalProof?.lean4CodeSnippet}
+                            claim={entry.expression}
                           />
                         )}
 
@@ -374,7 +377,7 @@ export function RicisTerminalModal() {
                   spellCheck="false"
                   disabled={isEvaluating}
                 />
-                <button
+                <ContentButton
                   type="button"
                   onClick={evaluateExpression}
                   disabled={!currentInput.trim() || isEvaluating}
@@ -386,7 +389,7 @@ export function RicisTerminalModal() {
                   ) : (
                     <Play size={15} className="ml-0.5" />
                   )}
-                </button>
+                </ContentButton>
               </div>
             </div>
 

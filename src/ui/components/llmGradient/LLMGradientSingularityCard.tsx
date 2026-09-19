@@ -1,3 +1,6 @@
+import { ContentButton } from '../ContentButton';
+import { IconButton } from '../IconButton';
+
 // ============================================================================
 // RICIS-III LLM GRADIENT SINGULARITY INSPECTOR CARD
 // MVVM, Clean Architecture, SOLID, DRY, Axiom A6 Geometric Bridge
@@ -142,7 +145,7 @@ export const LLMGradientSingularityCard: React.FC<ILLMGradientSingularityCardPro
       {/* Preset Buttons */}
       <div className="flex items-center gap-2">
         <span className="text-xs text-slate-400 font-medium">Пресеты сценариев:</span>
-        <button
+        <ContentButton
           type="button"
           onClick={() => applyPreset('nominal')}
           className={`px-3 py-1 rounded text-xs font-medium transition-colors ${
@@ -152,8 +155,8 @@ export const LLMGradientSingularityCard: React.FC<ILLMGradientSingularityCardPro
           }`}
         >
           Номинальный шаг (η=0.001)
-        </button>
-        <button
+        </ContentButton>
+        <ContentButton
           type="button"
           onClick={() => applyPreset('spike')}
           className={`px-3 py-1 rounded text-xs font-medium transition-colors ${
@@ -163,8 +166,8 @@ export const LLMGradientSingularityCard: React.FC<ILLMGradientSingularityCardPro
           }`}
         >
           Loss Spike (Всплеск градиента)
-        </button>
-        <button
+        </ContentButton>
+        <ContentButton
           type="button"
           onClick={() => applyPreset('singular')}
           className={`px-3 py-1 rounded text-xs font-medium transition-colors ${
@@ -174,7 +177,7 @@ export const LLMGradientSingularityCard: React.FC<ILLMGradientSingularityCardPro
           }`}
         >
           Сингулярность (0_η × ∞_∇L)
-        </button>
+        </ContentButton>
       </div>
 
       {/* Controls */}
@@ -304,19 +307,19 @@ export const LLMGradientSingularityCard: React.FC<ILLMGradientSingularityCardPro
       <div className="flex flex-col gap-2">
         <div className="flex flex-wrap items-center justify-between gap-2">
           <div className="flex items-center gap-1.5">
-            <button
+            <ContentButton
               type="button"
               onClick={() => setShowDocument(!showDocument)}
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs font-medium text-slate-300 border border-slate-700 transition-colors"
             >
               <Code2 className="w-3.5 h-3.5 text-cyan-400" />
               <span>{showDocument ? 'Скрыть документ трассировки' : 'Показать документ трассировки (ILog)'}</span>
-            </button>
+            </ContentButton>
           </div>
 
           {showDocument && (
             <div className="flex items-center gap-1 bg-slate-950 p-1 rounded-lg border border-slate-800 text-xs">
-              <button
+              <ContentButton
                 type="button"
                 onClick={() => setDocumentFormat('lean')}
                 className={`px-2 py-0.8 rounded text-[11px] font-mono flex items-center gap-1 transition-colors ${
@@ -327,8 +330,8 @@ export const LLMGradientSingularityCard: React.FC<ILLMGradientSingularityCardPro
               >
                 <Code2 className="w-3 h-3" />
                 Lean 4
-              </button>
-              <button
+              </ContentButton>
+              <ContentButton
                 type="button"
                 onClick={() => setDocumentFormat('latex')}
                 className={`px-2 py-0.8 rounded text-[11px] font-mono flex items-center gap-1 transition-colors ${
@@ -339,8 +342,8 @@ export const LLMGradientSingularityCard: React.FC<ILLMGradientSingularityCardPro
               >
                 <FileText className="w-3 h-3" />
                 LaTeX
-              </button>
-              <button
+              </ContentButton>
+              <ContentButton
                 type="button"
                 onClick={() => setDocumentFormat('json')}
                 className={`px-2 py-0.8 rounded text-[11px] font-mono flex items-center gap-1 transition-colors ${
@@ -351,8 +354,8 @@ export const LLMGradientSingularityCard: React.FC<ILLMGradientSingularityCardPro
               >
                 <Braces className="w-3 h-3" />
                 JSON
-              </button>
-              <button
+              </ContentButton>
+              <ContentButton
                 type="button"
                 onClick={() => setDocumentFormat('text')}
                 className={`px-2 py-0.8 rounded text-[11px] font-mono flex items-center gap-1 transition-colors ${
@@ -363,19 +366,19 @@ export const LLMGradientSingularityCard: React.FC<ILLMGradientSingularityCardPro
               >
                 <FileCode className="w-3 h-3" />
                 Text
-              </button>
+              </ContentButton>
             </div>
           )}
 
           {onProofGenerated && (
-            <button
+            <ContentButton
               type="button"
               onClick={() => onProofGenerated(generatedLeanProof)}
               className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-purple-600 hover:bg-purple-500 text-xs font-medium text-white transition-colors"
             >
               <span>Экспорт в Lean4ReportViewer</span>
               <ArrowRight className="w-3 h-3" />
-            </button>
+            </ContentButton>
           )}
         </div>
 

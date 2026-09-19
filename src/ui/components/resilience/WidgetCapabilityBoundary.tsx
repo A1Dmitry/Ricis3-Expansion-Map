@@ -1,3 +1,5 @@
+import { ContentButton } from '../ContentButton';
+import { IconButton } from '../IconButton';
 // ============================================================================
 // UNIVERSAL WIDGET CAPABILITY & RESILIENCE BOUNDARY COMPONENT (SOLID / DRY)
 // Author: Dmitry V. Aleinikov (ORCID: 0009-0004-3226-7700)
@@ -110,13 +112,13 @@ export class WidgetCapabilityBoundary extends Component<
           <p className="text-[11px] text-slate-400 max-w-sm mb-3 font-sans">
             Произошла изолированная ошибка при отображении виджета. Остальные разделы системы функционируют в штатном режиме.
           </p>
-          <button
+          <ContentButton
             onClick={this.handleReset}
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition-colors shadow-sm"
           >
             <RefreshCw className="w-3.5 h-3.5" />
             <span>Повторить попытку</span>
-          </button>
+          </ContentButton>
         </div>
       );
     }

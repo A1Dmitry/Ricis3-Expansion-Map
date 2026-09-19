@@ -1,5 +1,7 @@
+import { ContentButton } from './components/ContentButton';
+import { IconButton } from './components/IconButton';
 import React, { useState } from 'react';
-import { IExecutionTraceViewerProps, ITransformationLogDTO } from '../model/traceVisualizer.types';
+import { IExecutionTraceViewerProps } from '../model/traceVisualizer.types';
 import { LatexRenderer } from './LatexRenderer';
 import { Terminal, CheckCircle2, ChevronRight, Play, ChevronDown, ChevronUp } from 'lucide-react';
 
@@ -22,13 +24,13 @@ export function ExecutionTraceViewer({ nodeId, logData, isLoading, onRerunTrace,
       <div className={`p-4 bg-neutral-900/60 rounded-lg border border-neutral-800 flex flex-col items-center justify-center min-h-[150px] gap-3 ${className}`}>
         <span className="text-xs text-neutral-500 font-mono">Трейс исполнения недоступен</span>
         {onRerunTrace && (
-          <button 
+          <ContentButton
             onClick={onRerunTrace}
             className="flex items-center gap-1.5 px-3 py-1.5 bg-cyan-950/50 hover:bg-cyan-900/50 text-cyan-400 border border-cyan-800/50 rounded text-[10px] uppercase tracking-wider font-bold transition-colors"
           >
             <Play size={12} />
             Запустить EvalRICIS
-          </button>
+          </ContentButton>
         )}
       </div>
     );
@@ -36,9 +38,8 @@ export function ExecutionTraceViewer({ nodeId, logData, isLoading, onRerunTrace,
 
   return (
     <div className={`flex flex-col gap-2 ${className}`}>
-      <div 
+      <div
         className="flex items-center justify-between mb-2 cursor-pointer hover:bg-neutral-900/40 p-1 -m-1 rounded transition-colors"
-        onClick={() => setIsExpanded(!isExpanded)}
       >
         <h4 className="text-[10px] font-bold uppercase tracking-wider text-cyan-500 flex items-center gap-1.5">
           <Terminal size={12} />
@@ -51,7 +52,7 @@ export function ExecutionTraceViewer({ nodeId, logData, isLoading, onRerunTrace,
             </span>
           )}
           {onRerunTrace && (
-            <button 
+            <IconButton
               onClick={(e) => {
                 e.stopPropagation();
                 onRerunTrace();
@@ -60,9 +61,11 @@ export function ExecutionTraceViewer({ nodeId, logData, isLoading, onRerunTrace,
               title="Перезапустить"
             >
               <Play size={12} />
-            </button>
+            </IconButton>
           )}
-          {isExpanded ? <ChevronUp size={14} className="text-neutral-500" /> : <ChevronDown size={14} className="text-neutral-500" />}
+          <ContentButton onClick={() => setIsExpanded(!isExpanded)} aria-expanded={isExpanded} aria-label="Trace">
+            {isExpanded ? <ChevronUp size={14} className="text-neutral-500" /> : <ChevronDown size={14} className="text-neutral-500" />}
+          </ContentButton>
         </div>
       </div>
 
@@ -86,7 +89,7 @@ export function ExecutionTraceViewer({ nodeId, logData, isLoading, onRerunTrace,
                 <span className="text-neutral-600">[{step.complexity}]</span>
               </div>
             </div>
-            
+
             <div className="flex items-center gap-2 mt-1">
               <div className="flex-1 bg-neutral-900/50 p-1.5 rounded overflow-x-auto">
                 <LatexRenderer content={step.inputState ? `$$${step.inputState}$$` : '—'} className="text-neutral-400 text-[10px]" />

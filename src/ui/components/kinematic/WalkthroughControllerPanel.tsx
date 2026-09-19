@@ -1,3 +1,5 @@
+import { ContentButton } from '../ContentButton';
+import { IconButton } from '../IconButton';
 // ============================================================================
 // SCRIPTED WALKTHROUGH CONTROLLER COMPONENT
 // ============================================================================
@@ -61,7 +63,7 @@ export const WalkthroughControllerPanel: React.FC<Props> = ({
       {/* Control Buttons */}
       <div className="flex items-center justify-between pt-1">
         <div className="flex items-center gap-2">
-          <button
+          <ContentButton
             onClick={onTogglePlay}
             className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-medium text-xs transition-colors shadow-md ${
               isPlaying
@@ -71,36 +73,36 @@ export const WalkthroughControllerPanel: React.FC<Props> = ({
           >
             {isPlaying ? <Pause className="w-3.5 h-3.5" /> : <Play className="w-3.5 h-3.5" />}
             {isPlaying ? 'Pause Auto-Play' : 'Auto-Play Walkthrough'}
-          </button>
+          </ContentButton>
 
-          <button
+          <ContentButton
             onClick={onReset}
             className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs bg-slate-800 hover:bg-slate-700 text-slate-300 transition-colors"
             title="Reset to beginning"
           >
             <RotateCcw className="w-3.5 h-3.5" />
             Reset
-          </button>
+          </ContentButton>
         </div>
 
         <div className="flex items-center gap-1">
-          <button
+          <IconButton
             disabled={currentStepIndex === 0}
             onClick={() => onStepChange(Math.max(0, currentStepIndex - 1))}
             className="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 disabled:opacity-40 disabled:hover:bg-slate-800 text-slate-300 transition-colors"
             title="Previous Step"
           >
             <ChevronLeft className="w-4 h-4" />
-          </button>
+          </IconButton>
 
-          <button
+          <IconButton
             disabled={currentStepIndex === totalSteps - 1}
             onClick={() => onStepChange(Math.min(totalSteps - 1, currentStepIndex + 1))}
             className="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 disabled:opacity-40 disabled:hover:bg-slate-800 text-slate-300 transition-colors"
             title="Next Step"
           >
             <ChevronRight className="w-4 h-4" />
-          </button>
+          </IconButton>
         </div>
       </div>
     </div>

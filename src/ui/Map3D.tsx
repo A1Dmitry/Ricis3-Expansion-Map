@@ -1,7 +1,11 @@
+import { ContentButton, SelectionCard } from './components/ContentButton';
+import { Target as ActionIconTarget, Plus as ActionIconPlus, Calculator as ActionIconCalculator, BookOpen as ActionIconBookOpen, Save as ActionIconSave, Upload as ActionIconUpload, Download as ActionIconDownload, RotateCcw as ActionIconRotateCcw, Route as ActionIconRoute, FileCode as ActionIconFileCode, Braces as ActionIconBraces } from 'lucide-react';
+import { IconButton } from './components/IconButton';
+import { Minus as ButtonIconMinus, Plus as ButtonIconPlus, X as ButtonIconX } from 'lucide-react';
 import React, { useState, useMemo, useEffect, useRef, useCallback } from 'react';
 import type { ProblemNode } from '../model/types';
 import { getNodeIdentityPresentation } from '../model/nodeIdentityPresentation';
-import type { UIElement } from '../domain/ui/uiElement.types';
+
 import { SETTINGS_ADAPTIVE_UI_CONFIG, SETTINGS_PANEL_ELEMENTS } from '../domain/ui/settingsElements';
 import { useDisabledPanelIds } from '../hooks/useDisabledPanelIds';
 import { AddNodeModal } from './AddNodeModal';
@@ -51,14 +55,7 @@ import { VoynichDecryptionPanel } from './VoynichDecryptionPanel';
 import { MapPatchImportModal } from './MapPatchImportModal';
 import { AutomatedTestingModal } from './components/testing/AutomatedTestingModal';
 import { AutoProverModal } from './AutoProverModal';
-import {
-  isNodeAvailable,
-  findPathToRicis,
-  getUnlockRequirements,
-  getUnlockedTargets,
-  countAvailable,
-  isRicisCore,
-} from '../model/access';
+import { isNodeAvailable, findPathToRicis, getUnlockRequirements, countAvailable, isRicisCore } from '../model/access';
 import { layoutZones, layoutNodes, zoneVisualRadius, nodeVisualRadius, type PhysicsParams, DEFAULT_PHYSICS_PARAMS } from '../model/physics';
 import { physicsStorageService } from '../services/physicsStorage';
 import { filterStorageService } from '../services/filterStorage';
@@ -68,13 +65,7 @@ import { AuditPanel } from './AuditPanel';
 import { NodeCardDetails } from './NodeCardDetails';
 import { CalculatorExplorer } from './CalculatorExplorer';
 import { MonolithGuidedCaseTrail } from './MonolithGuidedCaseTrail';
-import {
-  graphColorManager,
-  EdgeStateCode,
-  NodeResolutionStatusCode,
-  GraphColorStateManager,
-  NODE_PROJECTIONS,
-} from '../model/colorMatrix';
+import { graphColorManager, NodeResolutionStatusCode, GraphColorStateManager, NODE_PROJECTIONS } from '../model/colorMatrix';
 import { buildCalculatorExplorerProjection, getCalculatorExplorerEntryForNodeId } from '../calculatorExplorer/calculatorExplorer.domain';
 import { buildMonolithGuidedCaseTrail } from '../monolithGuidedCaseTrail/monolithGuidedCaseTrail.domain';
 import { EditNodeModal } from './EditNodeModal';
@@ -141,36 +132,6 @@ function getZoneColor(id: string) {
   for (let i = 0; i < id.length; i++) hash = id.charCodeAt(i) + ((hash << 5) - hash);
   const c = (hash & 0x00FFFFFF).toString(16).toUpperCase();
   return '#' + '00000'.substring(0, 6 - c.length) + c;
-}
-
-/**
- * BUG-12: accessible dismiss control for chips inside accordion-header buttons.
- * A raw <span onClick> is invisible to keyboard and screen readers; this control
- * exposes role="button", focus, an aria-label and Enter/Space activation while
- * stopping propagation so the parent accordion header is not toggled.
- */
-function ChipDismissControl({ ariaLabel, onDismiss, className = '' }: {
-  ariaLabel: string;
-  onDismiss: () => void;
-  className?: string;
-}) {
-  const activate = (e: React.MouseEvent | React.KeyboardEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    onDismiss();
-  };
-  return (
-    <span
-      role="button"
-      tabIndex={0}
-      aria-label={ariaLabel}
-      onClick={activate}
-      onKeyDown={e => {
-        if (e.key === 'Enter' || e.key === ' ') activate(e);
-      }}
-      className={`text-slate-400 hover:text-rose-400 font-bold cursor-pointer ${className}`}
-    >✕</span>
-  );
 }
 
 const zoneColors: Record<string, string> = {
@@ -284,7 +245,7 @@ function OrbitControls({
     const handleWheel = (e: WheelEvent) => {
       cancelFlightForManualInteraction();
       const factor = Math.min(1.0, Math.abs(e.deltaY) * 0.002);
-      
+
       if (e.deltaY < 0 && hoveredNodePos) {
         const panVec = hoveredNodePos.clone().sub(controls.target).multiplyScalar(factor);
         controls.target.add(panVec);
@@ -440,7 +401,7 @@ export const Map3D: React.FC = () => {
   const [hiddenZones, setHiddenZones] = useState<Set<string>>(() => {
     return new Set(initialSavedFilters?.hiddenZones || []);
   });
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [taskMenuContainer, setTaskMenuContainer] = useState<HTMLDivElement | null>(null);
 
   // The redesigned mobile shell is scene-first. The semantic list remains an
   // explicit, accessible alternative in the map quick control and on WebGL failure.
@@ -1021,7 +982,7 @@ export const Map3D: React.FC = () => {
 
     setIsSolving(true);
     setSolveLogs(['Инициализация агента RICIS-III...']);
-    
+
     setTimeout(() => setSolveLogs(l => [...l, 'Сборка контекста и аксиом из стека связей...']), 500);
     setTimeout(() => setSolveLogs(l => [...l, 'Отправка запроса на /api/generateProof...']), 1500);
     setTimeout(() => setSolveLogs(l => [...l, 'Синтез доказательства и применение SP1-SP4...']), 3000);
@@ -1358,7 +1319,7 @@ export const Map3D: React.FC = () => {
 
       let color = edgeProjection.hexColor;
       let opacity = edgeProjection.opacity;
-      
+
       // Apply global physics parameter modifier to edge opacity
       opacity *= (physicsParams.edgeOpacity ?? 0.5);
 
@@ -1533,6 +1494,52 @@ export const Map3D: React.FC = () => {
     </>
   );
 
+  const taskMenuFooter = (closeMenu: () => void) => (
+    <div className="border-t border-cyan-800/50 p-3 flex flex-col gap-3">
+      <div className="space-y-1.5">
+        <p className="text-[9px] font-bold uppercase text-cyan-500/80 tracking-wider">Действия</p>
+        <ActionButton presentation="menu" fallbackIcon={ActionIconRoute}
+          onClick={() => { handleFindPathToRicis(); closeMenu(); }}
+          variant="cyan"
+          className="w-full text-left"
+        >
+          Вычислить путь к ядру
+        </ActionButton>
+      </div>
+
+      <div className="space-y-1.5 border-t border-cyan-900/30 pt-2">
+        <p className="text-[9px] font-bold uppercase text-amber-500/80 tracking-wider">Генерация TEX</p>
+        <label className="flex items-start gap-2 text-[10px] text-gray-300 cursor-pointer px-1">
+          <input type="radio" name="texMode" checked={texMode === 'ricis_pure'} onChange={() => setTexMode('ricis_pure')} className="mt-0.5" />
+          <span><span className="text-cyan-400 font-semibold">RICIS-pure</span> — без пределов</span>
+        </label>
+        <label className="flex items-start gap-2 text-[10px] text-gray-300 cursor-pointer px-1">
+          <input type="radio" name="texMode" checked={texMode === 'classical_bridges'} onChange={() => setTexMode('classical_bridges')} className="mt-0.5" />
+          <span><span className="text-amber-400 font-semibold">Classical bridges</span></span>
+        </label>
+        <ActionButton presentation="menu" fallbackIcon={ActionIconFileCode}
+          onClick={() => { handleGenerateTex(); closeMenu(); }}
+          variant="amber"
+        >
+          Генерировать TEX
+        </ActionButton>
+      </div>
+
+      <div className="space-y-1.5 border-t border-cyan-900/30 pt-2">
+        <p className="text-[9px] font-bold uppercase text-purple-500/80 tracking-wider">Экспорт для ИИ</p>
+        <ActionButton presentation="menu" fallbackIcon={ActionIconBraces}
+          onClick={() => { handleGenerateJSON(); closeMenu(); }}
+          variant="violet"
+          className="w-full mt-1"
+        >
+          {showOnlyDerivatives ? 'JSON: только фиолетовые' : 'Генерировать JSON'}
+        </ActionButton>
+        {jsonMsg && <p className="text-[9px] text-purple-300/90 font-mono break-all mt-1">{jsonMsg}</p>}
+      </div>
+    </div>
+  );
+
+
   const renderMobileShell = () => {
     const selectedNodeTitle = selectedNodePresentation?.title ?? t('map.nodeCard');
     const mobileFocusNode = selectedNodePresentation ?? map.nodes.find(node => isNodeAvailable(node, map)) ?? map.nodes[0];
@@ -1544,14 +1551,14 @@ export const Map3D: React.FC = () => {
           <header className="min-h-14 shrink-0 border-b border-cyan-900/40 bg-[#080808] px-3 py-2 flex items-center justify-between gap-2" data-testid="mobile-map-header">
             <div className="flex min-w-0 items-center gap-2">
               {mobileView !== 'map' ? (
-                <button
+                <IconButton
                   type="button"
                   onClick={handleNavigateBack}
                   className="min-h-10 min-w-10 inline-flex items-center justify-center rounded-md border border-cyan-900/60 bg-cyan-950/30 text-cyan-300"
                   aria-label="Назад"
                 >
                   <ArrowLeft size={18} />
-                </button>
+                </IconButton>
               ) : (
                 <div className="w-2.5 h-2.5 shrink-0 bg-cyan-400 rounded-full animate-pulse shadow-[0_0_12px_#22d3ee]" />
               )}
@@ -1568,14 +1575,14 @@ export const Map3D: React.FC = () => {
                 CORE
               </span>
               <LanguageToggle />
-              <button
+              <ContentButton
                 type="button"
                 onClick={() => (mobileView === 'menu' ? handleNavigateBack() : openMobileView('menu'))}
                 className="min-h-10 min-w-10 inline-flex items-center justify-center rounded-md border border-cyan-800/70 bg-cyan-950/60 text-cyan-100"
                 aria-label={mobileView === 'menu' ? 'Вернуться к карте' : 'Открыть меню'}
               >
                 {mobileView === 'menu' ? <MapIcon size={17} /> : <Menu size={18} />}
-              </button>
+              </ContentButton>
             </div>
           </header>
         )}
@@ -1591,10 +1598,12 @@ export const Map3D: React.FC = () => {
               {renderMapScene()}
               <div className="mobile-map-layout__quickbar pointer-events-none absolute inset-x-3 bottom-3 z-20 flex items-center justify-between gap-2">
                 <div className="pointer-events-auto flex items-center gap-1.5 rounded-xl border border-cyan-900/60 bg-black/70 p-1.5 shadow-xl backdrop-blur-sm">
-                  <button type="button" onClick={handleZoomOut} className="min-h-10 min-w-10 rounded-lg text-cyan-200 hover:bg-cyan-950/70" aria-label="Уменьшить масштаб">−</button>
-                  <button type="button" onClick={handleResetCamera} className="min-h-10 min-w-10 rounded-lg text-cyan-200 hover:bg-cyan-950/70" aria-label="Сбросить вид"><Crosshair size={16} /></button>
-                  <button type="button" onClick={handleZoomIn} className="min-h-10 min-w-10 rounded-lg text-cyan-200 hover:bg-cyan-950/70" aria-label="Увеличить масштаб">+</button>
-                  <button
+                  {mapPresentationMode === 'three_dimensional' && (<>
+                  <IconButton fallbackIcon={ButtonIconMinus} type="button" onClick={handleZoomOut} className="min-h-10 min-w-10 rounded-lg text-cyan-200 hover:bg-cyan-950/70" aria-label="Уменьшить масштаб">−</IconButton>
+                  <IconButton type="button" onClick={handleResetCamera} className="min-h-10 min-w-10 rounded-lg text-cyan-200 hover:bg-cyan-950/70" aria-label="Сбросить вид"><Crosshair size={16} /></IconButton>
+                  <IconButton fallbackIcon={ButtonIconPlus} type="button" onClick={handleZoomIn} className="min-h-10 min-w-10 rounded-lg text-cyan-200 hover:bg-cyan-950/70" aria-label="Увеличить масштаб">+</IconButton>
+                  </>)}
+                  <IconButton
                     type="button"
                     onClick={() => setShowStatusLegend(true)}
                     className="min-h-10 min-w-10 rounded-lg text-cyan-200 hover:bg-cyan-950/70 flex items-center justify-center"
@@ -1602,10 +1611,10 @@ export const Map3D: React.FC = () => {
                     title="Палитра статусов RICIS-III"
                   >
                     <Palette size={16} />
-                  </button>
+                  </IconButton>
                 </div>
                 <div className="pointer-events-auto flex items-center gap-1.5 rounded-xl border border-cyan-900/60 bg-black/70 p-1.5 shadow-xl backdrop-blur-sm">
-                  <button
+                  <IconButton
                     type="button"
                     onClick={() => void toggleSensorMode()}
                     className={`min-h-10 min-w-10 rounded-lg inline-flex items-center justify-center ${sensorModeEnabled ? 'bg-emerald-900/70 text-emerald-200' : 'text-cyan-200 hover:bg-cyan-950/70'}`}
@@ -1613,25 +1622,25 @@ export const Map3D: React.FC = () => {
                     aria-label={sensorModeEnabled ? 'Отключить управление наклоном' : 'Включить управление наклоном'}
                   >
                     <Compass size={16} />
-                  </button>
-                  <button
+                  </IconButton>
+                  <IconButton
                     type="button"
                     onClick={() => void toggleImmersiveCanvas(sceneContainerRef.current)}
                     className="min-h-10 min-w-10 rounded-lg inline-flex items-center justify-center text-cyan-200 hover:bg-cyan-950/70"
                     aria-label={isImmersive ? 'Выйти из полноэкранного режима' : 'Развернуть 3D на полный экран'}
                   >
                     {isImmersive ? <Minimize2 size={16} /> : <Maximize2 size={16} />}
-                  </button>
+                  </IconButton>
                 </div>
               </div>
               {isImmersive && (
-                <button
+                <ContentButton
                   type="button"
                   onClick={() => void exitImmersiveCanvas()}
                   className="absolute left-3 top-3 z-30 min-h-11 rounded-lg border border-cyan-700/70 bg-black/70 px-3 text-xs font-bold text-cyan-200 backdrop-blur-sm"
                 >
                   Выйти
-                </button>
+                </ContentButton>
               )}
               {!isImmersive && mapPresentationMode === 'three_dimensional' && (
                 <p className="pointer-events-none absolute left-3 top-3 z-20 rounded-md border border-cyan-950/80 bg-black/55 px-2 py-1 text-[9px] font-mono text-cyan-200/80">
@@ -1647,7 +1656,7 @@ export const Map3D: React.FC = () => {
                     <p className="text-[10px] font-bold uppercase tracking-wider text-cyan-300">Карта</p>
                     <p className="text-[10px] text-slate-500">{map.nodes.length} узлов · {availability.available} доступны</p>
                   </div>
-                  <button
+                  <ContentButton
                     type="button"
                     onClick={() => {
                       if (mapPresentationMode === 'three_dimensional') {
@@ -1663,7 +1672,7 @@ export const Map3D: React.FC = () => {
                   >
                     {mapPresentationMode === 'three_dimensional' ? <List size={14} /> : <MapIcon size={14} />}
                     {mapPresentationMode === 'three_dimensional' ? 'Список' : '3D'}
-                  </button>
+                  </ContentButton>
                 </div>
                 {sensorNotice && (
                   <p className={`mb-3 rounded-lg border px-3 py-2 text-[10px] leading-relaxed ${sensorModeEnabled ? 'border-emerald-900/60 bg-emerald-950/30 text-emerald-200' : 'border-cyan-900/60 bg-cyan-950/30 text-cyan-200'}`}>
@@ -1671,7 +1680,7 @@ export const Map3D: React.FC = () => {
                   </p>
                 )}
                 {mobileFocusNode && (
-                  <button
+                  <ContentButton
                     type="button"
                     onClick={() => handleNavigateToNode(mobileFocusNode.id)}
                     className="mobile-map-focus-card mb-2 min-h-13 w-full rounded-lg border border-cyan-800/80 bg-cyan-950/35 px-3 text-left text-cyan-100 flex items-center gap-3"
@@ -1683,15 +1692,15 @@ export const Map3D: React.FC = () => {
                       <span className="block truncate text-xs font-bold">{mobileFocusNode.title}</span>
                     </span>
                     <ChevronRight size={17} className="shrink-0 text-cyan-300" />
-                  </button>
+                  </ContentButton>
                 )}
-                <button
+                <ContentButton
                   type="button"
                   onClick={() => openMobileView('menu')}
                   className="min-h-12 w-full rounded-lg border border-cyan-800/80 bg-cyan-950/50 px-4 text-left text-xs font-bold text-cyan-100 flex items-center justify-between"
                 >
                   <span>Меню: поиск, карточки и настройки</span><Menu size={17} />
-                </button>
+                </ContentButton>
               </div>
             )}
           </section>
@@ -1745,7 +1754,7 @@ export const Map3D: React.FC = () => {
                 <span className="inline-flex items-center gap-2"><Activity size={16} className="text-emerald-400" /> 3D Кинематика: Манипулятор и Singularity Engine</span><ExternalLink size={16} className="text-emerald-300/80" />
               </a>
 
-              <button
+              <ContentButton
                 type="button"
                 onClick={() => {
                   setShowStatusLegend(true);
@@ -1754,10 +1763,10 @@ export const Map3D: React.FC = () => {
                 className="min-h-12 w-full rounded-lg border border-cyan-700/80 bg-cyan-950/35 px-3 text-left text-xs font-bold text-cyan-100 inline-flex items-center justify-between"
               >
                 <span className="inline-flex items-center gap-2"><Palette size={16} className="text-cyan-400" /> Онтологическая палитра статусов RICIS-III</span><ChevronRight size={17} />
-              </button>
+              </ContentButton>
 
               {selectedNode && (
-                <button
+                <ContentButton
                   type="button"
                   onClick={() => openMobileView('details')}
                   className="mobile-menu-selected-task min-h-14 w-full rounded-lg border border-cyan-800/80 bg-cyan-950/35 px-3 text-left text-cyan-100 inline-flex items-center gap-3"
@@ -1765,18 +1774,18 @@ export const Map3D: React.FC = () => {
                   <Layers size={17} className="shrink-0 text-cyan-300" />
                   <span className="min-w-0 flex-1"><span className="block text-[9px] font-mono uppercase tracking-wider text-cyan-400">{t('map.selectedProblem')}</span><span className="block truncate text-xs font-bold">{selectedNodePresentation?.title ?? selectedNode.title}</span></span>
                   <ChevronRight size={17} className="shrink-0 text-cyan-300" />
-                </button>
+                </ContentButton>
               )}
 
               <details className="mobile-menu-secondary rounded-lg border border-neutral-800 bg-neutral-950/40">
                 <summary className="min-h-12 cursor-pointer list-none px-3 text-xs font-bold text-slate-300 inline-flex w-full items-center justify-between gap-3"><span className="inline-flex items-center gap-2"><SlidersHorizontal size={16} className="text-cyan-400" /> Инструменты и настройки</span><ChevronDown size={16} className="text-slate-500" /></summary>
                 <div className="mobile-menu-secondary-grid border-t border-neutral-800 p-2">
-                  <button type="button" onClick={openMobileSettings} className="min-h-12 rounded-lg border border-neutral-700 bg-neutral-900/70 px-3 text-left text-xs font-bold text-slate-100 inline-flex items-center gap-2"><Settings size={16} className="text-cyan-400" /> Настройки интерфейса и физики</button>
-                  <button type="button" onClick={() => setShowAutomatedTestingModal(true)} className="min-h-12 rounded-lg border border-rose-800/70 bg-rose-950/40 px-3 text-left text-xs font-bold text-rose-200 inline-flex items-center gap-2"><Bug size={16} className="text-rose-400" /> QA Тестирование (Flood-Fill & Stress)</button>
-                  <button type="button" onClick={() => void toggleSensorMode()} className="min-h-12 rounded-lg border border-neutral-700 bg-neutral-900/70 px-3 text-left text-xs font-bold text-slate-100 inline-flex items-center gap-2"><Compass size={16} className={sensorModeEnabled ? 'text-emerald-400' : 'text-cyan-400'} /> {sensorModeEnabled ? 'Отключить управление наклоном' : 'Включить управление наклоном'}</button>
-                  <button type="button" onClick={() => setShowAddNode(true)} className="min-h-12 rounded-lg border border-emerald-800/70 bg-emerald-950/40 px-3 text-left text-xs font-bold text-emerald-100 inline-flex items-center gap-2"><Plus size={16} /> {t('filter.addNewTask')}</button>
-                  <button type="button" onClick={() => setShowVoynichModal(true)} className="min-h-12 rounded-lg border border-amber-800/70 bg-amber-950/40 px-3 text-left text-xs font-bold text-amber-200 inline-flex items-center gap-2"><BookOpen size={16} className="text-amber-400" /> {t('map.voynich.label')}</button>
-                  <button type="button" onClick={checkCoreRuntime} disabled={isCheckingCoreRuntime} className="min-h-12 rounded-lg border border-violet-800/70 bg-violet-950/30 px-3 text-left text-xs font-bold text-violet-100 inline-flex items-center gap-2 disabled:opacity-50"><Cpu size={16} /> {isCheckingCoreRuntime ? t('core.status.checking') : 'Проверить RICIS Core'}</button>
+                  <ContentButton type="button" onClick={openMobileSettings} className="min-h-12 rounded-lg border border-neutral-700 bg-neutral-900/70 px-3 text-left text-xs font-bold text-slate-100 inline-flex items-center gap-2"><Settings size={16} className="text-cyan-400" /> Настройки интерфейса и физики</ContentButton>
+                  <ContentButton type="button" onClick={() => setShowAutomatedTestingModal(true)} className="min-h-12 rounded-lg border border-rose-800/70 bg-rose-950/40 px-3 text-left text-xs font-bold text-rose-200 inline-flex items-center gap-2"><Bug size={16} className="text-rose-400" /> QA Тестирование (Flood-Fill & Stress)</ContentButton>
+                  <ContentButton type="button" onClick={() => void toggleSensorMode()} className="min-h-12 rounded-lg border border-neutral-700 bg-neutral-900/70 px-3 text-left text-xs font-bold text-slate-100 inline-flex items-center gap-2"><Compass size={16} className={sensorModeEnabled ? 'text-emerald-400' : 'text-cyan-400'} /> {sensorModeEnabled ? 'Отключить управление наклоном' : 'Включить управление наклоном'}</ContentButton>
+                  <ContentButton type="button" onClick={() => setShowAddNode(true)} className="min-h-12 rounded-lg border border-emerald-800/70 bg-emerald-950/40 px-3 text-left text-xs font-bold text-emerald-100 inline-flex items-center gap-2"><Plus size={16} /> {t('filter.addNewTask')}</ContentButton>
+                  <ContentButton type="button" onClick={() => setShowVoynichModal(true)} className="min-h-12 rounded-lg border border-amber-800/70 bg-amber-950/40 px-3 text-left text-xs font-bold text-amber-200 inline-flex items-center gap-2"><BookOpen size={16} className="text-amber-400" /> {t('map.voynich.label')}</ContentButton>
+                  <ContentButton type="button" onClick={checkCoreRuntime} disabled={isCheckingCoreRuntime} className="min-h-12 rounded-lg border border-violet-800/70 bg-violet-950/30 px-3 text-left text-xs font-bold text-violet-100 inline-flex items-center gap-2 disabled:opacity-50"><Cpu size={16} /> {isCheckingCoreRuntime ? t('core.status.checking') : 'Проверить RICIS Core'}</ContentButton>
                 </div>
               </details>
 
@@ -1784,12 +1793,12 @@ export const Map3D: React.FC = () => {
                 <div className="mb-2 flex items-center justify-between"><h2 className="text-[10px] font-bold uppercase tracking-wider text-slate-300">Найденные узлы</h2><span className="text-[10px] font-mono text-slate-500">{searchMatchCount}</span></div>
                 <div className="mobile-menu-results">
                   {map.nodes.filter(node => visibleNodeIds.has(node.id)).slice(0, 24).map(node => (
-                    <button key={node.id} type="button" onClick={() => handleNavigateToNode(node.id)} className="w-full rounded-md px-2 py-2 text-left text-xs text-slate-300 hover:bg-cyan-950/40 hover:text-cyan-100">
+                    <ContentButton key={node.id} type="button" onClick={() => handleNavigateToNode(node.id)} className="w-full rounded-md px-2 py-2 text-left text-xs text-slate-300 hover:bg-cyan-950/40 hover:text-cyan-100">
                       <span className="block truncate font-semibold">{node.title}</span>
                       <span className="block truncate text-[10px] font-mono text-cyan-500">Key: {getNodeIdentityPresentation(node).base64Key}</span>
                       <span className="block truncate text-[10px] font-mono text-slate-500">Path: {getNodeIdentityPresentation(node).canonicalPath}</span>
                       <span className="block truncate text-[10px] text-slate-500">{map.zones.find(zone => zone.id === node.zoneIds[0])?.name ?? node.zoneIds[0]}</span>
-                    </button>
+                    </ContentButton>
                   ))}
                   {searchMatchCount === 0 && <p className="px-2 py-2 text-[10px] text-slate-500">Узлы по этому запросу не найдены.</p>}
                   {searchMatchCount > 24 && <p className="px-2 pt-2 text-[10px] text-slate-500">Уточните запрос, чтобы сузить список.</p>}
@@ -1802,10 +1811,13 @@ export const Map3D: React.FC = () => {
         {mobileView === 'details' && selectedNode && !isImmersive && (
           <main className="min-h-0 flex-1 overflow-y-auto bg-[#070707] p-3 touch-pan-y" data-testid="mobile-details-screen" {...mobileBackSwipeHandlers}>
             <article className="rounded-xl border border-cyan-900/60 bg-black/70 p-3 shadow-xl">
-              <div className="mb-3 border-b border-cyan-900/30 pb-3">
+              <div className="relative mb-3 border-b border-cyan-900/30 pb-3 pr-12">
+                <div ref={setTaskMenuContainer} data-testid="task-header-menu-slot" className="absolute right-0 top-0 z-30" />
                 <p className="text-[9px] font-mono text-cyan-500">Key: {getNodeIdentityPresentation(selectedNode).base64Key}</p><p className="text-[9px] font-mono text-slate-500 truncate">Path: {getNodeIdentityPresentation(selectedNode).canonicalPath}</p><h2 className="mt-1 text-sm font-bold leading-tight text-white">{selectedNodePresentation?.title ?? selectedNode.title}</h2>
               </div>
               <NodeCardDetails
+                menuContainer={taskMenuContainer}
+                menuFooter={taskMenuFooter}
                 node={selectedNodePresentation ?? selectedNode}
                 map={map}
                 isExpanded={true}
@@ -1824,7 +1836,7 @@ export const Map3D: React.FC = () => {
   };
 
   return (
-    <div className={`w-full bg-[#050505] text-[#e0e0e0] font-sans overflow-hidden flex flex-col ${isImmersive ? 'fixed inset-0 z-[100] h-[100dvh]' : 'h-screen'}`}>
+    <div className={`w-full bg-[#050505] text-[#e0e0e0] font-sans overflow-hidden flex flex-col ${isImmersive ? 'fixed inset-0 z-[100] h-[100dvh]' : 'h-full min-h-0'}`}>
       {visibilityProjection.deepLinkDiagnostic && (
         <p role="alert" data-testid="unknown-deep-link-target" className="shrink-0 border-b border-amber-900/70 bg-amber-950/40 px-3 py-2 text-xs text-amber-100">
           Requested map node ID <code className="font-mono text-amber-200">{visibilityProjection.deepLinkDiagnostic.requestedNodeId}</code> is not available in this map.
@@ -1832,17 +1844,20 @@ export const Map3D: React.FC = () => {
       )}
       {isMobileLayout ? renderMobileShell() : (
         <>
-      <main className={`flex-1 min-h-0 flex flex-col md:grid relative overflow-y-auto md:overflow-hidden ${leftPanelMode === 'open' ? 'md:grid-cols-[21rem_minmax(0,1fr)]' : 'md:grid-cols-[0_minmax(0,1fr)]'}`}>
+      <main className={`flex-1 min-h-0 flex flex-col md:grid relative overflow-y-auto md:overflow-hidden ${leftPanelMode === 'open' ? 'md:grid-cols-[clamp(15rem,22vw,18rem)_minmax(0,1fr)]' : 'md:grid-cols-[0_minmax(0,1fr)]'}`}>
         <aside data-testid="desktop-navigation-panel" data-panel-mode={leftPanelMode} className={`order-3 h-[58dvh] w-full border-t border-cyan-900/40 bg-[#070707] p-3 flex flex-col gap-3 shrink-0 z-10 overflow-y-auto touch-pan-y md:order-1 md:row-start-1 md:col-start-1 md:h-full md:w-auto md:border-t-0 md:border-r ${leftPanelMode === 'rail' ? 'md:hidden' : ''}`}>
-          <button
+          <div className="flex items-center justify-between gap-2 border-b border-neutral-800/70 pb-1">
+            <h2 className="text-xs font-semibold text-slate-300">{locale === 'ru' ? 'Проводник карты' : 'Map explorer'}</h2>
+          <IconButton
             type="button"
             onClick={() => setLeftPanelMode('rail')}
-            className="absolute right-2 top-2 z-30 hidden md:inline-flex min-h-7 min-w-7 items-center justify-center rounded text-neutral-500 transition-colors hover:bg-cyan-950/50 hover:text-cyan-300"
+            className="hidden md:inline-flex min-h-7 min-w-7 items-center justify-center rounded text-neutral-500 transition-colors hover:bg-cyan-950/50 hover:text-cyan-300"
             aria-label="Свернуть левую панель"
             title="Свернуть левую панель"
           >
             <ChevronLeft size={14} />
-          </button>
+          </IconButton>
+          </div>
           {/* SEARCH BAR (Top of Sidebar) */}
           <div className="relative border border-cyan-900/40 rounded-lg overflow-visible bg-[#050810]/90 backdrop-blur-md px-3.5 py-2.5 mb-1 flex items-center gap-2.5 z-20">
             <Search size={16} className="text-cyan-400 shrink-0" />
@@ -1870,11 +1885,11 @@ export const Map3D: React.FC = () => {
                 }}
                 className="w-full bg-transparent border-0 p-0 text-xs text-slate-200 placeholder:text-slate-500 focus:outline-none focus:ring-0"
               />
-              
+
               {isSearchFocused && filteredHistory.length > 0 && (
                 <div className="absolute top-full left-0 right-0 mt-3 bg-[#050810] border border-cyan-900/80 rounded-md shadow-[0_8px_32px_rgba(0,0,0,0.85)] z-50 py-1 max-h-48 overflow-y-auto">
                   {filteredHistory.map((query, index) => (
-                    <button
+                    <ContentButton
                       key={query}
                       type="button"
                       className={`w-full text-left px-3 py-1.5 text-xs font-mono cursor-pointer flex items-center justify-between ${index === selectedHistoryIndex ? 'bg-cyan-950 text-cyan-300' : 'text-slate-400 hover:bg-neutral-900 hover:text-slate-200'}`}
@@ -1882,19 +1897,19 @@ export const Map3D: React.FC = () => {
                     >
                       <span>{query}</span>
                       <span className="opacity-50 text-[10px]">История</span>
-                    </button>
+                    </ContentButton>
                   ))}
                 </div>
               )}
             </div>
             {searchQuery.trim() && (
-              <button 
+              <IconButton fallbackIcon={ButtonIconX}
                 onClick={() => setSearchQuery('')}
                 className="text-slate-500 hover:text-white text-xs px-1 cursor-pointer transition-colors"
                 title="Очистить"
               >
                 ✕
-              </button>
+              </IconButton>
             )}
             {searchQuery.trim() && (
               <span className={`text-[10px] font-mono px-1.5 py-0.5 rounded border leading-none ${searchMatchCount > 0 ? 'bg-cyan-950/80 text-cyan-200 border-cyan-700/80 font-bold' : 'bg-rose-950/80 text-rose-200 border-rose-700/80 font-bold'}`}>
@@ -1912,14 +1927,14 @@ export const Map3D: React.FC = () => {
                   {locale === 'ru' ? 'Фильтр' : 'Filter'}: {NODE_PROJECTIONS[activeStatusFilter].label}
                 </span>
               </span>
-              <button
+              <IconButton fallbackIcon={ButtonIconX}
                 type="button"
                 onClick={() => setActiveStatusFilter(null)}
                 className="text-neutral-400 hover:text-white text-[11px] px-1 font-mono cursor-pointer"
                 title="Сбросить фильтр статуса"
               >
                 ✕
-              </button>
+              </IconButton>
             </div>
           )}
 
@@ -1928,16 +1943,16 @@ export const Map3D: React.FC = () => {
           {[...projectedVisibleElements.map((el: any) => ({ ...el, isHidden: false })), ...hiddenElements.filter((el: any) => !projectedVisibleElements.some(visibleElement => visibleElement.id === el.id)).map((el: any) => ({ ...el, isHidden: true }))].map(({ id, isHidden }: any) => {
             if (userDisabledPanelIds.has(id)) return null;
             if (isHidden && !showOverflow) return null;
-            
+
             // Every sidebar panel uses the existing adaptive ranking; physics lives in SettingsModal.
             return (
               <div key={id} data-testid={id === 'persistence' ? 'persistence-export-panel' : undefined} className={`accordion-item border border-neutral-800/80 rounded-lg overflow-hidden bg-neutral-900/40 mb-2 relative ${isHidden ? 'opacity-90 border-dashed border-neutral-700' : ''}`}>
-                <input type="checkbox" id={`accordion-${id}`} className="accordion-trigger" checked={openPanelIds.has(id as PanelId)} readOnly />
-                <button
+                <ContentButton
                   type="button"
                   aria-expanded={openPanelIds.has(id as PanelId)}
                   aria-controls={`accordion-content-${id}`}
-                  className="accordion-header bg-neutral-950/80 hover:bg-neutral-900/90 transition-colors cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/80 w-full flex flex-col items-start px-3.5 py-2.5 h-auto rounded-none border-0 m-0 text-left"
+                  data-testid={`sidebar-heading-${id}`}
+                  className="desktop-panel-heading accordion-header bg-neutral-950/80 hover:bg-neutral-900/90 transition-colors cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/80 w-full flex flex-col items-start px-3.5 py-2.5 h-auto rounded-none border-0 m-0 text-left"
                   onClick={() => toggleAccordion(id as PanelId)}
                 >
                   <div className="flex items-center justify-between w-full">
@@ -1948,7 +1963,7 @@ export const Map3D: React.FC = () => {
                        {id === 'agent' && <Bot size={16} className="text-violet-400" />}
                        {id === 'persistence' && <Database size={16} className="text-cyan-400" />}
                        {id === 'audit' && <RefreshCw size={16} className="text-amber-400" />}
-                       
+
                        <span className="text-xs font-bold text-slate-100 uppercase tracking-wider accordion-title p-0">
                          {id === 'actions' && t('filter.quickActions')}
                          {id === 'zones' && t('filter.scientificFields')}
@@ -1979,67 +1994,13 @@ export const Map3D: React.FC = () => {
                     <span className="accordion-icon" aria-hidden="true">▼</span>
                   </div>
 
-                  <div className="accordion-summary mt-2 pt-1.5 border-t border-neutral-800/40 flex flex-wrap gap-1 text-xs font-mono truncate w-full">
-                    {id === 'actions' && (
-                      <span className="bg-neutral-900 border border-neutral-800 px-2 py-0.5 rounded text-slate-200 text-emerald-300">+ Добавить новую задачу</span>
-                    )}
-                    {id === 'zones' && (
-                      <div className="flex flex-wrap gap-1.5 max-h-24 overflow-y-auto pr-1">
-                        {map.zones.filter(z => !hiddenZones.has(z.id)).length === 0 ? (
-                          <span className="text-xs text-amber-400 font-medium italic">Все сферы скрыты</span>
-                        ) : (
-                          map.zones.filter(z => !hiddenZones.has(z.id)).map(z => (
-                            <span key={z.id} className="inline-flex items-center gap-1.5 bg-neutral-900 border border-neutral-700/80 px-2 py-0.5 rounded-full text-xs text-slate-200">
-                              <span className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: getZoneColor(z.id) }} />
-                              <span className="truncate max-w-[130px] font-medium">{z.name}</span>
-                              <ChipDismissControl
-                                ariaLabel={`Скрыть сферу ${z.name}`}
-                                onDismiss={() => setHiddenZones(prev => new Set(prev).add(z.id))}
-                                className="ml-0.5"
-                              />
-                            </span>
-                          ))
-                        )}
-                      </div>
-                    )}
-                    {id === 'available' && (
-                      selectedNode ? (
-                        <span className="bg-emerald-950/80 border border-emerald-700/80 px-2.5 py-0.5 rounded-full text-emerald-200 inline-flex items-center gap-1.5 max-w-full font-medium">
-                          <span className="truncate">🎯 {selectedNodePresentation?.title ?? selectedNode.title}</span>
-                          <ChipDismissControl
-                            ariaLabel="Снять выбор задачи"
-                            onDismiss={() => setSelectedNodeId(null)}
-                          />
-                        </span>
-                      ) : availableNodes.length > 0 ? (
-                        <span className="bg-neutral-900 border border-neutral-800 px-2 py-0.5 rounded text-slate-300 truncate max-w-full">
-                          Доступно: <strong className="text-emerald-400">{availableNodes.length}</strong> задач
-                        </span>
-                      ) : (
-                        <span className="bg-neutral-900 border border-neutral-800 px-2 py-0.5 rounded text-slate-400">Нет открытых задач</span>
-                      )
-                    )}
-                    {id === 'agent' && (
-                      <>
-                        <span className="bg-neutral-900 border border-neutral-800 px-2 py-0.5 rounded text-slate-200 text-violet-300">🤖 {selectedModel}</span>
-                        <span className="bg-neutral-900 border border-neutral-800 px-2 py-0.5 rounded text-slate-300 text-violet-300">Telegram Bot</span>
-                      </>
-                    )}
-                    {id === 'persistence' && (
-                      <>
-                        <span className="bg-neutral-900 border border-neutral-800 px-2 py-0.5 rounded text-slate-200 text-cyan-300">💾 IndexedDB</span>
-                        <span className="bg-neutral-900 border border-neutral-800 px-2 py-0.5 rounded text-slate-200 text-cyan-300">📥 .json</span>
-                      </>
-                    )}
-                  </div>
-                </button>
-
-                  <div id={`accordion-content-${id}`} className="accordion-content">
-                  <div className={`accordion-inner p-3 border-t border-neutral-800/60 bg-neutral-950/40 relative overflow-y-auto ${id === 'zones' || id === 'available' || id === 'agent' ? 'max-h-64' : 'max-h-56'}`}>
+                </ContentButton>
+                  <div id={`accordion-content-${id}`} className="desktop-accordion-panel" hidden={!openPanelIds.has(id as PanelId)}>
+                  <div className={`desktop-panel-body border-t border-neutral-800/60 bg-neutral-950/40 ${id === 'available' ? 'max-h-72 overflow-y-auto' : ''}`}>
 
                     {id === 'actions' && (
-                      <div className="space-y-2">
-                        <ActionButton
+                      <div className="desktop-quick-actions space-y-1.5" data-testid="sidebar-quick-actions">
+                        <ActionButton fallbackIcon={ActionIconTarget}
                           onClick={() => {
                             const firstAvailable = availableNodes[0];
                             if (firstAvailable) handleNavigateToNode(firstAvailable.id);
@@ -2050,28 +2011,28 @@ export const Map3D: React.FC = () => {
                         >
                           {t('research.openAvailable')}
                         </ActionButton>
-                        <ActionButton onClick={() => setShowAddNode(true)} variant="emerald" className="w-full uppercase font-bold tracking-wider cursor-pointer py-2 text-xs">
+                        <ActionButton fallbackIcon={ActionIconPlus} onClick={() => setShowAddNode(true)} variant="emerald" className="w-full uppercase font-bold tracking-wider cursor-pointer py-2 text-xs">
                           {t('filter.addNewTask')}
                         </ActionButton>
-                        <button
+                        <ContentButton
                           type="button"
                           onClick={() => setShowStatusLegend(true)}
                           className="w-full flex items-center justify-center gap-2 py-2 px-3 rounded bg-neutral-900/80 hover:bg-neutral-800 border border-cyan-800/60 text-cyan-200 font-bold text-xs uppercase tracking-wider transition-colors cursor-pointer shadow-sm"
                         >
                           <Palette className="w-4 h-4 text-cyan-400" />
                           Палитра статусов RICIS-III
-                        </button>
-                        <button
+                        </ContentButton>
+                        <ContentButton
                           type="button"
                           onClick={() => setShowProofConsole(true)}
                           className="w-full flex items-center justify-center gap-2 py-2 px-3 rounded bg-cyan-950/80 hover:bg-cyan-900 border border-cyan-500/40 text-cyan-300 font-bold text-xs uppercase tracking-wider transition-colors cursor-pointer shadow-lg shadow-cyan-950/40"
                         >
                           <Cpu className="w-4 h-4 text-cyan-400" />
                           {t('research.proofConsole')}
-                        </button>
+                        </ContentButton>
                         {calculatorExplorer.kind === 'PROJECTED' && (
                           <>
-                            <ActionButton
+                            <ActionButton fallbackIcon={ActionIconCalculator}
                               onClick={() => setIsCalculatorExplorerOpen((open) => !open)}
                               variant="emerald"
                               className="w-full uppercase font-bold tracking-wider cursor-pointer py-2 text-xs"
@@ -2088,7 +2049,7 @@ export const Map3D: React.FC = () => {
                             />
                             {monolithGuidedCaseTrail.kind === 'PROJECTED' && (
                               <>
-                                <ActionButton
+                                <ActionButton fallbackIcon={ActionIconBookOpen}
                                   onClick={() => setIsMonolithGuidedCaseTrailOpen((open) => !open)}
                                   variant="cyan"
                                   className="w-full uppercase font-bold tracking-wider cursor-pointer py-2 text-xs"
@@ -2138,7 +2099,7 @@ export const Map3D: React.FC = () => {
                     {id === 'available' && (
                       <div className="space-y-1">
                         {availableNodes.map(node => (
-                          <button
+                          <SelectionCard
                             key={node.id}
                             type="button"
                             onClick={() => handleNavigateToNode(node.id)}
@@ -2150,7 +2111,7 @@ export const Map3D: React.FC = () => {
                                 Ценность: {formatCurrency(node.economic.marketGain)}
                               </div>
                             )}
-                          </button>
+                          </SelectionCard>
                         ))}
                         {availableNodes.length === 0 && (
                           <div className="text-xs text-slate-500 text-center py-4 italic">
@@ -2187,20 +2148,20 @@ export const Map3D: React.FC = () => {
                               АКТИВЕН
                             </span>
                           </div>
-                          <button
+                          <ContentButton
                             type="button"
                             onClick={() => setShowTelegramBot(true)}
                             className="w-full bg-violet-600 hover:bg-violet-500 text-white font-bold text-xs py-1.5 rounded transition-colors"
                           >
                             Открыть Telegram-интерфейс
-                          </button>
+                          </ContentButton>
                         </div>
                       </div>
                     )}
 
                     {id === 'persistence' && (
                       <div data-testid="persistence-export-actions" className="grid gap-2 sm:grid-cols-2">
-                        <ActionButton
+                        <ActionButton fallbackIcon={ActionIconSave}
                           data-testid="persistence-save"
                           onClick={() => { void map.saveNow(); }}
                           variant="cyan"
@@ -2208,7 +2169,7 @@ export const Map3D: React.FC = () => {
                         >
                           💾 Сохранить в IndexedDB
                         </ActionButton>
-                        <ActionButton
+                        <ActionButton fallbackIcon={ActionIconUpload}
                           data-testid="persistence-import-json"
                           onClick={() => setShowPatchImportModal(true)}
                           variant="cyan"
@@ -2216,7 +2177,7 @@ export const Map3D: React.FC = () => {
                         >
                           ⚡ Импорт решений (JSON)
                         </ActionButton>
-                        <ActionButton
+                        <ActionButton fallbackIcon={ActionIconDownload}
                           data-testid="persistence-download-json"
                           onClick={() => map.downloadJson()}
                           variant="neutral"
@@ -2224,7 +2185,7 @@ export const Map3D: React.FC = () => {
                         >
                           📥 Скачать .json
                         </ActionButton>
-                        <ActionButton
+                        <ActionButton fallbackIcon={ActionIconRotateCcw}
                           data-testid="persistence-reset"
                           onClick={() => { if (window.confirm('Сбросить карту?')) void map.resetMap(); }}
                           variant="red"
@@ -2252,43 +2213,45 @@ export const Map3D: React.FC = () => {
           {hiddenElements.length > 0 && (
             <div className="pt-2 mt-auto">
               {!showOverflow ? (
-                <button
+                <ContentButton
                   onClick={() => setShowOverflow(true)}
                   className="w-full py-2.5 bg-neutral-950 border border-neutral-800 hover:border-cyan-900/70 hover:bg-neutral-900 rounded-lg text-slate-400 hover:text-cyan-400 text-[10px] font-bold uppercase tracking-wider transition-all flex items-center justify-center gap-2"
                 >
                   <ChevronDown size={14} /> Показать редко используемые ({hiddenElements.length})
-                </button>
+                </ContentButton>
               ) : (
-                <button
+                <ContentButton
                   onClick={() => setShowOverflow(false)}
                   className="w-full py-2.5 bg-neutral-900 border border-cyan-800/50 rounded-lg text-cyan-300 text-[10px] font-bold uppercase tracking-wider transition-all flex items-center justify-center gap-2 mb-2"
                 >
                   <ChevronUp size={14} /> Скрыть редко используемые
-                </button>
+                </ContentButton>
               )}
             </div>
           )}
         </aside>
 
-        <div className={`order-1 relative flex min-h-0 w-full min-w-0 flex-1 flex-col bg-[radial-gradient(circle_at_center,_#0a0f1a_0%,_#050505_100%)] md:grid md:col-start-2 md:row-start-1 md:h-full md:min-h-0 ${selectedNode && taskPanelMode === 'open' ? 'md:grid-cols-[minmax(0,1fr)_minmax(24rem,30rem)]' : selectedNode && taskPanelMode === 'rail' ? 'md:grid-cols-[minmax(0,1fr)_2.75rem]' : 'md:grid-cols-[minmax(0,1fr)_0]'}`}>
+        <div className={`order-1 relative flex min-h-0 w-full min-w-0 flex-1 flex-col bg-[radial-gradient(circle_at_center,_#0a0f1a_0%,_#050505_100%)] md:grid md:col-start-2 md:row-start-1 md:h-full md:min-h-0 ${selectedNode && taskPanelMode === 'open' ? 'md:grid-cols-[minmax(0,1fr)_clamp(19rem,31vw,24rem)]' : selectedNode && taskPanelMode === 'rail' ? 'md:grid-cols-[minmax(0,1fr)_2.75rem]' : 'md:grid-cols-[minmax(0,1fr)_0]'}`}>
           <div className="relative h-[42dvh] min-h-[16rem] w-full min-w-0 shrink-0 md:col-start-1 md:row-start-1 md:h-full md:min-h-0">
           {leftPanelMode === 'rail' && (
-            <button type="button" onClick={() => setLeftPanelMode('open')} className="hidden md:inline-flex absolute left-2 top-2 z-20 min-h-8 min-w-8 items-center justify-center rounded bg-neutral-950/90 text-neutral-400 shadow-lg transition-colors hover:bg-cyan-950/70 hover:text-cyan-200" aria-label="Развернуть левую панель" title="Развернуть левую панель">
+            <IconButton type="button" onClick={() => setLeftPanelMode('open')} className="hidden md:inline-flex absolute left-2 top-2 z-20 min-h-8 min-w-8 items-center justify-center rounded bg-neutral-950/90 text-neutral-400 shadow-lg transition-colors hover:bg-cyan-950/70 hover:text-cyan-200" aria-label="Развернуть левую панель" title="Развернуть левую панель">
               <ChevronRight size={15} />
-            </button>
+            </IconButton>
           )}
           {selectedNode && taskPanelMode === 'rail' && (
-            <button type="button" onClick={() => setTaskPanelMode('open')} className="hidden md:inline-flex absolute right-2 top-2 z-30 min-h-10 min-w-9 items-center justify-center gap-1 rounded-md border border-cyan-700/70 bg-[#07121c]/95 px-1.5 text-cyan-300 shadow-[0_0_16px_rgba(34,211,238,0.18)] transition-colors hover:bg-cyan-900/80 hover:text-white" aria-label="Развернуть правую панель задачи" title="Развернуть правую панель задачи">
+            <ContentButton type="button" onClick={() => setTaskPanelMode('open')} className="hidden md:inline-flex absolute right-2 top-2 z-30 min-h-10 min-w-9 items-center justify-center gap-1 rounded-md border border-cyan-700/70 bg-[#07121c]/95 px-1.5 text-cyan-300 shadow-[0_0_16px_rgba(34,211,238,0.18)] transition-colors hover:bg-cyan-900/80 hover:text-white" aria-label="Развернуть правую панель задачи" title="Развернуть правую панель задачи">
               <ChevronLeft size={15} />
               <span className="[writing-mode:vertical-rl] text-[9px] font-bold uppercase tracking-[0.16em]">Задача</span>
-            </button>
+            </ContentButton>
           )}
           <div className="absolute right-3 bottom-3 z-20 hidden md:flex items-center gap-1.5 rounded-xl border border-cyan-900/60 bg-black/80 p-1.5 shadow-2xl backdrop-blur-md">
-            <button type="button" onClick={handleZoomOut} className="min-h-8 min-w-8 rounded-lg text-cyan-200 hover:bg-cyan-950/70 flex items-center justify-center font-bold text-base" aria-label="Уменьшить масштаб">−</button>
-            <button type="button" onClick={handleResetCamera} className="min-h-8 min-w-8 rounded-lg text-cyan-200 hover:bg-cyan-950/70 flex items-center justify-center" aria-label="Сбросить вид" title="Сбросить вид"><Crosshair size={15} /></button>
-            <button type="button" onClick={handleZoomIn} className="min-h-8 min-w-8 rounded-lg text-cyan-200 hover:bg-cyan-950/70 flex items-center justify-center font-bold text-base" aria-label="Увеличить масштаб">+</button>
-            <div className="w-[1px] h-5 bg-cyan-900/60 mx-0.5" />
-            <button
+            {mapPresentationMode === 'three_dimensional' && (<>
+            <IconButton fallbackIcon={ButtonIconMinus} type="button" onClick={handleZoomOut} className="min-h-8 min-w-8 rounded-lg text-cyan-200 hover:bg-cyan-950/70 flex items-center justify-center font-bold text-base" aria-label="Уменьшить масштаб">−</IconButton>
+            <IconButton type="button" onClick={handleResetCamera} className="min-h-8 min-w-8 rounded-lg text-cyan-200 hover:bg-cyan-950/70 flex items-center justify-center" aria-label="Сбросить вид" title="Сбросить вид"><Crosshair size={15} /></IconButton>
+            <IconButton fallbackIcon={ButtonIconPlus} type="button" onClick={handleZoomIn} className="min-h-8 min-w-8 rounded-lg text-cyan-200 hover:bg-cyan-950/70 flex items-center justify-center font-bold text-base" aria-label="Увеличить масштаб">+</IconButton>
+            </>)}
+            {mapPresentationMode === 'three_dimensional' && <div className="w-[1px] h-5 bg-cyan-900/60 mx-0.5" />}
+            <ContentButton
               type="button"
               onClick={() => setShowStatusLegend(true)}
               className="min-h-8 px-2.5 rounded-lg text-cyan-200 hover:bg-cyan-950/70 flex items-center gap-1.5 text-xs font-semibold"
@@ -2297,7 +2260,7 @@ export const Map3D: React.FC = () => {
             >
               <Palette size={14} className="text-cyan-400" />
               <span>Палитра статусов</span>
-            </button>
+            </ContentButton>
           </div>
           {renderMapScene()}
           </div>
@@ -2306,7 +2269,7 @@ export const Map3D: React.FC = () => {
             <aside data-testid="desktop-task-panel" data-panel-mode={taskPanelMode} className={`relative order-2 min-h-0 w-full shrink-0 overflow-hidden border-t border-cyan-900/40 bg-[#070707] md:order-none md:col-start-2 md:row-start-1 md:h-full md:border-l md:border-t-0 ${taskPanelMode === 'rail' ? 'md:hidden' : 'md:w-auto'}`}>
               <div className="flex h-full min-h-0 flex-col">
               {taskPanelMode === 'rail' ? (
-                <button
+                <ContentButton
                   type="button"
                   className="flex h-full min-h-0 w-full flex-col items-center justify-center gap-3 text-neutral-500 transition-colors hover:bg-cyan-950/30 hover:text-cyan-300"
                   onClick={() => setTaskPanelMode('open')}
@@ -2315,13 +2278,39 @@ export const Map3D: React.FC = () => {
                 >
                   <ChevronLeft size={16} />
                   <span className="[writing-mode:vertical-rl] text-[9px] font-bold uppercase tracking-[0.18em]">Задача</span>
-                </button>
+                </ContentButton>
               ) : (
               <>
-              <div className="flex shrink-0 items-start justify-between gap-3 border-b border-neutral-800/60 bg-neutral-950/80 px-3.5 py-3">
+              <div data-testid="task-panel-header" className="shrink-0 border-b border-neutral-800/60 bg-neutral-950/80 px-3 py-2">
+                <div className="mb-2 flex items-center justify-between gap-2">
+                  <span className="text-xs font-semibold text-slate-400">{locale === 'ru' ? 'Задача' : 'Task'}</span>
+                <div className="flex items-center gap-1 relative">
+                  <div ref={setTaskMenuContainer} data-testid="task-header-menu-slot" />
+                  <IconButton
+                    type="button"
+                    onClick={() => setTaskPanelMode('rail')}
+                    className="text-neutral-500 hover:text-cyan-400 transition-colors"
+                    title="Свернуть правую панель в узкую полосу"
+                    aria-label="Свернуть правую панель в узкую полосу"
+                  >
+                    <ChevronRight size={14} />
+                  </IconButton>
+                  <IconButton fallbackIcon={ButtonIconX}
+                    type="button"
+                    onClick={() => setSelectedNodeId(null)}
+                    className="text-neutral-500 hover:text-white transition-colors"
+                    title={t('node.card.close')}
+                    aria-label={t('node.card.close')}
+                  >
+                    ✕
+                  </IconButton>
+
+
+                </div>
+                </div>
                 <div className="min-w-0 flex-1 text-left">
                   <div className="flex items-center gap-2 mb-1 flex-wrap">
-                    <h2 className="truncate text-sm font-bold text-white leading-tight">{selectedNodePresentation?.title ?? selectedNode.title}</h2>
+                    <h2 data-testid="selected-task-title" className="text-sm font-semibold text-white leading-snug break-words">{selectedNodePresentation?.title ?? selectedNode.title}</h2>
                     {(() => {
                       const selectedVisual = presentMapNodeVisualStatus({
                         nodeId: selectedNode.id,
@@ -2349,80 +2338,15 @@ export const Map3D: React.FC = () => {
                       );
                     })()}
                   </div>
+                  <details className="mt-2 text-[11px] text-slate-500">
+                    <summary className="cursor-pointer hover:text-slate-300">{locale === 'ru' ? 'Идентификаторы узла' : 'Node identifiers'}</summary>
                   <span className="text-[9px] font-mono text-cyan-400 block mb-1">Key: {getNodeIdentityPresentation(selectedNode).base64Key}</span>
                   <span className="text-[9px] font-mono text-neutral-500 block mb-1 truncate">Path: {getNodeIdentityPresentation(selectedNode).canonicalPath}</span>
+                  </details>
                   {selectedNode.economic?.marketGain > 0 && (
                     <span className="text-[10px] font-bold text-green-400 bg-green-950/30 px-1.5 py-0.5 rounded inline-block">
                       Оценка: {formatCurrency(selectedNode.economic.marketGain)}
                     </span>
-                  )}
-                </div>
-                <div className="flex items-center gap-3 relative">
-                  <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="text-neutral-500 hover:text-cyan-400 transition-colors" title="Menu">
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" /></svg>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setTaskPanelMode('rail')}
-                    className="text-neutral-500 hover:text-cyan-400 transition-colors"
-                    title="Свернуть правую панель в узкую полосу"
-                    aria-label="Свернуть правую панель в узкую полосу"
-                  >
-                    <ChevronRight size={14} />
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setSelectedNodeId(null)}
-                    className="text-neutral-500 hover:text-white transition-colors"
-                    title={t('node.card.close')}
-                    aria-label={t('node.card.close')}
-                  >
-                    ✕
-                  </button>
-                  
-                  {isMenuOpen && (
-                    <div className="absolute right-0 top-full mt-2 w-64 bg-[#050810] border border-cyan-800/80 rounded-md shadow-[0_4px_20px_rgba(0,0,0,0.8)] z-30 p-3 flex flex-col gap-3">
-                      <div className="space-y-1.5">
-                        <p className="text-[9px] font-bold uppercase text-cyan-500/80 tracking-wider">Действия</p>
-                        <ActionButton
-                          onClick={() => { handleFindPathToRicis(); setIsMenuOpen(false); }}
-                          variant="cyan"
-                          className="w-full text-left"
-                        >
-                          Вычислить путь к ядру
-                        </ActionButton>
-                      </div>
-                      
-                      <div className="space-y-1.5 border-t border-cyan-900/30 pt-2">
-                        <p className="text-[9px] font-bold uppercase text-amber-500/80 tracking-wider">Генерация TEX</p>
-                        <label className="flex items-start gap-2 text-[10px] text-gray-300 cursor-pointer px-1">
-                          <input type="radio" name="texMode" checked={texMode === 'ricis_pure'} onChange={() => setTexMode('ricis_pure')} className="mt-0.5" />
-                          <span><span className="text-cyan-400 font-semibold">RICIS-pure</span> — без пределов</span>
-                        </label>
-                        <label className="flex items-start gap-2 text-[10px] text-gray-300 cursor-pointer px-1">
-                          <input type="radio" name="texMode" checked={texMode === 'classical_bridges'} onChange={() => setTexMode('classical_bridges')} className="mt-0.5" />
-                          <span><span className="text-amber-400 font-semibold">Classical bridges</span></span>
-                        </label>
-                        <ActionButton
-                          onClick={() => { handleGenerateTex(); setIsMenuOpen(false); }}
-                          variant="amber"
-                                                  >
-                          Генерировать TEX
-                        </ActionButton>
-                      </div>
-                      
-                      <div className="space-y-1.5 border-t border-cyan-900/30 pt-2">
-                        <p className="text-[9px] font-bold uppercase text-purple-500/80 tracking-wider">Экспорт для ИИ</p>
-                        <ActionButton
-                          onClick={() => { handleGenerateJSON(); setIsMenuOpen(false); }}
-                          variant="violet"
-                          className="w-full mt-1"
-                        >
-                          {showOnlyDerivatives ? 'JSON: только фиолетовые' : 'Генерировать JSON'}
-                        </ActionButton>
-                        {jsonMsg && <p className="text-[9px] text-purple-300/90 font-mono break-all mt-1">{jsonMsg}</p>}
-                      </div>
-                    </div>
                   )}
                 </div>
               </div>
@@ -2439,7 +2363,7 @@ export const Map3D: React.FC = () => {
                           <span className="flex gap-1 flex-wrap">
                             {parents.map((p, idx) => (
                               <span key={p.id}>
-                                <button type="button" onClick={() => setSelectedNodeId(p.id)} className="hover:text-cyan-300 transition-colors underline decoration-cyan-900/50 underline-offset-2">{p.title}</button>
+                                <ContentButton  type="button" onClick={() => setSelectedNodeId(p.id)} className="hover:text-cyan-300 transition-colors underline decoration-cyan-900/50 underline-offset-2">{p.title}</ContentButton>
                                 {idx < parents.length - 1 && <span className="text-gray-600">,</span>}
                               </span>
                             ))}
@@ -2451,9 +2375,7 @@ export const Map3D: React.FC = () => {
                         </>
                       )}
                     </div>
-                    <h2 className="text-lg font-bold text-slate-100 tracking-tight leading-tight mb-3">
-                      {selectedNodePresentation?.title ?? selectedNode.title}
-                    </h2>
+
                   </div>
                 );
               })()}
@@ -2463,11 +2385,11 @@ export const Map3D: React.FC = () => {
                 const hasSorry = nodeHasSorry(selectedNode, map.proofs?.[selectedNode.id]);
                 const isOk = selectedNode.state === 'resolved' && !isMissingTargetFunction(selectedNode) && !hasSorry;
                 const isPartial = selectedNode.state === 'partial' || isMissingTargetFunction(selectedNode) || hasSorry;
-                
+
                 let badgeClass = 'bg-neutral-900 text-neutral-400 border border-neutral-700/60';
                 if (isOk) badgeClass = 'bg-emerald-950/80 text-emerald-400 border border-emerald-900/60';
                 else if (isPartial) badgeClass = 'bg-amber-950/80 text-amber-400 border border-amber-900/60';
-                
+
                 return (
                   <span className={`px-2 py-1 rounded-full text-[9px] font-bold uppercase tracking-wider ${badgeClass}`}>
                     {isOk ? 'RESOLVED' : isPartial ? (hasSorry ? 'PARTIAL (SORRY)' : 'PARTIAL') : 'UNRESOLVED'}
@@ -2482,6 +2404,8 @@ export const Map3D: React.FC = () => {
               )}
             </div>
               <NodeCardDetails
+                menuContainer={taskMenuContainer}
+                menuFooter={taskMenuFooter}
                 node={selectedNodePresentation ?? selectedNode}
                 map={map}
                 isExpanded={isNodeExpanded}
@@ -2497,13 +2421,13 @@ export const Map3D: React.FC = () => {
 
               {pathNodeIds.length > 0 && (
                 <div className="mb-3 text-[10px] text-cyan-400/90 font-mono bg-cyan-950/20 border border-cyan-900/40 rounded p-2 max-h-24 overflow-y-auto leading-relaxed relative">
-                  <button type="button" onClick={() => setPathNodeIds([])} className="absolute top-1 right-1 px-1 text-cyan-600 hover:text-cyan-300">✕</button>
+                  <IconButton fallbackIcon={ButtonIconX} type="button" aria-label="Очистить маршрут" onClick={() => setPathNodeIds([])} className="absolute top-1 right-1 px-1 text-cyan-600 hover:text-cyan-300">✕</IconButton>
                   <div className="pr-4">
                   {pathNodeIds.map((id, idx) => (
                     <span key={id}>
-                      <button type="button" className="hover:text-cyan-200 transition-colors" onClick={() => setSelectedNodeId(id)}>
+                      <ContentButton  type="button" className="hover:text-cyan-200 transition-colors" onClick={() => setSelectedNodeId(id)}>
                         {map.nodes.find(n => n.id === id)?.title || id}
-                      </button>
+                      </ContentButton>
                       {idx < pathNodeIds.length - 1 && <span className="text-cyan-700 mx-1">→</span>}
                     </span>
                   ))}
@@ -2515,17 +2439,17 @@ export const Map3D: React.FC = () => {
               {(showProof || map.getLatexProof(selectedNode.id) || selectedNode.state === 'resolved' || selectedNode.state === 'partial') && (
                 <div className="mt-4 border-t border-gray-800 pt-3">
                   <div className="flex items-center justify-between">
-                    <button onClick={() => setShowProof(!showProof)} className="flex items-center gap-2 text-cyan-400 text-xs font-bold uppercase hover:text-cyan-200 transition-colors cursor-pointer">
+                    <ContentButton onClick={() => setShowProof(!showProof)} className="flex items-center gap-2 text-cyan-400 text-xs font-bold uppercase hover:text-cyan-200 transition-colors cursor-pointer">
                       <span>Formal Proof (Lean 4)</span><span>{showProof ? '▲' : '▼'}</span>
-                    </button>
-                    <button
+                    </ContentButton>
+                    <ContentButton
                       type="button"
                       onClick={() => setEditingNode(selectedNode)}
                       className="text-[10px] font-bold text-amber-400 hover:text-amber-200 bg-amber-950/60 border border-amber-800/60 px-2 py-0.5 rounded transition-colors flex items-center gap-1 cursor-pointer"
                       title="Заменить или отредактировать Lean 4 доказательство для обучения Агента"
                     >
                       <span>✏️</span> Edit Lean
-                    </button>
+                    </ContentButton>
                   </div>
                   {showProof && (
                     <div className={`mt-2 bg-[#020202] p-3 rounded border border-cyan-900/50 text-gray-300 overflow-y-auto ${isNodeExpanded ? 'max-h-[60vh]' : 'max-h-52'}`}>
@@ -2535,7 +2459,7 @@ export const Map3D: React.FC = () => {
                 </div>
               )}
               </div>
-              <button
+              <IconButton
                 type="button"
                 onClick={() => setTaskPanelMode('rail')}
                 className="absolute right-2 top-2 z-10 inline-flex min-h-7 min-w-7 items-center justify-center rounded text-neutral-500 transition-colors hover:bg-cyan-950/50 hover:text-cyan-300"
@@ -2543,7 +2467,7 @@ export const Map3D: React.FC = () => {
                 title="Свернуть правую панель в узкую полосу"
               >
                 <ChevronRight size={14} />
-              </button>
+              </IconButton>
               </>
               )}
               </div>
@@ -2634,13 +2558,13 @@ export const Map3D: React.FC = () => {
       {!isMobileLayout && !isImmersive && (
       <footer data-testid="desktop-status-strip" className="h-10 border-t border-cyan-900/40 bg-[#080808] flex items-center justify-between px-4 shrink-0 z-10 w-full overflow-visible">
         {/* Left Side: System Indicator, Arrow Button & Latest Agent Log Line */}
-        <div className="flex items-center gap-2.5 text-xs text-slate-400 font-mono overflow-hidden pr-2">
+        <div className="flex min-w-0 flex-1 items-center gap-2.5 text-xs text-slate-400 font-mono overflow-x-auto pr-2">
           <span className="flex items-center gap-1.5 shrink-0" title="Статус ИИ-Агента">
             <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.8)]" />
           </span>
 
           {/* Trigger button with arrow to open agent log window */}
-          <button
+          <ContentButton
             type="button"
             onClick={() => setShowAgentLogs(true)}
             className="flex items-center gap-1 px-2 py-0.5 bg-cyan-950/80 hover:bg-cyan-900/80 border border-cyan-800/80 text-cyan-300 hover:text-white rounded text-[10px] font-mono font-bold transition-all cursor-pointer shadow-[0_0_10px_rgba(6,182,212,0.15)] shrink-0"
@@ -2648,9 +2572,9 @@ export const Map3D: React.FC = () => {
           >
             <span className="text-cyan-400 font-bold">▲</span>
             <span>Лог ИИ</span>
-          </button>
+          </ContentButton>
 
-          <button
+          <ContentButton
             type="button"
             onClick={() => setShowAutoProverModal(true)}
             className="flex items-center gap-1.5 px-2 py-0.5 bg-gradient-to-r from-cyan-950/90 to-blue-950/90 hover:from-cyan-900 hover:to-blue-900 border border-cyan-500/50 text-cyan-200 hover:text-white rounded text-[10px] font-mono font-bold transition-all cursor-pointer shadow-[0_0_12px_rgba(6,182,212,0.25)] shrink-0"
@@ -2658,11 +2582,11 @@ export const Map3D: React.FC = () => {
           >
             <Cpu size={11} className="text-cyan-400 animate-pulse" />
             <span>Auto Prover v7.7</span>
-          </button>
+          </ContentButton>
 
           <span className="text-neutral-700 font-sans select-none shrink-0">|</span>
 
-          <button
+          <ContentButton
             type="button"
             onClick={() => { void checkCoreRuntime(); }}
             disabled={isCheckingCoreRuntime}
@@ -2671,9 +2595,9 @@ export const Map3D: React.FC = () => {
           >
             <span className={`w-1.5 h-1.5 rounded-full ${coreStatusPresentation.dotClassName}`} />
             <span>{coreStatusPresentation.label}</span>
-          </button>
+          </ContentButton>
 
-          <button
+          <ContentButton
             type="button"
             data-testid="community-rewards-status-button"
             onClick={() => { void handleOpenCommunityReadiness(); }}
@@ -2683,11 +2607,11 @@ export const Map3D: React.FC = () => {
           >
             <Gift size={11} aria-hidden="true" />
             <span>{isLoadingCommunityReadiness ? 'Проверка…' : 'Сообщество · статус'}</span>
-          </button>
+          </ContentButton>
 
           {/* Latest AI agent log message */}
           {map.agentLogs && map.agentLogs.length > 0 ? (
-            <button
+            <ContentButton
               type="button"
               onClick={() => setShowAgentLogs(true)}
               className="text-xs text-slate-300 hover:text-cyan-200 font-mono truncate text-left cursor-pointer transition-colors flex items-center gap-1.5 min-w-0"
@@ -2710,14 +2634,14 @@ export const Map3D: React.FC = () => {
                 {map.agentLogs[0].level}
               </span>
               <span className="text-slate-200 truncate">{map.agentLogs[0].message}</span>
-            </button>
+            </ContentButton>
           ) : (
             <span className="text-slate-500 text-xs font-mono">Система активна</span>
           )}
         </div>
 
-        {/* Right Side: Map Controls with Hover Tooltip */}
-        <div className="relative group flex items-center gap-1 bg-neutral-900 border border-neutral-700/80 rounded px-1 py-1 shadow-lg">
+        {mapPresentationMode === 'three_dimensional' && (
+        <div className="relative group flex shrink-0 items-center gap-1 bg-neutral-900 border border-neutral-700/80 rounded px-1 py-1 shadow-lg">
           {/* Controls Tooltip */}
           <div className="absolute bottom-full right-0 mb-3 w-max px-3 py-2 bg-neutral-800 border border-neutral-700 text-slate-200 text-sm font-mono rounded shadow-xl opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50">
             <div className="flex flex-col gap-1.5">
@@ -2729,16 +2653,17 @@ export const Map3D: React.FC = () => {
             <div className="absolute top-full right-6 -mt-px w-2 h-2 bg-neutral-800 border-b border-r border-neutral-700 transform rotate-45"></div>
           </div>
 
-          <button onClick={handleZoomOut} className="w-6 h-6 flex items-center justify-center text-slate-300 hover:text-white hover:bg-neutral-700 rounded transition-colors cursor-pointer" title="Уменьшить масштаб">-</button>
+          <IconButton fallbackIcon={ButtonIconMinus} onClick={handleZoomOut} className="w-6 h-6 flex items-center justify-center text-slate-300 hover:text-white hover:bg-neutral-700 rounded transition-colors cursor-pointer" title="Уменьшить масштаб">-</IconButton>
           <span className="px-2 text-xs font-mono text-slate-300 select-none min-w-[2.5rem] text-center">100%</span>
-          <button onClick={handleZoomIn} className="w-6 h-6 flex items-center justify-center text-slate-300 hover:text-white hover:bg-neutral-700 rounded transition-colors cursor-pointer" title="Увеличить масштаб">+</button>
-          
+          <IconButton fallbackIcon={ButtonIconPlus} onClick={handleZoomIn} className="w-6 h-6 flex items-center justify-center text-slate-300 hover:text-white hover:bg-neutral-700 rounded transition-colors cursor-pointer" title="Увеличить масштаб">+</IconButton>
+
           <div className="w-px h-4 bg-neutral-700 mx-1"></div>
-          
-          <button onClick={handleResetCamera} className="px-2 h-6 flex items-center justify-center text-cyan-400 hover:bg-neutral-700 rounded transition-colors text-xs font-bold gap-1 cursor-pointer" title="Сбросить камеру">
+
+          <ContentButton onClick={handleResetCamera} className="px-2 h-6 flex items-center justify-center text-cyan-400 hover:bg-neutral-700 rounded transition-colors text-xs font-bold gap-1 cursor-pointer" title="Сбросить камеру">
             <Crosshair size={12} /> Сброс
-          </button>
+          </ContentButton>
         </div>
+        )}
       </footer>
       )}
       <RicisTerminalModal />

@@ -10,7 +10,7 @@ describe('Map3D mobile graph layout contract', () => {
     expect(mapSource).toContain('order-1 relative flex min-h-0 w-full min-w-0 flex-1 flex-col');
     expect(mapSource).toContain('data-testid="desktop-task-panel"');
     expect(mapSource).toContain('md:col-start-2 md:row-start-1');
-    expect(mapSource).toContain('md:grid-cols-[minmax(0,1fr)_minmax(24rem,30rem)]');
+    expect(mapSource).toContain('md:grid-cols-[minmax(0,1fr)_clamp(19rem,31vw,24rem)]');
     expect(mapSource).not.toContain("taskPanelMode === 'rail' ? 'md:w-[2.75rem]' : 'md:w-auto'");
     expect(mapSource).toContain("taskPanelMode === 'rail' ? 'md:hidden' : 'md:w-auto'");
     expect(mapSource).toContain('Развернуть правую панель задачи');

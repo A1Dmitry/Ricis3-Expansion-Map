@@ -1,8 +1,13 @@
+import { ContentButton, ContentLink } from './components/ContentButton';
+import { createPortal } from 'react-dom';
+
+import { IconButton } from './components/IconButton';
+import { PanelTop as ButtonIconPanelTop } from 'lucide-react';
 import React, { useState, useEffect } from 'react';
 import type { ProblemNode, Proof } from '../model/types';
-import { isMissingTargetFunction, nodeHasSorry } from '../model/audit';
+import { isMissingTargetFunction } from '../model/audit';
 import { getUnlockedTargets, getUnlockRequirements, isNodeAvailable } from '../model/access';
-import { ChevronDown, ChevronUp, ArrowLeft, ExternalLink, ShieldCheck, Sparkles, Lock, Unlock, BookOpen, DollarSign, Terminal, CheckCircle2, Share2, Check, Calculator, Layers as LayersIcon, Activity, Zap, Play, Compass, Pencil } from 'lucide-react';
+import { ChevronDown, ChevronUp, ArrowLeft, ExternalLink, ShieldCheck, Sparkles, Lock, Unlock, BookOpen, DollarSign, Terminal, CheckCircle2, Share2, Check, Calculator, Layers as LayersIcon, Activity, Play, Compass, Pencil } from 'lucide-react';
 import { useTerminalStore } from '../store/useTerminalStore';
 import { LatexRenderer } from './LatexRenderer';
 import { ExecutionTraceViewer } from './ExecutionTraceViewer';
@@ -104,6 +109,8 @@ type Props = {
   isSolving?: boolean;
   isSolveDisabled?: boolean;
   solveDisabledReason?: string;
+  menuContainer?: HTMLElement | null;
+  menuFooter?: (closeMenu: () => void) => React.ReactNode;
 };
 
 export function getReferencesForNode(node: ProblemNode) {
@@ -170,13 +177,15 @@ export const NodeCardDetails: React.FC<Props> = ({
   isSolving = false,
   isSolveDisabled,
   solveDisabledReason,
+  menuContainer,
+  menuFooter,
 }) => {
   const { t } = useI18nStore();
-  const isKinematicManipulator = 
-    node.id === 'calculator-node-kinematic' || 
-    node.id === 'manipulator-core-kinematics' || 
-    node.id === 'manipulator-constraints-workspace' || 
-    node.id === 'manipulator-singularities' || 
+  const isKinematicManipulator =
+    node.id === 'calculator-node-kinematic' ||
+    node.id === 'manipulator-core-kinematics' ||
+    node.id === 'manipulator-constraints-workspace' ||
+    node.id === 'manipulator-singularities' ||
     node.id === 'manipulator-ui-visualization';
   const refs = getReferencesForNode(node);
   const proof = map?.proofs?.[node.id] as Proof | undefined;
@@ -418,10 +427,16 @@ export const NodeCardDetails: React.FC<Props> = ({
   ];
 
   return (
-    <div className={`space-y-0 ${isExpanded ? 'text-[12px]' : 'text-[11px]'}`}>
+    <div data-testid="node-details-accordion" className={`space-y-0 ${isExpanded ? 'text-[12px]' : 'text-[11px]'}`}>
+      {menuContainer ? createPortal(
+        <NodeContextMenu items={menuItems} triggerLabel="Меню задачи" footer={menuFooter} />,
+        menuContainer,
+      ) : menuContainer === undefined ? (
+        <NodeContextMenu items={menuItems} triggerLabel="Меню задачи" footer={menuFooter} />
+      ) : null}
       {/* Кнопка навигации назад, если пользователь перешел по ссылке */}
       {onNavigateBack && previousNodeTitle && (
-        <button
+        <ContentButton
           type="button"
           onClick={onNavigateBack}
           className="w-full flex items-center justify-between px-3 py-1.5 rounded-md bg-cyan-950/40 border border-cyan-700/60 hover:bg-cyan-900/60 hover:border-cyan-400 text-cyan-300 text-[10px] font-bold transition-all cursor-pointer group shadow-sm"
@@ -432,21 +447,8 @@ export const NodeCardDetails: React.FC<Props> = ({
             <span className="text-white truncate max-w-[240px] font-medium">{previousNodeTitle}</span>
           </span>
           <span className="text-[9px] uppercase tracking-wider text-cyan-400/80 font-mono">История</span>
-        </button>
+        </ContentButton>
       )}
-
-      {/* ПАНЕЛЬ ДЕЙСТВИЙ: кнопки выполнения переехали в контекстное меню задачи */}
-      <div className="my-2 flex items-center justify-between gap-2 rounded-lg border border-cyan-900/40 bg-neutral-950/60 px-3 py-2">
-        <p className="text-[9px] font-bold uppercase tracking-[0.15em] text-cyan-300 flex items-center gap-1.5">
-          <Zap size={12} className="text-cyan-400" />
-          Действия задачи
-        </p>
-        <NodeContextMenu
-          items={menuItems}
-          triggerLabel="Действия"
-        />
-      </div>
-
 
       {calculatorEntry?.monolith.calculator.mode === 'KINEMATIC' && (
         <section aria-label="Граница визуализации манипулятора" className="mb-3 rounded border border-amber-800/70 bg-amber-950/25 p-2 text-[9px] leading-relaxed text-amber-100">
@@ -458,7 +460,8 @@ export const NodeCardDetails: React.FC<Props> = ({
       {/* 1. СЕКЦИЯ АККОРДЕОНА: ЦЕЛЕВАЯ ФУНКЦИЯ И СИНГУЛЯРНОСТЬ */}
       <div className="flex flex-col border-b border-neutral-800/50 bg-transparent">
         <div className="flex flex-col border-b border-neutral-800/50">
-        <div
+        <ContentButton
+          aria-expanded={openSections['target']}
           onClick={() => toggleSection('target')}
           className="w-full flex items-center justify-between min-h-[44px] px-3.5 py-3 bg-neutral-950/40 hover:bg-neutral-900/70 text-left cursor-pointer transition-colors"
         >
@@ -469,7 +472,7 @@ export const NodeCardDetails: React.FC<Props> = ({
           <div className="flex items-center gap-2">
             {openSections['target'] ? <ChevronUp size={14} className="text-neutral-400" /> : <ChevronDown size={14} className="text-neutral-400" />}
           </div>
-        </div>
+        </ContentButton>
 
         {openSections['target'] && (
           <div className="p-3 space-y-2.5">
@@ -508,7 +511,7 @@ export const NodeCardDetails: React.FC<Props> = ({
       {/* 2. СЕКЦИЯ АККОРДЕОНА: РАЗБЛОКИРУЕТ СЛЕДУЮЩИЕ ЗАДАЧИ */}
       {node.state === 'resolved' && (
         <div className="flex flex-col border-b border-neutral-800/50">
-          <button
+          <ContentButton
             type="button"
             onClick={() => toggleSection('forward')}
             className="w-full flex items-center justify-between min-h-[44px] px-3.5 py-3 bg-neutral-950/40 hover:bg-neutral-900/70 text-left cursor-pointer transition-colors"
@@ -523,7 +526,7 @@ export const NodeCardDetails: React.FC<Props> = ({
               </span>
               {openSections['forward'] ? <ChevronUp size={14} className="text-emerald-400" /> : <ChevronDown size={14} className="text-emerald-400" />}
             </div>
-          </button>
+          </ContentButton>
 
           {openSections['forward'] && (
             <div className="p-3 space-y-2">
@@ -542,26 +545,26 @@ export const NodeCardDetails: React.FC<Props> = ({
                       key={targetNode.id}
                       className="flex items-center justify-between p-1.5 rounded bg-black/60 border border-emerald-900/40 hover:border-emerald-500/60 transition-colors group"
                     >
-                      <button
+                      <ContentButton
                         type="button"
                         onClick={() => onNavigateToNode?.(targetNode.id)}
                         className="text-left font-medium text-slate-200 group-hover:text-emerald-300 transition-colors text-[10.5px] truncate max-w-[250px] cursor-pointer"
                         title={targetNode.title}
                       >
                         {targetNode.title}
-                      </button>
+                      </ContentButton>
                       <div className="flex items-center gap-1.5 shrink-0">
                         <span className="text-[8px] font-bold uppercase px-1.5 py-0.5 rounded bg-emerald-900/80 text-emerald-200 border border-emerald-600/70">
                           Доступна
                         </span>
-                        <button
+                        <IconButton fallbackIcon={ButtonIconPanelTop}
                           type="button"
                           onClick={() => onNavigateToNode?.(targetNode.id)}
                           className="text-emerald-400 hover:text-white text-xs px-1 cursor-pointer"
                           title="Перейти к узлу"
                         >
                           →
-                        </button>
+                        </IconButton>
                       </div>
                     </div>
                   );
@@ -575,7 +578,7 @@ export const NodeCardDetails: React.FC<Props> = ({
       {/* 3. СЕКЦИЯ АККОРДЕОНА: ТРЕБУЕМЫЕ ПРЕДПОСЫЛКИ (ПРЕРЕКВИЗИТЫ) */}
       {unlockRequirements.length > 0 && node.state !== 'resolved' && (
         <div className="flex flex-col border-b border-neutral-800/50">
-          <button
+          <ContentButton
             type="button"
             onClick={() => toggleSection('prereqs')}
             className="w-full flex items-center justify-between min-h-[44px] px-3.5 py-3 bg-neutral-950/40 hover:bg-neutral-900/70 text-left cursor-pointer transition-colors"
@@ -590,7 +593,7 @@ export const NodeCardDetails: React.FC<Props> = ({
               </span>
               {openSections['prereqs'] ? <ChevronUp size={14} className="text-amber-400" /> : <ChevronDown size={14} className="text-amber-400" />}
             </div>
-          </button>
+          </ContentButton>
 
           {openSections['prereqs'] && (
             <div className="p-3 space-y-1.5 max-h-40 overflow-y-auto">
@@ -599,22 +602,22 @@ export const NodeCardDetails: React.FC<Props> = ({
                   key={reqNode.id}
                   className="flex items-center justify-between p-1.5 rounded bg-black/60 border border-amber-900/40 hover:border-amber-500/60 transition-colors group"
                 >
-                  <button
+                  <ContentButton
                     type="button"
                     onClick={() => onNavigateToNode?.(reqNode.id)}
                     className="text-left font-medium text-slate-200 group-hover:text-amber-300 transition-colors text-[10.5px] truncate max-w-[250px] cursor-pointer"
                     title={reqNode.title}
                   >
                     {reqNode.title}
-                  </button>
-                  <button
+                  </ContentButton>
+                  <IconButton fallbackIcon={ButtonIconPanelTop}
                     type="button"
                     onClick={() => onNavigateToNode?.(reqNode.id)}
                     className="text-amber-400 hover:text-white text-xs px-1 cursor-pointer"
                     title="Перейти к узлу"
                   >
                     →
-                  </button>
+                  </IconButton>
                 </div>
               ))}
             </div>
@@ -624,7 +627,7 @@ export const NodeCardDetails: React.FC<Props> = ({
 
       {/* 4. СЕКЦИЯ АККОРДЕОНА: ФОРМАЛЬНАЯ ВЕРИФИКАЦИЯ (LEAN 4 / RICIS) */}
         <div className="flex flex-col border-b border-neutral-800/50">
-        <button
+        <ContentButton
           type="button"
           onClick={() => toggleSection('verification')}
           className="w-full flex items-center justify-between min-h-[44px] px-3.5 py-3 bg-neutral-950/40 hover:bg-neutral-900/70 text-left cursor-pointer transition-colors"
@@ -637,7 +640,7 @@ export const NodeCardDetails: React.FC<Props> = ({
             <ProofTrustBadge node={node} proof={proof} />
             {openSections['verification'] ? <ChevronUp size={14} className="text-neutral-400" /> : <ChevronDown size={14} className="text-neutral-400" />}
           </div>
-        </button>
+        </ContentButton>
 
         {openSections['verification'] && (
           <div className="p-3 space-y-2">
@@ -677,7 +680,7 @@ export const NodeCardDetails: React.FC<Props> = ({
 
       {/* 4.5. СЕКЦИЯ АККОРДЕОНА: ТРАССИРОВКА RICIS-III */}
         <div className="flex flex-col border-b border-neutral-800/50">
-        <button
+        <ContentButton
           type="button"
           onClick={() => toggleSection('trace')}
           className="w-full flex items-center justify-between min-h-[44px] px-3.5 py-3 bg-neutral-950/40 hover:bg-neutral-900/70 text-left cursor-pointer transition-colors"
@@ -689,15 +692,15 @@ export const NodeCardDetails: React.FC<Props> = ({
           <div className="flex items-center gap-2">
             {openSections['trace'] ? <ChevronUp size={14} className="text-neutral-400" /> : <ChevronDown size={14} className="text-neutral-400" />}
           </div>
-        </button>
+        </ContentButton>
 
         {openSections['trace'] && (
           <div className="p-3">
-            <ExecutionTraceViewer 
-              nodeId={node.id} 
-              logData={traceLog} 
-              isLoading={isTracing} 
-              onRerunTrace={runTrace} 
+            <ExecutionTraceViewer
+              nodeId={node.id}
+              logData={traceLog}
+              isLoading={isTracing}
+              onRerunTrace={runTrace}
             />
           </div>
         )}
@@ -705,7 +708,7 @@ export const NodeCardDetails: React.FC<Props> = ({
 
       {/* 5. СЕКЦИЯ АККОРДЕОНА: ПЕРВОИСТОЧНИКИ, СТАТЬИ И DOI */}
         <div className="flex flex-col border-b border-neutral-800/50">
-        <button
+        <ContentButton
           type="button"
           onClick={() => toggleSection('sources')}
           className="w-full flex items-center justify-between min-h-[44px] px-3.5 py-3 bg-neutral-950/40 hover:bg-neutral-900/70 text-left cursor-pointer transition-colors"
@@ -717,11 +720,11 @@ export const NodeCardDetails: React.FC<Props> = ({
           <div className="flex items-center gap-2">
             {openSections['sources'] ? <ChevronUp size={14} className="text-neutral-400" /> : <ChevronDown size={14} className="text-neutral-400" />}
           </div>
-        </button>
+        </ContentButton>
 
         {openSections['sources'] && (
           <div className="p-3 space-y-2 text-[11px]">
-            <a
+            <ContentLink
               href={refs.articleUrl}
               target="_blank"
               rel="noopener noreferrer"
@@ -734,9 +737,9 @@ export const NodeCardDetails: React.FC<Props> = ({
                 </span>
               </div>
               <ExternalLink size={12} className="text-neutral-500 group-hover:text-cyan-400 shrink-0" />
-            </a>
+            </ContentLink>
 
-            <a
+            <ContentLink
               href={refs.wikiUrl}
               target="_blank"
               rel="noopener noreferrer"
@@ -749,9 +752,9 @@ export const NodeCardDetails: React.FC<Props> = ({
                 </span>
               </div>
               <ExternalLink size={12} className="text-neutral-500 group-hover:text-sky-400 shrink-0" />
-            </a>
+            </ContentLink>
 
-            <a
+            <ContentLink
               href={refs.doiUrl}
               target="_blank"
               rel="noopener noreferrer"
@@ -764,7 +767,7 @@ export const NodeCardDetails: React.FC<Props> = ({
                 </span>
               </div>
               <ExternalLink size={12} className="text-neutral-500 group-hover:text-purple-400 shrink-0" />
-            </a>
+            </ContentLink>
           </div>
         )}
       </div>
@@ -772,7 +775,7 @@ export const NodeCardDetails: React.FC<Props> = ({
       {/* 6. СЕКЦИЯ АККОРДЕОНА: ЭКОНОМИКА И ОЦЕНКА */}
       {node.economic && (
         <div className="flex flex-col border-b border-neutral-800/50">
-          <button
+          <ContentButton
             type="button"
             onClick={() => toggleSection('economics')}
             className="w-full flex items-center justify-between min-h-[44px] px-3.5 py-3 bg-neutral-950/40 hover:bg-neutral-900/70 text-left cursor-pointer transition-colors"
@@ -787,7 +790,7 @@ export const NodeCardDetails: React.FC<Props> = ({
               </span>
               {openSections['economics'] ? <ChevronUp size={14} className="text-emerald-400" /> : <ChevronDown size={14} className="text-emerald-400" />}
             </div>
-          </button>
+          </ContentButton>
 
           {openSections['economics'] && (() => {
             const netProfit = Math.max(0, (node.economic?.marketGain || 0) - (node.economic?.costToSolve || 0));
@@ -816,7 +819,7 @@ export const NodeCardDetails: React.FC<Props> = ({
       {/* 7. СЕКЦИЯ АККОРДЕОНА: ДОКАЗАТЕЛЬСТВО АВТОРСТВА ИЛИ АУДИТ ПРИОРИТЕТА */}
       {node.type === 'derivative_claim' && (
         <div className="flex flex-col">
-          <button
+          <ContentButton
             type="button"
             onClick={() => toggleSection('provenance')}
             className="w-full flex items-center justify-between min-h-[44px] px-3.5 py-3 bg-neutral-950/40 hover:bg-neutral-900/70 text-left cursor-pointer transition-colors"
@@ -828,7 +831,7 @@ export const NodeCardDetails: React.FC<Props> = ({
             <div className="flex items-center gap-2">
               {openSections['provenance'] ? <ChevronUp size={14} className="text-cyan-400" /> : <ChevronDown size={14} className="text-cyan-400" />}
             </div>
-          </button>
+          </ContentButton>
 
           {openSections['provenance'] && (
             <div className="p-3 space-y-2 text-[10px]">

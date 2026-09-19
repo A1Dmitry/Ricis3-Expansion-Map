@@ -1,10 +1,14 @@
+import { ContentButton } from './components/ContentButton';
+import { Plus as ButtonIconPlus } from 'lucide-react';
+import { IconButton } from './components/IconButton';
+import { X as ButtonIconX } from 'lucide-react';
 import React, { useState } from 'react';
 import { useMapStore } from '../store/mapStore';
 import { ProblemNode } from '../model/types';
 import { ActionButton } from './ActionButton';
 import { isAutoFormulaRequest } from '../model/audit';
 import { postJson } from '../model/apiClient';
-import { Sparkles, Bot, Share2, Check } from 'lucide-react';
+import { Bot } from 'lucide-react';
 import { UrlShareService } from '../services/UrlShareService';
 import { useI18nStore } from '../store/useI18nStore';
 import {
@@ -14,18 +18,18 @@ import {
 
 export type { AddNodePrefillData } from '../domain/node/nodeDraft.types';
 
-export function AddNodeModal({ 
-  onClose, 
-  parentId, 
-  initialData 
-}: { 
-  onClose: () => void; 
-  parentId?: string; 
+export function AddNodeModal({
+  onClose,
+  parentId,
+  initialData
+}: {
+  onClose: () => void;
+  parentId?: string;
   initialData?: AddNodePrefillData;
 }) {
   const { t } = useI18nStore();
   const map = useMapStore();
-  
+
   const [title, setTitle] = useState(initialData?.title || '');
   const [targetFunction, setTargetFunction] = useState(initialData?.targetFunction || '');
   const [description, setDescription] = useState(initialData?.description || '');
@@ -74,7 +78,7 @@ export function AddNodeModal({
     e.preventDefault();
     if (!title) return;
     setErrorMsg('');
-    
+
     let resolvedTargetFn = targetFunction.trim();
     let finalDesc = description.trim();
     let finalHint = hint.trim();
@@ -146,9 +150,9 @@ export function AddNodeModal({
     };
 
     const createdNodeInternalId = await map.addCustomNode(node, parentId, zoneId === 'NEW_ZONE' ? newZoneName : undefined);
-    
+
     setCreatedNodeId(createdNodeInternalId);
-    
+
     // Обновляем URL для deep-linking
     UrlShareService.updateBrowserUrl({ nodeId: createdNodeInternalId });
 
@@ -166,7 +170,7 @@ export function AddNodeModal({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
       <div className="bg-[#090c12] border border-cyan-900/60 rounded-xl max-w-lg w-full p-6 shadow-[0_0_50px_rgba(0,0,0,0.9)] max-h-[90vh] overflow-y-auto custom-scrollbar">
-        
+
         {/* Header */}
         <div className="flex items-center justify-between mb-4 border-b border-neutral-800 pb-3">
           <div className="flex items-center gap-2">
@@ -179,13 +183,13 @@ export function AddNodeModal({
               </span>
             )}
           </div>
-          <button 
+          <IconButton title="Закрыть" fallbackIcon={ButtonIconX}
             type="button"
-            onClick={onClose} 
+            onClick={onClose}
             className="text-slate-400 hover:text-white p-1 rounded hover:bg-neutral-800 transition-colors"
           >
             ✕
-          </button>
+          </IconButton>
         </div>
 
         {errorMsg && (
@@ -195,7 +199,7 @@ export function AddNodeModal({
         )}
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          
+
           {/* Title */}
           <div>
             <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1">
@@ -228,7 +232,7 @@ export function AddNodeModal({
 
           {/* AI Helper Button */}
           <div className="flex justify-end">
-            <button
+            <ContentButton
               type="button"
               disabled={loadingAI}
               onClick={handleAI}
@@ -246,7 +250,7 @@ export function AddNodeModal({
                   <span>🤖 ИИ-Агент: Дополнить поля</span>
                 </>
               )}
-            </button>
+            </ContentButton>
           </div>
 
           {/* Description */}
@@ -323,14 +327,14 @@ export function AddNodeModal({
 
           {/* Actions */}
           <div className="flex items-center justify-end gap-3 pt-3 border-t border-neutral-800">
-            <button
+            <ContentButton
               type="button"
               onClick={onClose}
               className="px-4 py-2 rounded-lg bg-neutral-900 hover:bg-neutral-800 border border-neutral-700 text-xs font-semibold text-slate-300 transition-colors"
             >
               {t('modal.cancel')}
-            </button>
-            <ActionButton
+            </ContentButton>
+            <ActionButton fallbackIcon={ButtonIconPlus}
               type="submit"
               variant="emerald"
               className="px-5 py-2 text-xs uppercase font-bold tracking-wider"

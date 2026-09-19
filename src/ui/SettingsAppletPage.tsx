@@ -1,3 +1,6 @@
+import { ContentButton } from './components/ContentButton';
+import { IconButton } from './components/IconButton';
+
 // ============================================================================
 // SETTINGS APPLET PAGE (full workspace surface for ?applet=settings)
 // BUG-03: previously App.tsx rendered SettingsModal as a stub (roles={[]},
@@ -32,13 +35,13 @@ export function SettingsAppletPage({ onBackToMap }: SettingsAppletPageProps): Re
   return (
     <div className="w-full h-full overflow-y-auto p-4 bg-[#070b14]">
       <div className="mx-auto mb-4 flex max-w-6xl items-center justify-between">
-        <button
+        <ContentButton
           type="button"
           onClick={onBackToMap}
           className="inline-flex min-h-10 items-center gap-1.5 rounded-lg bg-slate-800 px-3 py-1.5 font-mono text-xs text-cyan-300 transition-colors hover:bg-slate-700"
         >
           ← Вернуться к 3D Карте
-        </button>
+        </ContentButton>
       </div>
       <SettingsModal
         isOpen
