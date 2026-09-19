@@ -277,7 +277,6 @@ export function Map2DGraph({ nodes, zones, selectedNodeId, onSelectNode, proofs 
                 y2={y2}
                 stroke={isUpstream ? '#22d3ee' : isDownstream ? '#a78bfa' : '#334155'}
                 strokeWidth={isActive ? 2.6 : 1}
-                strokeDasharray={isActive ? 'none' : '5 4'}
                 opacity={muted ? 0.06 : isActive ? 0.95 : 0.35}
                 markerEnd={isUpstream ? 'url(#m2d-arrow-upstream)' : isDownstream ? 'url(#m2d-arrow-downstream)' : 'url(#m2d-arrow)'}
               />

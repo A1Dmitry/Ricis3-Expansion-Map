@@ -895,6 +895,20 @@ describe('OIR-03 — audit proof-synthesis containment', () => {
       '?? src/ui/map2d/twoDLayout.test.ts',
       '?? src/ui/map2d/Map2DGraph.tsx',
       '?? src/ui/map2d/MapTreeView.tsx',
+      // MAP-2D-SOLID-EDGES (0.4.221, 2026-09-19): финальный штрих по образцу
+      // — рёбра невыбранных связей переведены с пунктира на сплошные тонкие
+      // линии (в эталонной картинке все рёбра сплошные); пунктирных контуров
+      // на плоскости не осталось вообще. Только стиль SVG-строк рёбер.
+      ' M src/ui/map2d/Map2DGraph.tsx',
+      ' M package.json',
+      ' M package-lock.json',
+      ' M src/version.ts',
+      ' M index.html',
+      ' M README.md',
+      ' M CITATION.cff',
+      ' M docs/05-evidence/architecture/structural-hash-report.md',
+      ' M docs/05-evidence/architecture/telegram-tokenpool-remediation-2026-08-18.md',
+      ' M docs/05-evidence/proofs/lean-boundary-audit-2026-08-18.md',
       // MAP-2D-CLASSIC-RADIAL (0.4.220, 2026-09-19): по фидбэку с образцом-
       // картинкой («вот так, только без контуров») зоно-секторная радиальная
       // раскладка заменена КЛАССИЧЕСКОЙ древовидной радиальной по ПОЛНОМУ
