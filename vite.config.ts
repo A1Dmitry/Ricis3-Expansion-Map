@@ -23,7 +23,11 @@ export default defineConfig(() => {
       },
     },
     test: {
+      // jsdom + globals: UI tests use `document`; several legacy suites rely on
+      // `describe`/`it`/`beforeEach` without importing them (the deleted
+      // vitest.config.ts carried `globals: true`).
       environment: 'jsdom',
+      globals: true,
     },
     server: {
       // HMR is disabled in AI Studio via DISABLE_HMR env var.

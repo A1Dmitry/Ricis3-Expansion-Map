@@ -1,6 +1,6 @@
 {
-  "executor_key": "c55cc355edfd2d767e186adea7fa5e511642abc29dd384774be261718ec1eeb6",
-  "attested_at": "2026-09-20T15:12:00Z",
+  "executor_key": "cdd5cf6c11571be82999befbd9208bfb2268331021601d5213e275fc78343c92",
+  "attested_at": "2026-09-20T17:06:28.958Z",
   "documents": [
     {
       "path": "AGENTS.md",
@@ -42,7 +42,7 @@
   "acceptance": "Я прочитал(а) все обязательные документы в редакциях с указанными sha256, принимаю их как обязательные нормы этой работы и подтверждаю, что нарушение классифицируется как TUKHTA и основание для отклонения вклада.",
   "comprehension": {
     "R1": "1 (L1)",
-    "R2": "a^2",
+    "R2": "A^2",
     "R3": "F/G, F*G",
     "Q1": [
       "COMPLETED",
@@ -62,8 +62,8 @@
     "Q7": "TRUSTED_AXIOM"
   },
   "quotes": {
-    "docs/00-governance/RICIS_EXTERNAL_EXECUTOR_PROTOCOL.md": "metadata: `accepted`, `stage`, `violation`, `requiredRules`,",
-    "AGENTS.md": "Если пользователь предоставляет Lean-исходник, полученный внешним способом, и явно задаёт его как доказательство, исходник становится **неизменяемым внешним артефактом**. Агент вправе анализировать, компилировать, аудитировать и присоединять metadata, но не вправе нормализовать, сгенерировать замену, переписать или молча подменить предоставленные байты исходника.",
-    "docs/00-governance/RICIS_SEMANTIC_AUTHORITY.md": "2. **Logic / Tests = Independent Validation**: The TypeScript test suites (`*.test.ts`) serve as independent validators of the execution paths. They prove that the implementation adheres to the semantic contract and doesn't introduce regressions or garbage duplicates (Anti-Tukhta)."
+    "docs/00-governance/RCVAP_AUTONOMOUS_ANTI_TUKHTA_AGILE_PROTOCOL.md": "No reported result may be accepted as progress unless its correspondence to the original goal is independently verified.",
+    "docs/00-governance/WORK_PATTERNS.md": "**Критерий завершения:** у каждого вывода есть статус и указана граница доверия.",
+    "docs/00-governance/RICIS_IMMUTABILITY_MANIFEST.md": "* не могут подменять смысл терминов ради успешного прохождения тестов."
   }
 }
