@@ -34,6 +34,13 @@ interface Props {
   readonly linkLengths: readonly [number, number, number];
   /** Show the two tennis-ball automatons (catch-the-falling-ball / cannon scenario). */
   readonly showCannons?: boolean;
+  /**
+   * When provided, clicking on the floor/workspace in the 3D view casts a ray
+   * and calls this with the world-space point — the parent can route it to the
+   * MANUAL target. A click is discriminated from an OrbitControls drag by a
+   * small (<4px) pointer-move threshold between pointerdown and pointerup.
+   */
+  readonly onSetTarget?: (point: Vector3D) => void;
 }
 
 function supportsWebGL(): boolean {
@@ -55,6 +62,7 @@ export const RobotArm3DCanvas: React.FC<Props> = ({
   showDlsGhost = true,
   showCannons = false,
   linkLengths,
+  onSetTarget,
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const canvas2dRef = useRef<HTMLCanvasElement>(null);
@@ -79,8 +87,49 @@ export const RobotArm3DCanvas: React.FC<Props> = ({
   const targetMeshRef = useRef<THREE.Mesh | null>(null);
   const ballMeshesRef = useRef<Map<string, THREE.Mesh>>(new Map());
   const boxGroupRef = useRef<THREE.Group | null>(null);
+  // Latest click-target callback (kept in a ref so the pointer listeners,
+  // which attach once at scene init, always call the current prop).
+  const onSetTargetRef = useRef(onSetTarget);
+  onSetTargetRef.current = onSetTarget;
 
   const [L0, L1, L2] = linkLengths;
+
+  // 2D canvas click -> target (same clamping as the 3D raycast).
+  useEffect(() => {
+    if (presentationMode !== '2d' || !canvas2dRef.current) return;
+    const canvas = canvas2dRef.current;
+    canvas.style.cursor = onSetTarget ? 'crosshair' : '';
+    if (!onSetTarget) return;
+    const handler = (e: MouseEvent) => {
+      const rect = canvas.getBoundingClientRect();
+      const mx = e.clientX - rect.left;
+      const my = e.clientY - rect.top;
+      const w = canvas.clientWidth || 600;
+      const h = canvas.clientHeight || 450;
+      const halfW = w / 2;
+      const scale = Math.min(
+        (halfW - 40) / (ROOM_HALF_EXTENT_M * 1.08),
+        (h / 2 - 40) / ROOM_HALF_EXTENT_M,
+        (h - 80) / ROOM_HEIGHT_M
+      );
+      const cx1 = halfW / 2;
+      const cy1 = h / 2 + 10;
+      if (mx < halfW) {
+        // Click in the TOP-DOWN pane -> map to (x, y) at z=0.30.
+        const modelX = (mx - cx1) / scale;
+        const modelY = -(my - cy1) / scale;
+        onSetTarget({
+          x: THREE.MathUtils.clamp(modelX, -2.0, 2.0),
+          y: THREE.MathUtils.clamp(modelY, -2.0, 2.0),
+          z: 0.30,
+        });
+      }
+      // Clicks in the side-elevation pane are ambiguous (no azimuth), so we
+      // ignore them — only the top-down pane produces unambiguous (x,y) targets.
+    };
+    canvas.addEventListener('click', handler);
+    return () => canvas.removeEventListener('click', handler);
+  }, [presentationMode, onSetTarget]);
 
   // Initialize 3D Scene when in 3D mode
   useEffect(() => {
@@ -114,6 +163,8 @@ export const RobotArm3DCanvas: React.FC<Props> = ({
 
     container.replaceChildren(renderer.domElement);
     rendererRef.current = renderer;
+    // In click-to-target mode, show a crosshair so users know clicks aim.
+    if (onSetTarget) renderer.domElement.style.cursor = 'crosshair';
 
     const controls = new OrbitControls(camera, renderer.domElement);
     controls.enableDamping = true;
@@ -123,6 +174,51 @@ export const RobotArm3DCanvas: React.FC<Props> = ({
     controls.maxDistance = 10.0;
     controls.target.set(0, 0, 0.6);
     controlsRef.current = controls;
+
+    // ----------------------------------------------------------------------
+    // Click-to-target: discriminate a click from an OrbitControls drag using
+    // a pointer-move threshold. On a valid click we raycast against the
+    // floor plane (z = 0 in model coords = y = 0 in three.js coords), clamp
+    // the result inside the workspace, and hand it up via onSetTarget.
+    // ----------------------------------------------------------------------
+    let pointerDown: { x: number; y: number } | null = null;
+    const raycaster = new THREE.Raycaster();
+    const ndc = new THREE.Vector2();
+    const floorPlane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0); // y=0 in three.js = z=0 model floor
+    const MAX_WORKSPACE_M = 2.0; // generous click bound (slightly inside room walls)
+
+    const onPointerDown = (e: PointerEvent) => {
+      pointerDown = { x: e.clientX, y: e.clientY };
+    };
+    const onPointerUp = (e: PointerEvent) => {
+      const handler = onSetTargetRef.current;
+      if (!pointerDown || !handler || !cameraRef.current) {
+        pointerDown = null;
+        return;
+      }
+      const dx = e.clientX - pointerDown.x;
+      const dy = e.clientY - pointerDown.y;
+      pointerDown = null;
+      if (dx * dx + dy * dy > 16) return; // was a drag — let OrbitControls handle it
+      if (e.button !== 0) return;          // primary button only
+
+      const rect = renderer.domElement.getBoundingClientRect();
+      ndc.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
+      ndc.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
+      raycaster.setFromCamera(ndc, cameraRef.current);
+      const hit = new THREE.Vector3();
+      if (!raycaster.ray.intersectPlane(floorPlane, hit)) return;
+
+      // three.js -> model coords: (x, z, -y)_three = (x, y, z)_model, floor at three.y=0.
+      const modelPt: Vector3D = {
+        x: THREE.MathUtils.clamp(hit.x, -MAX_WORKSPACE_M, MAX_WORKSPACE_M),
+        y: THREE.MathUtils.clamp(-hit.z, -MAX_WORKSPACE_M, MAX_WORKSPACE_M),
+        z: 0.30, // place the target at a comfortable EE height (matches MANUAL slider min)
+      };
+      handler(modelPt);
+    };
+    renderer.domElement.addEventListener('pointerdown', onPointerDown);
+    renderer.domElement.addEventListener('pointerup', onPointerUp);
 
     // Lighting
     const ambientLight = new THREE.AmbientLight(0xffffff, 0.8);
@@ -295,6 +391,8 @@ export const RobotArm3DCanvas: React.FC<Props> = ({
       cancelAnimationFrame(animId);
       resizeObserver.disconnect();
       controls.dispose();
+      renderer.domElement.removeEventListener('pointerdown', onPointerDown);
+      renderer.domElement.removeEventListener('pointerup', onPointerUp);
       renderer.dispose();
       container.replaceChildren();
       if (ricisRigRef.current) disposeRobotArmRig(ricisRigRef.current);
@@ -808,8 +906,8 @@ export const RobotArm3DCanvas: React.FC<Props> = ({
       <div className="absolute bottom-3 right-3 bg-neutral-950/80 backdrop-blur border border-neutral-800/80 px-2.5 py-1.5 rounded text-[10px] text-neutral-400 pointer-events-none z-10">
         <span className="font-mono">
           {presentationMode === '3d'
-            ? '🖱️ Вращение: ЛКМ | Панорама: ПКМ | Зум: Колёсико'
-            : '📐 Ортогональная проекция: X-Y (план) и R-Z (высота)'}
+            ? '🖱️ Вращение: ЛКМ | Панорама: ПКМ | Зум: Колёсико' + (onSetTarget ? ' | 🎯 Клик по полу — цель' : '')
+            : '📐 Ортогональная проекция: X-Y (план) и R-Z (высота)' + (onSetTarget ? ' | 🎯 Клик по плану (левая панель) — цель' : '')}
         </span>
       </div>
     </div>

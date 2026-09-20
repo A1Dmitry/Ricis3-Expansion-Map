@@ -114,3 +114,13 @@ export const TENNIS_BALL: IProjectileMaterial = Object.freeze({
  * than left as a bare 0.35 at the call site.
  */
 export const BOX_WALL_RESTITUTION = 0.35;
+
+/**
+ * Wall restitution for the TENNIS_ROOM (concrete walls). A tennis ball
+ * rebounding off a painted concrete wall is assumed to lose slightly more
+ * energy than the ITF slab-floor drop spec (TENNIS_BALL_RESTITUTION≈0.745),
+ * but far more than the plywood delivery-box wall. Value chosen as 0.745
+ * (same as slab floor) — conservative and consistent with the published ITF
+ * rebound spec; tune down if walls feel too bouncy.
+ */
+export const CONCRETE_WALL_RESTITUTION = TENNIS_BALL_RESTITUTION;
