@@ -5,6 +5,8 @@
  * "Unexpected token '<', \"<html>...\"".
  */
 
+import { DEFAULT_AI_MODEL_ID } from './modelPool.types';
+
 /**
  * Machine-readable AI degradation reasons mirrored from server/aiDegradation.ts.
  * - local_draft: HTTP 200 with a canonical local template instead of AI output
@@ -83,7 +85,7 @@ export async function postJson<T = unknown>(
     typeof body === 'object' && body !== null && 'preferredModel' in body
       ? (body as any).preferredModel
       : (typeof window !== 'undefined' ? localStorage.getItem('ricis_selected_ai_model') : null) ||
-        'gemini-3.6-flash';
+        DEFAULT_AI_MODEL_ID;
 
   const finalBody =
     typeof body === 'object' && body !== null

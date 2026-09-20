@@ -183,7 +183,11 @@ type AgentFillPayload = {
  */
 export async function fillMissingTargetFunctions(
   map: MapState,
-  options?: { maxNodes?: number; delayMs?: number }
+  options?: {
+    maxNodes?: number;
+    delayMs?: number;
+    onProgress?: (current: number, total: number, title: string) => void;
+  }
 ): Promise<FillResult> {
   const maxNodes = options?.maxNodes ?? 40;
   const delayMs = options?.delayMs ?? 400;
@@ -197,6 +201,7 @@ export async function fillMissingTargetFunctions(
 
   for (let i = 0; i < missing.length; i++) {
     const node = missing[i];
+    options?.onProgress?.(i + 1, missing.length, node.title || node.id);
     try {
       let tf = '';
       let desc = node.description;
