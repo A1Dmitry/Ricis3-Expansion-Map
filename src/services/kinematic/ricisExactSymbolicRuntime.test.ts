@@ -22,9 +22,10 @@ import {
   RICIS_INFINITY_PROJECTION,
 } from './ricisSymbolicJacobian';
 import type { JointState3D, Vector3D } from '../../model/kinematicEngine.contracts';
+import { MANIPULATOR_LINK_LENGTHS_M } from './manipulatorConstants';
 
 const KINEMATIC_RICIS_MODULE = 'src/services/kinematic/ricisSymbolicJacobian.ts';
-const LINK_LENGTHS: readonly [number, number, number] = [0.4, 0.8, 0.7];
+const LINK_LENGTHS = MANIPULATOR_LINK_LENGTHS_M;
 
 /** Strips block and line comments so the scan sees code, not documentation. */
 function stripComments(source: string): string {

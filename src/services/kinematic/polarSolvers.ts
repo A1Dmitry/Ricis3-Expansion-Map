@@ -13,10 +13,10 @@ import type {
   RicisSolverMode,
 } from '../../model/kinematicEngine.contracts';
 import { BaseKinematicSolver3D } from './baseKinematicSolver3D';
-import { KinematicConstants } from './kinematicConstants';
 import { PolarCoordinateService } from './polarCoordinateService';
 import {
   forwardKinematics3D,
+  computeElbowPosition3D,
   computeJacobianDeterminant3D,
   distance3D,
   calculateAngleDeviationDeg,
@@ -24,6 +24,17 @@ import {
   wrapToPi,
 } from './kinematicMath';
 import { detectAdvantageEvent } from './advantageDetector';
+
+/**
+ * Bisection refinements used to find where a branch slew first clears the
+ * floor. 24 halvings shrink the progress interval by ~1.7e-7 — far below one
+ * 60 FPS frame, so the published pose is exact to the constraint, not to a
+ * hand-picked tolerance.
+ */
+const BISECTION_ITERATIONS = 24;
+import { ELBOW_BRANCH_TRANSITION_SEC, ELBOW_FLIP_HYSTERESIS_M, ELBOW_FLOOR_CLEARANCE_M, ELBOW_JOINT_LIMITS, workspaceAnnulus } from './manipulatorConstants';
+import { QA_DIRECTION_THRESHOLDS_DEG, QA_SCORE_MAX, QA_SCORE_MIN } from './qaMetricConstants';
+import { GHOST_DLS_DAMPING_FACTOR, SINGULARITY_DETERMINANT_THRESHOLD, SOLVER_DT_SEC, SOLVER_GAINS, SOLVER_NUMERICAL_GUARDS } from './solverConstants';
 
 /**
  * Analytical O(1) Polar-First RICIS-III Kinematic Solver.
@@ -38,12 +49,11 @@ export class PolarRicisConstraintSolver extends BaseKinematicSolver3D {
     currentState: IKinematicState3D,
     targetPosition: Vector3D,
     linkLengths: readonly [number, number, number],
-    dt = KinematicConstants.DEFAULT_DT_SECONDS,
+    dt = SOLVER_DT_SEC,
     coordinateMode: CoordinateSystemMode = 'CARTESIAN'
   ): ISolverResult3D & { qaTrace: IQATelemetryTraceEntry; polarTarget: CylindricalVector3D } {
     const [L0, L1, L2] = linkLengths;
-    const maxReach = L1 + L2;
-    const minReach = Math.abs(L1 - L2) + KinematicConstants.MIN_REACH_BUFFER_METERS;
+    const { minReachM: minReach, maxReachM: maxReach } = workspaceAnnulus(linkLengths);
 
     // 1. Convert to Polar Coordinates relative to robot base with L1_IDENTITY continuity
     const polarTarget = PolarCoordinateService.cartesianToCylindrical(
@@ -62,11 +72,11 @@ export class PolarRicisConstraintSolver extends BaseKinematicSolver3D {
     let clampedReach = planarReach;
     let isBoundarySingular = false;
 
-    if (planarReach >= maxReach - KinematicConstants.BOUNDARY_EPSILON_METERS) {
-      clampedReach = maxReach - KinematicConstants.MANIFOLD_PROJECTION_OFFSET_METERS;
+    if (planarReach >= maxReach - SOLVER_NUMERICAL_GUARDS.boundaryEpsilonM) {
+      clampedReach = maxReach - SOLVER_NUMERICAL_GUARDS.manifoldProjectionOffsetM;
       isBoundarySingular = true;
     } else if (planarReach <= minReach) {
-      clampedReach = minReach + KinematicConstants.MANIFOLD_PROJECTION_OFFSET_METERS;
+      clampedReach = minReach + SOLVER_NUMERICAL_GUARDS.manifoldProjectionOffsetM;
       isBoundarySingular = true;
     }
 
@@ -82,27 +92,27 @@ export class PolarRicisConstraintSolver extends BaseKinematicSolver3D {
     // base" defect). We track the CURRENT branch for continuity (no branch dithering)
     // and flip branches — with hysteresis — only when the current branch would pierce
     // the floor and the mirror branch is strictly higher.
-    const alpha = Math.atan2(targetZRel, Math.max(KinematicConstants.MIN_RADIAL_DISTANCE_GUARD, polarTarget.r));
+    const alpha = Math.atan2(targetZRel, Math.max(SOLVER_NUMERICAL_GUARDS.minRadialDistanceGuard, polarTarget.r));
     const betaDown = Math.atan2(L2 * Math.sin(q3Magnitude), L1 + L2 * Math.cos(q3Magnitude));
     const targetQ2Down = alpha - betaDown;
     const targetQ2Up = alpha + betaDown;
 
     const elbowZDown = L0 + L1 * Math.sin(targetQ2Down);
     const elbowZUp = L0 + L1 * Math.sin(targetQ2Up);
-    const clearance = KinematicConstants.ELBOW_FLOOR_CLEARANCE_METERS;
+    const clearance = ELBOW_FLOOR_CLEARANCE_M;
     const currentIsDown = currentState.joints.q3 >= 0;
     const elbowZCurrent = currentIsDown ? elbowZDown : elbowZUp;
     const elbowZAlt = currentIsDown ? elbowZUp : elbowZDown;
     const mustFlipBranch =
       elbowZCurrent < clearance &&
-      elbowZAlt > elbowZCurrent + KinematicConstants.ELBOW_FLIP_HYSTERESIS_METERS;
+      elbowZAlt > elbowZCurrent + ELBOW_FLIP_HYSTERESIS_M;
     const useDownBranch = currentIsDown ? !mustFlipBranch : mustFlipBranch;
 
     const targetQ2 = useDownBranch ? targetQ2Down : targetQ2Up;
     const targetQ3 = useDownBranch ? q3Magnitude : -q3Magnitude;
 
     // 7. Smooth continuous Euler integration towards exact algebraic target via shortest arc
-    const lerpRate = Math.min(1.0, KinematicConstants.RICIS_LERP_RATE_MULTIPLIER * dt);
+    const lerpRate = Math.min(1.0, SOLVER_GAINS.ricisLerpRateMultiplier * dt);
     const deltaQ1 = wrapToPi(targetQ1 - currentState.joints.q1);
 
     const nextQ1 = currentState.joints.q1 + deltaQ1 * lerpRate;
@@ -132,7 +142,7 @@ export class PolarRicisConstraintSolver extends BaseKinematicSolver3D {
     const detJ = computeJacobianDeterminant3D(nextJoints, linkLengths);
     const absDet = Math.abs(detJ);
 
-    const isSingular = absDet < KinematicConstants.SINGULARITY_DETERMINANT_THRESHOLD || isBoundarySingular;
+    const isSingular = absDet < SINGULARITY_DETERMINANT_THRESHOLD || isBoundarySingular;
 
     const metrics: ISolverMetrics3D = {
       positionError: posError,
@@ -158,7 +168,7 @@ export class PolarRicisConstraintSolver extends BaseKinematicSolver3D {
       ghostDirectionDeviationDeg: 0.0,
       ricisDirectionDeviationDeg: metrics.directionPreservedDeg,
       positionErrorCm: posError * 100,
-      qaScore: KinematicConstants.QA_MAX_SCORE,
+      qaScore: QA_SCORE_MAX,
       evaluationNotes: isSingular
         ? 'RICIS A6/SP4 Manifold Projection active: 0/0 singular boundary converted to exact invariant in O(1).'
         : 'Stable coordinate domain: exact inverse kinematics satisfied without limits.',
@@ -190,7 +200,7 @@ export class ClassicDlsGhostSolver extends BaseKinematicSolver3D {
   public readonly solverId = 'CLASSICAL_DLS_GHOST' as const;
   private readonly dampingFactor: number;
 
-  constructor(dampingFactor = KinematicConstants.DEFAULT_GHOST_DLS_DAMPING_FACTOR) {
+  constructor(dampingFactor = GHOST_DLS_DAMPING_FACTOR) {
     super();
     this.dampingFactor = dampingFactor;
   }
@@ -199,7 +209,7 @@ export class ClassicDlsGhostSolver extends BaseKinematicSolver3D {
     currentState: IKinematicState3D,
     targetPosition: Vector3D,
     linkLengths: readonly [number, number, number],
-    dt = KinematicConstants.DEFAULT_DT_SECONDS
+    dt = SOLVER_DT_SEC
   ): ISolverResult3D {
     const [L0, L1, L2] = linkLengths;
     const { q1, q2, q3 } = currentState.joints;
@@ -257,7 +267,7 @@ export class ClassicDlsGhostSolver extends BaseKinematicSolver3D {
     let deltaQ3 = (j12 * tempX + j22 * tempY) * 2.8 * dt;
 
     // Classical singularity stall
-    if (absDet < KinematicConstants.SINGULARITY_DETERMINANT_THRESHOLD) {
+    if (absDet < SINGULARITY_DETERMINANT_THRESHOLD) {
       deltaQ1 *= 0.5;
       deltaQ2 *= 0.35;
       deltaQ3 *= 0.12; // Elbow freezes near full extension
@@ -270,8 +280,8 @@ export class ClassicDlsGhostSolver extends BaseKinematicSolver3D {
       // collision-avoidance branch for low targets — clamping it away used to drive the
       // elbow under the floor (see enforceElbowFloorClearance in kinematicMath).
       q3: Math.max(
-        KinematicConstants.MIN_ELBOW_UP_JOINT_LIMIT_RAD,
-        Math.min(Math.PI - KinematicConstants.MAX_ELBOW_JOINT_LIMIT_OFFSET_RAD, q3 + deltaQ3)
+        ELBOW_JOINT_LIMITS.minUpRad,
+        Math.min(Math.PI - ELBOW_JOINT_LIMITS.maxDownOffsetRad, q3 + deltaQ3)
       ),
     };
 
@@ -284,8 +294,8 @@ export class ClassicDlsGhostSolver extends BaseKinematicSolver3D {
 
     const dirDeviation = calculateAngleDeviationDeg(desiredVector, actualStepVector);
     const posError = distance3D(nextEE, targetPosition);
-    const isSingular = absDet < KinematicConstants.SINGULARITY_DETERMINANT_THRESHOLD;
-    const degraded = isSingular && dirDeviation > KinematicConstants.DEGRADED_DIRECTION_THRESHOLD_DEG;
+    const isSingular = absDet < SINGULARITY_DETERMINANT_THRESHOLD;
+    const degraded = isSingular && dirDeviation > QA_DIRECTION_THRESHOLDS_DEG.degradedThresholdDeg;
 
     const metrics: ISolverMetrics3D = {
       positionError: posError,
@@ -416,7 +426,7 @@ export class KinematicDualDebuggerEngine {
         ghostDirectionDeviationDeg: 0.0,
         ricisDirectionDeviationDeg: rawRicisResult.metrics.directionPreservedDeg,
         positionErrorCm: rawRicisResult.metrics.positionError * 100,
-        qaScore: KinematicConstants.QA_MAX_SCORE,
+        qaScore: QA_SCORE_MAX,
         evaluationNotes: isSing
           ? 'RICIS-III Symbolic AST reduction active (SP2/SP4/A6): singular denominator algebraically bypassed.'
           : 'Regular domain: Symbolic Jacobian AST inverse satisfied with exact trajectory projection.',
@@ -471,12 +481,12 @@ export class KinematicDualDebuggerEngine {
     // Merge Ghost comparison into QA trace
     const enrichedQaTrace: IQATelemetryTraceEntry = {
       ...ricisResult.qaTrace,
-      ghostDampingPenalty: KinematicConstants.DEFAULT_GHOST_DLS_DAMPING_FACTOR * KinematicConstants.DEFAULT_GHOST_DLS_DAMPING_FACTOR,
+      ghostDampingPenalty: GHOST_DLS_DAMPING_FACTOR * GHOST_DLS_DAMPING_FACTOR,
       ghostDirectionDeviationDeg: dlsResult.metrics.directionPreservedDeg,
       qaScore: Math.max(
-        KinematicConstants.QA_MIN_SCORE,
+        QA_SCORE_MIN,
         Math.round(
-          KinematicConstants.QA_MAX_SCORE -
+          QA_SCORE_MAX -
             dlsResult.metrics.directionPreservedDeg * 1.5 -
             dlsResult.metrics.positionError * 50
         )
@@ -535,8 +545,7 @@ export class KinematicDualDebuggerEngine {
       const jacobianDeterminant = computeJacobianDeterminant3D(joints, linkLengths);
       const radial = Math.hypot(endEffector.x, endEffector.y);
       const planar = Math.hypot(radial, endEffector.z - L0);
-      const maxReach = L1 + L2;
-      const minReach = Math.abs(L1 - L2) + KinematicConstants.MIN_REACH_BUFFER_METERS;
+      const { minReachM: minReach, maxReachM: maxReach } = workspaceAnnulus(linkLengths);
       return {
         ...result,
         nextState: {
@@ -544,7 +553,7 @@ export class KinematicDualDebuggerEngine {
           joints,
           endEffector,
           jacobianDeterminant,
-          isSingularZone: Math.abs(jacobianDeterminant) < KinematicConstants.SINGULARITY_DETERMINANT_THRESHOLD,
+          isSingularZone: Math.abs(jacobianDeterminant) < SINGULARITY_DETERMINANT_THRESHOLD,
           isWorkspaceBoundaryExceeded: planar > maxReach || planar < minReach,
         },
       };
@@ -559,6 +568,43 @@ export class KinematicDualDebuggerEngine {
         q2: from.q2 + (to.q2 - from.q2) * s,
         q3: from.q3 + (to.q3 - from.q3) * s,
       };
+    };
+
+    /**
+     * The slew, advanced far enough that the pose it publishes is legal.
+     *
+     * Floor clearance is a HARD constraint; the branch transition is only
+     * cosmetic smoothing, so smoothing may never win. The reconfiguration
+     * starts from the pose that just violated the clearance — that is why the
+     * guard fired — so the opening frames of the slew interpolate straight
+     * through the floor. Measured on the tennis scenario, step 633: the guard
+     * had already found a mirror at elbowZ = +1.17973 m, yet the frame it
+     * committed was the slew's first one at elbowZ = -0.00330 m, because at
+     * progress = 1/60 / 0.35 the smoothstep has barely left the violating pose.
+     *
+     * So the progress is clamped forward to the smallest value whose elbow
+     * clears the floor. elbowZ = L0 + L1*sin(q2) is monotone along the slew
+     * here because both endpoints are on one side of the mirror, so bisection
+     * is exact; `to` always clears, since the guard only targets a strictly
+     * higher branch, so the search cannot fail.
+     */
+    const slewRespectingFloor = (
+      from: JointState3D,
+      to: JointState3D,
+      progress: number
+    ): JointState3D => {
+      const clearance = ELBOW_FLOOR_CLEARANCE_M;
+      const clears = (candidate: number) =>
+        computeElbowPosition3D(slew(from, to, candidate), linkLengths).z >= clearance;
+      if (clears(progress)) return slew(from, to, progress);
+      let low = progress;
+      let high = 1;
+      for (let i = 0; i < BISECTION_ITERATIONS; i++) {
+        const mid = (low + high) / 2;
+        if (clears(mid)) high = mid;
+        else low = mid;
+      }
+      return slew(from, to, high);
     };
 
     // The shoulder is a REVOLUTE joint: q2 and q2 + 2*pi are the same physical pose, and
@@ -581,13 +627,13 @@ export class KinematicDualDebuggerEngine {
     const active = this.branchTransitions[arm];
     if (active) {
       const elapsedSec = active.elapsedSec + dt;
-      const progress = elapsedSec / KinematicConstants.ELBOW_BRANCH_TRANSITION_SECONDS;
+      const progress = elapsedSec / ELBOW_BRANCH_TRANSITION_SEC;
       if (progress >= 1) {
         this.branchTransitions[arm] = null;
         return commit(active.to);
       }
       this.branchTransitions[arm] = { ...active, elapsedSec };
-      return commit(slew(active.from, active.to, progress));
+      return commit(slewRespectingFloor(active.from, active.to, progress));
     }
 
     const mirroredJoints = enforceElbowFloorClearance(nextState.joints, linkLengths);
@@ -596,11 +642,11 @@ export class KinematicDualDebuggerEngine {
     // Same physical pose, nearest turn of the shoulder — see `nearestTurn` above.
     const target = reconfigurationTarget(nextState.joints, mirroredJoints);
 
-    const progress = dt / KinematicConstants.ELBOW_BRANCH_TRANSITION_SECONDS;
+    const progress = dt / ELBOW_BRANCH_TRANSITION_SEC;
     if (progress >= 1) {
       return commit(target);
     }
     this.branchTransitions[arm] = { from: nextState.joints, to: target, elapsedSec: dt };
-    return commit(slew(nextState.joints, target, progress));
+    return commit(slewRespectingFloor(nextState.joints, target, progress));
   }
 }

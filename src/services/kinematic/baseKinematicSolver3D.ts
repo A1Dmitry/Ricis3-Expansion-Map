@@ -4,8 +4,9 @@ import type {
   ISolverResult3D,
   IKinematicSolver3D,
 } from '../../model/kinematicEngine.contracts';
-import { KinematicConstants } from './kinematicConstants';
 import { wrapToPi, forwardKinematics3D, computeJacobianDeterminant3D, computeSolverMetrics3D } from './kinematicMath';
+import { WORKSPACE_LIMITS } from './manipulatorConstants';
+import { SINGULARITY_DETERMINANT_THRESHOLD } from './solverConstants';
 
 /**
  * Abstract Base Class for 3D Kinematic Solvers (SOLID, DRY, OOP).
@@ -53,7 +54,7 @@ export abstract class BaseKinematicSolver3D implements IKinematicSolver3D {
     const distFromShoulder = Math.sqrt(targetRadial * targetRadial + targetZRel * targetZRel);
 
     const maxReach = L1 + L2;
-    const minReach = Math.abs(L1 - L2) + KinematicConstants.MIN_REACH_BUFFER_METERS;
+    const minReach = Math.abs(L1 - L2) + WORKSPACE_LIMITS.minReachBufferM;
 
     return {
       desiredVector,
@@ -126,7 +127,7 @@ export abstract class BaseKinematicSolver3D implements IKinematicSolver3D {
         joints: nextJoints,
         endEffector: nextEE,
         jacobianDeterminant: detJ,
-        isSingularZone: absDet < KinematicConstants.SINGULARITY_DETERMINANT_THRESHOLD || isBoundarySingular,
+        isSingularZone: absDet < SINGULARITY_DETERMINANT_THRESHOLD || isBoundarySingular,
         isWorkspaceBoundaryExceeded: isWorkspaceExceeded,
         gripperClosed: currentState.gripperClosed,
       },

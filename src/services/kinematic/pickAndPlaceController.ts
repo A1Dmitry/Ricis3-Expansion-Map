@@ -23,6 +23,14 @@ export class PickAndPlaceController {
   private readonly physics: BallPhysicsWorld;
   // Live body of the ball that was just released over the box (free fall + bounce).
   private releasedBody: IPhysicsBallBody | null = null;
+  /** Previous gripper pose, used to derive the gripper velocity by finite difference. */
+  private gripperPose: Vector3D | null = null;
+  /**
+   * Gripper velocity at the last sync (m/s). A released body inherits THIS, not a
+   * scripted constant: the former literal {x:0, y:0, z:-0.2} discarded the whole
+   * horizontal carry and invented a descent speed no measurement supports.
+   */
+  private gripperVelocity: Vector3D = { x: 0, y: 0, z: 0 };
 
   constructor(initialBalls: readonly IBallEntity[], box: IBoxContainer, physics?: BallPhysicsWorld) {
     this.physics = physics ?? new BallPhysicsWorld();
@@ -126,7 +134,7 @@ export class PickAndPlaceController {
           z: 0.85,
         };
         // Update grasped ball pos
-        this.updateGraspedBallPos(endEffector);
+        this.updateGraspedBallPos(endEffector, dt);
 
         if (this.currentPhaseTimer > 0.8) {
           this.state = { ...this.state, phase: 'TRANSFERRING_TO_BOX' };
@@ -142,7 +150,7 @@ export class PickAndPlaceController {
           y: this.state.box.position.y,
           z: this.state.box.position.z + 0.35,
         };
-        this.updateGraspedBallPos(endEffector);
+        this.updateGraspedBallPos(endEffector, dt);
 
         const dist = distance3D(endEffector, boxHoverTarget);
         // Only advance when the arm has genuinely arrived above the box
@@ -168,7 +176,7 @@ export class PickAndPlaceController {
           };
 
           // Continually hold ball in gripper during descent
-          this.updateGraspedBallPos(endEffector);
+          this.updateGraspedBallPos(endEffector, dt);
 
           const distToFloor = distance3D(endEffector, boxFloorTarget);
 
@@ -178,16 +186,13 @@ export class PickAndPlaceController {
             const startPos = graspedBall
               ? graspedBall.currentPosition
               : { x: box.position.x, y: box.position.y, z: boxFloorZ + 0.1 };
-            this.releasedBody = this.physics.createBody(startPos, graspedBall?.radius ?? 0.06, {
-              x: 0,
-              y: 0,
-              z: -0.2,
-            });
+            const releaseVelocity: Vector3D = { ...this.gripperVelocity };
+            this.releasedBody = this.physics.createBody(startPos, releaseVelocity);
             this.state = {
               ...this.state,
               balls: this.state.balls.map(b =>
                 b.id === currentBall.id
-                  ? { ...b, status: 'FALLING' as const, velocity: { x: 0, y: 0, z: -0.2 } }
+                  ? { ...b, status: 'FALLING' as const, velocity: { ...releaseVelocity } }
                   : b
               ),
             };
@@ -266,7 +271,18 @@ export class PickAndPlaceController {
     }
   }
 
-  private updateGraspedBallPos(endEffector: Vector3D): void {
+  private updateGraspedBallPos(endEffector: Vector3D, dt: number): void {
+    // Strict finite difference of the actual gripper poses — no estimate, no
+    // hardcoded speed. The carried body must inherit a measured value.
+    if (this.gripperPose && dt > 0) {
+      this.gripperVelocity = {
+        x: (endEffector.x - this.gripperPose.x) / dt,
+        y: (endEffector.y - this.gripperPose.y) / dt,
+        z: (endEffector.z - this.gripperPose.z) / dt,
+      };
+    }
+    this.gripperPose = { ...endEffector };
+
     const ballId = this.state.currentTargetBallId;
     if (!ballId) return;
 

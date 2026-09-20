@@ -5,7 +5,6 @@ import type {
   ISolverResult3D,
 } from '../../model/kinematicEngine.contracts';
 import { BaseKinematicSolver3D } from './baseKinematicSolver3D';
-import { KinematicConstants } from './kinematicConstants';
 import {
   forwardKinematics3D,
   computeJacobianDeterminant3D,
@@ -15,6 +14,8 @@ import {
   RicisSymbolicJacobianEngine,
   RicisTrajectoryController,
 } from './ricisSymbolicJacobian';
+import { ELBOW_JOINT_LIMITS, WORKSPACE_LIMITS } from './manipulatorConstants';
+import { DLS_DAMPING_FACTOR, SINGULARITY_DETERMINANT_THRESHOLD, SOLVER_DT_SEC, SOLVER_GAINS, SOLVER_NUMERICAL_GUARDS } from './solverConstants';
 
 /**
  * Classical Damped Least Squares (DLS) Inverse Kinematics Solver in 3D.
@@ -25,7 +26,7 @@ export class DlsSolver3D extends BaseKinematicSolver3D {
   public readonly solverId = 'DLS_BASELINE' as const;
   private readonly dampingFactor: number;
 
-  constructor(dampingFactor = KinematicConstants.DEFAULT_DLS_DAMPING_FACTOR) {
+  constructor(dampingFactor = DLS_DAMPING_FACTOR) {
     super();
     this.dampingFactor = dampingFactor;
   }
@@ -34,7 +35,7 @@ export class DlsSolver3D extends BaseKinematicSolver3D {
     currentState: IKinematicState3D,
     targetPosition: Vector3D,
     linkLengths: readonly [number, number, number],
-    dt = KinematicConstants.DEFAULT_DT_SECONDS
+    dt = SOLVER_DT_SEC
   ): ISolverResult3D {
     const [L0, L1, L2] = linkLengths;
     const { q1, q2, q3 } = currentState.joints;
@@ -47,7 +48,7 @@ export class DlsSolver3D extends BaseKinematicSolver3D {
     } = this.computePlanarTargetGeometry(targetPosition, currentState, linkLengths);
 
     // Compute Base Azimuth rotation q1 via shortest arc
-    const deltaQ1 = diffQ1 * KinematicConstants.AZIMUTH_TRACKING_GAIN * dt;
+    const deltaQ1 = diffQ1 * SOLVER_GAINS.azimuth * dt;
 
     // Current arm planar state
     const currentRad = L1 * Math.cos(q2) + L2 * Math.cos(q2 + q3);
@@ -84,15 +85,15 @@ export class DlsSolver3D extends BaseKinematicSolver3D {
     const tempY = invC * dRad + invD * dZ;
 
     // Joint velocities
-    const deltaQ2 = (j11 * tempX + j21 * tempY) * KinematicConstants.DLS_PLANAR_VELOCITY_GAIN * dt;
-    const deltaQ3 = (j12 * tempX + j22 * tempY) * KinematicConstants.DLS_PLANAR_VELOCITY_GAIN * dt;
+    const deltaQ2 = (j11 * tempX + j21 * tempY) * SOLVER_GAINS.planarVelocity * dt;
+    const deltaQ3 = (j12 * tempX + j22 * tempY) * SOLVER_GAINS.planarVelocity * dt;
 
     const nextJoints: JointState3D = {
       q1: q1 + deltaQ1,
       q2: q2 + deltaQ2,
       q3: Math.max(
-        KinematicConstants.MIN_ELBOW_JOINT_LIMIT_RAD,
-        Math.min(Math.PI - KinematicConstants.MAX_ELBOW_JOINT_LIMIT_OFFSET_RAD, q3 + deltaQ3)
+        ELBOW_JOINT_LIMITS.minDownRad,
+        Math.min(Math.PI - ELBOW_JOINT_LIMITS.maxDownOffsetRad, q3 + deltaQ3)
       ),
     };
 
@@ -121,7 +122,7 @@ export class RicisConstraintSolver3D extends BaseKinematicSolver3D {
     currentState: IKinematicState3D,
     targetPosition: Vector3D,
     linkLengths: readonly [number, number, number],
-    dt = KinematicConstants.DEFAULT_DT_SECONDS
+    dt = SOLVER_DT_SEC
   ): ISolverResult3D {
     const [, L1, L2] = linkLengths;
 
@@ -139,11 +140,11 @@ export class RicisConstraintSolver3D extends BaseKinematicSolver3D {
     let clampedDist = distFromShoulder;
     let isBoundarySingular = false;
 
-    if (distFromShoulder >= maxReach - KinematicConstants.BOUNDARY_EPSILON_METERS) {
-      clampedDist = maxReach - KinematicConstants.MANIFOLD_PROJECTION_OFFSET_METERS;
+    if (distFromShoulder >= maxReach - SOLVER_NUMERICAL_GUARDS.boundaryEpsilonM) {
+      clampedDist = maxReach - SOLVER_NUMERICAL_GUARDS.manifoldProjectionOffsetM;
       isBoundarySingular = true;
     } else if (distFromShoulder <= minReach) {
-      clampedDist = minReach + KinematicConstants.MANIFOLD_PROJECTION_OFFSET_METERS;
+      clampedDist = minReach + SOLVER_NUMERICAL_GUARDS.manifoldProjectionOffsetM;
       isBoundarySingular = true;
     }
 
@@ -158,7 +159,7 @@ export class RicisConstraintSolver3D extends BaseKinematicSolver3D {
     const targetQ2 = alpha - beta;
 
     // Smooth Euler integration towards exact algebraic state via shortest arc
-    const lerpRate = Math.min(1.0, KinematicConstants.RICIS_LERP_RATE_MULTIPLIER * dt);
+    const lerpRate = Math.min(1.0, SOLVER_GAINS.ricisLerpRateMultiplier * dt);
 
     const nextQ1 = currentState.joints.q1 + diffQ1 * lerpRate;
     const nextQ2 = currentState.joints.q2 + (targetQ2 - currentState.joints.q2) * lerpRate;
@@ -179,7 +180,7 @@ export class RicisConstraintSolver3D extends BaseKinematicSolver3D {
 
     const detJ = computeJacobianDeterminant3D(nextJoints, linkLengths);
     const absDet = Math.abs(detJ);
-    const isNearSingularity = isBoundarySingular || absDet < KinematicConstants.SINGULARITY_DETERMINANT_THRESHOLD;
+    const isNearSingularity = isBoundarySingular || absDet < SINGULARITY_DETERMINANT_THRESHOLD;
 
     return this.buildSolverResult({
       currentState,
@@ -212,7 +213,7 @@ export class RicisSymbolicJacobianSolver3D extends BaseKinematicSolver3D {
     currentState: IKinematicState3D,
     targetPosition: Vector3D,
     linkLengths: readonly [number, number, number],
-    dt = KinematicConstants.DEFAULT_DT_SECONDS
+    dt = SOLVER_DT_SEC
   ): ISolverResult3D {
     const [, L1, L2] = linkLengths;
     const stepResult = this.controller.step(
@@ -233,7 +234,7 @@ export class RicisSymbolicJacobianSolver3D extends BaseKinematicSolver3D {
       dt,
       isBoundarySingular: stepResult.solution.isSingularZone,
       nearSingularityBehavior: stepResult.solution.isSingularZone ? 'recovered' : 'stable',
-      isWorkspaceExceeded: stepResult.distanceToTarget > (L1 + L2) * KinematicConstants.WORKSPACE_BOUNDARY_MARGIN_RATIO,
+      isWorkspaceExceeded: stepResult.distanceToTarget > (L1 + L2) * WORKSPACE_LIMITS.boundaryMarginRatio,
     });
   }
 }

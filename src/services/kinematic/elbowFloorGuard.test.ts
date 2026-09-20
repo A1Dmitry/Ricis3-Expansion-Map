@@ -15,13 +15,13 @@ import {
   enforceElbowFloorClearance,
   distance3D,
 } from './kinematicMath';
-import { KinematicConstants } from './kinematicConstants';
 import { PolarRicisConstraintSolver, KinematicDualDebuggerEngine } from './polarSolvers';
 import { RicisSymbolicJacobianSolver3D } from './kinematicSolvers';
 import { computeJacobianDeterminant3D } from './kinematicMath';
 import type { IKinematicState3D } from '../../model/kinematicEngine.contracts';
+import { ELBOW_FLOOR_CLEARANCE_M, MANIPULATOR_LINK_LENGTHS_M } from './manipulatorConstants';
 
-const LINK_LENGTHS: readonly [number, number, number] = [0.4, 0.8, 0.7];
+const LINK_LENGTHS = MANIPULATOR_LINK_LENGTHS_M;
 
 describe('enforceElbowFloorClearance', () => {
   it('returns the same object when the elbow is already above the floor', () => {
@@ -47,7 +47,7 @@ describe('enforceElbowFloorClearance', () => {
     // The mirrored elbow is above the floor clearance and matches q3 -> -q3.
     expect(mirrored.q3).toBeCloseTo(-1.1, 12);
     expect(computeElbowPosition3D(mirrored, LINK_LENGTHS).z).toBeGreaterThan(
-      KinematicConstants.ELBOW_FLOOR_CLEARANCE_METERS
+      ELBOW_FLOOR_CLEARANCE_M
     );
   });
 
@@ -56,7 +56,7 @@ describe('enforceElbowFloorClearance', () => {
     // within the hysteresis margin): a near-straight downward arm.
     const joints = { q1: 0.2, q2: -1.35, q3: 0.05 };
     const elbow = computeElbowPosition3D(joints, LINK_LENGTHS).z;
-    expect(elbow).toBeLessThan(KinematicConstants.ELBOW_FLOOR_CLEARANCE_METERS);
+    expect(elbow).toBeLessThan(ELBOW_FLOOR_CLEARANCE_M);
     const result = enforceElbowFloorClearance(joints, LINK_LENGTHS);
     expect(result).toBe(joints); // kept the highest available branch, no dithering
   });
@@ -102,7 +102,7 @@ describe('Polar solver branch selection (elbow-over-floor inside the closed form
     expect(distance3D(state.endEffector, lowTarget)).toBeLessThan(0.02);
     // ...with the elbow above the floor clearance (branch was flipped internally).
     const elbowZ = computeElbowPosition3D(state.joints, LINK_LENGTHS).z;
-    expect(elbowZ).toBeGreaterThanOrEqual(KinematicConstants.ELBOW_FLOOR_CLEARANCE_METERS - 1e-9);
+    expect(elbowZ).toBeGreaterThanOrEqual(ELBOW_FLOOR_CLEARANCE_M - 1e-9);
     // ...and it chose the elbow-up branch (q3 < 0), the human-like "pick from above".
     expect(state.joints.q3).toBeLessThan(0);
   });
@@ -121,7 +121,7 @@ describe('branch reconfiguration travels the NEAREST turn of the shoulder', () =
     expect(Math.abs(mirrored.q2 - joints.q2)).toBeGreaterThan(Math.PI);
     expect(computeElbowPosition3D(joints, LINK_LENGTHS).z).toBeLessThan(0);
     expect(computeElbowPosition3D(mirrored, LINK_LENGTHS).z).toBeGreaterThan(
-      KinematicConstants.ELBOW_FLOOR_CLEARANCE_METERS
+      ELBOW_FLOOR_CLEARANCE_M
     );
     expect(
       distance3D(forwardKinematics3D(joints, LINK_LENGTHS), forwardKinematics3D(mirrored, LINK_LENGTHS))
@@ -167,6 +167,6 @@ describe('branch reconfiguration travels the NEAREST turn of the shoulder', () =
     // The raw (unwrapped) mirror travels 12.509 rad in 0.35 s: peak 0.894 rad/frame.
     expect(maxStep).toBeLessThan(0.05);
     // ...and it lands on the elbow-up branch, above the floor.
-    expect(finalElbowZ).toBeGreaterThanOrEqual(KinematicConstants.ELBOW_FLOOR_CLEARANCE_METERS - 1e-9);
+    expect(finalElbowZ).toBeGreaterThanOrEqual(ELBOW_FLOOR_CLEARANCE_M - 1e-9);
   });
 });

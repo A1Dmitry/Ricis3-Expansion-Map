@@ -24,8 +24,9 @@ import { RicisSymbolicJacobianSolver3D } from '../../../services/kinematic/kinem
 import { PickAndPlaceController } from '../../../services/kinematic/pickAndPlaceController';
 import { forwardKinematics3D, computeJacobianDeterminant3D } from '../../../services/kinematic/kinematicMath';
 import type { IBallEntity, IBoxContainer, IKinematicState3D, Vector3D } from '../../../model/kinematicEngine.contracts';
+import { MANIPULATOR_LINK_LENGTHS_M } from '../../../services/kinematic/manipulatorConstants';
 
-const L: readonly [number, number, number] = [0.4, 0.8, 0.7];
+const L = MANIPULATOR_LINK_LENGTHS_M;
 const DT = 1 / 60;
 
 /**

@@ -17,10 +17,10 @@ import { KinematicDualDebuggerEngine, PolarRicisConstraintSolver } from './polar
 import { RicisSymbolicJacobianSolver3D } from './kinematicSolvers';
 import { PickAndPlaceController } from './pickAndPlaceController';
 import { forwardKinematics3D, computeElbowPosition3D, computeJacobianDeterminant3D } from './kinematicMath';
-import { KinematicConstants } from './kinematicConstants';
 import type { IBallEntity, IBoxContainer, IKinematicState3D, Vector3D } from '../../model/kinematicEngine.contracts';
+import { ELBOW_FLOOR_CLEARANCE_M, MANIPULATOR_LINK_LENGTHS_M } from './manipulatorConstants';
 
-const LINK_LENGTHS: readonly [number, number, number] = [0.4, 0.8, 0.7];
+const LINK_LENGTHS = MANIPULATOR_LINK_LENGTHS_M;
 const DT = 1 / 60;
 
 /**
@@ -147,7 +147,7 @@ describe('a single engine step never swaps the IK branch instantaneously', () =>
       dls = out.dlsResult.nextState;
     }
     const elbowZ = computeElbowPosition3D(ricis.joints, LINK_LENGTHS).z;
-    expect(elbowZ).toBeGreaterThanOrEqual(KinematicConstants.ELBOW_FLOOR_CLEARANCE_METERS - 1e-9);
+    expect(elbowZ).toBeGreaterThanOrEqual(ELBOW_FLOOR_CLEARANCE_M - 1e-9);
     const ee = forwardKinematics3D(ricis.joints, LINK_LENGTHS);
     const err = Math.hypot(ee.x - LOW_TARGET.x, ee.y - LOW_TARGET.y, ee.z - LOW_TARGET.z);
     expect(err).toBeLessThan(0.02);

@@ -35,8 +35,9 @@ import {
 } from './kinematicMath';
 import { BallPhysicsWorld } from './ballPhysics';
 import type { IBoxContainer, IKinematicState3D } from '../../model/kinematicEngine.contracts';
+import { MANIPULATOR_LINK_LENGTHS_M } from './manipulatorConstants';
 
-const LINK_LENGTHS: [number, number, number] = [0.4, 0.8, 0.7];
+const LINK_LENGTHS = MANIPULATOR_LINK_LENGTHS_M;
 /** Must match GRASP_CARRY_DROP_Z in catchBallController. */
 const GRASP_CARRY_DROP_Z = 0.04;
 
@@ -243,15 +244,17 @@ describe('release: the ball inherits the hand, then falls under gravity alone', 
     }
   });
 
-  it('after release only the integrator governs it: vz drops by gravity*dt every airborne frame', () => {
+  it('after release only the integrator governs it: vz falls by g*dt, drag only ever reduces it', () => {
     const physics = new BallPhysicsWorld();
     const dt = 1 / 60;
-    const drag = 1 - physics.airDrag * dt;
+    const gStep = physics.gravity * dt;
     expect(observed.airborneVzDeltas.length).toBeGreaterThan(5);
     for (const delta of observed.airborneVzDeltas) {
-      // dz(vz) = vz*(drag-1) - g*dt, so the step is slightly larger than -g*dt in magnitude.
-      expect(delta).toBeLessThan(-physics.gravity * dt * 0.9);
-      expect(delta).toBeGreaterThan(-physics.gravity * dt * 1.6);
+      // The only vertical forces are gravity (-g) and drag, which for a falling
+      // body points UP. Hence the step is strictly negative and its magnitude
+      // can never exceed g*dt — no fitted 0.9/1.6 factors, the bound is the law.
+      expect(delta).toBeLessThan(0);
+      expect(delta).toBeGreaterThanOrEqual(-gStep);
     }
   });
 });

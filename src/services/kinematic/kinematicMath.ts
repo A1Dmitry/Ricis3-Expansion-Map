@@ -1,5 +1,7 @@
 import type { Vector3D, JointState3D } from '../../model/kinematicEngine.contracts';
-import { KinematicConstants } from './kinematicConstants';
+import { ELBOW_FLIP_HYSTERESIS_M, ELBOW_FLOOR_CLEARANCE_M } from './manipulatorConstants';
+import { QA_DIRECTION_THRESHOLDS_DEG } from './qaMetricConstants';
+import { SINGULARITY_DETERMINANT_THRESHOLD, SOLVER_NUMERICAL_GUARDS } from './solverConstants';
 
 /**
  * 3D Pure Kinematics Math Service (DDD, No external side effects).
@@ -85,7 +87,7 @@ export function enforceElbowFloorClearance(
   linkLengths: readonly [number, number, number],
   floorZ = 0
 ): JointState3D {
-  const clearance = floorZ + KinematicConstants.ELBOW_FLOOR_CLEARANCE_METERS;
+  const clearance = floorZ + ELBOW_FLOOR_CLEARANCE_M;
   const elbowZ = computeElbowPosition3D(joints, linkLengths).z;
   if (elbowZ >= clearance) return joints;
 
@@ -102,7 +104,7 @@ export function enforceElbowFloorClearance(
   const mirroredQ2 = 2 * phi - joints.q2;
   const mirroredQ3 = -joints.q3;
   const mirroredElbowZ = L0 + L1 * Math.sin(mirroredQ2);
-  if (mirroredElbowZ <= elbowZ + KinematicConstants.ELBOW_FLIP_HYSTERESIS_METERS) {
+  if (mirroredElbowZ <= elbowZ + ELBOW_FLIP_HYSTERESIS_M) {
     return joints; // No strictly better branch: keep the highest available elbow.
   }
   return { q1: joints.q1, q2: mirroredQ2, q3: mirroredQ3 };
@@ -126,7 +128,7 @@ export function calculateAngleDeviationDeg(desired: Vector3D, actual: Vector3D):
   const lenD = vectorLength3D(desired);
   const lenA = vectorLength3D(actual);
 
-  if (lenD < KinematicConstants.MIN_RADIAL_DISTANCE_GUARD || lenA < KinematicConstants.MIN_RADIAL_DISTANCE_GUARD) {
+  if (lenD < SOLVER_NUMERICAL_GUARDS.minRadialDistanceGuard || lenA < SOLVER_NUMERICAL_GUARDS.minRadialDistanceGuard) {
     return 0.0;
   }
 
@@ -184,13 +186,13 @@ export function computeSolverMetrics3D(params: {
   const dirDeviation = calculateAngleDeviationDeg(desiredVector, actualStepVector);
   const posError = distance3D(nextEE, targetPosition);
   const distToTarget = distance3D(currentEE, targetPosition);
-  const velocityError = Math.abs(distToTarget - distance3D(nextEE, currentEE)) / Math.max(KinematicConstants.MIN_RADIAL_DISTANCE_GUARD, dt);
-  const isSingular = isBoundarySingular || absDet < KinematicConstants.SINGULARITY_DETERMINANT_THRESHOLD;
+  const velocityError = Math.abs(distToTarget - distance3D(nextEE, currentEE)) / Math.max(SOLVER_NUMERICAL_GUARDS.minRadialDistanceGuard, dt);
+  const isSingular = isBoundarySingular || absDet < SINGULARITY_DETERMINANT_THRESHOLD;
 
   let behavior = nearSingularityBehavior;
   if (!behavior) {
     behavior = isSingular
-      ? (dirDeviation > KinematicConstants.DEGRADED_DIRECTION_THRESHOLD_DEG ? 'degraded' : 'recovered')
+      ? (dirDeviation > QA_DIRECTION_THRESHOLDS_DEG.degradedThresholdDeg ? 'degraded' : 'recovered')
       : 'stable';
   }
 
@@ -198,7 +200,7 @@ export function computeSolverMetrics3D(params: {
     positionError: posError,
     velocityError: velocityError,
     directionPreservedDeg: dirDeviation,
-    singularityIndex: Math.max(0, 1 - absDet / Math.max(KinematicConstants.MIN_RADIAL_DISTANCE_GUARD, maxReach)),
+    singularityIndex: Math.max(0, 1 - absDet / Math.max(SOLVER_NUMERICAL_GUARDS.minRadialDistanceGuard, maxReach)),
     nearSingularityBehavior: behavior,
     recoverySuccess: recoverySuccess !== undefined ? recoverySuccess : (isSingular ? !Number.isNaN(posError) && behavior === 'recovered' : true),
     invariantPreserved: true,

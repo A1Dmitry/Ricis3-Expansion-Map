@@ -15,6 +15,9 @@ import type {
 } from '../../model/kinematicEngine.contracts';
 import { distance3D } from './kinematicMath';
 import { BallPhysicsWorld, type IBoxBounceBounds, type IPhysicsBallBody } from './ballPhysics';
+import { launchVelocity } from './ballistics';
+import { solveLaunchSpeed } from './launchSolver';
+import { MANIPULATOR_LINK_LENGTHS_M, workspaceAnnulus } from './manipulatorConstants';
 
 export interface ICatchDropPlanEntry {
   readonly spawnPosition: Vector3D;
@@ -30,100 +33,99 @@ export interface ICatchDropPlanEntry {
 }
 
 /** A tennis-ball automaton prop in the room (used by the 3D canvas and the shot plan). */
-export interface ITennisCannonProp {
-  readonly id: string;
-  /** Base (breech) position of the cannon, metres. */
-  readonly basePosition: Vector3D;
-  /** Muzzle (ball exit) position, metres. */
-  readonly muzzlePosition: Vector3D;
-  /** Unit aiming direction of the barrel. */
-  readonly aimDirection: Vector3D;
+// ----------------------------------------------------------------------------
+// ROOM & TENNIS AUTOMATONS
+// The stage is its own bounded context (`roomGeometry`): neither physics nor
+// machine nor algorithm. Re-exported here so existing consumers keep working.
+// ----------------------------------------------------------------------------
+
+import {
+  ROOM_HALF_EXTENT_M,
+  ROOM_HEIGHT_M,
+  TENNIS_CANNONS,
+  roomFloorInset,
+  type ITennisCannonProp,
+} from './roomGeometry';
+
+export { ROOM_HALF_EXTENT_M, ROOM_HEIGHT_M, TENNIS_CANNONS, roomFloorInset };
+export type { ITennisCannonProp };
+
+
+
+/**
+ * Scenario INTENT for the six shots.
+ *
+ * No muzzle speed is stored here. The only declared quantity is where the ball
+ * must come to rest — a radius from the arm base — because that is what the
+ * scenario actually cares about. The launch velocity is DERIVED from the
+ * environment's gravity by solving the real dynamics (see
+ * `buildTennisCannonShotPlan`). Change the planet and the plan re-derives
+ * itself; not one number below was tuned against a particular gravity.
+ *
+ * The radii are the scenario's original design spread (0.47..1.32 m), kept so
+ * the interception variety — short picks, long reaches, singular-zone shots —
+ * is preserved.
+ */
+interface ITennisShotIntent {
+  readonly cannonId: string;
+  readonly spawnDelaySec: number;
+  readonly color: string;
+  /** Distance from the arm base at which the ball must come to rest (m). */
+  readonly landingRadiusM: number;
+  readonly isSingularZone?: boolean;
 }
 
-// ----------------------------------------------------------------------------
-// ROOM & TENNIS AUTOMATONS (shared between the scenario controller and the canvas)
-// ----------------------------------------------------------------------------
-
-/** Room half-extent in X/Y (m): interior walls live at ±ROOM_HALF_EXTENT_M. */
-export const ROOM_HALF_EXTENT_M = 2.4;
-/** Room ceiling height (m). */
-export const ROOM_HEIGHT_M = 2.8;
-
-export const TENNIS_CANNONS: readonly ITennisCannonProp[] = [
-  {
-    id: 'A',
-    basePosition: { x: 2.28, y: 0.55, z: 1.35 },
-    muzzlePosition: { x: 2.28, y: 0.55, z: 1.35 },
-    aimDirection: { x: -0.8419, y: -0.3547, z: 0.4067 },
-  },
-  {
-    id: 'B',
-    basePosition: { x: 0.75, y: 2.28, z: 0.62 },
-    muzzlePosition: { x: 0.75, y: 2.28, z: 0.62 },
-    aimDirection: { x: -0.1333, y: -0.8889, z: 0.4384 },
-  },
+const TENNIS_SHOT_INTENTS: readonly ITennisShotIntent[] = [
+  { cannonId: 'A', spawnDelaySec: 1.2, color: '#ef4444', landingRadiusM: 0.97 },
+  { cannonId: 'B', spawnDelaySec: 1.6, color: '#f59e0b', landingRadiusM: 0.61, isSingularZone: true },
+  { cannonId: 'A', spawnDelaySec: 1.6, color: '#06b6d4', landingRadiusM: 0.47 },
+  { cannonId: 'B', spawnDelaySec: 1.6, color: '#a855f7', landingRadiusM: 1.32, isSingularZone: true },
+  { cannonId: 'A', spawnDelaySec: 1.6, color: '#22c55e', landingRadiusM: 0.63 },
+  { cannonId: 'B', spawnDelaySec: 1.6, color: '#eab308', landingRadiusM: 0.97 },
 ];
 
 /**
- * Deterministic 6-shot scenario for two weak pneumatic tennis automatons.
- * Shot power VARIES per shot (1.45–2.05 m/s muzzle) and the two cannons have very
- * different muzzle heights (1.35 m vs 0.62 m), so balls rebound with visibly
- * different energies (first-bounce apex ~0.2 m for the low unit vs ~0.4 m for the
- * high unit — measured by the closed-loop guard). Every shot settles inside the
- * room and inside the arm's reach (validated headlessly).
+ * Build the shot plan for a given world.
+ *
+ * The plan is a FUNCTION of the environment, not a table of numbers: the same
+ * intent produces different muzzle speeds on Earth, the Moon or Mars, each of
+ * them landing where the scenario asked.
  */
-export const TENNIS_CANNON_SHOT_PLAN: readonly ICatchDropPlanEntry[] = [
-  {
-    spawnPosition: { x: 2.28, y: 0.55, z: 1.35 },
-    spawnDelaySec: 1.2,
-    color: '#ef4444',
-    initialVelocity: { x: -1.3333, y: -0.5229, z: 0.2268 },
-    cannonId: 'A',
-    muzzleSpeedMps: 1.45,
-  },
-  {
-    spawnPosition: { x: 0.75, y: 2.28, z: 0.62 },
-    spawnDelaySec: 1.6,
-    color: '#f59e0b',
-    initialVelocity: { x: -0.4298, y: -1.6647, z: 1.1165 },
-    cannonId: 'B',
-    muzzleSpeedMps: 2.05,
-    isSingularZone: true,
-  },
-  {
-    spawnPosition: { x: 2.28, y: 0.55, z: 1.35 },
-    spawnDelaySec: 1.6,
-    color: '#06b6d4',
-    initialVelocity: { x: -1.4474, y: -0.6214, z: 1.0625 },
-    cannonId: 'A',
-    muzzleSpeedMps: 1.9,
-  },
-  {
-    spawnPosition: { x: 0.75, y: 2.28, z: 0.62 },
-    spawnDelaySec: 1.6,
-    color: '#a855f7',
-    initialVelocity: { x: -0.1190, y: -1.4517, z: 0.5301 },
-    cannonId: 'B',
-    muzzleSpeedMps: 1.55,
-    isSingularZone: true,
-  },
-  {
-    spawnPosition: { x: 2.28, y: 0.55, z: 1.35 },
-    spawnDelaySec: 1.6,
-    color: '#22c55e',
-    initialVelocity: { x: -1.3648, y: -0.5522, z: 0.8500 },
-    cannonId: 'A',
-    muzzleSpeedMps: 1.7,
-  },
-  {
-    spawnPosition: { x: 0.75, y: 2.28, z: 0.62 },
-    spawnDelaySec: 1.6,
-    color: '#eab308',
-    initialVelocity: { x: -0.3204, y: -1.5858, z: 0.7891 },
-    cannonId: 'B',
-    muzzleSpeedMps: 1.8,
-  },
-];
+export function buildTennisCannonShotPlan(
+  physics: BallPhysicsWorld,
+  intents: readonly ITennisShotIntent[] = TENNIS_SHOT_INTENTS
+): readonly ICatchDropPlanEntry[] {
+  return intents.map(intent => {
+    const cannon = TENNIS_CANNONS.find(c => c.id === intent.cannonId);
+    if (!cannon) {
+      throw new Error(`Tennis automaton [${intent.cannonId}] is not present in the room`);
+    }
+    const speed = solveLaunchSpeed(
+      physics,
+      cannon.muzzlePosition,
+      cannon.aimDirection,
+      intent.landingRadiusM
+    );
+    return {
+      spawnPosition: { ...cannon.muzzlePosition },
+      spawnDelaySec: intent.spawnDelaySec,
+      color: intent.color,
+      initialVelocity: launchVelocity(cannon.aimDirection, speed),
+      cannonId: cannon.id,
+      muzzleSpeedMps: speed,
+      isSingularZone: intent.isSingularZone,
+    };
+  });
+}
+
+/**
+ * Deterministic 6-shot scenario for the default installation (Earth, sea level).
+ *
+ * Derived, not tabulated: see `buildTennisCannonShotPlan`. A simulation running
+ * in another environment must build its own plan from the same intent.
+ */
+export const TENNIS_CANNON_SHOT_PLAN: readonly ICatchDropPlanEntry[] =
+  buildTennisCannonShotPlan(new BallPhysicsWorld());
 
 export type CatchPhase =
   | 'IDLE_WAIT'
@@ -195,7 +197,7 @@ export class CatchBallController {
   constructor(
     dropPlan: readonly ICatchDropPlanEntry[],
     box: IBoxContainer,
-    linkLengths: readonly [number, number, number] = [0.4, 0.8, 0.7],
+    linkLengths: readonly [number, number, number] = MANIPULATOR_LINK_LENGTHS_M,
     physics: BallPhysicsWorld = new BallPhysicsWorld()
   ) {
     this.dropPlan = dropPlan;
@@ -308,7 +310,7 @@ export class CatchBallController {
       id: ballId,
       initialPosition: { ...nextDrop.spawnPosition },
       currentPosition: { ...nextDrop.spawnPosition },
-      radius: 0.06,
+      radius: this.physics.material.radiusM,
       color: nextDrop.color,
       status: 'FALLING',
       isSingularZone: nextDrop.isSingularZone ?? false,
@@ -316,7 +318,7 @@ export class CatchBallController {
     };
     this.bodies.set(
       ballId,
-      this.physics.createBody(nextDrop.spawnPosition, newBall.radius, launchVelocity)
+      this.physics.createBody(nextDrop.spawnPosition, launchVelocity)
     );
     this.state = {
       ...this.state,
@@ -455,7 +457,7 @@ export class CatchBallController {
         const ball = this.state.balls.find(b => b.id === ballId);
         const startPos = ball ? ball.currentPosition : { x: box.position.x, y: box.position.y, z: releaseZ };
         const releaseVelocity: Vector3D = { ...this.gripperVelocity };
-        this.releasedBody = this.physics.createBody(startPos, ball?.radius ?? 0.06, releaseVelocity);
+        this.releasedBody = this.physics.createBody(startPos, releaseVelocity);
         this.state = {
           ...this.state,
           balls: this.state.balls.map(b =>
@@ -517,24 +519,20 @@ export class CatchBallController {
 
   /** Radius-inset room bounds for ball confinement (walls + floor, open concept: the ceiling is never reached by weak shots). */
   private roomBallBounds(): IBoxBounceBounds {
-    const r = 0.06;
-    return {
-      minX: -ROOM_HALF_EXTENT_M + r,
-      maxX: ROOM_HALF_EXTENT_M - r,
-      minY: -ROOM_HALF_EXTENT_M + r,
-      maxY: ROOM_HALF_EXTENT_M - r,
-      floorZ: 0,
-    };
+    // Inset by the projectile's own radius, taken from the material — not a
+    // literal, and not the pre-material 0.06 m placeholder.
+    return roomFloorInset(this.physics.material.radiusM);
   }
 
   /** Reach-envelope check for a ball pickup point (annulus about the arm's shoulder). */
   private isReachable(point: Vector3D): boolean {
-    const [L0, L1, L2] = this.linkLengths;
+    // The SAME annulus the solver enforces, not a private pair of literals that
+    // could (and did) drift away from it.
+    const { minReachM, maxReachM } = workspaceAnnulus(this.linkLengths);
+    const [L0] = this.linkLengths;
     const radial = Math.hypot(point.x, point.y);
     const reach = Math.hypot(radial, point.z - L0);
-    const maxReach = L1 + L2 - 0.06;
-    const minReach = 0.25;
-    return reach <= maxReach && reach >= minReach;
+    return reach <= maxReachM && reach >= minReachM;
   }
 
   /** Declare the resting ball unreachable: count it, mark it, advance the scenario. */

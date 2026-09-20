@@ -4,6 +4,7 @@
 
 import { describe, it, expect } from 'vitest';
 import { GenericNLinkKinematicService } from './genericNLinkKinematicService';
+import { MANIPULATOR_LINK_LENGTHS_M } from './manipulatorConstants';
 
 describe('GenericNLinkKinematicService (1, 2, 3, 4, 5, N links)', () => {
   it('supports 1-link manipulator', () => {
@@ -36,7 +37,7 @@ describe('GenericNLinkKinematicService (1, 2, 3, 4, 5, N links)', () => {
   it('supports 3-link manipulator', () => {
     const service = new GenericNLinkKinematicService(3);
     const joints = [0, 0, 0];
-    const links = [0.4, 0.8, 0.7];
+    const links = MANIPULATOR_LINK_LENGTHS_M;
     const [x, y] = service.computeForwardKinematics(joints, links);
     expect(x).toBeCloseTo(1.9, 4);
     expect(y).toBeCloseTo(0, 4);
