@@ -208,4 +208,16 @@ describe('release alignment policy', () => {
       expect(offenders).toEqual([]);
     }
   });
+  it('runs the executor traceability gate on the pull request branch itself, not on the synthetic merge commit', () => {
+    // A `pull_request` checkout without `ref` materializes GitHub's synthetic merge commit
+    // («Merge <sha> into <sha>»), which carries no §2 executor key — the gate then fails on
+    // EVERY pull request regardless of content, and the line stops for a reason that cannot
+    // be fixed by the contributor. Measured 2026-09-20 on PR #89 (run 35524888840): nine
+    // steps green, «Executor traceability gate» red on `Merge 85288b2… into 788635b…`.
+    // The gate must see the commits of the branch (merge commits created inside the branch
+    // remain in the `<base>..HEAD` range and are still checked).
+    const workflow = readText('.github/workflows/pr-verify.yml');
+    expect(workflow).toContain('npm run executor:gate -- --check-headers --base origin/main');
+    expect(workflow).toMatch(/ref:\s*\$\{\{\s*github\.event\.pull_request\.head\.sha/);
+  });
 });

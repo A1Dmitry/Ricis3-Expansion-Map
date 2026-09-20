@@ -16,6 +16,14 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v7.0.1
         with:
+          # Pull requests: verify the commits of the branch itself. The default checkout of a
+          # `pull_request` event materializes GitHub's synthetic merge commit ("Merge <sha> into
+          # <sha>"), which by construction cannot carry the §2 executor header — checking it out
+          # would fail the traceability gate on every PR, whatever the branch contains. The gate
+          # (`npm run executor:gate -- --check-headers --base origin/main`) must see exactly the
+          # executor's commits; merge commits that a contributor creates inside the branch are
+          # still part of that range and still checked. Pushes keep the default ref.
+          ref: ${{ github.event.pull_request.head.sha || github.ref }}
           fetch-depth: 0
       - name: Setup Node
         uses: actions/setup-node@v7.0.0
