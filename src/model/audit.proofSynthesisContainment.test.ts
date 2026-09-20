@@ -994,6 +994,28 @@ describe('OIR-03 — audit proof-synthesis containment', () => {
       ' M src/ui/map2d/twoDLayout.ts',
       ' M src/ui/map2d/twoDLayout.test.ts',
       ' M src/ui/map2d/Map2DGraph.tsx',
+      // TENNIS-CANNON-VARIANCE (0.4.227, 2026-09-20): теннисная пушка (режим
+      // «Поймать падающий мяч») стреляет с разбросом по силе и углу
+      // (±7° по yaw, ±6° по pitch, мощность 0.88–1.00) так что мячи иногда
+      // целуют стену/потолок и отскакивают, имитируя поступление в разные
+      // точки досягаемости манипулятора; потолок интегрируется предсказуемо
+      // (roomFloorInset теперь возвращает ceilingZ); клик по полу/плану в
+      // 3D/2D канвасе в ручном режиме наводит энд-эффектор (click-to-target
+      // с фильтром drag-vs-click). Материалы физики не тронуты (μ=0.6,
+      // Crr=0.06, e≈0.745), константы бетона применяются только в помещении
+      // с потолком (не ломают ящик из дерева для межцепционного бенчмарка).
+      ' M src/services/kinematic/ballPhysics.ts',
+      ' M src/services/kinematic/catchBallController.ts',
+      ' M src/services/kinematic/roomGeometry.ts',
+      ' M src/services/kinematic/projectileMaterial.ts',
+      ' M src/ui/KinematicEnginePage.tsx',
+      ' M src/ui/components/kinematic/RobotArm3DCanvas.tsx',
+      ' M src/ui/components/CompactCommandMenuBar.tsx',
+      ' M src/ui/components/CompactCommandMenuBar.test.tsx',
+      'M CITATION.cff',
+      '?? docs/02-sprints/RCVAP_TENNIS_CANNON_VARIANCE_2026-09-20.md',
+      '?? src/ui/components/AppletMenuEntry.tsx',
+      ' M src/model/audit.proofSynthesisContainment.test.ts',
       // Релизные зеркала версии (npm run version:sync / sync:version)
       ' M package.json',
       ' M package-lock.json',

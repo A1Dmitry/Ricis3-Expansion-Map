@@ -1,6 +1,5 @@
-import { buildAppletDeepLink } from '../../services/appletDeepLinks';
-import { ExternalLink } from 'lucide-react';
-import { ContentButton, ContentLink } from './ContentButton';
+import { ContentButton } from './ContentButton';
+import { AppletMenuEntry } from './AppletMenuEntry';
 import { IconButton } from './IconButton';
 // ============================================================================
 // COMPACT OFFICE / VISUAL STUDIO COMMAND MENU BAR (MVVM / DRY / SOLID)
@@ -18,18 +17,6 @@ import { copyTextToClipboard } from '../../services/clipboard';
 import type { CommandContext } from '../../types/commandTypes';
 import { CommandRegistry } from '../../services/commandRegistry';
 
-const AppletNewTabLink: React.FC<{
-  applet: AppletId;
-  onAfterClick: () => void;
-  className?: string;
-  children: React.ReactNode;
-}> = ({ applet, onAfterClick, className, children }) => (
-  <ContentLink role="menuitem" href={buildAppletDeepLink(applet)} target="_blank" rel="noopener noreferrer"
-    title={`${APPLET_DEFINITIONS[applet]?.title ?? applet} — открыть в новой вкладке (текущая карта сохранится)`}
-    onClick={onAfterClick} className={`menu-command ${className ?? ''}`}>
-    {children}<ExternalLink size={10} aria-hidden className="shrink-0 opacity-60" />
-  </ContentLink>
-);
 
 interface CompactCommandMenuBarProps {
   readonly activeApplet: AppletId;
@@ -222,8 +209,7 @@ export const CompactCommandMenuBar: React.FC<CompactCommandMenuBarProps> = ({
                   <span className="flex-1">3D Граф Сингулярностей</span>
                   <span className="text-[10px] font-mono text-slate-500">Alt+1</span>
                 </IconButton>
-                <AppletNewTabLink
-                  applet="kinematic" onAfterClick={() => setOpenMenu(null)}
+                <AppletMenuEntry applet="kinematic" onSelectApplet={onSelectApplet} onAfterClick={() => setOpenMenu(null)}
                   className={`w-full px-3 py-1.5 text-left flex items-center gap-2 hover:bg-emerald-950/70 hover:text-emerald-200 transition-colors ${
                     activeApplet === 'kinematic' ? 'bg-emerald-950/90 text-emerald-300 font-bold' : 'text-slate-300'
                   }`}
@@ -231,9 +217,8 @@ export const CompactCommandMenuBar: React.FC<CompactCommandMenuBarProps> = ({
                   <Activity size={13} className="text-emerald-400" />
                   <span className="flex-1">3D Кинематика N-Link</span>
                   <span className="text-[10px] font-mono text-slate-500">Alt+2</span>
-                </AppletNewTabLink>
-                <AppletNewTabLink
-                  applet="seed" onAfterClick={() => setOpenMenu(null)}
+                </AppletMenuEntry>
+                <AppletMenuEntry applet="seed" onSelectApplet={onSelectApplet} onAfterClick={() => setOpenMenu(null)}
                   className={`w-full px-3 py-1.5 text-left flex items-center gap-2 hover:bg-emerald-950/70 hover:text-emerald-200 transition-colors ${
                     activeApplet === 'seed' ? 'bg-emerald-950/90 text-emerald-300 font-bold' : 'text-slate-300'
                   }`}
@@ -241,9 +226,8 @@ export const CompactCommandMenuBar: React.FC<CompactCommandMenuBarProps> = ({
                   <Sprout size={13} className="text-emerald-400" />
                   <span className="flex-1">Seed Протокол</span>
                   <span className="text-[10px] font-mono text-slate-500">Alt+3</span>
-                </AppletNewTabLink>
-                <AppletNewTabLink
-                  applet="comparison" onAfterClick={() => setOpenMenu(null)}
+                </AppletMenuEntry>
+                <AppletMenuEntry applet="comparison" onSelectApplet={onSelectApplet} onAfterClick={() => setOpenMenu(null)}
                   className={`w-full px-3 py-1.5 text-left flex items-center gap-2 hover:bg-neutral-800 hover:text-white transition-colors ${
                     activeApplet === 'comparison' ? 'bg-neutral-800 text-white font-bold' : 'text-slate-300'
                   }`}
@@ -251,9 +235,8 @@ export const CompactCommandMenuBar: React.FC<CompactCommandMenuBarProps> = ({
                   <GitBranch size={13} className="text-cyan-400" />
                   <span className="flex-1">Сравнение Графов</span>
                   <span className="text-[10px] font-mono text-slate-500">Alt+4</span>
-                </AppletNewTabLink>
-                <AppletNewTabLink
-                  applet="roadmap" onAfterClick={() => setOpenMenu(null)}
+                </AppletMenuEntry>
+                <AppletMenuEntry applet="roadmap" onSelectApplet={onSelectApplet} onAfterClick={() => setOpenMenu(null)}
                   className={`w-full px-3 py-1.5 text-left flex items-center gap-2 hover:bg-neutral-800 hover:text-white transition-colors ${
                     activeApplet === 'roadmap' ? 'bg-neutral-800 text-white font-bold' : 'text-slate-300'
                   }`}
@@ -261,7 +244,7 @@ export const CompactCommandMenuBar: React.FC<CompactCommandMenuBarProps> = ({
                   <List size={13} className="text-violet-400" />
                   <span className="flex-1">Дорожная карта (Roadmap)</span>
                   <span className="text-[10px] font-mono text-slate-500">Alt+5</span>
-                </AppletNewTabLink>
+                </AppletMenuEntry>
 
                 <div className="my-1 border-t border-neutral-800" />
 
@@ -344,7 +327,21 @@ export const CompactCommandMenuBar: React.FC<CompactCommandMenuBarProps> = ({
               aria-expanded={openMenu === 'kinematics'}
               onPointerEnter={() => { if (openMenu) setOpenMenu('kinematics'); }}
               aria-haspopup="menu"
-              onClick={() => setOpenMenu(openMenu === 'kinematics' ? null : 'kinematics')}
+              onClick={() => {
+                // UX: when we are NOT on the kinematic page yet, a plain click
+                // on the top-level «Кинематика» button navigates there directly
+                // (in-tab). Popup-blockers in preview/iframe environments can
+                // eat target=_blank links and users don't discover Alt+2, so a
+                // single, deterministic in-tab click is the safest path. When
+                // we ARE on the kinematic page the button toggles the in-page
+                // control submenu (play/pause, reset, model switcher).
+                if (activeApplet !== 'kinematic') {
+                  onSelectApplet('kinematic');
+                  setOpenMenu(null);
+                  return;
+                }
+                setOpenMenu(openMenu === 'kinematics' ? null : 'kinematics');
+              }}
               className={`px-2 py-1 rounded transition-colors flex items-center gap-1 text-[11px] font-sans font-medium ${
                 openMenu === 'kinematics' ? 'bg-neutral-800 text-emerald-300' : 'text-slate-300 hover:bg-neutral-800/80 hover:text-white'
               }`}
@@ -354,6 +351,24 @@ export const CompactCommandMenuBar: React.FC<CompactCommandMenuBarProps> = ({
 
             {openMenu === 'kinematics' && (
               <div role="menu" className="absolute left-2 right-2 top-full mt-1 sm:left-0 sm:right-auto sm:w-72 bg-neutral-900 border border-neutral-700/80 rounded-md shadow-2xl py-1 text-xs font-sans z-50">
+                {/* When we are NOT on the kinematic page yet, show the entry to
+                    OPEN it — primary in-tab button (popup-safe) plus a secondary
+                    new-tab link for users who want to keep the map alive. */}
+                {activeApplet !== 'kinematic' && (
+                  <>
+                    <div className="px-3 py-1 text-[10px] font-mono uppercase tracking-wider text-slate-500 border-b border-neutral-800">
+                      Открыть Кинематику
+                    </div>
+                    <AppletMenuEntry applet="kinematic" onSelectApplet={onSelectApplet} onAfterClick={() => setOpenMenu(null)}
+                      className="w-full px-3 py-1.5 text-left flex items-center gap-2 hover:bg-emerald-950/70 hover:text-emerald-200 transition-colors"
+                    >
+                      <Activity size={13} className="text-emerald-400" />
+                      <span className="flex-1 font-semibold">3D Кинематика</span>
+                      <span className="text-[10px] font-mono text-slate-500">Alt+2</span>
+                    </AppletMenuEntry>
+                    <div className="my-1 border-t border-neutral-800" />
+                  </>
+                )}
                 <div className="px-3 py-1 text-[10px] font-mono uppercase tracking-wider text-slate-500 border-b border-neutral-800">
                   Управление Физикой
                 </div>
@@ -388,8 +403,7 @@ export const CompactCommandMenuBar: React.FC<CompactCommandMenuBarProps> = ({
                 <div className="px-3 py-1 text-[10px] font-mono uppercase tracking-wider text-slate-500">
                   Модели Манипуляторов
                 </div>
-                <AppletNewTabLink
-                  applet="kinematic" onAfterClick={() => setOpenMenu(null)}
+                <AppletMenuEntry applet="kinematic" onSelectApplet={onSelectApplet} onAfterClick={() => setOpenMenu(null)} inTabOnly
                   className="w-full px-3 py-1.5 text-left flex items-center gap-2 text-slate-300 hover:bg-emerald-950/70 hover:text-emerald-200 transition-colors"
                 >
                   <Activity size={13} className="text-emerald-400" />
@@ -397,9 +411,8 @@ export const CompactCommandMenuBar: React.FC<CompactCommandMenuBarProps> = ({
                     <span className="font-semibold">3-Link Planar</span>
                     <span className="text-[10px] text-slate-400">Полярная редукция O(1) и SVD</span>
                   </div>
-                </AppletNewTabLink>
-                <AppletNewTabLink
-                  applet="kinematic" onAfterClick={() => setOpenMenu(null)}
+                </AppletMenuEntry>
+                <AppletMenuEntry applet="kinematic" onSelectApplet={onSelectApplet} onAfterClick={() => setOpenMenu(null)} inTabOnly
                   className="w-full px-3 py-1.5 text-left flex items-center gap-2 text-slate-300 hover:bg-purple-950/70 hover:text-purple-200 transition-colors"
                 >
                   <Sparkles size={13} className="text-purple-400" />
@@ -407,7 +420,7 @@ export const CompactCommandMenuBar: React.FC<CompactCommandMenuBarProps> = ({
                     <span className="font-semibold">5-Link Hyper-Redundant</span>
                     <span className="text-[10px] text-slate-400">Null-space self-motion</span>
                   </div>
-                </AppletNewTabLink>
+                </AppletMenuEntry>
               </div>
             )}
           </div>
@@ -430,30 +443,27 @@ export const CompactCommandMenuBar: React.FC<CompactCommandMenuBarProps> = ({
 
             {openMenu === 'foundations' && (
               <div role="menu" className="absolute left-2 right-2 top-full mt-1 sm:left-0 sm:right-auto sm:w-64 bg-neutral-900 border border-neutral-700/80 rounded-md shadow-2xl py-1 text-xs font-sans z-50">
-                <AppletNewTabLink
-                  applet="seed" onAfterClick={() => setOpenMenu(null)}
+                <AppletMenuEntry applet="seed" onSelectApplet={onSelectApplet} onAfterClick={() => setOpenMenu(null)}
                   className="w-full px-3 py-1.5 text-left flex items-center gap-2 text-slate-300 hover:bg-emerald-950/70 hover:text-emerald-200 transition-colors"
                 >
                   <Sprout size={13} className="text-emerald-300" />
                   <span className="flex-1">RICIS SEED (A11 Протокол)</span>
                   <span className="text-[10px] font-mono text-slate-500">Alt+3</span>
-                </AppletNewTabLink>
-                <AppletNewTabLink
-                  applet="comparison" onAfterClick={() => setOpenMenu(null)}
+                </AppletMenuEntry>
+                <AppletMenuEntry applet="comparison" onSelectApplet={onSelectApplet} onAfterClick={() => setOpenMenu(null)}
                   className="w-full px-3 py-1.5 text-left flex items-center gap-2 text-slate-300 hover:bg-cyan-950/70 hover:text-cyan-200 transition-colors"
                 >
                   <GitBranch size={13} className="text-cyan-400" />
                   <span className="flex-1">RICIS vs Anthropic Граф</span>
                   <span className="text-[10px] font-mono text-slate-500">Alt+4</span>
-                </AppletNewTabLink>
-                <AppletNewTabLink
-                  applet="voynich" onAfterClick={() => setOpenMenu(null)}
+                </AppletMenuEntry>
+                <AppletMenuEntry applet="voynich" onSelectApplet={onSelectApplet} onAfterClick={() => setOpenMenu(null)}
                   className="w-full px-3 py-1.5 text-left flex items-center gap-2 text-slate-300 hover:bg-yellow-950/70 hover:text-yellow-200 transition-colors"
                 >
                   <BookOpen size={13} className="text-yellow-400" />
                   <span className="flex-1">Манускрипт Войнича</span>
                   <span className="text-[10px] font-mono text-slate-500">Alt+6</span>
-                </AppletNewTabLink>
+                </AppletMenuEntry>
               </div>
             )}
           </div>
@@ -476,14 +486,13 @@ export const CompactCommandMenuBar: React.FC<CompactCommandMenuBarProps> = ({
 
             {openMenu === 'diagnostics' && (
               <div role="menu" className="absolute left-2 right-2 top-full mt-1 sm:left-0 sm:right-auto sm:w-64 bg-neutral-900 border border-neutral-700/80 rounded-md shadow-2xl py-1 text-xs font-sans z-50">
-                <AppletNewTabLink
-                  applet="qa-tests" onAfterClick={() => setOpenMenu(null)}
+                <AppletMenuEntry applet="qa-tests" onSelectApplet={onSelectApplet} onAfterClick={() => setOpenMenu(null)}
                   className="w-full px-3 py-1.5 text-left flex items-center gap-2 text-slate-300 hover:bg-rose-950/70 hover:text-rose-200 transition-colors"
                 >
                   <Bug size={13} className="text-rose-400" />
                   <span className="flex-1">QA Стресс-тест и Аудит</span>
                   <span className="text-[10px] font-mono text-slate-500">Alt+8</span>
-                </AppletNewTabLink>
+                </AppletMenuEntry>
                 <IconButton presentation="menu"
                   role="menuitem"
                   type="button"

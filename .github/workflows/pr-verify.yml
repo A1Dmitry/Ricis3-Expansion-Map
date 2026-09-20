@@ -16,6 +16,14 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v7.0.1
         with:
+          # Pull requests: verify the commits of the branch itself. The default checkout of a
+          # `pull_request` event materializes GitHub's synthetic merge commit ("Merge <sha> into
+          # <sha>"), which by construction cannot carry the §2 executor header — checking it out
+          # would fail the traceability gate on every PR, whatever the branch contains. The gate
+          # (`npm run executor:gate -- --check-headers --base origin/main`) must see exactly the
+          # executor's commits; merge commits that a contributor creates inside the branch are
+          # still part of that range and still checked. Pushes keep the default ref.
+          ref: ${{ github.event.pull_request.head.sha || github.ref }}
           fetch-depth: 0
       - name: Setup Node
         uses: actions/setup-node@v7.0.0
@@ -37,10 +45,16 @@ jobs:
         # process itself is violated (WIP overflow, open andon, "done" without a real run,
         # declared-vs-actual drift in normative docs, hand-edited board, hand-edited digest).
         run: npm run tps:gate && npm run tps:board:check && npm run tps:digest:check
-      - name: Executor traceability gate (commit header «исполнитель : ключ», registered key)
+      - name: 'Onboarding gate (G0: executor has read and accepted the documentation)'
+        # docs/00-governance/EXECUTION_TRACEABILITY_GATES.md §0: no work is accepted from an
+        # executor without a valid attestation (sha256 of every mandatory document as present
+        # in the tree + acceptance statement + comprehension answers).
+        run: npm run onboarding:gate
+      - name: 'Executor traceability gate (commit header «исполнитель : ключ», registered key, per-commit G0)'
         # docs/00-governance/EXECUTION_TRACEABILITY_GATES.md: every commit on a PR branch must
         # carry the executor key in its header, matching the key registered in
-        # docs/00-governance/EXECUTOR_KEY.md as of that commit; this keeps GitHub-history
+        # docs/00-governance/EXECUTOR_KEY.md as of that commit, and the executor must have been
+        # admitted (G0) for the document revisions of that commit; this keeps GitHub-history
         # attribution possible and enables G2 forensics (bisect -> verdict) on breakage.
         run: npm run executor:gate -- --check-headers --base origin/main
       - name: Run test suite

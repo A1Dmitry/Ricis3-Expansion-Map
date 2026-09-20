@@ -1,0 +1,19 @@
+#!/bin/sh
+# Onboarding gate pre-commit hook (§0 / G0 of
+# docs/00-governance/EXECUTION_TRACEABILITY_GATES.md).
+#
+# Rule: no commit until the registered executor has a valid attestation
+# (read + accepted) for the CURRENT revision of every mandatory document.
+# Activate locally: git config core.hooksPath hooks
+# The CI gate (pr-verify.yml -> npm run executor:gate) re-checks admission
+# per commit even if this hook is bypassed with --no-verify.
+
+if [ -x node_modules/.bin/tsx ]; then
+  node_modules/.bin/tsx scripts/onboardingGate.ts --check && exit 0
+else
+  npx --no-install tsx scripts/onboardingGate.ts --check && exit 0
+fi
+
+echo "ONBOARDING GATE (pre-commit): исключение — исполнитель не допущен к работе." >&2
+echo "Сначала изучить обязательную документацию, затем: npm run onboarding:attest → заполнить → npm run onboarding:gate." >&2
+exit 1

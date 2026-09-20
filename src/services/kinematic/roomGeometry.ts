@@ -43,8 +43,11 @@ export const TENNIS_CANNONS: readonly ITennisCannonProp[] = [
 ];
 
 /**
- * The playable floor area: walls inset by the projectile radius, so a ball
- * resting against a wall has its CENTRE here, not its surface.
+ * The playable room volume: walls/ceiling inset by the projectile radius, so a
+ * ball resting against a wall (or the ceiling) has its CENTRE here, not its
+ * surface. Returns closed x/y walls, a floor at z=0, and a ceiling at
+ * ROOM_HEIGHT_M — used both for live integration and for the intercept planner
+ * so wall/ceiling rebounds are predicted consistently.
  */
 export function roomFloorInset(radiusM: number): {
   minX: number;
@@ -52,7 +55,15 @@ export function roomFloorInset(radiusM: number): {
   minY: number;
   maxY: number;
   floorZ: number;
+  ceilingZ: number;
 } {
   const inset = ROOM_HALF_EXTENT_M - radiusM;
-  return { minX: -inset, maxX: inset, minY: -inset, maxY: inset, floorZ: 0 };
+  return {
+    minX: -inset,
+    maxX: inset,
+    minY: -inset,
+    maxY: inset,
+    floorZ: 0,
+    ceilingZ: ROOM_HEIGHT_M,
+  };
 }
