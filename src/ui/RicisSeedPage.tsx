@@ -1,3 +1,6 @@
+import { ContentButton, SelectionCard } from './components/ContentButton';
+import { IconButton } from './components/IconButton';
+
 import React, { useMemo, useState } from 'react';
 import { ArrowLeft, CheckCircle2, Download, GitBranch, Layers, Lock, RefreshCw, ShieldCheck, Sprout, XCircle } from 'lucide-react';
 
@@ -110,16 +113,16 @@ export function RicisSeedPage({ onBackToMap }: RicisSeedPageProps): React.JSX.El
   });
 
   return (
-    <div className="min-h-screen w-full bg-[#050505] text-slate-200 font-sans">
+    <div className="h-full min-h-0 overflow-y-auto w-full bg-[#050505] text-slate-200 font-sans">
       <header className="sticky top-0 z-10 border-b border-emerald-900/50 bg-[#070707]/95 px-4 py-3 backdrop-blur">
         <div className="mx-auto flex max-w-[1500px] flex-wrap items-center gap-3">
-          <button
+          <ContentButton
             type="button"
             onClick={onBackToMap}
             className="inline-flex min-h-10 items-center gap-1.5 rounded-md border border-slate-700 bg-slate-900/70 px-3 text-xs font-bold uppercase tracking-wider text-slate-200 hover:border-cyan-500 hover:text-cyan-200"
           >
             <ArrowLeft size={14} /> Карта
-          </button>
+          </ContentButton>
           <Sprout size={18} className="text-emerald-400" />
           <h1 className="text-sm font-extrabold uppercase tracking-[0.18em] text-emerald-300">
             RICIS SEED <span className="hidden sm:inline text-slate-500">// протокол саморасширения A11</span>
@@ -128,13 +131,13 @@ export function RicisSeedPage({ onBackToMap }: RicisSeedPageProps): React.JSX.El
             R{seed.generation}
           </span>
           <span className="font-mono text-[10px] text-slate-500">{seed.fingerprint}</span>
-          <button
+          <ContentButton
             type="button"
             onClick={resetToSeed}
             className="ml-auto inline-flex min-h-10 items-center gap-1.5 rounded-md border border-slate-700 bg-slate-900/70 px-3 text-xs font-bold uppercase tracking-wider text-slate-300 hover:border-emerald-500 hover:text-emerald-200"
           >
             <RefreshCw size={13} /> Сброс к зерну
-          </button>
+          </ContentButton>
         </div>
       </header>
 
@@ -232,7 +235,7 @@ ExpandTo — допуск доказанного правила: R(k+1) = R(k) �
                 const active = entry.problem.id === problemId;
                 const covered = coveredForms.includes(entry.problem.inputForm);
                 return (
-                  <button
+                  <SelectionCard
                     key={entry.problem.id}
                     type="button"
                     onClick={() => setProblemId(entry.problem.id)}
@@ -254,20 +257,20 @@ ExpandTo — допуск доказанного правила: R(k+1) = R(k) �
                         </span>
                       )}
                     </span>
-                  </button>
+                  </SelectionCard>
                 );
               })}
             </div>
 
             <p className="mt-3 text-[11px] leading-relaxed text-slate-400">{selected.expectationText}</p>
 
-            <button
+            <ContentButton
               type="button"
               onClick={runExpansion}
               className="mt-3 inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-md border border-emerald-600/70 bg-emerald-950/50 px-4 text-xs font-bold uppercase tracking-wider text-emerald-200 hover:border-emerald-400 hover:bg-emerald-900/50"
             >
               <Sprout size={15} /> Ric.ExpandTo((x) =&gt; x.Resolve(U))
-            </button>
+            </ContentButton>
           </article>
 
           {result && (
@@ -349,27 +352,27 @@ ExpandTo — допуск доказанного правила: R(k+1) = R(k) �
               <li>· Таблица согласованности — проверка по точной форме; она ловит явные противоречия, но не является полной процедурой унификации.</li>
             </ul>
             <div className="mt-3 flex flex-wrap gap-2">
-              <button
+              <ContentButton
                 type="button"
                 onClick={runVerification}
                 className="inline-flex min-h-9 items-center gap-1.5 rounded border border-emerald-800/70 bg-emerald-950/40 px-2.5 text-[10px] font-bold uppercase tracking-wider text-emerald-200 hover:border-emerald-500"
               >
                 <ShieldCheck size={12} /> Верификация Seed
-              </button>
-              <button
+              </ContentButton>
+              <ContentButton
                 type="button"
                 onClick={downloadLedgerReceipt}
                 className="inline-flex min-h-9 items-center gap-1.5 rounded border border-slate-700 bg-slate-900/70 px-2.5 text-[10px] font-bold uppercase tracking-wider text-slate-300 hover:border-slate-500"
               >
                 <Download size={12} /> Крипто-квитанция (JSON)
-              </button>
-              <button
+              </ContentButton>
+              <ContentButton
                 type="button"
                 onClick={() => UrlShareService.updateBrowserUrl({ seed: true })}
                 className="inline-flex min-h-9 items-center gap-1.5 rounded border border-slate-700 bg-slate-900/70 px-2.5 text-[10px] uppercase tracking-wider text-slate-300"
               >
                 <GitBranch size={12} /> Ссылка на это состояние (?view=seed)
-              </button>
+              </ContentButton>
             </div>
             {verification && (
               <div className={`mt-3 rounded border p-3 font-mono text-[10px] leading-relaxed ${verification.ok ? 'border-emerald-800/70 bg-emerald-950/20 text-emerald-200' : 'border-red-800/70 bg-red-950/20 text-red-200'}`}>

@@ -1,3 +1,6 @@
+import { ContentButton } from './components/ContentButton';
+import { IconButton } from './components/IconButton';
+import { X as ButtonIconX } from 'lucide-react';
 import React, { useState } from 'react';
 import type { ProblemNode } from '../model/types';
 import { useMapStore } from '../store/mapStore';
@@ -241,12 +244,12 @@ export const EditNodeModal: React.FC<Props> = ({ node, onClose, onSolveAfterSave
               Измените целевую функцию или описание-инструкцию для Агента RICIS-III
             </p>
           </div>
-          <button
+          <IconButton title="Закрыть" fallbackIcon={ButtonIconX}
             onClick={onClose}
             className="text-gray-400 hover:text-white transition-colors text-sm font-bold px-2 py-1"
           >
             ✕
-          </button>
+          </IconButton>
         </div>
 
         {/* Banner highlighting description as AI prompt hint */}
@@ -363,13 +366,13 @@ export const EditNodeModal: React.FC<Props> = ({ node, onClose, onSolveAfterSave
                 Формальное доказательство Lean 4 / LaTeX (Proof)
               </label>
               <div className="flex items-center gap-2">
-                <button
+                <ContentButton
                   type="button"
                   onClick={() => setShowProofPreview(!showProofPreview)}
                   className="px-2 py-0.5 rounded text-[9px] font-mono font-bold bg-cyan-950 border border-cyan-800 text-cyan-300 hover:text-white transition-colors cursor-pointer"
                 >
                   {showProofPreview ? '✏️ Редактировать код' : '👁️ Предпросмотр LaTeX'}
-                </button>
+                </ContentButton>
               </div>
             </div>
 
@@ -392,13 +395,13 @@ export const EditNodeModal: React.FC<Props> = ({ node, onClose, onSolveAfterSave
               <div className="mt-2 space-y-2 p-2.5 bg-cyan-950/30 border border-cyan-800/50 rounded text-[10px] text-cyan-100 leading-relaxed">
                 <p>Внешний Lean source сохранён дословно и заблокирован от замены агентом. После kernel verification он может быть принят как `TRUSTED_AXIOM` вместе с compiler evidence и `#print axioms`.</p>
                 {canOpenPassportSession && (
-                  <button
+                  <ContentButton
                     type="button"
                     onClick={handleOpenPassportSession}
                     className="rounded border border-cyan-700 px-2 py-1 text-[10px] font-bold text-cyan-200 hover:border-cyan-300 hover:text-white"
                   >
                     Открыть паспорт источника
-                  </button>
+                  </ContentButton>
                 )}
               </div>
             )}
@@ -415,7 +418,7 @@ export const EditNodeModal: React.FC<Props> = ({ node, onClose, onSolveAfterSave
                 <div className="text-red-400 font-bold uppercase tracking-wider text-[8px] flex items-center gap-1">
                   🔍 ИНТЕРАКТИВНЫЙ АНАЛИЗАТОР LEAN 4 / RICIS
                 </div>
-                
+
                 {realTimeAudit.errors && realTimeAudit.errors.length > 0 && (
                   <div>
                     <span className="text-red-400 font-bold block uppercase text-[8px]">Ошибки (Errors):</span>
@@ -550,29 +553,29 @@ export const EditNodeModal: React.FC<Props> = ({ node, onClose, onSolveAfterSave
         </div>
 
         <div className="flex items-center justify-end gap-2 pt-3 border-t border-cyan-900/50">
-          <button
+          <ContentButton
             type="button"
             onClick={onClose}
             className="px-3 py-2 rounded bg-neutral-800 text-gray-300 hover:bg-neutral-700 text-[11px] font-medium transition-colors"
           >
             Отмена
-          </button>
-          <button
+          </ContentButton>
+          <ContentButton
             type="button"
             disabled={isSaving}
             onClick={() => handleSave(false)}
             className="px-3 py-2 rounded bg-cyan-950 border border-cyan-700/80 text-cyan-200 hover:bg-cyan-900 text-[11px] font-bold transition-colors"
           >
             Сохранить
-          </button>
-          <button
+          </ContentButton>
+          <ContentButton
             type="button"
             disabled={isSaving}
             onClick={() => handleSave(true)}
             className="px-3 py-2 rounded bg-gradient-to-r from-cyan-600 to-purple-600 text-white font-bold text-[11px] hover:brightness-110 transition-all shadow-lg"
           >
             ⚡ Сохранить и Перерассчитать (RICIS-III)
-          </button>
+          </ContentButton>
         </div>
       </div>
       {passportSession !== null && (

@@ -1,3 +1,4 @@
+import { IconButton } from '../IconButton';
 // ============================================================================
 // ASYNC CRITICAL NODE LOG VIEWER COMPONENT (Non-blocking real-time terminal)
 // ============================================================================
@@ -26,13 +27,13 @@ export const AsyncCriticalLogViewer: React.FC = () => {
             Microtask / Non-blocking
           </span>
         </div>
-        <button
+        <IconButton
           onClick={() => asyncCriticalLogger.clear()}
           className="text-slate-400 hover:text-slate-200 transition-colors p-1"
           title="Clear logs"
         >
           <Trash2 className="w-3.5 h-3.5" />
-        </button>
+        </IconButton>
       </div>
 
       <div className="flex-1 overflow-y-auto space-y-1.5 font-mono text-[11px] pr-1 scrollbar-thin scrollbar-thumb-slate-800">

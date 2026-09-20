@@ -1,3 +1,5 @@
+import { ContentButton } from './components/ContentButton';
+import { IconButton } from './components/IconButton';
 import React, { useState } from 'react';
 import { RicisFormalProof } from '../services/ricisCore/IRicisCoreEngine';
 import { Award, Copy, Check, BookOpen, CheckCircle2 } from 'lucide-react';
@@ -34,7 +36,7 @@ export function TheoremReportViewer({ proof, className = '' }: TheoremReportView
 
   return (
     <div className={`font-mono text-xs text-slate-100 bg-[#06080c] border border-amber-950/60 rounded-lg p-4 space-y-3 relative select-text ${className}`}>
-      
+
       {/* Header */}
       <div className="flex items-center justify-between border-b border-amber-900/30 pb-2.5">
         <div className="flex items-center gap-2">
@@ -51,7 +53,7 @@ export function TheoremReportViewer({ proof, className = '' }: TheoremReportView
           </div>
         </div>
 
-        <button
+        <ContentButton
           type="button"
           onClick={handleCopy}
           className="flex items-center gap-1 px-2.5 py-1 rounded bg-neutral-900 hover:bg-neutral-800 border border-neutral-700 text-[11px] text-slate-300 hover:text-white transition-colors cursor-pointer"
@@ -68,7 +70,7 @@ export function TheoremReportViewer({ proof, className = '' }: TheoremReportView
               <span>{t('theoremReport.copy')}</span>
             </>
           )}
-        </button>
+        </ContentButton>
       </div>
 
       {/* Hypothesis */}
@@ -89,8 +91,8 @@ export function TheoremReportViewer({ proof, className = '' }: TheoremReportView
 
         </div>
         {proof.steps.map((step) => (
-          <div 
-            key={step.stepNumber} 
+          <div
+            key={step.stepNumber}
             className="flex flex-col gap-1 border-l-2 border-amber-600/70 pl-3 py-1.5 bg-neutral-950/50 rounded-r border border-y-0 border-r-0"
           >
             <div className="flex items-center gap-2 text-[11px]">

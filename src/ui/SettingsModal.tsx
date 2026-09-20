@@ -1,3 +1,6 @@
+import { ContentButton, SelectionCard } from './components/ContentButton';
+import { IconButton } from './components/IconButton';
+
 import React, { useState, useMemo } from 'react';
 import { Settings, Plus, User, Sliders, X, Check, Eye, EyeOff, LayoutGrid, Globe, ServerOff, Database, Copy } from 'lucide-react';
 import type { AdaptiveRole } from '../hooks/useAdaptiveUI';
@@ -78,12 +81,12 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
     // Non-blocking slide-out right panel (Drawer / Flyout)
     <div className="fixed inset-0 z-50 pointer-events-none flex justify-end">
       {/* Subtle backdrop overlay for focus without completely blocking the screen */}
-      <div 
+      <div
         className="absolute inset-0 bg-black/40 backdrop-blur-[2px] pointer-events-auto transition-opacity"
         onClick={onClose}
       />
 
-      <div 
+      <div
         className="relative w-full max-w-md bg-[#080b11] border-l border-cyan-900/40 shadow-[0_0_50px_rgba(0,0,0,0.9)] h-full overflow-hidden flex flex-col pointer-events-auto z-10 animate-in slide-in-from-right duration-200"
         onClick={e => e.stopPropagation()}
       >
@@ -102,13 +105,13 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
               </p>
             </div>
           </div>
-          <button
+          <IconButton title="Закрыть"
             type="button"
             onClick={onClose}
             className="w-8 h-8 rounded-lg flex items-center justify-center text-slate-400 hover:text-slate-100 hover:bg-neutral-800/60 transition-colors"
           >
             <X size={18} />
-          </button>
+          </IconButton>
         </div>
 
         {/* Content */}
@@ -192,7 +195,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                 {uiElements.map((el) => {
                   const isVisible = !hiddenElementIds.has(el.id);
                   return (
-                    <button
+                    <ContentButton
                       key={el.id}
                       type="button"
                       onClick={() => onToggleElement?.(el.id)}
@@ -216,7 +219,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                           </span>
                         )}
                       </div>
-                    </button>
+                    </ContentButton>
                   );
                 })}
               </div>
@@ -231,13 +234,13 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                   <span>{t('settings.profile')}</span>
               </label>
               {!isCreating && (
-                <button
+                <ContentButton
                   type="button"
                   onClick={() => setIsCreating(true)}
                   className="text-xs font-semibold text-cyan-400 hover:text-cyan-300 flex items-center gap-1 transition-colors"
                 >
                   <Plus size={14} /> {t('settings.createNew')}
-                </button>
+                </ContentButton>
               )}
             </div>
 
@@ -246,7 +249,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
               {roles.map(role => {
                 const isSelected = role.id === currentRoleId;
                 return (
-                  <button
+                  <SelectionCard
                     key={role.id}
                     type="button"
                     onClick={() => onSelectRole(role.id)}
@@ -273,7 +276,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                         <Check size={12} strokeWidth={3} />
                       </div>
                     )}
-                  </button>
+                  </SelectionCard>
                 );
               })}
             </div>
@@ -302,19 +305,19 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                   <span>{t('settings.copyCurrent')}</span>
                 </label>
                 <div className="flex items-center gap-2 pt-1">
-                  <button
+                  <ContentButton
                     type="submit"
                     className="min-h-[36px] px-3.5 bg-cyan-500 hover:bg-cyan-400 text-black font-bold text-xs rounded-md transition-colors"
                   >
                     {t('settings.save')}
-                  </button>
-                  <button
+                  </ContentButton>
+                  <ContentButton
                     type="button"
                     onClick={() => { setIsCreating(false); setNewRoleName(''); }}
                     className="min-h-[36px] px-3.5 bg-neutral-800 hover:bg-neutral-700 text-slate-300 font-medium text-xs rounded-md transition-colors"
                   >
                     {t('settings.cancel')}
-                  </button>
+                  </ContentButton>
                 </div>
               </form>
             )}
@@ -339,7 +342,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                 const isSelected = tmpl.kind === selectedDbKind;
                 const shortName = tmpl.kind === 'embedded_sqlite_volume' ? 'SQLite (Vol)' : tmpl.kind === 'cloud_sql_postgres_free_tier' ? 'Cloud SQL' : 'Firestore';
                 return (
-                  <button
+                  <ContentButton
                     key={tmpl.kind}
                     type="button"
                     onClick={() => setSelectedDbKind(tmpl.kind)}
@@ -350,7 +353,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                     }`}
                   >
                     {shortName}
-                  </button>
+                  </ContentButton>
                 );
               })}
             </div>
@@ -369,14 +372,14 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                 <div className="space-y-1">
                   <div className="flex items-center justify-between text-[10px] text-slate-400 font-mono">
                     <span>Конфигурация .env</span>
-                    <button
+                    <ContentButton
                       type="button"
                       onClick={() => handleCopySnippet(activeTemplate.configurationTemplate, 'config')}
                       className="flex items-center gap-1 text-cyan-400 hover:text-cyan-300"
                     >
                       <Copy size={11} />
                       {copiedKey === 'config' ? 'Скопировано!' : 'Копировать'}
-                    </button>
+                    </ContentButton>
                   </div>
                   <pre className="p-2 bg-black/60 rounded border border-neutral-800/80 text-[10px] text-slate-300 font-mono overflow-x-auto whitespace-pre-wrap">
                     {activeTemplate.configurationTemplate}
@@ -387,14 +390,14 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                 <div className="space-y-1">
                   <div className="flex items-center justify-between text-[10px] text-slate-400 font-mono">
                     <span>Пример схемы / миграции</span>
-                    <button
+                    <ContentButton
                       type="button"
                       onClick={() => handleCopySnippet(activeTemplate.migrationScriptExample, 'migration')}
                       className="flex items-center gap-1 text-cyan-400 hover:text-cyan-300"
                     >
                       <Copy size={11} />
                       {copiedKey === 'migration' ? 'Скопировано!' : 'Копировать'}
-                    </button>
+                    </ContentButton>
                   </div>
                   <pre className="p-2 bg-black/60 rounded border border-neutral-800/80 text-[9.5px] text-cyan-200/90 font-mono overflow-x-auto max-h-32">
                     {activeTemplate.migrationScriptExample}
@@ -413,13 +416,13 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 
         {/* Footer */}
         <div className="p-4 border-t border-neutral-800/80 bg-[#0c1017] flex justify-end">
-          <button
+          <ContentButton
             type="button"
             onClick={onClose}
             className="min-h-[40px] px-5 bg-neutral-800 hover:bg-neutral-700 text-slate-100 text-xs font-bold rounded-lg transition-colors"
           >
             {t('settings.close')}
-          </button>
+          </ContentButton>
         </div>
       </div>
     </div>

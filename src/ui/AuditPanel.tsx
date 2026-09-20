@@ -1,3 +1,5 @@
+import { ContentButton } from './components/ContentButton';
+import { IconButton } from './components/IconButton';
 import React, { useState } from 'react';
 import { useMapStore } from '../store/mapStore';
 import { useI18nStore } from '../store/useI18nStore';
@@ -178,7 +180,7 @@ export const AuditPanel: React.FC = () => {
           const ariaLabel = `${btn.tooltipTitle}: ${btn.tooltipDescription}`;
 
           return (
-            <button
+            <ContentButton
               key={btn.id}
               id={btn.id}
               type="button"
@@ -195,7 +197,7 @@ export const AuditPanel: React.FC = () => {
               ) : (
                 <Icon className="w-4 h-4" />
               )}
-            </button>
+            </ContentButton>
           );
         })}
       </div>

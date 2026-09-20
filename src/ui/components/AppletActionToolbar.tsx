@@ -1,3 +1,4 @@
+import { IconButton } from './IconButton';
 // ============================================================================
 // DYNAMIC APPLET ACTION TOOLBAR (MVVM / DDD / SOLID)
 // Ribbon-style action bar rendering context-aware command buttons with
@@ -89,7 +90,7 @@ export const AppletActionToolbar: React.FC<AppletActionToolbarProps> = ({
           <span className="text-slate-400 font-semibold">{appletDef?.shortTitle || activeApplet}</span>
           <span className="text-[10px] text-slate-500">• {appletDef?.category || 'workspace'}</span>
         </div>
-        <button
+        <IconButton
           type="button"
           onClick={() => setIsCollapsed(false)}
           className="p-0.5 rounded text-slate-400 hover:text-white hover:bg-neutral-800 transition-colors"
@@ -97,14 +98,14 @@ export const AppletActionToolbar: React.FC<AppletActionToolbarProps> = ({
           aria-label="Expand toolbar"
         >
           <ChevronDown size={12} />
-        </button>
+        </IconButton>
       </div>
     );
   }
 
   return (
     <div
-      className="flex items-center justify-between px-3 py-1 bg-neutral-900/95 border-b border-neutral-800/80 text-xs font-mono select-none shadow-sm backdrop-blur-sm overflow-x-auto"
+      className="flex shrink-0 items-center justify-between px-3 py-1 bg-neutral-900/95 border-b border-neutral-800/80 text-xs font-mono select-none shadow-sm backdrop-blur-sm overflow-x-auto"
       data-testid="applet-action-toolbar"
     >
       {/* Left: Active Applet Context Badge + Grouped Action Buttons */}
@@ -126,7 +127,7 @@ export const AppletActionToolbar: React.FC<AppletActionToolbarProps> = ({
           {toolbarCommands.map(cmd => {
             const isEnabled = cmd.isEnabled(commandContext);
             const isActive = cmd.isActive ? cmd.isActive(commandContext) : false;
-            const IconComponent = ICON_MAP[cmd.iconName] || Sparkles;
+            const IconComponent = cmd.id === 'global.share' && copiedSuccess ? Check : ICON_MAP[cmd.iconName] || Sparkles;
 
             const buttonStyle = isEnabled
               ? isActive
@@ -142,7 +143,7 @@ export const AppletActionToolbar: React.FC<AppletActionToolbarProps> = ({
                 shortcut={cmd.shortcut}
                 disabledReason={!isEnabled ? 'Действие недоступно в текущем состоянии' : undefined}
               >
-                <button
+                <IconButton
                   type="button"
                   disabled={!isEnabled}
                   onClick={() => handleCommandClick(cmd)}
@@ -150,7 +151,7 @@ export const AppletActionToolbar: React.FC<AppletActionToolbarProps> = ({
                 >
                   <IconComponent size={13} className={isActive ? 'text-cyan-400 animate-pulse' : ''} />
                   <span>{cmd.label}</span>
-                </button>
+                </IconButton>
               </ActionTooltip>
             );
           })}
@@ -159,20 +160,8 @@ export const AppletActionToolbar: React.FC<AppletActionToolbarProps> = ({
 
       {/* Right: Global Toolbar Actions (Share + Collapse) */}
       <div className="flex items-center gap-1.5 min-w-max ml-4">
-        {/* Quick Share with dynamic feedback */}
-        <ActionTooltip title="Поделиться Ссылкой" description="Скопировать deep-link текущего апплета" shortcut="Alt+S">
-          <button
-            type="button"
-            onClick={() => handleCommandClick(CommandRegistry.getById('global.share')!)}
-            className="flex items-center gap-1 px-2 py-0.5 rounded bg-neutral-800 hover:bg-neutral-700 border border-neutral-700 text-slate-300 hover:text-white text-[11px] transition-colors"
-          >
-            {copiedSuccess ? <Check size={11} className="text-emerald-400" /> : <Share2 size={11} />}
-            <span className="hidden sm:inline">{copiedSuccess ? 'Скопировано' : 'Поделиться'}</span>
-          </button>
-        </ActionTooltip>
-
         {/* Collapse Toolbar toggle */}
-        <button
+        <IconButton
           type="button"
           onClick={() => setIsCollapsed(true)}
           className="p-1 rounded text-slate-400 hover:text-white hover:bg-neutral-800 transition-colors"
@@ -180,7 +169,7 @@ export const AppletActionToolbar: React.FC<AppletActionToolbarProps> = ({
           aria-label="Collapse toolbar"
         >
           <ChevronUp size={13} />
-        </button>
+        </IconButton>
       </div>
     </div>
   );

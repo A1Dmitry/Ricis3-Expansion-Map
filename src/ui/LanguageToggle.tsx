@@ -1,3 +1,6 @@
+import { ContentButton } from './components/ContentButton';
+import { IconButton } from './components/IconButton';
+
 import React from 'react';
 import { useI18nStore } from '../store/useI18nStore';
 import { Languages } from 'lucide-react';
@@ -7,8 +10,9 @@ export function LanguageToggle() {
 
   return (
     <div className="flex items-center bg-neutral-900 border border-neutral-700/80 rounded-md p-0.5 text-xs font-mono select-none">
-      <button
+      <ContentButton
         type="button"
+        aria-pressed={locale === 'ru'}
         onClick={() => setLocale('ru')}
         className={`px-2 py-1 rounded transition-all cursor-pointer font-bold ${
           locale === 'ru'
@@ -18,9 +22,10 @@ export function LanguageToggle() {
         title="Русский язык"
       >
         RU
-      </button>
-      <button
+      </ContentButton>
+      <ContentButton
         type="button"
+        aria-pressed={locale === 'en'}
         onClick={() => setLocale('en')}
         className={`px-2 py-1 rounded transition-all cursor-pointer font-bold ${
           locale === 'en'
@@ -30,7 +35,7 @@ export function LanguageToggle() {
         title="English Language"
       >
         EN
-      </button>
+      </ContentButton>
     </div>
   );
 }

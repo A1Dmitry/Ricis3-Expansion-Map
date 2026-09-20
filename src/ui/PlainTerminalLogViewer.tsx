@@ -1,3 +1,5 @@
+import { ContentButton } from './components/ContentButton';
+import { IconButton } from './components/IconButton';
 import React, { useState } from 'react';
 import { ITransformationLogDTO } from '../model/traceVisualizer.types';
 import { CheckCircle2, Copy, Check } from 'lucide-react';
@@ -52,7 +54,7 @@ export function PlainTerminalLogViewer({ logData, className = '' }: PlainTermina
 
   return (
     <div className={`font-mono text-xs text-slate-100 bg-slate-900 border border-neutral-800 rounded-lg p-3.5 space-y-2.5 select-text relative group ${className}`}>
-      
+
       {/* Header Bar: Semantic Index + Copy Button */}
       <div className="flex items-center justify-between border-b border-neutral-800/80 pb-2">
         <div className="text-[12px] text-slate-400">
@@ -61,7 +63,7 @@ export function PlainTerminalLogViewer({ logData, className = '' }: PlainTermina
             {logData.semanticIndex || logData.targetExpression}
           </span>
         </div>
-        <button
+        <ContentButton
           type="button"
           onClick={handleCopy}
           className="flex items-center gap-1 px-2 py-0.5 rounded bg-neutral-900 hover:bg-neutral-800 border border-neutral-700 text-[11px] text-slate-300 hover:text-white transition-colors cursor-pointer"
@@ -78,7 +80,7 @@ export function PlainTerminalLogViewer({ logData, className = '' }: PlainTermina
               <span>Копировать</span>
             </>
           )}
-        </button>
+        </ContentButton>
       </div>
 
       {/* Пошаговый вывод в терминальном стиле с высокой контрастностью текста формул */}
@@ -87,8 +89,8 @@ export function PlainTerminalLogViewer({ logData, className = '' }: PlainTermina
           const phaseLabel = cleanPhaseLabel(step.phaseBadgeLabel, idx);
 
           return (
-            <div 
-              key={idx} 
+            <div
+              key={idx}
               className="flex flex-col gap-1 border-l-2 border-cyan-800/60 pl-3 py-1 bg-neutral-950/40 hover:bg-neutral-900/40 transition-colors rounded-r"
             >
               {/* Строка заголовка шага */}

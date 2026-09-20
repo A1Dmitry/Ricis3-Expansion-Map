@@ -28,6 +28,22 @@ describe('UI-РЕФАКТОРИНГ — кнопки выполнения в к�
     expect(nodeCardDetailsSource).toContain("id: 'edit'");
   });
 
+  it('UIRF-01a: все действия находятся в меню шапки, отдельной кнопки с точками нет', () => {
+    expect(nodeCardDetailsSource).not.toContain('Действия задачи');
+    expect(nodeCardDetailsSource).not.toContain('node-details-menu-corner');
+    expect(nodeCardDetailsSource).not.toContain('relative pr-12');
+    expect(nodeCardDetailsSource).toContain('createPortal(');
+    expect(contextMenuSource).toContain('<Menu size={16} />');
+    expect(contextMenuSource).not.toContain('MoreVertical');
+    expect(contextMenuSource).toContain('footer?.(closeMenu)');
+    expect((mapSource.match(/data-testid="task-header-menu-slot"/g) || []).length).toBe(2);
+    expect((mapSource.match(/menuContainer=\{taskMenuContainer\}/g) || []).length).toBe(2);
+    expect(mapSource).not.toContain('isMenuOpen');
+    expect(mapSource).toContain('Вычислить путь к ядру');
+    expect(mapSource).toContain('Генерировать TEX');
+    expect(mapSource).toContain('Генерировать JSON');
+  });
+
   it('UIRF-02: выполнение RICIS-решения вызывается через меню, отдельные кнопки в Map3D удалены', () => {
     expect(nodeCardDetailsSource).toContain('onSolve');
     expect(nodeCardDetailsSource).toContain("id: 'solve'");

@@ -1,3 +1,6 @@
+import { ContentButton } from './components/ContentButton';
+import { IconButton } from './components/IconButton';
+
 import React, { Suspense, type ReactNode } from 'react';
 
 export interface RouteSurfaceBoundaryProps {
@@ -79,12 +82,12 @@ class RouteSurfaceErrorBoundary extends React.Component<
           <div className="max-w-md bg-red-950/40 border border-red-800/60 p-4 rounded mb-6 text-red-200">
             {this.state.error?.message || 'Failed to load dynamic component surface'}
           </div>
-          <button
+          <ContentButton
             onClick={this.handleReload}
             className="px-4 py-2 bg-cyan-950 hover:bg-cyan-900 border border-cyan-500/50 text-cyan-300 rounded font-mono text-xs uppercase tracking-widest transition-colors cursor-pointer"
           >
             Перезагрузить поверхность // Reload Surface
-          </button>
+          </ContentButton>
         </div>
       );
     }

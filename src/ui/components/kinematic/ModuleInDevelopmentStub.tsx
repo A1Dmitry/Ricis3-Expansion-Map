@@ -1,3 +1,5 @@
+import { ContentButton } from '../ContentButton';
+import { IconButton } from '../IconButton';
 // ============================================================================
 // MODULE IN DEVELOPMENT STUB COMPONENT (Resilient Fallback Widget)
 // Author: Dmitry V. Aleinikov (ORCID: 0009-0004-3226-7700)
@@ -106,13 +108,13 @@ export const ModuleInDevelopmentStub: React.FC<Props> = ({
           IoC Isolation Guard: Приложение работает стабильно без сбоев.
         </span>
         {onFallbackToDefault && (
-          <button
+          <ContentButton
             onClick={onFallbackToDefault}
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-cyan-600 hover:bg-cyan-500 text-white transition-colors shadow-md"
           >
             <span>Вернуться к 3-звенному модулю</span>
             <ArrowRight className="w-3.5 h-3.5" />
-          </button>
+          </ContentButton>
         )}
       </div>
     </div>

@@ -1,3 +1,6 @@
+import { ContentButton } from './components/ContentButton';
+import { IconButton } from './components/IconButton';
+
 import React, { useState, useEffect } from 'react';
 import {
   getRicisCoreEngine,
@@ -42,7 +45,7 @@ export const RicisProofConsoleModal: React.FC<RicisProofConsoleModalProps> = ({
   );
   const { t } = useI18nStore();
   const [activeTab, setActiveTab] = useState<'evaluate' | 'prove'>('evaluate');
-  
+
   // Evaluation state
   const [expression, setExpression] = useState(initialClaim);
   const [evalResult, setEvalResult] = useState<RicisEvaluationResult | null>(null);
@@ -160,20 +163,21 @@ export const RicisProofConsoleModal: React.FC<RicisProofConsoleModalProps> = ({
               <p className="text-[11px] text-slate-400 font-mono">{t('proofConsole.subtitle')}</p>
             </div>
           </div>
-          <button
+          <IconButton
             onClick={onClose}
             aria-label={t('proofConsole.close')}
             title={t('proofConsole.close')}
             className="p-1.5 rounded-lg hover:bg-white/5 text-slate-400 hover:text-white transition-colors"
           >
             <X className="w-5 h-5" />
-          </button>
+          </IconButton>
         </div>
 
         {/* Tab Navigation */}
         <div className="flex items-center gap-1 px-5 border-b border-cyan-900/30 bg-[#070c14] text-xs font-medium">
-          <button
+          <ContentButton
             onClick={() => setActiveTab('evaluate')}
+            data-control-kind="tab" aria-pressed={activeTab === 'evaluate'}
             className={`flex items-center gap-2 px-4 py-2.5 border-b-2 transition-colors ${
               activeTab === 'evaluate'
                 ? 'border-cyan-400 text-cyan-300 bg-cyan-950/20'
@@ -182,9 +186,10 @@ export const RicisProofConsoleModal: React.FC<RicisProofConsoleModalProps> = ({
           >
             <Play className="w-3.5 h-3.5" />
             {t('proofConsole.tab.evaluate')}
-          </button>
-          <button
+          </ContentButton>
+          <ContentButton
             onClick={() => setActiveTab('prove')}
+            data-control-kind="tab" aria-pressed={activeTab === 'prove'}
             className={`flex items-center gap-2 px-4 py-2.5 border-b-2 transition-colors ${
               activeTab === 'prove'
                 ? 'border-cyan-400 text-cyan-300 bg-cyan-950/20'
@@ -193,7 +198,7 @@ export const RicisProofConsoleModal: React.FC<RicisProofConsoleModalProps> = ({
           >
             <BookOpen className="w-3.5 h-3.5" />
             {t('proofConsole.tab.prove')}
-          </button>
+          </ContentButton>
         </div>
 
         {/* Content Area */}
@@ -202,36 +207,36 @@ export const RicisProofConsoleModal: React.FC<RicisProofConsoleModalProps> = ({
           <div className="flex items-center justify-between gap-2 flex-wrap border-b border-cyan-950/60 pb-3">
             <div className="flex items-center gap-1.5 flex-wrap">
               <span className="text-[11px] text-slate-500 uppercase tracking-wider font-mono">{t('proofConsole.presets')}:</span>
-              <button
+              <ContentButton
                 onClick={() => setPreset('0_5 * inf_3')}
                 className="text-[11px] font-mono px-2.5 py-1 rounded bg-[#0e1626] hover:bg-cyan-950/60 border border-cyan-900/40 text-cyan-300 transition-colors"
               >
                 {t('proofConsole.preset.a6')}
-              </button>
-              <button
+              </ContentButton>
+              <ContentButton
                 onClick={() => setPreset('0_7 / 0_7')}
                 className="text-[11px] font-mono px-2.5 py-1 rounded bg-[#0e1626] hover:bg-cyan-950/60 border border-cyan-900/40 text-cyan-300 transition-colors"
               >
                 {t('proofConsole.preset.l1')}
-              </button>
-              <button
+              </ContentButton>
+              <ContentButton
                 onClick={() => setPreset('0_10 / 0_2')}
                 className="text-[11px] font-mono px-2.5 py-1 rounded bg-[#0e1626] hover:bg-cyan-950/60 border border-cyan-900/40 text-cyan-300 transition-colors"
               >
                 {t('proofConsole.preset.a4')}
-              </button>
-              <button
+              </ContentButton>
+              <ContentButton
                 onClick={() => setPreset('8 / 0')}
                 className="text-[11px] font-mono px-2.5 py-1 rounded bg-[#0e1626] hover:bg-cyan-950/60 border border-cyan-900/40 text-cyan-300 transition-colors"
               >
                 {t('proofConsole.preset.a10')}
-              </button>
-              <button
+              </ContentButton>
+              <ContentButton
                 onClick={() => setPreset('inf_10 - inf_3')}
                 className="text-[11px] font-mono px-2.5 py-1 rounded bg-[#0e1626] hover:bg-cyan-950/60 border border-cyan-900/40 text-cyan-300 transition-colors"
               >
                 {t('proofConsole.preset.a7')}
-              </button>
+              </ContentButton>
             </div>
 
             {/* Catalog L0-L66 Selector */}
@@ -268,14 +273,14 @@ export const RicisProofConsoleModal: React.FC<RicisProofConsoleModalProps> = ({
                   placeholder={t('proofConsole.evaluatePlaceholder')}
                   className="flex-1 bg-[#050810] border border-cyan-900/50 rounded-lg px-3.5 py-2 text-sm text-slate-100 font-mono focus:outline-none focus:border-cyan-400 shadow-inner"
                 />
-                <button
+                <ContentButton
                   onClick={handleRunEvaluation}
                   disabled={isEvaluating}
                   className="flex items-center gap-2 px-5 py-2 rounded-lg bg-cyan-600 hover:bg-cyan-500 text-black font-semibold text-xs transition-colors shadow-lg shadow-cyan-950/50"
                 >
                   <Play className="w-3.5 h-3.5 fill-current" />
                   {isEvaluating ? t('proofConsole.evaluating') : t('proofConsole.evaluate')}
-                </button>
+                </ContentButton>
               </div>
 
               {/* Evaluation Result */}
@@ -363,7 +368,7 @@ export const RicisProofConsoleModal: React.FC<RicisProofConsoleModalProps> = ({
                 </div>
               </div>
 
-              <button
+              <ContentButton
                 onClick={handleGenerateProof}
                 disabled={isProving}
                 data-testid="proof-console-create-run"
@@ -371,7 +376,7 @@ export const RicisProofConsoleModal: React.FC<RicisProofConsoleModalProps> = ({
               >
                 <BookOpen className="w-4 h-4 fill-current" />
                 {isProving ? t('proofConsole.creatingRun') : t('proofConsole.createRun')}
-              </button>
+              </ContentButton>
 
               {proofRecoveryResourceKey && (
                 <div className="p-3 rounded-lg bg-rose-950/30 border border-rose-800/50 space-y-1 font-mono text-xs">

@@ -1,17 +1,9 @@
+import { ContentButton } from './components/ContentButton';
+import { IconLink } from './components/IconButton';
+import { IconButton } from './components/IconButton';
+
 import React, { useState } from 'react';
-import {
-  ArrowLeft,
-  CheckCircle2,
-  AlertTriangle,
-  GitBranch,
-  ShieldCheck,
-  Cpu,
-  Layers,
-  ExternalLink,
-  Sparkles,
-  Workflow,
-  ArrowRight,
-} from 'lucide-react';
+import { ArrowLeft, CheckCircle2, AlertTriangle, GitBranch, ShieldCheck, Cpu, Layers, ExternalLink, Sparkles, Workflow } from 'lucide-react';
 import { ProofGraphComparisonService } from '../services/graphComparison/proofGraphComparisonService';
 import type {
   IProofGraphProfile,
@@ -30,18 +22,18 @@ export const ProofGraphComparisonPage: React.FC<ProofGraphComparisonPageProps> =
   const [activeTab, setActiveTab] = useState<'isomorphism' | 'matrix' | 'analogies' | 'divergences' | 'priority'>('isomorphism');
 
   return (
-    <div className="min-h-screen bg-[#05070c] text-slate-100 flex flex-col font-sans selection:bg-cyan-500/30">
+    <div className="h-full min-h-0 overflow-y-auto bg-[#05070c] text-slate-100 flex flex-col font-sans selection:bg-cyan-500/30">
       {/* Header */}
       <header className="border-b border-cyan-900/40 bg-[#070b14]/90 backdrop-blur-md px-4 py-3 sticky top-0 z-30 flex flex-wrap items-center justify-between gap-3 shadow-[0_4px_24px_rgba(0,0,0,0.5)]">
         <div className="flex items-center gap-3">
-          <button
+          <ContentButton
             type="button"
             onClick={onBackToMap}
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-neutral-900/80 hover:bg-neutral-800 border border-neutral-700/80 text-cyan-300 text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer"
           >
             <ArrowLeft size={14} />
             <span>Назад к карте</span>
-          </button>
+          </ContentButton>
           <div className="h-4 w-px bg-cyan-900/50" />
           <h1 className="text-sm sm:text-base font-extrabold tracking-tight text-white flex items-center gap-2">
             <GitBranch className="text-cyan-400" size={18} />
@@ -54,52 +46,57 @@ export const ProofGraphComparisonPage: React.FC<ProofGraphComparisonPageProps> =
 
         {/* Navigation Tabs */}
         <div className="flex items-center gap-1 bg-black/40 p-1 rounded-lg border border-neutral-800 text-xs font-semibold overflow-x-auto max-w-full">
-          <button
+          <ContentButton
             type="button"
             onClick={() => setActiveTab('isomorphism')}
+            data-control-kind="tab" aria-pressed={activeTab === 'isomorphism'}
             className={`px-3 py-1.5 rounded-md transition-colors cursor-pointer whitespace-nowrap flex items-center gap-1.5 ${
               activeTab === 'isomorphism' ? 'bg-cyan-950 text-cyan-300 border border-cyan-700/60' : 'text-slate-400 hover:text-white'
             }`}
           >
             <Workflow size={13} />
             <span>Доказанный макрограф (Изоморфизм)</span>
-          </button>
-          <button
+          </ContentButton>
+          <ContentButton
             type="button"
             onClick={() => setActiveTab('matrix')}
+            data-control-kind="tab" aria-pressed={activeTab === 'matrix'}
             className={`px-3 py-1.5 rounded-md transition-colors cursor-pointer whitespace-nowrap ${
               activeTab === 'matrix' ? 'bg-cyan-950 text-cyan-300 border border-cyan-700/60' : 'text-slate-400 hover:text-white'
             }`}
           >
             Топология и Метрики
-          </button>
-          <button
+          </ContentButton>
+          <ContentButton
             type="button"
             onClick={() => setActiveTab('analogies')}
+            data-control-kind="tab" aria-pressed={activeTab === 'analogies'}
             className={`px-3 py-1.5 rounded-md transition-colors cursor-pointer whitespace-nowrap ${
               activeTab === 'analogies' ? 'bg-cyan-950 text-cyan-300 border border-cyan-700/60' : 'text-slate-400 hover:text-white'
             }`}
           >
             Структурные аналогии
-          </button>
-          <button
+          </ContentButton>
+          <ContentButton
             type="button"
             onClick={() => setActiveTab('divergences')}
+            data-control-kind="tab" aria-pressed={activeTab === 'divergences'}
             className={`px-3 py-1.5 rounded-md transition-colors cursor-pointer whitespace-nowrap ${
               activeTab === 'divergences' ? 'bg-cyan-950 text-cyan-300 border border-cyan-700/60' : 'text-slate-400 hover:text-white'
             }`}
           >
             Расхождения парадигм
-          </button>
-          <button
+          </ContentButton>
+          <ContentButton
             type="button"
             onClick={() => setActiveTab('priority')}
+            data-control-kind="tab" aria-pressed={activeTab === 'priority'}
             className={`px-3 py-1.5 rounded-md transition-colors cursor-pointer whitespace-nowrap ${
               activeTab === 'priority' ? 'bg-cyan-950 text-cyan-300 border border-cyan-700/60' : 'text-slate-400 hover:text-white'
             }`}
           >
             Приоритет & Публикации
-          </button>
+          </ContentButton>
         </div>
       </header>
 
@@ -427,14 +424,14 @@ export const ProofGraphComparisonPage: React.FC<ProofGraphComparisonPageProps> =
                     >
                       <span className="font-mono text-slate-300">{pub}</span>
                       {pub.includes('http') && (
-                        <a
+                        <IconLink aria-label="Открыть публикацию"
                           href={pub.match(/https?:\/\/[^\s)]+/)?.[0]}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="text-cyan-400 hover:text-cyan-300 ml-2"
                         >
                           <ExternalLink size={13} />
-                        </a>
+                        </IconLink>
                       )}
                     </div>
                   ))}

@@ -37,6 +37,14 @@ const items: NodeContextMenuItem[] = [
     label: 'Explore',
     onSelect: vi.fn(),
   },
+  {
+    id: 'roadmap-link',
+    group: 'Навигация',
+    icon: <Compass size={14} />,
+    label: 'Форма задачи & Roadmap',
+    hint: 'Детальный граф связей и доказательств',
+    href: 'http://localhost/?applet=roadmap&node=n1&root=n1',
+  },
 ];
 
 async function renderMenu(props?: Partial<{ disabled: boolean }>) {
@@ -85,6 +93,10 @@ describe('NodeContextMenu — контекстное меню действий �
     expect(text).toContain('Исследование');
     expect(text).toContain('Запустить RICIS-решение');
     expect(text).toContain('Explore');
+    const command = menu()!.querySelector('[data-testid="node-context-menu-item-solve"]')!;
+    expect(command.classList.contains('menu-command')).toBe(true);
+    expect(command.querySelector('.icon-button__label')).toBeNull();
+    expect(command.querySelector('svg')).not.toBeNull();
   });
 
   it('выбирает действие, закрывает меню и вызывает обработчик один раз', async () => {
@@ -116,6 +128,33 @@ describe('NodeContextMenu — контекстное меню действий �
     expect(items[1].onSelect).not.toHaveBeenCalled();
     expect(menu()).not.toBeNull();
     expect(item.getAttribute('title')).toBe('Заблокировано зависимостями');
+  });
+
+  it('рендерит пункт с href как ссылку в новую вкладку, не вызывая onSelect', async () => {
+    await renderMenu();
+    await act(async () => {
+      trigger()!.click();
+    });
+    const linkItem = container!.querySelector<HTMLAnchorElement>(
+      '[data-testid="node-context-menu-item-roadmap-link"]',
+    )!;
+    // Ссылочный пункт — настоящий якорь target=_blank (UI_NAVIGATION_AUDIT.md §7)
+    expect(linkItem.tagName).toBe('A');
+    expect(linkItem.getAttribute('target')).toBe('_blank');
+    expect(linkItem.getAttribute('rel')).toContain('noopener');
+    expect(linkItem.getAttribute('href')).toContain('applet=roadmap');
+    expect(linkItem.getAttribute('href')).toContain('root=n1');
+    expect(linkItem.getAttribute('title')).toContain('новой вкладке');
+    // Маркер «ссылочности» (иконка ExternalLink) присутствует внутри пункта
+    expect(linkItem.querySelector('svg')).not.toBeNull();
+    // Клик закрывает меню и не трогает in-place обработчики других пунктов
+    await act(async () => {
+      linkItem.click();
+    });
+    expect(menu()).toBeNull();
+    expect(items[0].onSelect).not.toHaveBeenCalled();
+    expect(items[1].onSelect).not.toHaveBeenCalled();
+    expect(items[2].onSelect).not.toHaveBeenCalled();
   });
 
   it('закрывается по Escape и по клику вне меню', async () => {

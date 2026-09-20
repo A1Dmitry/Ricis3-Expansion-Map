@@ -1,3 +1,7 @@
+import { ContentButton, SelectionCard, ContentLink } from './components/ContentButton';
+
+import { IconButton } from './components/IconButton';
+
 import React, { useState } from 'react';
 import { VOYNICH_DECRYPTION_SPEC, routeTokenToStack } from '../model/voynichGenome';
 import type {
@@ -53,12 +57,12 @@ export const VoynichDecryptionPanel: React.FC<VoynichDecryptionPanelProps> = ({
           </p>
         </div>
         {onClose && (
-          <button
+          <ContentButton
             onClick={onClose}
             className="px-3 py-1.5 rounded-lg text-xs font-medium bg-slate-800 hover:bg-slate-700 text-slate-300 transition-colors"
           >
             Закрыть
-          </button>
+          </ContentButton>
         )}
       </div>
 
@@ -103,8 +107,9 @@ export const VoynichDecryptionPanel: React.FC<VoynichDecryptionPanelProps> = ({
 
       {/* Tabs */}
       <div className="flex border-b border-slate-800 mb-5 gap-1 overflow-x-auto">
-        <button
+        <ContentButton
           onClick={() => setActiveTab('hierarchy')}
+            data-control-kind="tab" aria-pressed={activeTab === 'hierarchy'}
           className={`px-4 py-2 text-xs font-semibold border-b-2 transition-colors whitespace-nowrap ${
             activeTab === 'hierarchy'
               ? 'border-yellow-400 text-yellow-400 bg-yellow-500/10'
@@ -112,9 +117,10 @@ export const VoynichDecryptionPanel: React.FC<VoynichDecryptionPanelProps> = ({
           }`}
         >
           5-Уровневая Иерархия (Circuits → Code)
-        </button>
-        <button
+        </ContentButton>
+        <ContentButton
           onClick={() => setActiveTab('folios')}
+            data-control-kind="tab" aria-pressed={activeTab === 'folios'}
           className={`px-4 py-2 text-xs font-semibold border-b-2 transition-colors whitespace-nowrap ${
             activeTab === 'folios'
               ? 'border-yellow-400 text-yellow-400 bg-yellow-500/10'
@@ -122,9 +128,10 @@ export const VoynichDecryptionPanel: React.FC<VoynichDecryptionPanelProps> = ({
           }`}
         >
           33 Фолианта (P&ID Schema)
-        </button>
-        <button
+        </ContentButton>
+        <ContentButton
           onClick={() => setActiveTab('stacks')}
+            data-control-kind="tab" aria-pressed={activeTab === 'stacks'}
           className={`px-4 py-2 text-xs font-semibold border-b-2 transition-colors whitespace-nowrap ${
             activeTab === 'stacks'
               ? 'border-yellow-400 text-yellow-400 bg-yellow-500/10'
@@ -132,9 +139,10 @@ export const VoynichDecryptionPanel: React.FC<VoynichDecryptionPanelProps> = ({
           }`}
         >
           8 Forth Стеков & Токены
-        </button>
-        <button
+        </ContentButton>
+        <ContentButton
           onClick={() => setActiveTab('macros')}
+            data-control-kind="tab" aria-pressed={activeTab === 'macros'}
           className={`px-4 py-2 text-xs font-semibold border-b-2 transition-colors whitespace-nowrap ${
             activeTab === 'macros'
               ? 'border-yellow-400 text-yellow-400 bg-yellow-500/10'
@@ -142,9 +150,10 @@ export const VoynichDecryptionPanel: React.FC<VoynichDecryptionPanelProps> = ({
           }`}
         >
           Макросы M1–M5
-        </button>
-        <button
+        </ContentButton>
+        <ContentButton
           onClick={() => setActiveTab('economic')}
+            data-control-kind="tab" aria-pressed={activeTab === 'economic'}
           className={`px-4 py-2 text-xs font-semibold border-b-2 transition-colors whitespace-nowrap ${
             activeTab === 'economic'
               ? 'border-yellow-400 text-yellow-400 bg-yellow-500/10'
@@ -152,9 +161,10 @@ export const VoynichDecryptionPanel: React.FC<VoynichDecryptionPanelProps> = ({
           }`}
         >
           Экономика ($50Т)
-        </button>
-        <button
+        </ContentButton>
+        <ContentButton
           onClick={() => setActiveTab('simulator')}
+            data-control-kind="tab" aria-pressed={activeTab === 'simulator'}
           className={`px-4 py-2 text-xs font-semibold border-b-2 transition-colors whitespace-nowrap ${
             activeTab === 'simulator'
               ? 'border-yellow-400 text-yellow-400 bg-yellow-500/10'
@@ -162,7 +172,7 @@ export const VoynichDecryptionPanel: React.FC<VoynichDecryptionPanelProps> = ({
           }`}
         >
           Симулятор LENR (f5r)
-        </button>
+        </ContentButton>
       </div>
 
       {/* Tab 0: 5-Level Hierarchy Inspector */}
@@ -170,7 +180,7 @@ export const VoynichDecryptionPanel: React.FC<VoynichDecryptionPanelProps> = ({
         <div className="space-y-4 text-xs">
           <div className="grid grid-cols-1 md:grid-cols-5 gap-2">
             {VOYNICH_DECRYPTION_SPEC.hierarchyTree.circuits.map((c) => (
-              <button
+              <SelectionCard
                 key={c.id}
                 onClick={() => setSelectedCircuitId(c.id)}
                 className={`p-3 rounded-lg border text-left transition-all ${
@@ -182,7 +192,7 @@ export const VoynichDecryptionPanel: React.FC<VoynichDecryptionPanelProps> = ({
                 <div className="text-[10px] uppercase font-mono text-slate-400">Контур L0</div>
                 <div className="text-xs font-bold text-white truncate">{c.name.split(':')[0]}</div>
                 <div className="text-[10px] font-mono text-yellow-400 mt-1 truncate">{c.ricisInvariant}</div>
-              </button>
+              </SelectionCard>
             ))}
           </div>
 
@@ -201,7 +211,7 @@ export const VoynichDecryptionPanel: React.FC<VoynichDecryptionPanelProps> = ({
                 return (
                   <div key={f.id} className="border border-slate-800 bg-slate-900/60 rounded-lg p-3 space-y-2">
                     <div className="flex justify-between items-center">
-                      <button
+                      <ContentButton
                         onClick={() => setExpandedFolioId(isFolioExpanded ? null : f.id)}
                         className="flex items-center gap-2 text-left hover:text-yellow-300 font-bold text-xs"
                       >
@@ -209,15 +219,15 @@ export const VoynichDecryptionPanel: React.FC<VoynichDecryptionPanelProps> = ({
                           L1 {f.folio}
                         </span>
                         <span className="text-white">{f.function}</span>
-                      </button>
-                      <a
+                      </ContentButton>
+                      <ContentLink
                         href={f.evaSourceUrl}
                         target="_blank"
                         rel="noreferrer"
                         className="px-2 py-1 rounded text-[10px] bg-slate-800 hover:bg-slate-700 text-cyan-300 border border-cyan-500/30 transition-colors"
                       >
                         EVA Источник ↗
-                      </a>
+                      </ContentLink>
                     </div>
 
                     {isFolioExpanded && (
@@ -229,13 +239,13 @@ export const VoynichDecryptionPanel: React.FC<VoynichDecryptionPanelProps> = ({
                             return (
                               <div key={b.id} className="bg-slate-950/70 border border-slate-800 p-2.5 rounded space-y-2">
                                 <div className="flex justify-between items-center">
-                                  <button
+                                  <ContentButton
                                     onClick={() => setExpandedBlockId(isBlockExpanded ? null : b.id)}
                                     className="text-left font-semibold text-slate-200 hover:text-yellow-300 text-xs"
                                   >
                                     <span className="text-cyan-400 font-mono mr-2">L2 {b.pandidCode}</span>
                                     {b.name}
-                                  </button>
+                                  </ContentButton>
                                 </div>
 
                                 {isBlockExpanded && (
@@ -294,7 +304,7 @@ export const VoynichDecryptionPanel: React.FC<VoynichDecryptionPanelProps> = ({
               Дешифрованные страницы (33)
             </h3>
             {VOYNICH_DECRYPTION_SPEC.decodedFolios.map((f: IVoynichDecodedFolioDTO) => (
-              <button
+              <SelectionCard
                 key={f.folio}
                 onClick={() => setSelectedFolio(f)}
                 className={`w-full text-left p-2 rounded border text-xs transition-all flex justify-between items-center ${
@@ -312,7 +322,7 @@ export const VoynichDecryptionPanel: React.FC<VoynichDecryptionPanelProps> = ({
                     {f.chargeDepth}
                   </span>
                 )}
-              </button>
+              </SelectionCard>
             ))}
           </div>
 
@@ -357,12 +367,12 @@ export const VoynichDecryptionPanel: React.FC<VoynichDecryptionPanelProps> = ({
             </div>
 
             {onSelectFolioNode && (
-              <button
+              <ContentButton
                 onClick={() => onSelectFolioNode(`voynich-${selectedFolio.folio}`)}
                 className="mt-4 w-full py-2 px-4 rounded-lg bg-yellow-500/20 hover:bg-yellow-500/30 text-yellow-300 border border-yellow-500/50 text-xs font-bold transition-all flex items-center justify-center gap-2"
               >
                 Показать на 3D-Карте Монолита (Node: voynich-{selectedFolio.folio})
-              </button>
+              </ContentButton>
             )}
           </div>
         </div>
@@ -472,7 +482,7 @@ export const VoynichDecryptionPanel: React.FC<VoynichDecryptionPanelProps> = ({
                 Моделирование импульсного схлопывания пузырька $0_P \times \infty_v = P \cdot v$ с узлами Хладни.
               </p>
             </div>
-            <button
+            <ContentButton
               onClick={() => setSimActive(!simActive)}
               className={`px-4 py-2 rounded-lg font-bold text-xs flex items-center gap-2 transition-all ${
                 simActive
@@ -481,7 +491,7 @@ export const VoynichDecryptionPanel: React.FC<VoynichDecryptionPanelProps> = ({
               }`}
             >
               <Zap className="w-4 h-4" /> {simActive ? 'Остановить Реактор' : 'Запустить Инициацию'}
-            </button>
+            </ContentButton>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

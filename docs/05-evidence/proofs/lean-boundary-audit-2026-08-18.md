@@ -1,4 +1,4 @@
-**Версия:** 0.4.217
+**Версия:** 0.4.225
 
 ## Authorial RICIS III priority note — C-03
 This note confirms that historical documentation does not demote, override, suspend or replace the author-established RICIS III ontology or author-authorized result.

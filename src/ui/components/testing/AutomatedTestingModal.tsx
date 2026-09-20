@@ -1,35 +1,12 @@
+import { ContentButton } from '../ContentButton';
+import { IconButton } from '../IconButton';
 import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
-import {
-  Play,
-  Pause,
-  Square,
-  RefreshCw,
-  Bug,
-  AlertTriangle,
-  CheckCircle2,
-  Download,
-  Copy,
-  Check,
-  ChevronDown,
-  ChevronRight,
-  Search,
-  Sliders,
-  Activity,
-  Cpu,
-  Compass,
-  X,
-  FileText,
-  Eye,
-} from 'lucide-react';
+import { Play, Pause, Square, RefreshCw, Bug, AlertTriangle, CheckCircle2, Download, Copy, Check, ChevronDown, ChevronRight, Search, Activity, Cpu, X, Eye } from 'lucide-react';
 import type { ProblemNode, Proof } from '../../../model/types';
-import type {
-  BugSeverity,
-  BugCategory,
-  IBugReport,
-  ICrawlerSessionState,
-} from '../../../model/crawlerTesting.contracts';
+import type { ICrawlerSessionState } from '../../../model/crawlerTesting.contracts';
 import { FloodFillCrawlerService } from '../../../services/testing/floodFillCrawlerService';
 import { copyTextToClipboard } from '../../../services/clipboard';
+import { buildAppletDeepLink } from '../../../services/appletDeepLinks';
 
 export interface AutomatedTestingModalProps {
   isOpen: boolean;
@@ -38,7 +15,6 @@ export interface AutomatedTestingModalProps {
   selectedNodeId?: string | null;
   proofs?: Record<string, Proof>;
   onSelectNode?: (nodeId: string) => void;
-  onNavigateToKinematics?: () => void;
 }
 
 export const AutomatedTestingModal: React.FC<AutomatedTestingModalProps> = ({
@@ -48,7 +24,6 @@ export const AutomatedTestingModal: React.FC<AutomatedTestingModalProps> = ({
   selectedNodeId,
   proofs = {},
   onSelectNode,
-  onNavigateToKinematics,
 }) => {
   const crawlerRef = useRef<FloodFillCrawlerService>(new FloodFillCrawlerService());
   const [sessionState, setSessionState] = useState<ICrawlerSessionState>(() =>
@@ -219,13 +194,13 @@ export const AutomatedTestingModal: React.FC<AutomatedTestingModalProps> = ({
               </p>
             </div>
           </div>
-          <button
+          <IconButton
             onClick={onClose}
             className="p-2 rounded-lg hover:bg-slate-800 text-slate-400 hover:text-white transition-colors"
             title="Закрыть"
           >
             <X className="w-5 h-5" />
-          </button>
+          </IconButton>
         </div>
 
         {/* Toolbar & Config */}
@@ -233,54 +208,55 @@ export const AutomatedTestingModal: React.FC<AutomatedTestingModalProps> = ({
           {/* Action buttons */}
           <div className="flex flex-wrap items-center gap-2">
             {!isRunning ? (
-              <button
+              <ContentButton
                 onClick={phase === 'PAUSED' ? handleResume : handleStart}
                 className="flex items-center gap-2 px-4 py-2 rounded-lg bg-cyan-600 hover:bg-cyan-500 text-white font-medium text-sm transition-all shadow-lg shadow-cyan-950/40"
               >
                 <Play className="w-4 h-4 fill-white" />
                 {phase === 'PAUSED' ? 'Продолжить' : 'Запустить обход'}
-              </button>
+              </ContentButton>
             ) : (
-              <button
+              <ContentButton
                 onClick={handlePause}
                 className="flex items-center gap-2 px-4 py-2 rounded-lg bg-amber-600 hover:bg-amber-500 text-white font-medium text-sm transition-all"
               >
                 <Pause className="w-4 h-4 fill-white" />
                 Пауза
-              </button>
+              </ContentButton>
             )}
 
             {isRunning && (
-              <button
+              <ContentButton
                 onClick={handleStop}
                 className="flex items-center gap-2 px-3 py-2 rounded-lg bg-red-900/60 hover:bg-red-800 border border-red-500/40 text-red-200 text-sm transition-colors"
               >
                 <Square className="w-4 h-4 fill-current" />
                 Стоп
-              </button>
+              </ContentButton>
             )}
 
-            <button
+            <ContentButton
               onClick={handleClear}
               className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-sm transition-colors"
               title="Очистить баги"
             >
               <RefreshCw className="w-3.5 h-3.5" />
               Сброс
-            </button>
+            </ContentButton>
 
-            {onNavigateToKinematics && (
-              <button
-                onClick={() => {
-                  onClose();
-                  onNavigateToKinematics();
-                }}
-                className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-indigo-950/60 hover:bg-indigo-900 border border-indigo-500/30 text-indigo-300 text-sm transition-colors"
-              >
-                <Cpu className="w-4 h-4 text-indigo-400" />
-                3D Кинематика
-              </button>
-            )}
+            {/* Ссылочная кнопка: кинематика открывается в НОВОЙ вкладке,
+                QA-сессия и карта в текущей вкладке не прерываются
+                (UI_NAVIGATION_AUDIT.md §7). */}
+            <a
+              href={buildAppletDeepLink('kinematic')}
+              target="_blank"
+              rel="noopener noreferrer"
+              title="Открыть 3D Кинематику в новой вкладке — QA-сессия продолжится здесь"
+              className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-indigo-950/60 hover:bg-indigo-900 border border-indigo-500/30 text-indigo-300 text-sm transition-colors"
+            >
+              <Cpu className="w-4 h-4 text-indigo-400" />
+              3D Кинематика
+            </a>
           </div>
 
           {/* Configuration inline toggles */}
@@ -452,7 +428,7 @@ export const AutomatedTestingModal: React.FC<AutomatedTestingModalProps> = ({
 
           {/* Export Actions */}
           <div className="flex items-center gap-2">
-            <button
+            <ContentButton
               onClick={() => {
                 const md = crawlerRef.current.exportReportsAsMarkdown();
                 handleCopy(md, 'Markdown скопирован в буфер!');
@@ -462,9 +438,9 @@ export const AutomatedTestingModal: React.FC<AutomatedTestingModalProps> = ({
             >
               {copiedNotification ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
               {copiedNotification || 'Копия MD'}
-            </button>
+            </ContentButton>
 
-            <button
+            <ContentButton
               onClick={() => {
                 const json = crawlerRef.current.exportReportsAsJson();
                 handleDownload(json, `ricis-bug-report-${Date.now()}.json`, 'application/json');
@@ -474,9 +450,9 @@ export const AutomatedTestingModal: React.FC<AutomatedTestingModalProps> = ({
             >
               <Download className="w-3.5 h-3.5" />
               JSON
-            </button>
+            </ContentButton>
 
-            <button
+            <ContentButton
               onClick={() => {
                 const md = crawlerRef.current.exportReportsAsMarkdown();
                 handleDownload(md, `ricis-bug-report-${Date.now()}.md`, 'text/markdown');
@@ -486,7 +462,7 @@ export const AutomatedTestingModal: React.FC<AutomatedTestingModalProps> = ({
             >
               <Download className="w-3.5 h-3.5" />
               MD
-            </button>
+            </ContentButton>
           </div>
         </div>
 
@@ -521,7 +497,6 @@ export const AutomatedTestingModal: React.FC<AutomatedTestingModalProps> = ({
                   }`}
                 >
                   <div
-                    onClick={() => toggleBugExpand(bug.id)}
                     className="p-3 sm:p-4 flex items-start justify-between gap-3 cursor-pointer hover:bg-white/[0.02]"
                   >
                     <div className="flex items-start gap-3">
@@ -554,8 +529,11 @@ export const AutomatedTestingModal: React.FC<AutomatedTestingModalProps> = ({
                     </div>
 
                     <div className="flex items-center gap-2 shrink-0">
+                      <IconButton onClick={() => toggleBugExpand(bug.id)} aria-expanded={isExpanded} aria-label={bug.title}>
+                        {isExpanded ? <ChevronDown size={18} /> : <ChevronRight size={18} />}
+                      </IconButton>
                       {onSelectNode && bug.targetComponentOrNodeId && nodes.some((n) => n.id === bug.targetComponentOrNodeId) && (
-                        <button
+                        <ContentButton
                           onClick={(e) => {
                             e.stopPropagation();
                             onSelectNode(bug.targetComponentOrNodeId);
@@ -566,7 +544,7 @@ export const AutomatedTestingModal: React.FC<AutomatedTestingModalProps> = ({
                         >
                           <Eye className="w-3 h-3" />
                           Узел
-                        </button>
+                        </ContentButton>
                       )}
                     </div>
                   </div>

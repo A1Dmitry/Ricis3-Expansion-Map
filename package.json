@@ -1,7 +1,7 @@
 {
   "name": "ricis3-expansion",
   "private": false,
-  "version": "0.4.217",
+  "version": "0.4.225",
   "description": "Interactive RICIS-III singularity research map with explicit proof-trust boundaries",
   "type": "module",
   "workspaces": [
@@ -23,6 +23,7 @@
     "tps:digest:check": "tsx scripts/generateFindingsDigest.ts --check",
     "tps:nodes": "tsx scripts/applyNodeClaimOrchestration.ts",
     "tps:nodes:check": "tsx scripts/applyNodeClaimOrchestration.ts --check",
+    "executor:gate": "tsx scripts/executorGate.ts",
     "dev": "tsx server.ts",
     "generate:node-entries": "tsx tools/generateNodeEntries.ts",
     "seed:state": "tsx scripts/seedTaskState.ts",

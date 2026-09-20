@@ -1,3 +1,5 @@
+import { ContentButton } from './components/ContentButton';
+import { IconButton } from './components/IconButton';
 import { Check, Clipboard, RefreshCw } from 'lucide-react';
 import type { HealthProbeViewState, RecoveryDiagnosticProjection } from './recoveryDiagnostics.types';
 
@@ -53,7 +55,7 @@ export function RecoveryDiagnosticsPanel({
       )}
 
       <div className="flex flex-col gap-2 border-t border-neutral-800 pt-5 sm:flex-row sm:flex-wrap">
-        <button
+        <ContentButton
           type="button"
           data-testid="recovery-health-probe"
           onClick={onProbe}
@@ -62,8 +64,8 @@ export function RecoveryDiagnosticsPanel({
         >
           <RefreshCw size={16} className={probeDisabled ? 'animate-spin' : ''} aria-hidden="true" />
           {healthState.kind === 'checking' ? healthState.message : 'Повторить проверку Core'}
-        </button>
-        <button
+        </ContentButton>
+        <ContentButton
           type="button"
           data-testid="recovery-diagnostic-copy"
           onClick={onCopy}
@@ -71,7 +73,7 @@ export function RecoveryDiagnosticsPanel({
         >
           {copied ? <Check size={16} className="text-emerald-300" aria-hidden="true" /> : <Clipboard size={16} aria-hidden="true" />}
           {copied ? 'Диагностика скопирована' : 'Скопировать безопасную диагностику'}
-        </button>
+        </ContentButton>
       </div>
     </section>
   );

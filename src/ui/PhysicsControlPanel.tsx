@@ -1,3 +1,5 @@
+import { ContentButton } from './components/ContentButton';
+import { IconButton } from './components/IconButton';
 import React, { memo, useState } from 'react';
 import { useSliderController } from '../hooks/useSliderController';
 import { PhysicsParams, DEFAULT_PHYSICS_PARAMS } from '../model/physics';
@@ -188,7 +190,7 @@ export function PhysicsControlFields({
               <span>ИЗМЕНЕНИЕ...</span>
             </span>
           )}
-          <button
+          <ContentButton
             type="button"
             onClick={handleSave}
             className={`text-xs flex items-center gap-1 font-mono transition-all cursor-pointer px-2 py-0.5 rounded border ${
@@ -200,15 +202,15 @@ export function PhysicsControlFields({
           >
             {saveSuccess ? <Check size={12} className="text-emerald-400" /> : <Save size={12} />}
             <span>{saveSuccess ? 'Сохранено' : 'Save'}</span>
-          </button>
-          <button
+          </ContentButton>
+          <ContentButton
             type="button"
             onClick={handleReset}
             className="text-xs text-slate-400 hover:text-rose-300 flex items-center gap-1 font-mono transition-colors cursor-pointer px-2 py-0.5 rounded bg-neutral-900 border border-neutral-800"
             title="Сбросить физику к значениям по умолчанию"
           >
             <RefreshCw size={12} /> Сброс
-          </button>
+          </ContentButton>
         </div>
       </div>
 
@@ -249,6 +251,7 @@ export function PhysicsControlPanel({
   onToggle,
 }: PhysicsControlPanelProps) {
   const { t } = useI18nStore();
+  const [expanded, setExpanded] = useState(isOpen);
 
   return (
     <div
@@ -261,12 +264,14 @@ export function PhysicsControlPanel({
         type="checkbox"
         id="accordion-physics"
         className="accordion-trigger"
-        defaultChecked={isOpen}
+        checked={expanded}
+        readOnly
       />
-      <label
-        htmlFor="accordion-physics"
+      <ContentButton
+        aria-expanded={expanded}
+        aria-controls="physics-content"
         className="accordion-header bg-neutral-950/80 hover:bg-neutral-900/90 transition-colors cursor-pointer w-full flex flex-col items-start px-3.5 py-2.5 h-auto rounded-none border-0 m-0"
-        onClick={onToggle}
+        onClick={() => { setExpanded(value => !value); onToggle?.(); }}
       >
         <div className="flex items-center justify-between w-full">
           <div className="flex items-center gap-2">
@@ -284,14 +289,15 @@ export function PhysicsControlPanel({
           </div>
         </div>
 
+      </ContentButton>
         <div className="accordion-summary mt-2 pt-1.5 border-t border-neutral-800/40 flex flex-wrap gap-1.5 text-xs font-mono text-emerald-300 w-full">
           <span className="bg-neutral-900 border border-neutral-800 px-2 py-0.5 rounded text-slate-300">G Зон: <strong className="text-emerald-400">{params.zoneG}</strong></span>
           <span className="bg-neutral-900 border border-neutral-800 px-2 py-0.5 rounded text-slate-300">G Узлов: <strong className="text-emerald-400">{params.nodeG}</strong></span>
           <span className="bg-neutral-900 border border-neutral-800 px-2 py-0.5 rounded text-slate-300">k: <strong className="text-emerald-400">{params.springK}</strong></span>
         </div>
-      </label>
 
-      <div className="accordion-content">
+
+      <div id="physics-content" className="accordion-content">
         <div className="accordion-inner p-3 border-t border-neutral-800/60 bg-neutral-950/40">
           <PhysicsControlFields params={params} onChange={onChange} />
         </div>

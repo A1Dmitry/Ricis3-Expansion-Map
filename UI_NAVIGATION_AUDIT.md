@@ -71,3 +71,57 @@ In accordance with the **UI Navigation Unification Task**, the UI application **
 - [x] **AC-10 (RICIS Core Integrity)**: No mathematical core, Lean formalization, or singularity reduction logic was modified.
 - [x] **AC-11 (Test Suite Compliance)**: Unit and topology tests pass cleanly.
 - [x] **AC-12 (Version Bump)**: Version incremented by 0.0.1 in `package.json` and `src/version.ts`.
+
+---
+
+## 5. Audit v2 (2026-09-19) — Workspace-Preserving New-Tab Navigation
+
+### 5.1 Motivation & Finding
+
+The v1 audit eliminated every *HTTP-level* reload on normal navigation. One class of
+user-perceived "interface reload" remained: switching from the `map` applet to any other
+workspace unmounts `Map3D` entirely. On return, the Three.js/WebGL scene, physics force
+layout and camera are re-initialised from scratch (camera resets to `[0, 0, 32]`), so for
+the user the 3D interface visibly "reloads" on every map → satellite → map round trip.
+
+**Decision of v2:** for satellite applets that are fully deep-linkable and useful
+*alongside* the map, navigation is converted to **opening the applet in a new browser
+tab**, keeping the map instance alive in the current tab. All converted entry points are
+rendered as **real links** (`<a href target="_blank" rel="noopener noreferrer">`) and
+visually marked as link-like (`ExternalLink` ↗ icon + explanatory tooltip), per policy
+in `src/services/appletDeepLinks.ts`.
+
+### 5.2 Decision Matrix
+
+| Case | Entry point(s) | Verdict | Rationale |
+| :--- | :--- | :--- | :--- |
+| `roadmap` | Файл → Дорожная карта; Node card → «Challenge», «Форма задачи & Roadmap»; Map mobile menu | **NEW TAB** ✔ | Deep-links carry `node`/`root`/`mode` context; research reference used next to the map. |
+| `kinematic` | Файл → 3D Кинематика; Кинематика → 3-Link / 5-Link; Node card → 3D Кинематический Движок; QA modal → 3D Кинематика; Map mobile menu | **NEW TAB** ✔ | Heavy 3D simulation runs in parallel with the map; no store-bound payload. |
+| `seed` | Файл → Seed Протокол; Основания → RICIS SEED; Map mobile menu | **NEW TAB** ✔ | Standalone protocol surface, deep-linkable. |
+| `comparison` | Файл → Сравнение Графов; Основания → RICIS vs Anthropic | **NEW TAB** ✔ | Read-oriented research surface. |
+| `voynich` | Основания → Манускрипт Войнича | **NEW TAB** ✔ | Read-heavy decryption surface. |
+| `qa-tests` | Сервис → QA Стресс-тест | **NEW TAB** ✔ | Long-running stress tests proceed while the user keeps working with the map. |
+| `terminal` (REPL) | Сервис → Интерактивный REPL; Node card → Калькулятор формулы | **stays SPA** ✘ | Expression payload is passed via live `useTerminalStore.setInput(...)`; a new tab would silently drop it. |
+| `settings` | Сервис → Настройки Системы | **stays SPA** ✘ | Mutates the live session (locale, physics presets); edits must apply to the current workspace, not an isolated duplicate tab. |
+| `map` + back/home/logo, «← Вернуться к 3D Карте», back/forward buttons | Файл → 3D Граф; all return buttons | **stays SPA** ✘ | Return direction — a second map tab would duplicate instances. |
+| Emergency reload | `RouteSurfaceBoundary.tsx` | **stays in-tab** ✘ | Recovery for a broken surface; a new tab would leave the broken tab open. |
+| External links (GitHub, DOI, Zenodo, EVA, calculator apps) | `<a target="_blank">` already | **unchanged** ✔ | Compliant since v1. |
+
+### 5.3 Implementation Invariants
+
+- Single source of truth: `NEW_TAB_APPLETS` + `opensInNewTab()` + `buildAppletDeepLink()`
+  in `src/services/appletDeepLinks.ts` (built on `UrlShareService.generateShareUrl`,
+  canonical `?applet=` scheme).
+- Menu-bar link variant: `AppletNewTabLink` in `CompactCommandMenuBar.tsx`.
+- Node context menu: `NodeContextMenuItem.href` renders an anchor with new-tab marker.
+- Hotkeys `Alt+1..9` intentionally remain **in-place** quick switching for power users
+  (no surprise tab spawning on repeated key presses).
+- Remaining hard reloads in the codebase: only `RouteSurfaceBoundary.tsx`
+  (emergency recovery, capped retries) — verified `2026-09-19`.
+
+### 5.4 Verification
+
+- `vitest run` — unit & topology suites green (incl. `appletDeepLinks.test.ts`,
+  `NodeContextMenu.test.tsx`, `CompactCommandMenuBar.test.tsx`).
+- `tsc --noEmit` — clean.
+- Version bumped `0.4.216 → 0.4.217` (`package.json`, `src/version.ts`, lock, docs).
