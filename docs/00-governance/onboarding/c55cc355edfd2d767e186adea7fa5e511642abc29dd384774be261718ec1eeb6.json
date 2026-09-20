@@ -1,10 +1,10 @@
 {
   "executor_key": "c55cc355edfd2d767e186adea7fa5e511642abc29dd384774be261718ec1eeb6",
-  "attested_at": "2026-09-20T13:05:00Z",
+  "attested_at": "2026-09-20T14:30:00Z",
   "documents": [
     {
       "path": "AGENTS.md",
-      "sha256": "c786ac2d25fe5e2e689d20e9542738567a71288d6708bce28f0ec21e452a6b17"
+      "sha256": "b5ccceadcf959344616f90e271d476f8c9673a466f642444f3b8667328a21a2a"
     },
     {
       "path": "docs/00-governance/RCVAP_AUTONOMOUS_ANTI_TUKHTA_AGILE_PROTOCOL.md",
@@ -32,7 +32,7 @@
     },
     {
       "path": "docs/00-governance/EXECUTION_TRACEABILITY_GATES.md",
-      "sha256": "fa2092f650427979513f442447cac1512adf0f4bd52d6df6e38d226d49c6a51f"
+      "sha256": "8905271a0bdd3a8b70c6ad7b2fe96ff668cb443f222e7628a9fe91b8dc08f09f"
     },
     {
       "path": "docs/01-architecture/ricis-unified-complete-document-7.9-vector.json",
@@ -63,7 +63,7 @@
   },
   "quotes": {
     "docs/00-governance/RICIS_EXTERNAL_EXECUTOR_PROTOCOL.md": "metadata: `accepted`, `stage`, `violation`, `requiredRules`,",
-    "AGENTS.md": "теоремы не повышает статус узла, который формулирует внешнюю (открытую) задачу. Такая",
+    "AGENTS.md": "1. `AUDITOR: EXTERNAL` — с указанием конкретного внешнего рецензента/",
     "docs/00-governance/RICIS_SEMANTIC_AUTHORITY.md": "2. **Logic / Tests = Independent Validation**: The TypeScript test suites (`*.test.ts`) serve as independent validators of the execution paths. They prove that the implementation adheres to the semantic contract and doesn't introduce regressions or garbage duplicates (Anti-Tukhta)."
   }
 }
