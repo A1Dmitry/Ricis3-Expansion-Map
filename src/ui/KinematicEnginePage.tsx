@@ -1135,6 +1135,7 @@ export const KinematicEnginePage: React.FC<Props> = ({ onBackToMap }) => {
                 showDlsGhost={showDlsGhost}
                 showCannons={simMode === 'CATCH_FALLING_BALL'}
                 linkLengths={LINK_LENGTHS}
+                onSetTarget={simMode === 'MANUAL' ? (pt) => handleCartesianChange(pt) : undefined}
               />
             )}
           </div>

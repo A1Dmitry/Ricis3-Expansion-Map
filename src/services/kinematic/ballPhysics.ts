@@ -43,6 +43,8 @@ export interface IBoxBounceBounds {
   readonly minY: number;
   readonly maxY: number;
   readonly floorZ: number;
+  /** Ceiling height (optional). When set, balls reflect off the ceiling. */
+  readonly ceilingZ?: number;
 }
 
 export interface IPhysicsIntegrateOptions {
@@ -53,6 +55,13 @@ export interface IPhysicsIntegrateOptions {
    * radius-inset). The box floor becomes the contact plane unless floorZ overrides it.
    */
   readonly boxBounds?: IBoxBounceBounds;
+  /**
+   * Restitution override for wall/ceiling contacts in this step. When omitted,
+   * the world's configured wallRestitution is used. Lets hard-driven tennis shots
+   * bounce off the concrete room walls (e ≈ 0.75) while delivery-box walls stay
+   * soft (e ≈ 0.35) without creating two physics worlds.
+   */
+  readonly wallRestitutionOverride?: number;
 }
 
 export interface IBallPhysicsWorldParams {
@@ -140,13 +149,23 @@ export class BallPhysicsWorld {
     let pz = body.position.z + vz * dt;
     let resting = false;
 
-    // Box wall confinement (radius-inset inner bounds, open top)
+    // Box / room wall confinement (radius-inset inner bounds). Ceiling rebounds
+    // are added so hard cannon shots that hit the roof reflect back into the
+    // workspace — the same way a real tennis trainer bounces balls off walls.
     if (opts?.boxBounds) {
       const b = opts.boxBounds;
-      if (px < b.minX) { px = b.minX; vx = -vx * this.wallRestitution; }
-      if (px > b.maxX) { px = b.maxX; vx = -vx * this.wallRestitution; }
-      if (py < b.minY) { py = b.minY; vy = -vy * this.wallRestitution; }
-      if (py > b.maxY) { py = b.maxY; vy = -vy * this.wallRestitution; }
+      const wallE = opts.wallRestitutionOverride ?? this.wallRestitution;
+      if (px < b.minX) { px = b.minX; vx = -vx * wallE; }
+      if (px > b.maxX) { px = b.maxX; vx = -vx * wallE; }
+      if (py < b.minY) { py = b.minY; vy = -vy * wallE; }
+      if (py > b.maxY) { py = b.maxY; vy = -vy * wallE; }
+      if (b.ceilingZ !== undefined) {
+        const ceilingContactZ = b.ceilingZ - body.radius;
+        if (pz >= ceilingContactZ && vz > 0) {
+          pz = ceilingContactZ;
+          vz = -vz * wallE;
+        }
+      }
     }
 
     // Floor contact with bounce / rest transition
@@ -171,14 +190,17 @@ export class BallPhysicsWorld {
       const settleSpeed = (this.gravity * dt) / this.restitution;
 
       if (impactSpeed > settleSpeed) {
+        // vz before reflection is -impactSpeed (negative = into the floor).
+        // The reflected normal velocity is e * impactSpeed (positive = up).
         vz = impactSpeed * this.restitution; // bounce upward
 
         // Coulomb friction at impact. The normal impulse per unit mass is
-        // (1 + e) |v_n|; dry friction bounds the tangential impulse by mu times
-        // that, so the tangential speed may drop by at most mu (1 + e) |v_n|.
-        // Friction arrests a skid, it can never reverse it — hence the clamp.
-        const maxTangentialLoss =
-          this.material.slidingFriction * (1 + this.restitution) * impactSpeed;
+        // (1 + e) * v_incoming (i.e. the CHANGE in normal velocity); dry friction
+        // bounds the tangential impulse by mu times that, so the tangential
+        // speed may drop by at most mu * (1 + e) * v_incoming. Friction arrests
+        // a skid, it can never reverse it — hence the clamp.
+        const normalImpulse = (1 + this.restitution) * impactSpeed;
+        const maxTangentialLoss = this.material.slidingFriction * normalImpulse;
         const tangentialSpeed = Math.sqrt(vx * vx + vy * vy);
         if (tangentialSpeed <= maxTangentialLoss) {
           vx = 0;
@@ -188,6 +210,7 @@ export class BallPhysicsWorld {
           vx *= kept;
           vy *= kept;
         }
+
       } else {
         vz = 0;
         // Rolling resistance: a = C_rr * g, the standard rolling-resistance law.

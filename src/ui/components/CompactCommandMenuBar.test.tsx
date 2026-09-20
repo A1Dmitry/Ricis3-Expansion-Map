@@ -70,7 +70,7 @@ describe('CompactCommandMenuBar', () => {
     expect(rendered.textContent).toContain('3D Граф');
   });
 
-  it('opens kinematics dropdown and offers a new-tab deep link to the kinematic applet', async () => {
+  it('opens the kinematic applet in-tab on a single click of the Кинематика button (from the map)', async () => {
     const onSelectApplet = vi.fn();
     const rendered = await render(
       <CompactCommandMenuBar
@@ -89,21 +89,10 @@ describe('CompactCommandMenuBar', () => {
       kinematicsMenuBtn?.click();
     });
 
-    // New-tab policy (UI_NAVIGATION_AUDIT.md §7): тяжёлые спутниковые апплеты
-    // открываются ссылкой в новой вкладке, рабочая область не переключается.
-    const modelOption = Array.from(rendered.querySelectorAll('a')).find(
-      a => a.textContent?.includes('3-Link Planar')
-    );
-    expect(modelOption).toBeDefined();
-    expect(modelOption?.getAttribute('target')).toBe('_blank');
-    expect(modelOption?.getAttribute('rel')).toContain('noopener');
-    expect(modelOption?.getAttribute('href')).toContain('applet=kinematic');
-
-    await act(async () => {
-      modelOption?.click();
-    });
-
-    expect(onSelectApplet).not.toHaveBeenCalled();
+    // UX-repair: from the map page a plain click on «Кинематика» navigates
+    // directly in-tab (popup blockers in iframe/preview environments used to
+    // silently eat the target=_blank deep link, making the button feel dead).
+    expect(onSelectApplet).toHaveBeenCalledWith('kinematic');
   });
 
   it('keeps map navigation an in-place SPA button while satellites are new-tab links', async () => {
@@ -131,9 +120,14 @@ describe('CompactCommandMenuBar', () => {
     );
     expect(mapOption).toBeDefined();
 
-    // Спутники в том же меню — ссылки с маркером новой вкладки
+    // Спутники: первичный пункт — in-tab-кнопка (popup-safe для iframe/preview),
+    // под ним — ссылка «в новой вкладке» с target=_blank, сохраняющая карту.
+    const roadmapBtn = Array.from(rendered.querySelectorAll('button')).find(
+      btn => btn.textContent?.includes('Дорожная карта (Roadmap)')
+    );
+    expect(roadmapBtn).toBeDefined();
     const roadmapLink = Array.from(rendered.querySelectorAll('a')).find(
-      a => a.textContent?.includes('Дорожная карта (Roadmap)')
+      a => a.getAttribute('href')?.includes('applet=roadmap')
     );
     expect(roadmapLink).toBeDefined();
     expect(roadmapLink?.getAttribute('target')).toBe('_blank');
@@ -170,8 +164,9 @@ describe('CompactCommandMenuBar', () => {
     expect(document.activeElement).toBe(commands[0]);
     await act(async () => commands[0].dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true })));
     expect(document.activeElement).toBe(commands[1]);
-    expect(commands[1].tagName).toBe('A');
-    expect(commands[1].getAttribute('target')).toBe('_blank');
+    // Первичный пункт — in-tab BUTTON (popup-safe), ссылка «новая вкладка» идёт
+    // следующим menuitem'ом.
+    expect(commands[1].tagName).toBe('BUTTON');
     await act(async () => commands[1].dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true })));
     expect(rendered.querySelector('[role="menu"]')).toBeNull();
     expect(document.activeElement).toBe(file);
