@@ -15,6 +15,14 @@ import type {
   IPolarEggPlacementState,
 } from '../../model/kinematicPolarPnP.contracts';
 import { PolarCoordinateService } from './polarCoordinateService';
+import {
+  PLACEMENT_ARRIVAL_TOLERANCES_M as TOL,
+  PLACEMENT_AZIMUTH_ALIGNED_DEG,
+  PLACEMENT_DWELL_BUDGETS_SEC as DWELL,
+  PLACEMENT_HEIGHTS_M as HEIGHT,
+  PLACEMENT_IDLE_HOLD_POSE_M,
+  settleScatterOffsetM,
+} from './placementProtocol';
 
 export class PolarEggPlacementController {
   private phase: FragileEggPlacementPhase = 'APPROACH_BALL_HOVER';
@@ -24,10 +32,8 @@ export class PolarEggPlacementController {
   private balls: IBallEntity[];
   private readonly box: IBoxContainer;
 
-  // Safe parameters
-  private readonly HOVER_HEIGHT = 0.35; // безопасная высота пролета
-  private readonly EGG_SAFE_DROP_HEIGHT = 0.05; // высота мягкого опускания на дно коробки
-  private readonly BALL_PICK_HEIGHT = 0.03;
+  /** Payloads already released into the box — drives the deterministic scatter. */
+  private placedCount = 0;
 
   constructor(initialBalls: readonly IBallEntity[], box: IBoxContainer) {
     this.balls = initialBalls.map((b) => ({ ...b }));
@@ -55,14 +61,14 @@ export class PolarEggPlacementController {
     const boxCenter = { ...this.box.position };
 
     // Вычисляем целевую точку в зависимости от фазы
-    let targetCartesian: Vector3D = { x: 0.5, y: 0, z: 0.3 };
+    let targetCartesian: Vector3D = { ...PLACEMENT_IDLE_HOLD_POSE_M };
 
     if (!targetBall) {
       // Все шарики уложены, зависаем над коробкой
       targetCartesian = {
         x: boxCenter.x,
         y: boxCenter.y,
-        z: boxCenter.z + this.HOVER_HEIGHT,
+        z: boxCenter.z + HEIGHT.safeHoverM,
       };
       this.phase = 'VERTICAL_RETRACT';
       this.isGripperClosed = false;
@@ -71,14 +77,14 @@ export class PolarEggPlacementController {
 
       switch (this.phase) {
         case 'APPROACH_BALL_HOVER': {
-          targetCartesian = { x: ballPos.x, y: ballPos.y, z: ballPos.z + this.HOVER_HEIGHT };
+          targetCartesian = { x: ballPos.x, y: ballPos.y, z: ballPos.z + HEIGHT.safeHoverM };
           this.isGripperClosed = false;
 
           const distXY = Math.hypot(currentEE.x - targetCartesian.x, currentEE.y - targetCartesian.y);
           const distZ = Math.abs(currentEE.z - targetCartesian.z);
 
           // Переход только когда реально подлетели над шариком
-          if ((distXY < 0.05 && distZ < 0.08) || this.phaseTimer > 3.0) {
+          if ((distXY < TOL.hoverPlanarM && distZ < TOL.hoverVerticalM) || this.phaseTimer > DWELL.approachS) {
             this.phase = 'GENTLE_DESCENT_BALL';
             this.phaseTimer = 0;
           }
@@ -86,7 +92,7 @@ export class PolarEggPlacementController {
         }
 
         case 'GENTLE_DESCENT_BALL': {
-          targetCartesian = { x: ballPos.x, y: ballPos.y, z: this.BALL_PICK_HEIGHT };
+          targetCartesian = { x: ballPos.x, y: ballPos.y, z: HEIGHT.pickM };
           this.isGripperClosed = false;
 
           const dist = Math.hypot(
@@ -95,7 +101,7 @@ export class PolarEggPlacementController {
             currentEE.z - targetCartesian.z
           );
 
-          if (dist < 0.04 || this.phaseTimer > 2.5) {
+          if (dist < TOL.descentM || this.phaseTimer > DWELL.descentS) {
             this.phase = 'SECURE_GRASP';
             this.phaseTimer = 0;
             this.isGripperClosed = true;
@@ -104,12 +110,12 @@ export class PolarEggPlacementController {
         }
 
         case 'SECURE_GRASP': {
-          targetCartesian = { x: ballPos.x, y: ballPos.y, z: this.BALL_PICK_HEIGHT };
+          targetCartesian = { x: ballPos.x, y: ballPos.y, z: HEIGHT.pickM };
           this.isGripperClosed = true;
           this.updateTargetBallPosition(targetBall.id, currentEE, 'GRASPED');
 
           // Пауза для смыкания клещей схвата
-          if (this.phaseTimer > 0.4) {
+          if (this.phaseTimer > DWELL.gripCloseS) {
             this.phase = 'SAFE_LIFT';
             this.phaseTimer = 0;
           }
@@ -117,12 +123,12 @@ export class PolarEggPlacementController {
         }
 
         case 'SAFE_LIFT': {
-          targetCartesian = { x: ballPos.x, y: ballPos.y, z: ballPos.z + this.HOVER_HEIGHT };
+          targetCartesian = { x: ballPos.x, y: ballPos.y, z: ballPos.z + HEIGHT.safeHoverM };
           this.isGripperClosed = true;
           this.updateTargetBallPosition(targetBall.id, currentEE, 'GRASPED');
 
           const distZ = Math.abs(currentEE.z - targetCartesian.z);
-          if (distZ < 0.06 || this.phaseTimer > 2.0) {
+          if (distZ < TOL.liftVerticalM || this.phaseTimer > DWELL.liftS) {
             this.phase = 'POLAR_TRANSIT_TO_BOX';
             this.phaseTimer = 0;
           }
@@ -130,17 +136,17 @@ export class PolarEggPlacementController {
         }
 
         case 'POLAR_TRANSIT_TO_BOX': {
-          // Транзит строго на высоте HOVER_HEIGHT к коробке
+          // Транзит строго на безопасной высоте пролёта к коробке
           targetCartesian = {
             x: boxCenter.x,
             y: boxCenter.y,
-            z: boxCenter.z + this.HOVER_HEIGHT,
+            z: boxCenter.z + HEIGHT.safeHoverM,
           };
           this.isGripperClosed = true;
           this.updateTargetBallPosition(targetBall.id, currentEE, 'GRASPED');
 
           const distXY = Math.hypot(currentEE.x - targetCartesian.x, currentEE.y - targetCartesian.y);
-          if (distXY < 0.08 || this.phaseTimer > 3.5) {
+          if (distXY < TOL.transitPlanarM || this.phaseTimer > DWELL.transitS) {
             this.phase = 'BOX_HOVER_ALIGN';
             this.phaseTimer = 0;
           }
@@ -152,7 +158,7 @@ export class PolarEggPlacementController {
           targetCartesian = {
             x: boxCenter.x,
             y: boxCenter.y,
-            z: boxCenter.z + this.HOVER_HEIGHT,
+            z: boxCenter.z + HEIGHT.safeHoverM,
           };
           this.isGripperClosed = true;
           this.updateTargetBallPosition(targetBall.id, currentEE, 'GRASPED');
@@ -163,7 +169,7 @@ export class PolarEggPlacementController {
             currentEE.z - targetCartesian.z
           );
 
-          if (dist < 0.05 || this.phaseTimer > 1.2) {
+          if (dist < TOL.boxAlignM || this.phaseTimer > DWELL.boxAlignS) {
             this.phase = 'EGG_GENTLE_DESCENT';
             this.phaseTimer = 0;
           }
@@ -175,7 +181,7 @@ export class PolarEggPlacementController {
           targetCartesian = {
             x: boxCenter.x,
             y: boxCenter.y,
-            z: boxCenter.z - this.box.dimensions.z / 2 + this.EGG_SAFE_DROP_HEIGHT,
+            z: boxCenter.z - this.box.dimensions.z / 2 + HEIGHT.softReleaseStandoffM,
           };
           this.isGripperClosed = true;
           this.updateTargetBallPosition(targetBall.id, currentEE, 'GRASPED');
@@ -184,15 +190,25 @@ export class PolarEggPlacementController {
           const distXY = Math.hypot(currentEE.x - targetCartesian.x, currentEE.y - targetCartesian.y);
 
           // Только когда коснулись дна коробки!
-          if ((distZ < 0.04 && distXY < 0.08) || this.phaseTimer > 2.5) {
+          if ((distZ < TOL.releaseVerticalM && distXY < TOL.releasePlanarM) || this.phaseTimer > DWELL.releaseS) {
             this.phase = 'SOFT_RELEASE';
             this.phaseTimer = 0;
             this.isGripperClosed = false;
-            // Фиксируем шарик на дне коробки
+            // Фиксируем шарик на дне коробки.
+            //
+            // Смещение ДЕТЕРМИНИРОВАНО — выводится из числа уже уложенных
+            // шариков. Прежде его давал несеяный генератор случайных чисел,
+            // из-за чего исход укладки был невоспроизводим и нарушал контракт
+            // детерминизма проекта (только seeded PRNG, без wall-clock и без
+            // несеяной случайности); заодно собственный тест контроллера не мог
+            // проверить, куда лёг шарик. Спираль Фогеля гарантирует, что точки
+            // не совпадают.
+            const scatter = settleScatterOffsetM(this.placedCount);
+            this.placedCount++;
             this.updateTargetBallPosition(targetBall.id, {
-              x: boxCenter.x + (Math.random() * 0.1 - 0.05),
-              y: boxCenter.y + (Math.random() * 0.1 - 0.05),
-              z: boxCenter.z - this.box.dimensions.z / 2 + 0.03,
+              x: boxCenter.x + scatter.x,
+              y: boxCenter.y + scatter.y,
+              z: boxCenter.z - this.box.dimensions.z / 2 + HEIGHT.settleRestM,
             }, 'IN_BOX');
           }
           break;
@@ -203,11 +219,11 @@ export class PolarEggPlacementController {
           targetCartesian = {
             x: boxCenter.x,
             y: boxCenter.y,
-            z: boxCenter.z - this.box.dimensions.z / 2 + this.EGG_SAFE_DROP_HEIGHT,
+            z: boxCenter.z - this.box.dimensions.z / 2 + HEIGHT.softReleaseStandoffM,
           };
           this.isGripperClosed = false;
 
-          if (this.phaseTimer > 0.5) {
+          if (this.phaseTimer > DWELL.gripOpenS) {
             this.phase = 'VERTICAL_RETRACT';
             this.phaseTimer = 0;
           }
@@ -219,12 +235,12 @@ export class PolarEggPlacementController {
           targetCartesian = {
             x: boxCenter.x,
             y: boxCenter.y,
-            z: boxCenter.z + this.HOVER_HEIGHT,
+            z: boxCenter.z + HEIGHT.safeHoverM,
           };
           this.isGripperClosed = false;
 
           const distZ = Math.abs(currentEE.z - targetCartesian.z);
-          if (distZ < 0.06 || this.phaseTimer > 2.0) {
+          if (distZ < TOL.liftVerticalM || this.phaseTimer > DWELL.liftS) {
             this.selectNextTargetBall();
             this.phase = 'APPROACH_BALL_HOVER';
             this.phaseTimer = 0;
@@ -240,7 +256,7 @@ export class PolarEggPlacementController {
     const currentAzimuthDeg = (currentJoints.q1 * 180) / Math.PI;
     const targetAzimuthDeg = (targetPolar.thetaRad * 180) / Math.PI;
     const azimuthDiff = Math.abs(currentAzimuthDeg - targetAzimuthDeg);
-    const isAzimuthAligned = azimuthDiff < 5.0;
+    const isAzimuthAligned = azimuthDiff < PLACEMENT_AZIMUTH_ALIGNED_DEG;
 
     const eggDistanceToBoxBottom = Math.hypot(
       currentEE.x - boxCenter.x,
