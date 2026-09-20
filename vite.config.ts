@@ -24,6 +24,10 @@ export default defineConfig(() => {
     },
     test: {
       environment: 'jsdom',
+      // Keep the historical test contract: suites may use Vitest globals.
+      // Removing this setting makes the repository fail before any assertions
+      // with `describe is not defined`.
+      globals: true,
     },
     server: {
       // HMR is disabled in AI Studio via DISABLE_HMR env var.
