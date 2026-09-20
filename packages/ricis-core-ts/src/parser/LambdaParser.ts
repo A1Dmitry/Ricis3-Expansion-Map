@@ -2,13 +2,17 @@ import { Expression, AST } from '../ast/ExpressionTypes';
 
 export class LambdaParser {
   static parse(input: string): { parameterName: string, body: Expression } {
-    // Basic parser for "x => ..." format
+    // Basic parser for "x => ..." format. Keep the boundary strict: silently
+    // accepting a suffix would make an audit attest a different expression.
+    if (typeof input !== 'string') throw new Error("Invalid lambda format");
     const parts = input.split('=>').map(s => s.trim());
-    if (parts.length !== 2) throw new Error("Invalid lambda format");
+    if (parts.length !== 2 || !/^[A-Za-z_][A-Za-z0-9_]*$/.test(parts[0]!) || parts[1]!.length === 0) {
+      throw new Error("Invalid lambda format");
+    }
     const parameterName = parts[0]!;
     const bodyStr = parts[1]!;
-    
-    // Very naive ad-hoc parser for standard RICIS test strings
+
+    // Bounded parser for the existing RICIS expression grammar.
     const tokens = this.tokenize(bodyStr);
     let pos = 0;
 
@@ -65,10 +69,18 @@ export class LambdaParser {
         return expr;
       }
       
+      // Indexed singularity literals are part of the RICIS source grammar and
+      // are intentionally structural, never JavaScript numeric Infinity/NaN.
+      // This check must precede parseFloat: parseFloat('0_F') is 0.
+      const zeroMatch = token.match(/^0_([A-Za-z_][A-Za-z0-9_]*)$/);
+      if (zeroMatch) return AST.Zero(AST.Var(zeroMatch[1]!));
+      const infinityMatch = token.match(/^(?:inf|infinity|∞)_([A-Za-z_][A-Za-z0-9_]*)$/i);
+      if (infinityMatch) return AST.Inf(AST.Var(infinityMatch[1]!));
+
       if (!isNaN(parseFloat(token))) {
         return AST.Const(parseFloat(token));
       }
-      
+
       if (token === parameterName || token === 'pi') {
         if (token === 'pi') return AST.Fn('pi', []); // or Const(Math.PI)
         return AST.Var(token);
@@ -93,16 +105,25 @@ export class LambdaParser {
       throw new Error(`Unexpected token: ${token}`);
     }
 
-    return { parameterName, body: parseExpression() };
+    const body = parseExpression();
+    if (pos !== tokens.length) {
+      throw new Error(`Unexpected token: ${tokens[pos]}`);
+    }
+    return { parameterName, body };
   }
 
   private static tokenize(input: string): string[] {
-    const regex = /\s*([A-Za-z_][A-Za-z0-9_]*|[0-9]+(?:\.[0-9]+)?(?:[eE][+-]?[0-9]+)?|\S)\s*/g;
+    // Indexed literals must precede the generic number/identifier branches,
+    // otherwise `0_F` would be tokenised as `0`, `_F`.
+    const regex = /\s*(0_[A-Za-z_][A-Za-z0-9_]*|(?:inf|infinity|∞)_[A-Za-z_][A-Za-z0-9_]*|[A-Za-z_][A-Za-z0-9_]*|[0-9]+(?:\.[0-9]+)?(?:[eE][+-]?[0-9]+)?|\S)\s*/gu;
     const tokens: string[] = [];
     let match;
+    let consumed = 0;
     while ((match = regex.exec(input)) !== null) {
+      consumed = regex.lastIndex;
       tokens.push(match[1]!);
     }
+    if (consumed !== input.length) throw new Error('Invalid token');
     return tokens;
   }
 }

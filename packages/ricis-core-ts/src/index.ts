@@ -10,3 +10,6 @@ export * from './engine/AstSubstitution';
 export * from './evaluator/AstCompiler';
 export * from './evaluator/AstEvaluator';
 export * from './parser/LambdaParser';
+export * from './audit/index';
+export * from './domain/RicisAudit';
+export * from './orchestration/RicisAuditOrchestrator';

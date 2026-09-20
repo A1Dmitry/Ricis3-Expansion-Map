@@ -1016,6 +1016,20 @@ describe('OIR-03 — audit proof-synthesis containment', () => {
       '?? docs/02-sprints/RCVAP_TENNIS_CANNON_VARIANCE_2026-09-20.md',
       '?? src/ui/components/AppletMenuEntry.tsx',
       ' M src/model/audit.proofSynthesisContainment.test.ts',
+      // RICIS-AUDIT-R01-R12 (0.4.231): bounded domain model and orchestration
+      // through the existing TypeScript Core. The audit is structural-only and
+      // keeps Lean status explicit; the incident report records this boundary.
+      ' M packages/ricis-core-ts/src/engine/RicisEngineContracts.ts',
+      ' M packages/ricis-core-ts/src/index.ts',
+      ' M packages/ricis-core-ts/src/parser/LambdaParser.ts',
+      '?? docs/05-evidence/architecture/incident-2026-09-20-ricis-audit-r01-r12.md',
+      '?? packages/ricis-core-ts/src/audit/RicisAuditContracts.ts',
+      '?? packages/ricis-core-ts/src/audit/RicisAuditOrchestrator.test.ts',
+      '?? packages/ricis-core-ts/src/audit/RicisAuditOrchestrator.ts',
+      '?? packages/ricis-core-ts/src/audit/RicisAuditRules.ts',
+      '?? packages/ricis-core-ts/src/audit/index.ts',
+      '?? packages/ricis-core-ts/src/domain/RicisAudit.ts',
+      '?? packages/ricis-core-ts/src/orchestration/RicisAuditOrchestrator.ts',
       // Релизные зеркала версии (npm run version:sync / sync:version)
       ' M package.json',
       ' M package-lock.json',

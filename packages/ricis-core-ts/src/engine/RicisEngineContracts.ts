@@ -11,6 +11,6 @@ export interface TransformationLogEntry {
 export interface RicisReductionResult {
   readonly original: Expression;
   readonly reduced: Expression;
-  readonly trace: TransformationLogEntry[];
+  readonly trace: readonly TransformationLogEntry[];
   readonly isFullyResolved: boolean;
 }
