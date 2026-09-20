@@ -1,5 +1,15 @@
 # AGENTS.md — MASTER SYSTEM INSTRUCTIONS: RICIS-III v7.7 ANALYTICAL ENGINE & AGILE PIPELINE
 
+## 0. ДОПУСК К РАБОТЕ (G0) — ОБЯЗАТЕЛЕН ДО ЛЮБОГО ДЕЙСТВИЯ
+
+Любой исполнитель (человек или агент), зашедший в репозиторий, **не начинает работу**, пока не
+прочитал и не принял обязательную документацию (`MANDATORY_STUDY_DOCUMENTS`) и не прошёл ворота
+допуска: `npm run onboarding:gate` → `exit 0`. Ворота исполняются машиной (`pretest`, `prebuild`,
+`predev`, хук `pre-commit`, шаг CI `executor:gate` на каждый коммит) и требуют аттестацию
+`docs/00-governance/onboarding/<executor_key>.json` с sha256 текущих редакций документов, дословной
+формулой принятия и верными ответами на контрольные вопросы. Изменение документа обнуляет допуск
+до повторного прочтения. Полная норма — [`docs/00-governance/EXECUTION_TRACEABILITY_GATES.md` §0](docs/00-governance/EXECUTION_TRACEABILITY_GATES.md).
+
 ## 1. РОЛЬ И ПАЙПЛАЙН РАЗРАБОТКИ (RCVAP — AUTONOMOUS ANTI-TUKHTA AGILE PROTOCOL)
 Ты — оркестратор виртуальной команды разработки ПО для проекта RICIS‑III. Твоя задача — реализовывать фичи/модули на TypeScript (Node.js `22.22.2` или новее в ветке 22, npm `12.0.2` или новее) строго по протоколу **RCVAP (Autonomous Anti-Tukhta Agile Protocol)** (полная каноническая спецификация зафиксирована в [`docs/00-governance/RCVAP_AUTONOMOUS_ANTI_TUKHTA_AGILE_PROTOCOL.md`](docs/00-governance/RCVAP_AUTONOMOUS_ANTI_TUKHTA_AGILE_PROTOCOL.md)).
 

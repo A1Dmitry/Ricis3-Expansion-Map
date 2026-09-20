@@ -1,0 +1,69 @@
+{
+  "executor_key": "c55cc355edfd2d767e186adea7fa5e511642abc29dd384774be261718ec1eeb6",
+  "attested_at": "2026-09-20T14:30:00Z",
+  "documents": [
+    {
+      "path": "AGENTS.md",
+      "sha256": "b5ccceadcf959344616f90e271d476f8c9673a466f642444f3b8667328a21a2a"
+    },
+    {
+      "path": "docs/00-governance/RCVAP_AUTONOMOUS_ANTI_TUKHTA_AGILE_PROTOCOL.md",
+      "sha256": "dae6c5b77c9dfac79158488b3f48ed6bd52101cf605afc5766f3794c772eb130"
+    },
+    {
+      "path": "docs/00-governance/WORK_PATTERNS.md",
+      "sha256": "428516ec8e4ea45980d603a1df998fc90d44e827865210a4858a9236d407be96"
+    },
+    {
+      "path": "docs/00-governance/TOYOTA_TPS_WORKING_SYSTEM.md",
+      "sha256": "7835ccd3c0f097fdd272f15772a086e2c43bcec73c33763271d20d21551deb21"
+    },
+    {
+      "path": "docs/00-governance/RICIS_IMMUTABILITY_MANIFEST.md",
+      "sha256": "875303bdf7f3ba5a2abe2bccc596a8f03f14dd6448501296a92f3c3028dd04e8"
+    },
+    {
+      "path": "docs/00-governance/RICIS_SEMANTIC_AUTHORITY.md",
+      "sha256": "93a963d0eddb2f6425caabb8d88f9b43fd24544ae6ee9540f198aa327433d584"
+    },
+    {
+      "path": "docs/00-governance/RICIS_EXTERNAL_EXECUTOR_PROTOCOL.md",
+      "sha256": "5b743540823af6a15da1160a772b1f1ad6e655251804c858741a96f51f83ae17"
+    },
+    {
+      "path": "docs/00-governance/EXECUTION_TRACEABILITY_GATES.md",
+      "sha256": "8905271a0bdd3a8b70c6ad7b2fe96ff668cb443f222e7628a9fe91b8dc08f09f"
+    },
+    {
+      "path": "docs/01-architecture/ricis-unified-complete-document-7.9-vector.json",
+      "sha256": "cd47a4b31c6041cd0b8fe35dd4d287bca22e8e2ba5586a6830b6ad794936c5c1"
+    }
+  ],
+  "acceptance": "Я прочитал(а) все обязательные документы в редакциях с указанными sha256, принимаю их как обязательные нормы этой работы и подтверждаю, что нарушение классифицируется как TUKHTA и основание для отклонения вклада.",
+  "comprehension": {
+    "R1": "1 (L1)",
+    "R2": "a^2",
+    "R3": "F/G, F*G",
+    "Q1": [
+      "COMPLETED",
+      "PARTIALLY_COMPLETED",
+      "BLOCKED",
+      "REJECTED",
+      "HYPOTHESIS"
+    ],
+    "Q2": "artifacts/proofs/core-checks/kernel-findings.json",
+    "Q3": "INFORMAL:",
+    "Q4": [
+      "AUDITOR: EXTERNAL",
+      "AUDITOR: SELF (same-pipeline)"
+    ],
+    "Q5": "UNVERIFIED_PREDICTION",
+    "Q6": "TUKHTA",
+    "Q7": "TRUSTED_AXIOM"
+  },
+  "quotes": {
+    "docs/00-governance/RICIS_EXTERNAL_EXECUTOR_PROTOCOL.md": "metadata: `accepted`, `stage`, `violation`, `requiredRules`,",
+    "AGENTS.md": "1. `AUDITOR: EXTERNAL` — с указанием конкретного внешнего рецензента/",
+    "docs/00-governance/RICIS_SEMANTIC_AUTHORITY.md": "2. **Logic / Tests = Independent Validation**: The TypeScript test suites (`*.test.ts`) serve as independent validators of the execution paths. They prove that the implementation adheres to the semantic contract and doesn't introduce regressions or garbage duplicates (Anti-Tukhta)."
+  }
+}
