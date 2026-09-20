@@ -35,6 +35,7 @@ import { useRicisCommand } from '../hooks/useRicisCommand';
 import { RICIS_COMMAND_EVENTS, dispatchRicisCommand } from '../services/commandBus';
 import { ContentButton } from './components/ContentButton';
 import { IconButton } from './components/IconButton';
+import { copyTextToClipboard } from '../services/clipboard';
 
 interface AutoProverModalProps {
   isOpen: boolean;
@@ -170,10 +171,12 @@ export const AutoProverModal: React.FC<AutoProverModalProps> = ({
     }
   };
 
-  const handleCopyLeanCode = (code: string) => {
-    void navigator.clipboard.writeText(code);
-    setCopiedLean(true);
-    setTimeout(() => setCopiedLean(false), 2000);
+  const handleCopyLeanCode = async (code: string) => {
+    const success = await copyTextToClipboard(code);
+    if (success) {
+      setCopiedLean(true);
+      setTimeout(() => setCopiedLean(false), 2000);
+    }
   };
 
   const handleExportReport = () => {
