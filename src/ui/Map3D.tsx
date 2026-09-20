@@ -94,7 +94,7 @@ import { useTerminalStore } from '../store/useTerminalStore';
 import { RicisTerminalModal } from './RicisTerminalModal';
 import { UrlShareService } from '../services/UrlShareService';
 import { buildAppletDeepLink } from '../services/appletDeepLinks';
-import { AVAILABLE_GEMINI_MODELS } from '../model/modelPool.types';
+import { AVAILABLE_GEMINI_MODELS, DEFAULT_AI_MODEL_ID } from '../model/modelPool.types';
 import { useI18nStore } from '../store/useI18nStore';
 import { LanguageToggle } from './LanguageToggle';
 import { AccessibleMapFallback } from './AccessibleMapFallback';
@@ -472,7 +472,7 @@ export const Map3D: React.FC = () => {
   const [texMsg, setTexMsg] = useState<string | null>(null);
   const [jsonMsg, setJsonMsg] = useState<string | null>(null);
   const [selectedModel, setSelectedModel] = useState<string>(() => {
-    return localStorage.getItem('ricis_selected_ai_model') || 'gemini-3.6-flash';
+    return localStorage.getItem('ricis_selected_ai_model') || DEFAULT_AI_MODEL_ID;
   });
   /** Filter: show only purple derivative_claim nodes (and edges between them / to anchors). */
   const [showOnlyDerivatives, setShowOnlyDerivatives] = useState<boolean>(() => {
@@ -760,12 +760,7 @@ export const Map3D: React.FC = () => {
     });
   });
 
-  useRicisCommand(RICIS_COMMAND_EVENTS.runDiagnostics, () => {
-    void checkCoreRuntime();
-  });
-
-  // Report the actual presentation mode back to the command bus so the
-  // 3D/2D command indicator reflects real page state (not a stale App flag).
+  // Presentation mode reporting to command bus
   useEffect(() => {
     dispatchRicisCommand(RICIS_COMMAND_EVENTS.presentationModeChanged, {
       is3D: mapPresentationMode === 'three_dimensional',

@@ -8,6 +8,8 @@ import type { ProblemNode } from '../model/types';
 import { getRootConnectedScientificTasks, getRootPathLabel, resolveRootSelection } from '../model/rootTaskFilter';
 import { UrlShareService } from '../services/UrlShareService';
 import { useMapStore } from '../store/mapStore';
+import { useRicisCommand } from '../hooks/useRicisCommand';
+import { RICIS_COMMAND_EVENTS } from '../services/commandBus';
 
 type RoadmapRouteId = 'EXPLORE' | 'VERIFY' | 'CHALLENGE' | 'ROOT_GOAL';
 
@@ -57,6 +59,10 @@ export function RoadmapPage({
       onBackToMap();
     }
   };
+
+  useRicisCommand(RICIS_COMMAND_EVENTS.openSearch, () => {
+    navigateToMap(undefined, 'search');
+  });
 
   const rootCandidates = useMemo(() => {
     const candidates = map.nodes.filter(isRootCandidate);
