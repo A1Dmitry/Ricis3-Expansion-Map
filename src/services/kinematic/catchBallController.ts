@@ -15,6 +15,9 @@ import type {
 } from '../../model/kinematicEngine.contracts';
 import { distance3D } from './kinematicMath';
 import { BallPhysicsWorld, type IBoxBounceBounds, type IPhysicsBallBody } from './ballPhysics';
+import { launchVelocity } from './ballistics';
+import { solveLaunchSpeed } from './launchSolver';
+import { MANIPULATOR_LINK_LENGTHS_M, workspaceAnnulus } from './manipulatorConstants';
 
 export interface ICatchDropPlanEntry {
   readonly spawnPosition: Vector3D;
@@ -30,100 +33,99 @@ export interface ICatchDropPlanEntry {
 }
 
 /** A tennis-ball automaton prop in the room (used by the 3D canvas and the shot plan). */
-export interface ITennisCannonProp {
-  readonly id: string;
-  /** Base (breech) position of the cannon, metres. */
-  readonly basePosition: Vector3D;
-  /** Muzzle (ball exit) position, metres. */
-  readonly muzzlePosition: Vector3D;
-  /** Unit aiming direction of the barrel. */
-  readonly aimDirection: Vector3D;
+// ----------------------------------------------------------------------------
+// ROOM & TENNIS AUTOMATONS
+// The stage is its own bounded context (`roomGeometry`): neither physics nor
+// machine nor algorithm. Re-exported here so existing consumers keep working.
+// ----------------------------------------------------------------------------
+
+import {
+  ROOM_HALF_EXTENT_M,
+  ROOM_HEIGHT_M,
+  TENNIS_CANNONS,
+  roomFloorInset,
+  type ITennisCannonProp,
+} from './roomGeometry';
+
+export { ROOM_HALF_EXTENT_M, ROOM_HEIGHT_M, TENNIS_CANNONS, roomFloorInset };
+export type { ITennisCannonProp };
+
+
+
+/**
+ * Scenario INTENT for the six shots.
+ *
+ * No muzzle speed is stored here. The only declared quantity is where the ball
+ * must come to rest — a radius from the arm base — because that is what the
+ * scenario actually cares about. The launch velocity is DERIVED from the
+ * environment's gravity by solving the real dynamics (see
+ * `buildTennisCannonShotPlan`). Change the planet and the plan re-derives
+ * itself; not one number below was tuned against a particular gravity.
+ *
+ * The radii are the scenario's original design spread (0.47..1.32 m), kept so
+ * the interception variety — short picks, long reaches, singular-zone shots —
+ * is preserved.
+ */
+interface ITennisShotIntent {
+  readonly cannonId: string;
+  readonly spawnDelaySec: number;
+  readonly color: string;
+  /** Distance from the arm base at which the ball must come to rest (m). */
+  readonly landingRadiusM: number;
+  readonly isSingularZone?: boolean;
 }
 
-// ----------------------------------------------------------------------------
-// ROOM & TENNIS AUTOMATONS (shared between the scenario controller and the canvas)
-// ----------------------------------------------------------------------------
-
-/** Room half-extent in X/Y (m): interior walls live at ±ROOM_HALF_EXTENT_M. */
-export const ROOM_HALF_EXTENT_M = 2.4;
-/** Room ceiling height (m). */
-export const ROOM_HEIGHT_M = 2.8;
-
-export const TENNIS_CANNONS: readonly ITennisCannonProp[] = [
-  {
-    id: 'A',
-    basePosition: { x: 2.28, y: 0.55, z: 1.35 },
-    muzzlePosition: { x: 2.28, y: 0.55, z: 1.35 },
-    aimDirection: { x: -0.8419, y: -0.3547, z: 0.4067 },
-  },
-  {
-    id: 'B',
-    basePosition: { x: 0.75, y: 2.28, z: 0.62 },
-    muzzlePosition: { x: 0.75, y: 2.28, z: 0.62 },
-    aimDirection: { x: -0.1333, y: -0.8889, z: 0.4384 },
-  },
+const TENNIS_SHOT_INTENTS: readonly ITennisShotIntent[] = [
+  { cannonId: 'A', spawnDelaySec: 1.2, color: '#ef4444', landingRadiusM: 0.97 },
+  { cannonId: 'B', spawnDelaySec: 1.6, color: '#f59e0b', landingRadiusM: 0.61, isSingularZone: true },
+  { cannonId: 'A', spawnDelaySec: 1.6, color: '#06b6d4', landingRadiusM: 0.47 },
+  { cannonId: 'B', spawnDelaySec: 1.6, color: '#a855f7', landingRadiusM: 1.32, isSingularZone: true },
+  { cannonId: 'A', spawnDelaySec: 1.6, color: '#22c55e', landingRadiusM: 0.63 },
+  { cannonId: 'B', spawnDelaySec: 1.6, color: '#eab308', landingRadiusM: 0.97 },
 ];
 
 /**
- * Deterministic 6-shot scenario for two weak pneumatic tennis automatons.
- * Shot power VARIES per shot (1.45–2.05 m/s muzzle) and the two cannons have very
- * different muzzle heights (1.35 m vs 0.62 m), so balls rebound with visibly
- * different energies (first-bounce apex ~0.2 m for the low unit vs ~0.4 m for the
- * high unit — measured by the closed-loop guard). Every shot settles inside the
- * room and inside the arm's reach (validated headlessly).
+ * Build the shot plan for a given world.
+ *
+ * The plan is a FUNCTION of the environment, not a table of numbers: the same
+ * intent produces different muzzle speeds on Earth, the Moon or Mars, each of
+ * them landing where the scenario asked.
  */
-export const TENNIS_CANNON_SHOT_PLAN: readonly ICatchDropPlanEntry[] = [
-  {
-    spawnPosition: { x: 2.28, y: 0.55, z: 1.35 },
-    spawnDelaySec: 1.2,
-    color: '#ef4444',
-    initialVelocity: { x: -1.3333, y: -0.5229, z: 0.2268 },
-    cannonId: 'A',
-    muzzleSpeedMps: 1.45,
-  },
-  {
-    spawnPosition: { x: 0.75, y: 2.28, z: 0.62 },
-    spawnDelaySec: 1.6,
-    color: '#f59e0b',
-    initialVelocity: { x: -0.4298, y: -1.6647, z: 1.1165 },
-    cannonId: 'B',
-    muzzleSpeedMps: 2.05,
-    isSingularZone: true,
-  },
-  {
-    spawnPosition: { x: 2.28, y: 0.55, z: 1.35 },
-    spawnDelaySec: 1.6,
-    color: '#06b6d4',
-    initialVelocity: { x: -1.4474, y: -0.6214, z: 1.0625 },
-    cannonId: 'A',
-    muzzleSpeedMps: 1.9,
-  },
-  {
-    spawnPosition: { x: 0.75, y: 2.28, z: 0.62 },
-    spawnDelaySec: 1.6,
-    color: '#a855f7',
-    initialVelocity: { x: -0.1190, y: -1.4517, z: 0.5301 },
-    cannonId: 'B',
-    muzzleSpeedMps: 1.55,
-    isSingularZone: true,
-  },
-  {
-    spawnPosition: { x: 2.28, y: 0.55, z: 1.35 },
-    spawnDelaySec: 1.6,
-    color: '#22c55e',
-    initialVelocity: { x: -1.3648, y: -0.5522, z: 0.8500 },
-    cannonId: 'A',
-    muzzleSpeedMps: 1.7,
-  },
-  {
-    spawnPosition: { x: 0.75, y: 2.28, z: 0.62 },
-    spawnDelaySec: 1.6,
-    color: '#eab308',
-    initialVelocity: { x: -0.3204, y: -1.5858, z: 0.7891 },
-    cannonId: 'B',
-    muzzleSpeedMps: 1.8,
-  },
-];
+export function buildTennisCannonShotPlan(
+  physics: BallPhysicsWorld,
+  intents: readonly ITennisShotIntent[] = TENNIS_SHOT_INTENTS
+): readonly ICatchDropPlanEntry[] {
+  return intents.map(intent => {
+    const cannon = TENNIS_CANNONS.find(c => c.id === intent.cannonId);
+    if (!cannon) {
+      throw new Error(`Tennis automaton [${intent.cannonId}] is not present in the room`);
+    }
+    const speed = solveLaunchSpeed(
+      physics,
+      cannon.muzzlePosition,
+      cannon.aimDirection,
+      intent.landingRadiusM
+    );
+    return {
+      spawnPosition: { ...cannon.muzzlePosition },
+      spawnDelaySec: intent.spawnDelaySec,
+      color: intent.color,
+      initialVelocity: launchVelocity(cannon.aimDirection, speed),
+      cannonId: cannon.id,
+      muzzleSpeedMps: speed,
+      isSingularZone: intent.isSingularZone,
+    };
+  });
+}
+
+/**
+ * Deterministic 6-shot scenario for the default installation (Earth, sea level).
+ *
+ * Derived, not tabulated: see `buildTennisCannonShotPlan`. A simulation running
+ * in another environment must build its own plan from the same intent.
+ */
+export const TENNIS_CANNON_SHOT_PLAN: readonly ICatchDropPlanEntry[] =
+  buildTennisCannonShotPlan(new BallPhysicsWorld());
 
 export type CatchPhase =
   | 'IDLE_WAIT'
@@ -159,6 +161,17 @@ const CATCH_MIN_Z = 0.3;
 const CATCH_MAX_Z = 1.15;
 const GRASP_RADIUS = 0.12;
 const FLOOR_PICK_RADIUS = 0.07;
+/** Rigid grasp offset: the ball centre hangs this far below the fingertip. */
+const GRASP_CARRY_DROP_Z = 0.04;
+/**
+ * Height of the ball centre above the box floor at the moment of release.
+ *
+ * The release must leave room for an actual gravitational fall: the previous
+ * `boxFloorZ + 0.05` descent target combined with a 0.07 trigger radius let go of
+ * the ball 0.0031 m above the contact plane (measured), so the integrator never
+ * got a single free-fall frame — the ball "bounced" on the frame after release.
+ */
+const RELEASE_DROP_HEIGHT_M = 0.22;
 /** Effective closed-loop arm speed used for feasibility (servo + smoothing, m/s). */
 const ARM_SPEED_ESTIMATE = 1.05;
 /** Prediction horizon and resolution for the ballistic intercept search. */
@@ -176,11 +189,15 @@ export class CatchBallController {
   private releasedBody: IPhysicsBallBody | null = null;
   private scenarioTimeSec = 0;
   private lastInterceptPlan: IInterceptPlan | null = null;
+  /** Last gripper pose handed to `syncCarriedBall` (post-solve), used to derive its velocity. */
+  private gripperPose: Vector3D | null = null;
+  /** Gripper velocity at the last sync — what the ball inherits the instant it is released. */
+  private gripperVelocity: Vector3D = { x: 0, y: 0, z: 0 };
 
   constructor(
     dropPlan: readonly ICatchDropPlanEntry[],
     box: IBoxContainer,
-    linkLengths: readonly [number, number, number] = [0.4, 0.8, 0.7],
+    linkLengths: readonly [number, number, number] = MANIPULATOR_LINK_LENGTHS_M,
     physics: BallPhysicsWorld = new BallPhysicsWorld()
   ) {
     this.dropPlan = dropPlan;
@@ -216,6 +233,8 @@ export class CatchBallController {
     this.releasedBody = null;
     this.scenarioTimeSec = 0;
     this.lastInterceptPlan = null;
+    this.gripperPose = null;
+    this.gripperVelocity = { x: 0, y: 0, z: 0 };
     this.state = {
       phase: 'IDLE_WAIT',
       balls: [],
@@ -291,7 +310,7 @@ export class CatchBallController {
       id: ballId,
       initialPosition: { ...nextDrop.spawnPosition },
       currentPosition: { ...nextDrop.spawnPosition },
-      radius: 0.06,
+      radius: this.physics.material.radiusM,
       color: nextDrop.color,
       status: 'FALLING',
       isSingularZone: nextDrop.isSingularZone ?? false,
@@ -299,7 +318,7 @@ export class CatchBallController {
     };
     this.bodies.set(
       ballId,
-      this.physics.createBody(nextDrop.spawnPosition, newBall.radius, launchVelocity)
+      this.physics.createBody(nextDrop.spawnPosition, launchVelocity)
     );
     this.state = {
       ...this.state,
@@ -391,7 +410,8 @@ export class CatchBallController {
     shouldGrip: boolean;
     eventTriggered?: string;
   } {
-    this.followGripper(endEffector);
+    // The carried ball is pinned by `syncCarriedBall` AFTER the solve — never here,
+    // where `endEffector` is still the pre-solve pose (that lagged the ball behind the hand).
     const hover = this.boxHoverTarget();
     const horizontalToBox = Math.hypot(hover.x - endEffector.x, hover.y - endEffector.y);
     // CLIMB BEFORE TRAVEL: going straight from a floor pickup to the box crosses
@@ -419,24 +439,35 @@ export class CatchBallController {
     let eventTriggered: string | undefined;
 
     if (!this.releasedBody) {
-      // Descend towards the box floor, still holding the ball.
-      const boxFloorTarget: Vector3D = { x: box.position.x, y: box.position.y, z: boxFloorZ + 0.05 };
-      this.followGripper(endEffector);
-      if (distance3D(endEffector, boxFloorTarget) < 0.07 || this.phaseTimer > 2.5) {
-        // Physical release a few centimetres above the floor: visible drop + bounce.
+      // Descend to the release height, still holding the ball. The pin is applied by
+      // `syncCarriedBall` after the solve — `endEffector` here is the pre-solve pose.
+      // The gripper stands GRASP_CARRY_DROP_Z above the ball, so aiming it at
+      // releaseZ + GRASP_CARRY_DROP_Z puts the BALL at exactly releaseZ.
+      const releaseZ = boxFloorZ + RELEASE_DROP_HEIGHT_M;
+      const boxReleaseTarget: Vector3D = {
+        x: box.position.x,
+        y: box.position.y,
+        z: releaseZ + GRASP_CARRY_DROP_Z,
+      };
+      if (distance3D(endEffector, boxReleaseTarget) < 0.03 || this.phaseTimer > 2.5) {
+        // RELEASE: the ball leaves the hand with the hand's own velocity. A body let go
+        // from a moving gripper does not stop — it keeps that velocity and only then
+        // accelerates under gravity. The former hardcoded {0, 0, -0.2} discarded the
+        // horizontal carry entirely (measured mismatch against the gripper: 0.245 m/s).
         const ball = this.state.balls.find(b => b.id === ballId);
-        const startPos = ball ? ball.currentPosition : { x: box.position.x, y: box.position.y, z: boxFloorZ + 0.1 };
-        this.releasedBody = this.physics.createBody(startPos, ball?.radius ?? 0.06, { x: 0, y: 0, z: -0.2 });
+        const startPos = ball ? ball.currentPosition : { x: box.position.x, y: box.position.y, z: releaseZ };
+        const releaseVelocity: Vector3D = { ...this.gripperVelocity };
+        this.releasedBody = this.physics.createBody(startPos, releaseVelocity);
         this.state = {
           ...this.state,
           balls: this.state.balls.map(b =>
-            b.id === ballId ? { ...b, status: 'FALLING' as const, velocity: { x: 0, y: 0, z: -0.2 } } : b
+            b.id === ballId ? { ...b, status: 'FALLING' as const, velocity: { ...releaseVelocity } } : b
           ),
         };
         this.phaseTimer = 0;
-        eventTriggered = `Ball [${ballId}] released — free fall & bounce inside the box`;
+        eventTriggered = `Ball [${ballId}] released at z=${startPos.z.toFixed(3)} — free fall & bounce inside the box`;
       } else {
-        return { target: boxFloorTarget, shouldGrip: true };
+        return { target: boxReleaseTarget, shouldGrip: true };
       }
     }
 
@@ -488,24 +519,20 @@ export class CatchBallController {
 
   /** Radius-inset room bounds for ball confinement (walls + floor, open concept: the ceiling is never reached by weak shots). */
   private roomBallBounds(): IBoxBounceBounds {
-    const r = 0.06;
-    return {
-      minX: -ROOM_HALF_EXTENT_M + r,
-      maxX: ROOM_HALF_EXTENT_M - r,
-      minY: -ROOM_HALF_EXTENT_M + r,
-      maxY: ROOM_HALF_EXTENT_M - r,
-      floorZ: 0,
-    };
+    // Inset by the projectile's own radius, taken from the material — not a
+    // literal, and not the pre-material 0.06 m placeholder.
+    return roomFloorInset(this.physics.material.radiusM);
   }
 
   /** Reach-envelope check for a ball pickup point (annulus about the arm's shoulder). */
   private isReachable(point: Vector3D): boolean {
-    const [L0, L1, L2] = this.linkLengths;
+    // The SAME annulus the solver enforces, not a private pair of literals that
+    // could (and did) drift away from it.
+    const { minReachM, maxReachM } = workspaceAnnulus(this.linkLengths);
+    const [L0] = this.linkLengths;
     const radial = Math.hypot(point.x, point.y);
     const reach = Math.hypot(radial, point.z - L0);
-    const maxReach = L1 + L2 - 0.06;
-    const minReach = 0.25;
-    return reach <= maxReach && reach >= minReach;
+    return reach <= maxReachM && reach >= minReachM;
   }
 
   /** Declare the resting ball unreachable: count it, mark it, advance the scenario. */
@@ -572,15 +599,45 @@ export class CatchBallController {
   // Ball state synchronization
   // --------------------------------------------------------------------------
 
-  private followGripper(endEffector: Vector3D): void {
+  /**
+   * Rigidly pin the carried ball to the gripper.
+   *
+   * MUST be called AFTER the kinematic solve, with the resulting (post-solve)
+   * end-effector pose. The former private `followGripper` ran INSIDE `stepTarget`,
+   * i.e. with the PRE-solve pose, so the ball was re-drawn where the hand had been a
+   * frame earlier and the hand then moved away from it — measured lag over the tennis
+   * scenario: 0.0412 m mean, 0.1096 m peak. That is the visible "ball flies on its
+   * own, at a different speed".
+   *
+   * The gripper velocity derived here is a strict finite difference of consecutive
+   * gripper poses, and it is what the ball inherits on release: a body let go from a
+   * moving hand keeps the hand's velocity and only then accelerates under gravity.
+   */
+  public syncCarriedBall(endEffector: Vector3D, dt: number): void {
+    const previous = this.gripperPose;
+    this.gripperPose = { x: endEffector.x, y: endEffector.y, z: endEffector.z };
+    this.gripperVelocity =
+      previous && dt > 0
+        ? {
+            x: (endEffector.x - previous.x) / dt,
+            y: (endEffector.y - previous.y) / dt,
+            z: (endEffector.z - previous.z) / dt,
+          }
+        : { x: 0, y: 0, z: 0 };
+
     const ballId = this.state.activeBallId;
     if (!ballId) return;
-    const carryPos: Vector3D = { x: endEffector.x, y: endEffector.y, z: endEffector.z - 0.04 };
+    const carryPos: Vector3D = {
+      x: endEffector.x,
+      y: endEffector.y,
+      z: endEffector.z - GRASP_CARRY_DROP_Z,
+    };
+    const velocity = this.gripperVelocity;
     this.state = {
       ...this.state,
       balls: this.state.balls.map(b =>
         b.id === ballId && b.status === 'GRASPED'
-          ? { ...b, currentPosition: carryPos, velocity: { x: 0, y: 0, z: 0 } }
+          ? { ...b, currentPosition: carryPos, velocity: { ...velocity } }
           : b
       ),
     };

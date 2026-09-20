@@ -2,7 +2,7 @@ import type {
   IAdvantageEvent,
   ISolverMetrics3D,
 } from '../../model/kinematicEngine.contracts';
-import { KinematicConstants } from './kinematicConstants';
+import { QA_ADVANTAGE_THRESHOLDS as T } from './qaMetricConstants';
 
 /**
  * Advantage Detector for RICIS-III vs Classical DLS Solver (DDD & SOLID).
@@ -16,10 +16,10 @@ export function detectAdvantageEvent(
   timestamp: number
 ): IAdvantageEvent | null {
   const absDet = Math.abs(jacobianDet);
-  const isNearSingularity = absDet < 0.18;
+  const isNearSingularity = absDet < T.nearSingularityAbsDet;
 
   // Condition 1: Direction Loss in DLS
-  if (isNearSingularity && dlsMetrics.directionPreservedDeg > 12.0 && ricisMetrics.directionPreservedDeg < 6.0) {
+  if (isNearSingularity && dlsMetrics.directionPreservedDeg > T.dlsDirectionLostDeg && ricisMetrics.directionPreservedDeg < T.ricisDirectionHeldDeg) {
     return {
       id: `adv-dir-${timestamp}-${Math.floor(Math.random() * 1000)}`,
       timestamp,
@@ -34,7 +34,7 @@ export function detectAdvantageEvent(
   }
 
   // Condition 2: Velocity Spike Avoided
-  if (isNearSingularity && dlsMetrics.velocityError > 1.8 && ricisMetrics.velocityError < 0.8) {
+  if (isNearSingularity && dlsMetrics.velocityError > T.dlsVelocityExplosionMps && ricisMetrics.velocityError < T.ricisVelocitySmoothMps) {
     return {
       id: `adv-vel-${timestamp}-${Math.floor(Math.random() * 1000)}`,
       timestamp,
@@ -49,7 +49,7 @@ export function detectAdvantageEvent(
   }
 
   // Condition 3: Invariant Preserved in Singular Zone
-  if (absDet < 0.05 && ricisMetrics.invariantPreserved && dlsMetrics.nearSingularityBehavior === 'degraded') {
+  if (absDet < T.criticalSingularityAbsDet && ricisMetrics.invariantPreserved && dlsMetrics.nearSingularityBehavior === 'degraded') {
     return {
       id: `adv-inv-${timestamp}-${Math.floor(Math.random() * 1000)}`,
       timestamp,

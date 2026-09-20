@@ -814,7 +814,6 @@ describe('OIR-03 — audit proof-synthesis containment', () => {
       ' M src/services/kinematic/ballPhysics.ts',
       ' M src/services/kinematic/catchBallController.test.ts',
       ' M src/services/kinematic/catchBallController.ts',
-      ' M src/services/kinematic/kinematicConstants.ts',
       ' M src/services/kinematic/kinematicMath.ts',
       ' M src/services/kinematic/pickAndPlaceSimulation.test.ts',
       ' M src/services/kinematic/polarSolvers.ts',

@@ -74,12 +74,14 @@ import { MultiLinkJointController } from './components/kinematic/MultiLinkJointC
 import { FourStagePipelineCard } from './components/kinematic/FourStagePipelineCard';
 import { RealTimeFourStageBadge } from './components/kinematic/RealTimeFourStageBadge';
 import { FourStageTelemetryAdapter } from '../services/kinematic/fourStageTelemetryAdapter';
+import { TENNIS_BALL } from '../services/kinematic/projectileMaterial';
+import { MANIPULATOR_LINK_LENGTHS_M } from '../services/kinematic/manipulatorConstants';
 
 interface Props {
   readonly onBackToMap: () => void;
 }
 
-const LINK_LENGTHS: [number, number, number] = [0.4, 0.8, 0.7]; // L0=0.4, L1=0.8, L2=0.7 (Max reach = 1.5m)
+const LINK_LENGTHS: readonly [number, number, number] = MANIPULATOR_LINK_LENGTHS_M;
 
 /**
  * Viewport routing for the main canvas area:
@@ -107,7 +109,7 @@ const INITIAL_BALLS: IBallEntity[] = [
     id: 'ball-1-boundary',
     initialPosition: { x: 1.45, y: 0.2, z: 0.1 }, // At critical boundary singularity (max reach 1.5)
     currentPosition: { x: 1.45, y: 0.2, z: 0.1 },
-    radius: 0.06,
+    radius: TENNIS_BALL.radiusM,
     color: '#ef4444',
     status: 'ON_SPAWN',
     isSingularZone: true,
@@ -116,7 +118,7 @@ const INITIAL_BALLS: IBallEntity[] = [
     id: 'ball-2-overhead',
     initialPosition: { x: 0.15, y: 0.1, z: 1.85 }, // Near overhead shoulder singularity
     currentPosition: { x: 0.15, y: 0.1, z: 1.85 },
-    radius: 0.06,
+    radius: TENNIS_BALL.radiusM,
     color: '#f59e0b',
     status: 'ON_SPAWN',
     isSingularZone: true,
@@ -125,7 +127,7 @@ const INITIAL_BALLS: IBallEntity[] = [
     id: 'ball-3-normal',
     initialPosition: { x: 0.8, y: -0.6, z: 0.1 }, // Normal workspace
     currentPosition: { x: 0.8, y: -0.6, z: 0.1 },
-    radius: 0.06,
+    radius: TENNIS_BALL.radiusM,
     color: '#06b6d4',
     status: 'ON_SPAWN',
     isSingularZone: false,
@@ -134,7 +136,7 @@ const INITIAL_BALLS: IBallEntity[] = [
     id: 'ball-4-boundary-2',
     initialPosition: { x: -0.2, y: 1.42, z: 0.2 }, // Boundary
     currentPosition: { x: -0.2, y: 1.42, z: 0.2 },
-    radius: 0.06,
+    radius: TENNIS_BALL.radiusM,
     color: '#a855f7',
     status: 'ON_SPAWN',
     isSingularZone: true,
@@ -561,6 +563,14 @@ export const KinematicEnginePage: React.FC<Props> = ({ onBackToMap }) => {
         };
         ricisStateRef.current = nextRicisState;
         dlsStateRef.current = nextDlsState;
+
+        // RIGID GRASP: pin the carried ball to the gripper pose the solver ACTUALLY
+        // produced this frame. Doing it before the solve (as the old followGripper did
+        // inside stepTarget) left the ball a frame behind the hand — measured 0.0412 m
+        // mean / 0.1096 m peak lag over the tennis scenario.
+        if (simMode === 'CATCH_FALLING_BALL') {
+          catchControllerRef.current.syncCarriedBall(nextRicisState.endEffector, dt);
+        }
 
         telemetryLogger.pushEntry(stepResult.logEntry);
 

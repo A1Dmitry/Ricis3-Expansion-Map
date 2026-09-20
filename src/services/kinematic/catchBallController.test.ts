@@ -32,8 +32,9 @@ import type {
   IBoxContainer,
   IKinematicState3D,
 } from '../../model/kinematicEngine.contracts';
+import { MANIPULATOR_LINK_LENGTHS_M } from './manipulatorConstants';
 
-const LINK_LENGTHS: [number, number, number] = [0.4, 0.8, 0.7];
+const LINK_LENGTHS = MANIPULATOR_LINK_LENGTHS_M;
 const MAX_REACH = LINK_LENGTHS[1] + LINK_LENGTHS[2];
 
 const BOX_CONTAINER: IBoxContainer = {
@@ -107,6 +108,8 @@ function runCatchClosedLoop(solverMode: 'POLAR_GEOMETRIC' | 'SYMBOLIC_AST') {
       gripperClosed: catchStep.shouldGrip,
     };
     dlsState = result.dlsResult.nextState;
+    // Rigid grasp: pin the carried ball to the gripper pose the solver actually produced.
+    controller.syncCarriedBall(ricisState.endEffector, dt);
 
     assertFiniteAndInWorkspace(ricisState, `${solverMode} step ${step} (RICIS)`);
     assertFiniteAndInWorkspace(dlsState, `${solverMode} step ${step} (DLS ghost)`);

@@ -1,19 +1,38 @@
 // ============================================================================
-// BALL PHYSICS WORLD (Gravity / Bounce / Box Confinement)
-// Minimal deterministic rigid-particle integrator for the kinematic scenarios:
-// - free fall under gravity (semi-implicit Euler, stable at 60 FPS),
-// - floor bounce with restitution and tangential damping,
-// - optional inner-box wall confinement (delivered balls bounce inside the box
-//   and come to rest there instead of teleporting),
-// - ballistic forward prediction used by the catch-interception planner.
+// BALL PHYSICS WORLD — INTEGRATOR (application service)
+// ----------------------------------------------------------------------------
+// A deterministic rigid-body integrator for the kinematic scenarios:
+//   - free fall under the ENVIRONMENT's gravity (semi-implicit Euler),
+//   - quadratic aerodynamic drag F = 1/2 rho Cd A |v| v,
+//   - floor/wall contact with restitution and Coulomb friction,
+//   - ballistic forward prediction for the interception planner.
+//
+// DDD: this file holds NO physical constants. Gravity and air density come from
+// the environment (physicalEnvironment.ts); mass, radius, restitution, drag and
+// friction come from the material (projectileMaterial.ts). The integrator only
+// applies laws. Changing planet or ball is a different injected value object,
+// never an edit here.
+//
 // Pure domain service: no globals, no randomness, fully deterministic.
 // ============================================================================
 
 import type { Vector3D } from '../../model/kinematicEngine.contracts';
+import {
+  EARTH_SURFACE,
+  resolveEnvironment,
+  type IPhysicalEnvironment,
+} from './physicalEnvironment';
+import {
+  BOX_WALL_RESTITUTION,
+  TENNIS_BALL,
+  type IProjectileMaterial,
+} from './projectileMaterial';
 
 export interface IPhysicsBallBody {
   readonly position: Vector3D;
   readonly velocity: Vector3D;
+  /** Inertial mass (kg). Gravity is mass-independent; drag is not. */
+  readonly massKg: number;
   readonly radius: number;
   readonly resting: boolean;
 }
@@ -36,37 +55,59 @@ export interface IPhysicsIntegrateOptions {
   readonly boxBounds?: IBoxBounceBounds;
 }
 
-export class BallPhysicsWorld {
-  /** Gravity magnitude (m/s^2). Tuned for a readable, catchable on-screen fall. */
-  public readonly gravity: number;
-  /** Vertical restitution on bounce (0 = dead, 1 = perfectly elastic). */
-  public readonly restitution: number;
-  /** Horizontal restitution against box walls. */
-  public readonly wallRestitution: number;
-  /** Linear air drag coefficient (1/s). */
-  public readonly airDrag: number;
-  /** Speed below which a floor contact settles to rest (m/s). */
-  public readonly settleSpeed: number;
+export interface IBallPhysicsWorldParams {
+  /** The world the simulation runs in. Defaults to Earth, sea level. */
+  readonly environment?: IPhysicalEnvironment;
+  /** The body being simulated. Defaults to an ITF tennis ball. */
+  readonly material?: IProjectileMaterial;
+  /** Restitution of the confining box walls (defaults to the wooden box value). */
+  readonly wallRestitution?: number;
+}
 
-  constructor(params?: {
-    gravity?: number;
-    restitution?: number;
-    wallRestitution?: number;
-    airDrag?: number;
-    settleSpeed?: number;
-  }) {
-    this.gravity = params?.gravity ?? 3.2;
-    this.restitution = params?.restitution ?? 0.5;
-    this.wallRestitution = params?.wallRestitution ?? 0.35;
-    this.airDrag = params?.airDrag ?? 0.03;
-    this.settleSpeed = params?.settleSpeed ?? 0.12;
+export class BallPhysicsWorld {
+  /** The environment: gravity and air density. External, injected, Earth by default. */
+  public readonly environment: IPhysicalEnvironment;
+  /** The body: mass, radius, restitution, drag, friction. */
+  public readonly material: IProjectileMaterial;
+  /** Restitution against the confining box walls. */
+  public readonly wallRestitution: number;
+
+  /**
+   * Inverse ballistic length k = rho Cd A / (2 m)  [1/m].
+   *
+   * Drag acceleration is a = k |v| v, so k is the single quantity that combines
+   * the atmosphere (rho), the shape (Cd, A) and the INERTIA (m). This is why
+   * mass matters: a heavier body of the same size decelerates less.
+   */
+  private readonly inverseBallisticLength: number;
+
+  constructor(params?: IBallPhysicsWorldParams) {
+    this.environment = resolveEnvironment(params?.environment);
+    this.material = params?.material ?? TENNIS_BALL;
+    this.wallRestitution = params?.wallRestitution ?? BOX_WALL_RESTITUTION;
+    this.inverseBallisticLength =
+      (this.environment.airDensityKgpsm3 *
+        this.material.dragCoefficient *
+        this.material.crossSectionM2) /
+      (2 * this.material.massKg);
   }
 
-  public createBody(position: Vector3D, radius: number, velocity?: Vector3D, resting = false): IPhysicsBallBody {
+  /** Gravity magnitude actually applied (m/s^2). Read from the environment. */
+  public get gravity(): number {
+    return this.environment.gravityMps2;
+  }
+
+  /** Coefficient of restitution actually applied. Read from the material. */
+  public get restitution(): number {
+    return this.material.restitution;
+  }
+
+  public createBody(position: Vector3D, velocity?: Vector3D, resting = false): IPhysicsBallBody {
     return {
       position: { ...position },
       velocity: velocity ? { ...velocity } : { x: 0, y: 0, z: 0 },
-      radius,
+      massKg: this.material.massKg,
+      radius: this.material.radiusM,
       resting,
     };
   }
@@ -79,11 +120,20 @@ export class BallPhysicsWorld {
     // implies its own floor (a ball dropped INTO a box rests on the box floor,
     // it must never fall through onto the room floor); default is the room floor.
     const floorZ = opts?.floorZ ?? opts?.boxBounds?.floorZ ?? 0;
-    const drag = Math.max(0, 1 - this.airDrag * dt);
 
-    let vx = body.velocity.x * drag;
-    let vy = body.velocity.y * drag;
-    let vz = body.velocity.z * drag - this.gravity * dt;
+    const speed = Math.sqrt(
+      body.velocity.x * body.velocity.x +
+        body.velocity.y * body.velocity.y +
+        body.velocity.z * body.velocity.z
+    );
+    // Quadratic drag: a_drag = -k |v| v. Applied as a velocity factor per step.
+    const dragFactor = Math.max(0, 1 - this.inverseBallisticLength * speed * dt);
+
+    let vx = body.velocity.x * dragFactor;
+    let vy = body.velocity.y * dragFactor;
+    // Gravity is the environment's, directed along -Z. It is NOT mass-dependent:
+    // in vacuum a tennis ball and a bowling ball fall identically.
+    let vz = body.velocity.z * dragFactor - this.gravity * dt;
 
     let px = body.position.x + vx * dt;
     let py = body.position.y + vy * dt;
@@ -104,22 +154,53 @@ export class BallPhysicsWorld {
     if (pz <= floorContactZ) {
       pz = floorContactZ;
       const impactSpeed = Math.abs(vz);
-      if (impactSpeed > this.settleSpeed) {
+
+      // Rest criterion, DERIVED rather than tuned.
+      //
+      // A rebound leaves the floor at v' = e * |v_n| and reaches the apex
+      //     h = v'^2 / (2 g).
+      // In one integration step gravity alone covers d = g dt^2 / 2. A rebound
+      // whose apex is lower than d cannot be represented at this resolution, so
+      // it IS rest:
+      //     h <= d  <=>  (e v)^2 / (2 g) <= g dt^2 / 2  <=>  v <= g dt / e.
+      //
+      // The bound is not arbitrary: a body already at rest re-enters contact
+      // every step with exactly |v_n| = g dt, and g dt <= g dt / e holds for any
+      // e <= 1, so rest is a stable state rather than an endless micro-bounce.
+      // It also scales with the planet and the material, as it must.
+      const settleSpeed = (this.gravity * dt) / this.restitution;
+
+      if (impactSpeed > settleSpeed) {
         vz = impactSpeed * this.restitution; // bounce upward
-        // Tangential impact damping: an indoor court floor kills a good part of the
-        // skid speed per bounce, otherwise weak shots roll metres past their mark.
-        vx *= 0.6;
-        vy *= 0.6;
+
+        // Coulomb friction at impact. The normal impulse per unit mass is
+        // (1 + e) |v_n|; dry friction bounds the tangential impulse by mu times
+        // that, so the tangential speed may drop by at most mu (1 + e) |v_n|.
+        // Friction arrests a skid, it can never reverse it — hence the clamp.
+        const maxTangentialLoss =
+          this.material.slidingFriction * (1 + this.restitution) * impactSpeed;
+        const tangentialSpeed = Math.sqrt(vx * vx + vy * vy);
+        if (tangentialSpeed <= maxTangentialLoss) {
+          vx = 0;
+          vy = 0;
+        } else {
+          const kept = (tangentialSpeed - maxTangentialLoss) / tangentialSpeed;
+          vx *= kept;
+          vy *= kept;
+        }
       } else {
         vz = 0;
-        // Rolling/settling: bleed off residual horizontal speed quickly.
-        vx *= 0.6;
-        vy *= 0.6;
-        const speed = Math.sqrt(vx * vx + vy * vy);
-        if (speed < this.settleSpeed) {
+        // Rolling resistance: a = C_rr * g, the standard rolling-resistance law.
+        const rollingDecel = this.material.rollingResistance * this.gravity * dt;
+        const tangential = Math.sqrt(vx * vx + vy * vy);
+        if (tangential <= rollingDecel) {
           vx = 0;
           vy = 0;
           resting = true;
+        } else {
+          const kept = (tangential - rollingDecel) / tangential;
+          vx *= kept;
+          vy *= kept;
         }
       }
     }
@@ -127,6 +208,7 @@ export class BallPhysicsWorld {
     return {
       position: { x: px, y: py, z: pz },
       velocity: { x: vx, y: vy, z: vz },
+      massKg: body.massKg,
       radius: body.radius,
       resting,
     };

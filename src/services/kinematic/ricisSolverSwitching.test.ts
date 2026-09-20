@@ -6,9 +6,10 @@ import {
 } from './polarSolvers';
 import { RicisSymbolicJacobianSolver3D } from './kinematicSolvers';
 import type { IKinematicState3D, Vector3D } from '../../model/kinematicEngine.contracts';
+import { MANIPULATOR_LINK_LENGTHS_M } from './manipulatorConstants';
 
 describe('KinematicDualDebuggerEngine Solver Switching & DI (QA Suite)', () => {
-  const linkLengths: readonly [number, number, number] = [0.4, 0.8, 0.7];
+  const linkLengths = MANIPULATOR_LINK_LENGTHS_M;
   const target: Vector3D = { x: 1.1, y: 0.4, z: 0.5 };
   const dt = 0.05;
 

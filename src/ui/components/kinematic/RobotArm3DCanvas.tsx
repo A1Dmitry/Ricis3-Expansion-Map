@@ -15,6 +15,14 @@ import {
   ROOM_HALF_EXTENT_M,
   ROOM_HEIGHT_M,
 } from '../../../services/kinematic/catchBallController';
+import { manipulatorRenderTrace } from '../../../services/kinematic/renderTrace';
+import {
+  applyRobotArmPose,
+  createRobotArmRig,
+  disposeRobotArmRig,
+  readRobotArmWorldPose,
+  type IRobotArmRig,
+} from './robotArmScene';
 
 interface Props {
   readonly ricisState: IKinematicState3D;
@@ -62,16 +70,10 @@ export const RobotArm3DCanvas: React.FC<Props> = ({
   const cameraRef = useRef<THREE.PerspectiveCamera | null>(null);
   const controlsRef = useRef<OrbitControls | null>(null);
 
-  // Arm Object Refs (RICIS)
-  const ricisBaseRef = useRef<THREE.Group | null>(null);
-  const ricisShoulderRef = useRef<THREE.Group | null>(null);
-  const ricisElbowRef = useRef<THREE.Group | null>(null);
-  const ricisGripperFingersRef = useRef<{ f1: THREE.Mesh; f2: THREE.Mesh } | null>(null);
-
-  // Arm Object Refs (DLS Ghost)
-  const dlsBaseRef = useRef<THREE.Group | null>(null);
-  const dlsShoulderRef = useRef<THREE.Group | null>(null);
-  const dlsElbowRef = useRef<THREE.Group | null>(null);
+  // Arm rigs — the articulated nodes the viewer sees, and the handle the render
+  // trace reads the DRAWN pose from.
+  const ricisRigRef = useRef<IRobotArmRig | null>(null);
+  const dlsRigRef = useRef<IRobotArmRig | null>(null);
 
   // Target & Environment Refs
   const targetMeshRef = useRef<THREE.Mesh | null>(null);
@@ -222,127 +224,17 @@ export const RobotArm3DCanvas: React.FC<Props> = ({
     ringMesh.position.y = 0.01;
     scene.add(ringMesh);
 
-    // BUILD RICIS ROBOT ARM (Emerald Theme) and DLS Arm
-    const createArm = (isRicis: boolean) => {
-      const armGroup = new THREE.Group();
+    // BUILD RICIS ROBOT ARM (Emerald Theme) and DLS Arm.
+    // Built by the shared rig module so the drawn pose is traceable without a
+    // WebGL context (see robotArmScene.ts). Geometry is identical.
 
-      // Base Pedestal
-      const baseGeo = new THREE.CylinderGeometry(0.28, 0.35, L0, 32);
-      const baseMat = new THREE.MeshStandardMaterial({
-        color: isRicis ? 0x0f172a : 0x1e293b,
-        metalness: 0.8,
-        roughness: 0.3,
-        transparent: !isRicis,
-        opacity: isRicis ? 1.0 : 0.4,
-      });
-      const baseMesh = new THREE.Mesh(baseGeo, baseMat);
-      baseMesh.position.y = L0 / 2;
-      armGroup.add(baseMesh);
-
-      // Rotating Turntable (q1)
-      const baseRotGroup = new THREE.Group();
-      baseRotGroup.position.y = L0;
-      armGroup.add(baseRotGroup);
-
-      const turretGeo = new THREE.SphereGeometry(0.22, 24, 24);
-      const turretMat = new THREE.MeshStandardMaterial({
-        color: isRicis ? 0x059669 : 0x475569,
-        metalness: 0.7,
-        roughness: 0.2,
-        transparent: !isRicis,
-        opacity: isRicis ? 1.0 : 0.4,
-      });
-      const turretMesh = new THREE.Mesh(turretGeo, turretMat);
-      baseRotGroup.add(turretMesh);
-
-      // Shoulder Group (q2)
-      const shoulderGroup = new THREE.Group();
-      baseRotGroup.add(shoulderGroup);
-
-      // Link 1 (Shoulder to Elbow)
-      const link1Geo = new THREE.CylinderGeometry(0.1, 0.12, L1, 24);
-      link1Geo.translate(0, L1 / 2, 0);
-      const link1Mat = new THREE.MeshStandardMaterial({
-        color: isRicis ? 0x10b981 : 0x64748b,
-        metalness: 0.9,
-        roughness: 0.25,
-        transparent: !isRicis,
-        opacity: isRicis ? 1.0 : 0.45,
-      });
-      const link1Mesh = new THREE.Mesh(link1Geo, link1Mat);
-      link1Mesh.rotation.z = -Math.PI / 2;
-      shoulderGroup.add(link1Mesh);
-
-      // Elbow Group (q3)
-      const elbowGroup = new THREE.Group();
-      elbowGroup.position.x = L1;
-      shoulderGroup.add(elbowGroup);
-
-      const elbowServoGeo = new THREE.SphereGeometry(0.15, 20, 20);
-      const elbowServo = new THREE.Mesh(elbowServoGeo, turretMat);
-      elbowGroup.add(elbowServo);
-
-      // Link 2 (Forearm to Gripper)
-      const link2Geo = new THREE.CylinderGeometry(0.08, 0.1, L2, 24);
-      link2Geo.translate(0, L2 / 2, 0);
-      const link2Mat = new THREE.MeshStandardMaterial({
-        color: isRicis ? 0x34d399 : 0x94a3b8,
-        metalness: 0.85,
-        roughness: 0.25,
-        transparent: !isRicis,
-        opacity: isRicis ? 1.0 : 0.45,
-      });
-      const link2Mesh = new THREE.Mesh(link2Geo, link2Mat);
-      link2Mesh.rotation.z = -Math.PI / 2;
-      elbowGroup.add(link2Mesh);
-
-      // Gripper / Wrist
-      const gripperGroup = new THREE.Group();
-      gripperGroup.position.x = L2;
-      elbowGroup.add(gripperGroup);
-
-      let gripperFingers: { f1: THREE.Mesh; f2: THREE.Mesh } | null = null;
-
-      if (isRicis) {
-        // 2-finger claw
-        const clawBase = new THREE.Mesh(
-          new THREE.BoxGeometry(0.08, 0.12, 0.12),
-          new THREE.MeshStandardMaterial({ color: 0x047857, metalness: 0.9 })
-        );
-        gripperGroup.add(clawBase);
-
-        const fingerGeo = new THREE.BoxGeometry(0.12, 0.02, 0.03);
-        const fingerMat = new THREE.MeshStandardMaterial({ color: 0x34d399 });
-        const f1 = new THREE.Mesh(fingerGeo, fingerMat);
-        f1.position.set(0.06, 0.04, 0);
-        const f2 = new THREE.Mesh(fingerGeo, fingerMat);
-        f2.position.set(0.06, -0.04, 0);
-        gripperGroup.add(f1, f2);
-        gripperFingers = { f1, f2 };
-      }
-
-      return {
-        armGroup,
-        baseRotGroup,
-        shoulderGroup,
-        elbowGroup,
-        gripperGroup,
-        gripperFingers,
-      };
-    };
-
-    const ricisArm = createArm(true);
+    const ricisArm = createRobotArmRig(true, linkLengths);
     scene.add(ricisArm.armGroup);
-    ricisBaseRef.current = ricisArm.baseRotGroup;
-    ricisShoulderRef.current = ricisArm.shoulderGroup;
-    ricisElbowRef.current = ricisArm.elbowGroup;
-    ricisGripperFingersRef.current = ricisArm.gripperFingers;
+    ricisRigRef.current = ricisArm;
 
-    const dlsArm = createArm(false);
+    const dlsArm = createRobotArmRig(false, linkLengths);
     scene.add(dlsArm.armGroup);
-    dlsBaseRef.current = dlsArm.baseRotGroup;
-    dlsShoulderRef.current = dlsArm.shoulderGroup;
-    dlsElbowRef.current = dlsArm.elbowGroup;
+    dlsRigRef.current = dlsArm;
 
     // TARGET POINTER
     const targetGeo = new THREE.OctahedronGeometry(0.1, 0);
@@ -405,6 +297,10 @@ export const RobotArm3DCanvas: React.FC<Props> = ({
       controls.dispose();
       renderer.dispose();
       container.replaceChildren();
+      if (ricisRigRef.current) disposeRobotArmRig(ricisRigRef.current);
+      if (dlsRigRef.current) disposeRobotArmRig(dlsRigRef.current);
+      ricisRigRef.current = null;
+      dlsRigRef.current = null;
       sceneRef.current = null;
       rendererRef.current = null;
       cameraRef.current = null;
@@ -417,29 +313,18 @@ export const RobotArm3DCanvas: React.FC<Props> = ({
   useEffect(() => {
     if (presentationMode !== '3d') return;
 
-    if (ricisBaseRef.current && ricisShoulderRef.current && ricisElbowRef.current) {
-      // Correct mathematical azimuth: in Three.js right-handed frame with link along +X,
-      // positive q1 (atan2(y, x)) maps to rotation.y = +q1 to aim at target (x, z, -y)
-      ricisBaseRef.current.rotation.y = ricisState.joints.q1;
-      ricisShoulderRef.current.rotation.z = ricisState.joints.q2;
-      ricisElbowRef.current.rotation.z = ricisState.joints.q3;
+    // Apply the live joint state to the drawn rig and trace what it now draws.
+    // The trace is taken AFTER the joint->geometry mapping, so it observes the pose
+    // the viewer actually sees — the only place a joint-space discontinuity that
+    // leaves the end-effector untouched can be detected.
+    if (ricisRigRef.current) {
+      applyRobotArmPose(ricisRigRef.current, ricisState.joints, ricisState.gripperClosed);
+      manipulatorRenderTrace.record('RICIS', readRobotArmWorldPose(ricisRigRef.current));
     }
-
-    // Gripper claw reflects the live grasp state driven by the pick-and-place controller
-    const fingers = ricisGripperFingersRef.current;
-    if (fingers) {
-      const halfGap = ricisState.gripperClosed ? 0.022 : 0.04;
-      fingers.f1.position.y = halfGap;
-      fingers.f2.position.y = -halfGap;
-    }
-
-    if (dlsBaseRef.current && dlsShoulderRef.current && dlsElbowRef.current) {
-      dlsBaseRef.current.rotation.y = dlsState.joints.q1;
-      dlsShoulderRef.current.rotation.z = dlsState.joints.q2;
-      dlsElbowRef.current.rotation.z = dlsState.joints.q3;
-      if (dlsBaseRef.current.parent) {
-        dlsBaseRef.current.parent.visible = showDlsGhost;
-      }
+    if (dlsRigRef.current) {
+      applyRobotArmPose(dlsRigRef.current, dlsState.joints, false);
+      dlsRigRef.current.armGroup.visible = showDlsGhost;
+      manipulatorRenderTrace.record('DLS_GHOST', readRobotArmWorldPose(dlsRigRef.current));
     }
 
     if (targetMeshRef.current) {
