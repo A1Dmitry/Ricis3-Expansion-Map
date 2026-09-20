@@ -185,4 +185,39 @@ describe('release alignment policy', () => {
     expect(readme).toContain(`(${canonicalPagesUrl})`);
     expect(readme).not.toContain('https://a1dmitry.github.io/RICIS3-Expansion/');
   });
+  it('keeps the GitHub Actions workflow files parseable (unquoted ": " in a step name kills the whole workflow)', () => {
+    // Incident 2026-09-20: `.github/workflows/pr-verify.yml` carried the step
+    // `- name: Onboarding gate (G0: executor has read and accepted the documentation)`.
+    // A YAML plain scalar cannot contain ": ", so the whole file stopped parsing:
+    // GitHub replaced the workflow with a startup failure on every push and the
+    // PR gates (executor key G1, onboarding G0, tests, build) silently stopped running.
+    const workflowPaths = [
+      '.github/workflows/deploy-pages.yml',
+      '.github/workflows/pr-verify.yml',
+      '.github/workflows/lean-artifact-kernel-check.yml',
+    ];
+    const unquotedNameWithColon = /^\s*-\s*name:\s+(?!['"|>])(.*: .*)$/u;
+
+    for (const workflowPath of workflowPaths) {
+      const offenders = readText(workflowPath)
+        .split('\n')
+        .map((line, index) => ({ line, number: index + 1 }))
+        .filter(({ line }) => unquotedNameWithColon.test(line))
+        .map(({ line, number }) => `${workflowPath}:${number}: ${line.trim()}`);
+
+      expect(offenders).toEqual([]);
+    }
+  });
+  it('runs the executor traceability gate on the pull request branch itself, not on the synthetic merge commit', () => {
+    // A `pull_request` checkout without `ref` materializes GitHub's synthetic merge commit
+    // («Merge <sha> into <sha>»), which carries no §2 executor key — the gate then fails on
+    // EVERY pull request regardless of content, and the line stops for a reason that cannot
+    // be fixed by the contributor. Measured 2026-09-20 on PR #89 (run 35524888840): nine
+    // steps green, «Executor traceability gate» red on `Merge 85288b2… into 788635b…`.
+    // The gate must see the commits of the branch (merge commits created inside the branch
+    // remain in the `<base>..HEAD` range and are still checked).
+    const workflow = readText('.github/workflows/pr-verify.yml');
+    expect(workflow).toContain('npm run executor:gate -- --check-headers --base origin/main');
+    expect(workflow).toMatch(/ref:\s*\$\{\{\s*github\.event\.pull_request\.head\.sha/);
+  });
 });

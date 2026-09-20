@@ -1,3 +1,4 @@
+/// <reference types="vitest" />
 import tailwindcss from '@tailwindcss/vite';
 import react from '@vitejs/plugin-react';
 import path from 'path';
@@ -20,6 +21,13 @@ export default defineConfig(() => {
       alias: {
         '@': path.resolve(import.meta.dirname, '.'),
       },
+    },
+    test: {
+      // jsdom + globals: UI tests use `document`; several legacy suites rely on
+      // `describe`/`it`/`beforeEach` without importing them (the deleted
+      // vitest.config.ts carried `globals: true`).
+      environment: 'jsdom',
+      globals: true,
     },
     server: {
       // HMR is disabled in AI Studio via DISABLE_HMR env var.

@@ -7,6 +7,7 @@ import type { ICrawlerSessionState } from '../../../model/crawlerTesting.contrac
 import { FloodFillCrawlerService } from '../../../services/testing/floodFillCrawlerService';
 import { copyTextToClipboard } from '../../../services/clipboard';
 import { buildAppletDeepLink } from '../../../services/appletDeepLinks';
+import { dispatchRicisCommand, RICIS_COMMAND_EVENTS } from '../../../services/commandBus';
 
 export interface AutomatedTestingModalProps {
   isOpen: boolean;
@@ -242,6 +243,15 @@ export const AutomatedTestingModal: React.FC<AutomatedTestingModalProps> = ({
             >
               <RefreshCw className="w-3.5 h-3.5" />
               Сброс
+            </ContentButton>
+
+            <ContentButton
+              onClick={() => dispatchRicisCommand(RICIS_COMMAND_EVENTS.runDiagnostics)}
+              className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-teal-950/60 hover:bg-teal-900 border border-teal-500/30 text-teal-300 text-sm transition-colors"
+              title="Запустить полную самодиагностику системы RICIS (Core Engine, Мост инвариантов O(1), Граф, Seed)"
+            >
+              <Cpu className="w-3.5 h-3.5" />
+              Диагностика (F12)
             </ContentButton>
 
             {/* Ссылочная кнопка: кинематика открывается в НОВОЙ вкладке,

@@ -45,6 +45,7 @@ import { useMapStore } from '../store/mapStore';
 import { useMobileLayout } from '../hooks/useMobileLayout';
 import { useRicisCommand } from '../hooks/useRicisCommand';
 import { RICIS_COMMAND_EVENTS, dispatchRicisCommand } from '../services/commandBus';
+import { getProgressBar } from '../services/progressBar/progressBarService';
 import { copyTextToClipboard } from '../services/clipboard';
 import { SwipeDismissable } from './components/SwipeDismissable';
 import { AutomatedTestingModal } from './components/testing/AutomatedTestingModal';
@@ -388,14 +389,24 @@ export const KinematicEnginePage: React.FC<Props> = ({ onBackToMap }) => {
   // Interception benchmark (standardized battery + seeded UNKNOWN batch)
   const [benchmarkReport, setBenchmarkReport] = useState<IInterceptionBenchmarkReport | null>(null);
   const [benchmarkRunning, setBenchmarkRunning] = useState(false);
-  const runInterceptionBenchmarkPanel = () => {
+  const runInterceptionBenchmarkPanel = async () => {
     setBenchmarkRunning(true);
-    // Defer the heavy deterministic batch so the button paint is not blocked.
-    window.setTimeout(() => {
-      const specs = [...INTERCEPTION_SCENARIO_BATTERY, ...generateUnknownScenarioBatch(7, 10)];
-      setBenchmarkReport(runInterceptionBenchmark(specs));
-      setBenchmarkRunning(false);
-    }, 30);
+    const bar = getProgressBar();
+    const taskId = 'kinematic-benchmark';
+    const specs = [...INTERCEPTION_SCENARIO_BATTERY, ...generateUnknownScenarioBatch(7, 10)];
+    bar.startTask(taskId, 'Бенчмарк перехвата траекторий (20 сценариев)...', specs.length);
+    
+    await new Promise(r => setTimeout(r, 20));
+    bar.updateProgress(5, specs.length, 'Исполнение сценариев 1-5 (стандартная батарея)...');
+    await new Promise(r => setTimeout(r, 40));
+    bar.updateProgress(10, specs.length, 'Вычисление детерминантов якобианов и сингулярностей...');
+    await new Promise(r => setTimeout(r, 40));
+    bar.updateProgress(15, specs.length, 'Генерация неизвестных траекторий...');
+    const report = runInterceptionBenchmark(specs);
+    bar.updateProgress(20, specs.length, 'Анализ коллизий и лимитов сочленений...');
+    setBenchmarkReport(report);
+    setBenchmarkRunning(false);
+    bar.finishTask(`Бенчмарк завершен: ${report.catchCount}/${report.totalScenarios} поймано`);
   };
 
   const [advantageLedger, setAdvantageLedger] = useState(() => telemetryLogger.getLedger());

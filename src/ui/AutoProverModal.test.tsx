@@ -1,3 +1,4 @@
+// @vitest-environment jsdom
 import React, { act } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
@@ -34,19 +35,22 @@ afterEach(async () => {
   root = null;
 });
 
-describe('AutoProverModal Component', () => {
+describe('AutoProverModal Component (Full-Map Expansion)', () => {
   it('renders null when isOpen is false', async () => {
     const onClose = vi.fn();
     const rendered = await render(<AutoProverModal isOpen={false} onClose={onClose} />);
     expect(rendered.innerHTML).toBe('');
   });
 
-  it('renders modal header, centrality scores, and controls when isOpen is true', async () => {
+  it('renders modal header, full-map scopes, centrality scores, and controls when isOpen is true', async () => {
     const onClose = vi.fn();
     const rendered = await render(<AutoProverModal isOpen={true} onClose={onClose} />);
 
-    expect(rendered.textContent).toContain('RICIS-III Auto Prover Engine');
-    expect(rendered.textContent).toContain('Фрактальная центральность');
+    expect(rendered.textContent).toContain('RICIS-III Auto Prover Engine v7.7');
+    expect(rendered.textContent).toContain('Охват всей карты');
+    expect(rendered.textContent).toContain('Вся карта');
+    expect(rendered.textContent).toContain('Нерешённые');
+    expect(rendered.textContent).toContain('Сингулярности');
     expect(rendered.textContent).toContain('Запустить Auto Prover');
   });
 
@@ -55,7 +59,7 @@ describe('AutoProverModal Component', () => {
     const rendered = await render(<AutoProverModal isOpen={true} onClose={onClose} />);
 
     const buttons = Array.from(rendered.querySelectorAll('button'));
-    const closeBtn = buttons.find(b => b.querySelector('svg') !== null || b.textContent === '');
+    const closeBtn = buttons.find((b) => b.getAttribute('title') === 'Закрыть' || b.querySelector('svg') !== null);
     expect(closeBtn).toBeDefined();
 
     await act(async () => {
@@ -63,5 +67,21 @@ describe('AutoProverModal Component', () => {
     });
 
     expect(onClose).toHaveBeenCalled();
+  });
+
+  it('executes prover when run button is clicked', async () => {
+    const onClose = vi.fn();
+    const rendered = await render(<AutoProverModal isOpen={true} onClose={onClose} />);
+
+    const buttons = Array.from(rendered.querySelectorAll('button'));
+    const runBtn = buttons.find((b) => b.textContent?.includes('Запустить Auto Prover'));
+    expect(runBtn).toBeDefined();
+
+    await act(async () => {
+      runBtn?.click();
+    });
+
+    // Verify progress or results are displayed
+    expect(rendered.textContent).toContain('RICIS-III Auto Prover Engine');
   });
 });

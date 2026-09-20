@@ -28,11 +28,13 @@ import { fileURLToPath } from 'node:url';
 
 import {
   EXECUTOR_KEY_FILE,
+  MANDATORY_STUDY_DOCUMENTS,
   buildForensicsVerdict,
   extractRegisteredKey,
   parseExecutorHeader,
   type ForensicsPolicy,
 } from '../tools/executorTraceability';
+import { ONBOARDING_DIR, attestationPathFor, checkOnboarding, type FileReader } from '../tools/onboardingGate';
 
 const repositoryRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 
@@ -100,6 +102,66 @@ function runHeaderCheck(baseRef: string): number {
       violations.push(
         `[EXECUTOR_KEY_MISMATCH] ${short} — ключ в заголовке не совпадает с зарегистрированным на этот коммит`,
       );
+      continue;
+    }
+
+    // G0 at commit granularity: the executor must have been admitted (valid attestation
+    // for the document revisions present in THIS commit) — an unread or since-changed
+    // normative document blocks the commit, not only the working tree.
+    const readAtCommit: FileReader = (path) => {
+      try {
+        return git(['show', `${sha}:${path}`]);
+      } catch {
+        return null;
+      }
+    };
+    const onboarding = checkOnboarding(header.key, readAtCommit);
+    if (!onboarding.ok) {
+      for (const violation of onboarding.violations) {
+        violations.push(`[${violation.code}] ${short} — ${violation.message}`);
+      }
+      continue;
+    }
+
+    // Provenance of the attestation (red-team R3, 2026-09-20): an attestation file is
+    // evidence only if every commit that ever wrote it carried the SAME executor key in
+    // its header and that commit itself touched nothing but onboarding/EXECUTOR_KEY files
+    // or the mandatory documents themselves (a norm change must be re-attested in the same
+    // commit by its author). A file copied from another executor or smuggled in together
+    // with work is not that executor's reading.
+    const attestationPath = attestationPathFor(header.key);
+    const writers = git(['log', '--format=%H %s', sha, '--', attestationPath])
+      .split('\n')
+      .map((line) => line.trim())
+      .filter((line) => line !== '')
+      .map((line) => ({ sha: line.slice(0, 40), subject: line.slice(41) }));
+    if (writers.length === 0) {
+      violations.push(
+        `[ONBOARDING_ATTESTATION_UNCOMMITTED] ${short} — аттестация ${attestationPath} не записана ни одним коммитом`,
+      );
+      continue;
+    }
+    for (const writer of writers) {
+      const parsed = parseExecutorHeader(writer.subject);
+      if (!parsed.ok || parsed.key !== header.key) {
+        violations.push(
+          `[ONBOARDING_ATTESTATION_FOREIGN] ${short} — аттестация ${attestationPath} записана коммитом ${writer.sha.slice(0, 12)} с другим/отсутствующим ключом: чужая аттестация не является прочтением этого исполнителя`,
+        );
+        break;
+      }
+      const touched = git(['show', '--format=', '--name-only', writer.sha])
+        .split('\n')
+        .map((line) => line.trim())
+        .filter((line) => line !== '');
+      const smuggled = touched.filter(
+        (path) => !path.startsWith(`${ONBOARDING_DIR}/`) && path !== EXECUTOR_KEY_FILE && !MANDATORY_STUDY_DOCUMENTS.includes(path),
+      );
+      if (smuggled.length > 0) {
+        violations.push(
+          `[ONBOARDING_ATTESTATION_NOT_ISOLATED] ${short} — коммит аттестации ${writer.sha.slice(0, 12)} одновременно меняет рабочие файлы (${smuggled.slice(0, 3).join(', ')}${smuggled.length > 3 ? ', …' : ''}): прочтение фиксируется ОТДЕЛЬНЫМ коммитом до начала работы`,
+        );
+        break;
+      }
     }
   }
 

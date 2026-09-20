@@ -39,6 +39,8 @@ import {
   preserveStateForNonAuthoritativeEvidence,
   recordStaticDiagnostic,
 } from '../leanConsent/leanEvidenceConsent.domain';
+import type { AutoProverResult } from '../services/autoProver/autoProver';
+import { getProgressBar } from '../services/progressBar/progressBarService';
 
 function stableContentHash(value: string): string {
   let hash = 0x811c9dc5;
@@ -115,6 +117,7 @@ interface MapStore extends MapState {
   }>;
   clearAuditReport: () => void;
   recalculateAcademicProof: (nodeId: string, premises?: string[], expectedGoal?: string) => Promise<RicisAcademicProofResult | null>;
+  applyAutoProverResults: (results: readonly AutoProverResult[]) => Promise<{ appliedCount: number; savedCount: number }>;
 }
 
 function emptyState(): MapState {
@@ -192,11 +195,19 @@ export const useMapStore = create<MapStore>((set, get) => ({
     const node = state.nodes.find(n => n.id === nodeId);
     if (!node) return;
     
+    const bar = getProgressBar();
+    const taskId = `solve-node-${nodeId}`;
+    bar.startTask(taskId, `Синтез доказательства: "${node.title}"`, 100);
+    bar.setProgress(15, 'Инициализация агента и проверка L1_IDENTITY...');
+
     get().addAgentLog(`[Phase -1] Старт вычисления решения: "${node.title}" (target: ${node.targetFunction || 'не задана'})`, 'ricis', undefined, nodeId);
+    bar.setProgress(35, 'Детерминированная замена пределов Коши на мосты RICIS-III (SP4/A4)...');
     get().addAgentLog(`[Phase 0] Детерминированная замена пределов Коши на мосты RICIS-III (SP4/A4)...`, 'info', undefined, nodeId);
+    bar.setProgress(60, 'Применение правил локальности SP1 и сью-продукта A6 det(u,v) = F·G...');
     get().addAgentLog(`[Phase 2] Применение правил локальности SP1 и сью-продукта A6 det(u,v) = F·G...`, 'ricis', undefined, nodeId);
 
     const newState = await solveNodeLogic(state, nodeId);
+    bar.setProgress(85, 'Обучение памяти агента и валидация Lean evidence...');
     const memory = await trainAgentFromDb(newState);
     
     const resultingNode = newState.nodes.find(candidate => candidate.id === nodeId);
@@ -213,6 +224,7 @@ export const useMapStore = create<MapStore>((set, get) => ({
     );
     set({ ...newState, agentTrainingMemory: memory });
     void saveMapToDb(newState);
+    bar.finishTask(`Решение для "${node.title}" сформировано`);
   },
 
   recalculateAcademicProof: async (nodeId: string, premises?: string[], expectedGoal?: string): Promise<RicisAcademicProofResult | null> => {
@@ -220,15 +232,22 @@ export const useMapStore = create<MapStore>((set, get) => ({
     const node = state.nodes.find(n => n.id === nodeId);
     if (!node) return null;
     
+    const bar = getProgressBar();
+    const taskId = `recalc-proof-${nodeId}`;
+    bar.startTask(taskId, `Академический перерасчет: "${node.title}"`, 100);
+    bar.setProgress(20, 'Формирование посылок и целевой функции...');
+
     const targetFunc = node.targetFunction || '0/0 = 1';
     const effectivePremises = premises && premises.length > 0 ? premises : [targetFunc];
     const effectiveGoal = expectedGoal || (targetFunc.includes('=') ? targetFunc.split('=')[1]!.trim() : '1');
     
     get().addAgentLog(`[Phase -1] Академический перерасчет доказательства: "${node.title}"...`, 'ricis', undefined, nodeId);
-    
+    bar.setProgress(50, 'Вычисление через Core Engine (Phase -1 ... Phase 6)...');
+
     const engine = getRicisCoreEngine();
     const result = await engine.proveSystem(effectivePremises, effectiveGoal, nodeId);
-    
+    bar.setProgress(80, 'Валидация инварианта и формирование шагов...');
+
     if (result.academicStatus === 'QED_VERIFIED') {
       get().addAgentLog(`[Phase 6: Goal match] Локальная RICIS-цепочка для "${node.title}" совпала с ожидаемой целью (инвариант = ${result.reducedInvariant}); Lean kernel не запускался.`, 'success', undefined, nodeId);
     } else {
@@ -278,6 +297,7 @@ export const useMapStore = create<MapStore>((set, get) => ({
     const nextState = { ...state, nodes: updatedNodes, proofs: nextProofs };
     set(nextState);
     void saveMapToDb(nextState);
+    bar.finishTask(`Перерасчет для "${node.title}" завершен: ${result.academicStatus}`);
     
     return result;
   },
@@ -501,10 +521,20 @@ export const useMapStore = create<MapStore>((set, get) => ({
 
   runFillMissingTargets: async () => {
     const state = get();
-    get().addAgentLog('Заполнение недостающих целевых функций через Gemini API...', 'ricis');
-    const result = await fillMissingTargetFunctions(state, { maxNodes: 40, delayMs: 350 });
+    const bar = getProgressBar();
+    const taskId = 'fill-missing-targets';
+    bar.startTask(taskId, 'Авто-заполнение формул узлов...', 100);
+    get().addAgentLog('Заполнение недостающих целевых функций через Gemini API / RICIS...', 'ricis');
+    const result = await fillMissingTargetFunctions(state, {
+      maxNodes: 40,
+      delayMs: 350,
+      onProgress: (current, total, title) => {
+        bar.updateProgress(current, total, `Заполнение формулы (${current}/${total}): "${title}"`);
+      },
+    });
     set({ ...result.map, hydrated: true });
     void saveMapToDb(result.map);
+    bar.finishTask(`Заполнение формул завершено: ${result.filled} успешно`);
     get().addAgentLog(`Авто-заполнение формул завершено: заполнено ${result.filled}, ошибок ${result.failed}`, result.filled > 0 ? 'success' : 'warn');
     return {
       filled: result.filled,
@@ -516,15 +546,21 @@ export const useMapStore = create<MapStore>((set, get) => ({
 
   runDerivativeSearch: async () => {
     const state = get();
+    const bar = getProgressBar();
+    bar.startTask('derivative-search', 'Поиск деривативов и цитат', 100);
     get().addAgentLog('Анализ сторонних публикаций на семантическое соответствие RICIS A6/SP2...', 'info');
+    bar.setProgress(40, 'Анализ топологии монолитов...');
     const report = await applyDerivativeSearch(state, { maxHits: 8 });
+    bar.setProgress(80, 'Санитизация графа...');
     if (report.added > 0) {
       const sanitized = sanitizeMap(report.map);
       set({ ...sanitized, hydrated: true });
       void saveMapToDb(sanitized);
       get().addAgentLog(`Обнаружено и подсвечено производных работ: ${report.added}`, 'success');
+      bar.finishTask(`Найдено и подсвечено производных: ${report.added}`);
     } else {
       get().addAgentLog('Новых апроприаций монолитов не выявлено.', 'info');
+      bar.finishTask('Апроприаций монолитов не выявлено');
     }
     return { added: report.added, hits: report.hits, error: report.error };
   },
@@ -532,7 +568,11 @@ export const useMapStore = create<MapStore>((set, get) => ({
   runAutoSolveAll: async () => {
     let currentState: MapState = get();
     let hasChanged = true;
+    const bar = getProgressBar();
     get().addAgentLog('Запущен рекурсивный авто-резолвер задач графа...', 'ricis');
+
+    const unresolvedInitial = currentState.nodes.filter(n => n.state !== 'resolved').length;
+    bar.startTask('auto-solve-all', 'Рекурсивный авто-резолвер задач', Math.max(1, unresolvedInitial));
 
     let solvedTotal = 0;
     while (hasChanged) {
@@ -546,31 +586,49 @@ export const useMapStore = create<MapStore>((set, get) => ({
         for (const node of nodesToResolve) {
           currentState = await solveNodeLogic(currentState, node.id);
           solvedTotal++;
+          bar.updateProgress(
+            solvedTotal,
+            Math.max(solvedTotal, unresolvedInitial),
+            `[${solvedTotal}] Решено: ${node.title}`
+          );
           get().addAgentLog(`[AutoSolve] Задача "${node.title}" успешно решена.`, 'ricis', undefined, node.id);
         }
         hasChanged = true;
       }
     }
 
+    bar.setMessage('Обучение нейро-символьной памяти...');
     const memory = await trainAgentFromDb(currentState);
     set({ ...currentState, hydrated: true, agentTrainingMemory: memory });
     void saveMapToDb(currentState);
+    bar.finishTask(`Рекурсивный авто-резолвер завершён: ${solvedTotal} задач решено`);
     get().addAgentLog(`Рекурсивный авто-резолвер завершен. Автоматически решено задач: ${solvedTotal}`, 'success');
   },
 
   runAuditMigration: async (force = false) => {
     const state = get();
+    const bar = getProgressBar();
+    bar.startTask('audit-migration', 'Аудит и миграция БД', 3);
+    bar.updateProgress(1, 3, 'Миграция схемы и нормализация узлов...');
     const res = await runDatabaseMigration(state, force);
+    bar.updateProgress(2, 3, 'Санитизация графа и проверка инвариантов...');
     const sanitized = sanitizeMap(res.map);
+    bar.updateProgress(3, 3, 'Обучение нейро-символьной памяти...');
     const memory = await trainAgentFromDb(sanitized);
     set({ ...sanitized, hydrated: true, agentTrainingMemory: memory });
+    bar.finishTask('Миграция и аудит БД успешно завершены');
     return res.report;
   },
 
   runAgentDbTraining: async () => {
     const state = get();
+    const bar = getProgressBar();
+    bar.startTask('agent-training', 'Обучение памяти агента', 100);
+    bar.setProgress(30, 'Скан графа задач и аксиом...');
     const memory = await trainAgentFromDb(state);
+    bar.setProgress(80, 'Формирование ассоциативной матрицы...');
     set({ agentTrainingMemory: memory });
+    bar.finishTask('Обучение агента из базы данных завершено');
     return memory;
   },
 
@@ -734,11 +792,18 @@ export const useMapStore = create<MapStore>((set, get) => ({
 
   runSystemAudit: async () => {
     set({ isAuditing: true });
+    const bar = getProgressBar();
+    bar.startTask('system-audit', 'Системный аудит графа', 100);
+    bar.setProgress(40, 'Аудит структуры, циклов и сиротских узлов...');
     try {
       const auditor = new DependencyGraphAuditor();
       const report = auditor.audit(get());
       set({ lastAuditReport: report });
+      bar.finishTask(`Аудит завершен: ${report.orphans.length} сирот, ${report.cyclicGroups.length} циклов`);
       return report;
+    } catch (err: unknown) {
+      bar.failTask(err instanceof Error ? err : new Error(String(err)));
+      throw err;
     } finally {
       set({ isAuditing: false });
     }
@@ -746,6 +811,8 @@ export const useMapStore = create<MapStore>((set, get) => ({
 
   runGraphRepair: async () => {
     set({ isAuditing: true });
+    const bar = getProgressBar();
+    bar.startTask('graph-repair', 'Ремонт и редукция графа', 4);
     try {
       const state = get();
       const details: string[] = [];
@@ -754,6 +821,7 @@ export const useMapStore = create<MapStore>((set, get) => ({
       const newZonesAdded: string[] = [];
 
       // 1. Run migration/repair audit
+      bar.updateProgress(1, 4, 'Проверка связей и целевых функций...');
       const { map: auditedMap, report } = auditAndFixMapGraph(state);
       repairedCount = (report.titlesFixed || 0) + (report.targetFunctionsRepaired || 0) + (report.connectionsFixed || 0);
       details.push(...(report.details || []));
@@ -935,6 +1003,7 @@ export const useMapStore = create<MapStore>((set, get) => ({
       }
 
       // 4. Save and set new state
+      bar.updateProgress(4, 4, 'Сохранение состояния графа в БД...');
       const logMsg = `Выполнен ремонт и редукция графа: Исправлено ошибок/связей: ${repairedCount}. Открыто новых прикладных задач: ${discoveredCount}.`;
       
       const nextState = {
@@ -950,6 +1019,7 @@ export const useMapStore = create<MapStore>((set, get) => ({
 
       set(nextState);
       await saveMapToDb(nextState);
+      bar.finishTask(`Ремонт графа завершён: исправлено ${repairedCount}, создано ${discoveredCount}`);
 
       return {
         repairedCount,
@@ -957,6 +1027,9 @@ export const useMapStore = create<MapStore>((set, get) => ({
         newZonesAdded,
         details
       };
+    } catch (err: unknown) {
+      bar.failTask(err instanceof Error ? err : new Error(String(err)));
+      throw err;
     } finally {
       set({ isAuditing: false });
     }
@@ -964,11 +1037,15 @@ export const useMapStore = create<MapStore>((set, get) => ({
 
   executeGarbageCollection: async () => {
     set({ isAuditing: true });
+    const bar = getProgressBar();
+    bar.startTask('garbage-collection', 'Сборка мусора графа (GC)', 100);
+    bar.setProgress(30, 'Очистка неиспользуемых связей и сирот...');
     try {
       const auditor = new DependencyGraphAuditor();
       const report = get().lastAuditReport || auditor.audit(get());
       const result = auditor.cleanGarbage(get(), report);
       
+      bar.setProgress(80, 'Синхронизация истории трансформаций...');
       const newLogs = [...result.agentLogs, ...(get().agentLogs || [])].slice(0, 300);
       
       set(state => ({
@@ -979,7 +1056,11 @@ export const useMapStore = create<MapStore>((set, get) => ({
       }));
       
       void saveMapToDb(result.mutatedState);
+      bar.finishTask('Сборка мусора графа успешно завершена');
       return result;
+    } catch (err: unknown) {
+      bar.failTask(err instanceof Error ? err : new Error(String(err)));
+      throw err;
     } finally {
       set({ isAuditing: false });
     }
@@ -987,5 +1068,59 @@ export const useMapStore = create<MapStore>((set, get) => ({
 
   clearAuditReport: () => {
     set({ lastAuditReport: null });
+  },
+
+  applyAutoProverResults: async (results: readonly AutoProverResult[]) => {
+    if (results.length === 0) return { appliedCount: 0, savedCount: 0 };
+    const bar = getProgressBar();
+    bar.startTask('apply-autoprover-results', 'Сохранение доказательств в БД', results.length);
+    const currentState = get();
+    let appliedCount = 0;
+
+    const newProofs = { ...currentState.proofs };
+    const resultMap = new Map(results.map(r => [r.nodeId, r]));
+
+    const newNodes = currentState.nodes.map((node) => {
+      const result = resultMap.get(node.id);
+      if (!result) return node;
+
+      if (result.success) {
+        appliedCount++;
+        if (result.synthesizedProof) {
+          newProofs[node.id] = result.synthesizedProof;
+        }
+        return {
+          ...node,
+          state: 'resolved' as const,
+          leanErrors: result.auditResult.errors,
+          leanWarnings: result.auditResult.warnings,
+        };
+      }
+      return {
+        ...node,
+        leanErrors: result.auditResult.errors,
+        leanWarnings: result.auditResult.warnings,
+      };
+    });
+
+    bar.setProgress(70, 'Обучение нейро-символьной памяти...');
+    const newState: MapState = {
+      ...currentState,
+      nodes: newNodes,
+      proofs: newProofs,
+    };
+
+    const memory = await trainAgentFromDb(newState);
+    set({ ...newState, agentTrainingMemory: memory });
+    bar.setProgress(90, 'Запись в IndexedDB...');
+    await saveMapToDb(newState);
+
+    get().addAgentLog(
+      `[AutoProver] Завершено применение результатов ко всей карте: ${appliedCount} узлов успешно обновлены и сохранены в БД.`,
+      'success'
+    );
+    bar.finishTask(`Сохранено: ${appliedCount} из ${results.length} доказательств`);
+
+    return { appliedCount, savedCount: results.length };
   },
 }));

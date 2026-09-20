@@ -39,7 +39,7 @@ const delay = (ms: number) => new Promise((res) => setTimeout(res, ms));
  */
 const AI_CALL_DEADLINE_MS = Number(process.env.RICIS_AI_CALL_DEADLINE_MS || 45_000);
 /** Cap the model pool so a full sweep cannot outlive the deadline. */
-const AI_MAX_MODELS = Number(process.env.RICIS_AI_MAX_MODELS || 4);
+const AI_MAX_MODELS = Number(process.env.RICIS_AI_MAX_MODELS || 6);
 const AI_ATTEMPTS_PER_MODEL = 2;
 
 async function callAIWithFallback(
@@ -124,9 +124,9 @@ async function callAIWithFallback(
           errMsg.includes("not found");
 
         if (isQuotaError) {
-          const remaining = deadline - Date.now();
-          if (remaining <= 0) break;
-          await delay(Math.min(1000 * attempt, remaining));
+          // Model quota exhausted (429 RESOURCE_EXHAUSTED) — do not burn attempts on same model.
+          // Switch to the next available model in the fallback pool immediately.
+          break;
         } else if (isNotFound) {
           // Model missing (404) — skip to the next model immediately.
           break;

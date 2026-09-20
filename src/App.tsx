@@ -7,13 +7,15 @@ import { ArrowLeft as ButtonIconPanelTop } from 'lucide-react';
 // Compact Command Menu Bar at top -> Central Workspace Applet -> Deep-link support
 // ============================================================================
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
+import { ShieldCheck } from 'lucide-react';
 import { RouteSurfaceBoundary } from './ui/RouteSurfaceBoundary';
 import { lazyNamedComponent } from './ui/lazyNamedComponent';
 import { isCoreRecoveryRoute } from './services/coreRecovery';
 import { useMapStore } from './store/mapStore';
 import { CompactCommandMenuBar } from './ui/components/CompactCommandMenuBar';
 import { AppletActionToolbar } from './ui/components/AppletActionToolbar';
+import { TopProgressBar } from './ui/components/TopProgressBar';
 import { AppletNavigationService } from './services/AppletNavigationService';
 import type { AppletId } from './types/appletRegistry';
 import type { CommandContext } from './types/commandTypes';
@@ -22,6 +24,7 @@ import {
   RICIS_COMMAND_EVENTS,
   subscribeRicisCommand,
 } from './services/commandBus';
+import { runSystemDiagnostics } from './services/systemDiagnostics';
 import { APP_BUILD_LABEL } from './version';
 
 const Map3D = lazyNamedComponent(() => import('./ui/Map3D'), 'Map3D');
@@ -89,6 +92,15 @@ export default function App() {
   // indicators (Play/Pause, crawler, 3D/2D) light up from live data.
   const [isSimulationRunning, setIsSimulationRunning] = useState(false);
   const [isAutoProverRunning, setIsAutoProverRunning] = useState(false);
+  const [diagnosticsToast, setDiagnosticsToast] = useState<string | null>(null);
+
+  const handleRunDiagnostics = useCallback(async () => {
+    const report = await runSystemDiagnostics(useMapStore.getState());
+    setDiagnosticsToast(report.summaryMessage);
+    setTimeout(() => {
+      setDiagnosticsToast(null);
+    }, 6500);
+  }, []);
 
   useEffect(() => {
     const unsubscribers = [
@@ -101,9 +113,12 @@ export default function App() {
       subscribeRicisCommand(RICIS_COMMAND_EVENTS.qaRunningChanged, detail => {
         setIsAutoProverRunning(Boolean(detail?.isRunning));
       }),
+      subscribeRicisCommand(RICIS_COMMAND_EVENTS.runDiagnostics, () => {
+        void handleRunDiagnostics();
+      }),
     ];
     return () => unsubscribers.forEach(unsubscribe => unsubscribe());
-  }, []);
+  }, [handleRunDiagnostics]);
 
   // Commands dispatch exactly one bus event each (see commandRegistry);
   // applet pages subscribe via useRicisCommand. Context callbacks are
@@ -114,6 +129,7 @@ export default function App() {
     isSimulationRunning,
     isAutoProverRunning,
     onSelectApplet: handleSelectApplet,
+    onRunDiagnostics: handleRunDiagnostics,
   };
 
   // Global Keyboard Shortcuts (Alt+1..9, Space, etc.)
@@ -284,6 +300,9 @@ export default function App() {
           appBuildLabel={APP_BUILD_LABEL}
         />
 
+        {/* Global Progress Bar (IProgressBar) for Long-Running Tasks (>2s) */}
+        <TopProgressBar />
+
         {/* Dynamic Context-Aware Action Toolbar */}
         <AppletActionToolbar
           activeApplet={currentApplet}
@@ -294,6 +313,26 @@ export default function App() {
         <div className="flex-1 relative min-h-0 overflow-hidden">
           {renderActiveApplet()}
         </div>
+
+        {/* System Diagnostics Toast Feedback */}
+        {diagnosticsToast && (
+          <div
+            role="status"
+            aria-live="polite"
+            data-testid="system-diagnostics-toast"
+            className="fixed bottom-4 right-4 z-50 max-w-md bg-slate-900/95 border border-cyan-500/60 text-cyan-200 text-xs px-4 py-2.5 rounded-lg shadow-2xl backdrop-blur flex items-center gap-2.5 transition-all"
+          >
+            <ShieldCheck size={16} className="text-cyan-400 shrink-0" />
+            <span className="flex-1 font-mono text-[11px] leading-relaxed">{diagnosticsToast}</span>
+            <ContentButton
+              type="button"
+              onClick={() => setDiagnosticsToast(null)}
+              className="text-slate-400 hover:text-white text-xs px-1"
+            >
+              ✕
+            </ContentButton>
+          </div>
+        )}
       </div>
     </RouteSurfaceBoundary>
   );
