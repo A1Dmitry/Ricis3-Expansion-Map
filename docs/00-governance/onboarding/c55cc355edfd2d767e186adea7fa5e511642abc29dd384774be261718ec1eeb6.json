@@ -1,10 +1,10 @@
 {
   "executor_key": "c55cc355edfd2d767e186adea7fa5e511642abc29dd384774be261718ec1eeb6",
-  "attested_at": "2026-09-20T14:30:00Z",
+  "attested_at": "2026-09-20T15:12:00Z",
   "documents": [
     {
       "path": "AGENTS.md",
-      "sha256": "b5ccceadcf959344616f90e271d476f8c9673a466f642444f3b8667328a21a2a"
+      "sha256": "ec73656b0610ff348e04e7a098fa934f283eeb062f077edf9f2d698a932a9fea"
     },
     {
       "path": "docs/00-governance/RCVAP_AUTONOMOUS_ANTI_TUKHTA_AGILE_PROTOCOL.md",
@@ -63,7 +63,7 @@
   },
   "quotes": {
     "docs/00-governance/RICIS_EXTERNAL_EXECUTOR_PROTOCOL.md": "metadata: `accepted`, `stage`, `violation`, `requiredRules`,",
-    "AGENTS.md": "1. `AUDITOR: EXTERNAL` — с указанием конкретного внешнего рецензента/",
+    "AGENTS.md": "Если пользователь предоставляет Lean-исходник, полученный внешним способом, и явно задаёт его как доказательство, исходник становится **неизменяемым внешним артефактом**. Агент вправе анализировать, компилировать, аудитировать и присоединять metadata, но не вправе нормализовать, сгенерировать замену, переписать или молча подменить предоставленные байты исходника.",
     "docs/00-governance/RICIS_SEMANTIC_AUTHORITY.md": "2. **Logic / Tests = Independent Validation**: The TypeScript test suites (`*.test.ts`) serve as independent validators of the execution paths. They prove that the implementation adheres to the semantic contract and doesn't introduce regressions or garbage duplicates (Anti-Tukhta)."
   }
 }
