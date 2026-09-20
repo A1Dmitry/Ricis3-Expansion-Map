@@ -1030,6 +1030,18 @@ describe('OIR-03 — audit proof-synthesis containment', () => {
       '?? packages/ricis-core-ts/src/audit/index.ts',
       '?? packages/ricis-core-ts/src/domain/RicisAudit.ts',
       '?? packages/ricis-core-ts/src/orchestration/RicisAuditOrchestrator.ts',
+      // PR verification repair: restore the executable release/TPS/onboarding guards
+      // removed from the current base commit, and restore the Vitest global contract.
+      ' M vite.config.ts',
+      '?? tools/onboardingGate.test.ts',
+      '?? tools/onboardingGate.ts',
+      '?? tools/proofTrustBoundary.test.ts',
+      '?? tools/recursiveProductionAudit.ts',
+      '?? tools/releaseConsistency.test.ts',
+      '?? tools/ricis-calculator-routing-fix.patch',
+      '?? tools/seedArtifactFreshness.test.ts',
+      '?? tools/seoAssets.test.ts',
+      '?? tools/sourceHeredocLeakage.test.ts',
       // Релизные зеркала версии (npm run version:sync / sync:version)
       ' M package.json',
       ' M package-lock.json',
