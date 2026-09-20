@@ -1,7 +1,7 @@
 {
   "name": "ricis3-expansion",
   "private": false,
-  "version": "0.4.228",
+  "version": "0.4.229",
   "description": "Interactive RICIS-III singularity research map with explicit proof-trust boundaries",
   "type": "module",
   "workspaces": [
@@ -14,6 +14,7 @@
   },
   "scripts": {
     "sync:version": "tsx tools/syncVersion.ts",
+    "prepare": "git config core.hooksPath hooks || true",
     "bootstrap": "node -e \"require('node:fs').existsSync('node_modules/typescript') || require('node:child_process').execFileSync(process.platform==='win32'?'npm.cmd':'npm',['ci'],{stdio:'inherit'})\"",
     "release:check": "npm run sync:version && vitest run tools/releaseConsistency.test.ts",
     "tps:gate": "tsx scripts/tpsGate.ts",
@@ -24,6 +25,8 @@
     "tps:nodes": "tsx scripts/applyNodeClaimOrchestration.ts",
     "tps:nodes:check": "tsx scripts/applyNodeClaimOrchestration.ts --check",
     "executor:gate": "tsx scripts/executorGate.ts",
+    "onboarding:gate": "tsx scripts/onboardingGate.ts --check",
+    "onboarding:attest": "tsx scripts/onboardingGate.ts --attest",
     "dev": "tsx server.ts",
     "generate:node-entries": "tsx tools/generateNodeEntries.ts",
     "seed:state": "tsx scripts/seedTaskState.ts",
@@ -31,6 +34,9 @@
     "build": "npm run release:check && npm run generate:node-entries && vite build && esbuild server.ts --bundle --platform=node --format=cjs --packages=external --sourcemap --outfile=dist/server.cjs",
     "start": "node dist/server.cjs",
     "lint": "tsc --noEmit",
+    "pretest": "npm run onboarding:gate",
+    "prebuild": "npm run onboarding:gate",
+    "predev": "npm run onboarding:gate",
     "test": "npm run sync:version && vitest run",
     "security:check": "npm audit --audit-level=moderate"
   },
