@@ -149,6 +149,33 @@ export class RicisTypeScriptEngine implements IRicisReductionEngine {
         }
       }
 
+      // --- RICIS Phase 2: A7 (∞_F - ∞_G = ∞_(F-G)); identity case ∞_F - ∞_F = 0 (R-10) ---
+      // Single source of truth: this engine is the canonical reducer. The DDD
+      // layer (SemanticIndex.combine) reuses it instead of reimplementing axioms.
+      if (node.nodeType === 'Subtract' && left.nodeType === 'SingularityInfinity' && right.nodeType === 'SingularityInfinity') {
+        const a = (left as SingularityExpression).basis;
+        const b = (right as SingularityExpression).basis;
+        if (this.areEqual(a, b)) {
+          trace.push({
+            phase: 2,
+            ruleFamily: 'A7',
+            description: 'Infinity identity reduction (∞_F - ∞_F = 0)',
+            before: { ...binNode, left, right } as Expression,
+            after: AST.Const(0)
+          });
+          return AST.Const(0);
+        }
+        const result = AST.Sub(a, b);
+        trace.push({
+          phase: 2,
+          ruleFamily: 'A7',
+          description: 'Infinity subtraction axiom (∞_F - ∞_G = ∞_(F-G))',
+          before: { ...binNode, left, right } as Expression,
+          after: result
+        });
+        return result;
+      }
+
       // --- RICIS Phase 3: Algebraic Cleanup A - A = 0 ---
       if (node.nodeType === 'Subtract' && this.areEqual(left, right)) {
         trace.push({

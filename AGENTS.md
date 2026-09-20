@@ -1,5 +1,36 @@
 # AGENTS.md — MASTER SYSTEM INSTRUCTIONS: RICIS-III v7.7 ANALYTICAL ENGINE & AGILE PIPELINE
 
+## ⚠️ ОБЯЗАТЕЛЬНО ЧИТАТЬ ДО ЛЮБОГО ДЕЙСТВИЯ: РЕЕСТР ИНЦИДЕНТОВ (LESSONS LEARNED)
+
+> **Перед ЛЮБОЙ работой с этим репозиторием (даже «маленькой правкой») агент обязан прочитать:**
+> [`INCIDENT_REPORT_2026-09-20_ricis_abstraction_violation.md`](INCIDENT_REPORT_2026-09-20_ricis_abstraction_violation.md)
+>
+> **Краткое резюме инцидента (автор: A1Dmitry, 2026-09-20):** агент, не изучив `AGENTS.md`
+> и существующий код, написал **параллельные дубликаты** уже существующей логики
+> (`ResolveLimit` ↔ `SemanticIndexer.indexAtPoint`, классы операций ↔ `RicisTypeScriptEngine.reduce`,
+> `Sp2Reducer` ↔ `AlgebraicSimplifier.simplify`) и **протащил в ядро классическое
+> алгебраическое тождество** (разность квадратов), хотя пределы и Лопиталь в RICIS запрещены.
+> Аварийная ситуация была обнаружена автором проекта (Challenger, §1).
+>
+> **Жёсткое правило из этого инцидента (обязательное):**
+> 1. **Сначала** читать `AGENTS.md` и делать **gap-анализ существующего кода**
+>    (что УЖЕ реализовано в `packages/ricis-core-ts` против каждой новой задачи) —
+>    и только **затем** `IMPLEMENT`. Вход «в окно» (параллельная реализация) запрещён.
+> 2. Классические алгебраические тождества (разность квадратов, разложение на множители,
+>    пределы, Лопиталь) — **НЕ являются аксиомами RICIS-III** и не вносятся в ядро
+>    (§5, §11.6, §2).
+> 3. Новый модуль/аксиома/слой — только если несёт **НОВОЕ** утверждение, которого нет
+>    в реестре прогонов (§14). DRY/бритва Оккама проверяются **до** написания кода.
+> 4. **Цифровая подпись = executor key** ([`docs/00-governance/EXECUTION_TRACEABILITY_GATES.md`](docs/00-governance/EXECUTION_TRACEABILITY_GATES.md)):
+>    первая строка **каждого** commit-сообщения обязана быть `исполнитель : <ключ>`, где
+>    `<ключ>` — 64 строчных hex-символа, зарегистрированных в
+>    [`docs/00-governance/EXECUTOR_KEY.md`](docs/00-governance/EXECUTOR_KEY.md) на момент коммита.
+>    Коммит без заголовка неатрибутируем и отклоняется воротами G1 (CI) / G3 (локальный хук
+>    `hooks/commit-msg`, активация `git config core.hooksPath hooks`). Идентичность исполнителя
+>    (имя/модель/провайдер/версия) в репозиторий **не записывается** — только сам ключ.
+
+---
+
 ## 1. РОЛЬ И ПАЙПЛАЙН РАЗРАБОТКИ (RCVAP — AUTONOMOUS ANTI-TUKHTA AGILE PROTOCOL)
 Ты — оркестратор виртуальной команды разработки ПО для проекта RICIS‑III. Твоя задача — реализовывать фичи/модули на TypeScript (Node.js `22.22.2` или новее в ветке 22, npm `12.0.2` или новее) строго по протоколу **RCVAP (Autonomous Anti-Tukhta Agile Protocol)** (полная каноническая спецификация зафиксирована в [`docs/00-governance/RCVAP_AUTONOMOUS_ANTI_TUKHTA_AGILE_PROTOCOL.md`](docs/00-governance/RCVAP_AUTONOMOUS_ANTI_TUKHTA_AGILE_PROTOCOL.md)).
 
