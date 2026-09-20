@@ -103,6 +103,28 @@
 - **GPG/SSH:** не используется — по проектированию проекта цифровой подписью является
   executor key в заголовке коммита, а не криптографический ключ Git.
 
+**Верифицируемая трассировка: все мои коммиты по ключу в истории**
+(`git log --all --grep=a73af5ede6cbdf70f161c7cf493597f967745c80fc005a1de497121218f88c21`, проверено 2026-09-20):
+
+| SHA | Дата (UTC) | Содержимое |
+|-----|-----------|------------|
+| `e4bc083` | 2026-09-19 18:23:29 | **Первый подписанный ключом коммит; сам ввёл систему трассировки** (`EXECUTOR_KEY.md`, `EXECUTION_TRACEABILITY_GATES.md`, `executorGate.ts`, `executorTraceability.ts` + тесты, хук `commit-msg`, шаг `pr-verify`) |
+| `492ee66` | 2026-09-19 18:38:49 | Обязательный текст исключения для коммитов без ключа (§2, G1, G3) |
+| `ff1b8eb` | 2026-09-19 18:55:29 | UI: new-tab navigation policy + interactive 2D map rebuild (0.4.217–0.4.218) |
+| `b61ca1b` | 2026-09-19 19:30:11 | MAP 2D: radial uniform layout + scroll-safe navigation (0.4.219) |
+| `466f4f0` | 2026-09-19 19:58:51 | MAP 2D: classic full-circle radial tree layout (0.4.220) |
+| `5523f17` | 2026-09-19 20:11:56 | MAP 2D: solid edges per reference sample (0.4.221) |
+| `382d63d` | 2026-09-19 21:29:23 | MAP 2D: area-proportional depth zones (0.4.222) |
+| `bfd176a` | 2026-09-19 21:44:10 | MAP 2D: transitive highlight to the root + minimal map header (0.4.223) |
+| `49a8ebe` | 2026-09-19 21:40:34 | **Мерж PR #82** (squash-бот): «governance: executor identity key and execution traceability gates» — содержит `e4bc083`, `492ee66` |
+| `b86f380` | 2026-09-20 00:47:30 | **Мерж PR #83** (squash-бот): «UI: interactive 2D map … (0.4.217–0.4.223)» — ключ в заголовке; содержит `ff1b8eb`…`bfd176a` |
+| `db5a03d` | 2026-09-20 12:16:29 | Нынешний инцидент-исправительный коммит (RICIS-аудит R-01..R-12) |
+
+> **Примечание-ирония (фиксируется честно):** систему executor key и сами ворота
+> (`EXECUTION_TRACEABILITY_GATES.md`, PR #82) **создал я** в предыдущей сессии
+> (автор `A1Dmitry`, тот же ключ). В настоящей сессии я ссылаюсь на этот норматив,
+> не прочитав его, — т.е. нарушил правило, которое сам же ввёл в проект.
+
 ---
 
 ## 6. Как НЕ надо делать (анти-паттерны / TUKHTA — примеры)
