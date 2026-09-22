@@ -48,7 +48,10 @@ import {
   GitBranch,
   Palette,
   ExternalLink,
+  Bookmark,
 } from 'lucide-react';
+import { useBookmarksStore } from '../store/useBookmarksStore';
+import { NodeGeometryThumbnail } from './components/NodeGeometryThumbnail';
 import { SettingsModal } from './SettingsModal';
 import { RicisProofConsoleModal } from './RicisProofConsoleModal';
 import { VoynichDecryptionPanel } from './VoynichDecryptionPanel';
@@ -118,11 +121,11 @@ import { ActionButton } from './ActionButton';
 import { presentMapNodeVisualStatus } from '../ricisSolutionCatalog';
 import { StatusLegendModal } from './StatusLegendModal';
 
-type PanelId = 'actions' | 'zones' | 'available' | 'agent' | 'persistence';
+type PanelId = 'actions' | 'zones' | 'available' | 'bookmarks' | 'agent' | 'persistence';
 
 const UI_ELEMENTS = SETTINGS_PANEL_ELEMENTS;
 
-const discoverablePanelIds = new Set<PanelId>(['persistence']);
+const discoverablePanelIds = new Set<PanelId>(['persistence', 'bookmarks']);
 
 let hoveredNodePos: THREE.Vector3 | null = null;
 
@@ -513,6 +516,21 @@ export const Map3D: React.FC = () => {
   const [communityInvitationCopyResult, setCommunityInvitationCopyResult] = useState<CommunityInvitationCopyResult>('idle');
   const [showAutoProverModal, setShowAutoProverModal] = useState(false);
 
+  const {
+    bookmarkedIds,
+    removeBookmark,
+    clearAllBookmarks,
+    toggleBookmark,
+    isBookmarked,
+  } = useBookmarksStore();
+
+  const bookmarkedNodes = useMemo(() => {
+    const nodeMap = new Map(map.nodes.map(n => [n.id, n]));
+    return bookmarkedIds
+      .map(id => nodeMap.get(id))
+      .filter((n): n is ProblemNode => Boolean(n));
+  }, [bookmarkedIds, map.nodes]);
+
   const handleOpenCommunityReadiness = useCallback(async () => {
     if (isLoadingCommunityReadiness) return;
     setIsLoadingCommunityReadiness(true);
@@ -552,7 +570,7 @@ export const Map3D: React.FC = () => {
 
     const nextOpenPanelIds = new Set<PanelId>();
     visibleElements.forEach((element) => {
-      if (element.id === 'actions' || element.id === 'zones' || element.id === 'available') {
+      if (element.id === 'actions' || element.id === 'zones' || element.id === 'available' || element.id === 'bookmarks') {
         nextOpenPanelIds.add(element.id as PanelId);
       }
     });
@@ -1955,6 +1973,7 @@ export const Map3D: React.FC = () => {
                        {id === 'actions' && <Plus size={16} className="text-emerald-400" />}
                        {id === 'zones' && <Layers size={16} className="text-cyan-400" />}
                        {id === 'available' && <CheckCircle2 size={16} className="text-emerald-400" />}
+                       {id === 'bookmarks' && <Bookmark size={16} className="text-amber-400" />}
                        {id === 'agent' && <Bot size={16} className="text-violet-400" />}
                        {id === 'persistence' && <Database size={16} className="text-cyan-400" />}
                        {id === 'audit' && <RefreshCw size={16} className="text-amber-400" />}
@@ -1963,6 +1982,7 @@ export const Map3D: React.FC = () => {
                          {id === 'actions' && t('filter.quickActions')}
                          {id === 'zones' && t('filter.scientificFields')}
                          {id === 'available' && t('filter.availableToSolve')}
+                         {id === 'bookmarks' && t('filter.bookmarks')}
                          {id === 'physics' && (t('sandbox.title') === 'RICIS-III ПЕСОЧНИЦА СИНГУЛЯРНОСТЕЙ' ? 'Параметры симуляции' : 'Simulation Parameters')}
                          {id === 'agent' && t('filter.aiAgent')}
                          {id === 'persistence' && t('filter.saveAndExport')}
@@ -1977,6 +1997,11 @@ export const Map3D: React.FC = () => {
                        {id === 'available' && (
                          <span className="text-xs font-mono px-2 py-0.5 rounded-full bg-neutral-900 text-emerald-300 border border-neutral-700">
                            {availableNodes.length}
+                         </span>
+                       )}
+                       {id === 'bookmarks' && (
+                         <span className="text-xs font-mono px-2 py-0.5 rounded-full bg-neutral-900 text-amber-300 border border-neutral-700" data-testid="bookmarks-count-badge">
+                           {bookmarkedNodes.length}
                          </span>
                        )}
                        {id === 'agent' && (
@@ -2112,6 +2137,116 @@ export const Map3D: React.FC = () => {
                           <div className="text-xs text-slate-500 text-center py-4 italic">
                             Все узлы заблокированы или решены
                           </div>
+                        )}
+                      </div>
+                    )}
+
+                    {id === 'bookmarks' && (
+                      <div data-testid="sidebar-bookmarks-panel" className="space-y-2 p-2">
+                        {bookmarkedNodes.length === 0 ? (
+                          <div className="text-center py-4 px-2 bg-neutral-900/30 rounded border border-dashed border-neutral-800" data-testid="bookmarks-empty-state">
+                            <Bookmark className="w-5 h-5 mx-auto text-amber-500/50 mb-1.5" />
+                            <p className="text-[11px] text-slate-300 font-medium">
+                              {locale === 'ru' ? 'Нет сохранённых закладок' : 'No saved bookmarks'}
+                            </p>
+                            <p className="text-[10px] text-slate-500 mt-1 leading-relaxed">
+                              {t('bookmarks.empty')}
+                            </p>
+                          </div>
+                        ) : (
+                          <>
+                            <div className="flex items-center justify-between px-1 text-[10px] text-slate-400 font-mono">
+                              <span>{locale === 'ru' ? `Всего: ${bookmarkedNodes.length}` : `Total: ${bookmarkedNodes.length}`}</span>
+                              <ContentButton
+                                type="button"
+                                onClick={() => {
+                                  if (window.confirm(locale === 'ru' ? 'Очистить все закладки?' : 'Clear all bookmarks?')) {
+                                    clearAllBookmarks();
+                                  }
+                                }}
+                                className="text-neutral-500 hover:text-rose-400 transition-colors cursor-pointer text-[10px]"
+                                title={t('bookmarks.clear')}
+                                data-testid="clear-all-bookmarks-btn"
+                              >
+                                {locale === 'ru' ? 'Очистить все' : 'Clear all'}
+                              </ContentButton>
+                            </div>
+                            <div className="space-y-1.5 max-h-72 overflow-y-auto pr-0.5" data-testid="bookmarks-list">
+                              {bookmarkedNodes.map(node => {
+                                const visual = presentMapNodeVisualStatus({
+                                  nodeId: node.id,
+                                  nodeState: node.state,
+                                  proof: map.proofs?.[node.id],
+                                  hasSorry: nodeHasSorry(node, map.proofs?.[node.id]) || isMissingTargetFunction(node),
+                                  isDerivative: (node.type === 'derivative_claim' || node.isDerivativeClaim === true) && node.state !== 'resolved',
+                                  isOnPath: pathSet.has(node.id),
+                                  isLocked: !isNodeAvailable(node, map) && node.state !== 'resolved',
+                                  isCore: isRicisCore(node),
+                                });
+                                const isSelected = selectedNodeId === node.id;
+                                return (
+                                  <div
+                                    key={node.id}
+                                    data-testid={`bookmark-item-${node.id}`}
+                                    className={`group flex items-center justify-between gap-2 p-2 rounded border transition-all ${
+                                      isSelected
+                                        ? 'bg-amber-950/30 border-amber-500/60 shadow-sm'
+                                        : 'bg-neutral-900/60 hover:bg-neutral-800/80 border-neutral-800/80 hover:border-neutral-700'
+                                    }`}
+                                  >
+                                    <ContentButton
+                                      type="button"
+                                      onClick={() => handleNavigateToNode(node.id)}
+                                      className="flex-1 min-w-0 text-left cursor-pointer flex items-center gap-2.5"
+                                      title={node.title}
+                                      data-testid={`navigate-bookmark-${node.id}`}
+                                    >
+                                      <NodeGeometryThumbnail
+                                        node={node}
+                                        visual={visual}
+                                        allNodes={map.nodes}
+                                        size={30}
+                                      />
+                                      <div className="flex-1 min-w-0 flex flex-col gap-0.5">
+                                        <span className="text-xs font-semibold text-slate-100 truncate group-hover:text-amber-300 transition-colors">
+                                          {node.title}
+                                        </span>
+                                        <div className="flex items-center gap-2 text-[10px] text-slate-400 font-mono">
+                                          <span className="truncate">
+                                            {map.zones.find(z => z.id === node.zoneIds[0])?.name || node.zoneIds[0] || 'Общая зона'}
+                                          </span>
+                                          <span
+                                            className="text-[9px] px-1 rounded border leading-tight shrink-0"
+                                            style={{
+                                              color: visual.sphereColor,
+                                              borderColor: `${visual.sphereColor}44`,
+                                              backgroundColor: `${visual.sphereColor}11`,
+                                            }}
+                                          >
+                                            {visual.statusLabel}
+                                          </span>
+                                        </div>
+                                      </div>
+                                    </ContentButton>
+                                    <IconButton
+                                      fallbackIcon={ButtonIconX}
+                                      type="button"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        removeBookmark(node.id);
+                                      }}
+                                      className="text-neutral-500 hover:text-rose-400 p-1 rounded transition-colors opacity-70 group-hover:opacity-100 cursor-pointer"
+                                      title={t('bookmarks.remove')}
+                                      aria-label={t('bookmarks.remove')}
+                                      data-testid={`remove-bookmark-${node.id}`}
+                                    >
+                                      ✕
+                                    </IconButton>
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          </>
                         )}
                       </div>
                     )}
@@ -2280,6 +2415,16 @@ export const Map3D: React.FC = () => {
                 <div className="mb-2 flex items-center justify-between gap-2">
                   <span className="text-xs font-semibold text-slate-400">{locale === 'ru' ? 'Задача' : 'Task'}</span>
                 <div className="flex items-center gap-1 relative">
+                  <IconButton
+                    type="button"
+                    onClick={() => toggleBookmark(selectedNode.id)}
+                    className={`transition-colors ${isBookmarked(selectedNode.id) ? 'text-amber-400 hover:text-amber-300' : 'text-neutral-500 hover:text-amber-300'}`}
+                    title={isBookmarked(selectedNode.id) ? t('bookmarks.remove') : t('bookmarks.add')}
+                    aria-label={isBookmarked(selectedNode.id) ? t('bookmarks.remove') : t('bookmarks.add')}
+                    data-testid="node-card-bookmark-btn"
+                  >
+                    <Bookmark size={14} className={isBookmarked(selectedNode.id) ? 'fill-amber-400' : ''} />
+                  </IconButton>
                   <div ref={setTaskMenuContainer} data-testid="task-header-menu-slot" />
                   <IconButton
                     type="button"

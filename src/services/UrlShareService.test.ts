@@ -77,14 +77,16 @@ describe('Deep Linking & Share Service Tests', () => {
 });
 
 describe('Model Pool Configuration Tests', () => {
-  it('должен содержать Gemini 3.7 Flash как модель по умолчанию', () => {
+  it('должен содержать Gemini 3.8 Flash как модель по умолчанию', () => {
     const defaultModel = AVAILABLE_GEMINI_MODELS.find(m => m.isDefault);
     expect(defaultModel).toBeDefined();
-    expect(defaultModel?.id).toBe('gemini-3.7-flash');
+    expect(defaultModel?.id).toBe('gemini-3.8-flash');
   });
 
-  it('должен включать флагманские модели 3.5, 3.1 Pro и 2.5', () => {
+  it('должен включать флагманские модели 3.8, 3.7, 3.5, 3.1 Pro и 2.5', () => {
     const modelIds = AVAILABLE_GEMINI_MODELS.map(m => m.id);
+    expect(modelIds).toContain('gemini-3.8-flash');
+    expect(modelIds).toContain('gemini-3.8-pro');
     expect(modelIds).toContain('gemini-3.7-flash');
     expect(modelIds).toContain('gemini-3.5-flash');
     expect(modelIds).toContain('gemini-3.1-pro-preview');

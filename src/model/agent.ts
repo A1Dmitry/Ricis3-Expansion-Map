@@ -54,6 +54,12 @@ export function extractDbKnowledge(map: MapState): AgentTrainingMemory {
     `Lean 4 Software Record: Lean 4 theorem resolve_* (DOI: ${LEAN_SPEC_DOI})`,
     'RICIS-III Hardware Exact Reduction: Hardware-independent O(1) self-division E/E = 1 over CPU/CUDA and zero error propagation.',
     'Lean 4 Hardware Reduction Spec: Lean 4 theorem RICIS_exact_structural_reduction proving backend-equivalent semantics.',
+    'Anti-Tukhta Invariant: Strict prohibition of circular reasoning (Petitio Principii) where unknown factors (p,q) are assumed to calculate (p,q).',
+    'Axiom A4 Purity Law: 0_F / 0_G = F / G strictly by semantic index ratio (SP4).',
+    'Axiom A15 Equal-Order Profile Law: Resolve([F/G], a) := D^d F(a) / D^d G(a) when ord_a(F) = ord_a(G) = d < \\infty with Profile Compatibility (PC).',
+    'SP5 Trigonometric Pre-Normalization: Polarize a*cos(theta) + b*sin(theta) -> r*cos(theta-phi) before SP4 semantic indexing.',
+    'P1 Principle: Direct Structural Resolution Only (No recursive limits or continuous L\'Hôpital inside Resolve_RICIS).',
+    'Complexity Reality Boundary: Continuous trigonometric zero-crossings like sin(πN/x) do not bypass discrete search; unproven claims remain HYPOTHESIS.',
   ];
 
   const accuracy = Math.min(99.8, 92 + resolvedNodesCount * 0.4 + proofsCount * 0.3 + graphEdgesCount * 0.1);

@@ -690,6 +690,17 @@ export const DICTIONARY = {
   'panel.available': { ru: 'Доступно к решению', en: 'Available to solve' },
   'panel.agent': { ru: 'ИИ-Агент и Сервисы', en: 'AI Agent & Services' },
   'panel.persistence': { ru: 'Сохранение и Экспорт', en: 'Persistence & Export' },
+  'panel.bookmarks': { ru: 'Закладки узлов', en: 'Node Bookmarks' },
+  'filter.bookmarks': { ru: 'ЗАКЛАДКИ', en: 'BOOKMARKS' },
+  'bookmarks.title': { ru: 'Закладки узлов', en: 'Node Bookmarks' },
+  'bookmarks.empty': {
+    ru: 'Нет сохранённых закладок. Нажмите на значок закладки в карточке любого узла для быстрого доступа.',
+    en: 'No saved bookmarks. Click the bookmark icon in any node card for quick access.',
+  },
+  'bookmarks.add': { ru: 'Добавить в закладки', en: 'Bookmark node' },
+  'bookmarks.remove': { ru: 'Удалить из закладок', en: 'Remove bookmark' },
+  'bookmarks.clear': { ru: 'Очистить закладки', en: 'Clear all bookmarks' },
+  'bookmarks.searchPlaceholder': { ru: 'Поиск по закладкам...', en: 'Search bookmarks...' },
 
   // Telegram simulator
   'telegram.header': {

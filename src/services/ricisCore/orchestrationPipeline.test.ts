@@ -48,7 +48,7 @@ describe('RICIS-III 5-Stage Orchestration Pipeline Engine', () => {
                 phaseName: 'AXIOMATIC_REDUCTION (A4)',
                 axiomUsed: 'A4' as const,
                 inputExpression: '0_f / 0_g',
-                outputExpression: "f'(a) / g'(a)",
+                outputExpression: "f / g",
                 invariantPreserved: true,
                 timestamp: Date.now(),
                 rationaleHash: 'hash-a4',
@@ -57,7 +57,7 @@ describe('RICIS-III 5-Stage Orchestration Pipeline Engine', () => {
           },
           stages: [
             { stageId: 'PARSING_AND_L1_CHECK' as const, title: 'Parsing & L1 Check', description: 'Verifying identity X=X', status: 'SUCCESS' as const, startTimeMs: 100 },
-            { stageId: 'AXIOMATIC_REDUCTION' as const, title: 'RICIS Axiom A4', description: "0_f / 0_g = f'/g'", status: 'SUCCESS' as const, startTimeMs: 105 },
+            { stageId: 'AXIOMATIC_REDUCTION' as const, title: 'RICIS Axiom A4', description: "0_f / 0_g = f / g", status: 'SUCCESS' as const, startTimeMs: 105 },
             { stageId: 'LEAN_CODEGEN' as const, title: 'Lean 4 Spec Gen', description: 'Generated theorem resolve_math_singularity', status: 'SUCCESS' as const, startTimeMs: 110 },
             { stageId: 'GATEWAY_DISPATCH' as const, title: 'Core Gateway Dispatch', description: 'HTTP 200 OK', status: 'SUCCESS' as const, startTimeMs: 115 },
             { stageId: 'TRUST_VALIDATION' as const, title: 'Trust Boundary Check', description: 'LEAN_VERIFIED attached', status: 'SUCCESS' as const, startTimeMs: 120 },

@@ -33,7 +33,7 @@ it('mounts all task actions only in the header hamburger and retains its existin
     expect(host.querySelector('.lucide-ellipsis-vertical')).toBeNull();
     expect(host.textContent).not.toContain('Действия задачи');
     await act(async () => trigger.click());
-    for (const id of ['solve', 'formula-calculator', 'explore', 'verify', 'share']) {
+    for (const id of ['solve', 'formula-calculator', 'explore', 'verify', 'share', 'bookmark']) {
       expect(header.querySelector(`[data-testid="node-context-menu-item-${id}"]`)).not.toBeNull();
     }
     await act(async () => header.querySelector<HTMLButtonElement>('[data-testid="node-context-menu-item-solve"]')!.click());

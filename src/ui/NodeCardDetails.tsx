@@ -7,8 +7,9 @@ import React, { useState, useEffect } from 'react';
 import type { ProblemNode, Proof } from '../model/types';
 import { isMissingTargetFunction } from '../model/audit';
 import { getUnlockedTargets, getUnlockRequirements, isNodeAvailable } from '../model/access';
-import { ChevronDown, ChevronUp, ArrowLeft, ExternalLink, ShieldCheck, Sparkles, Lock, Unlock, BookOpen, DollarSign, Terminal, CheckCircle2, Share2, Check, Calculator, Layers as LayersIcon, Activity, Play, Compass, Pencil } from 'lucide-react';
+import { ChevronDown, ChevronUp, ArrowLeft, ExternalLink, ShieldCheck, Sparkles, Lock, Unlock, BookOpen, DollarSign, Terminal, CheckCircle2, Share2, Check, Calculator, Layers as LayersIcon, Activity, Play, Compass, Pencil, Bookmark } from 'lucide-react';
 import { useTerminalStore } from '../store/useTerminalStore';
+import { useBookmarksStore } from '../store/useBookmarksStore';
 import { LatexRenderer } from './LatexRenderer';
 import { ExecutionTraceViewer } from './ExecutionTraceViewer';
 import type { ITransformationLogDTO } from '../model/traceVisualizer.types';
@@ -181,6 +182,8 @@ export const NodeCardDetails: React.FC<Props> = ({
   menuFooter,
 }) => {
   const { t } = useI18nStore();
+  const isBookmarked = useBookmarksStore(state => state.isBookmarked(node.id));
+  const toggleBookmark = useBookmarksStore(state => state.toggleBookmark);
   const isKinematicManipulator =
     node.id === 'calculator-node-kinematic' ||
     node.id === 'manipulator-core-kinematics' ||
@@ -414,6 +417,16 @@ export const NodeCardDetails: React.FC<Props> = ({
       hint: 'Поделиться формой этой задачи',
       onSelect: () => {
         void handleShareNode();
+      },
+    },
+    {
+      id: 'bookmark',
+      group: 'Навигация',
+      icon: <Bookmark size={14} className={isBookmarked ? 'text-amber-400 fill-amber-400' : 'text-slate-400'} />,
+      label: isBookmarked ? 'Удалить из закладок' : 'Добавить в закладки',
+      hint: isBookmarked ? 'Узел сохранён в закладках' : 'Сохранить узел для быстрого доступа',
+      onSelect: () => {
+        toggleBookmark(node.id);
       },
     },
     ...(onEdit ? [{

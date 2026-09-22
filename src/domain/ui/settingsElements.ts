@@ -10,12 +10,13 @@ import type { AdaptiveUIConfig } from '../../hooks/useAdaptiveUI';
 import type { UIElement } from './uiElement.types';
 
 /** Identifiers of the map sidebar panels configurable from settings. */
-export type SettingsPanelId = 'actions' | 'zones' | 'available' | 'agent' | 'persistence';
+export type SettingsPanelId = 'actions' | 'zones' | 'available' | 'bookmarks' | 'agent' | 'persistence';
 
 export const SETTINGS_PANEL_ELEMENTS: UIElement[] = [
   { id: 'actions', label: '', labelKey: 'panel.actions' },
   { id: 'zones', label: '', labelKey: 'panel.zones' },
   { id: 'available', label: '', labelKey: 'panel.available' },
+  { id: 'bookmarks', label: '', labelKey: 'panel.bookmarks' },
   { id: 'agent', label: '', labelKey: 'panel.agent' },
   { id: 'persistence', label: '', labelKey: 'panel.persistence' },
 ];
