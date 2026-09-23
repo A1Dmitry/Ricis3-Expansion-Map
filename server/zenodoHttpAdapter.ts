@@ -20,8 +20,7 @@
  * Responses never reflect request payloads, upstream error bodies or secrets.
  */
 
-import { dirname, join } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { join } from 'node:path';
 import type express from 'express';
 import {
   ZENODO_API_VERSION,
@@ -59,23 +58,14 @@ export interface ZenodoRouteOptions {
 }
 
 function defaultRootDir(): string {
-  // The repository root is one level above this module in both build shapes:
-  //   ESM (tsx dev / vitest): import.meta.url is authoritative;
-  //   CJS (dist/server.cjs): esbuild shims import.meta without `url`, so the
-  //   CJS `__dirname` (the dist/ directory) is used instead.
-  const candidates: string[] = [];
-  const metaUrl: unknown = (import.meta as { readonly url?: unknown })?.url;
-  if (typeof metaUrl === 'string' && metaUrl.length > 0) {
-    try {
-      candidates.push(join(dirname(fileURLToPath(metaUrl)), '..'));
-    } catch {
-      // Non-file URL (e.g. bundled worker context) — fall through to __dirname.
-    }
-  }
+  // Repository root detection that works in all launch modes without import.meta:
+  // - CJS production (dist/server.cjs): __dirname is dist/, so parent is repo root.
+  // - ESM dev (tsx server.ts) and vitest: __dirname is not defined, cwd is repo root.
+  // This avoids esbuild CJS warning about import.meta and keeps behavior identical
+  // because server.ts is always executed from the repository root in dev.
   if (typeof __dirname !== 'undefined') {
-    candidates.push(join(__dirname, '..'));
+    return join(__dirname, '..');
   }
-  if (candidates.length > 0) return candidates[0];
   return process.cwd();
 }
 

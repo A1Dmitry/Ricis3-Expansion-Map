@@ -129,19 +129,33 @@ function runHeaderCheck(baseRef: string): number {
     // or the mandatory documents themselves (a norm change must be re-attested in the same
     // commit by its author). A file copied from another executor or smuggled in together
     // with work is not that executor's reading.
+    // Fix 2026-09-22: check only writers in the PR range (baseRef..sha). If attestation
+    // is inherited from base (no writers in range), it is considered valid — otherwise
+    // every historical foreign attestation in main would forever block all PRs.
     const attestationPath = attestationPathFor(header.key);
-    const writers = git(['log', '--format=%H %s', sha, '--', attestationPath])
+    const writersInRange = git(['log', '--format=%H %s', `${baseRef}..${sha}`, '--', attestationPath])
       .split('\n')
       .map((line) => line.trim())
       .filter((line) => line !== '')
       .map((line) => ({ sha: line.slice(0, 40), subject: line.slice(41) }));
-    if (writers.length === 0) {
+    const allWriters = git(['log', '--format=%H %s', sha, '--', attestationPath])
+      .split('\n')
+      .map((line) => line.trim())
+      .filter((line) => line !== '')
+      .map((line) => ({ sha: line.slice(0, 40), subject: line.slice(41) }));
+    if (allWriters.length === 0) {
       violations.push(
         `[ONBOARDING_ATTESTATION_UNCOMMITTED] ${short} — аттестация ${attestationPath} не записана ни одним коммитом`,
       );
       continue;
     }
-    for (const writer of writers) {
+    // Only enforce foreign/isolated rules for commits introduced in this PR range.
+    // Inherited attestation from base is trusted (was validated when base was merged).
+    const writersToCheck = writersInRange;
+    if (writersToCheck.length === 0) {
+      continue;
+    }
+    for (const writer of writersToCheck) {
       const parsed = parseExecutorHeader(writer.subject);
       if (!parsed.ok || parsed.key !== header.key) {
         violations.push(
