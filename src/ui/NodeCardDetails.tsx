@@ -20,6 +20,7 @@ import { UrlShareService } from '../services/UrlShareService';
 import { buildAppletDeepLink } from '../services/appletDeepLinks';
 import { useI18nStore } from '../store/useI18nStore';
 import { ProofTrustBadge } from './ProofTrustBadge';
+import { ProvenancePanel } from './components/provenance/ProvenancePanel';
 import {
   INITIAL_SOLUTION_RELATIONS,
   buildCalculatorLaunchLink,
@@ -705,6 +706,7 @@ export const NodeCardDetails: React.FC<Props> = ({
                 <span className="text-[10px] text-emerald-400 font-sans">Ошибок верификации не найдено.</span>
               </div>
             )}
+            <ProvenancePanel node={node} proof={proof} className="mt-3" defaultExpanded={false} />
           </div>
         )}
       </div>

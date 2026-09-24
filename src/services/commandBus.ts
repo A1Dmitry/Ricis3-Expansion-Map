@@ -7,23 +7,10 @@
 // indicators (Play/Pause, crawler) reflect real page state.
 // ============================================================================
 
-import { ICanonicalReport } from '../model/governance';
+import { ICanonicalReport, ProvenanceStatus, EvidenceProvenance } from '../model/governance';
 import { CanonicalReportGenerator } from '../services/governance/CanonicalReportGenerator';
 
-export type ProvenanceStatus = 'SELF_REPORTED' | 'EXTERNALLY_VERIFIED';
-
-/**
- * Universal wrapper for agent-generated results to prevent silent self-certification.
- * Forces explicit marking of whether the result was independently verified.
- */
-export interface EvidenceProvenance<T> {
-  readonly result: T;
-  readonly provenance: ProvenanceStatus;
-  readonly timestamp: string;
-  readonly agentId?: string;
-  readonly environment?: string;
-  readonly report?: ICanonicalReport; // Canonical 12-point report
-}
+export type { ProvenanceStatus, EvidenceProvenance };
 
 /**
  * Creates a standard provenance wrapper for any agent result.
@@ -107,6 +94,7 @@ function isBrowserRuntime(): boolean {
 /**
  * Dispatches an agent-generated result with forced provenance wrapping.
  * If report is provided, it is validated against the 12-point canonical structure.
+ * Mandates a report for COMPLETED status.
  */
 export function dispatchAgentResult<T>(
   result: T,
@@ -114,9 +102,15 @@ export function dispatchAgentResult<T>(
   agentId: string = 'ricis-agent',
   reportData?: Partial<ICanonicalReport>,
 ): void {
-  let report: ICanonicalReport | undefined;
-  if (reportData) {
-    report = CanonicalReportGenerator.generate(reportData);
+  if (reportData?.finalStatus === 'COMPLETED' && (!reportData.originalGoal || !reportData.result)) {
+    // Force validation early if it's COMPLETED
+    CanonicalReportGenerator.validate(CanonicalReportGenerator.generate(reportData));
+  }
+
+  const report = reportData ? CanonicalReportGenerator.generate(reportData) : undefined;
+  
+  if (reportData?.finalStatus === 'COMPLETED' && !report) {
+    throw new Error('Mandatory Canonical Report missing for COMPLETED agent result.');
   }
 
   dispatchRicisCommand(

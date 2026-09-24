@@ -30,6 +30,7 @@ import {
   indexSymbolsOf,
   substituteAllSymbols,
 } from './canonicalForm';
+import { verifyClassicalEquivalence } from './classicalEvaluator';
 import { DEPRECATED_AXIOM_IDS, type ProofRule, type ProofStep, type RicisAxiom } from './contracts';
 
 export interface StepVerificationResult {
@@ -559,6 +560,7 @@ function checkRootRule(
     // проверка RICIS — основание шага живёт вне верификатора (для LEAN_KERNEL
     // ворота NO_FORBIDDEN_SEMANTICS требуют фактический kernel run).
     case 'CLASSICAL':
+      return verifyClassicalEquivalence(fromNode, toNode);
     case 'LEAN_KERNEL':
       return true;
 

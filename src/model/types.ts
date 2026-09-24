@@ -1,3 +1,5 @@
+import type { EvidenceProvenance } from './governance';
+
 export interface Vector3D {
   x: number;
   y: number;
@@ -57,6 +59,8 @@ export interface ProblemNode {
    * INFORMAL: этот текст не является результатом ядрового прогона.
    */
   informalExternalClaim?: string;
+  /** RCVAP EvidenceProvenance tracking verification provenance. */
+  evidenceProvenance?: EvidenceProvenance;
 }
 
 export type EdgeColor =
@@ -139,6 +143,8 @@ export interface Proof {
   axiomsUsed?: string[];
   /** Present only when the original text was supplied externally as Lean source. */
   externalLean?: ExternalLeanProvenance;
+  /** RCVAP EvidenceProvenance tracking verification provenance. */
+  evidenceProvenance?: EvidenceProvenance;
 }
 
 export type AgentLogLevel = 'info' | 'success' | 'warn' | 'error' | 'ricis';

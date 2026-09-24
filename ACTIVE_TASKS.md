@@ -96,11 +96,22 @@ ORIGINAL_GOAL: «продолжить цикл разработки, первы�
 * **Процесс:** карточка `TPS-0016`, андон `A-0013` (закрыт: 4 «почему», контрмера, reverify, ёкотэн), кайдзен `K-0018` (DONE), потеря `M-0016` (defects: класс жил при зелёных `lint`/`test`/`build`, потому что ни один тест не утверждал отказ для нереализованной метки).
 * **Версия:** 0.4.210 → 0.4.211 (`npm run sync:version`). Свидетельство: [`docs/05-evidence/architecture/incident-2026-09-18-rule-verifier-rubber-stamp.md`](docs/05-evidence/architecture/incident-2026-09-18-rule-verifier-rubber-stamp.md). **AUDITOR: SELF (same-pipeline).**
 
-### Порядок продолжения после этого такта (dependency-ordered, снимок 2026-09-18)
+### Порядок продолжения после этого такта (dependency-ordered, снимок 2026-09-24)
 
-1. **Независимые корни (можно тянуть без владельца):** `RicisFallbackEngine.knownAxioms` ↔ `DEPRECATED_AXIOM_IDS` (A3); классический эквиваленс-чекер для шагов `CLASSICAL`; остаток класса из аудита 2026-09-16 — сырой вызов `navigator.clipboard` в `src/ui/components/testing/AutomatedTestingModal.tsx:155` в обход хелпера `src/services/clipboard.ts` (BUG-07 class) + страж запрета сырых вызовов; актуализация чисел в документации (BUG-11).
-2. **Зависят от факта CI (внешний исполнитель):** `ricis-yang-mills` — единственный `pendingKernelRun`; расширение allowlist `MATHLIB_ARTIFACTS` и регистрация ожидаемого отказа — решения владельца (`TPS-0007`).
-3. **Зависят от решения владельца:** `TPS-0004` (claimLevel), `TPS-0005` (формулировки узлов), `TPS-0006` (`registry-120`), `TPS-0013` (лимит цикла ci, `K-0017`).
+1. **Зависят от факта CI (внешний исполнитель):** `ricis-yang-mills` — единственный `pendingKernelRun`; расширение allowlist `MATHLIB_ARTIFACTS` и регистрация ожидаемого отказа — решения владельца (`TPS-0007`).
+2. **Зависят от решения владельца:** `TPS-0004` (claimLevel), `TPS-0005` (формулировки узлов), `TPS-0006` (`registry-120`), `TPS-0013` (лимит цикла ci, `K-0017`).
+
+## 0.12. Цикл 2026-09-24 (такт 9): Классическая эквивалентность и гигиена слоёв (0.4.242)
+
+ORIGINAL_GOAL: закрыть независимые корни из списка задач — реализовать классический эквиваленс-чекер для шагов `CLASSICAL`, проверить обработку снятых аксиом и гигиену буфера обмена.
+
+* **Реализован классический верификатор:** `src/ricisSeed/classicalEvaluator.ts` вводит эвристическую проверку алгебраической эквивалентности через рандомизированное численное оценивание. `verifyProofStep` в `ruleVerifier.ts` теперь использует его для меток `CLASSICAL` вместо безусловного `true`.
+* **Гигиена слоёв проверена:**
+    * `A3` (снятая аксиома) корректно фильтруется из активного зерна и имеет отдельный типизированный отказ в `RicisFallbackEngine`.
+    * Сырой вызов `navigator.clipboard` в `AutomatedTestingModal.tsx` не обнаружен (уже используется безопасный хелпер `copyTextToClipboard`).
+    * Физические константы (g, e, m, r) в `physicalEnvironment.ts` и `projectileMaterial.ts` соответствуют новым стандартам (такт 6).
+* **Проверено:** `npx vitest run src/ricisSeed/` — 14 файлов / 132 теста (включая 13 тестов строгости верификатора).
+* **Версия:** 0.4.242. **AUDITOR: SELF (same-pipeline).**
 
 ## 0.3. UX-P14: UI/UX redesign RICIS-III — постановка BA (2026-09-18)
 
