@@ -12,6 +12,7 @@ import { verifyLeanProof, type LeanAuditResult } from '../../model/leanVerifier'
 import { containsSorry } from '../../model/ricisCoreRules';
 import type { TransformationLog, TransformationLogEntry } from '../../model/orchestrationPipeline';
 import { getProgressBar } from '../progressBar/progressBarService';
+import { dispatchAgentResult } from '../commandBus';
 
 export type ProverScheduleScope =
   | 'all'
@@ -580,6 +581,9 @@ export class RicisAutoProverEngine {
         task.initialExpression,
         options.maxIterationsPerNode ?? 3
       );
+
+      // [PROTOCOL V2] Every agent-generated result must be explicitly marked and dispatched.
+      dispatchAgentResult(result, 'SELF_REPORTED', 'ricis-autoprover-v7.7');
 
       results.push(result);
 

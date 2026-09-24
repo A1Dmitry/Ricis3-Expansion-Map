@@ -4,6 +4,7 @@ import type { ITransformationLogDTO, TransformationPhase } from '../model/traceV
 import { writeCoreRecovery } from '../services/coreRecovery';
 import { isCoreExecutionFailure } from '../services/ricisCore/IRicisCoreEngine';
 import { getRicisCoreEngine } from '../services/ricisCore';
+import { dispatchAgentResult } from '../services/commandBus';
 
 export const useTerminalStore = create<ITerminalStore>((set, get) => ({
   isOpen: false,
@@ -31,6 +32,9 @@ export const useTerminalStore = create<ITerminalStore>((set, get) => ({
     try {
       const engine = getRicisCoreEngine();
       const res = await engine.evaluate({ expression: currentInput, contextProblemId: 'terminal' });
+
+      // [PROTOCOL V2] Every agent-generated result must be explicitly marked and dispatched.
+      dispatchAgentResult(res, 'SELF_REPORTED', 'ricis-v7.7-core');
 
       if (isCoreExecutionFailure(res)) {
         set({

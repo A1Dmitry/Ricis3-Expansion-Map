@@ -7,6 +7,41 @@
 // indicators (Play/Pause, crawler) reflect real page state.
 // ============================================================================
 
+import { ICanonicalReport } from '../model/governance';
+import { CanonicalReportGenerator } from '../services/governance/CanonicalReportGenerator';
+
+export type ProvenanceStatus = 'SELF_REPORTED' | 'EXTERNALLY_VERIFIED';
+
+/**
+ * Universal wrapper for agent-generated results to prevent silent self-certification.
+ * Forces explicit marking of whether the result was independently verified.
+ */
+export interface EvidenceProvenance<T> {
+  readonly result: T;
+  readonly provenance: ProvenanceStatus;
+  readonly timestamp: string;
+  readonly agentId?: string;
+  readonly environment?: string;
+  readonly report?: ICanonicalReport; // Canonical 12-point report
+}
+
+/**
+ * Creates a standard provenance wrapper for any agent result.
+ */
+export function wrapAgentResult<T>(
+  result: T,
+  provenance: ProvenanceStatus = 'SELF_REPORTED',
+  agentId: string = 'ricis-v7.7-core',
+): EvidenceProvenance<T> {
+  return {
+    result,
+    provenance,
+    timestamp: new Date().toISOString(),
+    agentId,
+    environment: typeof window !== 'undefined' ? window.location.origin : 'server-runtime',
+  };
+}
+
 export const RICIS_COMMAND_EVENTS = {
   /** Map3D: reset camera to the default isometric overview. */
   resetCamera: 'ricis:reset-camera',
@@ -40,6 +75,8 @@ export const RICIS_COMMAND_EVENTS = {
   seedDownloadLedger: 'ricis:seed-download-ledger',
   /** Global: run in-app self diagnostics. */
   runDiagnostics: 'ricis:run-diagnostics',
+  /** Agent: a result has been generated and its provenance is now available on the bus. */
+  agentResultDisclosed: 'ricis:agent-result-disclosed',
 } as const;
 
 export type RicisCommandEventName =
@@ -57,6 +94,7 @@ export type RicisCommandEventDetailMap = {
   [RICIS_COMMAND_EVENTS.presentationModeChanged]: PresentationModeChangedDetail;
   [RICIS_COMMAND_EVENTS.kinematicRunningChanged]: RunningChangedDetail;
   [RICIS_COMMAND_EVENTS.qaRunningChanged]: RunningChangedDetail;
+  [RICIS_COMMAND_EVENTS.agentResultDisclosed]: EvidenceProvenance<any>;
 };
 
 export type RicisCommandDetail<E extends RicisCommandEventName> =
@@ -64,6 +102,30 @@ export type RicisCommandDetail<E extends RicisCommandEventName> =
 
 function isBrowserRuntime(): boolean {
   return typeof window !== 'undefined' && typeof window.dispatchEvent === 'function';
+}
+
+/**
+ * Dispatches an agent-generated result with forced provenance wrapping.
+ * If report is provided, it is validated against the 12-point canonical structure.
+ */
+export function dispatchAgentResult<T>(
+  result: T,
+  provenance: ProvenanceStatus = 'SELF_REPORTED',
+  agentId: string = 'ricis-agent',
+  reportData?: Partial<ICanonicalReport>,
+): void {
+  let report: ICanonicalReport | undefined;
+  if (reportData) {
+    report = CanonicalReportGenerator.generate(reportData);
+  }
+
+  dispatchRicisCommand(
+    RICIS_COMMAND_EVENTS.agentResultDisclosed,
+    {
+      ...wrapAgentResult(result, provenance, agentId),
+      report,
+    },
+  );
 }
 
 /**

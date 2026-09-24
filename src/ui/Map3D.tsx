@@ -1443,7 +1443,7 @@ export const Map3D: React.FC = () => {
                 ? '#7e22ce'
                 : isCore
                 ? '#1d4ed8'
-                : color;
+                : zoneColor; // Use zone color as base emissive
               const emissiveIntensity = isSelected
                 ? 0.65
                 : onPath

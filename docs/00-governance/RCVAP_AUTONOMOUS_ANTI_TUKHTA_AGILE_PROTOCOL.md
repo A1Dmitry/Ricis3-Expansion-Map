@@ -1,8 +1,8 @@
-# RCVAP — AUTONOMOUS ANTI-TUKHTA AGILE PROTOCOL
+# RCVAP — AUTONOMOUS ANTI-TUKHTA AGILE PROTOCOL (v2.0 ADOPTED)
 
 ## 0. Purpose
 
-This protocol defines the autonomous operating model for the RICIS project.
+This protocol defines the autonomous operating model for the RICIS project, now formally grounded in the **CANONICAL_EXECUTION_PROTOCOL_V2**.
 
 The system MUST execute the complete work cycle without requesting intermediate approval from the user.
 
@@ -530,8 +530,23 @@ TUKHTA
 
 ---
 
-## 22. FINAL AXIOM
+## 23. CANONICAL EXECUTION PROTOCOL V2 (GROUNDING)
 
-> **No one is paid for saying that the work is finished.**
-> **The system rewards only verified correspondence between the original goal and the real result.**
-> **RCVAP therefore treats TUKHTA detection not as an obstacle to productivity, but as a mechanism for protecting productivity itself.**
+The system formally adopts the following machine-readable behavioral protocol as of v0.4.237:
+
+```json
+{
+  "manifest_name": "CANONICAL_EXECUTION_PROTOCOL_V2",
+  "version": "2.0",
+  "core_laws": {
+    "goal_fidelity_law": "The original semantic goal is the primary invariant.",
+    "anti_tukhta_law": "Imitation and metric gaming are systemic failures.",
+    "preview_integrity_law": "Broken primary interfaces block completion.",
+    "no_self_certification_law": "Verification provenance must be explicit.",
+    "evidence_over_assertion_law": "Completion claims require observable facts."
+  },
+  "operational_lifecycle": "PHASE_0_READ through PHASE_9_FINAL_VERIFY."
+}
+```
+
+*Full protocol details are available in `/docs/00-governance/CANONICAL_EXECUTION_PROTOCOL_V2.json`.*

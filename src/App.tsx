@@ -38,6 +38,7 @@ const RicisProofConsoleModal = lazyNamedComponent(() => import('./ui/RicisProofC
 const AutoProverModal = lazyNamedComponent(() => import('./ui/AutoProverModal'), 'AutoProverModal');
 const SettingsAppletPage = lazyNamedComponent(() => import('./ui/SettingsAppletPage'), 'SettingsAppletPage');
 const ProofLogsApplet = lazyNamedComponent(() => import('./ui/ProofLogsApplet'), 'ProofLogsApplet');
+const FactorizationApplet = lazyNamedComponent(() => import('./ui/FactorizationApplet'), 'FactorizationApplet');
 
 function formatHydrationError(error: unknown): string {
   if (error instanceof Error) return error.message;
@@ -167,6 +168,11 @@ export default function App() {
           handleSelectApplet(appletMap[keyNum]!);
         }
       }
+
+      if (e.altKey && e.key.toLowerCase() === 'f') {
+        e.preventDefault();
+        handleSelectApplet('p-vs-np');
+      }
     };
 
     window.addEventListener('keydown', handleKeyDown);
@@ -270,6 +276,8 @@ export default function App() {
             onBackToMap={() => handleSelectApplet('map')}
           />
         );
+      case 'p-vs-np':
+        return <FactorizationApplet />;
       case 'qa-tests':
         return (
           <div className="w-full h-full overflow-y-auto p-4 bg-[#070b14]">

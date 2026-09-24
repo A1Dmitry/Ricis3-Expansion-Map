@@ -4,7 +4,7 @@ import { createPortal } from 'react-dom';
 import { IconButton } from './components/IconButton';
 import { PanelTop as ButtonIconPanelTop } from 'lucide-react';
 import React, { useState, useEffect } from 'react';
-import type { ProblemNode, Proof } from '../model/types';
+import type { ProblemNode, Proof, ScienceZone } from '../model/types';
 import { isMissingTargetFunction } from '../model/audit';
 import { getUnlockedTargets, getUnlockRequirements, isNodeAvailable } from '../model/access';
 import { ChevronDown, ChevronUp, ArrowLeft, ExternalLink, ShieldCheck, Sparkles, Lock, Unlock, BookOpen, DollarSign, Terminal, CheckCircle2, Share2, Check, Calculator, Layers as LayersIcon, Activity, Play, Compass, Pencil, Bookmark } from 'lucide-react';
@@ -97,6 +97,7 @@ type Props = {
   node: ProblemNode;
   map?: {
     nodes: ProblemNode[];
+    zones?: ScienceZone[]; // Use proper type
     edges?: Array<{ source?: string; target?: string; fromId?: string; toId?: string }>;
     proofs?: Record<string, any>;
   };
@@ -472,6 +473,23 @@ export const NodeCardDetails: React.FC<Props> = ({
 
       {/* 1. СЕКЦИЯ АККОРДЕОНА: ЦЕЛЕВАЯ ФУНКЦИЯ И СИНГУЛЯРНОСТЬ */}
       <div className="flex flex-col border-b border-neutral-800/50 bg-transparent">
+        {node.zoneIds && node.zoneIds.length > 0 && map?.zones && (
+          <div className="px-3.5 py-2 flex flex-wrap gap-1.5 border-b border-neutral-800/30 bg-neutral-900/10">
+            {node.zoneIds.map(zid => {
+              const zone = map.zones?.find(z => z.id === zid);
+              if (!zone) return null;
+              return (
+                <div
+                  key={zid}
+                  className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-cyan-950/30 border border-cyan-800/40 text-[9px] text-cyan-300 font-bold uppercase tracking-wider"
+                >
+                  <Compass size={10} className="text-cyan-500" />
+                  {zone.name}
+                </div>
+              );
+            })}
+          </div>
+        )}
         <div className="flex flex-col border-b border-neutral-800/50">
         <ContentButton
           aria-expanded={openSections['target']}

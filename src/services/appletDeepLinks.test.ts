@@ -36,6 +36,7 @@ describe('appletDeepLinks — workspace-preserving new-tab policy', () => {
       voynich: true,
       'qa-tests': true,
       'proof-logs': false,
+      'p-vs-np': false,
       // terminal receives its expression via useTerminalStore, not the URL:
       terminal: false,
       // settings must mutate the live workspace, not an isolated tab:

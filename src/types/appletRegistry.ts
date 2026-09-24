@@ -14,6 +14,7 @@ export type AppletId =
   | 'qa-tests' 
   | 'terminal' 
   | 'proof-logs'
+  | 'p-vs-np'
   | 'settings';
 
 export type AppletCategory = 'workspace' | 'kinematics' | 'foundations' | 'diagnostics' | 'tools';
@@ -106,6 +107,15 @@ export const APPLET_DEFINITIONS: Record<AppletId, IAppletDefinition> = {
     description: 'Реестр результатов ядровой проверки Lean 4 из artifacts/proofs',
     category: 'diagnostics',
     iconName: 'ShieldCheck',
+  },
+  'p-vs-np': {
+    id: 'p-vs-np',
+    title: 'P vs NP: Факторизация Сингулярности',
+    shortTitle: 'P=NP Решатель',
+    description: 'Факторизация чисел через непрерывные волновые функции и разрешение 0_g/0_h',
+    category: 'foundations',
+    iconName: 'Cpu',
+    shortcut: 'Alt+F',
   },
   settings: {
     id: 'settings',

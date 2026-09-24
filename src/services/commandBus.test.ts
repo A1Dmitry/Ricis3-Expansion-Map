@@ -3,6 +3,7 @@ import {
   RICIS_COMMAND_EVENTS,
   dispatchRicisCommand,
   subscribeRicisCommand,
+  dispatchAgentResult,
   type RicisCommandEventName,
 } from './commandBus';
 import { APP_COMMANDS, CommandRegistry } from './commandRegistry';
@@ -39,6 +40,47 @@ describe('commandBus', () => {
     dispatchRicisCommand(RICIS_COMMAND_EVENTS.openSearch);
 
     expect(cameraHandler).not.toHaveBeenCalled();
+  });
+
+  it('forces EvidenceProvenance wrapper when using dispatchAgentResult', () => {
+    const handler = vi.fn();
+    subscribeRicisCommand(RICIS_COMMAND_EVENTS.agentResultDisclosed, handler);
+
+    const mockResult = { foo: 'bar' };
+    dispatchAgentResult(mockResult, 'SELF_REPORTED', 'test-agent');
+
+    expect(handler).toHaveBeenCalledTimes(1);
+    const detail = handler.mock.calls[0][0];
+    expect(detail.result).toEqual(mockResult);
+    expect(detail.provenance).toBe('SELF_REPORTED');
+    expect(detail.agentId).toBe('test-agent');
+    expect(detail.timestamp).toBeDefined();
+  });
+
+  it('validates mandatory canonical report structure if provided', () => {
+    const mockResult = { foo: 'bar' };
+    
+    // Should fail validation (missing originalGoal)
+    expect(() => {
+      dispatchAgentResult(mockResult, 'SELF_REPORTED', 'test-agent', {
+        result: 'something',
+      });
+    }).toThrow(/ORIGINAL_GOAL is mandatory/);
+
+    const handler = vi.fn();
+    subscribeRicisCommand(RICIS_COMMAND_EVENTS.agentResultDisclosed, handler);
+
+    // Should pass validation
+    dispatchAgentResult(mockResult, 'SELF_REPORTED', 'test-agent', {
+      originalGoal: 'Implement reports',
+      result: 'Reports implemented',
+      finalStatus: 'COMPLETED',
+      confidence: 1.0,
+    });
+
+    expect(handler).toHaveBeenCalled();
+    expect(handler.mock.calls[0][0].report).toBeDefined();
+    expect(handler.mock.calls[0][0].report.originalGoal).toBe('Implement reports');
   });
 });
 

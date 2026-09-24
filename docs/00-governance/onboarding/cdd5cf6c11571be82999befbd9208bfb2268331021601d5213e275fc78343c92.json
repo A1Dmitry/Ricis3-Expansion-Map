@@ -8,7 +8,7 @@
     },
     {
       "path": "docs/00-governance/RCVAP_AUTONOMOUS_ANTI_TUKHTA_AGILE_PROTOCOL.md",
-      "sha256": "dae6c5b77c9dfac79158488b3f48ed6bd52101cf605afc5766f3794c772eb130"
+      "sha256": "4f15fcc037ca6266ef6617f094b77a0250ec66c9d6c2ec0f2b62b2a4ba340411"
     },
     {
       "path": "docs/00-governance/WORK_PATTERNS.md",
@@ -62,7 +62,7 @@
     "Q7": "TRUSTED_AXIOM"
   },
   "quotes": {
-    "docs/00-governance/RCVAP_AUTONOMOUS_ANTI_TUKHTA_AGILE_PROTOCOL.md": "No reported result may be accepted as progress unless its correspondence to the original goal is independently verified.",
+    "docs/00-governance/RCVAP_AUTONOMOUS_ANTI_TUKHTA_AGILE_PROTOCOL.md": "This protocol defines the autonomous operating model for the RICIS project, now formally grounded in the **CANONICAL_EXECUTION_PROTOCOL_V2**.",
     "docs/00-governance/WORK_PATTERNS.md": "**Критерий завершения:** у каждого вывода есть статус и указана граница доверия.",
     "docs/00-governance/RICIS_IMMUTABILITY_MANIFEST.md": "* не могут подменять смысл терминов ради успешного прохождения тестов."
   }

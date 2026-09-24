@@ -8,7 +8,7 @@ import { IconButton } from './IconButton';
 // ============================================================================
 
 import React, { useState, useRef, useEffect } from 'react';
-import { ChevronLeft, ChevronRight, Layers, Activity, Sprout, GitBranch, List, BookOpen, Bug, Terminal, Settings, Sparkles, Copy, Check, Search, RotateCcw, Compass, Play, AlertCircle, ShieldCheck } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Layers, Activity, Sprout, GitBranch, List, BookOpen, Bug, Terminal, Settings, Sparkles, Copy, Check, Search, RotateCcw, Compass, Play, AlertCircle, ShieldCheck, Cpu } from 'lucide-react';
 import type { AppletId } from '../../types/appletRegistry';
 import { APPLET_DEFINITIONS } from '../../types/appletRegistry';
 import { AppletNavigationService } from '../../services/AppletNavigationService';
@@ -463,6 +463,13 @@ export const CompactCommandMenuBar: React.FC<CompactCommandMenuBarProps> = ({
                   <BookOpen size={13} className="text-yellow-400" />
                   <span className="flex-1">Манускрипт Войнича</span>
                   <span className="text-[10px] font-mono text-slate-500">Alt+6</span>
+                </AppletMenuEntry>
+                <AppletMenuEntry applet="p-vs-np" onSelectApplet={onSelectApplet} onAfterClick={() => setOpenMenu(null)}
+                  className="w-full px-3 py-1.5 text-left flex items-center gap-2 text-slate-300 hover:bg-cyan-950/70 hover:text-cyan-200 transition-colors"
+                >
+                  <Cpu size={13} className="text-cyan-400" />
+                  <span className="flex-1">P vs NP Решатель</span>
+                  <span className="text-[10px] font-mono text-slate-500">Alt+F</span>
                 </AppletMenuEntry>
               </div>
             )}

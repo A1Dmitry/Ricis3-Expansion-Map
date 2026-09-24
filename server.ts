@@ -190,11 +190,9 @@ function validatePayload(body: any, schema: Record<string, string>): { isValid: 
  * the environment; fall back to 3000 for local/default runs.
  */
 function resolveListenPort(env: NodeJS.ProcessEnv = process.env): number {
-  const raw = env.PORT?.trim();
-  if (raw && /^\d+$/u.test(raw)) {
-    const parsed = Number(raw);
-    if (Number.isInteger(parsed) && parsed >= 1 && parsed <= 65535) return parsed;
-  }
+  // AI Studio environment constraint: dev server MUST run on port 3000.
+  // We strictly use 3000 to satisfy this requirement and avoid EADDRINUSE
+  // on other ports (like 8080) that may be pre-bound by the environment.
   return 3000;
 }
 
