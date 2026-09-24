@@ -8,7 +8,7 @@ import { IconButton } from './IconButton';
 // ============================================================================
 
 import React, { useState, useRef, useEffect } from 'react';
-import { ChevronLeft, ChevronRight, Layers, Activity, Sprout, GitBranch, List, BookOpen, Bug, Terminal, Settings, Sparkles, Copy, Check, Search, RotateCcw, Compass, Play, AlertCircle } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Layers, Activity, Sprout, GitBranch, List, BookOpen, Bug, Terminal, Settings, Sparkles, Copy, Check, Search, RotateCcw, Compass, Play, AlertCircle, ShieldCheck } from 'lucide-react';
 import type { AppletId } from '../../types/appletRegistry';
 import { APPLET_DEFINITIONS } from '../../types/appletRegistry';
 import { AppletNavigationService } from '../../services/AppletNavigationService';
@@ -492,6 +492,13 @@ export const CompactCommandMenuBar: React.FC<CompactCommandMenuBarProps> = ({
                   <Bug size={13} className="text-rose-400" />
                   <span className="flex-1">QA Стресс-тест и Аудит</span>
                   <span className="text-[10px] font-mono text-slate-500">Alt+8</span>
+                </AppletMenuEntry>
+                <AppletMenuEntry applet="proof-logs" onSelectApplet={onSelectApplet} onAfterClick={() => setOpenMenu(null)}
+                  className="w-full px-3 py-1.5 text-left flex items-center gap-2 text-slate-300 hover:bg-emerald-950/70 hover:text-emerald-200 transition-colors"
+                >
+                  <ShieldCheck size={13} className="text-emerald-400" />
+                  <span className="flex-1">Логи Ядра Lean 4</span>
+                  <span className="text-[10px] font-mono text-slate-500">Alt+0</span>
                 </AppletMenuEntry>
                 <IconButton presentation="menu"
                   role="menuitem"

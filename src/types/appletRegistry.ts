@@ -13,6 +13,7 @@ export type AppletId =
   | 'voynich' 
   | 'qa-tests' 
   | 'terminal' 
+  | 'proof-logs'
   | 'settings';
 
 export type AppletCategory = 'workspace' | 'kinematics' | 'foundations' | 'diagnostics' | 'tools';
@@ -97,6 +98,14 @@ export const APPLET_DEFINITIONS: Record<AppletId, IAppletDefinition> = {
     category: 'tools',
     iconName: 'Terminal',
     shortcut: 'Ctrl+~',
+  },
+  'proof-logs': {
+    id: 'proof-logs',
+    title: 'Ядровой Лог Верификации (Lean 4 Kernel)',
+    shortTitle: 'Логи Ядра',
+    description: 'Реестр результатов ядровой проверки Lean 4 из artifacts/proofs',
+    category: 'diagnostics',
+    iconName: 'ShieldCheck',
   },
   settings: {
     id: 'settings',

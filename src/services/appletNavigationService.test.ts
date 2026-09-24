@@ -22,6 +22,7 @@ describe('AppletNavigationService', () => {
       'voynich',
       'qa-tests',
       'terminal',
+      'proof-logs',
       'settings',
     ];
 

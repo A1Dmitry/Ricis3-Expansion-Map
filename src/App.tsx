@@ -37,6 +37,7 @@ const VoynichDecryptionPanel = lazyNamedComponent(() => import('./ui/VoynichDecr
 const RicisProofConsoleModal = lazyNamedComponent(() => import('./ui/RicisProofConsoleModal'), 'RicisProofConsoleModal');
 const AutoProverModal = lazyNamedComponent(() => import('./ui/AutoProverModal'), 'AutoProverModal');
 const SettingsAppletPage = lazyNamedComponent(() => import('./ui/SettingsAppletPage'), 'SettingsAppletPage');
+const ProofLogsApplet = lazyNamedComponent(() => import('./ui/ProofLogsApplet'), 'ProofLogsApplet');
 
 function formatHydrationError(error: unknown): string {
   if (error instanceof Error) return error.message;
@@ -79,6 +80,7 @@ export default function App() {
   }, []);
 
   const currentApplet = AppletNavigationService.resolveCurrentApplet(locationSearch);
+  const selectedNodeId = new URLSearchParams(locationSearch).get('node');
 
   const handleSelectApplet = (applet: AppletId) => {
     // navigateTo() already syncs the URL (replaceState + popstate) exactly once;
@@ -158,6 +160,7 @@ export default function App() {
           7: 'terminal',
           8: 'qa-tests',
           9: 'settings',
+          0: 'proof-logs',
         };
         if (keyNum in appletMap) {
           e.preventDefault();
@@ -259,6 +262,13 @@ export default function App() {
               onClose={() => handleSelectApplet('map')}
             />
           </div>
+        );
+      case 'proof-logs':
+        return (
+          <ProofLogsApplet
+            activeNodeId={selectedNodeId}
+            onBackToMap={() => handleSelectApplet('map')}
+          />
         );
       case 'qa-tests':
         return (

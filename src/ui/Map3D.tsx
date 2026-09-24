@@ -1429,6 +1429,10 @@ export const Map3D: React.FC = () => {
 
               const baseR = nodeVisualRadius(node, map.nodes);
               const radius = isSelected ? baseR * 1.28 : onPath ? baseR * 1.12 : isDeriv ? baseR * 1.15 : baseR;
+              
+              const primaryZoneId = (node.zoneIds && node.zoneIds[0]) ? node.zoneIds[0] : 'math';
+              const zoneColor = getZoneColor(primaryZoneId);
+
               const emissive = isSelected
                 ? '#22d3ee'
                 : onPath
@@ -1468,6 +1472,7 @@ export const Map3D: React.FC = () => {
                   <NodeBubble
                     position={pos}
                     color={color}
+                    zoneColor={zoneColor}
                     radius={radius}
                     emissive={emissive}
                     emissiveIntensity={emissiveIntensity}
@@ -1826,7 +1831,20 @@ export const Map3D: React.FC = () => {
             <article className="rounded-xl border border-cyan-900/60 bg-black/70 p-3 shadow-xl">
               <div className="relative mb-3 border-b border-cyan-900/30 pb-3 pr-12">
                 <div ref={setTaskMenuContainer} data-testid="task-header-menu-slot" className="absolute right-0 top-0 z-30" />
-                <p className="text-[9px] font-mono text-cyan-500">Key: {getNodeIdentityPresentation(selectedNode).base64Key}</p><p className="text-[9px] font-mono text-slate-500 truncate">Path: {getNodeIdentityPresentation(selectedNode).canonicalPath}</p><h2 className="mt-1 text-sm font-bold leading-tight text-white">{selectedNodePresentation?.title ?? selectedNode.title}</h2>
+                <p className="text-[9px] font-mono text-cyan-500">Key: {getNodeIdentityPresentation(selectedNode).base64Key}</p><p className="text-[9px] font-mono text-slate-500 truncate">Path: {getNodeIdentityPresentation(selectedNode).canonicalPath}</p>
+                <div className="flex flex-wrap gap-1 mt-1 mb-1">
+                  {selectedNode.zoneIds?.map(zid => {
+                    const zone = map.zones.find(z => z.id === zid);
+                    const zColor = getZoneColor(zid);
+                    return (
+                      <span key={zid} className="inline-flex items-center gap-1 px-1 py-0.5 rounded bg-neutral-900 border border-neutral-800 text-[8px] font-mono text-slate-400">
+                        <span className="w-1 h-1 rounded-full" style={{ backgroundColor: zColor }} />
+                        {zone?.name || zid}
+                      </span>
+                    );
+                  })}
+                </div>
+                <h2 className="mt-1 text-sm font-bold leading-tight text-white">{selectedNodePresentation?.title ?? selectedNode.title}</h2>
               </div>
               <NodeCardDetails
                 menuContainer={taskMenuContainer}
@@ -2483,6 +2501,26 @@ export const Map3D: React.FC = () => {
                   <span className="text-[9px] font-mono text-cyan-400 block mb-1">Key: {getNodeIdentityPresentation(selectedNode).base64Key}</span>
                   <span className="text-[9px] font-mono text-neutral-500 block mb-1 truncate">Path: {getNodeIdentityPresentation(selectedNode).canonicalPath}</span>
                   </details>
+                  
+                  {selectedNode.zoneIds && selectedNode.zoneIds.length > 0 && (
+                    <div className="flex flex-wrap gap-1 mt-2">
+                      {selectedNode.zoneIds.map(zid => {
+                        const zone = map.zones.find(z => z.id === zid);
+                        const zColor = getZoneColor(zid);
+                        return (
+                          <span 
+                            key={zid} 
+                            className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-neutral-900 border border-neutral-800 text-[9px] font-medium text-slate-300"
+                            title={zone?.description || zid}
+                          >
+                            <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: zColor }} />
+                            {zone?.name || zid}
+                          </span>
+                        );
+                      })}
+                    </div>
+                  )}
+
                   {selectedNode.economic?.marketGain > 0 && (
                     <span className="text-[10px] font-bold text-green-400 bg-green-950/30 px-1.5 py-0.5 rounded inline-block">
                       Оценка: {formatCurrency(selectedNode.economic.marketGain)}

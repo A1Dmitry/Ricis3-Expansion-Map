@@ -311,6 +311,7 @@ export function NodeLabel({
 export function NodeBubble({
   position,
   color,
+  zoneColor,
   radius,
   emissive,
   emissiveIntensity,
@@ -320,6 +321,7 @@ export function NodeBubble({
 }: {
   position: [number, number, number];
   color: string;
+  zoneColor?: string;
   radius: number;
   emissive: string;
   emissiveIntensity: number;
@@ -328,6 +330,8 @@ export function NodeBubble({
   onClick: (e: any) => void;
 }) {
   const matRef = useRef<THREE.ShaderMaterial>(null);
+  const haloRef = useRef<THREE.ShaderMaterial>(null);
+  
   const uniforms = useMemo(
     () => ({
       uColor: { value: new THREE.Color(color) },
@@ -340,7 +344,16 @@ export function NodeBubble({
     [color, emissive, emissiveIntensity, opacity, locked]
   );
 
-  useFrame((_, delta) => {
+  const haloUniforms = useMemo(
+    () => ({
+      uZoneColor: { value: new THREE.Color(zoneColor || '#ffffff') },
+      uTime: { value: 0 },
+      uOpacity: { value: 0.4 },
+    }),
+    [zoneColor]
+  );
+
+  useFrame((state, delta) => {
     if (matRef.current) {
       matRef.current.uniforms.uTime.value += delta;
       matRef.current.uniforms.uColor.value.set(color);
@@ -349,69 +362,107 @@ export function NodeBubble({
       matRef.current.uniforms.uOpacity.value = opacity;
       matRef.current.uniforms.uLocked.value = locked ? 1.0 : 0.0;
     }
+    if (haloRef.current) {
+      haloRef.current.uniforms.uTime.value += delta;
+      if (zoneColor) haloRef.current.uniforms.uZoneColor.value.set(zoneColor);
+    }
   });
 
   return (
-    <mesh
-      position={position}
-      onClick={onClick}
-      onPointerDown={e => {
-        e.stopPropagation();
-        onClick(e);
-      }}
-      onPointerOver={e => {
-        e.stopPropagation();
-        document.body.style.cursor = 'pointer';
-      }}
-      onPointerOut={() => {
-        document.body.style.cursor = 'auto';
-      }}
-    >
-      <sphereGeometry args={[radius, 48, 48]} />
-      <shaderMaterial
-        ref={matRef}
-        transparent
-        depthWrite={!locked}
-        side={THREE.FrontSide}
-        uniforms={uniforms}
-        vertexShader={`
-          varying vec3 vNormal;
-          varying vec3 vView;
-          varying vec3 vWorld;
-          void main() {
-            vNormal = normalize(normalMatrix * normal);
-            vec4 mv = modelViewMatrix * vec4(position, 1.0);
-            vView = normalize(-mv.xyz);
-            vWorld = (modelMatrix * vec4(position, 1.0)).xyz;
-            gl_Position = projectionMatrix * mv;
-          }
-        `}
-        fragmentShader={`
-          uniform vec3 uColor;
-          uniform vec3 uEmissive;
-          uniform float uEmissiveIntensity;
-          uniform float uOpacity;
-          uniform float uLocked;
-          uniform float uTime;
-          varying vec3 vNormal;
-          varying vec3 vView;
-          varying vec3 vWorld;
-          void main() {
-            float ndotv = max(dot(vNormal, vView), 0.0);
-            float fresnel = pow(1.0 - ndotv, 3.0);
-            vec3 lightDir = normalize(vec3(0.45, 0.75, 0.4));
-            float spec = pow(max(dot(reflect(-lightDir, vNormal), vView), 0.0), 48.0);
-            float pulse = 0.92 + 0.08 * sin(uTime * 1.6 + vWorld.x * 0.3);
-            vec3 base = uColor * (0.35 + 0.45 * ndotv);
-            vec3 rim = uColor * fresnel * 1.6 + vec3(0.55, 0.75, 0.95) * fresnel * 0.45;
-            vec3 glow = uEmissive * uEmissiveIntensity * (0.4 + fresnel * 0.8);
-            vec3 col = (base + rim + glow + vec3(spec * 0.85)) * pulse;
-            col = mix(col, col * 0.45 + vec3(0.12), uLocked);
-            float alpha = mix(uOpacity * (0.72 + fresnel * 0.28), uOpacity * 0.6, uLocked);
-            gl_FragColor = vec4(col, clamp(alpha, 0.08, 1.0));
-          }
-        `}
-      />
-    </mesh>
+    <group position={position}>
+      {/* Zone Halo Ring */}
+      {zoneColor && (
+        <mesh rotation={[Math.PI / 2, 0, 0]}>
+          <ringGeometry args={[radius * 1.05, radius * 1.15, 64]} />
+          <shaderMaterial
+            ref={haloRef}
+            transparent
+            depthWrite={false}
+            side={THREE.DoubleSide}
+            uniforms={haloUniforms}
+            vertexShader={`
+              varying vec2 vUv;
+              void main() {
+                vUv = uv;
+                gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+              }
+            `}
+            fragmentShader={`
+              uniform vec3 uZoneColor;
+              uniform float uTime;
+              uniform float uOpacity;
+              varying vec2 vUv;
+              void main() {
+                float pulse = 0.6 + 0.4 * sin(uTime * 2.0);
+                float dist = distance(vUv, vec2(0.5));
+                gl_FragColor = vec4(uZoneColor, uOpacity * pulse);
+              }
+            `}
+          />
+        </mesh>
+      )}
+
+      {/* Main Node Sphere */}
+      <mesh
+        onClick={onClick}
+        onPointerDown={e => {
+          e.stopPropagation();
+          onClick(e);
+        }}
+        onPointerOver={e => {
+          e.stopPropagation();
+          document.body.style.cursor = 'pointer';
+        }}
+        onPointerOut={() => {
+          document.body.style.cursor = 'auto';
+        }}
+      >
+        <sphereGeometry args={[radius, 48, 48]} />
+        <shaderMaterial
+          ref={matRef}
+          transparent
+          depthWrite={!locked}
+          side={THREE.FrontSide}
+          uniforms={uniforms}
+          vertexShader={`
+            varying vec3 vNormal;
+            varying vec3 vView;
+            varying vec3 vWorld;
+            void main() {
+              vNormal = normalize(normalMatrix * normal);
+              vec4 mv = modelViewMatrix * vec4(position, 1.0);
+              vView = normalize(-mv.xyz);
+              vWorld = (modelMatrix * vec4(position, 1.0)).xyz;
+              gl_Position = projectionMatrix * mv;
+            }
+          `}
+          fragmentShader={`
+            uniform vec3 uColor;
+            uniform vec3 uEmissive;
+            uniform float uEmissiveIntensity;
+            uniform float uOpacity;
+            uniform float uLocked;
+            uniform float uTime;
+            varying vec3 vNormal;
+            varying vec3 vView;
+            varying vec3 vWorld;
+            void main() {
+              float ndotv = max(dot(vNormal, vView), 0.0);
+              float fresnel = pow(1.0 - ndotv, 3.0);
+              vec3 lightDir = normalize(vec3(0.45, 0.75, 0.4));
+              float spec = pow(max(dot(reflect(-lightDir, vNormal), vView), 0.0), 48.0);
+              float pulse = 0.92 + 0.08 * sin(uTime * 1.6 + vWorld.x * 0.3);
+              vec3 base = uColor * (0.35 + 0.45 * ndotv);
+              vec3 rim = uColor * fresnel * 1.6 + vec3(0.55, 0.75, 0.95) * fresnel * 0.45;
+              vec3 glow = uEmissive * uEmissiveIntensity * (0.4 + fresnel * 0.8);
+              vec3 col = (base + rim + glow + vec3(spec * 0.85)) * pulse;
+              col = mix(col, col * 0.45 + vec3(0.12), uLocked);
+              float alpha = mix(uOpacity * (0.72 + fresnel * 0.28), uOpacity * 0.6, uLocked);
+              gl_FragColor = vec4(col, clamp(alpha, 0.08, 1.0));
+            }
+          `}
+        />
+      </mesh>
+    </group>
   );
 }

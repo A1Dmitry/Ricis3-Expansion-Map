@@ -27,6 +27,7 @@ import {
   Terminal,
   Settings,
   HelpCircle,
+  ShieldCheck,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import type { AppletId } from '../../types/appletRegistry';
@@ -58,6 +59,7 @@ const ICON_MAP: Record<string, LucideIcon> = {
   Terminal,
   Settings,
   HelpCircle,
+  ShieldCheck,
 };
 
 export const AppletActionToolbar: React.FC<AppletActionToolbarProps> = ({
