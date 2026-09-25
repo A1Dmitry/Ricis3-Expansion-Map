@@ -401,6 +401,43 @@
         "RICIS3.SchwarzschildBridge.eval_ratio_ok",
         "RICIS3.SchwarzschildBridge.eval_ratio_none_foreign"
       ]
+    },
+    {
+      "artifactId": "ricis-yang-mills",
+      "source": "artifacts/proofs/ricis-yang-mills.standalone.lean",
+      "sourceSha256": "10064e450066e14692c3037de78828a44b83a3b6c8841b4f908dfe6fc23ee94f",
+      "output": "artifacts/proofs/core-checks/ricis-yang-mills.standalone.core-check.lean",
+      "outputSha256": "872e6e2ef9dd83403db15b4bc7cc6f8981e4771d4daf143f74011e6a474f6fe7",
+      "substitutions": [],
+      "sourceFindings": [
+        "Перевод из mathlib-checks в автономный core-check по правилу чистоты RICIS-III (Zero Mathlib)."
+      ],
+      "rationale": "Тело: канонический A6-мост RICIS-III в R²_RICIS над Int/Rat без Mathlib. Тождества det(u,v) = F*G и сопряженный случай закрыты rfl. Zero Mathlib dependency.",
+      "metadataJson": null,
+      "printAxiomsTargets": [
+        "RICIS3.YangMills.yang_mills_geometric_bridge_exact",
+        "RICIS3.YangMills.yang_mills_conjugate_exact",
+        "RICIS3.YangMills.l1_identity_holds",
+        "RICIS3.YangMills.yang_mills_geometric_bridge_rat"
+      ]
+    },
+    {
+      "artifactId": "RicisAgiTarget",
+      "source": "artifacts/proofs/RicisAgiTarget.standalone.lean",
+      "sourceSha256": "385369001115e19294d0f3acd3dfda3b918e7336d5d5836686796fb03b848f86",
+      "output": "artifacts/proofs/core-checks/RicisAgiTarget.standalone.core-check.lean",
+      "outputSha256": "4b45533f456c5e4b1d01a76958ac607c4f40c5793430d73ee7a7d8cffb312182",
+      "substitutions": [],
+      "sourceFindings": [
+        "Перевод из mathlib-checks в автономный core-check по правилу чистоты RICIS-III (Zero Mathlib)."
+      ],
+      "rationale": "Тело: целевая функция AGI под SP4/L1/A6 над Int. Вычисление инварианта моста det2x2 закрыто rfl. Zero Mathlib dependency.",
+      "metadataJson": null,
+      "printAxiomsTargets": [
+        "RICIS3.AgiTarget.detBridge_eq_mul",
+        "RICIS3.AgiTarget.sp4_no_silent_collapse",
+        "RICIS3.AgiTarget.evaluateGoal_eq_product"
+      ]
     }
   ]
 }

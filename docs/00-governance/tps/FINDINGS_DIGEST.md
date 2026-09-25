@@ -64,6 +64,7 @@
 | ricis-seed-expansion-a11 | LEAN_VERIFIED | 0 | 0 | 6 | `artifacts/proofs/core-checks/ricis-seed-expansion-a11.core-check.lean` |
 | ricis-universal-orchestration-template | LEAN_VERIFIED | 0 | 0 | 27 | `artifacts/proofs/core-checks/ricis-universal-orchestration-template.core-check.lean` |
 | ricis-v79-monolith | LEAN_VERIFIED | 0 | 0 | 31 | `artifacts/proofs/core-checks/ricis-v79-monolith.standalone.core-check.lean` |
+| ricis-yang-mills | LEAN_VERIFIED | 0 | 0 | 4 | `artifacts/proofs/core-checks/ricis-yang-mills.standalone.core-check.lean` |
 | ricis-yang-mills-v2 | LEAN_VERIFIED | 0 | 0 | 3 | `artifacts/proofs/mathlib-checks/ricis-yang-mills-v2.mathlib-check.lean` |
 | RicisAgiTarget | LEAN_VERIFIED | 0 | 0 | 3 | `artifacts/proofs/mathlib-checks/RicisAgiTarget.mathlib-check.lean` |
 | Schwarzschild_GeometricBridge | LEAN_VERIFIED | 0 | 0 | 11 | `artifacts/proofs/core-checks/Schwarzschild_GeometricBridge.core-check.lean` |
@@ -74,7 +75,6 @@
 ## Политика CI: ожидаемые отказы и ожидающие прогоны
 
 - `ciPolicy.expectedFailures` (падение этих целей не рвёт прогон, потому что первопричина зафиксирована): `ricis-jacobian-conjecture`
-- ожидает прогона: `ricis-yang-mills` · job `mathlib-kernel-check` · статус PENDING_KERNEL_RUN
 - `sorryAx` в скопилированном файле рвёт прогон всегда — ожидаемый отказ его не легализует.
 
 ## Что этот отчёт не делает

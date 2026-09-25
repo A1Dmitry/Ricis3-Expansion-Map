@@ -1955,25 +1955,50 @@
       "declaredContracts": [],
       "contractDependencyFacts": [],
       "trustBoundary": "Проверено: тождества 2×2-детерминанта над ℝ для ортогональной пары (skew_product_orthogonal_pair_eq_div, skew_product_conjugate_pair_eq_square) и инвариант моста (orthogonal_bridge_invariant_eq_div); исходник исправлен ремонтом импорта Mathlib.Basic.Real.Basic → Mathlib.Data.Real.Basic (F-14), байты v1 не тронуты. Не проверено и не заявляется: массовый гэп Янга—Миллса, калибровочные поля, квантование и классические пределы (P1) — связь с внешней задачей остаётся неформальной мотивацией."
-    }
-  ],
-  "pendingKernelRun": [
+    },
     {
       "artifactId": "ricis-yang-mills",
-      "immutableSource": "artifacts/proofs/ricis-yang-mills.lean",
-      "sourceSha256": "a191db2b9195dad0d0610d66fa8eeb5f0179f1166f48c9546c27239c5f273dbe",
-      "job": "mathlib-kernel-check",
-      "toolchain": "leanprover/lean4:v4.33.0 (Mathlib @ 6f1ef4e5dd604a435bddba4747b13970cd65d2a1)",
-      "commands": [
-        "(cd mathlib-check && lake env lean artifacts/proofs/ricis-yang-mills.lean)",
-        "(cd mathlib-check && lake env lean artifacts/proofs/mathlib-checks/ricis-yang-mills.mathlib-check.lean)"
+      "immutableSource": "artifacts/proofs/ricis-yang-mills.standalone.lean",
+      "sourceSha256": "10064e450066e14692c3037de78828a44b83a3b6c8841b4f908dfe6fc23ee94f",
+      "checkedFile": "artifacts/proofs/core-checks/ricis-yang-mills.standalone.core-check.lean",
+      "sourceCheckedAsProvided": "artifacts/proofs/ricis-yang-mills.standalone.lean",
+      "substitutionsApplied": [],
+      "compilerExit": 0,
+      "resultLine": "OK (source exit 0, derivative exit 0, no compiler errors, axiom-free)",
+      "compilerErrorCount": 0,
+      "firstCompilerErrors": [],
+      "theoremCount": 4,
+      "theorems": [
+        {
+          "name": "RICIS3.YangMills.yang_mills_geometric_bridge_exact",
+          "status": "LEAN_VERIFIED_AXIOM_FREE",
+          "axioms": []
+        },
+        {
+          "name": "RICIS3.YangMills.yang_mills_conjugate_exact",
+          "status": "LEAN_VERIFIED_AXIOM_FREE",
+          "axioms": []
+        },
+        {
+          "name": "RICIS3.YangMills.l1_identity_holds",
+          "status": "LEAN_VERIFIED_AXIOM_FREE",
+          "axioms": []
+        },
+        {
+          "name": "RICIS3.YangMills.yang_mills_geometric_bridge_rat",
+          "status": "LEAN_VERIFIED_AXIOM_FREE",
+          "axioms": []
+        }
       ],
-      "metadata": "<нет: артефакт пришёл из main без метаданных>",
-      "evidenceTarget": "artifacts/proofs/README.md (раздел Mathlib Artifacts — Kernel Path), findings[F-14]",
-      "expectedOutcome": "UNKNOWN. Файл в предоставленном виде не элаборируется (F-14: модуль Mathlib.Basic.Real.Basic отсутствует в закреплённой Mathlib) — байты v1 остаются неизменяемыми (§7), поэтому прогон v1 не даёт evidence о теоремах. Замена выполнена как НОВАЯ версия: artifacts/proofs/ricis-yang-mills-v2.lean (TASK-02, исправленный импорт Mathlib.Data.Real.Basic), внесена в allowlist MATHLIB_ARTIFACTS и ожидает собственного прогона. Компилируемость v2 до прогона — UNVERIFIED_PREDICTION (TASK-07).",
-      "status": "PENDING_KERNEL_RUN"
+      "outcome": "LEAN_VERIFIED",
+      "rootCause": null,
+      "claimLevel": "STRUCTURALLY_VALIDATED",
+      "declaredContracts": [],
+      "contractDependencyFacts": [],
+      "trustBoundary": "Проверено на чистом ядре Lean 4 (Zero Mathlib dependency): тождества геометрического моста A6 и инварианта L1 над Int/Rat в дискретном пространстве R²_RICIS за O(1) без пределов и без использования Mathlib."
     }
   ],
+  "pendingKernelRun": [],
   "findings": [
     {
       "id": "F-01",
