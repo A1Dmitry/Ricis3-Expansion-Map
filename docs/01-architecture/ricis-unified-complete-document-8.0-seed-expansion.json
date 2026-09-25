@@ -327,10 +327,10 @@
         },
         "U-REVERSED-ZERO-QUOTIENT-PRODUCT": {
           "input_form": "(0_F/0_G)*(0_H/0_K)",
-          "description": "Candidate redefines the already proved form 0_F/0_G = F/G as G/F.",
-          "rejection_reason": "CONTRADICTS_EXISTING_AXIOM",
-          "failed_gate": "CONSISTENCY_TABLE",
-          "failed_gate_detail": "форма 0_F/0_G уже разрешена аксиомой A4 как F/G, кандидат даёт G/F",
+          "description": "Candidate redefines the already proved form 0_F/0_G = F/G as G/F; rejected by rule verifier.",
+          "rejection_reason": "SEMANTIC_RULE_INVALID",
+          "failed_gate": "SEMANTIC_RULE_VERIFIED",
+          "failed_gate_detail": "Ошибка на шаге 1 (CLASSICAL): Правило CLASSICAL неприменимо для перехода: '0_F/0_G*(0_H/0_K)' -> 'G/F*(K/H)'",
           "seed_fingerprint_unchanged": true
         },
         "U-IDENTITY-LAW-RESTATEMENT": {

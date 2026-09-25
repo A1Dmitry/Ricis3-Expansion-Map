@@ -121,7 +121,7 @@ function rejectionOf(system: RicisSystem, problem: UnsolvedSingularProblem): Exp
 const rejectionRuns = [
   { id: U_POWER!.id, expected: 'RESOLUTION_REQUIRED', description: 'Open class without proof: no candidate may be committed.' },
   { id: U_SELF_CERT!.id, expected: 'SELF_CERTIFICATION', description: 'Proof cites the axiom it introduces (A15); circularity is rejected before rule-set closure.' },
-  { id: U_CONTRADICTION!.id, expected: 'CONTRADICTS_EXISTING_AXIOM', description: 'Candidate redefines the already proved form 0_F/0_G = F/G as G/F.' },
+  { id: U_CONTRADICTION!.id, expected: 'SEMANTIC_RULE_INVALID', description: 'Candidate redefines the already proved form 0_F/0_G = F/G as G/F; rejected by rule verifier.' },
   { id: U_CORE!.id, expected: 'PROTECTED_CORE_MUTATION', description: 'Candidate tries to redefine L1 inside the protected core.' },
   { id: U_COVERED!.id, expected: 'PROBLEM_ALREADY_COVERED', description: 'Form 0_F*inf_G is already resolved by A6; axiom inflation is forbidden.' },
   {

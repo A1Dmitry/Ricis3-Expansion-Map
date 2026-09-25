@@ -31,6 +31,9 @@ export function lazyNamedComponent<TProps, TExportName extends string>(
         if (module && module[exportName]) {
           return { default: module[exportName] };
         }
+        if (module && (module as any).default) {
+          return { default: (module as any).default };
+        }
         throw new Error(`Export '${exportName}' not found in loaded chunk.`);
       } catch (err) {
         lastError = err;

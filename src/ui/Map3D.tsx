@@ -2893,3 +2893,5 @@ export const Map3D: React.FC = () => {
     </div>
   );
 };
+
+export default Map3D;

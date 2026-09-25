@@ -1521,4 +1521,52 @@ export const LOCALE_OVERRIDES: Partial<Record<TranslationKey, LocaleOverride>> =
     'hi-IN': '{title} की ओर जाएँ',
     'ms-MY': 'Ikut ke {title}',
   },
+  'panel.bookmarks': {
+    'fr-CA': 'Signets des nœuds',
+    'de-DE': 'Knoten-Lesezeichen',
+    'hi-IN': 'नोड बुकमार्क',
+    'ms-MY': 'Penanda Buku Node',
+  },
+  'filter.bookmarks': {
+    'fr-CA': 'SIGNETS',
+    'de-DE': 'LESEZEICHEN',
+    'hi-IN': 'बुकमार्क',
+    'ms-MY': 'PENANDA BUKU',
+  },
+  'bookmarks.title': {
+    'fr-CA': 'Signets des nœuds',
+    'de-DE': 'Knoten-Lesezeichen',
+    'hi-IN': 'नोड बुकमार्क',
+    'ms-MY': 'Penanda Buku Node',
+  },
+  'bookmarks.empty': {
+    'fr-CA': "Aucun signet enregistré. Cliquez sur l'icône de signet dans n'importe quelle fiche de nœud pour un accès rapide.",
+    'de-DE': 'Keine gespeicherten Lesezeichen. Klicken Sie auf das Lesezeichen-Symbol in einer Knotenkarte für schnellen Zugriff.',
+    'hi-IN': 'कोई सहेजा गया बुकमार्क नहीं है। त्वरित पहुँच के लिए किसी भी नोड कार्ड में बुकमार्क आइकन पर क्लिक करें।',
+    'ms-MY': 'Tiada penanda buku disimpan. Klik ikon penanda buku dalam mana-mana kad node untuk akses pantas.',
+  },
+  'bookmarks.add': {
+    'fr-CA': 'Ajouter aux signets',
+    'de-DE': 'Zu Lesezeichen hinzufügen',
+    'hi-IN': 'बुकमार्क जोड़ें',
+    'ms-MY': 'Tambah ke penanda buku',
+  },
+  'bookmarks.remove': {
+    'fr-CA': 'Supprimer des signets',
+    'de-DE': 'Aus Lesezeichen entfernen',
+    'hi-IN': 'बुकमार्क हटाएँ',
+    'ms-MY': 'Buang daripada penanda buku',
+  },
+  'bookmarks.clear': {
+    'fr-CA': 'Effacer tous les signets',
+    'de-DE': 'Alle Lesezeichen löschen',
+    'hi-IN': 'सभी बुकमार्क साफ़ करें',
+    'ms-MY': 'Kosongkan semua penanda buku',
+  },
+  'bookmarks.searchPlaceholder': {
+    'fr-CA': 'Rechercher dans les signets...',
+    'de-DE': 'Lesezeichen durchsuchen...',
+    'hi-IN': 'बुकमार्क खोजें...',
+    'ms-MY': 'Cari penanda buku...',
+  },
 };

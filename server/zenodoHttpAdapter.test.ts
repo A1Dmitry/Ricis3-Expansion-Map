@@ -7,7 +7,7 @@ import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import express from 'express';
 import type { AddressInfo } from 'node:net';
-import { afterAll, describe, expect, it, vi } from 'vitest';
+import { afterAll, afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { registerZenodoRoutes } from './zenodoHttpAdapter';
 import type { ZenodoRouteOptions } from './zenodoHttpAdapter';
 
