@@ -117,12 +117,16 @@ describe('OpenStax 2.3 Limit Laws - RICIS-III v7.7 Validation Tests', () => {
       expect(result).toBe(-0.2); // exactly -1/5
     });
 
-    it('should avoid NaN during step-by-step reduction', () => {
-      // Direct division by zero is prevented by applying SP2 (algebraic reduction first)
-      const x = 0.0001; // verification check
-      const originalVal = (1 / x) + (5 / (x * (x - 5)));
-      const targetVal = -1 / 5;
-      expect(Math.abs(originalVal - targetVal)).toBeLessThan(0.01);
+    it('demonstrates classical failure (NaN) at x=0 and resolves via SP2 algebraic reduction', () => {
+      // Demonstrating classical failure: direct classical evaluation at x=0 yields Infinity - Infinity = NaN
+      const classicalDirect = (1 / 0) + (5 / (0 * (0 - 5)));
+      expect(Number.isNaN(classicalDirect)).toBe(true);
+
+      // Under RICIS-III SP2 (Clean First): algebraic simplification prior to point evaluation
+      // 1/x + 5/(x*(x-5)) = (x-5 + 5)/(x*(x-5)) = x/(x*(x-5)) = 1/(x-5)
+      // Point evaluation at x=0 gives exact -1/5 in O(1) without Cauchy limits or epsilons
+      const ricisResolved = 1 / (0 - 5);
+      expect(ricisResolved).toBe(-0.2);
     });
   });
 

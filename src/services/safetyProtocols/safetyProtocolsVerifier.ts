@@ -9,6 +9,7 @@ import type {
   ISafetyProtocolsVerificationResult,
   IProtocolStatus,
 } from './safetyProtocols.contracts';
+import { isMachineZero } from '../../model/ricisEpsilon';
 
 /**
  * Безопасный парсер и вычислитель простых алгебраических выражений для верификации факторов.
@@ -132,7 +133,7 @@ interface ParsedFactor {
 function parseFactor(raw: string, variable: string, pointVal: number): ParsedFactor {
   const trimmed = raw.trim();
   const evaluatedValue = evaluateArithmeticExpression(trimmed, variable, pointVal);
-  const isZero = Math.abs(evaluatedValue) < 1e-7;
+  const isZero = isMachineZero(evaluatedValue);
 
   // Определение коэффициента и ядра множителя (например, '3*(x - 1)' -> k=3, core='x - 1')
   let coefficient = 1;

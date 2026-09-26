@@ -280,6 +280,36 @@ async function startServer() {
     return forwardProof(res, { kind: 'capabilities' });
   });
 
+  // Canonical Proof Endpoints (Next Sprint Proof Endpoints Plan WS-1)
+  app.post('/api/proofs/generate', async (req, res) => {
+    return forwardProof(res, { kind: 'create', body: req.body });
+  });
+
+  app.post('/api/proofs/verify', async (req, res) => {
+    const proofRunId = req.body?.proofRunId;
+    if (typeof proofRunId === 'string' && proofRunIdPattern.test(proofRunId)) {
+      return forwardProof(res, { kind: 'getRun', proofRunId });
+    }
+    return forwardProof(res, { kind: 'create', body: req.body });
+  });
+
+  app.post('/api/proofs/export', async (req, res) => {
+    const { proofRunId, format = 'Json' } = req.body || {};
+    const normalizedFormat = String(format).charAt(0).toUpperCase() + String(format).slice(1).toLowerCase();
+    if (!proofRunId || !proofRunIdPattern.test(String(proofRunId)) || !proofFormats.has(normalizedFormat)) {
+      return res.status(400).json(proofError('INVALID_EXPORT_REQUEST', 'proof.core.export.invalid', false));
+    }
+    return forwardProof(res, {
+      kind: 'getDocument',
+      proofRunId: String(proofRunId),
+      format: normalizedFormat as 'Academic' | 'Json' | 'Latex' | 'Log' | 'Lean',
+    });
+  });
+
+  app.get('/api/proofs/capabilities', async (_req, res) => {
+    return forwardProof(res, { kind: 'capabilities' });
+  });
+
   app.post("/api/generateProof", async (req, res) => {
     const { id, title, targetFunction, description, singularityHint, axioms, preferredModel } = req.body || {};
 

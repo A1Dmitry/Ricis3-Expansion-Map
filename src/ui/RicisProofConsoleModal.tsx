@@ -58,6 +58,12 @@ export const RicisProofConsoleModal: React.FC<RicisProofConsoleModalProps> = ({
   const [proofRecoveryResourceKey, setProofRecoveryResourceKey] = useState<string | null>(null);
   const [isProving, setIsProving] = useState(false);
 
+  const matchedCatalogItem = React.useMemo(() => {
+    const target = activeTab === 'evaluate' ? expression.trim() : proofClaim.trim();
+    if (!target) return undefined;
+    return RICIS_EXAMPLE_CATALOG.find(e => e.input === target || e.id.toLowerCase() === target.toLowerCase());
+  }, [expression, proofClaim, activeTab]);
+
   useEffect(() => {
     if (isOpen) {
       engine.initialize();
@@ -282,6 +288,48 @@ export const RicisProofConsoleModal: React.FC<RicisProofConsoleModalProps> = ({
                   {isEvaluating ? t('proofConsole.evaluating') : t('proofConsole.evaluate')}
                 </ContentButton>
               </div>
+
+              {/* Matched Catalog Knowledge Fractal: Axiomatic Proof & Classical Inability Demonstration */}
+              {matchedCatalogItem && (
+                <div className="p-3.5 rounded-lg bg-[#060d1a] border border-cyan-800/50 space-y-2 text-xs font-mono">
+                  <div className="flex items-center justify-between flex-wrap gap-2">
+                    <span className="text-cyan-300 font-bold flex items-center gap-1.5">
+                      <Bookmark className="w-3.5 h-3.5 text-cyan-400" />
+                      [{matchedCatalogItem.id}] {matchedCatalogItem.title}
+                    </span>
+                    <div className="flex items-center gap-1.5 flex-wrap">
+                      {matchedCatalogItem.ricisAxioms && matchedCatalogItem.ricisAxioms.length > 0 && (
+                        <span className="text-[10px] uppercase tracking-wider px-2 py-0.5 rounded bg-cyan-950 text-cyan-300 border border-cyan-700/60 font-semibold">
+                          RICIS: {matchedCatalogItem.ricisAxioms.join(', ')}
+                        </span>
+                      )}
+                      {matchedCatalogItem.classicalStatus && (
+                        <span
+                          className={`text-[10px] uppercase tracking-wider px-2 py-0.5 rounded border font-semibold ${
+                            matchedCatalogItem.classicalStatus === 'SMOOTH_INVARIANT'
+                              ? 'bg-slate-900 text-slate-300 border-slate-700/60'
+                              : 'bg-rose-950 text-rose-300 border-rose-700/60'
+                          }`}
+                        >
+                          Classic: {matchedCatalogItem.classicalStatus}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                  {matchedCatalogItem.ricisResolutionMethod && (
+                    <div className="text-slate-300 text-[11px] leading-relaxed">
+                      <span className="text-cyan-400 font-semibold">Аксиоматическое решение RICIS-III (O(1)):</span>{' '}
+                      {matchedCatalogItem.ricisResolutionMethod}
+                    </div>
+                  )}
+                  {matchedCatalogItem.classicalFailureExplanation && (
+                    <div className="text-rose-200/90 text-[11px] leading-relaxed bg-rose-950/20 p-2 rounded border border-rose-900/40">
+                      <span className="text-rose-400 font-semibold">Классический анализ (демонстрация неспособности):</span>{' '}
+                      {matchedCatalogItem.classicalFailureExplanation}
+                    </div>
+                  )}
+                </div>
+              )}
 
               {/* Evaluation Result */}
               {evalResult && (

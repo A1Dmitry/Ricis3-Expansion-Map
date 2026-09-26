@@ -43,6 +43,7 @@ import { KinematicTelemetryLogger } from '../services/kinematic/kinematicLogger'
 import { forwardKinematics3D, computeJacobianDeterminant3D } from '../services/kinematic/kinematicMath';
 import { useMapStore } from '../store/mapStore';
 import { useMobileLayout } from '../hooks/useMobileLayout';
+import { isMachineZero } from '../model/ricisEpsilon';
 import { useRicisCommand } from '../hooks/useRicisCommand';
 import { RICIS_COMMAND_EVENTS, dispatchRicisCommand } from '../services/commandBus';
 import { getProgressBar } from '../services/progressBar/progressBarService';
@@ -609,7 +610,7 @@ export const KinematicEnginePage: React.FC<Props> = ({ onBackToMap }) => {
             z: activeTarget.z - currentEE.z,
           };
           const dist = Math.hypot(cDir.x, cDir.y, cDir.z);
-          const cNorm = dist > 1e-6 ? { x: cDir.x / dist, y: cDir.y / dist, z: cDir.z / dist } : { x: 0, y: 0, z: 0 };
+          const cNorm = isMachineZero(dist) ? { x: 0, y: 0, z: 0 } : { x: cDir.x / dist, y: cDir.y / dist, z: cDir.z / dist };
           const symSol = symbolicJacobianEngine.solveJointVelocities(currentJoints, cNorm, LINK_LENGTHS);
           const symMatrix = symbolicJacobianEngine.buildSymbolicJacobian(currentJoints, LINK_LENGTHS);
           setSymbolicSolution(symSol);

@@ -1,4 +1,5 @@
 import { FormNode } from './canonicalForm';
+import { DOUBLE_EPSILON, isMachineZero } from '../model/ricisEpsilon';
 
 /**
  * Heuristic numerical equivalence checker for classical algebraic steps.
@@ -22,10 +23,10 @@ export function verifyClassicalEquivalence(from: FormNode, to: FormNode): boolea
 
     if (valFrom === undefined || valTo === undefined) return false;
     
-    // Check for absolute or relative epsilon match
+    // Check for machine epsilon relative match
     const diff = Math.abs(valFrom - valTo);
     const scale = Math.max(Math.abs(valFrom), Math.abs(valTo), 1.0);
-    if (diff > scale * 1e-10) return false;
+    if (!isMachineZero(diff / scale, DOUBLE_EPSILON * 1e4)) return false;
   }
 
   return true;
@@ -61,8 +62,8 @@ function evaluateNumerical(node: FormNode, vars: Record<string, number>): number
       const arg = evaluateNumerical(node.arg, vars);
       if (arg === undefined) return undefined;
       // Handle special RICIS tokens as large/small values for numerical check
-      if (node.name === 'inf_' || node.name === 'inf') return 1e15 * arg;
-      if (node.name === '0_' || node.name === '0') return 1e-15 * arg;
+      if (node.name === 'inf_' || node.name === 'inf') return (1 / DOUBLE_EPSILON) * arg;
+      if (node.name === '0_' || node.name === '0') return DOUBLE_EPSILON * arg;
       
       // Standard math functions
       const fn = (Math as any)[node.name];

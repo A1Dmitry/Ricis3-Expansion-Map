@@ -17,6 +17,7 @@
 // ============================================================================
 
 import type { ProblemNode, ScienceZone } from '../../model/types';
+import { isMachineZero } from '../../model/ricisEpsilon';
 
 export interface Map2DPoint {
   readonly x: number;
@@ -486,7 +487,7 @@ export function computeMap2DLayout(
             let dy = p.y - xy.get(other)!.y;
             let dist = Math.hypot(dx, dy);
             if (dist >= minDist) continue;
-            if (dist < 1e-6) {
+            if (isMachineZero(dist)) {
               // Полное совпадение: детерминированное направление разноса.
               const h = 2.399963 * (idsSorted.indexOf(id) + 1);
               dx = Math.cos(h); dy = Math.sin(h); dist = 1;

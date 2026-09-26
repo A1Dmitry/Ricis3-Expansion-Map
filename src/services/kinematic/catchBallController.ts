@@ -13,6 +13,7 @@ import type {
   IBoxContainer,
   Vector3D,
 } from '../../model/kinematicEngine.contracts';
+import { isMachineZero } from '../../model/ricisEpsilon';
 import { distance3D } from './kinematicMath';
 import { BallPhysicsWorld, type IBoxBounceBounds, type IPhysicsBallBody } from './ballPhysics';
 import { launchVelocity } from './ballistics';
@@ -416,7 +417,7 @@ export class CatchBallController {
    */
   private scatterShotVelocity(base: Vector3D, rng: () => number): Vector3D {
     const baseSpeed = Math.hypot(base.x, base.y, base.z);
-    if (baseSpeed < 1e-6) return { ...base };
+    if (isMachineZero(baseSpeed)) return { ...base };
 
     // Unit base direction.
     const ux = base.x / baseSpeed;
@@ -462,7 +463,7 @@ export class CatchBallController {
     const cy = Math.cos(yawJitter);
     const sy = Math.sin(yawJitter);
     let yx: number, yy: number, yz: number;
-    if (horiz < 1e-6) {
+    if (isMachineZero(horiz)) {
       yx = sy;
       yy = 0;
       yz = cy * uz;
@@ -479,7 +480,7 @@ export class CatchBallController {
     const sp = Math.sin(pitchJitter);
     const rLen = Math.hypot(yx, yy);
     let rx: number, ry: number;
-    if (rLen < 1e-6) {
+    if (isMachineZero(rLen)) {
       rx = 1;
       ry = 0;
     } else {

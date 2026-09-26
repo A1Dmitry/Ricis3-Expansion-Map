@@ -242,4 +242,21 @@ describe('RicisProofConsoleModal authoritative proof transport', () => {
     expect(legacyVerifyProof).not.toHaveBeenCalled();
     expect(renderedContainer.textContent).toContain('proof.core.gateway.CORE_UNAVAILABLE');
   });
+
+  it('displays RICIS-III axiomatic resolution and classical failure demonstration for catalog examples', async () => {
+    const { engine } = createEngineFixture();
+    const proofGateway = createGateway(vi.fn());
+    const renderedContainer = await renderProofConsole({
+      engine,
+      proofGateway,
+      initialClaim: 'x => sin(x) / x',
+    });
+
+    // Verify catalog item L6 is matched
+    expect(renderedContainer.textContent).toContain('[L6] Cardinal Sine (Sinc)');
+    expect(renderedContainer.textContent).toContain('RICIS: SP4, A4, L1');
+    expect(renderedContainer.textContent).toContain('Classic: NAN');
+    expect(renderedContainer.textContent).toContain('Классический анализ (демонстрация неспособности)');
+    expect(renderedContainer.textContent).toContain('sin(0)/0 = 0/0 = NaN');
+  });
 });

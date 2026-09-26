@@ -213,12 +213,16 @@ export function auditProofContent(proofText: string): RicisAuditResult {
   const isA15EqualOrderProof = /Axiom\s*A15|A15_EQUAL_ORDER_PROFILE|Equal-Order\s*Profile|Structural\s*Profile/i.test(text);
 
   // Strict Anti-Tukhta check: classical L'Hôpital rule substitution (replacing A4 0_F/0_G with f'/g' without Axiom A15)
+  const textWithoutNegatedLHopital = text
+    .replace(/(?:without|no|not|neither|nor|never|free\s+of|exempt\s+from|без|не\s+используя)\s+[^.;\n]*?L'H[ôo]pital/gi, '')
+    .replace(/(?:без|не\s+используя|запрет|отказ\s+от)\s+[^.;\n]*?правил[оа]\s+Лопиталя/gi, '');
+
   const containsLHopitalTukhta =
     !isA15EqualOrderProof &&
     (/0_?[fg]\s*\/\s*0_?[gh]\s*=\s*[fg]'\s*\/\s*[gh]'/i.test(text) ||
     /\\frac\{0_?[fg]\}\{0_?[gh]\}\s*=\s*\\frac\{[fg]'\}/i.test(text) ||
     /0_F\s*\/\s*0_G\s*=\s*F'\s*\/\s*G'/i.test(text) ||
-    /L'H[ôo]pital|правил[оа]\s+Лопиталя/i.test(text) ||
+    /L'H[ôo]pital|правил[оа]\s+Лопиталя/i.test(textWithoutNegatedLHopital) ||
     /0_g\s*\/\s*0_h\s*=\s*g'\(x\)\s*\/\s*h'\(x\)/i.test(text));
 
   // Strict Anti-Tukhta check: Circular reasoning (Petitio Principii) in factorization

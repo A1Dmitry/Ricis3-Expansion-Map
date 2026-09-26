@@ -8,6 +8,7 @@
 // ============================================================================
 
 import type { Vector3D } from '../../model/kinematicEngine.contracts';
+import { isMachineZero } from '../../model/ricisEpsilon';
 
 export interface IMotionProfileConfig {
   /** Maximum Cartesian speed of the smoothed target point (m/s). */
@@ -92,7 +93,7 @@ export class CartesianMotionSmoother {
     const brakeLimitedSpeed = Math.sqrt(2 * maxAccel * Math.max(0, dist - settleEps));
     const desiredSpeed = Math.min(maxSpeed, brakeLimitedSpeed);
 
-    const invDist = dist > 1e-9 ? 1 / dist : 0;
+    const invDist = isMachineZero(dist) ? 0 : 1 / dist;
     const desiredVel = {
       x: toGoal.x * invDist * desiredSpeed,
       y: toGoal.y * invDist * desiredSpeed,
@@ -123,7 +124,7 @@ export class CartesianMotionSmoother {
 
     // Hard anti-overshoot guard: if this step CROSSED the anchor plane along the
     // travel direction (discrete braking-law overshoot), land exactly and stop.
-    if (dist > 1e-9) {
+    if (!isMachineZero(dist)) {
       const signedAfter =
         (this.anchor.x - this.pos.x) * toGoal.x * invDist +
         (this.anchor.y - this.pos.y) * toGoal.y * invDist +

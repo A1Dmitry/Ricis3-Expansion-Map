@@ -1,4 +1,5 @@
 import { ProblemNode, ScienceZone, MapState, DependencyEdge, Vector3D } from './types';
+import { DOUBLE_EPSILON, isMachineZero, safeNormalize3D } from './ricisEpsilon';
 
 /**
  * Равномерно распределяет векторы направлений осей конусов на единичной сфере S^2 позолоченному сечению (3D Fibonacci Sphere Algorithm).
@@ -71,8 +72,7 @@ export function zoneShielding(zone: ScienceZone, nodes: ProblemNode[]): number {
 }
 
 function normalize3(x: number, y: number, z: number): [number, number, number] {
-  const len = Math.sqrt(x * x + y * y + z * z) + 1e-9;
-  return [x / len, y / len, z / len];
+  return safeNormalize3D(x, y, z);
 }
 
 
@@ -164,7 +164,8 @@ export function relaxPressureRepulsion(
       : Array.from({ length: n }, (_, i) => {
           const phi = Math.acos(1 - (2 * (i + 0.5)) / n);
           const theta = Math.PI * (1 + Math.sqrt(5)) * i;
-          const meanS = S.reduce((a, b) => a + b, 0) / n + 1e-6;
+          const rawMeanS = S.reduce((a, b) => a + b, 0) / n;
+          const meanS = isMachineZero(rawMeanS) ? 1.0 : rawMeanS;
           const r = params.r0 * (0.85 + 0.15 * (S[i] / meanS));
           return [
             r * Math.sin(phi) * Math.cos(theta),
@@ -257,7 +258,8 @@ export function layoutZones(
         const dx = pos[i][0] - pos[j][0];
         const dy = pos[i][1] - pos[j][1];
         const dz = pos[i][2] - pos[j][2];
-        const dist = Math.sqrt(dx*dx + dy*dy + dz*dz) + 1e-6;
+        const dist = Math.hypot(dx, dy, dz);
+        if (isMachineZero(dist)) continue;
 
         const surfaceDist = Math.max(0.1, dist - zoneR[i] - zoneR[j]);
         
@@ -268,9 +270,7 @@ export function layoutZones(
           forceMag += (p.zoneSurfaceGap - surfaceDist) * 15.0;
         }
 
-        const nx = dx / dist;
-        const ny = dy / dist;
-        const nz = dz / dist;
+        const [nx, ny, nz] = safeNormalize3D(dx, dy, dz);
 
         forces[i][0] += nx * forceMag;
         forces[i][1] += ny * forceMag;
@@ -284,7 +284,7 @@ export function layoutZones(
       const dx = pos[i][0];
       const dy = pos[i][1];
       const dz = pos[i][2];
-      const distFromCenter = Math.sqrt(dx*dx + dy*dy + dz*dz) + 1e-6;
+      const distFromCenter = Math.hypot(dx, dy, dz);
       
       const boundarySurfaceDist = Math.max(0.1, GLOBAL_SPACE_RADIUS - distFromCenter - zoneR[i]);
       const G_ext = p.zoneGExt;
@@ -294,9 +294,7 @@ export function layoutZones(
         inForce += (distFromCenter + zoneR[i] - GLOBAL_SPACE_RADIUS) * 15.0;
       }
 
-      const nx = dx / distFromCenter;
-      const ny = dy / distFromCenter;
-      const nz = dz / distFromCenter;
+      const [nx, ny, nz] = safeNormalize3D(dx, dy, dz);
 
       forces[i][0] -= nx * inForce;
       forces[i][1] -= ny * inForce;
@@ -509,7 +507,8 @@ export function layoutNodes(
         const dx = pos[i][0] - pos[j][0];
         const dy = pos[i][1] - pos[j][1];
         const dz = pos[i][2] - pos[j][2];
-        const dist = Math.sqrt(dx*dx + dy*dy + dz*dz) + 1e-6;
+        const dist = Math.hypot(dx, dy, dz);
+        if (isMachineZero(dist)) continue;
 
         const surfaceDist = Math.max(0.1, dist - radI - radJ);
         const G = p.nodeG;
@@ -519,9 +518,7 @@ export function layoutNodes(
           forceMag += (minSurfaceGap - surfaceDist) * 10.0;
         }
 
-        const nx = dx / dist;
-        const ny = dy / dist;
-        const nz = dz / dist;
+        const [nx, ny, nz] = safeNormalize3D(dx, dy, dz);
 
         forces[i][0] += nx * forceMag;
         forces[i][1] += ny * forceMag;
@@ -540,15 +537,16 @@ export function layoutNodes(
       const dx = pos[i][0] - zcI[0];
       const dy = pos[i][1] - zcI[1];
       const dz = pos[i][2] - zcI[2];
-      const distFromCenter = Math.sqrt(dx*dx + dy*dy + dz*dz) + 1e-6;
+      const distFromCenter = Math.hypot(dx, dy, dz);
 
       if (coneInfo) {
         // Radial distance restoring force towards targetRadius
         const radDiff = coneInfo.targetRadius - distFromCenter;
         const radForce = radDiff * 1.5;
-        forces[i][0] += (dx / distFromCenter) * radForce;
-        forces[i][1] += (dy / distFromCenter) * radForce;
-        forces[i][2] += (dz / distFromCenter) * radForce;
+        const [nx, ny, nz] = safeNormalize3D(dx, dy, dz);
+        forces[i][0] += nx * radForce;
+        forces[i][1] += ny * radForce;
+        forces[i][2] += nz * radForce;
 
         // Conic axis alignment restoring force
         const proj = (dx * coneInfo.coneDir.x + dy * coneInfo.coneDir.y + dz * coneInfo.coneDir.z);
@@ -566,9 +564,10 @@ export function layoutNodes(
         inForce += (distFromCenter + radI - zR * 0.85) * 15.0;
       }
 
-      forces[i][0] -= (dx / distFromCenter) * inForce;
-      forces[i][1] -= (dy / distFromCenter) * inForce;
-      forces[i][2] -= (dz / distFromCenter) * inForce;
+      const [nxCenter, nyCenter, nzCenter] = safeNormalize3D(dx, dy, dz);
+      forces[i][0] -= nxCenter * inForce;
+      forces[i][1] -= nyCenter * inForce;
+      forces[i][2] -= nzCenter * inForce;
 
       // 3. Dependency Hooke springs
       const deps = nodeI.dependencyIds || [];
@@ -581,15 +580,17 @@ export function layoutNodes(
           const ddx = pos[j][0] - pos[i][0];
           const ddy = pos[j][1] - pos[i][1];
           const ddz = pos[j][2] - pos[i][2];
-          const ddist = Math.sqrt(ddx*ddx + ddy*ddy + ddz*ddz) + 1e-6;
+          const ddist = Math.hypot(ddx, ddy, ddz);
+          if (isMachineZero(ddist)) continue;
 
           const surfaceDist = Math.max(0.0, ddist - radI - radJ);
           const restSurfaceGap = minSurfaceGap * p.springRestGapMult;
           const springForce = p.springK * (surfaceDist - restSurfaceGap) * 1.5;
 
-          forces[i][0] += (ddx / ddist) * springForce;
-          forces[i][1] += (ddy / ddist) * springForce;
-          forces[i][2] += (ddz / ddist) * springForce;
+          const [ndx, ndy, ndz] = safeNormalize3D(ddx, ddy, ddz);
+          forces[i][0] += ndx * springForce;
+          forces[i][1] += ndy * springForce;
+          forces[i][2] += ndz * springForce;
         }
       }
     }
