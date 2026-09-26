@@ -32,7 +32,7 @@ export class LearningRateVo implements ILearningRateVo {
 
   public constructor(value: number) {
     this.value = Number.isFinite(value) ? Math.max(0, value) : 0;
-    this.isZeroSingular = this.value <= 1e-9;
+    this.isZeroSingular = this.value === 0 || this.value <= Number.EPSILON;
     this.semanticIndexExpression = this.isZeroSingular
       ? '0_{eta}'
       : `0_{eta=${this.value.toPrecision(3)}}`;

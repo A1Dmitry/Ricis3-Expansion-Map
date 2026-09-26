@@ -92,14 +92,23 @@ export class FiveLinkRedundantKinematicService extends BasePlanarManipulatorServ
     if (mode === 'POLAR') {
       // In polar coordinate frame around base/cluster, scale radial vs tangential
       const [eeX, eeY] = this.computeForwardKinematics(joints, links);
-      const r = Math.max(0.01, Math.sqrt(eeX * eeX + eeY * eeY));
-      for (let j = 0; j < 5; j++) {
-        const vx = row0[j] ?? 0;
-        const vy = row1[j] ?? 0;
-        // dr/dq = (x*vx + y*vy)/r
-        // r*dphi/dq = (-y*vx + x*vy)/r
-        row0[j] = (eeX * vx + eeY * vy) / r;
-        row1[j] = (-eeY * vx + eeX * vy) / r;
+      const r = Math.hypot(eeX, eeY);
+      if (r === 0) {
+        // RICIS-III SP2/SP4 & L1_IDENTITY:
+        // At shoulder pole singularity r = 0, identically cancel r factor from projections
+        for (let j = 0; j < 5; j++) {
+          row0[j] = row0[j] ?? 0;
+          row1[j] = row1[j] ?? 0;
+        }
+      } else {
+        for (let j = 0; j < 5; j++) {
+          const vx = row0[j] ?? 0;
+          const vy = row1[j] ?? 0;
+          // dr/dq = (x*vx + y*vy)/r
+          // r*dphi/dq = (-y*vx + x*vy)/r
+          row0[j] = (eeX * vx + eeY * vy) / r;
+          row1[j] = (-eeY * vx + eeX * vy) / r;
+        }
       }
     }
 

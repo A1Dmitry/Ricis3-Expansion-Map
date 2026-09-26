@@ -15,6 +15,7 @@ import type {
 } from '../../model/kinematicEngine.contracts';
 import {
   DlsSolver3D,
+  AdaptiveDlsSolver3D,
   RicisConstraintSolver3D,
   RicisSymbolicJacobianSolver3D,
 } from './kinematicSolvers';
@@ -61,7 +62,7 @@ export class KinematicHeadlessBenchmark {
    * Run the benchmark for a single solver on a given trajectory.
    */
   public benchmarkSolverOnTrajectory(
-    solverId: 'DLS_BASELINE' | 'RICIS_INVARIANT_ENGINE' | 'RICIS_SYMBOLIC_JACOBIAN',
+    solverId: 'DLS_BASELINE' | 'ADAPTIVE_DLS' | 'RICIS_INVARIANT_ENGINE' | 'RICIS_SYMBOLIC_JACOBIAN',
     initialJoints: JointState3D,
     trajectory: Vector3D[],
     dt = 0.016
@@ -69,6 +70,8 @@ export class KinematicHeadlessBenchmark {
     const solver =
       solverId === 'DLS_BASELINE'
         ? new DlsSolver3D(0.15)
+        : solverId === 'ADAPTIVE_DLS'
+        ? new AdaptiveDlsSolver3D()
         : solverId === 'RICIS_INVARIANT_ENGINE'
         ? new RicisConstraintSolver3D()
         : new RicisSymbolicJacobianSolver3D();
@@ -171,8 +174,9 @@ export class KinematicHeadlessBenchmark {
     const end4: Vector3D = { x: 0.5, y: 0.05, z: start4.z };
     const traj4 = this.generateTrajectory(start4, end4, steps);
 
-    const solvers: ('DLS_BASELINE' | 'RICIS_INVARIANT_ENGINE' | 'RICIS_SYMBOLIC_JACOBIAN')[] = [
+    const solvers: ('DLS_BASELINE' | 'ADAPTIVE_DLS' | 'RICIS_INVARIANT_ENGINE' | 'RICIS_SYMBOLIC_JACOBIAN')[] = [
       'DLS_BASELINE',
+      'ADAPTIVE_DLS',
       'RICIS_INVARIANT_ENGINE',
       'RICIS_SYMBOLIC_JACOBIAN',
     ];

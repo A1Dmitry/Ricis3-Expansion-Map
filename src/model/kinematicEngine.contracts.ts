@@ -21,7 +21,7 @@ export interface IKinematicState3D {
 }
 
 export interface ISolverMetrics3D {
-  readonly solverId?: 'DLS_BASELINE' | 'RICIS_INVARIANT_ENGINE' | 'RICIS_SYMBOLIC_JACOBIAN' | string;
+  readonly solverId?: 'DLS_BASELINE' | 'ADAPTIVE_DLS' | 'RICIS_INVARIANT_ENGINE' | 'RICIS_SYMBOLIC_JACOBIAN' | string;
   readonly positionError: number;
   readonly velocityError: number;
   readonly directionPreservedDeg: number;
@@ -44,7 +44,7 @@ export interface ISolverResult3D {
 export type RicisSolverMode = 'POLAR_GEOMETRIC' | 'SYMBOLIC_AST';
 
 export interface IKinematicSolver3D {
-  readonly solverId: 'DLS_BASELINE' | 'CLASSICAL_DLS_GHOST' | 'RICIS_INVARIANT_ENGINE' | 'RICIS_POLAR_MONOLITH' | 'RICIS_SYMBOLIC_JACOBIAN';
+  readonly solverId: 'DLS_BASELINE' | 'ADAPTIVE_DLS' | 'CLASSICAL_DLS_GHOST' | 'RICIS_INVARIANT_ENGINE' | 'RICIS_POLAR_MONOLITH' | 'RICIS_SYMBOLIC_JACOBIAN';
   solve(
     currentState: IKinematicState3D,
     targetPosition: Vector3D,

@@ -19,6 +19,7 @@ describe('RICIS-III v7.7 Headless Kinematic Benchmark (DLS vs RICIS)', () => {
       expect(r.scenarioName).toBeDefined();
       expect(r.description).toBeDefined();
       expect(r.metrics.DLS_BASELINE).toBeDefined();
+      expect(r.metrics.ADAPTIVE_DLS).toBeDefined();
       expect(r.metrics.RICIS_INVARIANT_ENGINE).toBeDefined();
       expect(r.metrics.RICIS_SYMBOLIC_JACOBIAN).toBeDefined();
 
@@ -27,6 +28,12 @@ describe('RICIS-III v7.7 Headless Kinematic Benchmark (DLS vs RICIS)', () => {
       expect(Number.isFinite(dls.avgPositionError)).toBe(true);
       expect(Number.isFinite(dls.avgDirectionDeviationDeg)).toBe(true);
       expect(Number.isFinite(dls.successRate)).toBe(true);
+
+      // Verify ADAPTIVE_DLS metrics are valid numbers
+      const adls = r.metrics.ADAPTIVE_DLS!;
+      expect(Number.isFinite(adls.avgPositionError)).toBe(true);
+      expect(Number.isFinite(adls.avgDirectionDeviationDeg)).toBe(true);
+      expect(Number.isFinite(adls.successRate)).toBe(true);
 
       // Verify RICIS_INVARIANT_ENGINE metrics are valid numbers
       const ricis = r.metrics.RICIS_INVARIANT_ENGINE!;

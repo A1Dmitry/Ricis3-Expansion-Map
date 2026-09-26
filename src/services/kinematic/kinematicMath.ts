@@ -128,7 +128,7 @@ export function calculateAngleDeviationDeg(desired: Vector3D, actual: Vector3D):
   const lenD = vectorLength3D(desired);
   const lenA = vectorLength3D(actual);
 
-  if (lenD < SOLVER_NUMERICAL_GUARDS.minRadialDistanceGuard || lenA < SOLVER_NUMERICAL_GUARDS.minRadialDistanceGuard) {
+  if (lenD <= Number.EPSILON || lenA <= Number.EPSILON) {
     return 0.0;
   }
 
@@ -186,7 +186,7 @@ export function computeSolverMetrics3D(params: {
   const dirDeviation = calculateAngleDeviationDeg(desiredVector, actualStepVector);
   const posError = distance3D(nextEE, targetPosition);
   const distToTarget = distance3D(currentEE, targetPosition);
-  const velocityError = Math.abs(distToTarget - distance3D(nextEE, currentEE)) / Math.max(SOLVER_NUMERICAL_GUARDS.minRadialDistanceGuard, dt);
+  const velocityError = dt > 0 ? Math.abs(distToTarget - distance3D(nextEE, currentEE)) / dt : 0;
   const isSingular = isBoundarySingular || absDet < SINGULARITY_DETERMINANT_THRESHOLD;
 
   let behavior = nearSingularityBehavior;
@@ -200,7 +200,7 @@ export function computeSolverMetrics3D(params: {
     positionError: posError,
     velocityError: velocityError,
     directionPreservedDeg: dirDeviation,
-    singularityIndex: Math.max(0, 1 - absDet / Math.max(SOLVER_NUMERICAL_GUARDS.minRadialDistanceGuard, maxReach)),
+    singularityIndex: maxReach > 0 ? Math.max(0, 1 - absDet / maxReach) : 0,
     nearSingularityBehavior: behavior,
     recoverySuccess: recoverySuccess !== undefined ? recoverySuccess : (isSingular ? !Number.isNaN(posError) && behavior === 'recovered' : true),
     invariantPreserved: true,

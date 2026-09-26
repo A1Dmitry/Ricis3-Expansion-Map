@@ -19,7 +19,7 @@ export class PolarCoordinateService {
     
     // RICIS L1_IDENTITY: If r -> 0 (shoulder singularity), preserve orientation
     let thetaRad: number;
-    if (r < 1e-6) {
+    if (r === 0 || r <= Number.EPSILON) {
       thetaRad = prevThetaRad;
     } else {
       thetaRad = Math.atan2(v.y, v.x);

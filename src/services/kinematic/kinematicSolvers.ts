@@ -110,6 +110,115 @@ export class DlsSolver3D extends BaseKinematicSolver3D {
 }
 
 /**
+ * Classical Adaptive Damped Least Squares (ADLS) Inverse Kinematics Solver in 3D.
+ * Dynamically adjusts lambda based on the determinant det(J) of the planar Jacobian
+ * (Nakamura & Hanafusa / Chiaverini adaptive formulation):
+ *   lambda^2 = lambda_max^2 * (1 - (|det(J)| / epsilon)^2) when |det(J)| < epsilon, else 0.
+ * While reducing joint velocities near singularities, classical adaptive damping
+ * still introduces directional deviation and fails to achieve exact O(1) manifold tracking.
+ */
+export class AdaptiveDlsSolver3D extends BaseKinematicSolver3D {
+  public readonly solverId = 'ADAPTIVE_DLS' as const;
+  private readonly maxDampingFactor: number;
+  private readonly singularityThreshold: number;
+
+  constructor(
+    maxDampingFactor = DLS_DAMPING_FACTOR * 2.0,
+    singularityThreshold = SINGULARITY_DETERMINANT_THRESHOLD
+  ) {
+    super();
+    this.maxDampingFactor = maxDampingFactor;
+    this.singularityThreshold = singularityThreshold;
+  }
+
+  public solve(
+    currentState: IKinematicState3D,
+    targetPosition: Vector3D,
+    linkLengths: readonly [number, number, number],
+    dt = SOLVER_DT_SEC
+  ): ISolverResult3D {
+    const [, L1, L2] = linkLengths;
+    const { q1, q2, q3 } = currentState.joints;
+
+    const {
+      desiredVector,
+      diffQ1,
+      targetRadial,
+      targetZRel,
+    } = this.computePlanarTargetGeometry(targetPosition, currentState, linkLengths);
+
+    // Compute Base Azimuth rotation q1 via shortest arc
+    const deltaQ1 = diffQ1 * SOLVER_GAINS.azimuth * dt;
+
+    // Current arm planar state
+    const currentRad = L1 * Math.cos(q2) + L2 * Math.cos(q2 + q3);
+    const currentZRel = L1 * Math.sin(q2) + L2 * Math.sin(q2 + q3);
+
+    const dRad = targetRadial - currentRad;
+    const dZ = targetZRel - currentZRel;
+
+    // 2x2 Jacobian for planar arm
+    const s2 = Math.sin(q2);
+    const c2 = Math.cos(q2);
+    const s23 = Math.sin(q2 + q3);
+    const c23 = Math.cos(q2 + q3);
+
+    const j11 = -L1 * s2 - L2 * s23;
+    const j12 = -L2 * s23;
+    const j21 = L1 * c2 + L2 * c23;
+    const j22 = L2 * c23;
+
+    // Exact determinant of planar Jacobian: det(J) = L1 * L2 * sin(q3)
+    const rawDet = Math.abs(j11 * j22 - j12 * j21);
+
+    // Adaptive damping factor calculation
+    let currentLambda = 0;
+    if (rawDet < this.singularityThreshold) {
+      const ratio = rawDet / this.singularityThreshold;
+      currentLambda = this.maxDampingFactor * (1 - ratio * ratio);
+    }
+
+    const lambdaSq = currentLambda * currentLambda;
+    const a = j11 * j11 + j12 * j12 + lambdaSq;
+    const b = j11 * j21 + j12 * j22;
+    const c = b;
+    const d = j21 * j21 + j22 * j22 + lambdaSq;
+
+    const detDamped = a * d - b * c;
+    const invA = d / detDamped;
+    const invB = -b / detDamped;
+    const invC = -c / detDamped;
+    const invD = a / detDamped;
+
+    const tempX = invA * dRad + invB * dZ;
+    const tempY = invC * dRad + invD * dZ;
+
+    // Joint velocities
+    const deltaQ2 = (j11 * tempX + j21 * tempY) * SOLVER_GAINS.planarVelocity * dt;
+    const deltaQ3 = (j12 * tempX + j22 * tempY) * SOLVER_GAINS.planarVelocity * dt;
+
+    const nextJoints: JointState3D = {
+      q1: q1 + deltaQ1,
+      q2: q2 + deltaQ2,
+      q3: Math.max(
+        ELBOW_JOINT_LIMITS.minDownRad,
+        Math.min(Math.PI - ELBOW_JOINT_LIMITS.maxDownOffsetRad, q3 + deltaQ3)
+      ),
+    };
+
+    return this.buildSolverResult({
+      currentState,
+      nextJoints,
+      targetPosition,
+      desiredVector,
+      linkLengths,
+      dt,
+      isWorkspaceExceeded: targetRadial > (L1 + L2),
+    });
+  }
+}
+
+/**
  * RICIS-III Invariant Constraint Solver in 3D.
  * Implements Geometric Bridge & A6 Singularity Axioms:
  * Solves exact O(1) manifold projection on boundary singularities,

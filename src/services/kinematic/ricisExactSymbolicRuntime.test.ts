@@ -21,6 +21,9 @@ import {
   RicisSymbolicJacobianEngine,
   RICIS_INFINITY_PROJECTION,
 } from './ricisSymbolicJacobian';
+import { Planar3LinkKinematicService } from './planar3LinkKinematicService';
+import { FiveLinkRedundantKinematicService } from './fiveLinkRedundantKinematicService';
+import { GenericNLinkKinematicService } from './genericNLinkKinematicService';
 import type { JointState3D, Vector3D } from '../../model/kinematicEngine.contracts';
 import { MANIPULATOR_LINK_LENGTHS_M } from './manipulatorConstants';
 
@@ -188,5 +191,59 @@ describe('Azimuth: the lever R is signed, so dq1 must follow 1/R exactly', () =>
       expect(Math.sign(dq.dq1)).toBe(Math.sign(1 / rCurrent));
       expect(dq.dq1).toBeCloseTo(1 / rCurrent, 9);
     }
+  });
+});
+
+describe('Kinematic services: complete elimination of Math.max(0.01) and safeR heuristics', () => {
+  const KINEMATIC_FILES = [
+    'src/services/kinematic/planar3LinkKinematicService.ts',
+    'src/services/kinematic/fiveLinkRedundantKinematicService.ts',
+    'src/services/kinematic/genericNLinkKinematicService.ts',
+  ];
+
+  it('proves no Math.max(0.01) or safeR = Math.max(1e-5) exists in kinematic services', () => {
+    for (const file of KINEMATIC_FILES) {
+      const code = stripComments(readFileSync(resolve(process.cwd(), file), 'utf8'));
+      expect(code).not.toContain('Math.max(0.01');
+      expect(code).not.toContain('safeR');
+    }
+  });
+
+  it('evaluates Planar3LinkKinematicService at exact clusterReach = 0 without NaN or throw', () => {
+    const service = new Planar3LinkKinematicService();
+    // l2 = 0.5, l3 = 0.5, q3 = PI => clusterReach = 0
+    const links = [0.5, 0.5, 0.5] as const;
+    const joints = [0, 0, Math.PI] as const;
+    const J = service.computeJacobian(joints, links, 'POLAR');
+    expect(J.mode).toBe('POLAR');
+    expect(J.rows[0].every((val: number) => Number.isFinite(val))).toBe(true);
+    expect(J.rows[1].every((val: number) => Number.isFinite(val))).toBe(true);
+    // At clusterReach = 0, p13 and p23 evaluate to exact 0
+    expect(J.rows[0][2]).toBe(0);
+    expect(J.rows[1][2]).toBe(0);
+  });
+
+  it('evaluates FiveLinkRedundantKinematicService at exact origin r = 0 without NaN', () => {
+    const service = new FiveLinkRedundantKinematicService();
+    // Folded arm summing to (0, 0)
+    const links = [0.5, 0.5, 0.5, 0.5, 0] as const;
+    const joints = [0, Math.PI, 0, Math.PI, 0] as const;
+    const [x, y] = service.computeForwardKinematics(joints, links);
+    expect(Math.hypot(x, y)).toBeCloseTo(0, 6);
+    const J = service.computeJacobian(joints, links, 'POLAR');
+    expect(J.rows[0].every((val: number) => Number.isFinite(val))).toBe(true);
+    expect(J.rows[1].every((val: number) => Number.isFinite(val))).toBe(true);
+  });
+
+  it('evaluates GenericNLinkKinematicService at exact origin r = 0 without NaN', () => {
+    const service = new GenericNLinkKinematicService(2);
+    // 2 links of length 1, folded onto each other: (1, 0) + (-1, 0) = (0, 0)
+    const links = [1.0, 1.0];
+    const joints = [0, Math.PI];
+    const [x, y] = service.computeForwardKinematics(joints, links);
+    expect(Math.hypot(x, y)).toBeCloseTo(0, 6);
+    const J = service.computeJacobian(joints, links, 'POLAR');
+    expect(J.rows[0].every((val: number) => Number.isFinite(val))).toBe(true);
+    expect(J.rows[1].every((val: number) => Number.isFinite(val))).toBe(true);
   });
 });

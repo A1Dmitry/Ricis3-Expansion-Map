@@ -1,21 +1,42 @@
 import { FormNode } from './canonicalForm';
-import { DOUBLE_EPSILON, isMachineZero } from '../model/ricisEpsilon';
+
+const SEED_DOUBLE_EPSILON = Number.EPSILON;
+
+function isSeedMachineZero(value: number, tol = SEED_DOUBLE_EPSILON * 1e4): boolean {
+  return Math.abs(value) <= tol;
+}
+
+const MATH_FUNCTIONS: Record<string, (x: number) => number> = {
+  sin: Math.sin,
+  cos: Math.cos,
+  tan: Math.tan,
+  asin: Math.asin,
+  acos: Math.acos,
+  atan: Math.atan,
+  exp: Math.exp,
+  log: Math.log,
+  sqrt: Math.sqrt,
+  abs: Math.abs,
+};
 
 /**
- * Heuristic numerical equivalence checker for classical algebraic steps.
- * Assigns random values to symbols and evaluates both sides.
+ * Deterministic numerical equivalence checker for classical algebraic steps.
+ * Assigns deterministic test values derived from symbol hashes to evaluate both sides.
  */
 export function verifyClassicalEquivalence(from: FormNode, to: FormNode): boolean {
   const symbols = new Set<string>();
   collectSymbols(from, symbols);
   collectSymbols(to, symbols);
 
-  // Perform multiple trials with different random values to reduce collision probability
+  // Perform multiple trials with deterministic pseudo-random values to avoid collisions
   for (let trial = 0; trial < 5; trial++) {
     const vars: Record<string, number> = {};
     for (const sym of symbols) {
-      // Use primes or non-trivial floats to avoid accidental integer coincidences
-      vars[sym] = 2.718 + Math.random() * 10 + (trial * 1.618);
+      let hash = 0;
+      for (let i = 0; i < sym.length; i++) {
+        hash = (hash * 31 + sym.charCodeAt(i)) & 0xffff;
+      }
+      vars[sym] = 2.718 + ((hash + trial * 17) % 97) / 10 + trial * 1.618;
     }
 
     const valFrom = evaluateNumerical(from, vars);
@@ -26,7 +47,7 @@ export function verifyClassicalEquivalence(from: FormNode, to: FormNode): boolea
     // Check for machine epsilon relative match
     const diff = Math.abs(valFrom - valTo);
     const scale = Math.max(Math.abs(valFrom), Math.abs(valTo), 1.0);
-    if (!isMachineZero(diff / scale, DOUBLE_EPSILON * 1e4)) return false;
+    if (!isSeedMachineZero(diff / scale, SEED_DOUBLE_EPSILON * 1e4)) return false;
   }
 
   return true;
@@ -62,12 +83,12 @@ function evaluateNumerical(node: FormNode, vars: Record<string, number>): number
       const arg = evaluateNumerical(node.arg, vars);
       if (arg === undefined) return undefined;
       // Handle special RICIS tokens as large/small values for numerical check
-      if (node.name === 'inf_' || node.name === 'inf') return (1 / DOUBLE_EPSILON) * arg;
-      if (node.name === '0_' || node.name === '0') return DOUBLE_EPSILON * arg;
+      if (node.name === 'inf_' || node.name === 'inf') return (1 / SEED_DOUBLE_EPSILON) * arg;
+      if (node.name === '0_' || node.name === '0') return SEED_DOUBLE_EPSILON * arg;
       
       // Standard math functions
-      const fn = (Math as any)[node.name];
-      if (typeof fn === 'function') return fn(arg);
+      const fn = MATH_FUNCTIONS[node.name];
+      if (fn) return fn(arg);
       
       return undefined;
     }

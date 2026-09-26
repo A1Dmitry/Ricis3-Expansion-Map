@@ -92,7 +92,12 @@ export class PolarRicisConstraintSolver extends BaseKinematicSolver3D {
     // base" defect). We track the CURRENT branch for continuity (no branch dithering)
     // and flip branches — with hysteresis — only when the current branch would pierce
     // the floor and the mirror branch is strictly higher.
-    const alpha = Math.atan2(targetZRel, Math.max(SOLVER_NUMERICAL_GUARDS.minRadialDistanceGuard, polarTarget.r));
+    const alpha =
+      polarTarget.r === 0 || polarTarget.r <= Number.EPSILON
+        ? targetZRel >= 0
+          ? Math.PI / 2
+          : -Math.PI / 2
+        : Math.atan2(targetZRel, polarTarget.r);
     const betaDown = Math.atan2(L2 * Math.sin(q3Magnitude), L1 + L2 * Math.cos(q3Magnitude));
     const targetQ2Down = alpha - betaDown;
     const targetQ2Up = alpha + betaDown;

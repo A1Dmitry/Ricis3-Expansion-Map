@@ -236,7 +236,7 @@ export class DeterministicRicisEngineService implements IDeterministicRicisEngin
           },
         ],
         leanProofCode: `theorem ricis_a6_bridge : (0 : RicisZero (${f})) * (∞ : RicisInf (${g})) = ${finalInv} := by rfl`,
-        executionTimeMs: Math.max(0.01, performance.now() - startTime),
+        executionTimeMs: Number((performance.now() - startTime).toFixed(4)),
       };
     }
 
@@ -283,7 +283,7 @@ export class DeterministicRicisEngineService implements IDeterministicRicisEngin
           },
         ],
         leanProofCode: `theorem ricis_a4_ratio : (0 : RicisZero (${f})) / (0 : RicisZero (${g})) = ${finalInv} := by rfl`,
-        executionTimeMs: Math.max(0.01, performance.now() - startTime),
+        executionTimeMs: Number((performance.now() - startTime).toFixed(4)),
       };
     }
 
@@ -325,7 +325,7 @@ export class DeterministicRicisEngineService implements IDeterministicRicisEngin
           },
         ],
         leanProofCode: `theorem ricis_reduction_eval : eval_ricis "${raw}" ${xVal} = ${finalVal} := by rfl`,
-        executionTimeMs: Math.max(0.01, performance.now() - startTime),
+        executionTimeMs: Number((performance.now() - startTime).toFixed(4)),
       };
     }
 
@@ -345,7 +345,7 @@ export class DeterministicRicisEngineService implements IDeterministicRicisEngin
           isSingularNode: false,
         },
       ],
-      executionTimeMs: Math.max(0.01, performance.now() - startTime),
+      executionTimeMs: Number((performance.now() - startTime).toFixed(4)),
     };
   }
 

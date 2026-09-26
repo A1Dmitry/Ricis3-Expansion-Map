@@ -182,13 +182,21 @@ export class Planar3LinkKinematicService
     // In polar frame: [dr/dq, r*dphi/dq]
     const p11 = -l1 * Math.sin(a1) - clusterReach * Math.sin(effectiveAngle);
     const p12 = -clusterReach * Math.sin(effectiveAngle);
-    const p13 = (-l2 * l3 * Math.sin(q3)) / Math.max(0.01, clusterReach);
+
+    // RICIS-III SP2/SP4/A4 exact structural resolution:
+    // When clusterReach == 0 (elbow fold l2=l3, q3=±pi), sin(q3)=0 and l2+l3*cos(q3)=0.
+    // The 0_F / 0_G singular expressions factor out identical zero components into exact 0 invariants.
+    let p13 = 0;
+    let p23 = 0;
+    if (clusterReach > 0) {
+      p13 = (-l2 * l3 * Math.sin(q3)) / clusterReach;
+      p23 = clusterReach + (l3 * Math.cos(q3) * (l2 + l3 * Math.cos(q3))) / clusterReach;
+    }
 
     const p21 = l1 * Math.cos(a1) + clusterReach * Math.cos(effectiveAngle);
     const p22 = clusterReach * Math.cos(effectiveAngle);
-    const p23 = clusterReach * (1.0 + (l3 * Math.cos(q3) * (l2 + l3 * Math.cos(q3))) / Math.max(0.01, clusterReach * clusterReach));
 
-    const detMeasure = Math.abs(l1 * clusterReach * Math.sin(effectiveAngle - a1) + 0.1);
+    const detMeasure = Math.abs(l1 * clusterReach * Math.sin(effectiveAngle - a1));
 
     return {
       dof: 3,

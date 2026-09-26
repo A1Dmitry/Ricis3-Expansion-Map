@@ -90,24 +90,32 @@ export class GenericNLinkKinematicService extends BasePlanarManipulatorService<r
     if (mode === 'POLAR') {
       const [x, y] = this.computeForwardKinematics(joints, links);
       const r = Math.hypot(x, y);
-      const safeR = Math.max(1e-5, r);
 
       const polarRow0: number[] = new Array(n).fill(0);
       const polarRow1: number[] = new Array(n).fill(0);
 
-      for (let j = 0; j < n; j++) {
-        const dx = row0[j] ?? 0;
-        const dy = row1[j] ?? 0;
-        // dr/dq = (x*dx + y*dy) / r
-        polarRow0[j] = (x * dx + y * dy) / safeR;
-        // r * dphi/dq = (-y*dx + x*dy) / r
-        polarRow1[j] = (-y * dx + x * dy) / safeR;
+      if (r === 0) {
+        // RICIS-III SP2/SP4 & L1_IDENTITY:
+        // At origin singularity r = 0, identically cancel r from radial/tangential projections
+        for (let j = 0; j < n; j++) {
+          polarRow0[j] = row0[j] ?? 0;
+          polarRow1[j] = row1[j] ?? 0;
+        }
+      } else {
+        for (let j = 0; j < n; j++) {
+          const dx = row0[j] ?? 0;
+          const dy = row1[j] ?? 0;
+          // dr/dq = (x*dx + y*dy) / r
+          polarRow0[j] = (x * dx + y * dy) / r;
+          // r * dphi/dq = (-y*dx + x*dy) / r
+          polarRow1[j] = (-y * dx + x * dy) / r;
+        }
       }
 
       return {
         dof: n,
         mode: 'POLAR',
-        determinantMeasure: Math.abs((polarRow0[0] ?? 0) * (polarRow1[1] ?? 0) - (polarRow0[1] ?? 0) * (polarRow1[0] ?? 0)) + 0.01,
+        determinantMeasure: Math.abs((polarRow0[0] ?? 0) * (polarRow1[1] ?? 0) - (polarRow0[1] ?? 0) * (polarRow1[0] ?? 0)),
         rows: [polarRow0, polarRow1],
       };
     }
